@@ -120,6 +120,24 @@
   .toggle button+button{border-left:2px solid var(--line)}
   .toggle button[aria-pressed="true"]{background:var(--hot);color:#12070a}
   .toggle button:focus-visible{outline:2px solid var(--hot);outline-offset:-2px}
+  .title a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+  .title a:hover,.title a:focus-visible{border-bottom-color:var(--c);outline:none}
+  .shot{
+    flex:none;width:38px;height:38px;object-fit:cover;
+    border:1px solid var(--line);border-radius:2px;background:#0a0c11;
+    align-self:center;cursor:zoom-in;
+  }
+  .lightbox{
+    position:fixed;inset:0;z-index:50;display:none;
+    align-items:center;justify-content:center;padding:24px;
+    background:rgba(6,7,11,.92);
+  }
+  .lightbox.on{display:flex}
+  .lightbox img{max-width:100%;max-height:86vh;border:2px solid var(--line);border-radius:2px}
+  .lightbox p{
+    position:absolute;bottom:20px;left:0;right:0;text-align:center;
+    color:var(--dim);font-family:"Silkscreen",monospace;font-size:12px;margin:0;
+  }
   .sysflag{
     flex:none;color:var(--c);font-size:11.5px;font-family:"Silkscreen",monospace;
     white-space:nowrap;
@@ -199,7 +217,25 @@
     header{padding-top:28px}
     h1{line-height:1.7}
     .score{flex:1 1 46%}
-    .sysflag{display:none}
+    .title a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+  .title a:hover,.title a:focus-visible{border-bottom-color:var(--c);outline:none}
+  .shot{
+    flex:none;width:38px;height:38px;object-fit:cover;
+    border:1px solid var(--line);border-radius:2px;background:#0a0c11;
+    align-self:center;cursor:zoom-in;
+  }
+  .lightbox{
+    position:fixed;inset:0;z-index:50;display:none;
+    align-items:center;justify-content:center;padding:24px;
+    background:rgba(6,7,11,.92);
+  }
+  .lightbox.on{display:flex}
+  .lightbox img{max-width:100%;max-height:86vh;border:2px solid var(--line);border-radius:2px}
+  .lightbox p{
+    position:absolute;bottom:20px;left:0;right:0;text-align:center;
+    color:var(--dim);font-family:"Silkscreen",monospace;font-size:12px;margin:0;
+  }
+  .sysflag{display:none}
     .searchbar .btn{flex:1 1 100%}
     .cond{display:none}
   }
@@ -233,6 +269,8 @@
     <nav aria-label="Systems"><ul id="rail"></ul></nav>
     <main id="results"></main>
   </div>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-label="Photo"><img alt=""><p>Click anywhere to close</p></div>
 
   <footer>
     <div class="legend">
@@ -304,7 +342,6 @@ Mad Max (CIB)
 Major League Baseball (loose)
 Mega Man 2 (loose)
 Mega Man 6 (loose)
-Metal Gear (loose)
 Metal Gear (missing manual)
 Mike Tyson's Punch-Out!! (loose)
 Mission: Impossible (CIB)
@@ -363,6 +400,9 @@ WWF WrestleMania (CIB)
 Xenophobe (loose)
 Yo! Noid (CIB)
 Zelda II: The Adventure of Link (CIB)
+
+## Famicom
+Metal Gear (loose)
 
 ## SNES
 Aladdin (loose)
@@ -1137,6 +1177,7 @@ Star Wars: The Old Republic (CIB)
 
 const COLORS = {
   "NES":               ["#d3d0c8","#12141a"],
+  "Famicom":           ["#d1553f","#1a0705"],
   "SNES":              ["#8f6fd6","#0d0a16"],
   "Nintendo 64":       ["#3fa65b","#08150c"],
   "GameCube":          ["#6f68c9","#0b0a18"],
@@ -1238,6 +1279,16 @@ series.push({ name: "Not part of a series", id: "s-standalone", games: loose_,
 
 const groups = () => view === "system" ? systems : series;
 
+/* Filename a photo gets to appear next to its game: images/<slug>.jpg */
+function slug(g){
+  return (g.title + "-" + g.system).toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+}
+function wiki(title){
+  return "https://en.wikipedia.org/w/index.php?search=" +
+         encodeURIComponent(title + " video game");
+}
 function esc(s){ return s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
 document.getElementById("scores").innerHTML = [
@@ -1277,8 +1328,11 @@ function render() {
     return `<section class="shelf" id="${s.id}" style="--c:${s.color};--ink:${s.ink}">
       <div class="shelfhead"><h2>${esc(s.name)}</h2><p>${hits.length} of ${s.games.length}</p></div>
       <ol class="games">${hits.map(g =>
-        `<li${s.showSys ? ` style="--c:${g.color}"` : ""}><i class="mark ${g.cls}"></i>` +
-        `<span class="title">${esc(g.title)}</span>` +
+        `<li${s.showSys ? ` style="--c:${g.color}"` : ""}>` +
+        `<img class="shot" loading="lazy" src="images/${slug(g)}.jpg" alt="${esc(g.title)}"` +
+        ` onerror="this.remove()">` +
+        `<i class="mark ${g.cls}"></i>` +
+        `<span class="title"><a href="${wiki(g.title)}" target="_blank" rel="noopener">${esc(g.title)}</a></span>` +
         (s.showSys ? `<span class="sysflag">${esc(g.system)}</span>` : "") +
         `<span class="cond">${esc(g.cond)}</span></li>`
       ).join("")}</ol>
@@ -1333,6 +1387,14 @@ document.getElementById("viewtoggle").addEventListener("click", e => {
     .forEach(x => x.setAttribute("aria-pressed", x === b));
   drawRail(); render();
 });
+
+const lb = document.getElementById("lightbox");
+document.addEventListener("click", e => {
+  const shot = e.target.closest(".shot");
+  if (shot) { lb.querySelector("img").src = shot.src; lb.classList.add("on"); return; }
+  if (e.target.closest(".lightbox")) lb.classList.remove("on");
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") lb.classList.remove("on"); });
 
 drawRail();
 render();
