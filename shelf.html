@@ -60,6 +60,17 @@ button.act[disabled]:hover{border-color:var(--line)}
 .setup{border-left:2px solid var(--line);padding-left:16px;max-width:60ch;color:var(--dim);font-size:14px}
 .setup code{color:var(--text)}
 
+footer{margin:56px 0 0;padding:22px 0 0;border-top:1px solid var(--line)}
+.elsewhere{display:flex;flex-wrap:wrap;gap:10px}
+.elsewhere a{
+  color:var(--dim);text-decoration:none;
+  border:1px solid var(--line);
+  font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.05em;
+  padding:9px 13px;
+}
+.elsewhere a:hover{border-color:var(--focus);color:var(--focus)}
+.elsewhere a:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
 @media (max-width:640px){
   .detail{grid-template-columns:1fr;gap:20px}
   h1{font-size:12px}
@@ -78,6 +89,14 @@ button.act[disabled]:hover{border-color:var(--line)}
 <nav class="crumbs" id="crumbs"></nav>
 <p class="tip-line" id="tipline"></p>
 <main id="stage"></main>
+
+<footer>
+  <div class="elsewhere">
+    <a href="https://x.com/NostalgiaPro" target="_blank" rel="noopener">X / Twitter</a>
+    <a href="https://www.youtube.com/@TheNostalgiaPro" target="_blank" rel="noopener">YouTube</a>
+    <a href="https://substack.com/@nostalgiapro" target="_blank" rel="noopener">Substack</a>
+  </div>
+</footer>
 
 </div>
 
