@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual shelf</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14110f; --panel:#1d1916; --line:#4a3a2b;
+  --text:#efe6d9; --dim:#a3907c; --focus:#ffd166;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:Inter,system-ui,sans-serif;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1150px;margin:0 auto;padding:24px 20px 80px}
+
+header{
+  display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;
+  padding-bottom:18px;margin-bottom:20px;border-bottom:1px solid var(--line);
+}
+h1{font-family:'Press Start 2P',monospace;font-size:15px;margin:0;letter-spacing:.5px}
+header a{color:var(--dim);text-decoration:none;font-size:14px;border-bottom:1px solid transparent}
+header a:hover{color:var(--text);border-bottom-color:var(--line)}
+
+nav.crumbs{font-size:13px;color:var(--dim);margin-bottom:18px;min-height:20px}
+nav.crumbs button{background:none;border:0;padding:0;cursor:pointer;color:var(--dim);font:inherit;border-bottom:1px solid var(--line)}
+nav.crumbs button:hover{color:var(--text)}
+nav.crumbs .sep{padding:0 8px;color:var(--line)}
+nav.crumbs .here{color:var(--text)}
+
+.tip-line{font-size:13px;color:var(--dim);margin:0 0 16px;min-height:20px}
+
+.photo-stage{position:relative;display:block;width:100%;border:1px solid var(--line);background:var(--panel)}
+.photo-stage img{display:block;width:100%;height:auto}
+.hotspot{
+  position:absolute;border:2px solid transparent;background:transparent;
+  cursor:pointer;padding:0;transition:background .12s,border-color .12s;
+}
+.hotspot:hover,.hotspot:focus-visible{background:rgba(255,209,102,.18);border-color:var(--focus);outline:none}
+.hotspot .tip{
+  position:absolute;left:50%;bottom:100%;transform:translateX(-50%);
+  white-space:nowrap;background:#000;font-size:11px;padding:4px 8px;
+  margin-bottom:6px;opacity:0;pointer-events:none;
+}
+.hotspot:hover .tip,.hotspot:focus-visible .tip{opacity:1}
+
+.detail{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:34px;align-items:start}
+.crop{width:100%;border:1px solid var(--line);background:var(--panel) center/cover no-repeat}
+.detail img.full{width:100%;height:auto;border:1px solid var(--line)}
+.detail h2{font-family:'Press Start 2P',monospace;font-size:13px;line-height:1.7;margin:0 0 6px}
+.detail .meta{font-size:12px;color:var(--dim);margin:0 0 18px}
+.detail p.desc{font-size:15px;margin:0;max-width:62ch}
+.pager{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+button.act{background:none;border:1px solid var(--line);color:var(--text);font:inherit;font-size:13px;padding:9px 16px;cursor:pointer}
+button.act:hover{border-color:var(--focus)}
+button.act[disabled]{opacity:.35;cursor:default}
+button.act[disabled]:hover{border-color:var(--line)}
+
+.setup{border-left:2px solid var(--line);padding-left:16px;max-width:60ch;color:var(--dim);font-size:14px}
+.setup code{color:var(--text)}
+
+@media (max-width:640px){
+  .detail{grid-template-columns:1fr;gap:20px}
+  h1{font-size:12px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Virtual shelf</h1>
+  <a href="index.html">Back to the full collection list</a>
+</header>
+
+<nav class="crumbs" id="crumbs"></nav>
+<p class="tip-line" id="tipline"></p>
+<main id="stage"></main>
+
+</div>
+
+<script>
+/* ============================================================
+   DATA  —  paste the mapper output in here.
+
+   IMAGE_DIR   where the photos live, relative to this file.
+   WIDE        the zoomed out shot, with one box per shelf cube.
+   SECTIONS    one entry per cube. "spots" are the games in it.
+
+   Every x / y / w / h is a percentage of that photo, so nothing
+   breaks when the page is viewed on a phone.
+
+   A game shows as a zoomed crop of its section photo. If you
+   ever want a game to use its own picture instead, add
+   "file":"Some Game.jpg" to that spot and it wins.
+   ============================================================ */
+
+const IMAGE_DIR = "images/";
+
+const WIDE = {
+  src: "shelf wide shot.jpg",
+  spots: [
+    {section:"game-boy-and-game-boy-color-games", x:11.57, y:18.88, w:9.75, h:6.69},
+    {section:"nes-loose-1", x:11.89, y:25.99, w:10.07, h:13.51},
+    {section:"nes-loose-2", x:12.53, y:40.07, w:10.18, h:9.10},
+    {section:"nes-1", x:13.07, y:49.75, w:9.43, h:9.10},
+    {section:"nes-2", x:14.35, y:59.85, w:8.25, h:7.68},
+    {section:"nes-3", x:14.25, y:68.67, w:9.10, h:8.54},
+    {section:"nes-4", x:15.10, y:77.77, w:8.46, h:7.40},
+    {section:"nes-5", x:15.00, y:86.16, w:9.00, h:8.39},
+    {section:"nes-6", x:22.17, y:19.72, w:9.32, h:9.53},
+    {section:"snes-loose-1", x:22.49, y:29.68, w:9.75, h:10.38},
+    {section:"snes-1", x:22.82, y:40.35, w:9.43, h:8.96},
+    {section:"snes-2", x:23.35, y:49.60, w:9.32, h:9.67},
+    {section:"snes-3", x:23.14, y:59.84, w:9.96, h:7.68},
+    {section:"snes-4", x:23.99, y:68.23, w:8.68, h:9.10},
+    {section:"snes-5", x:23.89, y:77.76, w:8.89, h:7.11},
+    {section:"snes-6", x:23.99, y:86.16, w:9.00, h:8.96},
+    {section:"n64-1", x:32.99, y:20.01, w:9.21, h:9.53},
+    {section:"n64-2", x:32.99, y:30.25, w:9.00, h:9.82},
+    {section:"n64-3", x:33.21, y:40.92, w:9.00, h:9.10},
+    {section:"gamecube-complete-and-n64-loose", x:33.42, y:50.31, w:9.00, h:8.68},
+    {section:"gamecube-1", x:33.63, y:59.84, w:8.46, h:8.11},
+    {section:"gamecube-2", x:33.31, y:68.66, w:8.68, h:8.82},
+    {section:"wii-1", x:33.53, y:77.76, w:8.78, h:8.39},
+    {section:"ds-and-3ds-and-switch", x:33.42, y:86.58, w:8.78, h:7.82},
+    {section:"genesis-1", x:43.06, y:19.44, w:9.00, h:9.96},
+    {section:"genesis-2", x:42.95, y:30.25, w:9.43, h:9.96},
+    {section:"genesis-3", x:43.60, y:41.06, w:8.78, h:8.25},
+    {section:"genesis-4", x:42.95, y:50.17, w:9.21, h:9.10},
+    {section:"genesis-5", x:43.06, y:59.55, w:8.35, h:7.97},
+    {section:"genesis-6", x:42.74, y:68.66, w:9.00, h:9.25},
+    {section:"genesis-7", x:42.74, y:78.05, w:8.46, h:6.83},
+    {section:"genesis-8", x:43.17, y:87.01, w:8.25, h:7.11},
+    {section:"genesis-9", x:53.13, y:20.15, w:9.21, h:9.39},
+    {section:"genesis-10", x:53.02, y:29.68, w:8.89, h:10.38},
+    {section:"saturn-and-dreamcast", x:52.70, y:50.31, w:9.00, h:9.39},
+    {section:"ps1-1", x:64.05, y:20.72, w:8.14, h:5.12},
+    {section:"metal-gear-solid-collection", x:63.63, y:27.26, w:8.35, h:12.80},
+    {section:"ps1-2", x:63.52, y:41.63, w:8.35, h:8.11},
+    {section:"ps1-longbox", x:62.98, y:50.73, w:7.82, h:8.54},
+    {section:"ps2-1", x:62.45, y:60.27, w:8.03, h:7.40},
+    {section:"ps2-2", x:62.34, y:69.37, w:7.93, h:7.68},
+    {section:"ps2-and-ps3", x:62.02, y:78.76, w:8.25, h:6.54},
+    {section:"ps3-and-ps4", x:62.13, y:87.15, w:7.82, h:6.97},
+    {section:"halo-collection-1", x:74.12, y:21.14, w:8.35, h:8.54},
+    {section:"halo-collection-2", x:73.91, y:30.25, w:7.82, h:10.24},
+    {section:"xbox-1", x:73.37, y:39.78, w:7.93, h:10.38},
+    {section:"xbox-2", x:72.62, y:50.31, w:8.78, h:8.96},
+    {section:"xbox-3", x:72.09, y:60.27, w:8.14, h:7.40},
+    {section:"xbox-4", x:72.09, y:69.37, w:7.39, h:8.11},
+    {section:"xbox-5", x:70.80, y:77.34, w:8.35, h:8.68},
+    {section:"xbox-6", x:71.12, y:86.73, w:7.82, h:8.11},
+    {section:"xbox-360-1", x:84.51, y:20.58, w:7.93, h:10.10},
+    {section:"xbox-360-2", x:83.87, y:30.96, w:8.03, h:9.39},
+    {section:"xbox-360-3", x:83.12, y:40.92, w:7.93, h:8.82},
+    {section:"xbox-360-and-xbox-one", x:82.58, y:50.73, w:7.93, h:9.10},
+    {section:"xbox-one-and-xbox-series-x", x:81.62, y:60.55, w:8.78, h:8.11}
+  ]
+};
+
+const SECTIONS = [
+  {id:"game-boy-and-game-boy-color-games", label:"Game Boy and Game Boy Color", photo:"game boy and game boy color games.jpg", spots:[]},
+  {id:"nes-loose-1", label:"NES loose 1", photo:"nes loose 1.jpg", spots:[]},
+  {id:"nes-loose-2", label:"NES loose 2", photo:"nes loose 2.jpg", spots:[]},
+  {id:"nes-1", label:"NES 1", photo:"nes 1.jpg", spots:[]},
+  {id:"nes-2", label:"NES 2", photo:"nes 2.jpg", spots:[]},
+  {id:"nes-3", label:"NES 3", photo:"nes 3.jpg", spots:[]},
+  {id:"nes-4", label:"NES 4", photo:"nes 4.jpg", spots:[]},
+  {id:"nes-5", label:"NES 5", photo:"nes 5.jpg", spots:[]},
+  {id:"nes-6", label:"NES 6", photo:"nes 6.jpg", spots:[]},
+  {id:"snes-loose-1", label:"SNES loose 1", photo:"snes loose 1.jpg", spots:[]},
+  {id:"snes-1", label:"SNES 1", photo:"snes 1.jpg", spots:[]},
+  {id:"snes-2", label:"SNES 2", photo:"snes 2.jpg", spots:[]},
+  {id:"snes-3", label:"SNES 3", photo:"snes 3.jpg", spots:[]},
+  {id:"snes-4", label:"SNES 4", photo:"snes 4.jpg", spots:[]},
+  {id:"snes-5", label:"SNES 5", photo:"snes 5.jpg", spots:[]},
+  {id:"snes-6", label:"SNES 6", photo:"snes 6.jpg", spots:[]},
+  {id:"n64-1", label:"Nintendo 64 1", photo:"n64 1.jpg", spots:[]},
+  {id:"n64-2", label:"Nintendo 64 2", photo:"n64 2.jpg", spots:[]},
+  {id:"n64-3", label:"Nintendo 64 3", photo:"n64 3.jpg", spots:[]},
+  {id:"gamecube-complete-and-n64-loose", label:"GameCube complete and N64 loose", photo:"gamecube complete and n64 loose.jpg", spots:[]},
+  {id:"gamecube-1", label:"GameCube 1", photo:"gamecube 1.jpg", spots:[]},
+  {id:"gamecube-2", label:"GameCube 2", photo:"gamecube 2.jpg", spots:[]},
+  {id:"wii-1", label:"Wii", photo:"wii 1.jpg", spots:[]},
+  {id:"ds-and-3ds-and-switch", label:"DS, 3DS and Switch", photo:"ds and 3ds and switch.jpg", spots:[]},
+  {id:"genesis-1", label:"Genesis 1", photo:"genesis 1.jpg", spots:[]},
+  {id:"genesis-2", label:"Genesis 2", photo:"genesis 2.jpg", spots:[]},
+  {id:"genesis-3", label:"Genesis 3", photo:"genesis 3.jpg", spots:[]},
+  {id:"genesis-4", label:"Genesis 4", photo:"genesis 4.jpg", spots:[]},
+  {id:"genesis-5", label:"Genesis 5", photo:"genesis 5.jpg", spots:[]},
+  {id:"genesis-6", label:"Genesis 6", photo:"genesis 6.jpg", spots:[]},
+  {id:"genesis-7", label:"Genesis 7", photo:"genesis 7.jpg", spots:[]},
+  {id:"genesis-8", label:"Genesis 8", photo:"genesis 8.jpg", spots:[]},
+  {id:"genesis-9", label:"Genesis 9", photo:"genesis 9.jpg", spots:[]},
+  {id:"genesis-10", label:"Genesis 10", photo:"genesis 10.jpg", spots:[]},
+  {id:"saturn-and-dreamcast", label:"Saturn and Dreamcast", photo:"saturn and dreamcast.jpg", spots:[]},
+  {id:"ps1-1", label:"PlayStation 1", photo:"ps1 - 1.jpg", spots:[]},
+  {id:"metal-gear-solid-collection", label:"Metal Gear Solid collection", photo:"metal gear solid collection.jpg", spots:[]},
+  {id:"ps1-2", label:"PlayStation 1 (2)", photo:"ps1 - 2.jpg", spots:[]},
+  {id:"ps1-longbox", label:"PlayStation 1 long boxes", photo:"ps1 longbox.jpg", spots:[]},
+  {id:"ps2-1", label:"PlayStation 2", photo:"ps2 - 1.jpg", spots:[]},
+  {id:"ps2-2", label:"PlayStation 2 (2)", photo:"ps2 - 2.jpg", spots:[]},
+  {id:"ps2-and-ps3", label:"PS2 and PS3", photo:"ps2 and ps3.jpg", spots:[]},
+  {id:"ps3-and-ps4", label:"PS3 and PS4", photo:"ps3 and ps4.jpg", spots:[]},
+  {id:"halo-collection-1", label:"Halo collection 1", photo:"halo collection 1.jpg", spots:[]},
+  {id:"halo-collection-2", label:"Halo collection 2", photo:"halo collection 2.jpg", spots:[]},
+  {id:"xbox-1", label:"Xbox 1", photo:"xbox 1.jpg", spots:[]},
+  {id:"xbox-2", label:"Xbox 2", photo:"xbox 2.jpg", spots:[]},
+  {id:"xbox-3", label:"Xbox 3", photo:"xbox 3.jpg", spots:[]},
+  {id:"xbox-4", label:"Xbox 4", photo:"xbox 4.jpg", spots:[]},
+  {id:"xbox-5", label:"Xbox 5", photo:"xbox 5.jpg", spots:[]},
+  {id:"xbox-6", label:"Xbox 6", photo:"xbox 6.jpg", spots:[]},
+  {id:"xbox-360-1", label:"Xbox 360 1", photo:"xbox 360 1.jpg", spots:[]},
+  {id:"xbox-360-2", label:"Xbox 360 2", photo:"xbox 360 2.jpg", spots:[]},
+  {id:"xbox-360-3", label:"Xbox 360 3", photo:"xbox 360 3.jpg", spots:[]},
+  {id:"xbox-360-and-xbox-one", label:"Xbox 360 and Xbox One", photo:"xbox 360 and xbox one.jpg", spots:[]},
+  {id:"xbox-one-and-xbox-series-x", label:"Xbox One and Series X", photo:"xbox one and xbox series x.jpg", spots:[]}
+];
+
+/* ============================================================
+   ENGINE — nothing below needs editing
+   ============================================================ */
+
+const stage   = document.getElementById("stage");
+const crumbs  = document.getElementById("crumbs");
+const tipline = document.getElementById("tipline");
+const state   = { view:"top", sectionId:null, spotIndex:null };
+const natural = {};
+
+const img = f => IMAGE_DIR + f;
+const section = id => SECTIONS.find(s => s.id === id);
+
+function measure(file){
+  if(natural[file]) return Promise.resolve(natural[file]);
+  return new Promise(res => {
+    const i = new Image();
+    i.onload  = () => { natural[file] = {w:i.naturalWidth, h:i.naturalHeight}; res(natural[file]); };
+    i.onerror = () => { natural[file] = {w:4, h:3}; res(natural[file]); };
+    i.src = img(file);
+  });
+}
+
+function el(tag, attrs, ...kids){
+  const n = document.createElement(tag);
+  for(const k in (attrs||{})){
+    if(k === "class") n.className = attrs[k];
+    else if(k === "style") n.style.cssText = attrs[k];
+    else if(k.startsWith("on")) n.addEventListener(k.slice(2), attrs[k]);
+    else n.setAttribute(k, attrs[k]);
+  }
+  kids.flat().filter(Boolean).forEach(c => n.append(c));
+  return n;
+}
+
+function go(view, sectionId, spotIndex){
+  state.view = view;
+  state.sectionId = sectionId ?? null;
+  state.spotIndex = spotIndex ?? null;
+  render();
+  window.scrollTo({top:0});
+}
+
+function renderCrumbs(){
+  crumbs.textContent = "";
+  const top = () => el("button",{onclick:()=>go("top")},"The shelf");
+  if(state.view === "top"){
+    crumbs.append(el("span",{class:"here"},"The shelf"));
+  } else if(state.view === "section"){
+    const s = section(state.sectionId);
+    crumbs.append(top(), el("span",{class:"sep"},"/"), el("span",{class:"here"}, s.label));
+  } else {
+    const s = section(state.sectionId);
+    const g = s.spots[state.spotIndex];
+    crumbs.append(
+      top(), el("span",{class:"sep"},"/"),
+      el("button",{onclick:()=>go("section", s.id)}, s.label),
+      el("span",{class:"sep"},"/"),
+      el("span",{class:"here"}, g.title)
+    );
+  }
+}
+
+function hotspots(src, spots, onPick, labelOf){
+  const holder = el("div",{class:"photo-stage"}, el("img",{src:img(src), alt:""}));
+  spots.forEach((sp,i) => {
+    holder.append(
+      el("button",{
+        class:"hotspot",
+        style:`left:${sp.x}%;top:${sp.y}%;width:${sp.w}%;height:${sp.h}%`,
+        onclick:()=>onPick(sp,i)
+      }, el("span",{class:"tip"}, labelOf(sp)))
+    );
+  });
+  return holder;
+}
+
+function viewTop(){
+  if(!WIDE.src || !WIDE.spots.length){
+    return el("div",{class:"setup"},
+      "No shelves mapped yet. Open mapper.html, load ",
+      el("code",{}, WIDE.src || "the wide shot"),
+      ", drag a box around each shelf cube, then paste the output into the DATA block at the top of this file."
+    );
+  }
+  tipline.textContent = "Click a shelf to move in.";
+  return hotspots(WIDE.src, WIDE.spots,
+    sp => go("section", sp.section),
+    sp => (section(sp.section)||{}).label || sp.section
+  );
+}
+
+function viewSection(){
+  const s = section(state.sectionId);
+  const body = el("div",{});
+  if(s.spots && s.spots.length){
+    tipline.textContent = "Click a game.";
+    body.append(hotspots(s.photo, s.spots, (sp,i)=>go("game", s.id, i), sp => sp.title));
+  } else {
+    body.append(
+      el("div",{class:"photo-stage"}, el("img",{src:img(s.photo), alt:s.label})),
+      el("p",{class:"setup", style:"margin-top:20px"},
+        "No games mapped on this shelf yet. Open mapper.html in games mode, load ",
+        el("code",{}, s.photo), ", and box the games.")
+    );
+  }
+  body.append(el("div",{class:"pager"},
+    el("button",{class:"act", onclick:()=>go("top")}, "Back to the shelf")));
+  return body;
+}
+
+function viewGame(){
+  const s = section(state.sectionId);
+  const i = state.spotIndex;
+  const g = s.spots[i];
+
+  let media;
+  if(g.file){
+    media = el("img",{class:"full", src:img(g.file), alt:g.title});
+  } else {
+    media = el("div",{class:"crop"});
+    media.style.backgroundImage = 'url("' + img(s.photo) + '")';
+    media.style.backgroundSize = (100/g.w*100).toFixed(3) + "% " + (100/g.h*100).toFixed(3) + "%";
+    const px = g.w >= 100 ? 0 : (g.x/(100-g.w))*100;
+    const py = g.h >= 100 ? 0 : (g.y/(100-g.h))*100;
+    media.style.backgroundPosition = px.toFixed(3) + "% " + py.toFixed(3) + "%";
+    measure(s.photo).then(n => {
+      media.style.aspectRatio = ((g.w * n.w) / (g.h * n.h)).toFixed(4);
+    });
+  }
+
+  const prev = el("button",{class:"act", onclick:()=>go("game", s.id, i-1)}, "Previous game");
+  const next = el("button",{class:"act", onclick:()=>go("game", s.id, i+1)}, "Next game");
+  if(i === 0) prev.disabled = true;
+  if(i === s.spots.length - 1) next.disabled = true;
+
+  return el("div",{},
+    el("div",{class:"detail"},
+      media,
+      el("div",{},
+        el("h2",{}, g.title),
+        el("p",{class:"meta"}, s.label),
+        g.desc ? el("p",{class:"desc"}, g.desc) : null
+      )
+    ),
+    el("div",{class:"pager"}, prev, next,
+      el("button",{class:"act", onclick:()=>go("section", s.id)}, "Back to " + s.label))
+  );
+}
+
+function render(){
+  renderCrumbs();
+  tipline.textContent = "";
+  stage.textContent = "";
+  if(state.view === "top") stage.append(viewTop());
+  else if(state.view === "section") stage.append(viewSection());
+  else stage.append(viewGame());
+}
+
+render();
+</script>
+</body>
+</html>
