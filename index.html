@@ -214,6 +214,15 @@
   }
   .legend{display:flex;flex-wrap:wrap;gap:20px;margin:0 0 12px}
   .legend span{display:flex;align-items:center;gap:8px;--c:#8e93a2}
+  .elsewhere{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 16px}
+  .elsewhere a{
+    color:var(--dim);text-decoration:none;
+    border:1px solid var(--line);border-radius:2px;
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    padding:8px 13px;
+  }
+  .elsewhere a:hover{border-color:var(--hot);color:var(--hot)}
+  .elsewhere a:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 
   @media (max-width:880px){
     .cols{grid-template-columns:1fr;gap:22px}
@@ -287,6 +296,11 @@
       <span><i class="mark"></i> Loose</span>
       <span><i class="mark part"></i> Missing a piece</span>
       <span><i class="mark sealed"></i> Sealed</span>
+    </div>
+    <div class="elsewhere">
+      <a href="https://x.com/NostalgiaPro" target="_blank" rel="noopener">X / Twitter</a>
+      <a href="https://www.youtube.com/@TheNostalgiaPro" target="_blank" rel="noopener">YouTube</a>
+      <a href="https://substack.com/@nostalgiapro" target="_blank" rel="noopener">Substack</a>
     </div>
     <p>The Nostalgia Pro. Pulled from my Gameye export of September 3, 2026.</p>
   </footer>
