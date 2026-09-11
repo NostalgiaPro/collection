@@ -3,148 +3,159 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Anniversary Calendar — The Nostalgia Pro</title>
+<title>The Nostalgia Pro — Anniversaries</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#14121a;
-    --panel:#1d1a26;
-    --panel-2:#252131;
-    --edge:#332e42;
-    --ink:#efeaf7;
-    --ink-dim:#9b93ad;
-    --gold:#f2b705;
-
-    --nes:#d7443e;
-    --snes:#7d6cd4;
-    --n64:#3fae5a;
-    --gen:#3d7fd6;
-    --ps:#a9a3b8;
-    --dc:#f2822c;
-    --xbox:#7fb833;
-    --gcn:#6f5bc9;
-    --switch:#e2333f;
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
   }
   *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
   body{
-    margin:0;
-    background:var(--bg);
-    color:var(--ink);
-    font-family:Inter,system-ui,sans-serif;
-    line-height:1.55;
-    padding:28px 18px 90px;
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;
+    font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;
   }
-  .wrap{max-width:760px;margin:0 auto}
-
-  .masthead{
-    display:flex;align-items:baseline;justify-content:space-between;
-    gap:16px;flex-wrap:wrap;
-    padding-bottom:14px;border-bottom:2px solid var(--edge);
-  }
-  .masthead h1{
-    font-family:'Press Start 2P',monospace;
-    font-size:13px;line-height:1.7;margin:0;
-    color:var(--gold);
-  }
-  .today-stamp{font-size:13px;color:var(--ink-dim)}
-
-  /* --- hero: the next big one --- */
-  .headline{
-    margin:26px 0 0;
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
     background:
-      linear-gradient(180deg,rgba(63,174,90,.16),rgba(63,174,90,0)) ,
-      var(--panel);
-    border:2px solid var(--n64);
-    border-radius:4px;
-    padding:22px 22px 20px;
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
   }
-  .countdown{
-    font-family:'Press Start 2P',monospace;
-    font-size:11px;color:var(--n64);margin-bottom:14px;
-  }
-  .headline h2{
-    font-family:'Press Start 2P',monospace;
-    font-size:20px;line-height:1.5;margin:0 0 6px;
-  }
-  .headline .big{
-    font-family:'Press Start 2P',monospace;
-    font-size:34px;color:var(--gold);display:block;margin-bottom:10px;
-  }
-  .headline p{margin:10px 0 0;color:var(--ink-dim);font-size:14px;max-width:60ch}
-  .riders{
-    margin-top:16px;padding-top:14px;border-top:1px dashed var(--edge);
-    font-size:13px;color:var(--ink-dim);
-  }
-  .riders b{color:var(--ink);font-weight:500}
+  .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 22px 90px}
 
-  /* --- today --- */
+  header{padding:44px 0 0}
+  .wordmark{
+    font-family:"Silkscreen",monospace;font-weight:700;
+    font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px;
+  }
+  h1{
+    font-family:"Press Start 2P",monospace;
+    font-size:clamp(15px,3.3vw,30px);line-height:1.55;margin:0;
+    overflow-wrap:break-word;
+  }
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:60ch}
+  .backlink{
+    display:inline-flex;align-items:center;margin-top:18px;
+    border:2px solid var(--line);color:var(--dim);text-decoration:none;
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    padding:9px 14px;border-radius:2px;
+  }
+  .backlink:hover{border-color:var(--hot);color:var(--hot)}
+
+  /* ---- hero ---- */
+  .headline{
+    margin:34px 0 0;background:var(--bg2);
+    border:2px solid var(--hot);border-radius:2px;
+    display:flex;flex-wrap:wrap;
+  }
+  .hero-shot{
+    flex:1 1 260px;min-height:200px;
+    background:var(--panel) center/cover no-repeat;
+    border-right:2px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-family:"Silkscreen",monospace;font-size:10px;
+    letter-spacing:.06em;color:var(--dim);text-align:center;padding:16px;
+    word-break:break-all;
+  }
+  .hero-body{flex:2 1 320px;padding:24px 24px 22px}
+  .countdown{
+    font-family:"Silkscreen",monospace;font-weight:700;
+    font-size:12px;letter-spacing:.1em;color:var(--hot);margin-bottom:14px;
+  }
+  .headline h2{font-family:"Press Start 2P",monospace;font-size:19px;line-height:1.5;margin:0}
+  .headline .big{
+    font-family:"Press Start 2P",monospace;font-size:30px;
+    color:var(--hot);display:block;margin:12px 0 0;
+  }
+  .headline p{margin:14px 0 0;color:var(--dim);font-size:14px}
+  .riders{
+    margin-top:16px;padding-top:14px;border-top:1px solid var(--line);
+    font-size:13px;color:var(--dim);
+  }
+  .riders b{color:var(--text);font-weight:500}
+
+  /* ---- today ---- */
   .today{
-    margin:22px 0 0;background:var(--panel);border:1px solid var(--edge);
-    border-radius:4px;padding:18px 20px;
+    margin:20px 0 0;background:var(--bg2);
+    border:2px solid var(--line);border-radius:2px;padding:18px 20px;
   }
   .today h3{
-    font-family:'Press Start 2P',monospace;font-size:10px;
-    margin:0 0 10px;color:var(--ink-dim);
+    font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;
+    letter-spacing:.1em;color:var(--dim);margin:0 0 10px;
   }
   .today p{margin:0;font-size:15px}
-  .today .quiet{color:var(--ink-dim);font-size:14px;margin-top:6px}
+  .today .quiet{color:var(--dim);font-size:14px;margin-top:6px}
 
-  /* --- controls --- */
-  .controls{display:flex;gap:8px;flex-wrap:wrap;margin:30px 0 14px}
+  /* ---- controls ---- */
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin:34px 0 6px}
   .chip{
-    font:inherit;font-size:13px;cursor:pointer;
-    background:var(--panel);color:var(--ink-dim);
-    border:1px solid var(--edge);border-radius:999px;
-    padding:6px 14px;
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    cursor:pointer;background:transparent;color:var(--dim);
+    border:2px solid var(--line);border-radius:2px;padding:9px 14px;
   }
-  .chip[aria-pressed="true"]{background:var(--panel-2);color:var(--ink);border-color:var(--gold)}
-  .chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .chip[aria-pressed="true"]{background:var(--hot);color:#12070a;border-color:var(--hot)}
+  .chip:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 
-  /* --- list --- */
-  .day{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--edge)}
+  /* ---- list ---- */
+  .day{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}
   .day.hidden{display:none}
-  .date{
-    flex:0 0 52px;text-align:center;padding-top:2px;
+  .date{flex:0 0 46px;text-align:center;padding-top:2px}
+  .date .mon{
+    font-family:"Silkscreen",monospace;font-size:10px;
+    letter-spacing:.1em;color:var(--dim);
   }
-  .date .mon{font-size:11px;color:var(--ink-dim);letter-spacing:.06em}
-  .date .num{font-family:'Press Start 2P',monospace;font-size:16px;display:block;margin-top:4px}
+  .date .num{font-family:"Press Start 2P",monospace;font-size:15px;display:block;margin-top:6px}
   .entries{flex:1;min-width:0}
-  .entry{display:flex;align-items:baseline;gap:10px;padding:3px 0}
-  .bar{flex:0 0 4px;align-self:stretch;border-radius:2px;min-height:20px}
-  .title{font-size:15px}
-  .sys{font-size:12px;color:var(--ink-dim)}
+
+  .entry{display:flex;align-items:center;gap:12px;padding:5px 0}
+  .shot{
+    flex:none;width:52px;height:52px;object-fit:cover;
+    border:1px solid var(--line);border-radius:2px;background:var(--panel);
+  }
+  .shot.missing{
+    display:flex;align-items:center;justify-content:center;
+    font-family:"Silkscreen",monospace;font-size:7px;
+    letter-spacing:.04em;color:var(--dim);text-align:center;
+    border-style:dashed;padding:3px;line-height:1.3;word-break:break-all;
+  }
+  .meta{min-width:0}
+  .title{font-size:15px;display:block}
+  .sys{font-size:12px;color:var(--dim)}
   .yrs{
-    font-family:'Press Start 2P',monospace;font-size:9px;
-    color:var(--ink-dim);white-space:nowrap;margin-left:auto;padding-left:10px;
+    font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;
+    letter-spacing:.05em;color:var(--dim);
+    white-space:nowrap;margin-left:auto;padding-left:12px;
   }
-  .yrs.round{color:var(--gold)}
-  .hw .title{font-weight:700}
-  .hw .yrs{color:var(--gold)}
-  .flag{
-    font-size:11px;color:var(--dc);border:1px solid var(--dc);
-    border-radius:3px;padding:0 5px;margin-left:6px;white-space:nowrap;
+  .yrs.round{color:var(--hot)}
+  .daynote{
+    margin-top:10px;padding-top:10px;border-top:1px solid var(--line);
+    font-size:13px;color:var(--dim);
   }
-  .note{font-size:13px;color:var(--ink-dim);margin-top:26px;max-width:62ch}
-  .note code{background:var(--panel-2);padding:1px 5px;border-radius:3px;font-size:12px}
+  .note{font-size:13px;color:var(--dim);margin-top:28px;max-width:62ch}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div class="masthead">
-    <h1>Anniversary Calendar</h1>
-    <div class="today-stamp">Thursday, September 10, 2026</div>
-  </div>
+  <header>
+    <p class="wordmark">The Nostalgia Pro</p>
+    <h1>Anniversaries</h1>
+    <p class="standfirst">What on the shelf is having a birthday. Today, and the next few weeks.</p>
+    <a class="backlink" href="index.html">Back to the shelf</a>
+  </header>
 
   <section class="headline">
-    <div class="countdown">In 19 days</div>
-    <h2>Nintendo 64</h2>
-    <span class="big">30 years</span>
-    <p>North American launch, September 29, 1996. You have 46 N64 games on the shelf and Wave Race 64 sitting at No. 1 on your posted top 10.</p>
-    <div class="riders">
-      Same day: <b>Super Mario 64</b> and <b>Pilotwings 64</b> both turn 30 — US launch titles.
+    <div class="hero-shot" id="heroShot" data-shot="nintendo-64-console">images/nintendo-64-console.jpg</div>
+    <div class="hero-body">
+      <div class="countdown">In 19 days</div>
+      <h2>Nintendo 64</h2>
+      <span class="big">30 years</span>
+      <p>North American launch, September 29, 1996. You have 46 N64 games on the shelf and Wave Race 64 sitting at No. 1 on your posted top 10.</p>
+      <div class="riders">Same day: <b>Super Mario 64</b> and <b>Pilotwings 64</b> both turn 30 as US launch titles.</div>
     </div>
   </section>
 
@@ -156,8 +167,8 @@
 
   <div class="controls">
     <button class="chip" id="f-all" aria-pressed="true">Everything</button>
-    <button class="chip" id="f-hw" aria-pressed="false">Hardware only</button>
-    <button class="chip" id="f-round" aria-pressed="false">Round numbers only</button>
+    <button class="chip" id="f-hw" aria-pressed="false">Hardware</button>
+    <button class="chip" id="f-round" aria-pressed="false">Round numbers</button>
   </div>
 
   <div id="list">
@@ -165,140 +176,185 @@
     <div class="day" data-round="true" data-hw="false">
       <div class="date"><div class="mon">SEP</div><span class="num">13</span></div>
       <div class="entries">
-        <div class="entry"><span class="bar" style="background:var(--gen)"></span>
-          <span><span class="title">Mortal Kombat</span> <span class="sys">Genesis</span></span>
-          <span class="yrs">33 yrs</span></div>
-        <div class="entry"><span class="bar" style="background:var(--snes)"></span>
-          <span><span class="title">Mortal Kombat</span> <span class="sys">SNES</span></span>
-          <span class="yrs">33 yrs</span></div>
-        <div class="riders" style="margin-top:10px;padding-top:10px">Mortal Monday, 1993. Both versions shipped the same day and the blood code is the whole story.</div>
+        <div class="entry" data-shot="mortal-kombat-sega-genesis">
+          <span class="meta"><span class="title">Mortal Kombat</span> <span class="sys">Genesis</span></span>
+          <span class="yrs">33 yrs</span>
+        </div>
+        <div class="entry" data-shot="mortal-kombat-snes">
+          <span class="meta"><span class="title">Mortal Kombat</span> <span class="sys">SNES</span></span>
+          <span class="yrs">33 yrs</span>
+        </div>
+        <p class="daynote">Mortal Monday, 1993. Both versions shipped the same day and the blood code is the whole story.</p>
       </div>
     </div>
 
     <div class="day" data-round="false" data-hw="false">
       <div class="date"><div class="mon">SEP</div><span class="num">14</span></div>
       <div class="entries">
-        <div class="entry"><span class="bar" style="background:var(--xbox)"></span>
-          <span><span class="title">Halo: Reach</span> <span class="sys">Xbox 360</span></span>
-          <span class="yrs">16 yrs</span></div>
-        <div class="entry"><span class="bar" style="background:var(--switch)"></span>
-          <span><span class="title">Cruis'n Blast</span> <span class="sys">Switch</span></span>
-          <span class="yrs round">5 yrs</span></div>
+        <div class="entry" data-shot="halo-reach-limited-edition-xbox-360">
+          <span class="meta"><span class="title">Halo: Reach</span> <span class="sys">Xbox 360</span></span>
+          <span class="yrs">16 yrs</span>
+        </div>
+        <div class="entry" data-shot="cruis-n-blast-nintendo-switch">
+          <span class="meta"><span class="title">Cruis'n Blast</span> <span class="sys">Switch</span></span>
+          <span class="yrs round">5 yrs</span>
+        </div>
       </div>
     </div>
 
     <div class="day" data-round="false" data-hw="false">
       <div class="date"><div class="mon">SEP</div><span class="num">16</span></div>
       <div class="entries">
-        <div class="entry"><span class="bar" style="background:var(--gcn)"></span>
-          <span><span class="title">The Simpsons: Hit &amp; Run</span> <span class="sys">GameCube</span></span>
-          <span class="yrs">23 yrs</span></div>
+        <div class="entry" data-shot="simpsons-hit-run-gamecube">
+          <span class="meta"><span class="title">The Simpsons: Hit &amp; Run</span> <span class="sys">GameCube</span></span>
+          <span class="yrs">23 yrs</span>
+        </div>
       </div>
     </div>
 
     <div class="day" data-round="false" data-hw="false">
       <div class="date"><div class="mon">SEP</div><span class="num">17</span></div>
       <div class="entries">
-        <div class="entry"><span class="bar" style="background:var(--xbox)"></span>
-          <span><span class="title">Grand Theft Auto V</span> <span class="sys">Xbox One copy on shelf</span></span>
-          <span class="yrs">13 yrs</span></div>
+        <div class="entry" data-shot="grand-theft-auto-v-xbox-one">
+          <span class="meta"><span class="title">Grand Theft Auto V</span> <span class="sys">Xbox One</span></span>
+          <span class="yrs">13 yrs</span>
+        </div>
       </div>
     </div>
 
     <div class="day" data-round="false" data-hw="false">
       <div class="date"><div class="mon">SEP</div><span class="num">20</span></div>
       <div class="entries">
-        <div class="entry"><span class="bar" style="background:var(--xbox)"></span>
-          <span><span class="title">Gears of War 3</span> <span class="sys">Xbox 360</span></span>
-          <span class="yrs round">15 yrs</span></div>
+        <div class="entry" data-shot="gears-of-war-3-xbox-360">
+          <span class="meta"><span class="title">Gears of War 3</span> <span class="sys">Xbox 360</span></span>
+          <span class="yrs round">15 yrs</span>
+        </div>
       </div>
     </div>
 
     <div class="day" data-round="false" data-hw="false">
       <div class="date"><div class="mon">SEP</div><span class="num">21</span></div>
       <div class="entries">
-        <div class="entry"><span class="bar" style="background:var(--xbox)"></span>
-          <span><span class="title">Star Wars: Battlefront</span> <span class="sys">Xbox</span></span>
-          <span class="yrs">22 yrs</span></div>
+        <div class="entry" data-shot="star-wars-battlefront-xbox">
+          <span class="meta"><span class="title">Star Wars: Battlefront</span> <span class="sys">Xbox</span></span>
+          <span class="yrs">22 yrs</span>
+        </div>
       </div>
     </div>
 
     <div class="day" data-round="false" data-hw="false">
       <div class="date"><div class="mon">SEP</div><span class="num">22</span></div>
       <div class="entries">
-        <div class="entry"><span class="bar" style="background:var(--xbox)"></span>
-          <span><span class="title">Halo 3: ODST</span> <span class="sys">Xbox 360</span></span>
-          <span class="yrs">17 yrs</span></div>
+        <div class="entry" data-shot="halo-3-odst-xbox-360">
+          <span class="meta"><span class="title">Halo 3: ODST</span> <span class="sys">Xbox 360</span></span>
+          <span class="yrs">17 yrs</span>
+        </div>
       </div>
     </div>
 
     <div class="day" data-round="false" data-hw="false">
       <div class="date"><div class="mon">SEP</div><span class="num">25</span></div>
       <div class="entries">
-        <div class="entry"><span class="bar" style="background:var(--xbox)"></span>
-          <span><span class="title">Halo 3</span> <span class="sys">Xbox 360, three editions on the shelf</span></span>
-          <span class="yrs">19 yrs</span></div>
+        <div class="entry" data-shot="halo-3-xbox-360">
+          <span class="meta"><span class="title">Halo 3</span> <span class="sys">Xbox 360, three editions</span></span>
+          <span class="yrs">19 yrs</span>
+        </div>
       </div>
     </div>
 
-    <div class="day hw" data-round="true" data-hw="true">
+    <div class="day" data-round="true" data-hw="true">
       <div class="date"><div class="mon">SEP</div><span class="num">29</span></div>
       <div class="entries">
-        <div class="entry"><span class="bar" style="background:var(--n64)"></span>
-          <span><span class="title">Nintendo 64</span> <span class="sys">NA launch</span></span>
-          <span class="yrs round">30 yrs</span></div>
-        <div class="entry"><span class="bar" style="background:var(--n64)"></span>
-          <span><span class="title">Super Mario 64</span> <span class="sys">N64</span></span>
-          <span class="yrs round">30 yrs</span></div>
-        <div class="entry"><span class="bar" style="background:var(--n64)"></span>
-          <span><span class="title">Pilotwings 64</span> <span class="sys">N64</span></span>
-          <span class="yrs round">30 yrs</span></div>
+        <div class="entry" data-shot="nintendo-64-console">
+          <span class="meta"><span class="title">Nintendo 64</span> <span class="sys">NA launch</span></span>
+          <span class="yrs round">30 yrs</span>
+        </div>
+        <div class="entry" data-shot="super-mario-64-nintendo-64">
+          <span class="meta"><span class="title">Super Mario 64</span> <span class="sys">N64</span></span>
+          <span class="yrs round">30 yrs</span>
+        </div>
+        <div class="entry" data-shot="pilotwings-64-nintendo-64">
+          <span class="meta"><span class="title">Pilotwings 64</span> <span class="sys">N64</span></span>
+          <span class="yrs round">30 yrs</span>
+        </div>
       </div>
     </div>
 
     <div class="day" data-round="false" data-hw="false">
       <div class="date"><div class="mon">OCT</div><span class="num">3</span></div>
       <div class="entries">
-        <div class="entry"><span class="bar" style="background:var(--snes)"></span>
-          <span><span class="title">Secret of Mana</span> <span class="sys">SNES</span></span>
-          <span class="yrs">33 yrs</span></div>
+        <div class="entry" data-shot="secret-of-mana-snes">
+          <span class="meta"><span class="title">Secret of Mana</span> <span class="sys">SNES</span></span>
+          <span class="yrs">33 yrs</span>
+        </div>
       </div>
     </div>
 
     <div class="day" data-round="false" data-hw="false">
       <div class="date"><div class="mon">OCT</div><span class="num">8</span></div>
       <div class="entries">
-        <div class="entry"><span class="bar" style="background:var(--switch)"></span>
-          <span><span class="title">Metroid Dread</span> <span class="sys">Switch</span></span>
-          <span class="yrs round">5 yrs</span></div>
+        <div class="entry" data-shot="metroid-dread-nintendo-switch">
+          <span class="meta"><span class="title">Metroid Dread</span> <span class="sys">Switch</span></span>
+          <span class="yrs round">5 yrs</span>
+        </div>
       </div>
     </div>
 
   </div>
 
-  <p class="note">Dates are North American release. Every entry on this page is verified.</p>
+  <p class="note">Photos come out of the same images folder the shelf page uses, named the same way. Anything without a photo yet shows the filename it's looking for, so you know exactly what to drop in.</p>
 
 </div>
 
 <script>
-  const chips = {
-    all: document.getElementById('f-all'),
-    hw: document.getElementById('f-hw'),
-    round: document.getElementById('f-round')
+/* Each row names the photo it wants: images/<slug>.jpg
+   Same folder and naming the collection page already uses.
+   Nothing there yet? Show the filename instead of a broken image. */
+document.querySelectorAll('.entry[data-shot]').forEach(entry => {
+  const slug = entry.dataset.shot;
+  const img = new Image();
+  img.className = 'shot';
+  img.loading = 'lazy';
+  img.alt = '';
+  img.onerror = () => {
+    const box = document.createElement('span');
+    box.className = 'shot missing';
+    box.textContent = slug + '.jpg';
+    img.replaceWith(box);
   };
-  const days = Array.from(document.querySelectorAll('.day'));
+  img.src = 'images/' + slug + '.jpg';
+  entry.prepend(img);
+});
 
-  function apply(mode){
-    Object.entries(chips).forEach(([k,el]) => el.setAttribute('aria-pressed', String(k === mode)));
-    days.forEach(d => {
-      let show = true;
-      if (mode === 'hw') show = d.dataset.hw === 'true';
-      if (mode === 'round') show = d.dataset.round === 'true';
-      d.classList.toggle('hidden', !show);
-    });
-  }
+/* Hero uses the same slug, as a background image */
+(function(){
+  const hero = document.getElementById('heroShot');
+  if (!hero) return;
+  const probe = new Image();
+  probe.onload = () => {
+    hero.style.backgroundImage = "url('images/" + hero.dataset.shot + ".jpg')";
+    hero.textContent = '';
+  };
+  probe.src = 'images/' + hero.dataset.shot + '.jpg';
+})();
 
-  Object.entries(chips).forEach(([k,el]) => el.addEventListener('click', () => apply(k)));
+const chips = {
+  all: document.getElementById('f-all'),
+  hw: document.getElementById('f-hw'),
+  round: document.getElementById('f-round')
+};
+const days = Array.from(document.querySelectorAll('.day'));
+
+function apply(mode){
+  Object.entries(chips).forEach(([k,el]) => el.setAttribute('aria-pressed', String(k === mode)));
+  days.forEach(d => {
+    let show = true;
+    if (mode === 'hw') show = d.dataset.hw === 'true';
+    if (mode === 'round') show = d.dataset.round === 'true';
+    d.classList.toggle('hidden', !show);
+  });
+}
+Object.entries(chips).forEach(([k,el]) => el.addEventListener('click', () => apply(k)));
 </script>
 </body>
 </html>
