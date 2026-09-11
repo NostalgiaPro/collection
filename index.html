@@ -121,6 +121,32 @@
   }
   a.score:hover::after,a.score:focus-visible::after{opacity:1}
 
+  .todaybar{
+    display:none;align-items:center;gap:18px;flex-wrap:wrap;
+    margin:14px 0 0;padding:14px 18px;
+    background:var(--bg2);border:1px solid var(--line);
+    border-left:4px solid var(--hot);border-radius:2px;
+  }
+  .todaybar.on{display:flex}
+  .todaybar .lbl{
+    flex:none;font-family:"Silkscreen",monospace;font-size:10px;
+    letter-spacing:.1em;color:var(--hot);
+  }
+  .todaybar .items{
+    flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:10px 22px;
+  }
+  .todaybar .item{font-size:15px}
+  .todaybar .item b{font-weight:600}
+  .todaybar .item em{
+    font-style:normal;font-family:"Silkscreen",monospace;font-size:10px;
+    letter-spacing:.06em;color:var(--dim);margin-left:9px;
+  }
+  .todaybar a.more{
+    flex:none;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;
+    color:var(--dim);text-decoration:none;border:1px solid var(--line);
+    border-radius:2px;padding:6px 11px;
+  }
+  .todaybar a.more:hover{border-color:var(--hot);color:var(--hot)}
   .sitenav{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 0}
   .viewrow{
     display:flex;flex-wrap:wrap;align-items:center;gap:14px;
@@ -355,12 +381,18 @@
 
     <div id="verdict" role="status" aria-live="polite"></div>
     <div class="scores" id="scores"></div>
+    <div class="todaybar" id="todaybar"></div>
+
     <div class="sitenav">
       <a class="shelflink" href="shelf.html">Virtual shelf</a>
       <a class="shelflink" href="anniversaries.html">Anniversaries</a>
       <a class="shelflink" href="reviews.html">Reviews</a>
       <a class="shelflink" href="lists.html">Lists</a>
       <a class="shelflink" href="rank.html">Your list</a>
+      <a class="shelflink" href="movies.html">Movies</a>
+      <a class="shelflink" href="tv.html">TV</a>
+      <a class="shelflink" href="music.html">Music</a>
+      <a class="shelflink" href="boardgames.html">Board games</a>
       <a class="shelflink" href="consoles.html">Consoles</a>
       <a class="shelflink" href="stats.html">The numbers</a>
     </div>
@@ -1642,6 +1674,38 @@ function anniversary(g){
   if (days <= 30) return { text: `Turns ${age} in ${days} days`, age, soon: true };
   return { text: `${MONTHNAME[m-1]} ${d}, ${y}`, age, soon: false };
 }
+
+/* The front page's one moving part: what's having a birthday. */
+(function todayBar(){
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const hits = [];
+  for (const g of all) {
+    const r = RELEASED[nkey(g.title) + "|" + g.system];
+    if (!r) continue;
+    const [m,d,y] = r;
+    if (!d) continue;
+    let when = new Date(today.getFullYear(), m-1, d);
+    if (when < today) when = new Date(today.getFullYear()+1, m-1, d);
+    const days = Math.round((when - today) / 86400000);
+    hits.push({ g, age: when.getFullYear() - y, days });
+  }
+  if (!hits.length) return;
+  hits.sort((a,b) => a.days - b.days || b.age - a.age);
+
+  const bar = document.getElementById("todaybar");
+  const soon = hits.filter(h => h.days === hits[0].days).slice(0, 3);
+  const when = hits[0].days === 0 ? "Today"
+             : hits[0].days === 1 ? "Tomorrow"
+             : "In " + hits[0].days + " days";
+  bar.className = "todaybar on";
+  bar.innerHTML =
+    `<span class="lbl">${when}</span>
+     <span class="items">` +
+     soon.map(h => `<span class="item"><b>${esc(h.g.title)}</b> turns ${h.age}<em>${esc(h.g.system)}</em></span>`).join("") +
+     `</span>
+     <a class="more" href="anniversaries.html">All anniversaries</a>`;
+})();
 
 function wiki(title){
   return "https://en.wikipedia.org/w/index.php?search=" +
