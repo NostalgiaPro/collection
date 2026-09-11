@@ -89,6 +89,16 @@
   .sys{font-size:12px;color:var(--c,var(--dim))}
   .yrs{font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;letter-spacing:.05em;color:var(--dim);white-space:nowrap;margin-left:auto;padding-left:12px}
   .yrs.round{color:var(--hot)}
+  .monthhead{
+    font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;letter-spacing:.1em;
+    color:var(--dim);margin:44px 0 6px;padding-bottom:8px;border-bottom:1px solid var(--line);
+  }
+  .monthhead span{display:block;font-weight:400;letter-spacing:.04em;margin-top:7px;text-transform:none;font-size:10px}
+  .mrow{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .mrow .t{flex:1;min-width:0;font-size:15px}
+  .mrow .c{flex:none;font-size:12px;color:var(--c,var(--dim))}
+  .mrow .a{font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;color:var(--dim);white-space:nowrap;margin-left:12px}
+  .mrow .a.round{color:var(--hot)}
   .note{font-size:13px;color:var(--dim);margin-top:28px;max-width:64ch}
 </style>
 </head>
@@ -118,6 +128,9 @@
 </div>
 
 <div id="list"></div>
+
+<h2 class="monthhead" id="monthHead"></h2>
+<div id="monthList"></div>
 
 <p class="note">North American release dates. Photos come from the same images folder the shelf uses.</p>
 
@@ -722,7 +735,217 @@ const EVENTS = [
   [9,25,2025,"Sonic Racing: CrossWorlds","Nintendo Switch",""],
   [5,27,2026,"007 First Light","Xbox Series X/S",""],
   [10,10,2025,"Battlefield 6","Xbox Series X/S",""],
-  [8,27,2026,"Metal Gear Solid: Master Collection Vol. 2 [Day One Edition]","Xbox Series X/S",""]
+  [8,27,2026,"Metal Gear Solid: Master Collection Vol. 2 [Day One Edition]","Xbox Series X/S",""],
+  [10,20,1998,"Body Harvest","Nintendo 64",""],
+  [4,26,1999,"Super Smash Bros.","Nintendo 64",""],
+  [2,10,2004,"Pok\u00e9mon Colosseum [Not for Resale]","GameCube",""],
+  [9,24,2024,"Epic Mickey: Rebrushed","Xbox One",""],
+  [12,22,1987,"Metal Gear","Famicom",""],
+  [2,0,1991,"Adventure Island II","NES",""],
+  [6,0,1989,"Adventures of Bayou Billy","NES",""],
+  [7,0,1990,"Adventures of Gilligan's Island","NES",""],
+  [3,0,1990,"Adventures of Lolo 2","NES",""],
+  [8,0,1989,"Adventures of Tom Sawyer","NES",""],
+  [6,0,1989,"Airwolf","NES",""],
+  [8,0,1990,"Bad Dudes","NES",""],
+  [5,0,1991,"Beetlejuice","NES",""],
+  [8,0,1991,"Bill & Ted's Excellent Video Game Adventure","NES",""],
+  [9,0,1990,"Bugs Bunny Birthday Blowout","NES",""],
+  [12,0,1991,"Captain America and the Avengers","NES",""],
+  [6,0,1990,"Captain Skyhawk","NES",""],
+  [1,0,1990,"Chessmaster","NES",""],
+  [6,0,1990,"Chip 'n Dale","NES",""],
+  [11,0,1990,"Conquest of the Crystal Palace","NES",""],
+  [7,0,1990,"Crystalis","NES",""],
+  [12,0,1989,"Cybernoid: The Fighting Machine","NES",""],
+  [11,0,1988,"Defender II","NES",""],
+  [8,0,1990,"Dick Tracy","NES",""],
+  [12,0,1990,"Dirty Harry","NES",""],
+  [6,0,1988,"Double Dragon","NES",""],
+  [9,0,1990,"Dragon Warrior II","NES",""],
+  [9,0,1989,"Fester's Quest","NES",""],
+  [2,0,1989,"Friday the 13th","NES",""],
+  [9,0,1988,"Galaga: Demons of Death","NES",""],
+  [12,0,1992,"Great Waldo Search","NES",""],
+  [1,0,1991,"Hunt for Red October","NES",""],
+  [6,0,1987,"Ikari Warriors","NES",""],
+  [4,0,1988,"Ikari Warriors II: Victory Road","NES",""],
+  [12,0,1988,"Indiana Jones and the Temple of Doom","NES",""],
+  [1,0,1990,"Infiltrator","NES",""],
+  [4,0,1990,"Ivan \"Ironman\" Stewart's Super Off Road","NES",""],
+  [3,0,1990,"Jack Nicklaus' Greatest 18 Holes of Major Championship Golf","NES",""],
+  [11,0,1987,"Jaws","NES",""],
+  [3,0,1989,"John Elway's Quarterback","NES",""],
+  [11,0,1987,"Karate Kid","NES",""],
+  [12,0,1989,"Knight Rider","NES",""],
+  [7,0,1990,"Mad Max","NES",""],
+  [4,0,1988,"Major League Baseball","NES",""],
+  [6,0,1988,"Metal Gear","NES",""],
+  [9,0,1990,"Mission: Impossible","NES",""],
+  [8,0,1990,"NARC","NES",""],
+  [8,0,1991,"Ninja Gaiden III: The Ancient Ship of Doom","NES",""],
+  [5,0,1989,"Operation Wolf","NES",""],
+  [12,0,1988,"Paperboy","NES",""],
+  [12,0,1988,"Platoon","NES",""],
+  [6,0,1986,"Popeye","NES",""],
+  [4,0,1989,"Predator","NES",""],
+  [8,0,1990,"Punch-Out!!","NES",""],
+  [11,0,1990,"Punisher","NES",""],
+  [5,0,1988,"Rambo","NES",""],
+  [1,0,1990,"River City Ransom","NES",""],
+  [11,0,1991,"Robin Hood: Prince of Thieves","NES",""],
+  [12,0,1989,"RoboCop","NES",""],
+  [4,0,1991,"RoboCop 2","NES",""],
+  [10,0,1992,"Roger Clemens' MVP Baseball","NES",""],
+  [2,0,1991,"Simpsons: Bart vs. the Space Mutants","NES",""],
+  [12,0,1988,"Skate or Die","NES",""],
+  [9,0,1989,"Sky Shark","NES",""],
+  [4,0,1990,"Snake's Revenge","NES",""],
+  [9,0,1990,"Spot: The Video Game","NES",""],
+  [10,0,1988,"Spy vs. Spy","NES",""],
+  [9,0,1993,"Star Trek: The Next Generation","NES",""],
+  [3,0,1992,"Star Wars: The Empire Strikes Back","NES",""],
+  [10,0,1989,"Stealth ATF","NES",""],
+  [2,0,1992,"Terminator 2: Judgment Day","NES",""],
+  [9,0,1990,"Time Lord","NES",""],
+  [1,0,1990,"Top Gun: The Second Mission","NES",""],
+  [8,0,1990,"Total Recall","NES",""],
+  [2,0,1988,"Town & Country Surf Designs: Wood & Water Rage","NES",""],
+  [4,0,1987,"Track & Field","NES",""],
+  [12,0,1989,"Uncanny X-Men","NES",""],
+  [1,0,1989,"WWF WrestleMania","NES",""],
+  [9,0,1988,"Wheel of Fortune","NES",""],
+  [9,0,1989,"Who Framed Roger Rabbit","NES",""],
+  [12,0,1987,"Wizards & Warriors","NES",""],
+  [8,0,1988,"World Class Track Meet","NES",""],
+  [12,0,1988,"Xenophobe","NES",""],
+  [11,0,1990,"Yo! Noid","NES",""],
+  [9,0,1988,"Adventure Island","NES",""],
+  [2,0,1990,"Batman: The Video Game","NES",""],
+  [1,0,1990,"Double Dragon II: The Revenge","NES",""],
+  [6,0,1989,"Mega Man 2","NES",""],
+  [10,0,1988,"Super Mario Bros. 2","NES",""],
+  [4,0,1993,"American Gladiators","SNES",""],
+  [11,0,1994,"Beavis and Butt-head","SNES",""],
+  [9,0,1993,"Bram Stoker's Dracula","SNES",""],
+  [12,0,1993,"Captain America and the Avengers","SNES",""],
+  [11,0,1993,"Cliffhanger","SNES",""],
+  [1,0,1996,"College Slam","SNES",""],
+  [8,0,1995,"Frank Thomas' Big Hurt Baseball","SNES",""],
+  [1,0,1993,"Hunt for Red October","SNES",""],
+  [7,0,1994,"Jungle Book","SNES",""],
+  [12,0,1992,"Lethal Weapon","SNES",""],
+  [11,0,1993,"Madden NFL '94","SNES",""],
+  [6,0,1993,"Mario is Missing!","SNES",""],
+  [11,0,1994,"Michael Jordan: Chaos in the Windy City","SNES",""],
+  [10,0,1996,"NBA Live 97","SNES",""],
+  [11,0,1993,"NHL Stanley Cup","SNES",""],
+  [10,0,1993,"Ren & Stimpy Show - Veediots!","SNES",""],
+  [12,0,1994,"Rise of the Robots","SNES",""],
+  [7,0,1992,"Spanky's Quest","SNES",""],
+  [8,0,1995,"Speedy Gonzales: Los Gatos Bandidos","SNES",""],
+  [11,0,1992,"Spider-Man & X-Men: Arcade's Revenge","SNES",""],
+  [12,0,1991,"Super Baseball Simulator 1.000","SNES",""],
+  [5,0,1993,"Taz-Mania","SNES",""],
+  [12,0,1993,"Teenage Mutant Ninja Turtles: Tournament Fighters","SNES",""],
+  [11,0,1993,"Terminator 2: Judgment Day","SNES",""],
+  [8,0,1994,"Tetris 2","SNES",""],
+  [2,0,1993,"Tiny Toon Adventures: Buster Busts Loose!","SNES",""],
+  [11,0,1995,"Venom - Spider-Man: Separation Anxiety","SNES",""],
+  [5,0,1995,"Warlock","SNES",""],
+  [4,0,1993,"Wayne's World","SNES",""],
+  [11,0,1994,"X-Men: Mutant Apocalypse","SNES",""],
+  [11,0,1995,"Zoop","SNES",""],
+  [11,0,1991,"Battletoads","Game Boy",""],
+  [12,0,1992,"Boggle Plus","Game Boy",""],
+  [11,0,1991,"Caesar's Palace","Game Boy",""],
+  [4,0,1993,"Casino FunPak","Game Boy",""],
+  [8,0,1998,"Frogger","Game Boy",""],
+  [9,0,1990,"Go! Go! Tank","Game Boy",""],
+  [10,0,1997,"Ken Griffey Jr. Presents Major League Baseball","Game Boy",""],
+  [11,0,1992,"Little Mermaid","Game Boy",""],
+  [9,0,1990,"Makai Toushi SaGa","Game Boy",""],
+  [5,0,1995,"Micro Machines","Game Boy",""],
+  [11,0,1995,"NFL Quarterback Club II","Game Boy",""],
+  [12,0,1991,"Teenage Mutant Ninja Turtles II: Back from the Sewers","Game Boy",""],
+  [8,0,1990,"Teenage Mutant Ninja Turtles: Fall of the Foot Clan","Game Boy",""],
+  [11,0,1991,"Terminator 2: Judgment Day","Game Boy",""],
+  [7,0,1992,"Wave Race","Game Boy",""],
+  [11,0,1991,"SaGa 2: Hihou Densetsu","Game Boy",""],
+  [9,0,2001,"Blue's Clues: Blue's Alphabet Book","Game Boy Color",""],
+  [5,0,2000,"Dinosaur","Game Boy Color",""],
+  [11,0,1999,"Dogz","Game Boy Color",""],
+  [10,0,2001,"E.T. The Extra-Terrestrial: Escape from Planet Earth","Game Boy Color",""],
+  [9,0,1999,"Looney Tunes","Game Boy Color",""],
+  [12,0,1999,"Mr. Nutz","Game Boy Color",""],
+  [10,0,1999,"Ms. Pac-Man: Special Color Edition","Game Boy Color",""],
+  [12,0,2000,"Q*bert","Game Boy Color",""],
+  [12,0,1998,"Quest for Camelot","Game Boy Color",""],
+  [3,0,1988,"Super Mario Bros (Game Watch","Game & Watch",""],
+  [1,0,1996,"Cyberia","PlayStation 1",""],
+  [9,0,1996,"Final Doom","PlayStation 1",""],
+  [11,0,1996,"Gunship","PlayStation 1",""],
+  [9,0,1995,"Novastorm","PlayStation 1",""],
+  [6,0,2001,"Spec Ops: Covert Assault","PlayStation 1",""],
+  [1,0,1993,"American Gladiators","Sega Genesis",""],
+  [7,0,1996,"Arcade Classics","Sega Genesis",""],
+  [4,0,1995,"Barkley Shut Up and Jam! 2","Sega Genesis",""],
+  [10,0,1992,"Batman Returns","Sega Genesis",""],
+  [12,0,1993,"Bill Walsh College Football","Sega Genesis",""],
+  [12,0,1994,"Boogerman: A Pick and Flick Adventure","Sega Genesis",""],
+  [9,0,1993,"Bram Stoker's Dracula","Sega Genesis",""],
+  [8,0,1996,"Bugs Bunny in Double Trouble","Sega Genesis",""],
+  [2,0,1992,"Bulls vs Lakers and the NBA Playoffs","Sega Genesis",""],
+  [1,0,1993,"Captain America and the Avengers","Sega Genesis",""],
+  [11,0,1993,"Cliffhanger","Sega Genesis",""],
+  [10,0,1995,"Demolition Man","Sega Genesis",""],
+  [9,0,1990,"Dynamite Duke","Sega Genesis",""],
+  [5,0,1994,"ESPN Baseball Tonight","Sega Genesis",""],
+  [11,0,1994,"ESPN Sunday Night NFL","Sega Genesis",""],
+  [8,0,1990,"ESWAT: City Under Siege","Sega Genesis",""],
+  [12,0,1993,"F-117 Night Storm","Sega Genesis",""],
+  [12,0,1991,"Golden Axe II","Sega Genesis",""],
+  [5,0,1995,"HardBall '95","Sega Genesis",""],
+  [7,0,1993,"HardBall III","Sega Genesis",""],
+  [4,0,1993,"James Bond 007: The Duel","Sega Genesis",""],
+  [7,0,1994,"Jungle Book","Sega Genesis",""],
+  [11,0,1992,"Krusty's Super Fun House","Sega Genesis",""],
+  [11,0,1992,"Monopoly","Sega Genesis",""],
+  [7,0,1991,"Ms. Pac-Man","Sega Genesis",""],
+  [2,0,1994,"NBA Showdown 94","Sega Genesis",""],
+  [12,0,1993,"NFL Football '94 Starring Joe Montana","Sega Genesis",""],
+  [10,0,1995,"NFL Quarterback Club 96","Sega Genesis",""],
+  [10,0,1992,"NFL Sports Talk Football '93 Starring Joe Montana","Sega Genesis",""],
+  [12,0,1993,"Pebble Beach Golf Links","Sega Genesis",""],
+  [11,0,1993,"Pink Goes to Hollywood","Sega Genesis",""],
+  [11,0,1991,"R.B.I. Baseball 3","Sega Genesis",""],
+  [11,0,1993,"Ren & Stimpy Show Presents: Stimpy's Invention","Sega Genesis",""],
+  [12,0,1993,"RoboCop versus The Terminator","Sega Genesis",""],
+  [8,0,1993,"Spider-Man / X-Men: Arcade's Revenge","Sega Genesis",""],
+  [5,0,1992,"Sports Talk Baseball","Sega Genesis",""],
+  [12,0,1995,"Spot Goes To Hollywood","Sega Genesis",""],
+  [5,0,1995,"Stargate","Sega Genesis",""],
+  [12,0,1992,"Superman","Sega Genesis",""],
+  [11,0,1994,"Sylvester and Tweety in Cagey Capers","Sega Genesis",""],
+  [12,0,1992,"T2: The Arcade Game","Sega Genesis",""],
+  [12,0,1993,"Teenage Mutant Ninja Turtles Tournament Fighters [Cardboard Box]","Sega Genesis",""],
+  [8,0,1992,"Terminator","Sega Genesis",""],
+  [10,0,1993,"Terminator 2: Judgment Day","Sega Genesis",""],
+  [12,0,1994,"Tick","Sega Genesis",""],
+  [2,0,1993,"Tiny Toon Adventures: Buster's Hidden Treasure","Sega Genesis",""],
+  [8,0,1989,"Tommy Lasorda Baseball","Sega Genesis",""],
+  [11,0,1994,"Urban Strike","Sega Genesis",""],
+  [9,0,1992,"WWF Super WrestleMania","Sega Genesis",""],
+  [11,0,1992,"Where in Time Is Carmen Sandiego?","Sega Genesis",""],
+  [11,0,1994,"Wolverine: Adamantium Rage","Sega Genesis",""],
+  [3,0,1994,"World Series Baseball","Sega Genesis",""],
+  [5,0,1995,"World Series Baseball '95","Sega Genesis",""],
+  [3,0,1993,"X-Men","Sega Genesis",""],
+  [9,0,1991,"Streets of Rage","Sega Genesis",""],
+  [5,0,1996,"X-Men: Children Of The Atom","Sega Saturn",""],
+  [11,0,1997,"Grandread","Sega Saturn",""],
+  [8,0,1987,"Ghostbusters","Sega Master System",""],
+  [11,0,1982,"Pitfall!","Intellivision",""]
 ];
 
 const COLORS = {
@@ -743,25 +966,33 @@ const slug = (t,c) => (t+"-"+c).toLowerCase().normalize("NFD")
 const now = new Date();
 const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-/* next time this anniversary comes round, and how old it turns */
+/* next time this anniversary comes round, and how old it turns.
+   A day of 0 means the month is all that's on record. */
 function next(e){
   const [m,d,y] = e;
-  let when = new Date(today.getFullYear(), m-1, d);
-  if (when < today) when = new Date(today.getFullYear()+1, m-1, d);
+  const day = d || 1;
+  let when = new Date(today.getFullYear(), m-1, day);
+  if (when < today) when = new Date(today.getFullYear()+1, m-1, day);
   return { when, age: when.getFullYear() - y,
            days: Math.round((when - today) / 86400000) };
 }
 const isRound = n => n % 5 === 0;
 
 const all = EVENTS.map(e => ({
-  m:e[0], d:e[1], y:e[2], name:e[3], con:e[4], hw:e[5]==="hw", ...next(e)
+  m:e[0], d:e[1], y:e[2], name:e[3], con:e[4], hw:e[5]==="hw",
+  monthOnly:e[1]===0, ...next(e)
 })).sort((a,b) => a.days - b.days || (b.hw?1:0) - (a.hw?1:0));
 
 /* weight: rounder and bigger anniversaries lead */
 const weight = x => (isRound(x.age)?40:0) + (x.age%10===0?30:0) + (x.hw?25:0) + x.age/10;
 
-const todays = all.filter(x => x.days === 0);
-const ahead  = all.filter(x => x.days > 0);
+const dated  = all.filter(x => !x.monthOnly);
+const todays = dated.filter(x => x.days === 0);
+const ahead  = dated.filter(x => x.days > 0);
+
+/* month-only entries, grouped by the month they fall in */
+const thisMonth = all.filter(x => x.monthOnly && x.m === now.getMonth()+1)
+  .sort((a,b) => a.y - b.y);
 
 /* ---- hero: the biggest thing coming up in the next 90 days ---- */
 const hero = ahead.filter(x => x.days <= 90).sort((a,b)=>weight(b)-weight(a))[0] || ahead[0];
@@ -833,6 +1064,21 @@ function draw(){
     entry.prepend(img);
   });
 }
+/* ---- month-only block ---- */
+const MONTHNAME=["January","February","March","April","May","June","July",
+  "August","September","October","November","December"];
+if (thisMonth.length) {
+  document.getElementById("monthHead").innerHTML =
+    MONTHNAME[now.getMonth()] + " anniversaries" +
+    `<span>These only have a month on record, not a day. ${thisMonth.length} this month.</span>`;
+  document.getElementById("monthList").innerHTML = thisMonth.map(x =>
+    `<div class="mrow">
+      <span class="t">${x.name}</span>
+      <span class="c" style="--c:${COLORS[x.con]||"#8e93a2"}">${x.con}</span>
+      <span class="a${isRound(x.age)?" round":""}">${x.age} yrs</span>
+    </div>`).join("");
+}
+
 const chips = {all:document.getElementById("f-all"),hw:document.getElementById("f-hw"),round:document.getElementById("f-round")};
 Object.entries(chips).forEach(([k,el]) => el.addEventListener("click", () => {
   mode = k;
