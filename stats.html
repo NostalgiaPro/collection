@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Nostalgia Pro &mdash; The numbers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 22px 90px}
+  header{padding:44px 0 0}
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;text-decoration:none;border:2px solid var(--line);color:var(--dim);
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+
+  .big{display:flex;flex-wrap:wrap;gap:30px;margin:34px 0 0}
+  .big div b{display:block;font-family:"Press Start 2P",monospace;font-size:24px}
+  .big div span{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.09em;color:var(--dim)}
+
+  h2.sec{
+    font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;letter-spacing:.1em;
+    color:var(--dim);margin:44px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line);
+  }
+  .row{display:flex;align-items:center;gap:12px;padding:5px 0}
+  .row .nm{flex:0 0 150px;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .track{flex:1;height:15px;min-width:0}
+  .track .fill{height:100%;display:flex;border-radius:1px;overflow:hidden;background:var(--panel)}
+  .track i{display:block;height:100%}
+  .row .v{flex:0 0 58px;text-align:right;font-family:"Silkscreen",monospace;font-size:10px;color:var(--dim)}
+  .key{display:flex;flex-wrap:wrap;gap:16px;margin:0 0 14px;font-size:12.5px;color:var(--dim)}
+  .key span{display:flex;align-items:center;gap:6px}
+  .key i{width:11px;height:11px;border-radius:1px;display:block}
+  .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:64ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <p class="wordmark">The Nostalgia Pro</p>
+  <h1>The numbers</h1>
+  <p class="standfirst">What 831 games actually look like when you add them up.</p>
+  <div class="navrow">
+    <a class="navbtn" href="index.html">The shelf</a>
+    <a class="navbtn" href="reviews.html">Reviews</a>
+    <a class="navbtn" href="lists.html">Lists</a>
+    <a class="navbtn" href="anniversaries.html">Anniversaries</a>
+    <a class="navbtn here" href="#">The numbers</a>
+  </div>
+  <div class="big" id="big"></div>
+</header>
+
+<h2 class="sec">Games per console</h2>
+<div class="key">
+  <span><i style="background:#3fbf6a"></i>Complete in box</span>
+  <span><i style="background:#c9c34a"></i>Missing a piece</span>
+  <span><i style="background:#6b7185"></i>Loose</span>
+</div>
+<div id="bySys"></div>
+
+<h2 class="sec">Biggest franchises</h2>
+<div id="byFran"></div>
+
+<h2 class="sec">Condition across the whole shelf</h2>
+<div id="byCond"></div>
+
+<p class="note">Built from the same collection data as the shelf page. If you replace the game list there, replace it here too.</p>
+</div>
+
+<script>
+const RAW = `## NES
+Adventure Island (loose)
+Adventure Island II (CIB)
+Adventures of Bayou Billy (CIB)
+Adventures of Dino Riki (loose)
+Adventures of Gilligan's Island (loose)
+Adventures of Lolo (CIB)
+Adventures of Lolo 2 (CIB)
+Adventures of Tom Sawyer (CIB)
+Airwolf (CIB)
+Bad Dudes (loose)
+Batman: The Video Game (loose)
+Beetlejuice (loose)
+Bill & Ted's Excellent Video Game Adventure (CIB)
+Bugs Bunny Birthday Blowout (loose)
+Capcom's Gold Medal Challenge '92 (loose)
+Captain America and the Avengers (loose)
+Captain Skyhawk (CIB)
+Chessmaster (CIB)
+Chip 'n Dale (loose)
+Conquest of the Crystal Palace (loose)
+Contra (CIB)
+Crystalis (loose)
+Cybernoid: The Fighting Machine (CIB)
+Defender II (loose)
+Dick Tracy (CIB)
+Dirty Harry (CIB)
+Double Dragon (loose)
+Double Dragon II: The Revenge (loose)
+Dr. Mario (CIB)
+Dragon Warrior (CIB)
+Dragon Warrior II (CIB)
+Excitebike [5 Screw] (CIB)
+Fester's Quest (CIB)
+Final Fantasy (CIB)
+Friday the 13th (loose)
+Galaga: Demons of Death (loose)
+Great Waldo Search (loose)
+Gyromite [5 Screw] (CIB)
+Hogan's Alley (loose)
+Hunt for Red October (CIB)
+Ikari Warriors (CIB)
+Ikari Warriors II: Victory Road (missing manual)
+Indiana Jones and the Temple of Doom (loose)
+Infiltrator (loose)
+Ivan "Ironman" Stewart's Super Off Road (loose)
+Jack Nicklaus' Greatest 18 Holes of Major Championship Golf (missing manual)
+Jaws (loose)
+John Elway's Quarterback (loose)
+Karate Kid (loose)
+Kirby's Adventure (loose)
+Knight Rider (CIB)
+Legend of Zelda (CIB)
+Mad Max (CIB)
+Major League Baseball (loose)
+Mega Man 2 (loose)
+Mega Man 6 (loose)
+Metal Gear (loose)
+Mike Tyson's Punch-Out!! (loose)
+Mission: Impossible (CIB)
+NARC (loose)
+Ninja Gaiden III: The Ancient Ship of Doom (loose)
+Operation Wolf (CIB)
+Paperboy (CIB)
+Pinball (CIB)
+Platoon (missing manual)
+Popeye (loose)
+Predator (loose)
+Punch-Out!! (CIB)
+Punisher (loose)
+R.C. Pro-Am (CIB)
+Rambo (loose)
+River City Ransom (loose)
+Robin Hood: Prince of Thieves (loose)
+RoboCop (CIB)
+RoboCop 2 (loose)
+Roger Clemens' MVP Baseball (loose)
+Simpsons: Bart vs. the Space Mutants (loose)
+Skate or Die (loose)
+Sky Shark (loose)
+Snake's Revenge (loose)
+Spot: The Video Game (CIB)
+Spy vs. Spy (loose)
+Star Trek: The Next Generation (loose)
+Star Wars (CIB)
+Star Wars: The Empire Strikes Back (CIB)
+Stealth ATF (loose)
+Super C (CIB)
+Super Games 150 in 1 (loose)
+Super Mario Bros. - Duck Hunt - World Class Track Meet (loose)
+Super Mario Bros. / Duck Hunt (loose)
+Super Mario Bros. 2 (CIB)
+Super Mario Bros. 3 (CIB)
+Super Mario Bros. [5 Screw] (CIB)
+Tecmo Super Bowl (CIB)
+Teenage Mutant Ninja Turtles (CIB)
+Teenage Mutant Ninja Turtles II: The Arcade Game (missing manual)
+Terminator 2: Judgment Day (loose)
+Tetris (CIB)
+Time Lord (loose)
+Top Gun (CIB)
+Top Gun: The Second Mission (CIB)
+Total Recall (CIB)
+Town & Country Surf Designs: Wood & Water Rage (manual only)
+Track & Field (CIB)
+Uncanny X-Men (loose)
+Wheel of Fortune (loose)
+Who Framed Roger Rabbit (loose)
+Wizards & Warriors (CIB)
+World Class Track Meet (loose)
+Wrecking Crew (CIB)
+WWF WrestleMania (CIB)
+Xenophobe (loose)
+Yo! Noid (CIB)
+Zelda II: The Adventure of Link (CIB)
+
+## Famicom
+Metal Gear (missing manual)
+
+## SNES
+Aladdin (loose)
+American Gladiators (loose)
+Animaniacs (CIB)
+Batman Forever (CIB)
+Batman Returns (loose)
+Battle Clash (loose)
+Beavis and Butt-head (loose)
+Bram Stoker's Dracula (loose)
+Captain America and the Avengers (CIB)
+Cliffhanger (CIB)
+College Slam (CIB)
+Final Fantasy II (loose)
+Final Fantasy III (loose)
+Final Fantasy: Mystic Quest (loose)
+Final Fight (loose)
+Frank Thomas' Big Hurt Baseball (missing manual)
+Hunt for Red October (CIB)
+Judge Dredd (loose)
+Jungle Book (CIB)
+Jurassic Park (CIB)
+Ken Griffey Jr. Presents Major League Baseball (missing box)
+Ken Griffey Jr.'s Winning Run (missing box)
+Killer Instinct (loose)
+Lethal Weapon (CIB)
+Madden NFL '94 (CIB)
+Mario is Missing! (CIB)
+Michael Jordan: Chaos in the Windy City (loose)
+Mortal Kombat (CIB)
+Mortal Kombat 3 (CIB)
+Mortal Kombat II (missing manual)
+NBA Jam (CIB)
+NBA Jam Tournament Edition (CIB)
+NBA Live 97 (loose)
+NHL Stanley Cup (CIB)
+Pilotwings (loose)
+Primal Rage (loose)
+Ren & Stimpy Show - Veediots! (CIB)
+Rise of the Robots (loose)
+Secret of Mana (loose)
+Spanky's Quest (CIB)
+Speedy Gonzales: Los Gatos Bandidos (CIB)
+Spider-Man & Venom: Maximum Carnage [Special Limited Edition Red Cartridge] (CIB)
+Spider-Man & X-Men: Arcade's Revenge (loose)
+Star Fox (CIB)
+Street Fighter II (CIB)
+Street Fighter II Turbo (CIB)
+Super Baseball Simulator 1.000 (CIB)
+Super Mario All-Stars (CIB)
+Super Mario Kart (loose)
+Super Mario World (loose)
+Super Mario World 2: Yoshi's Island (CIB)
+Super Punch-Out!! (CIB)
+Super Scope 6 (missing manual)
+Super Star Wars [Player's Choice] (CIB)
+Super Star Wars: Return of the Jedi (CIB)
+Super Street Fighter II (CIB)
+Taz-Mania (CIB)
+Teenage Mutant Ninja Turtles IV: Turtles In Time (loose)
+Teenage Mutant Ninja Turtles: Tournament Fighters (CIB)
+Terminator 2: Judgment Day (CIB)
+Tetris 2 (CIB)
+Tiny Toon Adventures: Buster Busts Loose! (CIB)
+Venom - Spider-Man: Separation Anxiety (loose)
+Warlock (loose)
+Wayne's World (loose)
+X-Men: Mutant Apocalypse (loose)
+Zoop (CIB)
+
+## Nintendo 64
+1080° Snowboarding (CIB)
+Army Men: Sarge's Heroes (loose)
+Army Men: Sarge's Heroes 2 (loose)
+Batman Beyond: Return of the Joker (loose)
+Blues Brothers 2000 (CIB)
+Body Harvest (loose)
+California Speed (loose)
+Deadly Arts (CIB)
+Diddy Kong Racing (CIB)
+Donkey Kong 64 (loose)
+Dr. Mario 64 (CIB)
+Duke Nukem: Zero Hour (CIB)
+Extreme-G (loose)
+Extreme-G 2 (loose)
+GoldenEye 007 (CIB)
+Killer Instinct Gold (loose)
+Legend of Zelda: Majora's Mask [Collector's Edition] (loose)
+Legend of Zelda: Ocarina of Time (loose)
+Madden Football 64 (loose)
+Madden NFL 2001 (loose)
+Major League Baseball Featuring Ken Griffey, Jr. (loose)
+Mario Kart 64 (CIB)
+Mission: Impossible (loose)
+NBA Jam 2000 (CIB)
+NBA Jam 99 (loose)
+NBA Showtime: NBA on NBC (loose)
+NFL Quarterback Club 98 (CIB)
+Perfect Dark (CIB)
+Pilotwings 64 (loose)
+Quake (loose)
+Quake II (missing manual)
+Ready 2 Rumble Boxing (CIB)
+San Francisco Rush: Extreme Racing (loose)
+Star Fox 64 [Player's Choice] (CIB)
+Star Wars Episode I: Racer (loose)
+Star Wars: Rogue Squadron (CIB)
+Super Mario 64 (loose)
+Super Smash Bros. (loose)
+Superman: The New Superman Adventures (loose)
+Triple Play 2000 (loose)
+Turok 2: Seeds of Evil (loose)
+Turok: Rage Wars (CIB)
+Wave Race 64 (CIB)
+WCW Mayhem (loose)
+WCW/nWo Revenge (loose)
+WWF No Mercy (loose)
+WWF WrestleMania 2000 (loose)
+Yoshi's Story (CIB)
+
+## GameCube
+007: Everything or Nothing (CIB)
+007: From Russia With Love (CIB)
+All-Star Baseball 2002 (CIB)
+Avatar: The Last Airbender (CIB)
+Bad Boys: Miami Takedown (CIB)
+Batman Begins (CIB)
+BloodRayne (CIB)
+Cabela's Outdoor Adventures (CIB)
+Call of Duty: Finest Hour (CIB)
+Carmen Sandiego: The Secret of the Stolen Drums (CIB)
+Crazy Taxi (CIB)
+Dave Mirra Freestyle BMX 2 (CIB)
+Die Hard: Vendetta (CIB)
+Driven (CIB)
+Gun (CIB)
+Legend of Zelda: Collector's Edition (CIB)
+Mario Kart: Double Dash!! (CIB)
+Mega Man X: Command Mission (CIB)
+Metal Gear Solid: The Twin Snakes (CIB)
+Metroid Prime (loose)
+Metroid Prime [Metroid Prime 2: Echoes Bonus Disc] (CIB)
+Minority Report: Everybody Runs (CIB)
+Monopoly Party! (CIB)
+MVP Baseball 2005 (CIB)
+NCAA Football 2005 (CIB)
+NHL 06 (CIB)
+Nintendo GameCube Preview Disc (CIB)
+Paper Mario: The Thousand-Year Door [Player's Choice] (CIB)
+Pokémon Colosseum [Not for Resale] (CIB)
+Rocky (CIB)
+Scorpion King: Rise of the Akkadian (CIB)
+Simpsons: Hit & Run (CIB)
+Spider-Man 2 (CIB)
+Spy Hunter (CIB)
+Star Fox Adventures (CIB)
+Star Fox: Assault (CIB)
+Star Wars: Bounty Hunter (CIB)
+Sum of All Fears (CIB)
+Super Smash Bros. Melee (CIB)
+Swingerz Golf (CIB)
+Teenage Mutant Ninja Turtles (CIB)
+Teenage Mutant Ninja Turtles 2: Battle Nexus (CIB)
+Teenage Mutant Ninja Turtles 3: Mutant Nightmare (CIB)
+Top Gun: Combat Zones (CIB)
+X-Men Legends II: Rise of Apocalypse (CIB)
+X2: Wolverine's Revenge (CIB)
+XGIII: Extreme G Racing (CIB)
+
+## Game Boy
+Battletoads (loose)
+Boggle Plus (loose)
+Caesar's Palace (loose)
+Casino FunPak (loose)
+Frogger (loose)
+Go! Go! Tank (loose)
+James Bond 007 (loose)
+Ken Griffey Jr. Presents Major League Baseball (loose)
+Little Mermaid (loose)
+Makai Toushi SaGa (loose)
+Micro Machines (missing box)
+NFL Quarterback Club II (loose)
+SaGa 2: Hihou Densetsu (loose)
+Teenage Mutant Ninja Turtles II: Back from the Sewers (loose)
+Teenage Mutant Ninja Turtles: Fall of the Foot Clan (loose)
+Terminator 2: Judgment Day (loose)
+Tetris (loose)
+Wave Race (loose)
+Yoshi (loose)
+Yoshi's Cookie (loose)
+
+## Game Boy Color
+Blue's Clues: Blue's Alphabet Book (loose)
+Caesars Palace II (loose)
+Croc (loose)
+Dinosaur (loose)
+Dogz (loose)
+E.T. The Extra-Terrestrial: Escape from Planet Earth (loose)
+Frogger 2: Swampy's Revenge (loose)
+Grinch (loose)
+Legend of Zelda: Oracle of Seasons (loose)
+Looney Tunes (loose)
+Mr. Nutz (loose)
+Ms. Pac-Man: Special Color Edition (loose)
+Q*bert (loose)
+Quest for Camelot (loose)
+Shrek: Fairy Tale Freakdown (loose)
+
+## Nintendo DS
+Brain Age: Train Your Brain in Minutes a Day! (CIB)
+DK: Jungle Climber (loose)
+Flash Focus: Vision Training in Minutes a Day (loose)
+Mario Hoops: 3 on 3 (CIB)
+Star Fox Command (CIB)
+Tiger Woods PGA Tour 08 (loose)
+
+## Nintendo 3DS
+Epic Mickey: Power of Illusion (CIB)
+Legend of Zelda: A Link Between Worlds (CIB)
+Mario Party: Star Rush (CIB)
+New Super Mario Bros. 2 (CIB)
+Nickleodeon Teenage Mutant Ninja Turtles: Master Splinter's Training Pack (CIB)
+Star Fox 64 3D (CIB)
+
+## Wii
+Batman: The Brave and the Bold - The Videogame (CIB)
+Boom Blox (CIB)
+Call of Duty 3 (CIB)
+Cars Toon: Mater's Tall Tales (CIB)
+de Blob (CIB)
+Excite Truck (CIB)
+GoldenEye 007 (CIB)
+Marvel: Ultimate Alliance (CIB)
+MLB Superstars (CIB)
+Pirates of the Caribbean: At World's End (CIB)
+Price Is Right (CIB)
+Rise of the Guardians (CIB)
+Science papa (CIB)
+Star Wars The Clone Wars: Lightsaber Duels (CIB)
+Super Smash Bros. Brawl (CIB)
+Teenage Mutant Ninja Turtles: Smash-Up (CIB)
+Wii Sports [Cardboard Sleeve] (missing box)
+Wii Sports Resort [Cardboard Sleeve] (missing box)
+
+## Nintendo Switch
+Cruis'n Blast (CIB)
+Donkey Kong Country Returns HD (CIB)
+Legend of Zelda: Breath of the Wild (CIB)
+Luigi's Mansion 3 (CIB)
+Mario Golf: Super Rush (CIB)
+Mega Man Star Force Legacy Collection (missing manual)
+Metroid Dread (CIB)
+New Super Mario Bros. U Deluxe (CIB)
+Shaq Fu: A Legend Reborn (loose)
+Sid Meier's Civilization VI (CIB)
+Sonic Colors Ultimate [Launch Edition] (CIB)
+Sonic Racing: CrossWorlds (CIB)
+Star Wars Racer & Commando Combo (CIB)
+Super Mario 3D World + Bowser's Fury (CIB)
+Super Mario Bros. Wonder (CIB)
+Super Mario RPG (CIB)
+
+## Game & Watch
+Super Mario Bros (Game Watch (CIB)
+
+## PlayStation 1
+007: The World Is Not Enough (loose)
+007: Tomorrow Never Dies (CIB)
+Agile Warrior F-111X [Long Box] (CIB)
+Alien Resurrection (CIB)
+Army Men 3D (CIB)
+Batman & Robin (CIB)
+Bob the Builder: Can We Fix It? (CIB)
+Colony Wars III: Red Sun (CIB)
+Cyber Sled [Long Box] (CIB)
+Cyberia (CIB)
+Delta Force: Urban Warfare (loose)
+Duke Nukem: Time to Kill (CIB)
+Fifth Element (CIB)
+Final Doom (CIB)
+Final Fantasy IX [Greatest Hits] (CIB)
+Final Fantasy VII (CIB)
+Final Fantasy VIII (CIB)
+Gran Turismo (CIB)
+Gran Turismo 2 (CIB)
+Grand Theft Auto Mission Pack #1: London 1969 (CIB)
+Gunship (CIB)
+Judge Dredd (CIB)
+Legend of Mana (CIB)
+M&M's Shell Shocked (CIB)
+Marvel Super Heroes vs. Street Fighter (CIB)
+Mega Man Legends (CIB)
+Mega Man Legends 2 (CIB)
+Metal Gear Solid [Greatest Hits] (CIB)
+Metal Gear Solid: VR Missions (CIB)
+MLB 2001 (CIB)
+MLB 2003 (CIB)
+Mortal Kombat: Special Forces (CIB)
+NASCAR 99 (CIB)
+NBA Jam Extreme (CIB)
+NBA Live 2000 (CIB)
+NBA ShootOut 2001 (CIB)
+NCAA Gamebreaker 98 (CIB)
+NFL Gameday 2002 (missing manual)
+NFL GameDay [Long Box] (CIB)
+Novastorm (CIB)
+One (CIB)
+Parasite Eve (CIB)
+Parasite Eve II (missing manual)
+Ready 2 Rumble Boxing [Greatest Hits] (CIB)
+Rugrats: Studio Tour (CIB)
+Shockwave Assault [Long Box] (CIB)
+Spec Ops: Covert Assault (CIB)
+Star Wars: Demolition (CIB)
+Street Fighter Alpha: Warriors' Dreams [Long Box] (CIB)
+Street Fighter The Movie [Long Box] (missing manual)
+Syphon Filter (CIB)
+Syphon Filter 2 (CIB)
+Syphon Filter 3 (CIB)
+Tekken 3 [Greatest Hits] (CIB)
+Tom Clancy's Rainbow Six (CIB)
+Tomb Raider [Greatest Hits] (CIB)
+Triple Play 2000 (CIB)
+Triple Play 2001 (CIB)
+Twisted Metal 2 (CIB)
+WCW-NWO Thunder (CIB)
+Who Wants To Be A Millionaire: 2nd Edition (CIB)
+WWF Smackdown! 2: Know Your Role [Greatest Hits] (CIB)
+WWF WrestleMania: The Arcade Game [Long Box] (CIB)
+
+## PlayStation 2
+Activision Anthology (CIB)
+Army Men: Green Rogue (CIB)
+ATV Offroad Fury 4 (CIB)
+Backyard Baseball '09 (CIB)
+Batman: Vengeance (missing manual)
+Call of Duty 2: Big Red One (CIB)
+Conflict: Desert Storm (CIB)
+Contra: Shattered Soldier (CIB)
+Fire Blade (CIB)
+GoldenEye: Rogue Agent (CIB)
+Gran Turismo 3: A-Spec (CIB)
+Gun (CIB)
+Hot Shots Golf 3 (CIB)
+L.A. Rush (CIB)
+LEGO Star Wars: The Video Game (CIB)
+Looney Tunes: Space Race (CIB)
+Major League Baseball 2K9 (CIB)
+Metal Gear Solid 2: Sons Of Liberty (CIB)
+Metal Gear Solid 3: Snake Eater (CIB)
+Metal Gear Solid 3: Subsistence (CIB)
+Metal Gear Solid: The Essential Collection (CIB)
+Minority Report: Everybody Runs (CIB)
+Mission: Impossible: Operation Surma (missing manual)
+Mortal Kombat: Shaolin Monks (CIB)
+NBA Shootout 2001 (CIB)
+NHL 2001 (CIB)
+Onimusha 2: Samurai's Destiny (CIB)
+Onimusha: Warlords (CIB)
+Outlaw Golf 2 (CIB)
+Peter Jackson's King Kong: The Official Game of the Movie (CIB)
+Primal (CIB)
+Rumble Roses (CIB)
+Seek and Destroy (CIB)
+Star Wars: Jedi Starfighter (CIB)
+Star Wars: Starfighter (missing manual)
+Starsky & Hutch (CIB)
+Street Fighter EX3 (CIB)
+Stuntman (CIB)
+Summer Heat Beach Volleyball (CIB)
+Syphon Filter: Dark Mirror (CIB)
+Syphon Filter: The Omega Strain (CIB)
+TMNT (CIB)
+Twisted Metal: Head-On - Extra Twisted Edition (CIB)
+Vexx (CIB)
+Virtua Fighter 4 (CIB)
+X-Men: Next Dimension (CIB)
+
+## PlayStation 3
+007: Blood Stone (CIB)
+007: Quantum of Solace (CIB)
+Assassin's Creed III [Walmart Edition] (CIB)
+Assassin's Creed IV: Black Flag [Gamestop Edition] (CIB)
+Assassin's Creed: Brotherhood (CIB)
+Assassin's Creed: Revelations (CIB)
+BioShock 2 (CIB)
+FaceBreaker (CIB)
+Gran Turismo 5 Prologue (CIB)
+Gran Turismo 5: XL Edition (CIB)
+Gran Turismo 6 (CIB)
+Guitar Hero World Tour (loose)
+Killzone Trilogy (CIB)
+MAG (CIB)
+Major League Baseball 2K11 (CIB)
+Metal Gear Solid 4: Guns of the Patriots (CIB)
+Metal Gear Solid: The Legacy Collection (CIB)
+MX vs. ATV Reflex (CIB)
+Need for Speed: Shift (CIB)
+Resistance 2 (CIB)
+Sly Collection (CIB)
+Sniper: Ghost Warrior (CIB)
+Time Crisis 4 (loose)
+TRON: Evolution (CIB)
+Ultra Street Fighter IV (CIB)
+Unreal Tournament III (CIB)
+X-Men Origins: Wolverine [Uncaged Edition] (CIB)
+
+## PSP
+Metal Gear Ac!d (CIB)
+Metal Gear Ac!d 2 (CIB)
+Metal Gear Solid: Digital Graphic Novel (CIB)
+Metal Gear Solid: Peace Walker [Limited Edition] (CIB)
+Metal Gear Solid: Portable Ops (CIB)
+Metal Gear Solid: Portable Ops Plus (CIB)
+
+## PlayStation 4
+Bloodborne [PlayStation Hits] (CIB)
+Call of Duty: Modern Warfare (sealed)
+Gran Turismo Sport (PlayStation Hits) (CIB)
+Marvel's Spider-Man [Game of the Year Edition] (CIB)
+Metal Gear Solid V: The Phantom Pain (CIB)
+Metal Gear Survive (loose)
+MLB The Show 19 (CIB)
+Raid: World War II (missing manual)
+Streets of Rage 4: Anniversary Edition (missing manual)
+
+## Xbox
+007: NightFire (CIB)
+Advent Rising (CIB)
+All-Star Baseball 2005 (CIB)
+America's Army: Rise of a Soldier (CIB)
+Aquaman: Battle for Atlantis (CIB)
+Arena Football (CIB)
+Batman Begins (CIB)
+Batman: Dark Tomorrow (CIB)
+Battlefield 2: Modern Combat (CIB)
+Big Mutha Truckers 2 (CIB)
+Conflict: Vietnam (CIB)
+Delta Force: Black Hawk Down (CIB)
+Destroy All Humans! (CIB)
+DOOM 3 (CIB)
+DOOM 3 [Limited Collector's Edition] (CIB)
+Doom 3: Resurrection of Evil (missing manual)
+Enter the Matrix (CIB)
+ESPN NFL 2K5 (CIB)
+ESPN NFL Primetime 2002 (CIB)
+FIFA World Cup: Germany 2006 (CIB)
+Grand Theft Auto: Vice City [The Xbox Collection] (CIB)
+Gun (CIB)
+Guy Game (CIB)
+Half-Life 2 (CIB)
+Halo 2 (CIB)
+Halo 2 Multiplayer Map Pack (CIB)
+Halo: Combat Evolved (missing manual)
+Halo: Combat Evolved [Game of the Year Edition] (CIB)
+Hulk (missing manual)
+Incredible Hulk: Ultimate Destruction (CIB)
+Indigo Prophecy (CIB)
+James Bond 007: Agent Under Fire (CIB)
+James Cameron's Dark Angel (CIB)
+Justice League Heroes (CIB)
+Leisure Suit Larry: Magna Cum Laude (missing manual)
+Links 2004 (CIB)
+Madden NFL 2005 (CIB)
+Major League Baseball 2K7 (CIB)
+MechAssault (CIB)
+Metal Gear Solid 2: Substance (missing manual)
+Midnight Club 3: Dub Edition (loose)
+Midway Arcade Treasures (CIB)
+Minority Report: Everybody Runs (CIB)
+Mission: Impossible: Operation Surma (CIB)
+MLB SlugFest 2006 (CIB)
+Mortal Kombat: Deadly Alliance [Platinum Hits] (CIB)
+Mortal Kombat: Deception (CIB)
+Mortal Kombat: Deception (Kollector's Edition -- Mileena Version) (CIB)
+NBA Jam (CIB)
+NBA Street Vol. 2 (CIB)
+NCAA College Basketball 2k3 (CIB)
+NCAA Football 2003 (CIB)
+NCAA Football 2005 / Top Spin Combo (CIB)
+Outlaw Golf (CIB)
+Outlaw Tennis (CIB)
+Outlaw Volleyball (CIB)
+Outlaw Volleyball Red Hot (CIB)
+Project Gotham Racing (CIB)
+Project Gotham Racing 2 (CIB)
+Punisher (CIB)
+Return to Castle Wolfenstein: Tides of War (CIB)
+Simpsons: Road Rage (CIB)
+Spider-Man 2 (CIB)
+Spider-Man: The Movie (CIB)
+Star Wars Episode III: Revenge of the Sith (CIB)
+Star Wars Jedi Knight: Jedi Academy (missing manual)
+Star Wars Starfighter: Special Edition [Platinum Hits] (CIB)
+Star Wars: Battlefront (CIB)
+Star Wars: Knights of the Old Republic (CIB)
+Star Wars: Knights of the Old Republic II: The Sith Lords (CIB)
+Star Wars: Republic Commando [Platinum Hits] (CIB)
+Star Wars: The Clone Wars / Tetris Worlds (CIB)
+Street Fighter Anniversary Collection (CIB)
+Superman Returns (CIB)
+Terminator 3: Rise Of The Machines (CIB)
+Terminator: Dawn of Fate (CIB)
+Tetris Worlds (CIB)
+Tiger Woods PGA Tour 06 (CIB)
+Tiger Woods PGA Tour 2004 (CIB)
+Tiger Woods PGA Tour 2005 (CIB)
+TMNT: Mutant Melee (CIB)
+Tom Clancy's Ghost Recon (CIB)
+Tom Clancy's Ghost Recon 2 (CIB)
+Tom Clancy's Ghost Recon 2: Summit Strike (CIB)
+Tom Clancy's Ghost Recon: Island Thunder (CIB)
+Tom Clancy's Splinter Cell: Pandora Tomorrow (CIB)
+Top Spin (CIB)
+Triple Play 2002 (CIB)
+Turok: Evolution (CIB)
+Unreal Championship (CIB)
+Unreal II: The Awakening (CIB)
+WWE WrestleMania 21 (loose)
+X-Men Legends (CIB)
+X-Men Legends II: Rise of Apocalypse (CIB)
+X-Men: Next Dimension (CIB)
+X-Men: The Official Game (CIB)
+Xbox Music Mixer (CIB)
+
+## Xbox 360
+007: Quantum of Solace (CIB)
+Adventures of Tintin: The Game (CIB)
+Alpha Protocol (CIB)
+America's Army: True Soldiers (CIB)
+Apache: Air Assault (CIB)
+Batman: Arkham Asylum [Game of the Year Edition] (CIB)
+Batman: Arkham City (CIB)
+Batman: Arkham Origins [Collector's Edition] (CIB)
+Battlefield 3 [Limited Edition] (CIB)
+Battlefield 4: China Rising Expansion Pack (CIB)
+Battlefield: Bad Company (CIB)
+Battlefield: Bad Company 2 (CIB)
+Battlefield: Bad Company 2 [Limited Edition] (CIB)
+Battleship (CIB)
+Big Bumpin' (CIB)
+Bulletstorm [Epic Edition] (CIB)
+Call of Duty: Black Ops (CIB)
+Call of Duty: Black Ops II (CIB)
+Call of Duty: Ghosts (missing manual)
+Call of Duty: Modern Warfare 2 (CIB)
+Call of Duty: Modern Warfare 3 (CIB)
+Call of Duty: World at War (CIB)
+Crackdown (CIB)
+Darksiders (CIB)
+Darksiders II (CIB)
+Dead Island [Game of the Year Edition] (CIB)
+Deadfall Adventures (CIB)
+Deadpool (CIB)
+Deus Ex: Human Revolution (CIB)
+G.I. Joe: The Rise of Cobra (CIB)
+Gears of War (CIB)
+Gears of War 2 [Limited Edition] (missing manual)
+Gears of War 3 (loose)
+Gears of War [Limited Collector's Edition] (CIB)
+Greg Hastings Paintball 2 (CIB)
+Guitar Hero III: Legends of Rock (loose)
+Gun (CIB)
+Halo 3 (CIB)
+Halo 3 [Legendary Edition] (CIB)
+Halo 3 [Limited Edition] (CIB)
+Halo 3: ODST (CIB)
+Halo 4 (CIB)
+Halo 4 [Limited Edition] (CIB)
+Halo Reach [With Recon Helmet DLC] (CIB)
+Halo Wars (CIB)
+Halo: Combat Evolved Anniversary (CIB)
+Halo: Reach [Limited Edition] (CIB)
+Harry Potter and the Order of the Phoenix (CIB)
+Majin and the Forsaken Kingdom (CIB)
+Major League Baseball 2K6 (missing manual)
+Mass Effect 2 (CIB)
+Mass Effect 3 (CIB)
+Mortal Kombat vs. DC Universe (CIB)
+Need For Speed: ProStreet (CIB)
+NHL 07 (loose)
+Official Xbox Magazine Demo Disc 59 (CIB)
+Project Gotham Racing 3 (CIB)
+Project Gotham Racing 4 (CIB)
+Quake 4 (CIB)
+Red Faction: Guerrilla (CIB)
+Saints Row IV [Super Dangerous Wub Wub Edition] (CIB+)
+Section 8 (CIB)
+Sid Meier's Civilization Revolution (CIB)
+Sneak King (CIB)
+Spec Ops: The Line (CIB)
+Tiger Woods PGA Tour 11 (CIB)
+Tom Clancy's Ghost Recon Advanced Warfighter (loose)
+Tom Clancy's Ghost Recon: Future Soldier Signature Edition (missing game)
+Tom Clancy's Splinter Cell: Blacklist (CIB)
+X-Men Origins: Wolverine (CIB)
+
+## Xbox One
+Assassin's Creed: Syndicate (CIB)
+Batman: Arkham Knight (CIB)
+Borderlands: The Handsome Collection (CIB)
+Call of Duty: Ghosts (missing manual)
+Call of Duty: Modern Warfare II [Cross-Gen Bundle] (CIB)
+Cyberpunk 2077 (CIB)
+Epic Mickey: Rebrushed (CIB)
+Gears of War 4 (CIB)
+Gears of War: Ultimate Edition (CIB)
+Grand Theft Auto V (CIB)
+Halo 5: Guardians (sealed)
+Halo 5: Guardians [Limited Edition] (CIB)
+Halo Wars 2 [Ultimate Edition] (CIB)
+Halo: The Master Chief Collection (CIB)
+Mortal Kombat 11 (missing manual)
+Red Dead Redemption II (CIB)
+Sonic Frontiers (CIB)
+Sonic Mania Collector's Edition (CIB)
+Sonic Superstars (CIB)
+Sonic X Shadow Generations [Day One Edition] (CIB)
+South Park: The Fractured but Whole (CIB)
+Teenage Mutant Ninja Turtles: The Cowabunga Collection (CIB)
+Titanfall 2 (CIB)
+Tom Clancy's: The Division 2 (CIB)
+Wolfenstein II: The New Colossus (CIB)
+Wolfenstein: The New Order (CIB)
+Zumba Fitness World Party (CIB)
+
+## Xbox Series X/S
+007 First Light (CIB)
+Battlefield 6 (CIB)
+EA SPORTS College Football 25 (CIB)
+Goat Simulator 3 (CIB)
+Metal Gear Solid Delta: Snake Eater [Tactical Edition] (CIB)
+Metal Gear Solid: Master Collection Vol. 1 (CIB)
+Metal Gear Solid: Master Collection Vol. 2 [Day One Edition] (CIB)
+Star Wars Outlaws [Gold Edition] (CIB)
+
+## Sega Genesis
+Adventures of Batman & Robin (CIB)
+Adventures of Rocky and Bullwinkle and Friends (CIB)
+Altered Beast (CIB)
+American Gladiators (CIB)
+Arcade Classics (CIB)
+Barkley Shut Up and Jam! (CIB)
+Barkley Shut Up and Jam! 2 (CIB)
+Batman Forever (CIB)
+Batman Returns (CIB)
+Batman: Revenge of the Joker (CIB)
+Batman: The Video Game (CIB)
+Bill Walsh College Football (CIB)
+Boogerman: A Pick and Flick Adventure (CIB)
+Bram Stoker's Dracula (missing manual)
+Bugs Bunny in Double Trouble (CIB)
+Bulls vs Lakers and the NBA Playoffs (CIB)
+Captain America and the Avengers (CIB)
+Cliffhanger (CIB)
+Cool Spot (CIB)
+Demolition Man (CIB)
+Desert Strike: Return to the Gulf (CIB)
+Dynamite Duke (missing manual)
+Earthworm Jim (CIB)
+ESPN Baseball Tonight (CIB)
+ESPN Sunday Night NFL (missing manual)
+ESWAT: City Under Siege (CIB)
+F-117 Night Storm (CIB)
+Flashback: The Quest for Identity (missing manual)
+Golden Axe II (CIB)
+HardBall '95 (CIB)
+HardBall III (CIB)
+James Bond 007: The Duel (CIB)
+Judge Dredd (CIB)
+Jungle Book (CIB)
+Jungle Strike (CIB)
+Jurassic Park (CIB)
+Justice League Task Force (CIB)
+Krusty's Super Fun House (CIB)
+Madden NFL '95 (CIB)
+Monopoly (CIB)
+Mortal Kombat (CIB)
+Mortal Kombat 3 (CIB)
+Mortal Kombat II (CIB)
+Ms. Pac-Man (CIB)
+NBA Showdown 94 (CIB)
+NFL Football '94 Starring Joe Montana (CIB)
+NFL Quarterback Club 96 (CIB)
+NFL Sports Talk Football '93 Starring Joe Montana (CIB)
+Pebble Beach Golf Links (CIB)
+Pink Goes to Hollywood (missing manual)
+Pitfall: The Mayan Adventure (CIB)
+R.B.I. Baseball 3 (CIB)
+Ren & Stimpy Show Presents: Stimpy's Invention (CIB)
+RoboCop versus The Terminator (CIB)
+Sonic Spinball (CIB)
+Sonic the Hedgehog (CIB)
+Sonic the Hedgehog 2 [Not for Resale] (CIB)
+Sonic the Hedgehog 3 (CIB)
+Spider-Man & Venom: Maximum Carnage [Black Cart] (CIB)
+Spider-Man / X-Men: Arcade's Revenge (CIB)
+Sports Talk Baseball (CIB)
+Spot Goes To Hollywood (CIB)
+Stargate (CIB)
+Street Fighter II': Special Champion Edition (CIB)
+Streets of Rage (CIB)
+Streets of Rage 2 (CIB)
+Superman (missing manual)
+Sylvester and Tweety in Cagey Capers (missing manual)
+T2: The Arcade Game (CIB)
+Teenage Mutant Ninja Turtles Tournament Fighters [Cardboard Box] (CIB)
+Teenage Mutant Ninja Turtles: The Hyperstone Heist (missing manual)
+Terminator (CIB)
+Terminator 2: Judgment Day (CIB)
+Tick (CIB)
+Tiny Toon Adventures: Buster's Hidden Treasure (CIB)
+Tommy Lasorda Baseball (missing manual)
+Urban Strike (CIB)
+Where in Time Is Carmen Sandiego? (CIB)
+Wolverine: Adamantium Rage (missing manual)
+World Series Baseball (CIB)
+World Series Baseball '95 (CIB)
+WWF Super WrestleMania (missing manual)
+X-Men (CIB)
+X-Men 2: Clone Wars (CIB)
+
+## Sega Dreamcast
+4x4 Evolution (CIB)
+Crazy Taxi (CIB)
+Dreamcast Web Browser 2.0 (CIB)
+NFL 2K (CIB)
+NHL 2K (CIB)
+Sega Dreamcast Web Browser (CIB)
+SEGA Rally 2 (CIB)
+Shenmue (CIB)
+Sonic Adventure (CIB)
+South Park: Chef's Luv Shack (CIB)
+Street Fighter III: Double Impact (CIB)
+Tomb Raider: Chronicles (CIB)
+Unreal Tournament (CIB)
+Virtua Tennis (CIB)
+World Series Baseball 2K2 (CIB)
+WWF Royal Rumble (CIB)
+Xtreme Sports (CIB)
+
+## Sega Saturn
+Black Dawn (CIB)
+Christmas Nights Into Dreams (CIB)
+Congo The Movie: The Lost City of Zinj (CIB)
+Grandread (CIB)
+Space Jam (CIB)
+Virtua Fighter 2 (CIB)
+X-Men: Children Of The Atom (CIB)
+
+## Sega Master System
+Ghostbusters (CIB)
+
+## Atari 7800+
+Bentley Bear's Crystal Quest [2024 Reissue] (CIB)
+
+## Intellivision
+Pitfall! (CIB)
+
+## Arcade1Up
+Arcade1Up Teenage Mutant Ninja Turtles: Turtles in Time Arcade Machine (loose)
+
+## PC
+500,000 Games (loose)
+Battlefield 2 (CIB)
+Chessmaster 6000 (CIB)
+Dilbert's Desktop Games (CIB)
+Driver [Sold Out] (CIB)
+Scrabble Champion Edition (loose)
+Star Wars: The Old Republic (CIB)
+`;
+const COLORS = {
+  "NES":               ["#d3d0c8","#12141a"],
+  "Famicom":           ["#d1553f","#1a0705"],
+  "SNES":              ["#8f6fd6","#0d0a16"],
+  "Nintendo 64":       ["#3fa65b","#08150c"],
+  "GameCube":          ["#6f68c9","#0b0a18"],
+  "Game Boy":          ["#9bbc0f","#101505"],
+  "Game Boy Color":    ["#3fb8b0","#041413"],
+  "Nintendo DS":       ["#5aa2e0","#061018"],
+  "Nintendo 3DS":      ["#e0466f","#180509"],
+  "Wii":               ["#7fd4f5","#04131a"],
+  "Nintendo Switch":   ["#f0413f","#1a0605"],
+  "Game & Watch":      ["#b3aea1","#14130f"],
+  "PlayStation 1":     ["#a9b0c4","#0d1018"],
+  "PlayStation 2":     ["#3b6fd4","#050b18"],
+  "PlayStation 3":     ["#c9a94a","#161206"],
+  "PSP":               ["#7c869c","#0a0d14"],
+  "PlayStation 4":     ["#2b8ce0","#04101c"],
+  "Xbox":              ["#8ec63f","#0d1405"],
+  "Xbox 360":          ["#5fbf3a","#081405"],
+  "Xbox One":          ["#3aa832","#051205"],
+  "Xbox Series X/S":   ["#2ed15a","#04140a"],
+  "Sega Genesis":      ["#e04a3c","#180705"],
+  "Sega Dreamcast":    ["#f2793f","#1a0a04"],
+  "Sega Saturn":       ["#4a63c9","#070a18"],
+  "Sega Master System":["#c94a4a","#170606"],
+  "Atari 7800+":       ["#e07a35","#180c04"],
+  "Intellivision":     ["#d1a83a","#161104"],
+  "Arcade1Up":         ["#e6c02e","#171303"],
+  "PC":                ["#9aa3b5","#0c0e14"]
+};
+const FRANCHISES = [["Star Wars", ["star wars", "super star wars", "lego star wars"]], ["Metal Gear", ["metal gear", "snake's revenge"]], ["Mario", ["mario", "yoshi", "luigi's mansion", "wrecking crew"]], ["Batman", ["batman", "arkham"]], ["Halo", ["halo"]], ["Teenage Mutant Ninja Turtles", ["teenage mutant", "tmnt"]], ["James Bond 007", ["007", "goldeneye", "james bond", "nightfire", "tomorrow never dies", "world is not enough", "quantum of solace", "blood stone", "russia with love", "everything or nothing", "agent under fire", "the duel"]], ["Spider-Man", ["spider-man", "venom - ", "separation anxiety", "maximum carnage"]], ["X-Men", ["x-men", "x2:", "wolverine"]], ["Mortal Kombat", ["mortal kombat"]], ["Call of Duty", ["call of duty"]], ["Sonic the Hedgehog", ["sonic"]], ["Street Fighter", ["street fighter"]], ["Tom Clancy", ["tom clancy", "ghost recon", "splinter cell", "rainbow six", "the division"]], ["The Legend of Zelda", ["zelda"]], ["Terminator", ["terminator", "t2: the arcade", "t2: judgment"]], ["RoboCop", ["robocop"]], ["Tiger Woods PGA Tour", ["tiger woods"]], ["Final Fantasy", ["final fantasy"]], ["Battlefield", ["battlefield"]], ["Mega Man", ["mega man"]], ["Gran Turismo", ["gran turismo"]], ["WWF / WWE", ["wwf", "wwe", "wrestlemania"]], ["Madden NFL", ["madden"]], ["NBA Jam", ["nba jam"]], ["Looney Tunes", ["looney tunes", "bugs bunny", "taz-mania", "tiny toon", "speedy gonzales", "sylvester and tweety", "road runner"]], ["Gears of War", ["gears of war"]], ["Doom", ["doom"]], ["Quake", ["quake"]], ["Wolfenstein", ["wolfenstein"]], ["Star Fox", ["star fox"]], ["Syphon Filter", ["syphon filter"]], ["Assassin's Creed", ["assassin's creed"]], ["Project Gotham Racing", ["project gotham"]], ["World Series Baseball", ["world series baseball"]], ["Major League Baseball 2K", ["major league baseball 2k", "mlb 20", "mlb the show", "mlb slugfest", "mlb superstars"]], ["Metroid", ["metroid"]], ["Donkey Kong", ["donkey kong", "diddy kong", "dk: jungle"]], ["Punch-Out!!", ["punch-out"]], ["Tetris", ["tetris"]], ["Contra", ["contra", "super c "]], ["Killer Instinct", ["killer instinct"]], ["Outlaw", ["outlaw "]], ["Army Men", ["army men"]], ["Turok", ["turok"]], ["Streets of Rage", ["streets of rage"]], ["Twisted Metal", ["twisted metal"]], ["Onimusha", ["onimusha"]], ["Darksiders", ["darksiders"]], ["Ken Griffey Jr.", ["griffey"]], ["WCW / nWo", ["wcw"]], ["NFL Quarterback Club", ["quarterback club"]], ["ESPN", ["espn"]], ["NCAA Football", ["ncaa football", "ncaa college", "ncaa gamebreaker"]], ["Triple Play", ["triple play"]], ["NBA Live / ShootOut", ["nba live", "nba shootout", "nba shootout", "nba showtime", "nba street", "nba showdown"]], ["Extreme-G", ["extreme-g", "xgiii"]], ["ATV / MX Offroad", ["atv offroad", "mx vs. atv"]], ["Need for Speed", ["need for speed"]], ["Simpsons", ["simpsons"]], ["Jurassic Park", ["jurassic park"]], ["Mission: Impossible", ["mission: impossible"]], ["Ren & Stimpy", ["ren & stimpy"]], ["Adventure Island", ["adventure island"]], ["Adventures of Lolo", ["adventures of lolo"]], ["Double Dragon", ["double dragon"]], ["Ikari Warriors", ["ikari warriors"]], ["Dragon Warrior", ["dragon warrior"]], ["Top Gun", ["top gun"]], ["Pitfall", ["pitfall"]], ["Pac-Man", ["pac-man"]], ["Caesars Palace", ["caesar"]], ["Sly Cooper", ["sly collection"]], ["Wave Race", ["wave race"]], ["Pilotwings", ["pilotwings"]], ["Excite", ["excitebike", "excite truck"]], ["Crazy Taxi", ["crazy taxi"]], ["Carmen Sandiego", ["carmen sandiego"]], ["Frogger", ["frogger"]], ["Justice League", ["justice league"]], ["Superman", ["superman"]], ["Hulk", ["hulk"]], ["Guitar Hero", ["guitar hero"]], ["Civilization", ["civilization"]], ["Chessmaster", ["chessmaster"]], ["Hardball", ["hardball"]], ["Big Bumpin' / Burger King", ["big bumpin", "sneak king"]], ["Unreal", ["unreal"]], ["Bram Stoker's Dracula", ["bram stoker"]], ["Cliffhanger", ["cliffhanger"]], ["American Gladiators", ["american gladiators"]], ["Judge Dredd", ["judge dredd"]], ["Captain America and the Avengers", ["captain america"]], ["Minority Report", ["minority report"]], ["Gun", ["gun ("]], ["Barkley Shut Up and Jam!", ["barkley"]], ["Strike series", ["desert strike", "jungle strike", "urban strike"]], ["Epic Mickey", ["epic mickey"]], ["The Jungle Book", ["jungle book"]], ["Spot", ["spot:", "spot goes", "cool spot"]]];
+const FALLBACK = ["#9aa3b5","#0c0e14"];
+
+const systems=[]; let cur=null;
+for (const rawLine of RAW.split("\n")) {
+  const line=rawLine.trim(); if(!line) continue;
+  if (line.startsWith("## ")) {
+    const name=line.slice(3).trim();
+    cur={name,games:[],color:(COLORS[name]||FALLBACK)[0]};
+    systems.push(cur); continue;
+  }
+  if(!cur) continue;
+  const m=line.match(/^(.*)\s\(([^()]*)\)$/);
+  const title=m?m[1].trim():line;
+  const c=(m?m[2].trim():"unknown").toLowerCase();
+  let cls="loose";
+  if (c==="cib"||c==="cib+"||c==="sealed") cls="cib";
+  else if (c.startsWith("missing")||c==="partial"||c==="manual only") cls="part";
+  cur.games.push({title,system:cur.name,cls});
+}
+const all=systems.flatMap(s=>s.games);
+const n=c=>all.filter(g=>g.cls===c).length;
+
+document.getElementById("big").innerHTML=[
+  [all.length,"games"],[systems.length,"systems"],
+  [n("cib"),"complete"],[n("part"),"missing a piece"],[n("loose"),"loose"],
+  [Math.round(n("cib")/all.length*100)+"%","complete in box"]
+].map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join("");
+
+const TINT={cib:"#3fbf6a",part:"#c9c34a",loose:"#6b7185"};
+function stack(el,rows,max){
+  el.innerHTML=rows.map(([name,gs])=>{
+    const w=gs.length/max*100;
+    const seg=["cib","part","loose"].map(k=>{
+      const c=gs.filter(g=>g.cls===k).length;
+      return c?`<i style="width:${c/gs.length*100}%;background:${TINT[k]}"></i>`:"";
+    }).join("");
+    return `<div class="row"><span class="nm">${name}</span>
+      <span class="track"><span class="fill" style="width:${w.toFixed(2)}%">${seg}</span></span>
+      <span class="v">${gs.length}</span></div>`;
+  }).join("");
+}
+
+const bySys=systems.filter(s=>s.games.length>1).sort((a,b)=>b.games.length-a.games.length);
+stack(document.getElementById("bySys"), bySys.map(s=>[s.name,s.games]), bySys[0].games.length);
+
+function seriesOf(t){
+  const tl=t.toLowerCase();
+  for (const [nm,pats] of FRANCHISES) for (const p of pats) if (tl.includes(p)) return nm;
+  return null;
+}
+const fr=new Map();
+for (const g of all){ const k=seriesOf(g.title); if(!k) continue;
+  if(!fr.has(k)) fr.set(k,[]); fr.get(k).push(g); }
+const topFr=[...fr].filter(([,v])=>v.length>=6).sort((a,b)=>b[1].length-a[1].length).slice(0,18);
+stack(document.getElementById("byFran"), topFr, topFr[0][1].length);
+
+stack(document.getElementById("byCond"),
+  [["Complete in box",all.filter(g=>g.cls==="cib")],
+   ["Missing a piece",all.filter(g=>g.cls==="part")],
+   ["Loose",all.filter(g=>g.cls==="loose")]],
+  all.filter(g=>g.cls==="cib").length);
+</script>
+</body>
+</html>
