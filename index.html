@@ -109,6 +109,17 @@
     font-family:"Silkscreen",monospace;font-size:11px;
     letter-spacing:.09em;color:var(--dim);
   }
+  a.score{
+    text-decoration:none;cursor:pointer;position:relative;
+    transition:background .12s ease;
+  }
+  a.score:hover,a.score:focus-visible{background:var(--panel);outline:none}
+  a.score:hover b,a.score:focus-visible b{color:var(--hot)}
+  a.score::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:2px;
+    background:var(--hot);opacity:0;transition:opacity .12s ease;
+  }
+  a.score:hover::after,a.score:focus-visible::after{opacity:1}
 
   .sitenav{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 0}
   .viewrow{
@@ -172,8 +183,16 @@
     width:4px;height:8px;border:solid #0b1410;
     border-width:0 2px 2px 0;transform:rotate(42deg);
   }
+  .beat.endless{
+    display:flex;align-items:center;justify-content:center;
+    border-color:#6d7488;color:#8e93a2;
+    font-family:"IBM Plex Sans",sans-serif;font-size:11px;line-height:1;
+  }
+  .beat.endless::after{content:"\u221e"}
   .games li .beat{display:block;cursor:pointer}
+  .games li .beat.endless{display:flex}
   .games li .beat:hover{border-color:#3fbf6a}
+  .games li .beat.endless:hover{border-color:#a2a9bd}
   .savebar{
     position:fixed;left:0;right:0;bottom:0;z-index:60;
     display:none;align-items:center;gap:14px;flex-wrap:wrap;
@@ -342,6 +361,7 @@
       <a class="shelflink" href="reviews.html">Reviews</a>
       <a class="shelflink" href="lists.html">Lists</a>
       <a class="shelflink" href="rank.html">Your list</a>
+      <a class="shelflink" href="consoles.html">Consoles</a>
       <a class="shelflink" href="stats.html">The numbers</a>
     </div>
 
@@ -1323,27 +1343,83 @@ Super Mario Bros. 3
 The Legend of Zelda
 `;
 
+/* ===== GAMES WITH NO ENDING =====
+   Sports, puzzle, arcade - anything that just keeps going. Same format. */
+const NO_ENDING = `
+`;
+
 let BEATEN_SET = new Set(
   BEATEN.split("\n").map(x => x.trim()).filter(Boolean).map(x => x.toLowerCase())
 );
+let ENDLESS_SET = new Set(
+  NO_ENDING.split("\n").map(x => x.trim()).filter(Boolean).map(x => x.toLowerCase())
+);
 const PUBLISHED = new Set(BEATEN_SET);
+const PUBLISHED_E = new Set(ENDLESS_SET);
 
 /* Ticks are backed up to this browser on every click, so a reload,
    a closed tab or a misclick never loses work. */
 const DRAFT = "np-beaten-draft";
+const DRAFT_E = "np-endless-draft";
 try {
   const d = localStorage.getItem(DRAFT);
   if (d) BEATEN_SET = new Set(JSON.parse(d));
-} catch (err) { /* storage blocked: carry on with the published list */ }
+  const e = localStorage.getItem(DRAFT_E);
+  if (e) ENDLESS_SET = new Set(JSON.parse(e));
+} catch (err) { /* storage blocked: carry on with the published lists */ }
 function backup(){
-  try { localStorage.setItem(DRAFT, JSON.stringify([...BEATEN_SET])); }
-  catch (err) {}
+  try {
+    localStorage.setItem(DRAFT, JSON.stringify([...BEATEN_SET]));
+    localStorage.setItem(DRAFT_E, JSON.stringify([...ENDLESS_SET]));
+  } catch (err) {}
 }
+
+
+
+/* ===== CONSOLES I OWN =====
+   One per line: Name | shelf it matches (or leave the shelf blank).
+   The shelf name links the console to its games. Revisions and variants
+   that share a shelf just repeat it. */
+const CONSOLES = `
+Nintendo Entertainment System | NES
+Famicom | Famicom
+Super Nintendo | SNES
+Nintendo 64 | Nintendo 64
+Nintendo GameCube | GameCube
+Game Boy | Game Boy
+Game Boy Color | Game Boy Color
+Nintendo DS | Nintendo DS
+Nintendo 3DS | Nintendo 3DS
+Nintendo Wii | Wii
+Nintendo Switch | Nintendo Switch
+Game & Watch | Game & Watch
+Sony PlayStation | PlayStation 1
+PlayStation 2 | PlayStation 2
+PlayStation 3 | PlayStation 3
+PlayStation Portable | PSP
+PlayStation 4 | PlayStation 4
+Xbox | Xbox
+Xbox 360 | Xbox 360
+Xbox One | Xbox One
+Xbox One X | Xbox One
+Xbox Series X | Xbox Series X/S
+Sega Genesis | Sega Genesis
+Sega Dreamcast | Sega Dreamcast
+Sega Saturn | Sega Saturn
+Sega Master System | Sega Master System
+Atari 7800+ | Atari 7800+
+Intellivision | Intellivision
+Arcade1Up TMNT cabinet | Arcade1Up
+`;
 
 
 const FRANCHISES = [["Star Wars", ["star wars", "super star wars", "lego star wars"]], ["Metal Gear", ["metal gear", "snake's revenge"]], ["Mario", ["mario", "yoshi", "luigi's mansion", "wrecking crew"]], ["Batman", ["batman", "arkham"]], ["Halo", ["halo"]], ["Teenage Mutant Ninja Turtles", ["teenage mutant", "tmnt"]], ["James Bond 007", ["007", "goldeneye", "james bond", "nightfire", "tomorrow never dies", "world is not enough", "quantum of solace", "blood stone", "russia with love", "everything or nothing", "agent under fire", "the duel"]], ["Spider-Man", ["spider-man", "venom - ", "separation anxiety", "maximum carnage"]], ["X-Men", ["x-men", "x2:", "wolverine"]], ["Mortal Kombat", ["mortal kombat"]], ["Call of Duty", ["call of duty"]], ["Sonic the Hedgehog", ["sonic"]], ["Street Fighter", ["street fighter"]], ["Tom Clancy", ["tom clancy", "ghost recon", "splinter cell", "rainbow six", "the division"]], ["The Legend of Zelda", ["zelda"]], ["Terminator", ["terminator", "t2: the arcade", "t2: judgment"]], ["RoboCop", ["robocop"]], ["Tiger Woods PGA Tour", ["tiger woods"]], ["Final Fantasy", ["final fantasy"]], ["Battlefield", ["battlefield"]], ["Mega Man", ["mega man"]], ["Gran Turismo", ["gran turismo"]], ["WWF / WWE", ["wwf", "wwe", "wrestlemania"]], ["Madden NFL", ["madden"]], ["NBA Jam", ["nba jam"]], ["Looney Tunes", ["looney tunes", "bugs bunny", "taz-mania", "tiny toon", "speedy gonzales", "sylvester and tweety", "road runner"]], ["Gears of War", ["gears of war"]], ["Doom", ["doom"]], ["Quake", ["quake"]], ["Wolfenstein", ["wolfenstein"]], ["Star Fox", ["star fox"]], ["Syphon Filter", ["syphon filter"]], ["Assassin's Creed", ["assassin's creed"]], ["Project Gotham Racing", ["project gotham"]], ["World Series Baseball", ["world series baseball"]], ["Major League Baseball 2K", ["major league baseball 2k", "mlb 20", "mlb the show", "mlb slugfest", "mlb superstars"]], ["Metroid", ["metroid"]], ["Donkey Kong", ["donkey kong", "diddy kong", "dk: jungle"]], ["Punch-Out!!", ["punch-out"]], ["Tetris", ["tetris"]], ["Contra", ["contra", "super c "]], ["Killer Instinct", ["killer instinct"]], ["Outlaw", ["outlaw "]], ["Army Men", ["army men"]], ["Turok", ["turok"]], ["Streets of Rage", ["streets of rage"]], ["Twisted Metal", ["twisted metal"]], ["Onimusha", ["onimusha"]], ["Darksiders", ["darksiders"]], ["Ken Griffey Jr.", ["griffey"]], ["WCW / nWo", ["wcw"]], ["NFL Quarterback Club", ["quarterback club"]], ["ESPN", ["espn"]], ["NCAA Football", ["ncaa football", "ncaa college", "ncaa gamebreaker"]], ["Triple Play", ["triple play"]], ["NBA Live / ShootOut", ["nba live", "nba shootout", "nba shootout", "nba showtime", "nba street", "nba showdown"]], ["Extreme-G", ["extreme-g", "xgiii"]], ["ATV / MX Offroad", ["atv offroad", "mx vs. atv"]], ["Need for Speed", ["need for speed"]], ["Simpsons", ["simpsons"]], ["Jurassic Park", ["jurassic park"]], ["Mission: Impossible", ["mission: impossible"]], ["Ren & Stimpy", ["ren & stimpy"]], ["Adventure Island", ["adventure island"]], ["Adventures of Lolo", ["adventures of lolo"]], ["Double Dragon", ["double dragon"]], ["Ikari Warriors", ["ikari warriors"]], ["Dragon Warrior", ["dragon warrior"]], ["Top Gun", ["top gun"]], ["Pitfall", ["pitfall"]], ["Pac-Man", ["pac-man"]], ["Caesars Palace", ["caesar"]], ["Sly Cooper", ["sly collection"]], ["Wave Race", ["wave race"]], ["Pilotwings", ["pilotwings"]], ["Excite", ["excitebike", "excite truck"]], ["Crazy Taxi", ["crazy taxi"]], ["Carmen Sandiego", ["carmen sandiego"]], ["Frogger", ["frogger"]], ["Justice League", ["justice league"]], ["Superman", ["superman"]], ["Hulk", ["hulk"]], ["Guitar Hero", ["guitar hero"]], ["Civilization", ["civilization"]], ["Chessmaster", ["chessmaster"]], ["Hardball", ["hardball"]], ["Big Bumpin' / Burger King", ["big bumpin", "sneak king"]], ["Unreal", ["unreal"]], ["Bram Stoker's Dracula", ["bram stoker"]], ["Cliffhanger", ["cliffhanger"]], ["American Gladiators", ["american gladiators"]], ["Judge Dredd", ["judge dredd"]], ["Captain America and the Avengers", ["captain america"]], ["Minority Report", ["minority report"]], ["Gun", ["gun ("]], ["Barkley Shut Up and Jam!", ["barkley"]], ["Strike series", ["desert strike", "jungle strike", "urban strike"]], ["Epic Mickey", ["epic mickey"]], ["The Jungle Book", ["jungle book"]], ["Spot", ["spot:", "spot goes", "cool spot"]]];
 
 const fold = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const HARDWARE = CONSOLES.split("\n").map(x => x.trim()).filter(Boolean).map(x => {
+  const [name, shelf] = x.split("|").map(p => (p || "").trim());
+  return { name, shelf, key: fold(name) };
+});
 const systems = [];
 let cur = null;
 for (const rawLine of RAW.split("\n")) {
@@ -1376,6 +1452,9 @@ const looseCount = all.filter(g => g.cls === "").length;
 const isBeaten = g =>
   BEATEN_SET.has(g.title.toLowerCase()) ||
   BEATEN_SET.has((g.title + " | " + g.system).toLowerCase());
+const isEndless = g =>
+  ENDLESS_SET.has(g.title.toLowerCase()) ||
+  ENDLESS_SET.has((g.title + " | " + g.system).toLowerCase());
 
 let query = "";
 let condFilter = "all";
@@ -1572,14 +1651,42 @@ function esc(s){ return s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"
 
 function drawScores(){
   const beat = all.filter(isBeaten).length;
+  const endless = all.filter(isEndless).length;
+  const beatable = total - endless;
+  const pct = beatable ? Math.round(beat / beatable * 100) : 0;
   document.getElementById("scores").innerHTML = [
-    [total, "games"], [systems.length, "systems"],
-    [cibCount, "complete"], [looseCount, "loose"], [beat, "beaten"]
-  ].map(([n, l]) => `<div class="score"><b>${n}</b><span>${l}</span></div>`).join("");
+    [total, "games", null],
+    [systems.length, "systems", "consoles.html"],
+    [cibCount, "complete", "cond:cib"],
+    [looseCount, "loose", "cond:"],
+    [beat, "beaten", "beat:beaten"],
+    [endless, "no ending", "beat:endless"],
+    [pct + "%", "of beatable", null]
+  ].map(([n, l, go]) => go
+      ? `<a class="score go" href="${go.includes(":") ? "#" : go}" data-go="${go}"><b>${n}</b><span>${l}</span></a>`
+      : `<div class="score"><b>${n}</b><span>${l}</span></div>`
+  ).join("");
 }
 
+document.getElementById("scores").addEventListener("click", e => {
+  const a = e.target.closest("a[data-go]"); if (!a) return;
+  const go = a.dataset.go;
+  if (!go.includes(":")) return;          /* a real page, let the link work */
+  e.preventDefault();
+  const [kind, val] = go.split(":");
+  if (kind === "cond") { condFilter = val; beatFilter = "all"; }
+  else { beatFilter = val; condFilter = "all"; }
+  filterBox.querySelectorAll(".chip").forEach(c => {
+    if (c.dataset.beat !== undefined) c.setAttribute("aria-pressed", c.dataset.beat === beatFilter);
+    else c.setAttribute("aria-pressed", c.dataset.cond === condFilter);
+  });
+  collapsed.clear();
+  render();
+  document.getElementById("results").scrollIntoView({behavior:"smooth", block:"start"});
+});
+
 const FILTERS = [["all","Everything"],["cib","Complete in box"],["","Loose"],["part","Missing a piece"]];
-const BEATFILTERS = [["beaten","Beaten"],["unbeaten","Not beaten"]];
+const BEATFILTERS = [["beaten","Beaten"],["unbeaten","Not beaten"],["endless","No ending"]];
 const filterBox = document.getElementById("filters");
 filterBox.innerHTML =
   FILTERS.map(([v,l]) =>
@@ -1633,7 +1740,9 @@ function toggleShelf(head){
 function matches(g) {
   if (condFilter !== "all" && g.cls !== condFilter) return false;
   if (beatFilter === "beaten" && !isBeaten(g)) return false;
-  if (beatFilter === "unbeaten" && isBeaten(g)) return false;
+  /* Not beaten is a to-do list, so games with no ending stay out of it. */
+  if (beatFilter === "unbeaten" && (isBeaten(g) || isEndless(g))) return false;
+  if (beatFilter === "endless" && !isEndless(g)) return false;
   if (query && !g.key.includes(query)) return false;
   return true;
 }
@@ -1653,7 +1762,7 @@ function render() {
         `<img class="shot" loading="lazy" src="images/${slug(g)}.jpg" alt="${esc(g.title)}"` +
         ` onerror="this.remove()">` +
         `<i class="mark ${g.cls}"></i>` +
-        `<i class="beat${isBeaten(g) ? " on" : ""}"></i>` +
+        `<i class="beat${isBeaten(g) ? " on" : isEndless(g) ? " endless" : ""}"></i>` +
         `<span class="title"><a href="${wiki(g.title)}" target="_blank" rel="noopener">${esc(g.title)}</a></span>` +
         (s.showSys ? `<span class="sysflag">${esc(g.system)}</span>` : "") +
         (videoFor(g) ? `<a class="play" href="${videoFor(g)}" target="_blank" rel="noopener" title="ASMR short on YouTube">&#9654;</a>` : "") +
@@ -1679,6 +1788,7 @@ function extras(g){
       out.push(`<a href="lists.html#game=${encodeURIComponent(g.title)}">on ${ranks.length} lists</a>`);
   }
   if (isBeaten(g)) out.push(`<span class="done">Beaten</span>`);
+  else if (isEndless(g)) out.push(`<span>No ending</span>`);
   const vid = videoFor(g);
   if (vid) out.push(`<a href="${vid}" target="_blank" rel="noopener">ASMR short</a>`);
   const ann = anniversary(g);
@@ -1689,7 +1799,8 @@ function extras(g){
 function updateVerdict() {
   if (!query) { verdict.className = ""; verdict.innerHTML = ""; return; }
   const hits = all.filter(g => g.key.includes(query));
-  if (!hits.length) {
+  const cons = HARDWARE.filter(h => h.key.includes(query));
+  if (!hits.length && !cons.length) {
     verdict.className = "on";
     verdict.innerHTML = `<div class="vbox" style="--hit:#8e93a2">
       <p class="vhead">Not on the shelf</p>
@@ -1697,10 +1808,19 @@ function updateVerdict() {
     return;
   }
   verdict.className = "on";
-  const head = hits.length === 1 ? "Got it" : `Got it &times;${hits.length}`;
-  verdict.innerHTML = `<div class="vbox" style="--hit:${hits[0].color}">
+  const tint = hits.length ? hits[0].color : "#ff4b3e";
+  const head = !hits.length ? (cons.length === 1 ? "That's a console" : "Those are consoles")
+             : hits.length === 1 ? "Got it" : `Got it &times;${hits.length}`;
+  verdict.innerHTML = `<div class="vbox" style="--hit:${tint}">
     <p class="vhead">${head}</p>
     <ul class="vlist">` +
+    cons.map(h => {
+      const shelf = systems.find(s => s.name === h.shelf);
+      return `<li><strong>${esc(h.name)}</strong><br><span class="sys">Console` +
+        (shelf ? ` &middot; ${shelf.games.length} games on the shelf` : "") + `</span>` +
+        `<div class="vextra"><a href="consoles.html">See the consoles</a>` +
+        (shelf ? `<a href="#${shelf.id}">Go to the shelf</a>` : "") + `</div></li>`;
+    }).join("") +
     hits.slice(0, 8).map(g =>
       `<li><strong>${esc(g.title)}</strong><br><span class="sys">${esc(g.system)} &middot; ${esc(g.cond)}</span>${extras(g)}</li>`
     ).join("") +
@@ -1757,27 +1877,38 @@ const saveBtn = document.getElementById("saveBtn");
 
 function beatKey(g){ return g.title.toLowerCase(); }
 
+/* Empty -> beaten -> no ending -> empty. */
 results.addEventListener("click", e => {
   const box = e.target.closest(".beat");
   if (!box) return;
   const li = box.closest("li[data-slug]");
   const key = li.dataset.beatkey;
-  if (BEATEN_SET.has(key)) BEATEN_SET.delete(key); else BEATEN_SET.add(key);
+  if (BEATEN_SET.has(key)) {            /* beaten -> no ending */
+    BEATEN_SET.delete(key); ENDLESS_SET.add(key);
+  } else if (ENDLESS_SET.has(key)) {    /* no ending -> empty */
+    ENDLESS_SET.delete(key);
+  } else {                              /* empty -> beaten */
+    BEATEN_SET.add(key);
+  }
   box.classList.toggle("on", BEATEN_SET.has(key));
+  box.classList.toggle("endless", ENDLESS_SET.has(key));
   backup();
   drawScores();
   showBar();
 });
 
+function sameSet(a,b){
+  if (a.size !== b.size) return false;
+  for (const k of a) if (!b.has(k)) return false;
+  return true;
+}
 function dirty(){
-  if (BEATEN_SET.size !== PUBLISHED.size) return true;
-  for (const k of BEATEN_SET) if (!PUBLISHED.has(k)) return true;
-  return false;
+  return !sameSet(BEATEN_SET, PUBLISHED) || !sameSet(ENDLESS_SET, PUBLISHED_E);
 }
 function showBar(){
-  const n = BEATEN_SET.size;
   savebar.classList.toggle("on", dirty());
-  savemsg.textContent = n + " beaten, not saved yet";
+  savemsg.textContent = BEATEN_SET.size + " beaten, " +
+                        ENDLESS_SET.size + " no ending, not saved yet";
   saveBtn.disabled = false;
   saveBtn.textContent = "Save to site";
 }
@@ -1786,9 +1917,12 @@ document.getElementById("undoBtn").addEventListener("click", () => {
   let n = 0;
   for (const k of BEATEN_SET) if (!PUBLISHED.has(k)) n++;
   for (const k of PUBLISHED) if (!BEATEN_SET.has(k)) n++;
+  for (const k of ENDLESS_SET) if (!PUBLISHED_E.has(k)) n++;
+  for (const k of PUBLISHED_E) if (!ENDLESS_SET.has(k)) n++;
   if (!confirm("Throw away " + n + " unsaved change" + (n === 1 ? "" : "s") +
                " and go back to what's on the site? This can't be undone.")) return;
   BEATEN_SET = new Set(PUBLISHED);
+  ENDLESS_SET = new Set(PUBLISHED_E);
   backup();
   render();
   savebar.classList.remove("on");
@@ -1834,8 +1968,13 @@ saveBtn.addEventListener("click", async () => {
     if (!block.test(text)) throw new Error("Could not find the beaten list in the file on GitHub.");
     text = text.replace(block, "const BEATEN = `\n" + list + "\n`;");
 
+    const elist = [...ENDLESS_SET].sort().join("\n");
+    const eblock = /const NO_ENDING = `[\s\S]*?`;/;
+    if (!eblock.test(text)) throw new Error("Could not find the no-ending list in the file on GitHub.");
+    text = text.replace(eblock, "const NO_ENDING = `\n" + elist + "\n`;");
+
     const body = {
-      message: "beaten: " + BEATEN_SET.size + " games",
+      message: "beaten: " + BEATEN_SET.size + " / no ending: " + ENDLESS_SET.size,
       content: btoa(String.fromCharCode(...new TextEncoder().encode(text))),
       sha: meta.sha,
       branch: REPO_BRANCH
@@ -1845,7 +1984,9 @@ saveBtn.addEventListener("click", async () => {
 
     PUBLISHED.clear();
     for (const k of BEATEN_SET) PUBLISHED.add(k);
-    try { localStorage.removeItem(DRAFT); } catch (err) {}
+    PUBLISHED_E.clear();
+    for (const k of ENDLESS_SET) PUBLISHED_E.add(k);
+    try { localStorage.removeItem(DRAFT); localStorage.removeItem(DRAFT_E); } catch (err) {}
     savebar.classList.remove("on");
     saveBtn.disabled = false;
     saveBtn.textContent = "Save to site";
