@@ -190,9 +190,11 @@
   .shelfhead{cursor:pointer;user-select:none;position:relative}
   .shelfhead:hover h2{color:var(--ink)}
   .shelfhead .caret{
-    flex:none;font-family:"Silkscreen",monospace;font-size:12px;
-    margin-right:2px;transition:transform .12s ease;display:inline-block;
+    flex:none;font-family:"Silkscreen",monospace;font-size:32px;line-height:.7;
+    margin-right:14px;transition:transform .12s ease;display:inline-block;
+    opacity:.8;position:relative;top:2px;
   }
+  .shelfhead:hover .caret{opacity:1}
   section.shelf.shut .shelfhead .caret{transform:rotate(-90deg)}
   section.shelf.shut ol.games{display:none}
   section.shelf.shut .shelfhead{margin-bottom:0}
