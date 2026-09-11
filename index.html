@@ -182,6 +182,17 @@
   }
   .savebar button:disabled{opacity:.5;cursor:default}
   .savebar .ghost{background:transparent;color:var(--dim);border-color:var(--line)}
+  /* ---- collapsible shelves ---- */
+  .shelfhead{cursor:pointer;user-select:none;position:relative}
+  .shelfhead:hover h2{color:var(--ink)}
+  .shelfhead .caret{
+    flex:none;font-family:"Silkscreen",monospace;font-size:12px;
+    margin-right:2px;transition:transform .12s ease;display:inline-block;
+  }
+  section.shelf.shut .shelfhead .caret{transform:rotate(-90deg)}
+  section.shelf.shut ol.games{display:none}
+  section.shelf.shut .shelfhead{margin-bottom:0}
+  .foldbtns{display:flex;gap:8px}
   .filters{display:flex;flex-wrap:wrap;gap:8px;margin:0}
   .chip{
     background:transparent;border:1px solid var(--line);color:var(--dim);
@@ -309,6 +320,10 @@
       <div class="toggle" id="viewtoggle" role="group" aria-label="Sort by">
         <button type="button" data-view="system" aria-pressed="true">By system</button>
         <button type="button" data-view="franchise" aria-pressed="false">By series</button>
+      </div>
+      <div class="foldbtns">
+        <button class="chip" type="button" id="foldAll">Collapse all</button>
+        <button class="chip" type="button" id="openAll">Expand all</button>
       </div>
       <a class="shelflink" href="shelf.html">Virtual shelf</a>
       <a class="shelflink" href="anniversaries.html">Anniversaries</a>
@@ -1427,6 +1442,18 @@ function drawRail(){
 const results = document.getElementById("results");
 const verdict = document.getElementById("verdict");
 
+/* Which shelves are folded shut. A search always opens everything,
+   otherwise a hidden match would look like it wasn't there. */
+const collapsed = new Set();
+
+function toggleShelf(head){
+  const sec = head.closest("section.shelf");
+  if (!sec || query) return;
+  const shut = sec.classList.toggle("shut");
+  head.setAttribute("aria-expanded", String(!shut));
+  if (shut) collapsed.add(sec.id); else collapsed.delete(sec.id);
+}
+
 function matches(g) {
   if (condFilter !== "all" && g.cls !== condFilter) return false;
   if (beatFilter === "beaten" && !isBeaten(g)) return false;
@@ -1439,8 +1466,11 @@ function render() {
   const html = groups().map(s => {
     const hits = s.games.filter(matches);
     if (!hits.length) return "";
-    return `<section class="shelf" id="${s.id}" style="--c:${s.color};--ink:${s.ink}">
-      <div class="shelfhead"><h2>${esc(s.name)}</h2><p>${hits.length} of ${s.games.length}</p></div>
+    const shut = !query && collapsed.has(s.id);
+    return `<section class="shelf${shut?" shut":""}" id="${s.id}" style="--c:${s.color};--ink:${s.ink}">
+      <div class="shelfhead" role="button" tabindex="0" aria-expanded="${!shut}">
+        <h2><span class="caret">\u25be</span> ${esc(s.name)}</h2>
+        <p>${hits.length} of ${s.games.length}</p></div>
       <ol class="games">${hits.map(g =>
         `<li data-slug="${slug(g)}" data-beatkey="${esc(g.title.toLowerCase())}"${s.showSys ? ` style="--c:${g.color}"` : ""}>` +
         `<img class="shot" loading="lazy" src="images/${slug(g)}.jpg" alt="${esc(g.title)}"` +
@@ -1629,6 +1659,25 @@ saveBtn.addEventListener("click", async () => {
 
 window.addEventListener("beforeunload", e => {
   if (dirty()) { e.preventDefault(); e.returnValue = ""; }
+});
+
+results.addEventListener("click", e => {
+  const head = e.target.closest(".shelfhead");
+  if (head) toggleShelf(head);
+});
+results.addEventListener("keydown", e => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const head = e.target.closest(".shelfhead");
+  if (head) { e.preventDefault(); toggleShelf(head); }
+});
+
+document.getElementById("foldAll").addEventListener("click", () => {
+  groups().forEach(s => collapsed.add(s.id));
+  render();
+});
+document.getElementById("openAll").addEventListener("click", () => {
+  collapsed.clear();
+  render();
 });
 
 drawRail();
