@@ -81,6 +81,14 @@
   }
   .who{flex:1;min-width:0}
   .who b{display:block;font-weight:500;font-size:15.5px}
+  .who a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+  .who a:hover,.who a:focus-visible{border-bottom-color:var(--c);outline:none}
+  .lists{
+    font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.05em;
+    color:var(--dim);text-decoration:none;border:1px solid var(--line);
+    border-radius:2px;padding:2px 6px;margin-left:8px;white-space:nowrap;
+  }
+  .lists:hover{border-color:var(--hot);color:var(--hot)}
   .who span{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--c,var(--dim))}
   .rating{
     flex:none;font-family:"Press Start 2P",monospace;font-size:13px;
@@ -177,6 +185,28 @@ const R = [
   [40,"Sony PlayStation","PlayStation 1",4]
 ];
 
+/* how many posted lists each game turns up on (from lists.html) */
+const ONLISTS = {
+  "street fighter ii":4,"halo 2":4,"teenage mutant ninja turtles iv: turtles in time":4,
+  "spider-man & venom: maximum carnage":4,"goldeneye 007":3,"metal gear solid":3,
+  "star wars episode i: racer":3,"star fox adventures":3,"metroid prime":3,
+  "super mario world":3,"double dragon ii: the revenge":3,"captain america and the avengers":3,
+  "perfect dark":2,"killer instinct":2,"killer instinct gold":2,"diddy kong racing":2,
+  "mega man legends":2,"wave race 64":2,"super mario bros. 3":2,"final fantasy vii":2,
+  "the legend of zelda: ocarina of time":2,"tekken 3":2,"gran turismo":2,
+  "sonic the hedgehog 2":2,"mario kart 64":2,"super mario 64":1,"popeye":1,
+  "galaga: demons of death":1,"mvp baseball 2005":1,"gun":1,"paperboy":1,
+  "the legend of zelda: majora's mask":2,"metal gear solid 4: guns of the patriots":2,
+  "x-men origins: wolverine":1,"007: tomorrow never dies":2,"adventure island":1,
+  "r.c. pro-am":1,"zelda ii: the adventure of link":1,"the legend of zelda":1,
+  "super mario world 2: yoshi's island":1,"batman: the video game":1,
+  "mega man 2":0,"tetris":0,"x-men legends":0,"super mario kart":1,
+  "adventures of dino riki":0,"the adventures of gilligan's island":0,
+  "predator":0,"bill & ted's excellent video game adventure":0,
+  "sega dreamcast":1,"sony playstation":1
+};
+const findUrl = (t,sy) => "index.html?find=" + encodeURIComponent(t);
+
 let sys = "all", sort = "num";
 const listEl = document.getElementById("list");
 
@@ -207,9 +237,14 @@ function draw(){
   if (sort==="num")  rows = [...rows].sort((a,b)=>a[0]-b[0]);
 
   listEl.innerHTML = rows.length ? rows.map(([n,t,s,v,note]) =>
-    `<li style="--c:${COLORS[s]||"#7b8294"}">
+    `<li id="r-${n}" style="--c:${COLORS[s]||"#7b8294"}">
       <span class="num">${n}</span>
-      <span class="who"><b>${t}</b><span>${s}${note?` &middot; ${note}`:""}</span></span>
+      <span class="who">
+        <b><a href="${findUrl(t,s)}">${t}</a></b>
+        <span>${s}${note?` &middot; ${note}`:""}${
+          ONLISTS[t.toLowerCase()] ? `<a class="lists" href="lists.html">on ${ONLISTS[t.toLowerCase()]} list${ONLISTS[t.toLowerCase()]>1?"s":""}</a>` : ""
+        }</span>
+      </span>
       <span class="rating ${v===null?"rnone":band(v)}">${v===null?"no score yet":v+"/5"}</span>
     </li>`).join("") : `<p class="empty">Nothing reviewed on that one yet.</p>`;
 }

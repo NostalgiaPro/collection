@@ -1680,6 +1680,16 @@ document.getElementById("openAll").addEventListener("click", () => {
   render();
 });
 
+/* Another page can send us here with ?find=<title> — run it as a search. */
+(function(){
+  const want = new URLSearchParams(location.search).get("find");
+  if (!want) return;
+  qEl.value = want;
+  query = fold(want.trim());
+  render();
+  qEl.scrollIntoView({block:"center"});
+})();
+
 drawRail();
 render();
 </script>

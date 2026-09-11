@@ -104,6 +104,13 @@
   }
   ol.picks li.top .rank{color:var(--hot)}
   .pick{flex:1;min-width:0;font-size:15px}
+  .pick a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+  .pick a:hover,.pick a:focus-visible{border-bottom-color:var(--c);outline:none}
+  .sc{
+    flex:none;font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.05em;
+    color:var(--dim);border:1px solid var(--line);border-radius:2px;
+    padding:2px 6px;margin-left:8px;white-space:nowrap;
+  }
   .on{
     flex:none;font-family:"Silkscreen",monospace;font-size:10px;
     letter-spacing:.06em;color:var(--c,var(--dim));white-space:nowrap;
@@ -510,6 +517,32 @@ document.getElementById("cc").innerHTML = multi.map(([t,n]) =>
 /* ---- console chips ---- */
 const asList = c => c == null ? [] : (Array.isArray(c) ? c : [c]);
 
+/* review number and score, so a pick can jump straight to its review */
+const REVIEWS = [
+ [1,"Adventure Island",4],[2,"Adventures of Dino Riki",1],[3,"The Adventures of Gilligan's Island",1],
+ [4,"Batman: The Video Game",4],[5,"The Legend of Zelda",4],[6,"Mega Man 2",3],[7,"R.C. Pro-Am",4],
+ [8,"Bill & Ted's Excellent Video Game Adventure",1],[9,"Predator",1],
+ [10,"Super Mario World 2: Yoshi's Island",5],[11,"The Legend of Zelda: Ocarina of Time",4],
+ [12,"Super Mario Kart",4],[13,"Metroid Prime",4.5],[14,"MVP Baseball 2005",5],
+ [15,"Final Fantasy VII",3],[16,"Zelda II: The Adventure of Link",4.5],[17,"Wave Race 64",5],
+ [18,"Super Mario 64",4],[19,"Super Mario World",5],[20,"Mega Man Legends",4.5],
+ [21,"Gran Turismo",4.5],[22,"Captain America and the Avengers",4],[23,"Mario Kart 64",4],
+ [24,"Paperboy",4.5],[25,"Galaga: Demons of Death",4.5],[26,"GoldenEye 007",4.5],
+ [27,"Popeye",4],[28,"Gun",4],[29,"Metal Gear Solid",5],[30,"Killer Instinct",4.5],
+ [31,"Sega Dreamcast",5],[32,"Star Fox Adventures",4.5],[33,"Star Wars Episode I: Racer",4.5],
+ [34,"Metal Gear Solid 4: Guns of the Patriots",5],[35,"007: Tomorrow Never Dies",4],
+ [36,"Tetris",5],[37,"X-Men Legends",4.5],[38,"X-Men Origins: Wolverine",4.5],
+ [39,"The Legend of Zelda: Majora's Mask",4.5],[40,"Sony PlayStation",4]
+];
+const nrm = t => t.toLowerCase().replace(/^the\s+/,"").replace(/[^a-z0-9]+/g," ").trim();
+const REV = new Map(REVIEWS.map(([n,t,v]) => [nrm(t), {n,v}]));
+/* a few titles read shorter on the lists than in the reviews */
+[["ocarina of time","legend of zelda ocarina of time"],
+ ["majora's mask","legend of zelda majora's mask"],
+ ["street fighter ii turbo","street fighter ii"]].forEach(([a,b]) => {
+   if (REV.has(nrm(b))) REV.set(nrm(a), REV.get(nrm(b)));
+});
+
 const tally = {};
 for (const L of LISTS) L.picks.forEach(([,c]) =>
   asList(c).forEach(s => { tally[s]=(tally[s]||0)+1; }));
@@ -525,9 +558,13 @@ function draw(sys){
     const rows = L.picks.map(([t,c],i) => {
       const cs = asList(c);
       const off = sys!=="all" && !cs.includes(sys);
+      const r = L.solo ? null : REV.get(nrm(t));
+      const href = r ? `reviews.html#r-${r.n}` : `index.html?find=${encodeURIComponent(t)}`;
       return `<li class="${i===0?"top":""}${off?" off":""}" style="--c:${COLORS[cs[0]]||"#7b8294"}">
         <span class="rank">${i+1}</span>
-        <span class="pick">${t}</span>
+        <span class="pick"><a href="${href}">${t}</a>${
+          r ? `<a class="sc" href="reviews.html#r-${r.n}">${r.v}/5</a>` : ""
+        }</span>
         <span class="on">${cs.join(" / ")}</span></li>`;
     }).join("");
     return `<section class="list${hit?"":" dim"}">
