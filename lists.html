@@ -141,6 +141,12 @@
   .focusbar button:hover{border-color:var(--hot);color:var(--hot)}
   ol.picks li.hit{background:rgba(255,75,62,.13)}
   ol.picks li.hit .pick{font-weight:600}
+  a.also{
+    font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.05em;
+    color:var(--dim);text-decoration:none;border:1px solid var(--line);
+    border-radius:2px;padding:2px 6px;margin-left:8px;white-space:nowrap;
+  }
+  a.also:hover{border-color:var(--hot);color:var(--hot)}
   .placing{
     font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;
     color:var(--hot);margin-left:auto;padding-left:12px;white-space:nowrap;
@@ -620,6 +626,9 @@ function draw(sys){
         <span class="rank">${i+1}</span>
         <span class="pick"><a href="${href}">${t}</a>${
           r ? `<a class="sc" href="reviews.html#r-${r.n}">${r.v}/5</a>` : ""
+        }${
+          (!focus && !L.solo && NLISTS.get(sameAs(t)) > 1)
+            ? `<a class="also" href="#game=${encodeURIComponent(sameAs(t))}">${NLISTS.get(sameAs(t))} lists</a>` : ""
         }</span>
         ${isHit ? `<span class="placing">No. ${i+1}</span>` : ""}
         <span class="on">${cs.join(" / ")}</span></li>`;
@@ -630,6 +639,13 @@ function draw(sys){
       <ol class="picks">${rows}</ol>
     </section>`;
   }).join("");
+}
+
+/* how many lists each game lands on, for the tag on each row */
+const NLISTS = new Map();
+for (const L of LISTS) {
+  if (L.solo) continue;
+  L.picks.forEach(([t]) => { const k=sameAs(t); NLISTS.set(k,(NLISTS.get(k)||0)+1); });
 }
 
 let curSys = "all";
