@@ -132,6 +132,9 @@
 <h2 class="monthhead" id="monthHead"></h2>
 <div id="monthList"></div>
 
+<h2 class="monthhead" id="nextHead"></h2>
+<div id="nextList"></div>
+
 <p class="note">North American release dates. Photos come from the same images folder the shelf uses.</p>
 
 </div>
@@ -990,9 +993,11 @@ const dated  = all.filter(x => !x.monthOnly);
 const todays = dated.filter(x => x.days === 0);
 const ahead  = dated.filter(x => x.days > 0);
 
-/* month-only entries, grouped by the month they fall in */
-const thisMonth = all.filter(x => x.monthOnly && x.m === now.getMonth()+1)
-  .sort((a,b) => a.y - b.y);
+/* month-only entries for this month and the next */
+const nextM = (now.getMonth()+1) % 12 + 1;
+const monthOnly = m => all.filter(x => x.monthOnly && x.m === m).sort((a,b) => a.y - b.y);
+const thisMonth = monthOnly(now.getMonth()+1);
+const comingMonth = monthOnly(nextM);
 
 /* ---- hero: the biggest thing coming up in the next 90 days ---- */
 const hero = ahead.filter(x => x.days <= 90).sort((a,b)=>weight(b)-weight(a))[0] || ahead[0];
@@ -1067,16 +1072,25 @@ function draw(){
 /* ---- month-only block ---- */
 const MONTHNAME=["January","February","March","April","May","June","July",
   "August","September","October","November","December"];
-if (thisMonth.length) {
-  document.getElementById("monthHead").innerHTML =
-    MONTHNAME[now.getMonth()] + " anniversaries" +
-    `<span>These only have a month on record, not a day. ${thisMonth.length} this month.</span>`;
-  document.getElementById("monthList").innerHTML = thisMonth.map(x =>
-    `<div class="mrow">
-      <span class="t">${x.name}</span>
-      <span class="c" style="--c:${COLORS[x.con]||"#8e93a2"}">${x.con}</span>
-      <span class="a${isRound(x.age)?" round":""}">${x.age} yrs</span>
-    </div>`).join("");
+const mrows = xs => xs.map(x =>
+  `<div class="mrow">
+    <span class="t">${x.name}</span>
+    <span class="c" style="--c:${COLORS[x.con]||"#8e93a2"}">${x.con}</span>
+    <span class="a${isRound(x.age)?" round":""}">${x.age} yrs</span>
+  </div>`).join("");
+
+document.getElementById("monthHead").innerHTML =
+  MONTHNAME[now.getMonth()] + " anniversaries" +
+  `<span>These only have a month on record, not a day. ${thisMonth.length} this month.</span>`;
+document.getElementById("monthList").innerHTML = thisMonth.length
+  ? mrows(thisMonth)
+  : `<p class="note" style="margin:14px 0 0">Nothing month-only this month.</p>`;
+
+if (comingMonth.length) {
+  document.getElementById("nextHead").innerHTML =
+    MONTHNAME[nextM-1] + " anniversaries" +
+    `<span>Coming next month. ${comingMonth.length} of them.</span>`;
+  document.getElementById("nextList").innerHTML = mrows(comingMonth);
 }
 
 const chips = {all:document.getElementById("f-all"),hw:document.getElementById("f-hw"),round:document.getElementById("f-round")};
