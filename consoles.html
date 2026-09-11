@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Nostalgia Pro &mdash; The numbers</title>
+<title>The Nostalgia Pro &mdash; The consoles</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#101219; --bg2:#171a23; --panel:#1d2029;
@@ -25,72 +25,88 @@
       radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
       repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
   }
-  .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 22px 90px}
+  .wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:0 22px 90px}
   header{padding:44px 0 0}
   .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
-  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0}
-  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,28px);line-height:1.55;margin:0}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:60ch}
   .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
   .navbtn{
-    display:inline-flex;align-items:center;text-decoration:none;border:2px solid var(--line);color:var(--dim);
-    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;padding:9px 14px;border-radius:2px;
+    display:inline-flex;align-items:center;border:2px solid var(--line);color:var(--dim);
+    text-decoration:none;font-family:"Silkscreen",monospace;font-size:11px;
+    letter-spacing:.05em;padding:9px 14px;border-radius:2px;
   }
   .navbtn:hover{border-color:var(--hot);color:var(--hot)}
   .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
 
-  .big{display:flex;flex-wrap:wrap;gap:30px;margin:34px 0 0}
-  .big div b{display:block;font-family:"Press Start 2P",monospace;font-size:24px}
-  .big div span{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.09em;color:var(--dim)}
-
-  h2.sec{
-    font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;letter-spacing:.1em;
-    color:var(--dim);margin:44px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line);
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;margin:36px 0 0}
+  .card{
+    background:var(--bg2);border:1px solid var(--line);
+    border-top:4px solid var(--c);border-radius:2px;
+    display:flex;flex-direction:column;text-decoration:none;color:inherit;
   }
-  .row{display:flex;align-items:center;gap:12px;padding:5px 0}
-  .row .nm{flex:0 0 150px;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .track{flex:1;height:15px;min-width:0}
-  .track .fill{height:100%;display:flex;border-radius:1px;overflow:hidden;background:var(--panel)}
-  .track i{display:block;height:100%}
-  .row .v{flex:0 0 58px;text-align:right;font-family:"Silkscreen",monospace;font-size:10px;color:var(--dim)}
-  .key{display:flex;flex-wrap:wrap;gap:16px;margin:0 0 14px;font-size:12.5px;color:var(--dim)}
-  .key span{display:flex;align-items:center;gap:6px}
+  .card:hover{border-color:var(--c)}
+  .shot{
+    height:150px;background:var(--panel) center/cover no-repeat;
+    display:flex;align-items:center;justify-content:center;
+    font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.05em;
+    color:var(--dim);text-align:center;padding:12px;word-break:break-all;
+    border-bottom:1px solid var(--line);
+  }
+  .body{padding:16px 18px 18px}
+  .body h2{
+    font-family:"IBM Plex Sans Condensed",sans-serif;font-size:21px;font-weight:700;
+    margin:0;color:var(--c);letter-spacing:-.005em;
+  }
+  .launch{
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;
+    color:var(--dim);margin:8px 0 0;
+  }
+  .launch b{color:var(--text);font-weight:400}
+  .bar{display:flex;height:8px;border-radius:1px;overflow:hidden;background:var(--panel);margin:14px 0 0}
+  .bar i{display:block;height:100%}
+  .nums{display:flex;gap:16px;margin:11px 0 0;flex-wrap:wrap}
+  .nums div b{
+    display:block;font-family:"Press Start 2P",monospace;font-size:14px;line-height:1;
+  }
+  .nums div span{
+    display:block;margin-top:6px;font-family:"Silkscreen",monospace;
+    font-size:9px;letter-spacing:.07em;color:var(--dim);
+  }
+  .key{display:flex;flex-wrap:wrap;gap:18px;margin:26px 0 0;font-size:12.5px;color:var(--dim)}
+  .key span{display:flex;align-items:center;gap:7px}
   .key i{width:11px;height:11px;border-radius:1px;display:block}
-  .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:64ch}
+  .note{font-size:13px;color:var(--dim);margin-top:32px;max-width:64ch}
 </style>
 </head>
 <body>
 <div class="wrap">
+
 <header>
   <p class="wordmark">The Nostalgia Pro</p>
-  <h1>The numbers</h1>
-  <p class="standfirst">What 831 games actually look like when you add them up.</p>
+  <h1>The consoles</h1>
+  <p class="standfirst">Every system on the shelf, what I own for it, and how much of it is complete in box.</p>
   <div class="navrow">
     <a class="navbtn" href="index.html">The shelf</a>
     <a class="navbtn" href="reviews.html">Reviews</a>
     <a class="navbtn" href="lists.html">Lists</a>
-      <a class="navbtn" href="rank.html">Your list</a>
+    <a class="navbtn" href="rank.html">Your list</a>
     <a class="navbtn" href="anniversaries.html">Anniversaries</a>
-    <a class="navbtn" href="consoles.html">Consoles</a>
-    <a class="navbtn here" href="#">The numbers</a>
+    <a class="navbtn here" href="#">Consoles</a>
+    <a class="navbtn" href="stats.html">The numbers</a>
   </div>
-  <div class="big" id="big"></div>
 </header>
 
-<h2 class="sec">Games per console</h2>
 <div class="key">
   <span><i style="background:#3fbf6a"></i>Complete in box</span>
   <span><i style="background:#c9c34a"></i>Missing a piece</span>
   <span><i style="background:#6b7185"></i>Loose</span>
 </div>
-<div id="bySys"></div>
 
-<h2 class="sec">Biggest franchises</h2>
-<div id="byFran"></div>
+<div class="grid" id="grid"></div>
 
-<h2 class="sec">Condition across the whole shelf</h2>
-<div id="byCond"></div>
+<p class="note">Launch dates are North American where there was one. Photos live in the same images folder as everything else, named after the console.</p>
 
-<p class="note">Built from the same collection data as the shelf page. If you replace the game list there, replace it here too.</p>
 </div>
 
 <script>
@@ -1014,68 +1030,87 @@ const COLORS = {
   "Arcade1Up":         ["#e6c02e","#171303"],
   "PC":                ["#9aa3b5","#0c0e14"]
 };
-const FRANCHISES = [["Star Wars", ["star wars", "super star wars", "lego star wars"]], ["Metal Gear", ["metal gear", "snake's revenge"]], ["Mario", ["mario", "yoshi", "luigi's mansion", "wrecking crew"]], ["Batman", ["batman", "arkham"]], ["Halo", ["halo"]], ["Teenage Mutant Ninja Turtles", ["teenage mutant", "tmnt"]], ["James Bond 007", ["007", "goldeneye", "james bond", "nightfire", "tomorrow never dies", "world is not enough", "quantum of solace", "blood stone", "russia with love", "everything or nothing", "agent under fire", "the duel"]], ["Spider-Man", ["spider-man", "venom - ", "separation anxiety", "maximum carnage"]], ["X-Men", ["x-men", "x2:", "wolverine"]], ["Mortal Kombat", ["mortal kombat"]], ["Call of Duty", ["call of duty"]], ["Sonic the Hedgehog", ["sonic"]], ["Street Fighter", ["street fighter"]], ["Tom Clancy", ["tom clancy", "ghost recon", "splinter cell", "rainbow six", "the division"]], ["The Legend of Zelda", ["zelda"]], ["Terminator", ["terminator", "t2: the arcade", "t2: judgment"]], ["RoboCop", ["robocop"]], ["Tiger Woods PGA Tour", ["tiger woods"]], ["Final Fantasy", ["final fantasy"]], ["Battlefield", ["battlefield"]], ["Mega Man", ["mega man"]], ["Gran Turismo", ["gran turismo"]], ["WWF / WWE", ["wwf", "wwe", "wrestlemania"]], ["Madden NFL", ["madden"]], ["NBA Jam", ["nba jam"]], ["Looney Tunes", ["looney tunes", "bugs bunny", "taz-mania", "tiny toon", "speedy gonzales", "sylvester and tweety", "road runner"]], ["Gears of War", ["gears of war"]], ["Doom", ["doom"]], ["Quake", ["quake"]], ["Wolfenstein", ["wolfenstein"]], ["Star Fox", ["star fox"]], ["Syphon Filter", ["syphon filter"]], ["Assassin's Creed", ["assassin's creed"]], ["Project Gotham Racing", ["project gotham"]], ["World Series Baseball", ["world series baseball"]], ["Major League Baseball 2K", ["major league baseball 2k", "mlb 20", "mlb the show", "mlb slugfest", "mlb superstars"]], ["Metroid", ["metroid"]], ["Donkey Kong", ["donkey kong", "diddy kong", "dk: jungle"]], ["Punch-Out!!", ["punch-out"]], ["Tetris", ["tetris"]], ["Contra", ["contra", "super c "]], ["Killer Instinct", ["killer instinct"]], ["Outlaw", ["outlaw "]], ["Army Men", ["army men"]], ["Turok", ["turok"]], ["Streets of Rage", ["streets of rage"]], ["Twisted Metal", ["twisted metal"]], ["Onimusha", ["onimusha"]], ["Darksiders", ["darksiders"]], ["Ken Griffey Jr.", ["griffey"]], ["WCW / nWo", ["wcw"]], ["NFL Quarterback Club", ["quarterback club"]], ["ESPN", ["espn"]], ["NCAA Football", ["ncaa football", "ncaa college", "ncaa gamebreaker"]], ["Triple Play", ["triple play"]], ["NBA Live / ShootOut", ["nba live", "nba shootout", "nba shootout", "nba showtime", "nba street", "nba showdown"]], ["Extreme-G", ["extreme-g", "xgiii"]], ["ATV / MX Offroad", ["atv offroad", "mx vs. atv"]], ["Need for Speed", ["need for speed"]], ["Simpsons", ["simpsons"]], ["Jurassic Park", ["jurassic park"]], ["Mission: Impossible", ["mission: impossible"]], ["Ren & Stimpy", ["ren & stimpy"]], ["Adventure Island", ["adventure island"]], ["Adventures of Lolo", ["adventures of lolo"]], ["Double Dragon", ["double dragon"]], ["Ikari Warriors", ["ikari warriors"]], ["Dragon Warrior", ["dragon warrior"]], ["Top Gun", ["top gun"]], ["Pitfall", ["pitfall"]], ["Pac-Man", ["pac-man"]], ["Caesars Palace", ["caesar"]], ["Sly Cooper", ["sly collection"]], ["Wave Race", ["wave race"]], ["Pilotwings", ["pilotwings"]], ["Excite", ["excitebike", "excite truck"]], ["Crazy Taxi", ["crazy taxi"]], ["Carmen Sandiego", ["carmen sandiego"]], ["Frogger", ["frogger"]], ["Justice League", ["justice league"]], ["Superman", ["superman"]], ["Hulk", ["hulk"]], ["Guitar Hero", ["guitar hero"]], ["Civilization", ["civilization"]], ["Chessmaster", ["chessmaster"]], ["Hardball", ["hardball"]], ["Big Bumpin' / Burger King", ["big bumpin", "sneak king"]], ["Unreal", ["unreal"]], ["Bram Stoker's Dracula", ["bram stoker"]], ["Cliffhanger", ["cliffhanger"]], ["American Gladiators", ["american gladiators"]], ["Judge Dredd", ["judge dredd"]], ["Captain America and the Avengers", ["captain america"]], ["Minority Report", ["minority report"]], ["Gun", ["gun ("]], ["Barkley Shut Up and Jam!", ["barkley"]], ["Strike series", ["desert strike", "jungle strike", "urban strike"]], ["Epic Mickey", ["epic mickey"]], ["The Jungle Book", ["jungle book"]], ["Spot", ["spot:", "spot goes", "cool spot"]]];
 const FALLBACK = ["#9aa3b5","#0c0e14"];
+const OWNED = [["Nintendo Entertainment System", "NES"], ["Famicom", "Famicom"], ["Super Nintendo", "SNES"], ["Nintendo 64", "Nintendo 64"], ["Nintendo GameCube", "GameCube"], ["Game Boy", "Game Boy"], ["Game Boy Color", "Game Boy Color"], ["Nintendo DS", "Nintendo DS"], ["Nintendo 3DS", "Nintendo 3DS"], ["Nintendo Wii", "Wii"], ["Nintendo Switch", "Nintendo Switch"], ["Game & Watch", "Game & Watch"], ["Sony PlayStation", "PlayStation 1"], ["PlayStation 2", "PlayStation 2"], ["PlayStation 3", "PlayStation 3"], ["PlayStation Portable", "PSP"], ["PlayStation 4", "PlayStation 4"], ["Xbox", "Xbox"], ["Xbox 360", "Xbox 360"], ["Xbox One", "Xbox One"], ["Xbox One X", "Xbox One"], ["Xbox Series X", "Xbox Series X/S"], ["Sega Genesis", "Sega Genesis"], ["Sega Dreamcast", "Sega Dreamcast"], ["Sega Saturn", "Sega Saturn"], ["Sega Master System", "Sega Master System"], ["Atari 7800+", "Atari 7800+"], ["Intellivision", "Intellivision"], ["Arcade1Up TMNT cabinet", "Arcade1Up"]];
+const HW = {"NES": [10, 18, 1985, "Nintendo Entertainment System"], "SNES": [8, 23, 1991, "Super Nintendo"], "Nintendo 64": [9, 29, 1996, "Nintendo 64"], "GameCube": [11, 18, 2001, "Nintendo GameCube"], "Game Boy": [7, 31, 1989, "Game Boy"], "Game Boy Color": [11, 18, 1998, "Game Boy Color"], "Nintendo DS": [11, 21, 2004, "Nintendo DS"], "Nintendo 3DS": [3, 27, 2011, "Nintendo 3DS"], "Wii": [11, 19, 2006, "Nintendo Wii"], "Nintendo Switch": [3, 3, 2017, "Nintendo Switch"], "PlayStation 1": [9, 9, 1995, "Sony PlayStation"], "PlayStation 2": [10, 26, 2000, "PlayStation 2"], "PlayStation 3": [11, 17, 2006, "PlayStation 3"], "PSP": [3, 24, 2005, "PlayStation Portable"], "PlayStation 4": [11, 15, 2013, "PlayStation 4"], "Xbox": [11, 15, 2001, "Xbox"], "Xbox 360": [11, 22, 2005, "Xbox 360"], "Xbox One": [11, 22, 2013, "Xbox One"], "Xbox Series X/S": [11, 10, 2020, "Xbox Series X and S"], "Sega Genesis": [8, 14, 1989, "Sega Genesis"], "Sega Dreamcast": [9, 9, 1999, "Sega Dreamcast"], "Sega Saturn": [5, 11, 1995, "Sega Saturn"], "Famicom": [7, 15, 1983, "Famicom"], "Game & Watch": [4, 28, 1980, "Game & Watch"]};
+const MONTH=["January","February","March","April","May","June","July",
+  "August","September","October","November","December"];
 
 const systems=[]; let cur=null;
 for (const rawLine of RAW.split("\n")) {
   const line=rawLine.trim(); if(!line) continue;
   if (line.startsWith("## ")) {
     const name=line.slice(3).trim();
-    cur={name,games:[],color:(COLORS[name]||FALLBACK)[0]};
+    cur={name, id:name.toLowerCase().replace(/[^a-z0-9]+/g,"-"),
+         games:[], color:(COLORS[name]||FALLBACK)[0]};
     systems.push(cur); continue;
   }
   if(!cur) continue;
   const m=line.match(/^(.*)\s\(([^()]*)\)$/);
-  const title=m?m[1].trim():line;
   const c=(m?m[2].trim():"unknown").toLowerCase();
   let cls="loose";
   if (c==="cib"||c==="cib+"||c==="sealed") cls="cib";
   else if (c.startsWith("missing")||c==="partial"||c==="manual only") cls="part";
-  cur.games.push({title,system:cur.name,cls});
+  cur.games.push({cls});
 }
-const all=systems.flatMap(s=>s.games);
-const n=c=>all.filter(g=>g.cls===c).length;
 
-document.getElementById("big").innerHTML=[
-  [all.length,"games"],[systems.length,"systems"],
-  [n("cib"),"complete"],[n("part"),"missing a piece"],[n("loose"),"loose"],
-  [Math.round(n("cib")/all.length*100)+"%","complete in box"]
-].map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join("");
+const now=new Date();
+const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+function ageLine(name){
+  const h=HW[name];
+  if(!h) return "";
+  const [m,d,y]=h;
+  let when=new Date(today.getFullYear(),m-1,d);
+  if(when<today) when=new Date(today.getFullYear()+1,m-1,d);
+  const age=when.getFullYear()-y;
+  const days=Math.round((when-today)/86400000);
+  const soon = days<=60
+    ? ` &middot; <b>turns ${age} in ${days} day${days===1?"":"s"}</b>`
+    : ` &middot; ${age-1} years old`;
+  return `${MONTH[m-1]} ${d}, ${y}${soon}`;
+}
 
 const TINT={cib:"#3fbf6a",part:"#c9c34a",loose:"#6b7185"};
-function stack(el,rows,max){
-  el.innerHTML=rows.map(([name,gs])=>{
-    const w=gs.length/max*100;
-    const seg=["cib","part","loose"].map(k=>{
-      const c=gs.filter(g=>g.cls===k).length;
-      return c?`<i style="width:${c/gs.length*100}%;background:${TINT[k]}"></i>`:"";
-    }).join("");
-    return `<div class="row"><span class="nm">${name}</span>
-      <span class="track"><span class="fill" style="width:${w.toFixed(2)}%">${seg}</span></span>
-      <span class="v">${gs.length}</span></div>`;
+const slug = s => s.toLowerCase().normalize("NFD")
+  .replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+
+const shelfBy = {}; systems.forEach(s => shelfBy[s.name]=s);
+const cards = OWNED.map(([name,shelf]) => {
+  const s = shelfBy[shelf];
+  return { name, id: s?s.id:"", games: s?s.games:[], color: s?s.color:"#7b8294" };
+}).sort((a,b)=>b.games.length-a.games.length);
+
+document.getElementById("grid").innerHTML =
+  cards.map(s => {
+    const n=s.games.length;
+    const cib=s.games.filter(g=>g.cls==="cib").length;
+    const part=s.games.filter(g=>g.cls==="part").length;
+    const loose=s.games.filter(g=>g.cls==="loose").length;
+    const sl=slug(s.name)+"-console";
+    const seg=n?["cib","part","loose"].map(k=>{
+      const c=s.games.filter(g=>g.cls===k).length;
+      return c?`<i style="width:${c/n*100}%;background:${TINT[k]}"></i>`:"";
+    }).join(""):"";
+    const line=ageLine(s.name);
+    return `<a class="card" href="${s.id?`index.html#${s.id}`:`index.html`}" style="--c:${s.color}">
+      <div class="shot" data-shot="${sl}">images/${sl}.jpg</div>
+      <div class="body">
+        <h2>${s.name}</h2>
+        ${line?`<p class="launch">${line}</p>`:""}
+        <div class="bar">${seg}</div>
+        <div class="nums">
+          <div><b>${n}</b><span>games</span></div>
+          <div><b>${cib}</b><span>complete</span></div>
+          <div><b>${n?Math.round(cib/n*100):0}%</b><span>in box</span></div>
+        </div>
+      </div></a>`;
   }).join("");
-}
 
-const bySys=systems.filter(s=>s.games.length>1).sort((a,b)=>b.games.length-a.games.length);
-stack(document.getElementById("bySys"), bySys.map(s=>[s.name,s.games]), bySys[0].games.length);
-
-function seriesOf(t){
-  const tl=t.toLowerCase();
-  for (const [nm,pats] of FRANCHISES) for (const p of pats) if (tl.includes(p)) return nm;
-  return null;
-}
-const fr=new Map();
-for (const g of all){ const k=seriesOf(g.title); if(!k) continue;
-  if(!fr.has(k)) fr.set(k,[]); fr.get(k).push(g); }
-const topFr=[...fr].filter(([,v])=>v.length>=6).sort((a,b)=>b[1].length-a[1].length).slice(0,18);
-stack(document.getElementById("byFran"), topFr, topFr[0][1].length);
-
-stack(document.getElementById("byCond"),
-  [["Complete in box",all.filter(g=>g.cls==="cib")],
-   ["Missing a piece",all.filter(g=>g.cls==="part")],
-   ["Loose",all.filter(g=>g.cls==="loose")]],
-  all.filter(g=>g.cls==="cib").length);
+document.querySelectorAll(".shot[data-shot]").forEach(el => {
+  const sl=el.dataset.shot, probe=new Image();
+  probe.onload = () => { el.style.backgroundImage=`url('images/${sl}.jpg')`; el.textContent=""; };
+  probe.src="images/"+sl+".jpg";
+});
 </script>
 </body>
 </html>
