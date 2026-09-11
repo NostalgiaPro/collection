@@ -967,6 +967,10 @@ const MON=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DE
 const slug = (t,c) => (t+"-"+c).toLowerCase().normalize("NFD")
   .replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 
+/* Hardware photos are named after the console plus "-console", e.g.
+   nintendo-64-console.jpg. Games use title plus console, as before. */
+const shotSlug = x => x.hw ? slug(x.con,"console") : slug(x.name,x.con);
+
 const now = new Date();
 const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
@@ -1004,7 +1008,7 @@ const comingMonth = monthOnly(nextM);
 const hero = ahead.filter(x => x.days <= 90).sort((a,b)=>weight(b)-weight(a))[0] || ahead[0];
 if (hero) {
   const sameDay = ahead.filter(x => x.days === hero.days && x !== hero);
-  const sl = slug(hero.name, hero.con);
+  const sl = shotSlug(hero);
   document.getElementById("hero").innerHTML =
     `<div class="hero-shot" id="heroShot" data-shot="${sl}">images/${sl}.jpg</div>
      <div class="hero-body">
@@ -1050,7 +1054,7 @@ function draw(){
     return `<div class="day">
       <div class="date"><div class="mon">${MON[w.getMonth()]}</div><span class="num">${w.getDate()}</span></div>
       <div class="entries">${xs.map(x => {
-        const sl = slug(x.name, x.con);
+        const sl = shotSlug(x);
         return `<div class="entry" data-shot="${sl}">
           <span class="meta"><span class="title">${x.hw?`<b>${x.name}</b>`:x.name}</span>
           <span class="sys" style="--c:${COLORS[x.con]||"#8e93a2"}">${x.hw?"North American launch":x.con}</span></span>
