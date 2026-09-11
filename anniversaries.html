@@ -129,6 +129,14 @@
   <button class="chip" id="f-round" aria-pressed="false">Round numbers</button>
 </div>
 
+<div class="controls" style="margin-top:10px">
+  <button class="chip" data-kind="all" aria-pressed="true">Everything</button>
+  <button class="chip" data-kind="game" aria-pressed="false">Games</button>
+  <button class="chip" data-kind="film" aria-pressed="false">Films</button>
+  <button class="chip" data-kind="tv" aria-pressed="false">TV</button>
+  <button class="chip" data-kind="music" aria-pressed="false">Music</button>
+</div>
+
 <div id="list"></div>
 
 <h2 class="monthhead" id="monthHead"></h2>
@@ -953,6 +961,260 @@ const EVENTS = [
   [11,0,1982,"Pitfall!","Intellivision",""]
 ];
 
+
+/* Films, TV and music. month, day, year, title, format, kind, label */
+const MEDIA = [
+  [4,28,2001,"61*","VHS","film","In theaters"],
+  [11,27,2001,"61*","VHS","film","On VHS"],
+  [11,21,1986,"An American Tail","VHS","film","In theaters"],
+  [10,15,1991,"An American Tail","VHS","film","On VHS"],
+  [7,15,1994,"Angels in the Outfield","VHS","film","In theaters"],
+  [3,24,1995,"Angels in the Outfield","VHS","film","On VHS"],
+  [8,24,1994,"Animaniacs: The Warners Escape","VHS","film","On VHS"],
+  [5,24,1991,"Backdraft","VHS","film","In theaters"],
+  [1,23,1992,"Backdraft","VHS","film","On VHS"],
+  [6,23,1989,"Batman","VHS","film","In theaters"],
+  [11,15,1989,"Batman","VHS","film","On VHS"],
+  [6,19,1992,"Batman Returns","VHS","film","In theaters"],
+  [10,21,1992,"Batman Returns","VHS","film","On VHS"],
+  [6,16,1995,"Batman Forever","VHS","film","In theaters"],
+  [10,31,1995,"Batman Forever","VHS","film","On VHS"],
+  [6,20,1997,"Batman & Robin","VHS","film","In theaters"],
+  [10,21,1997,"Batman & Robin","VHS","film","On VHS"],
+  [2,18,1994,"Blue Chips","VHS","film","In theaters"],
+  [8,31,1994,"Blue Chips","VHS","film","On VHS"],
+  [2,6,1998,"Blues Brothers 2000","VHS","film","In theaters"],
+  [9,8,1998,"Blues Brothers 2000","VHS","film","On VHS"],
+  [4,26,1989,"Bugs & Daffy: Wartime Cartoons","VHS","film","On VHS"],
+  [6,15,1988,"Bull Durham","VHS","film","In theaters"],
+  [10,26,1988,"Bull Durham","VHS","film","On VHS"],
+  [12,1,1989,"Christmas Vacation","VHS","film","In theaters"],
+  [10,25,1990,"Christmas Vacation","VHS","film","On VHS"],
+  [6,7,1991,"City Slickers","VHS","film","In theaters"],
+  [1,23,1992,"City Slickers","VHS","film","On VHS"],
+  [6,10,1994,"City Slickers II","VHS","film","In theaters"],
+  [11,15,1994,"City Slickers II","VHS","film","On VHS"],
+  [7,20,1994,"The Client","VHS","film","In theaters"],
+  [12,14,1994,"The Client","VHS","film","On VHS"],
+  [8,4,2000,"Coyote Ugly","VHS","film","In theaters"],
+  [1,16,2001,"Coyote Ugly","VHS","film","On VHS"],
+  [9,26,1986,"\"Crocodile\" Dundee","VHS","film","In theaters"],
+  [7,2,1987,"\"Crocodile\" Dundee","VHS","film","On VHS"],
+  [4,7,1989,"Cyborg","VHS","film","In theaters"],
+  [10,18,1989,"Cyborg","VHS","film","On VHS"],
+  [1,27,1988,"Daredevil Ducks","VHS","film","On VHS"],
+  [12,17,1982,"The Dark Crystal","VHS","film","In theaters"],
+  [6,6,1984,"The Dark Crystal","VHS","film","On VHS"],
+  [10,8,1993,"Demolition Man","VHS","film","In theaters"],
+  [3,9,1994,"Demolition Man","VHS","film","On VHS"],
+  [6,15,1990,"Dick Tracy","VHS","film","In theaters"],
+  [12,19,1990,"Dick Tracy","VHS","film","On VHS"],
+  [7,15,1988,"Die Hard","VHS","film","In theaters"],
+  [1,10,1989,"Die Hard","VHS","film","On VHS"],
+  [7,4,1990,"Die Hard 2: Die Harder","VHS","film","In theaters"],
+  [11,21,1990,"Die Hard 2: Die Harder","VHS","film","On VHS"],
+  [5,19,1995,"Die Hard with a Vengeance","VHS","film","In theaters"],
+  [12,19,1995,"Die Hard with a Vengeance","VHS","film","On VHS"],
+  [6,11,1982,"E.T. the Extra-Terrestrial","VHS","film","In theaters"],
+  [10,27,1988,"E.T. the Extra-Terrestrial","VHS","film","On VHS"],
+  [6,21,1996,"Eraser","VHS","film","In theaters"],
+  [12,20,1996,"Eraser","VHS","film","On VHS"],
+  [8,16,1996,"The Fan","VHS","film","In theaters"],
+  [1,14,1997,"The Fan","VHS","film","On VHS"],
+  [4,21,1989,"Field of Dreams","VHS","film","In theaters"],
+  [12,5,1989,"Field of Dreams","VHS","film","On VHS"],
+  [5,27,1994,"The Flintstones","VHS","film","In theaters"],
+  [11,8,1994,"The Flintstones","VHS","film","On VHS"],
+  [9,17,1999,"For Love of the Game","VHS","film","In theaters"],
+  [2,8,2000,"For Love of the Game","VHS","film","On VHS"],
+  [7,10,1981,"The Fox and the Hound","VHS","film","In theaters"],
+  [3,4,1994,"The Fox and the Hound","VHS","film","On VHS"],
+  [8,6,1993,"The Fugitive","VHS","film","In theaters"],
+  [3,3,1994,"The Fugitive","VHS","film","On VHS"],
+  [5,5,2000,"Gladiator","VHS","film","In theaters"],
+  [11,21,2000,"Gladiator","VHS","film","On VHS"],
+  [11,17,1995,"GoldenEye","VHS","film","In theaters"],
+  [5,21,1996,"GoldenEye","VHS","film","On VHS"],
+  [12,15,1939,"Gone with the Wind","VHS","film","In theaters"],
+  [3,1,1985,"Gone with the Wind","VHS","film","On VHS"],
+  [3,7,1986,"Highlander","VHS","film","In theaters"],
+  [9,25,1986,"Highlander","VHS","film","On VHS"],
+  [11,1,1991,"Highlander 2: The Renegade Version","VHS","film","In theaters"],
+  [5,24,1995,"Highlander 2: The Renegade Version","VHS","film","On VHS"],
+  [6,23,1989,"Honey, I Shrunk the Kids","VHS","film","In theaters"],
+  [3,16,1990,"Honey, I Shrunk the Kids","VHS","film","On VHS"],
+  [11,14,1986,"Hoosiers","VHS","film","In theaters"],
+  [8,6,1987,"Hoosiers","VHS","film","On VHS"],
+  [7,31,1991,"Hot Shots!","VHS","film","In theaters"],
+  [2,13,1992,"Hot Shots!","VHS","film","On VHS"],
+  [8,12,1994,"In the Army Now","VHS","film","In theaters"],
+  [1,18,1995,"In the Army Now","VHS","film","On VHS"],
+  [7,3,1996,"Independence Day","VHS","film","In theaters"],
+  [11,26,1996,"Independence Day","VHS","film","On VHS"],
+  [5,24,1989,"Indiana Jones and the Last Crusade","VHS","film","In theaters"],
+  [2,1,1990,"Indiana Jones and the Last Crusade","VHS","film","On VHS"],
+  [11,15,1987,"The Jetsons Meet the Flintstones","VHS","film","In theaters"],
+  [10,26,1989,"The Jetsons Meet the Flintstones","VHS","film","On VHS"],
+  [12,15,1995,"Jumanji","VHS","film","In theaters"],
+  [5,14,1996,"Jumanji","VHS","film","On VHS"],
+  [6,11,1993,"Jurassic Park","VHS","film","In theaters"],
+  [10,4,1994,"Jurassic Park","VHS","film","On VHS"],
+  [4,12,1995,"Jury Duty","VHS","film","In theaters"],
+  [9,12,1995,"Jury Duty","VHS","film","On VHS"],
+  [4,22,2003,"Justice League: Justice on Trial","VHS","film","On VHS"],
+  [6,18,1993,"Last Action Hero","VHS","film","In theaters"],
+  [1,19,1994,"Last Action Hero","VHS","film","On VHS"],
+  [7,1,1992,"A League of Their Own","VHS","film","In theaters"],
+  [4,28,1993,"A League of Their Own","VHS","film","On VHS"],
+  [1,1,1999,"The Legend of Grimace Island","VHS","film","On VHS"],
+  [5,23,1997,"The Lost World: Jurassic Park","VHS","film","In theaters"],
+  [11,4,1997,"The Lost World: Jurassic Park","VHS","film","On VHS"],
+  [4,7,1989,"Major League","VHS","film","In theaters"],
+  [9,28,1989,"Major League","VHS","film","On VHS"],
+  [3,30,1994,"Major League II","VHS","film","In theaters"],
+  [8,17,1994,"Major League II","VHS","film","On VHS"],
+  [8,7,1987,"Masters of the Universe","VHS","film","In theaters"],
+  [2,24,1988,"Masters of the Universe","VHS","film","On VHS"],
+  [2,1,1989,"Michael Jordan: Come Fly with Me","VHS","film","On VHS"],
+  [12,29,1995,"Mr. Holland's Opus","VHS","film","In theaters"],
+  [8,27,1996,"Mr. Holland's Opus","VHS","film","On VHS"],
+  [11,24,1993,"Mrs. Doubtfire","VHS","film","In theaters"],
+  [4,26,1994,"Mrs. Doubtfire","VHS","film","On VHS"],
+  [12,11,1992,"The Muppet Christmas Carol","VHS","film","In theaters"],
+  [11,5,1993,"The Muppet Christmas Carol","VHS","film","On VHS"],
+  [7,20,1990,"Navy Seals","VHS","film","In theaters"],
+  [1,31,1991,"Navy Seals","VHS","film","On VHS"],
+  [7,20,1984,"The NeverEnding Story","VHS","film","In theaters"],
+  [4,1,1985,"The NeverEnding Story","VHS","film","On VHS"],
+  [1,11,1991,"Not Without My Daughter","VHS","film","In theaters"],
+  [7,10,1991,"Not Without My Daughter","VHS","film","On VHS"],
+  [12,25,1998,"Patch Adams","VHS","film","In theaters"],
+  [6,22,1999,"Patch Adams","VHS","film","On VHS"],
+  [12,22,1993,"Philadelphia","VHS","film","In theaters"],
+  [6,29,1994,"Philadelphia","VHS","film","On VHS"],
+  [9,25,1987,"The Princess Bride","VHS","film","In theaters"],
+  [2,10,1988,"The Princess Bride","VHS","film","On VHS"],
+  [8,11,2000,"The Replacements","VHS","film","In theaters"],
+  [1,16,2001,"The Replacements","VHS","film","On VHS"],
+  [11,8,1973,"Robin Hood","VHS","film","In theaters"],
+  [12,6,1984,"Robin Hood","VHS","film","On VHS"],
+  [6,14,1991,"Robin Hood: Prince of Thieves","VHS","film","In theaters"],
+  [10,23,1991,"Robin Hood: Prince of Thieves","VHS","film","On VHS"],
+  [7,17,1987,"RoboCop","VHS","film","In theaters"],
+  [2,18,1988,"RoboCop","VHS","film","On VHS"],
+  [6,7,1996,"The Rock","VHS","film","In theaters"],
+  [11,12,1996,"The Rock","VHS","film","On VHS"],
+  [9,18,1998,"Rush Hour","VHS","film","In theaters"],
+  [3,2,1999,"Rush Hour","VHS","film","On VHS"],
+  [11,11,1994,"The Santa Clause","VHS","film","In theaters"],
+  [10,20,1995,"The Santa Clause","VHS","film","On VHS"],
+  [5,29,1992,"Sister Act","VHS","film","In theaters"],
+  [11,11,1992,"Sister Act","VHS","film","On VHS"],
+  [7,2,1993,"Son in Law","VHS","film","In theaters"],
+  [1,19,1994,"Son in Law","VHS","film","On VHS"],
+  [11,15,1996,"Space Jam","VHS","film","In theaters"],
+  [3,11,1997,"Space Jam","VHS","film","On VHS"],
+  [6,10,1994,"Speed","VHS","film","In theaters"],
+  [11,8,1994,"Speed","VHS","film","On VHS"],
+  [5,3,2002,"Spider-Man","VHS","film","In theaters"],
+  [11,1,2002,"Spider-Man","VHS","film","On VHS"],
+  [6,1,1984,"Star Trek III: The Search for Spock","VHS","film","In theaters"],
+  [2,1,1985,"Star Trek III: The Search for Spock","VHS","film","On VHS"],
+  [12,6,1991,"Star Trek VI: The Undiscovered Country","VHS","film","In theaters"],
+  [7,9,1992,"Star Trek VI: The Undiscovered Country","VHS","film","On VHS"],
+  [11,18,1994,"Star Trek: Generations","VHS","film","In theaters"],
+  [7,18,1995,"Star Trek: Generations","VHS","film","On VHS"],
+  [11,7,1997,"Starship Troopers","VHS","film","In theaters"],
+  [5,19,1998,"Starship Troopers","VHS","film","On VHS"],
+  [9,20,1989,"Super Duper Sports Bloopers","VHS","film","On VHS"],
+  [10,26,1984,"The Terminator","VHS","film","In theaters"],
+  [4,1,1985,"The Terminator","VHS","film","On VHS"],
+  [7,3,1991,"Terminator 2: Judgment Day","VHS","film","In theaters"],
+  [12,11,1991,"Terminator 2: Judgment Day","VHS","film","On VHS"],
+  [12,12,1986,"Three Amigos!","VHS","film","In theaters"],
+  [5,13,1987,"Three Amigos!","VHS","film","On VHS"],
+  [12,19,1997,"Titanic","VHS","film","In theaters"],
+  [9,1,1998,"Titanic","VHS","film","On VHS"],
+  [12,25,1993,"Tombstone","VHS","film","In theaters"],
+  [6,8,1994,"Tombstone","VHS","film","On VHS"],
+  [12,19,1997,"007: Tomorrow Never Dies","VHS","film","In theaters"],
+  [6,9,1998,"007: Tomorrow Never Dies","VHS","film","On VHS"],
+  [6,1,1990,"Total Recall","VHS","film","In theaters"],
+  [11,1,1990,"Total Recall","VHS","film","On VHS"],
+  [1,19,1990,"Tremors","VHS","film","In theaters"],
+  [7,15,1994,"True Lies","VHS","film","In theaters"],
+  [2,28,1995,"True Lies","VHS","film","On VHS"],
+  [8,7,1992,"Unforgiven","VHS","film","In theaters"],
+  [2,17,1993,"Unforgiven","VHS","film","On VHS"],
+  [2,14,1992,"Wayne's World","VHS","film","In theaters"],
+  [8,13,1992,"Wayne's World","VHS","film","On VHS"],
+  [5,17,1991,"What About Bob?","VHS","film","In theaters"],
+  [11,13,1991,"What About Bob?","VHS","film","On VHS"],
+  [10,14,1954,"White Christmas","VHS","film","In theaters"],
+  [11,1,1986,"White Christmas","VHS","film","On VHS"],
+  [6,22,1988,"Who Framed Roger Rabbit","VHS","film","In theaters"],
+  [10,12,1989,"Who Framed Roger Rabbit","VHS","film","On VHS"],
+  [8,25,1939,"The Wizard of Oz","VHS","film","In theaters"],
+  [3,1,1980,"The Wizard of Oz","VHS","film","On VHS"],
+  [11,19,1999,"007: The World Is Not Enough","VHS","film","In theaters"],
+  [5,16,2000,"007: The World Is Not Enough","VHS","film","On VHS"],
+  [6,19,1998,"The X-Files","VHS","film","In theaters"],
+  [10,20,1998,"The X-Files","VHS","film","On VHS"],
+  [10,22,1989,"X-Men: Pryde of the X-Men","VHS","film","In theaters"],
+  [11,12,1999,"Dogma","DVD","film","In theaters"],
+  [5,2,2000,"Dogma","DVD","film","On DVD"],
+  [12,20,1946,"It's a Wonderful Life","DVD","film","In theaters"],
+  [10,28,1997,"It's a Wonderful Life","DVD","film","On DVD"],
+  [6,4,1947,"Miracle on 34th Street","DVD","film","In theaters"],
+  [10,5,1999,"Miracle on 34th Street","DVD","film","On DVD"],
+  [12,1,1989,"National Lampoon's Christmas Vacation","DVD","film","In theaters"],
+  [10,28,1997,"National Lampoon's Christmas Vacation","DVD","film","On DVD"],
+  [10,14,1954,"White Christmas","DVD","film","In theaters"],
+  [10,6,1998,"White Christmas","DVD","film","On DVD"],
+  [3,30,1990,"Teenage Mutant Ninja Turtles: The Original Movie","VHS","tv","Released"],
+  [10,4,1990,"Teenage Mutant Ninja Turtles: The Original Movie","VHS","tv","On VHS"],
+  [3,22,1991,"Teenage Mutant Ninja Turtles II: The Secret of the Ooze","VHS","tv","Released"],
+  [7,31,1991,"Teenage Mutant Ninja Turtles II: The Secret of the Ooze","VHS","tv","On VHS"],
+  [12,1,1990,"Teenage Mutant Ninja Turtles: April Foolish","VHS","tv","Released"],
+  [6,19,1991,"Teenage Mutant Ninja Turtles: April Foolish","VHS","tv","On VHS"],
+  [11,18,1989,"Teenage Mutant Ninja Turtles: The Great Boldini","VHS","tv","Released"],
+  [6,19,1991,"Teenage Mutant Ninja Turtles: The Great Boldini","VHS","tv","On VHS"],
+  [10,28,1989,"Teenage Mutant Ninja Turtles: Sky Turtles","VHS","tv","Released"],
+  [2,21,1991,"Teenage Mutant Ninja Turtles: Sky Turtles","VHS","tv","On VHS"],
+  [11,4,1989,"Teenage Mutant Ninja Turtles: Cowabunga, Shredhead","VHS","tv","Released"],
+  [2,21,1991,"Teenage Mutant Ninja Turtles: Cowabunga, Shredhead","VHS","tv","On VHS"],
+  [11,26,1988,"Teenage Mutant Ninja Turtles: Attack of the Big Macs","VHS","tv","Released"],
+  [11,16,1989,"Teenage Mutant Ninja Turtles: Attack of the Big Macs","VHS","tv","On VHS"],
+  [10,15,1988,"Teenage Mutant Ninja Turtles: Case of the Killer Pizzas","VHS","tv","Released"],
+  [11,16,1989,"Teenage Mutant Ninja Turtles: Case of the Killer Pizzas","VHS","tv","On VHS"],
+  [2,6,1991,"Teenage Mutant Ninja Turtles: The Turtles' Awesome Easter","VHS","tv","On VHS"],
+  [10,26,1991,"Teenage Mutant Ninja Turtles: Turn of the Turtleoid","VHS","tv","Released"],
+  [10,14,1992,"Teenage Mutant Ninja Turtles: Turn of the Turtleoid","VHS","tv","On VHS"],
+  [10,14,1992,"Teenage Mutant Ninja Turtles: Out of This World","VHS","tv","On VHS"],
+  [12,14,1987,"Teenage Mutant Ninja Turtles: Heroes in a Half Shell","VHS","tv","Released"],
+  [4,14,1988,"Teenage Mutant Ninja Turtles: Heroes in a Half Shell","VHS","tv","On VHS"],
+  [9,4,1989,"The Super Mario Bros. Super Show! Volume 1 (2-disc)","DVD","tv","Released"],
+  [3,27,2006,"The Super Mario Bros. Super Show! Volume 1 (2-disc)","DVD","tv","On DVD"],
+  [9,4,1989,"The Super Mario Bros. Super Show! Volume 2 (2-disc)","DVD","tv","Released"],
+  [10,31,2006,"The Super Mario Bros. Super Show! Volume 2 (2-disc)","DVD","tv","On DVD"],
+  [9,14,1991,"Super Mario World: The Complete Series (2-disc)","DVD","tv","Released"],
+  [2,19,2008,"Super Mario World: The Complete Series (2-disc)","DVD","tv","On DVD"],
+  [8,28,1993,"Mighty Morphin Power Rangers: The Complete Series","DVD","tv","Released"],
+  [11,20,2012,"Mighty Morphin Power Rangers: The Complete Series","DVD","tv","On DVD"],
+  [11,12,1984,"Meat Loaf - Hits Out of Hell","Vinyl","music","Released"],
+  [12,1,1984,"Beverly Hills Cop - Motion Picture Soundtrack","Cassette","music","Released"],
+  [5,18,1987,"Beverly Hills Cop II - Motion Picture Soundtrack","Cassette","music","Released"],
+  [9,25,1985,"Kenny Rogers - Heart of the Matter","Cassette","music","Released"],
+  [2,19,1990,"Van Morrison - The Best of Van Morrison","Cassette","music","Released"],
+  [1,24,2011,"Adele - 21","CD","music","Released"],
+  [8,12,2003,"Alan Jackson - Greatest Hits Volume II","CD","music","Released"],
+  [5,23,2000,"Eminem - The Marshall Mathers LP","CD","music","Released"],
+  [6,28,1994,"Forrest Gump - The Soundtrack","CD","music","Released"],
+  [11,9,1990,"Madonna - The Immaculate Collection","CD","music","Released"],
+  [10,23,1990,"Molly Hatchet - Greatest Hits","CD","music","Released"],
+  [9,11,2001,"Nickelback - Silver Side Up","CD","music","Released"]
+];
+
 const COLORS = {
   "NES":"#d3d0c8","Famicom":"#d1553f","SNES":"#8f6fd6","Nintendo 64":"#3fa65b",
   "GameCube":"#6f68c9","Game Boy":"#9bbc0f","Game Boy Color":"#3fb8b0",
@@ -961,7 +1223,7 @@ const COLORS = {
   "PlayStation 2":"#3b6fd4","PlayStation 3":"#c9a94a","PSP":"#7c869c",
   "PlayStation 4":"#2b8ce0","Xbox":"#8ec63f","Xbox 360":"#5fbf3a","Xbox One":"#3aa832",
   "Xbox Series X/S":"#2ed15a","Sega Genesis":"#e04a3c","Sega Dreamcast":"#f2793f",
-  "Sega Saturn":"#4a63c9","Atari 7800+":"#e07a35","Sega Master System":"#c94a4a","Intellivision":"#d1a83a","PC":"#9aa3b5"
+  "Sega Saturn":"#4a63c9","Atari 7800+":"#e07a35","Sega Master System":"#c94a4a","Intellivision":"#d1a83a","PC":"#9aa3b5","VHS":"#e0a33a","DVD":"#4a78d6","Blu-ray":"#2f6fe0","LaserDisc":"#c85cc8","Vinyl":"#d3d0c8","Cassette":"#c97a3a","CD":"#8fb8d6"
 };
 
 const MON=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
@@ -989,9 +1251,12 @@ function next(e){
 const isRound = n => n % 5 === 0;
 
 const all = EVENTS.map(e => ({
-  m:e[0], d:e[1], y:e[2], name:e[3], con:e[4], hw:e[5]==="hw",
+  m:e[0], d:e[1], y:e[2], name:e[3], con:e[4], hw:e[5]==="hw", kind:"game",
   monthOnly:e[1]===0, ...next(e)
-})).sort((a,b) => a.days - b.days || (b.hw?1:0) - (a.hw?1:0));
+})).concat(MEDIA.map(e => ({
+  m:e[0], d:e[1], y:e[2], name:e[3], con:e[4], hw:false, kind:e[5], label:e[6],
+  monthOnly:e[1]===0, ...next(e)
+}))).sort((a,b) => a.days - b.days || (b.hw?1:0) - (a.hw?1:0));
 
 /* weight: rounder and bigger anniversaries lead */
 const weight = x => (isRound(x.age)?40:0) + (x.age%10===0?30:0) + (x.hw?25:0) + x.age/10;
@@ -1041,10 +1306,11 @@ if (todays.length) {
 }
 
 /* ---- the list ---- */
-let mode = "all";
+let mode = "all", kindMode = "all";
 function draw(){
   const rows = ahead.filter(x =>
-    mode === "hw" ? x.hw : mode === "round" ? isRound(x.age) : true).slice(0, 40);
+    (mode === "hw" ? x.hw : mode === "round" ? isRound(x.age) : true) &&
+    (kindMode === "all" || x.kind === kindMode)).slice(0, 40);
   const byDay = new Map();
   rows.forEach(x => {
     const k = x.when.toDateString();
@@ -1057,14 +1323,16 @@ function draw(){
       <div class="date"><div class="mon">${MON[w.getMonth()]}</div><span class="num">${w.getDate()}</span></div>
       <div class="entries">${xs.map(x => {
         const sl = shotSlug(x);
-        return `<div class="entry" data-shot="${sl}">
+        return `<div class="entry" data-shot="${sl}"${x.kind!=="game"?" data-nomedia":""}>
           <span class="meta"><span class="title">${x.hw?`<b>${x.name}</b>`:x.name}</span>
-          <span class="sys" style="--c:${COLORS[x.con]||"#8e93a2"}">${x.hw?"North American launch":x.con}</span></span>
+          <span class="sys" style="--c:${COLORS[x.con]||"#8e93a2"}">${
+            x.hw ? "North American launch" : x.label ? x.label + " &middot; " + x.con : x.con
+          }</span></span>
           <span class="yrs${isRound(x.age)?" round":""}">${x.age} yrs</span></div>`;
       }).join("")}</div></div>`;
   }).join("");
 
-  document.querySelectorAll(".entry[data-shot]").forEach(entry => {
+  document.querySelectorAll(".entry[data-shot]:not([data-nomedia])").forEach(entry => {
     const sl = entry.dataset.shot, img = new Image();
     img.className = "shot"; img.loading = "lazy"; img.alt = "";
     img.onerror = () => {
@@ -1106,6 +1374,14 @@ Object.entries(chips).forEach(([k,el]) => el.addEventListener("click", () => {
   Object.entries(chips).forEach(([j,e2]) => e2.setAttribute("aria-pressed", String(j===k)));
   draw();
 }));
+
+document.querySelectorAll(".chip[data-kind]").forEach(el => el.addEventListener("click", () => {
+  kindMode = el.dataset.kind;
+  document.querySelectorAll(".chip[data-kind]").forEach(o =>
+    o.setAttribute("aria-pressed", String(o === el)));
+  draw();
+}));
+
 draw();
 </script>
 </body>
