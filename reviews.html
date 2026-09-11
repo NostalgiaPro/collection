@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Nostalgia Pro — Honest and Unpopular Reviews</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:940px;margin:0 auto;padding:0 22px 90px}
+
+  header{padding:44px 0 0}
+  .wordmark{
+    font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;
+    letter-spacing:.14em;color:var(--dim);margin:0 0 22px;
+  }
+  h1{
+    font-family:"Press Start 2P",monospace;
+    font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word;
+  }
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
+
+  .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;text-decoration:none;
+    border:2px solid var(--line);color:var(--dim);
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+
+  .scores{display:flex;flex-wrap:wrap;gap:26px;margin:30px 0 0}
+  .score b{display:block;font-family:"Press Start 2P",monospace;font-size:18px}
+  .score span{
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.09em;color:var(--dim);
+  }
+
+  .barlabel{
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;
+    color:var(--dim);margin:30px 0 9px;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{
+    background:transparent;border:1px solid var(--line);color:var(--dim);
+    font-family:"IBM Plex Sans",sans-serif;font-size:13px;font-weight:500;
+    padding:6px 12px;border-radius:2px;cursor:pointer;
+  }
+  .chip:hover{border-color:#4a5064;color:var(--text)}
+  .chip[aria-pressed="true"]{background:var(--text);border-color:var(--text);color:var(--bg)}
+  .chip em{font-style:normal;font-family:"Silkscreen",monospace;font-size:10px;opacity:.7;margin-left:6px}
+
+  ol.reviews{list-style:none;margin:26px 0 0;padding:0}
+  ol.reviews li{
+    display:flex;align-items:center;gap:14px;
+    padding:12px 10px;border-bottom:1px solid var(--line);
+    border-left:4px solid var(--c,var(--line));
+  }
+  ol.reviews li.hidden{display:none}
+  .num{
+    flex:none;width:40px;font-family:"Press Start 2P",monospace;
+    font-size:12px;color:var(--dim);
+  }
+  .who{flex:1;min-width:0}
+  .who b{display:block;font-weight:500;font-size:15.5px}
+  .who span{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--c,var(--dim))}
+  .rating{
+    flex:none;font-family:"Press Start 2P",monospace;font-size:13px;
+    white-space:nowrap;
+  }
+  .r5{color:#3fbf6a}.r4{color:#c9c34a}.r3{color:#e0913a}.r2{color:#e0663a}.r1{color:var(--hot)}
+  .rnone{color:var(--dim);font-size:10px;font-family:"Silkscreen",monospace}
+  .empty{color:var(--dim);padding:26px 0}
+  .note{font-size:13px;color:var(--dim);margin-top:30px;max-width:64ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="wordmark">The Nostalgia Pro</p>
+    <h1>Honest and Unpopular Reviews</h1>
+    <p class="standfirst">Every game I've scored, in order. Filter by console, or sort by rating to see what I actually stand behind.</p>
+
+    <div class="navrow">
+      <a class="navbtn" href="index.html">The shelf</a>
+      <a class="navbtn here" href="#">Reviews</a>
+      <a class="navbtn" href="lists.html">Lists</a>
+      <a class="navbtn" href="anniversaries.html">Anniversaries</a>
+    </div>
+
+    <div class="scores" id="scores"></div>
+  </header>
+
+  <p class="barlabel">Console</p>
+  <div class="chips" id="sysChips"></div>
+
+  <p class="barlabel">Sort</p>
+  <div class="chips" id="sortChips">
+    <button class="chip" data-sort="num" aria-pressed="true">By number</button>
+    <button class="chip" data-sort="high" aria-pressed="false">Highest rated</button>
+    <button class="chip" data-sort="low" aria-pressed="false">Lowest rated</button>
+  </div>
+
+  <ol class="reviews" id="list"></ol>
+
+  
+
+</div>
+
+<script>
+const COLORS = {
+  "NES":"#d3d0c8","SNES":"#8f6fd6","Nintendo 64":"#3fa65b","GameCube":"#6f68c9",
+  "Game Boy":"#9bbc0f","PlayStation 1":"#a9b0c4","PlayStation 3":"#c9a94a",
+  "Xbox":"#8ec63f","Xbox 360":"#5fbf3a","Sega Dreamcast":"#f2793f"
+};
+
+/* number, title, system, score (null = not supplied yet) */
+const R = [
+  [1,"Adventure Island","NES",4],
+  [2,"Adventures of Dino Riki","NES",null],
+  [3,"The Adventures of Gilligan's Island","NES",null],
+  [4,"Batman: The Video Game","NES",null],
+  [5,"The Legend of Zelda","NES",null],
+  [6,"Mega Man 2","NES",null],
+  [7,"R.C. Pro-Am","NES",4],
+  [8,"Bill & Ted's Excellent Video Game Adventure","NES",1],
+  [9,"Predator","NES",1],
+  [10,"Super Mario World 2: Yoshi's Island","SNES",5],
+  [11,"The Legend of Zelda: Ocarina of Time","Nintendo 64",4],
+  [12,"Super Mario Kart","SNES",4],
+  [13,"Metroid Prime","GameCube",4.5],
+  [14,"MVP Baseball 2005","GameCube",null],
+  [15,"Final Fantasy VII","PlayStation 1",3],
+  [16,"Zelda II: The Adventure of Link","NES",4.5],
+  [17,"Wave Race 64","Nintendo 64",5],
+  [18,"Super Mario 64","Nintendo 64",4],
+  [19,"Super Mario World","SNES",5],
+  [20,"Mega Man Legends","PlayStation 1",4.5],
+  [21,"Gran Turismo","PlayStation 1",4.5],
+  [22,"Captain America and the Avengers","SNES",4],
+  [23,"Mario Kart 64","Nintendo 64",4],
+  [24,"Paperboy","NES",4.5],
+  [25,"Galaga: Demons of Death","NES",4.5],
+  [26,"GoldenEye 007","Nintendo 64",4.5],
+  [27,"Popeye","NES",4],
+  [28,"Gun","Xbox",4],
+  [29,"Metal Gear Solid","PlayStation 1",5],
+  [30,"Killer Instinct","SNES",null],
+  [31,"Sega Dreamcast","Sega Dreamcast",5],
+  [32,"Star Fox Adventures","GameCube",4.5],
+  [33,"Star Wars Episode I: Racer","Nintendo 64",4.5],
+  [34,"Metal Gear Solid 4: Guns of the Patriots","PlayStation 3",5],
+  [35,"007: Tomorrow Never Dies","PlayStation 1",4],
+  [36,"Tetris","Game Boy",5],
+  [37,"X-Men Legends","Xbox",4.5],
+  [38,"X-Men Origins: Wolverine","Xbox 360",4.5],
+  [39,"The Legend of Zelda: Majora's Mask","Nintendo 64",4.5],
+  [40,"Sony PlayStation","PlayStation 1",4]
+];
+
+let sys = "all", sort = "num";
+const listEl = document.getElementById("list");
+
+const tally = {};
+for (const [,,s] of R) tally[s] = (tally[s]||0)+1;
+const systems = Object.keys(tally).sort((a,b)=>tally[b]-tally[a]);
+
+document.getElementById("sysChips").innerHTML =
+  `<button class="chip" data-sys="all" aria-pressed="true">All<em>${R.length}</em></button>` +
+  systems.map(s=>`<button class="chip" data-sys="${s}" aria-pressed="false">${s}<em>${tally[s]}</em></button>`).join("");
+
+function drawScores(){
+  const scored = R.filter(r=>r[3]!==null);
+  const avg = scored.reduce((a,r)=>a+r[3],0)/scored.length;
+  const fives = scored.filter(r=>r[3]===5).length;
+  document.getElementById("scores").innerHTML = [
+    [R.length,"reviews"],[systems.length,"consoles"],
+    [avg.toFixed(1),"average"],[fives,"perfect scores"]
+  ].map(([n,l])=>`<div class="score"><b>${n}</b><span>${l}</span></div>`).join("");
+}
+
+function band(v){ return v>=4.5?"r5":v>=4?"r4":v>=3?"r3":v>=2?"r2":"r1"; }
+
+function draw(){
+  let rows = R.filter(r => sys==="all" || r[2]===sys);
+  if (sort==="high") rows = [...rows].sort((a,b)=>(b[3]??-1)-(a[3]??-1)||a[0]-b[0]);
+  if (sort==="low")  rows = [...rows].sort((a,b)=>(a[3]??99)-(b[3]??99)||a[0]-b[0]);
+  if (sort==="num")  rows = [...rows].sort((a,b)=>a[0]-b[0]);
+
+  listEl.innerHTML = rows.length ? rows.map(([n,t,s,v,note]) =>
+    `<li style="--c:${COLORS[s]||"#7b8294"}">
+      <span class="num">${n}</span>
+      <span class="who"><b>${t}</b><span>${s}${note?` &middot; ${note}`:""}</span></span>
+      <span class="rating ${v===null?"rnone":band(v)}">${v===null?"no score yet":v+"/5"}</span>
+    </li>`).join("") : `<p class="empty">Nothing reviewed on that one yet.</p>`;
+}
+
+document.getElementById("sysChips").addEventListener("click", e=>{
+  const b=e.target.closest(".chip"); if(!b) return;
+  sys=b.dataset.sys;
+  document.querySelectorAll("#sysChips .chip").forEach(c=>c.setAttribute("aria-pressed",c===b));
+  draw();
+});
+document.getElementById("sortChips").addEventListener("click", e=>{
+  const b=e.target.closest(".chip"); if(!b) return;
+  sort=b.dataset.sort;
+  document.querySelectorAll("#sortChips .chip").forEach(c=>c.setAttribute("aria-pressed",c===b));
+  draw();
+});
+
+drawScores();
+draw();
+</script>
+</body>
+</html>
