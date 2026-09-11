@@ -110,7 +110,11 @@
     letter-spacing:.09em;color:var(--dim);
   }
 
-  .viewrow{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin:16px 0 0}
+  .sitenav{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 0}
+  .viewrow{
+    display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+    margin:16px 0 0;padding-top:16px;border-top:1px solid var(--line);
+  }
   .toggle{display:flex;border:2px solid var(--line);border-radius:2px;overflow:hidden}
   .toggle button{
     background:transparent;border:none;color:var(--dim);cursor:pointer;
@@ -193,6 +197,14 @@
   section.shelf.shut ol.games{display:none}
   section.shelf.shut .shelfhead{margin-bottom:0}
   .foldbtns{display:flex;gap:8px}
+  .vextra{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
+  .vextra a,.vextra span{
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;
+    border:1px solid var(--line);border-radius:2px;padding:4px 8px;
+    color:var(--dim);text-decoration:none;
+  }
+  .vextra a:hover{border-color:var(--hot);color:var(--hot)}
+  .vextra .done{border-color:#3fbf6a;color:#3fbf6a}
   .filters{display:flex;flex-wrap:wrap;gap:8px;margin:0}
   .chip{
     background:transparent;border:1px solid var(--line);color:var(--dim);
@@ -316,20 +328,23 @@
 
     <div id="verdict" role="status" aria-live="polite"></div>
     <div class="scores" id="scores"></div>
+    <div class="sitenav">
+      <a class="shelflink" href="shelf.html">Virtual shelf</a>
+      <a class="shelflink" href="anniversaries.html">Anniversaries</a>
+      <a class="shelflink" href="reviews.html">Reviews</a>
+      <a class="shelflink" href="lists.html">Lists</a>
+      <a class="shelflink" href="stats.html">The numbers</a>
+    </div>
+
     <div class="viewrow">
       <div class="toggle" id="viewtoggle" role="group" aria-label="Sort by">
         <button type="button" data-view="system" aria-pressed="true">By system</button>
         <button type="button" data-view="franchise" aria-pressed="false">By series</button>
       </div>
       <div class="foldbtns">
-        <button class="chip" type="button" id="foldAll">Collapse all</button>
         <button class="chip" type="button" id="openAll">Expand all</button>
+        <button class="chip" type="button" id="foldAll">Collapse all</button>
       </div>
-      <a class="shelflink" href="shelf.html">Virtual shelf</a>
-      <a class="shelflink" href="anniversaries.html">Anniversaries</a>
-      <a class="shelflink" href="reviews.html">Reviews</a>
-      <a class="shelflink" href="lists.html">Lists</a>
-      <a class="shelflink" href="stats.html">The numbers</a>
       <div class="filters" id="filters"></div>
     </div>
   </header>
@@ -1400,6 +1415,12 @@ function slug(g){
     .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
     .replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 }
+
+/* What else the site knows about a game: its review, and where it ranks. */
+const REVIEWED = {"adventure island":[1,4.0],"adventures of dino riki":[2,1.0],"adventures of gilligan s island":[3,1.0],"batman the video game":[4,4.0],"legend of zelda":[5,4.0],"mega man 2":[6,3.0],"r c pro am":[7,4.0],"bill ted s excellent video game adventure":[8,1.0],"predator":[9,1.0],"super mario world 2 yoshi s island":[10,5.0],"super mario kart":[12,4.0],"metroid prime":[13,4.5],"mvp baseball 2005":[14,5.0],"final fantasy vii":[15,3.0],"zelda ii the adventure of link":[16,4.5],"wave race 64":[17,5.0],"super mario 64":[18,4.0],"super mario world":[19,5.0],"mega man legends":[20,4.5],"gran turismo":[21,4.5],"captain america and the avengers":[22,4.0],"mario kart 64":[23,4.0],"paperboy":[24,4.5],"galaga demons of death":[25,4.5],"goldeneye 007":[26,4.5],"popeye":[27,4.0],"gun":[28,4.0],"metal gear solid":[29,5.0],"killer instinct":[30,4.5],"sega dreamcast":[31,5.0],"star fox adventures":[32,4.5],"star wars episode i racer":[33,4.5],"metal gear solid 4 guns of the patriots":[34,5.0],"007 tomorrow never dies":[35,4.0],"tetris":[36,5.0],"x men legends":[37,4.5],"x men origins wolverine":[38,4.5],"legend of zelda majora s mask":[39,4.5],"sony playstation":[40,4.0],"legend of zelda ocarina of time":[11,4.0]};
+const RANKED = {"super mario bros 3":[["Top 10 games of all time",1],["Best NES games I own",1]],"halo 2":[["Top 10 games of all time",2],["Top 10 games of the 2000s",4],["Best original Xbox games I own",1]],"metal gear solid":[["Top 10 games of all time",3],["Best PlayStation 1 games I own",1]],"batman arkham city":[["Top 10 games of all time",4],["Top 10 superhero games",1]],"metroid prime":[["Top 10 games of all time",5],["Top 10 games of the 2000s",5]],"street fighter ii":[["Top 10 games of all time",6],["Best Capcom games I own",2],["Best SNES games I own",2],["Ten best fighting games ever made",1]],"super mario world":[["Top 10 games of all time",7],["Best SNES games I own",1]],"wave race 64":[["Top 10 games of all time",8],["Best Nintendo 64 games I own",1]],"sonic the hedgehog 2":[["Top 10 games of all time",9],["Best Sega Genesis games I own",1]],"teenage mutant ninja turtles iv turtles in time":[["Top 10 games of all time",10],["Ten best beat 'em ups ever made",1],["Best SNES games I own",3]],"zelda ii the adventure of link":[["Best Zelda games I own",1]],"legend of zelda":[["Best Zelda games I own",3]],"final fantasy vii":[["Most overrated games of all time",2],["Best PlayStation 1 games I own",8]],"red dead redemption ii":[["Most overrated games of all time",5]],"mortal kombat ii":[["Ten best fighting games ever made",2],["Best Sega Genesis games I own",2]],"tekken 3":[["Ten best fighting games ever made",3],["Best PlayStation 1 games I own",2]],"teenage mutant ninja turtles tournament fighters":[["Ten best fighting games ever made",4]],"street fighter iii double impact":[["Ten best fighting games ever made",5]],"x men children of the atom":[["Ten best fighting games ever made",6]],"killer instinct gold":[["Ten best fighting games ever made",7],["Best Rare Ltd. games I own",4],["Best Nintendo 64 games I own",7]],"marvel super heroes vs street fighter":[["Ten best fighting games ever made",8],["Best Capcom games I own",8]],"killer instinct":[["Ten best fighting games ever made",9],["Best Rare Ltd. games I own",9]],"virtua fighter 2":[["Ten best fighting games ever made",10]],"marvel ultimate alliance":[["Top 10 superhero games",2]],"deadpool":[["Top 10 superhero games",3]],"batman begins":[["Top 10 superhero games",4]],"marvel s spider man":[["Top 10 superhero games",5]],"spider man venom maximum carnage":[["Top 10 superhero games",6],["Best Acclaim games I own",3],["Ten best beat 'em ups ever made",5],["Best SNES games I own",10]],"justice league heroes":[["Top 10 superhero games",7],["Best original Xbox games I own",10]],"x men legends ii rise of apocalypse":[["Top 10 superhero games",8]],"captain america and the avengers":[["Top 10 superhero games",9],["Best SNES games I own",8]],"x2 wolverine s revenge":[["Top 10 superhero games",10]],"star wars episode i racer":[["Best Star Wars games I own",1],["Best Nintendo 64 games I own",3]],"star wars rogue squadron":[["Best Star Wars games I own",2],["Best Nintendo 64 games I own",16]],"super star wars":[["Best Star Wars games I own",3]],"star wars knights of the old republic":[["Best Star Wars games I own",4],["Best original Xbox games I own",3]],"star wars jedi knight jedi academy":[["Best Star Wars games I own",5]],"star wars jedi starfighter":[["Best Star Wars games I own",6]],"star wars battlefront":[["Best Star Wars games I own",7]],"star wars knights of the old republic ii the sith lords":[["Best Star Wars games I own",8]],"star wars starfighter special edition":[["Best Star Wars games I own",9]],"star wars the empire strikes back":[["Best Star Wars games I own",10]],"mortal kombat":[["Best Acclaim games I own",1]],"nba jam":[["Best Acclaim games I own",2]],"turok 2 seeds of evil":[["Best Acclaim games I own",4]],"wwf wrestlemania":[["Best Acclaim games I own",5]],"simpsons bart vs the space mutants":[["Best Acclaim games I own",6]],"terminator 2 judgment day":[["Best Acclaim games I own",7]],"double dragon ii the revenge":[["Best Acclaim games I own",8],["Ten best beat 'em ups ever made",8],["Best NES games I own",6]],"beetlejuice":[["Best Acclaim games I own",9]],"narc":[["Best Acclaim games I own",10]],"mega man legends":[["Best Capcom games I own",1],["Best PlayStation 1 games I own",3]],"mega man legends 2":[["Best Capcom games I own",3]],"onimusha warlords":[["Best Capcom games I own",4]],"x men mutant apocalypse":[["Best Capcom games I own",6]],"super street fighter ii":[["Best Capcom games I own",7]],"street fighter ex3":[["Best Capcom games I own",9]],"yo noid":[["Best Capcom games I own",10]],"perfect dark":[["Best Rare Ltd. games I own",1],["Best Nintendo 64 games I own",2]],"diddy kong racing":[["Best Rare Ltd. games I own",2],["Best Nintendo 64 games I own",14]],"goldeneye 007":[["Best Rare Ltd. games I own",3],["Best James Bond games",1],["Best Nintendo 64 games I own",5]],"battletoads":[["Best Rare Ltd. games I own",5]],"r c pro am":[["Best Rare Ltd. games I own",6]],"ken griffey jr s winning run":[["Best Rare Ltd. games I own",7]],"star fox adventures":[["Best Rare Ltd. games I own",8],["Top 10 games of the 2000s",9]],"donkey kong 64":[["Best Rare Ltd. games I own",10],["Best Nintendo 64 games I own",20]],"007 everything or nothing":[["Best James Bond games",2]],"007 nightfire":[["Best James Bond games",3],["Best original Xbox games I own",8]],"007 tomorrow never dies":[["Best James Bond games",4]],"007 from russia with love":[["Best James Bond games",5]],"halo 3":[["Top 10 games of the 2000s",1]],"metal gear solid 4 guns of the patriots":[["Top 10 games of the 2000s",2]],"batman arkham asylum":[["Top 10 games of the 2000s",3]],"metal gear solid 3 snake eater":[["Top 10 games of the 2000s",6]],"mvp baseball 2005":[["Top 10 games of the 2000s",7]],"doom 3":[["Top 10 games of the 2000s",8],["Best original Xbox games I own",5]],"super smash bros melee":[["Top 10 games of the 2000s",10]],"streets of rage 2":[["Ten best beat 'em ups ever made",2]],"final fight":[["Ten best beat 'em ups ever made",3]],"batman returns":[["Ten best beat 'em ups ever made",4],["Best SNES games I own",6]],"streets of rage":[["Ten best beat 'em ups ever made",6]],"river city ransom":[["Ten best beat 'em ups ever made",7]],"golden axe ii":[["Ten best beat 'em ups ever made",9]],"teenage mutant ninja turtles the hyperstone heist":[["Ten best beat 'em ups ever made",10],["Best Sega Genesis games I own",10]],"adventures of lolo":[["Best NES games I own",2]],"conquest of the crystal palace":[["Best NES games I own",3]],"contra":[["Best NES games I own",4]],"adventure island":[["Best NES games I own",5]],"uncanny x men":[["Best NES games I own",7]],"super mario bros 2":[["Best NES games I own",9]],"popeye":[["Best NES games I own",10]],"nba jam tournament edition":[["Best SNES games I own",4]],"super mario world 2 yoshi s island":[["Best SNES games I own",5]],"super mario kart":[["Best SNES games I own",7]],"tiny toon adventures buster busts loose":[["Best SNES games I own",9]],"robocop versus the terminator":[["Best Sega Genesis games I own",3]],"x men":[["Best Sega Genesis games I own",4]],"eswat city under siege":[["Best Sega Genesis games I own",5]],"judge dredd":[["Best Sega Genesis games I own",6]],"adventures of batman robin":[["Best Sega Genesis games I own",7]],"batman revenge of the joker":[["Best Sega Genesis games I own",8]],"altered beast":[["Best Sega Genesis games I own",9]],"tom clancy s splinter cell pandora tomorrow":[["Best original Xbox games I own",2]],"halo combat evolved":[["Best original Xbox games I own",4]],"advent rising":[["Best original Xbox games I own",6]],"project gotham racing 2":[["Best original Xbox games I own",7]],"mechassault":[["Best original Xbox games I own",9]],"parasite eve":[["Best PlayStation 1 games I own",4]],"twisted metal 2":[["Best PlayStation 1 games I own",5]],"gran turismo":[["Best PlayStation 1 games I own",6]],"wwf smackdown 2 know your role":[["Best PlayStation 1 games I own",7]],"syphon filter":[["Best PlayStation 1 games I own",9]],"final fantasy ix":[["Best PlayStation 1 games I own",10]],"pilotwings 64":[["Best Nintendo 64 games I own",6]],"san francisco rush extreme racing":[["Best Nintendo 64 games I own",8]],"duke nukem zero hour":[["Best Nintendo 64 games I own",9]],"turok rage wars":[["Best Nintendo 64 games I own",10]],"super mario 64":[["Best Nintendo 64 games I own",11]],"legend of zelda ocarina of time":[["Best Nintendo 64 games I own",12],["Best Zelda games I own",5],["Most overrated games of all time",1]],"star fox 64":[["Best Nintendo 64 games I own",13]],"wwf no mercy":[["Best Nintendo 64 games I own",15]],"extreme g":[["Best Nintendo 64 games I own",17]],"mario kart 64":[["Best Nintendo 64 games I own",18]],"wwf wrestlemania 2000":[["Best Nintendo 64 games I own",19]],"legend of zelda a link between worlds":[["Best Zelda games I own",2]],"legend of zelda majora s mask":[["Best Zelda games I own",4]],"legend of zelda breath of the wild":[["Best Zelda games I own",6]],"legend of zelda oracle of seasons":[["Best Zelda games I own",7]],"1080 snowboarding":[["Best Nintendo 64 games I own",4]]};
+const nkey = t => t.toLowerCase().replace(/\s*\[[^\]]*\]/g,"").replace(/^the\s+/,"").replace(/[^a-z0-9]+/g," ").trim();
+
 function wiki(title){
   return "https://en.wikipedia.org/w/index.php?search=" +
          encodeURIComponent(title + " video game");
@@ -1436,6 +1457,14 @@ filterBox.addEventListener("click", e => {
   render();
 });
 
+document.querySelector("nav").addEventListener("click", e => {
+  const a = e.target.closest("a[href^='#']");
+  if (!a) return;
+  const id = decodeURIComponent(a.getAttribute("href").slice(1));
+  collapsed.delete(id);
+  render();
+});
+
 function drawRail(){
   document.getElementById("rail").innerHTML = groups().map(s =>
     `<li><a href="#${s.id}" style="--c:${s.color}">${esc(s.name)}<em>${s.games.length}</em></a></li>`).join("");
@@ -1444,9 +1473,11 @@ function drawRail(){
 const results = document.getElementById("results");
 const verdict = document.getElementById("verdict");
 
-/* Which shelves are folded shut. A search always opens everything,
+/* Which shelves are folded shut. The page opens folded so the whole
+   collection fits on one screen. A search always opens everything,
    otherwise a hidden match would look like it wasn't there. */
 const collapsed = new Set();
+let firstDraw = true;
 
 function toggleShelf(head){
   const sec = head.closest("section.shelf");
@@ -1465,6 +1496,7 @@ function matches(g) {
 }
 
 function render() {
+  if (firstDraw) { groups().forEach(g => collapsed.add(g.id)); firstDraw = false; }
   const html = groups().map(s => {
     const hits = s.games.filter(matches);
     if (!hits.length) return "";
@@ -1491,6 +1523,21 @@ function render() {
   updateVerdict();
 }
 
+function extras(g){
+  const k = nkey(g.title), out = [];
+  const r = REVIEWED[k];
+  if (r) out.push(`<a href="reviews.html#r-${r[0]}">Reviewed ${r[1]}/5 &middot; No. ${r[0]}</a>`);
+  const ranks = RANKED[k];
+  if (ranks) {
+    const best = ranks.slice().sort((a,b) => a[1] - b[1])[0];
+    out.push(`<a href="lists.html#game=${encodeURIComponent(g.title)}">No. ${best[1]} &middot; ${best[0]}</a>`);
+    if (ranks.length > 1)
+      out.push(`<a href="lists.html#game=${encodeURIComponent(g.title)}">on ${ranks.length} lists</a>`);
+  }
+  if (isBeaten(g)) out.push(`<span class="done">Beaten</span>`);
+  return out.length ? `<div class="vextra">${out.join("")}</div>` : "";
+}
+
 function updateVerdict() {
   if (!query) { verdict.className = ""; verdict.innerHTML = ""; return; }
   const hits = all.filter(g => g.key.includes(query));
@@ -1507,7 +1554,7 @@ function updateVerdict() {
     <p class="vhead">${head}</p>
     <ul class="vlist">` +
     hits.slice(0, 8).map(g =>
-      `<li><strong>${esc(g.title)}</strong><br><span class="sys">${esc(g.system)} &middot; ${esc(g.cond)}</span></li>`
+      `<li><strong>${esc(g.title)}</strong><br><span class="sys">${esc(g.system)} &middot; ${esc(g.cond)}</span>${extras(g)}</li>`
     ).join("") +
     (hits.length > 8 ? `<li><span class="sys">and ${hits.length - 8} more on the shelves below</span></li>` : "") +
     `</ul></div>`;
@@ -1525,7 +1572,8 @@ document.getElementById("lucky").addEventListener("click", () => {
   verdict.innerHTML = `<div class="vbox" style="--hit:${g.color}">
     <p class="vhead">Random pull</p>
     <p class="vtitle">${esc(g.title)}</p>
-    <p style="margin:0;color:var(--dim)">${esc(g.system)} &middot; ${esc(g.cond)}</p></div>`;
+    <p style="margin:0;color:var(--dim)">${esc(g.system)} &middot; ${esc(g.cond)}</p>
+    ${extras(g)}</div>`;
 });
 
 document.getElementById("viewtoggle").addEventListener("click", e => {
@@ -1533,6 +1581,7 @@ document.getElementById("viewtoggle").addEventListener("click", e => {
   view = b.dataset.view;
   document.querySelectorAll("#viewtoggle button")
     .forEach(x => x.setAttribute("aria-pressed", x === b));
+  groups().forEach(g => collapsed.add(g.id));
   drawRail(); render();
 });
 
