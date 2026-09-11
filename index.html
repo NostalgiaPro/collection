@@ -1372,8 +1372,216 @@ const FALLBACK = ["#9aa3b5","#0c0e14"];
    Same game on two systems? Both get a check. To mark only one, write it as
    Mortal Kombat | Sega Genesis                                            */
 const BEATEN = `
-Super Mario Bros. 3
-The Legend of Zelda
+007 first light
+007: blood stone
+007: everything or nothing
+007: from russia with love
+007: nightfire
+007: the world is not enough
+007: tomorrow never dies
+advent rising
+adventure island
+adventures of lolo
+animaniacs
+arcade1up teenage mutant ninja turtles: turtles in time arcade machine
+avatar: the last airbender
+batman & robin
+batman returns
+batman: arkham asylum [game of the year edition]
+batman: arkham city
+batman: arkham knight
+batman: arkham origins [collector's edition]
+batman: dark tomorrow
+batman: the video game
+battlefield 2
+battlefield 2: modern combat
+battlefield 3 [limited edition]
+battlefield 4: china rising expansion pack
+battlefield 6
+battlefield: bad company
+battlefield: bad company 2
+battlefield: bad company 2 [limited edition]
+bram stoker's dracula
+call of duty: finest hour
+conquest of the crystal palace
+contra
+cyberpunk 2077
+dead island [game of the year edition]
+deadpool
+destroy all humans!
+dk: jungle climber
+donkey kong 64
+doom 3
+doom 3 [limited collector's edition]
+doom 3: resurrection of evil
+epic mickey: power of illusion
+final fantasy vii
+final fantasy viii
+final fight
+gears of war
+gears of war 2 [limited edition]
+gears of war 3
+gears of war 4
+gears of war [limited collector's edition]
+gears of war: ultimate edition
+goat simulator 3
+goldeneye: rogue agent
+grand theft auto v
+guitar hero iii: legends of rock
+guitar hero world tour
+gun
+guy game
+halo 2
+halo 3 [legendary edition]
+halo 3 [limited edition]
+halo 3: odst
+halo 4
+halo 4 [limited edition]
+halo 5: guardians
+halo 5: guardians [limited edition]
+halo reach [with recon helmet dlc]
+halo wars 2 [ultimate edition]
+halo: combat evolved
+halo: combat evolved [game of the year edition]
+halo: combat evolved anniversary
+halo: reach [limited edition]
+halo: the master chief collection
+indigo prophecy
+james bond 007: agent under fire
+judge dredd
+jurassic park
+justice league heroes
+killer instinct
+killer instinct gold
+legend of zelda
+legend of zelda: a link between worlds
+legend of zelda: collector's edition
+legend of zelda: majora's mask [collector's edition]
+legend of zelda: ocarina of time
+mario is missing!
+marvel super heroes vs. street fighter
+marvel: ultimate alliance
+mega man legends
+mega man legends 2
+metal gear solid 2: sons of liberty
+metal gear solid 2: substance
+metal gear solid 3: snake eater
+metal gear solid 3: subsistence
+metal gear solid [greatest hits]
+metal gear solid delta: snake eater [tactical edition]
+metal gear solid v: the phantom pain
+metal gear solid: master collection vol. 1
+metal gear solid: master collection vol. 2 [day one edition]
+metal gear solid: the essential collection
+metal gear solid: the twin snakes
+metal gear solid: vr missions
+metroid prime
+metroid prime [metroid prime 2: echoes bonus disc]
+michael jordan: chaos in the windy city
+mike tyson's punch-out!!
+mortal kombat
+mortal kombat 3
+mortal kombat ii
+mortal kombat vs. dc universe
+narc
+new super mario bros. 2
+new super mario bros. u deluxe
+nickleodeon teenage mutant ninja turtles: master splinter's training pack
+perfect dark
+primal rage
+punch-out!!
+quake
+quake 4
+quake ii
+r.c. pro-am
+red dead redemption ii
+robocop versus the terminator
+saints row iv [super dangerous wub wub edition]
+sid meier's civilization vi
+sonic colors ultimate [launch edition]
+sonic frontiers
+sonic mania collector's edition
+sonic superstars
+sonic the hedgehog
+south park: the fractured but whole
+spec ops: the line
+spider-man & venom: maximum carnage [black cart]
+spider-man & venom: maximum carnage [special limited edition red cartridge]
+spider-man & x-men: arcade's revenge
+spider-man / x-men: arcade's revenge
+spider-man: the movie
+star fox
+star fox 64 3d
+star fox 64 [player's choice]
+star fox adventures
+star fox command
+star fox: assault
+star wars racer & commando combo
+star wars: battlefront
+star wars: the old republic
+street fighter ii
+street fighter ii turbo
+street fighter ii': special champion edition
+streets of rage
+streets of rage 2
+streets of rage 4: anniversary edition
+super mario 64
+super mario all-stars
+super mario bros. - duck hunt - world class track meet
+super mario bros. / duck hunt
+super mario bros. 2
+super mario bros. 3
+super mario bros. [5 screw]
+super mario bros. wonder
+super mario world
+super mario world 2: yoshi's island
+super punch-out!!
+super street fighter ii
+syphon filter
+syphon filter 2
+syphon filter 3
+syphon filter: dark mirror
+syphon filter: the omega strain
+teenage mutant ninja turtles
+teenage mutant ninja turtles ii: back from the sewers
+teenage mutant ninja turtles ii: the arcade game
+teenage mutant ninja turtles iv: turtles in time
+teenage mutant ninja turtles tournament fighters [cardboard box]
+teenage mutant ninja turtles: fall of the foot clan
+teenage mutant ninja turtles: the cowabunga collection
+teenage mutant ninja turtles: the hyperstone heist
+teenage mutant ninja turtles: tournament fighters
+tekken 3 [greatest hits]
+titanfall 2
+tmnt: mutant melee
+tom clancy's ghost recon
+tom clancy's ghost recon 2
+tom clancy's ghost recon 2: summit strike
+tom clancy's ghost recon advanced warfighter
+tom clancy's ghost recon: future soldier signature edition
+tom clancy's ghost recon: island thunder
+tom clancy's rainbow six
+tom clancy's splinter cell: blacklist
+tom clancy's splinter cell: pandora tomorrow
+tom clancy's: the division 2
+tomb raider [greatest hits]
+ultra street fighter iv
+uncanny x-men
+venom - spider-man: separation anxiety
+wolfenstein ii: the new colossus
+wolfenstein: the new order
+wolverine: adamantium rage
+x-men
+x-men 2: clone wars
+x-men legends
+x-men legends ii: rise of apocalypse
+x-men origins: wolverine
+x-men origins: wolverine [uncaged edition]
+x-men: children of the atom
+x-men: mutant apocalypse
+x2: wolverine's revenge
+yoshi's story
+zelda ii: the adventure of link
 `;
 
 /* ===== GAMES WITH NO ENDING =====
@@ -2275,9 +2483,16 @@ saveBtn.addEventListener("click", async () => {
     if (!eblock.test(text)) throw new Error("Could not find the no-ending list in the file on GitHub.");
     text = text.replace(eblock, "const NO_ENDING = `\n" + elist + "\n`;");
 
+    /* The file is well over 100KB, so encode in chunks - spreading the whole
+       byte array into one call blows the argument limit. */
+    const bytes = new TextEncoder().encode(text);
+    let bin = "";
+    for (let i = 0; i < bytes.length; i += 8192)
+      bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
+
     const body = {
       message: "beaten: " + BEATEN_SET.size + " / no ending: " + ENDLESS_SET.size,
-      content: btoa(String.fromCharCode(...new TextEncoder().encode(text))),
+      content: btoa(bin),
       sha: meta.sha,
       branch: REPO_BRANCH
     };
