@@ -38,13 +38,15 @@
     overflow-wrap:break-word;
   }
   .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:60ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
   .backlink{
-    display:inline-flex;align-items:center;margin-top:18px;
+    display:inline-flex;align-items:center;
     border:2px solid var(--line);color:var(--dim);text-decoration:none;
     font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
     padding:9px 14px;border-radius:2px;
   }
   .backlink:hover{border-color:var(--hot);color:var(--hot)}
+  .backlink.here{border-color:var(--hot);background:var(--hot);color:#12070a}
 
   /* ---- hero ---- */
   .headline{
@@ -145,7 +147,13 @@
     <p class="wordmark">The Nostalgia Pro</p>
     <h1>Anniversaries</h1>
     <p class="standfirst">What on the shelf is having a birthday. Today, and the next few weeks.</p>
-    <a class="backlink" href="index.html">Back to the shelf</a>
+    <div class="navrow">
+      <a class="backlink" href="index.html">The shelf</a>
+      <a class="backlink" href="reviews.html">Reviews</a>
+      <a class="backlink" href="lists.html">Lists</a>
+      <a class="backlink here" href="#">Anniversaries</a>
+      <a class="backlink" href="stats.html">The numbers</a>
+    </div>
   </header>
 
   <section class="headline">
@@ -154,7 +162,7 @@
       <div class="countdown">In 19 days</div>
       <h2>Nintendo 64</h2>
       <span class="big">30 years</span>
-      <p>North American launch, September 29, 1996. You have 46 N64 games on the shelf and Wave Race 64 sitting at No. 1 on your posted top 10.</p>
+      <p>North American launch, September 29, 1996. Forty-six N64 games on the shelf, and Wave Race 64 sits at No. 1 on my top 10.</p>
       <div class="riders">Same day: <b>Super Mario 64</b> and <b>Pilotwings 64</b> both turn 30 as US launch titles.</div>
     </div>
   </section>
@@ -302,7 +310,7 @@
 
   </div>
 
-  <p class="note">Photos come out of the same images folder the shelf page uses, named the same way. Anything without a photo yet shows the filename it's looking for, so you know exactly what to drop in.</p>
+  
 
 </div>
 
