@@ -147,7 +147,7 @@
     border-radius:2px;padding:6px 11px;
   }
   .todaybar a.more:hover{border-color:var(--hot);color:var(--hot)}
-  .sitenav{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 0}
+  .sitenav{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0}
   .viewrow{
     display:flex;flex-wrap:wrap;align-items:center;gap:14px;
     margin:16px 0 0;padding-top:16px;border-top:1px solid var(--line);
@@ -162,10 +162,11 @@
   .toggle button[aria-pressed="true"]{background:var(--hot);color:#12070a}
   .toggle button:focus-visible{outline:2px solid var(--hot);outline-offset:-2px}
   .shelflink{
-    display:inline-flex;align-items:center;
+    display:inline-flex;align-items:center;justify-content:center;
+    flex:1 1 auto;                       /* share the row, no gap at the end */
     border:2px solid var(--hot);color:var(--hot);text-decoration:none;
-    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
-    padding:9px 14px;border-radius:2px;
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.03em;
+    padding:9px 10px;border-radius:2px;white-space:nowrap;
   }
   .shelflink:hover{background:var(--hot);color:#12070a}
   .shelflink:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
