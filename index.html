@@ -1379,6 +1379,227 @@ The Legend of Zelda
 /* ===== GAMES WITH NO ENDING =====
    Sports, puzzle, arcade - anything that just keeps going. Same format. */
 const NO_ENDING = `
+1080° Snowboarding
+4x4 Evolution
+500,000 Games
+Activision Anthology
+All-Star Baseball 2002
+All-Star Baseball 2005
+Arcade Classics
+Arcade1Up Teenage Mutant Ninja Turtles: Turtles in Time Arcade Machine
+Arena Football
+ATV Offroad Fury 4
+Backyard Baseball '09
+Barkley Shut Up and Jam!
+Barkley Shut Up and Jam! 2
+Battlefield 4: China Rising Expansion Pack
+Big Bumpin'
+Big Mutha Truckers 2
+Bill Walsh College Football
+Blue's Clues: Blue's Alphabet Book
+Boggle Plus
+Brain Age: Train Your Brain in Minutes a Day!
+Bulls vs Lakers and the NBA Playoffs
+Caesar's Palace
+Caesars Palace II
+California Speed
+Casino FunPak
+Chessmaster
+Chessmaster 6000
+College Slam
+Crazy Taxi
+Cruis'n Blast
+Dave Mirra Freestyle BMX 2
+Defender II
+Dilbert's Desktop Games
+Dogz
+Dr. Mario
+Dr. Mario 64
+Dreamcast Web Browser 2.0
+Driven
+EA SPORTS College Football 25
+ESPN Baseball Tonight
+ESPN NFL 2K5
+ESPN NFL Primetime 2002
+ESPN Sunday Night NFL
+Excite Truck
+Excitebike [5 Screw]
+Extreme-G
+Extreme-G 2
+FIFA World Cup: Germany 2006
+Flash Focus: Vision Training in Minutes a Day
+Frank Thomas' Big Hurt Baseball
+Galaga: Demons of Death
+Gran Turismo
+Gran Turismo 2
+Gran Turismo 3: A-Spec
+Gran Turismo 5 Prologue
+Gran Turismo 5: XL Edition
+Gran Turismo 6
+Gran Turismo Sport (PlayStation Hits)
+Greg Hastings Paintball 2
+Halo 2 Multiplayer Map Pack
+HardBall '95
+HardBall III
+Hogan's Alley
+Hot Shots Golf 3
+Ivan "Ironman" Stewart's Super Off Road
+Jack Nicklaus' Greatest 18 Holes of Major Championship Golf
+John Elway's Quarterback
+Ken Griffey Jr. Presents Major League Baseball
+Ken Griffey Jr.'s Winning Run
+L.A. Rush
+Links 2004
+Madden Football 64
+Madden NFL '94
+Madden NFL '95
+Madden NFL 2001
+Madden NFL 2005
+Major League Baseball
+Major League Baseball 2K11
+Major League Baseball 2K6
+Major League Baseball 2K7
+Major League Baseball 2K9
+Major League Baseball Featuring Ken Griffey, Jr.
+Mario Golf: Super Rush
+Mario Hoops: 3 on 3
+Mario Kart 64
+Mario Kart: Double Dash!!
+Mario Party: Star Rush
+Metal Gear Solid: Digital Graphic Novel
+Michael Jordan: Chaos in the Windy City
+Midnight Club 3: Dub Edition
+Midway Arcade Treasures
+MLB 2001
+MLB 2003
+MLB SlugFest 2006
+MLB Superstars
+MLB The Show 19
+Monopoly
+Monopoly Party!
+Ms. Pac-Man
+Ms. Pac-Man: Special Color Edition
+MVP Baseball 2005
+MX vs. ATV Reflex
+NASCAR 99
+NBA Jam
+NBA Jam 2000
+NBA Jam 99
+NBA Jam Extreme
+NBA Jam Tournament Edition
+NBA Live 2000
+NBA Live 97
+NBA ShootOut 2001
+NBA Showdown 94
+NBA Showtime: NBA on NBC
+NBA Street Vol. 2
+NCAA College Basketball 2k3
+NCAA Football 2003
+NCAA Football 2005
+NCAA Football 2005 / Top Spin Combo
+NCAA Gamebreaker 98
+Need For Speed: ProStreet
+Need for Speed: Shift
+NFL 2K
+NFL Football '94 Starring Joe Montana
+NFL Gameday 2002
+NFL GameDay [Long Box]
+NFL Quarterback Club 96
+NFL Quarterback Club 98
+NFL Quarterback Club II
+NFL Sports Talk Football '93 Starring Joe Montana
+NHL 06
+NHL 07
+NHL 2001
+NHL 2K
+NHL Stanley Cup
+Nintendo GameCube Preview Disc
+Official Xbox Magazine Demo Disc 59
+Outlaw Golf
+Outlaw Golf 2
+Outlaw Tennis
+Outlaw Volleyball
+Outlaw Volleyball Red Hot
+Pebble Beach Golf Links
+Pilotwings
+Pilotwings 64
+Pinball
+Price Is Right
+Project Gotham Racing
+Project Gotham Racing 2
+Project Gotham Racing 3
+Project Gotham Racing 4
+Q*bert
+R.B.I. Baseball 3
+Ready 2 Rumble Boxing
+Ready 2 Rumble Boxing [Greatest Hits]
+Roger Clemens' MVP Baseball
+Rumble Roses
+San Francisco Rush: Extreme Racing
+Science papa
+Scrabble Champion Edition
+Sega Dreamcast Web Browser
+SEGA Rally 2
+Skate or Die
+Sneak King
+Sports Talk Baseball
+Spot: The Video Game
+Star Wars: The Clone Wars / Tetris Worlds
+Street Fighter Anniversary Collection
+Stuntman
+Summer Heat Beach Volleyball
+Super Baseball Simulator 1.000
+Super Games 150 in 1
+Super Mario Bros. - Duck Hunt - World Class Track Meet
+Super Mario Bros. / Duck Hunt
+Super Mario Kart
+Super Scope 6
+Swingerz Golf
+Tecmo Super Bowl
+Tetris
+Tetris 2
+Tetris Worlds
+Tiger Woods PGA Tour 06
+Tiger Woods PGA Tour 08
+Tiger Woods PGA Tour 11
+Tiger Woods PGA Tour 2004
+Tiger Woods PGA Tour 2005
+Tom Clancy's Ghost Recon: Future Soldier Signature Edition
+Tommy Lasorda Baseball
+Top Spin
+Track & Field
+Triple Play 2000
+Triple Play 2001
+Triple Play 2002
+Virtua Tennis
+Wave Race
+Wave Race 64
+WCW Mayhem
+WCW-NWO Thunder
+WCW/nWo Revenge
+Wheel of Fortune
+Who Wants To Be A Millionaire: 2nd Edition
+Wii Sports [Cardboard Sleeve]
+Wii Sports Resort [Cardboard Sleeve]
+World Class Track Meet
+World Series Baseball
+World Series Baseball '95
+World Series Baseball 2K2
+Wrecking Crew
+WWE WrestleMania 21
+WWF No Mercy
+WWF Royal Rumble
+WWF Smackdown! 2: Know Your Role [Greatest Hits]
+WWF Super WrestleMania
+WWF WrestleMania
+WWF WrestleMania 2000
+WWF WrestleMania: The Arcade Game [Long Box]
+Xbox Music Mixer
+Xenophobe
+XGIII: Extreme G Racing
+Yoshi's Cookie
+Zoop
+Zumba Fitness World Party
 `;
 
 let BEATEN_SET = new Set(
@@ -1394,16 +1615,32 @@ const PUBLISHED_E = new Set(ENDLESS_SET);
    a closed tab or a misclick never loses work. */
 const DRAFT = "np-beaten-draft";
 const DRAFT_E = "np-endless-draft";
+const DRAFT_BASE = "np-draft-base";
+
+/* A draft is only valid against the published lists it was started from.
+   If the file has changed since, the draft is stale and gets dropped -
+   otherwise an old empty draft would wipe a list added in the file. */
+const baseStamp = PUBLISHED.size + ":" + PUBLISHED_E.size + ":" +
+  [...PUBLISHED].concat([...PUBLISHED_E]).sort().join("|").length;
+
 try {
-  const d = localStorage.getItem(DRAFT);
-  if (d) BEATEN_SET = new Set(JSON.parse(d));
-  const e = localStorage.getItem(DRAFT_E);
-  if (e) ENDLESS_SET = new Set(JSON.parse(e));
+  if (localStorage.getItem(DRAFT_BASE) === baseStamp) {
+    const d = localStorage.getItem(DRAFT);
+    if (d) BEATEN_SET = new Set(JSON.parse(d));
+    const e = localStorage.getItem(DRAFT_E);
+    if (e) ENDLESS_SET = new Set(JSON.parse(e));
+  } else {
+    localStorage.removeItem(DRAFT);
+    localStorage.removeItem(DRAFT_E);
+    localStorage.setItem(DRAFT_BASE, baseStamp);
+  }
 } catch (err) { /* storage blocked: carry on with the published lists */ }
+
 function backup(){
   try {
     localStorage.setItem(DRAFT, JSON.stringify([...BEATEN_SET]));
     localStorage.setItem(DRAFT_E, JSON.stringify([...ENDLESS_SET]));
+    localStorage.setItem(DRAFT_BASE, baseStamp);
   } catch (err) {}
 }
 
