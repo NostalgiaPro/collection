@@ -1285,6 +1285,18 @@ let BEATEN_SET = new Set(
 );
 const PUBLISHED = new Set(BEATEN_SET);
 
+/* Ticks are backed up to this browser on every click, so a reload,
+   a closed tab or a misclick never loses work. */
+const DRAFT = "np-beaten-draft";
+try {
+  const d = localStorage.getItem(DRAFT);
+  if (d) BEATEN_SET = new Set(JSON.parse(d));
+} catch (err) { /* storage blocked: carry on with the published list */ }
+function backup(){
+  try { localStorage.setItem(DRAFT, JSON.stringify([...BEATEN_SET])); }
+  catch (err) {}
+}
+
 
 const FRANCHISES = [["Star Wars", ["star wars", "super star wars", "lego star wars"]], ["Metal Gear", ["metal gear", "snake's revenge"]], ["Mario", ["mario", "yoshi", "luigi's mansion", "wrecking crew"]], ["Batman", ["batman", "arkham"]], ["Halo", ["halo"]], ["Teenage Mutant Ninja Turtles", ["teenage mutant", "tmnt"]], ["James Bond 007", ["007", "goldeneye", "james bond", "nightfire", "tomorrow never dies", "world is not enough", "quantum of solace", "blood stone", "russia with love", "everything or nothing", "agent under fire", "the duel"]], ["Spider-Man", ["spider-man", "venom - ", "separation anxiety", "maximum carnage"]], ["X-Men", ["x-men", "x2:", "wolverine"]], ["Mortal Kombat", ["mortal kombat"]], ["Call of Duty", ["call of duty"]], ["Sonic the Hedgehog", ["sonic"]], ["Street Fighter", ["street fighter"]], ["Tom Clancy", ["tom clancy", "ghost recon", "splinter cell", "rainbow six", "the division"]], ["The Legend of Zelda", ["zelda"]], ["Terminator", ["terminator", "t2: the arcade", "t2: judgment"]], ["RoboCop", ["robocop"]], ["Tiger Woods PGA Tour", ["tiger woods"]], ["Final Fantasy", ["final fantasy"]], ["Battlefield", ["battlefield"]], ["Mega Man", ["mega man"]], ["Gran Turismo", ["gran turismo"]], ["WWF / WWE", ["wwf", "wwe", "wrestlemania"]], ["Madden NFL", ["madden"]], ["NBA Jam", ["nba jam"]], ["Looney Tunes", ["looney tunes", "bugs bunny", "taz-mania", "tiny toon", "speedy gonzales", "sylvester and tweety", "road runner"]], ["Gears of War", ["gears of war"]], ["Doom", ["doom"]], ["Quake", ["quake"]], ["Wolfenstein", ["wolfenstein"]], ["Star Fox", ["star fox"]], ["Syphon Filter", ["syphon filter"]], ["Assassin's Creed", ["assassin's creed"]], ["Project Gotham Racing", ["project gotham"]], ["World Series Baseball", ["world series baseball"]], ["Major League Baseball 2K", ["major league baseball 2k", "mlb 20", "mlb the show", "mlb slugfest", "mlb superstars"]], ["Metroid", ["metroid"]], ["Donkey Kong", ["donkey kong", "diddy kong", "dk: jungle"]], ["Punch-Out!!", ["punch-out"]], ["Tetris", ["tetris"]], ["Contra", ["contra", "super c "]], ["Killer Instinct", ["killer instinct"]], ["Outlaw", ["outlaw "]], ["Army Men", ["army men"]], ["Turok", ["turok"]], ["Streets of Rage", ["streets of rage"]], ["Twisted Metal", ["twisted metal"]], ["Onimusha", ["onimusha"]], ["Darksiders", ["darksiders"]], ["Ken Griffey Jr.", ["griffey"]], ["WCW / nWo", ["wcw"]], ["NFL Quarterback Club", ["quarterback club"]], ["ESPN", ["espn"]], ["NCAA Football", ["ncaa football", "ncaa college", "ncaa gamebreaker"]], ["Triple Play", ["triple play"]], ["NBA Live / ShootOut", ["nba live", "nba shootout", "nba shootout", "nba showtime", "nba street", "nba showdown"]], ["Extreme-G", ["extreme-g", "xgiii"]], ["ATV / MX Offroad", ["atv offroad", "mx vs. atv"]], ["Need for Speed", ["need for speed"]], ["Simpsons", ["simpsons"]], ["Jurassic Park", ["jurassic park"]], ["Mission: Impossible", ["mission: impossible"]], ["Ren & Stimpy", ["ren & stimpy"]], ["Adventure Island", ["adventure island"]], ["Adventures of Lolo", ["adventures of lolo"]], ["Double Dragon", ["double dragon"]], ["Ikari Warriors", ["ikari warriors"]], ["Dragon Warrior", ["dragon warrior"]], ["Top Gun", ["top gun"]], ["Pitfall", ["pitfall"]], ["Pac-Man", ["pac-man"]], ["Caesars Palace", ["caesar"]], ["Sly Cooper", ["sly collection"]], ["Wave Race", ["wave race"]], ["Pilotwings", ["pilotwings"]], ["Excite", ["excitebike", "excite truck"]], ["Crazy Taxi", ["crazy taxi"]], ["Carmen Sandiego", ["carmen sandiego"]], ["Frogger", ["frogger"]], ["Justice League", ["justice league"]], ["Superman", ["superman"]], ["Hulk", ["hulk"]], ["Guitar Hero", ["guitar hero"]], ["Civilization", ["civilization"]], ["Chessmaster", ["chessmaster"]], ["Hardball", ["hardball"]], ["Big Bumpin' / Burger King", ["big bumpin", "sneak king"]], ["Unreal", ["unreal"]], ["Bram Stoker's Dracula", ["bram stoker"]], ["Cliffhanger", ["cliffhanger"]], ["American Gladiators", ["american gladiators"]], ["Judge Dredd", ["judge dredd"]], ["Captain America and the Avengers", ["captain america"]], ["Minority Report", ["minority report"]], ["Gun", ["gun ("]], ["Barkley Shut Up and Jam!", ["barkley"]], ["Strike series", ["desert strike", "jungle strike", "urban strike"]], ["Epic Mickey", ["epic mickey"]], ["The Jungle Book", ["jungle book"]], ["Spot", ["spot:", "spot goes", "cool spot"]]];
 
@@ -1521,6 +1533,7 @@ results.addEventListener("click", e => {
   const key = li.dataset.beatkey;
   if (BEATEN_SET.has(key)) BEATEN_SET.delete(key); else BEATEN_SET.add(key);
   box.classList.toggle("on", BEATEN_SET.has(key));
+  backup();
   drawScores();
   showBar();
 });
@@ -1539,7 +1552,13 @@ function showBar(){
 }
 
 document.getElementById("undoBtn").addEventListener("click", () => {
+  let n = 0;
+  for (const k of BEATEN_SET) if (!PUBLISHED.has(k)) n++;
+  for (const k of PUBLISHED) if (!BEATEN_SET.has(k)) n++;
+  if (!confirm("Throw away " + n + " unsaved change" + (n === 1 ? "" : "s") +
+               " and go back to what's on the site? This can't be undone.")) return;
   BEATEN_SET = new Set(PUBLISHED);
+  backup();
   render();
   savebar.classList.remove("on");
 });
@@ -1595,6 +1614,7 @@ saveBtn.addEventListener("click", async () => {
 
     PUBLISHED.clear();
     for (const k of BEATEN_SET) PUBLISHED.add(k);
+    try { localStorage.removeItem(DRAFT); } catch (err) {}
     savebar.classList.remove("on");
     saveBtn.disabled = false;
     saveBtn.textContent = "Save to site";
@@ -1603,6 +1623,10 @@ saveBtn.addEventListener("click", async () => {
     saveBtn.disabled = false;
     saveBtn.textContent = "Try again";
   }
+});
+
+window.addEventListener("beforeunload", e => {
+  if (dirty()) { e.preventDefault(); e.returnValue = ""; }
 });
 
 drawRail();
