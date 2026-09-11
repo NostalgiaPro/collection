@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Nostalgia Pro — Anniversaries</title>
+<title>The Nostalgia Pro &mdash; Anniversaries</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -16,8 +16,8 @@
   html,body{margin:0;padding:0}
   body{
     background:var(--bg);color:var(--text);
-    font-family:"IBM Plex Sans",system-ui,sans-serif;
-    font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
   }
   body::before{
     content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
@@ -28,341 +28,818 @@
   .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 22px 90px}
 
   header{padding:44px 0 0}
-  .wordmark{
-    font-family:"Silkscreen",monospace;font-weight:700;
-    font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px;
-  }
-  h1{
-    font-family:"Press Start 2P",monospace;
-    font-size:clamp(15px,3.3vw,30px);line-height:1.55;margin:0;
-    overflow-wrap:break-word;
-  }
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3.3vw,30px);line-height:1.55;margin:0}
   .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:60ch}
   .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
-  .backlink{
-    display:inline-flex;align-items:center;
-    border:2px solid var(--line);color:var(--dim);text-decoration:none;
-    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
-    padding:9px 14px;border-radius:2px;
+  .navbtn{
+    display:inline-flex;align-items:center;border:2px solid var(--line);color:var(--dim);
+    text-decoration:none;font-family:"Silkscreen",monospace;font-size:11px;
+    letter-spacing:.05em;padding:9px 14px;border-radius:2px;
   }
-  .backlink:hover{border-color:var(--hot);color:var(--hot)}
-  .backlink.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
 
-  /* ---- hero ---- */
   .headline{
-    margin:34px 0 0;background:var(--bg2);
-    border:2px solid var(--hot);border-radius:2px;
-    display:flex;flex-wrap:wrap;
+    margin:34px 0 0;background:var(--bg2);border:2px solid var(--hot);
+    border-radius:2px;display:flex;flex-wrap:wrap;
   }
   .hero-shot{
-    flex:1 1 260px;min-height:200px;
-    background:var(--panel) center/cover no-repeat;
-    border-right:2px solid var(--line);
-    display:flex;align-items:center;justify-content:center;
-    font-family:"Silkscreen",monospace;font-size:10px;
-    letter-spacing:.06em;color:var(--dim);text-align:center;padding:16px;
-    word-break:break-all;
+    flex:1 1 260px;min-height:200px;background:var(--panel) center/cover no-repeat;
+    border-right:2px solid var(--line);display:flex;align-items:center;justify-content:center;
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;
+    color:var(--dim);text-align:center;padding:16px;word-break:break-all;
   }
-  .hero-body{flex:2 1 320px;padding:24px 24px 22px}
-  .countdown{
-    font-family:"Silkscreen",monospace;font-weight:700;
-    font-size:12px;letter-spacing:.1em;color:var(--hot);margin-bottom:14px;
-  }
+  .hero-body{flex:2 1 320px;padding:24px}
+  .countdown{font-family:"Silkscreen",monospace;font-weight:700;font-size:12px;letter-spacing:.1em;color:var(--hot);margin-bottom:14px}
   .headline h2{font-family:"Press Start 2P",monospace;font-size:19px;line-height:1.5;margin:0}
-  .headline .big{
-    font-family:"Press Start 2P",monospace;font-size:30px;
-    color:var(--hot);display:block;margin:12px 0 0;
-  }
+  .headline .big{font-family:"Press Start 2P",monospace;font-size:30px;color:var(--hot);display:block;margin:12px 0 0}
   .headline p{margin:14px 0 0;color:var(--dim);font-size:14px}
-  .riders{
-    margin-top:16px;padding-top:14px;border-top:1px solid var(--line);
-    font-size:13px;color:var(--dim);
-  }
+  .riders{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--dim)}
   .riders b{color:var(--text);font-weight:500}
 
-  /* ---- today ---- */
-  .today{
-    margin:20px 0 0;background:var(--bg2);
-    border:2px solid var(--line);border-radius:2px;padding:18px 20px;
-  }
-  .today h3{
-    font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;
-    letter-spacing:.1em;color:var(--dim);margin:0 0 10px;
-  }
+  .today{margin:20px 0 0;background:var(--bg2);border:2px solid var(--line);border-radius:2px;padding:18px 20px}
+  .today h3{font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;letter-spacing:.1em;color:var(--dim);margin:0 0 10px}
   .today p{margin:0;font-size:15px}
   .today .quiet{color:var(--dim);font-size:14px;margin-top:6px}
 
-  /* ---- controls ---- */
   .controls{display:flex;gap:10px;flex-wrap:wrap;margin:34px 0 6px}
   .chip{
-    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
-    cursor:pointer;background:transparent;color:var(--dim);
-    border:2px solid var(--line);border-radius:2px;padding:9px 14px;
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;cursor:pointer;
+    background:transparent;color:var(--dim);border:2px solid var(--line);
+    border-radius:2px;padding:9px 14px;
   }
   .chip[aria-pressed="true"]{background:var(--hot);color:#12070a;border-color:var(--hot)}
-  .chip:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 
-  /* ---- list ---- */
-  .day{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}
-  .day.hidden{display:none}
+  .day{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--line)}
   .date{flex:0 0 46px;text-align:center;padding-top:2px}
-  .date .mon{
-    font-family:"Silkscreen",monospace;font-size:10px;
-    letter-spacing:.1em;color:var(--dim);
-  }
+  .date .mon{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim)}
   .date .num{font-family:"Press Start 2P",monospace;font-size:15px;display:block;margin-top:6px}
   .entries{flex:1;min-width:0}
-
   .entry{display:flex;align-items:center;gap:12px;padding:5px 0}
-  .shot{
-    flex:none;width:52px;height:52px;object-fit:cover;
-    border:1px solid var(--line);border-radius:2px;background:var(--panel);
-  }
+  .shot{flex:none;width:52px;height:52px;object-fit:cover;border:1px solid var(--line);border-radius:2px;background:var(--panel)}
   .shot.missing{
-    display:flex;align-items:center;justify-content:center;
-    font-family:"Silkscreen",monospace;font-size:7px;
-    letter-spacing:.04em;color:var(--dim);text-align:center;
+    display:flex;align-items:center;justify-content:center;font-family:"Silkscreen",monospace;
+    font-size:7px;letter-spacing:.04em;color:var(--dim);text-align:center;
     border-style:dashed;padding:3px;line-height:1.3;word-break:break-all;
   }
   .meta{min-width:0}
   .title{font-size:15px;display:block}
-  .sys{font-size:12px;color:var(--dim)}
-  .yrs{
-    font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;
-    letter-spacing:.05em;color:var(--dim);
-    white-space:nowrap;margin-left:auto;padding-left:12px;
-  }
+  .title b{font-weight:600}
+  .sys{font-size:12px;color:var(--c,var(--dim))}
+  .yrs{font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;letter-spacing:.05em;color:var(--dim);white-space:nowrap;margin-left:auto;padding-left:12px}
   .yrs.round{color:var(--hot)}
-  .daynote{
-    margin-top:10px;padding-top:10px;border-top:1px solid var(--line);
-    font-size:13px;color:var(--dim);
-  }
-  .note{font-size:13px;color:var(--dim);margin-top:28px;max-width:62ch}
+  .note{font-size:13px;color:var(--dim);margin-top:28px;max-width:64ch}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <header>
-    <p class="wordmark">The Nostalgia Pro</p>
-    <h1>Anniversaries</h1>
-    <p class="standfirst">What on the shelf is having a birthday. Today, and the next few weeks.</p>
-    <div class="navrow">
-      <a class="backlink" href="index.html">The shelf</a>
-      <a class="backlink" href="reviews.html">Reviews</a>
-      <a class="backlink" href="lists.html">Lists</a>
-      <a class="backlink here" href="#">Anniversaries</a>
-      <a class="backlink" href="stats.html">The numbers</a>
-    </div>
-  </header>
-
-  <section class="headline">
-    <div class="hero-shot" id="heroShot" data-shot="nintendo-64-console">images/nintendo-64-console.jpg</div>
-    <div class="hero-body">
-      <div class="countdown">In 19 days</div>
-      <h2>Nintendo 64</h2>
-      <span class="big">30 years</span>
-      <p>North American launch, September 29, 1996. Forty-six N64 games on the shelf, and Wave Race 64 sits at No. 1 on my top 10.</p>
-      <div class="riders">Same day: <b>Super Mario 64</b> and <b>Pilotwings 64</b> both turn 30 as US launch titles.</div>
-    </div>
-  </section>
-
-  <section class="today">
-    <h3>Today</h3>
-    <p>Nothing on the shelf has an anniversary today.</p>
-    <p class="quiet">Next up is Mortal Kombat on Friday.</p>
-  </section>
-
-  <div class="controls">
-    <button class="chip" id="f-all" aria-pressed="true">Everything</button>
-    <button class="chip" id="f-hw" aria-pressed="false">Hardware</button>
-    <button class="chip" id="f-round" aria-pressed="false">Round numbers</button>
+<header>
+  <p class="wordmark">The Nostalgia Pro</p>
+  <h1>Anniversaries</h1>
+  <p class="standfirst">What on the shelf is having a birthday. Today, and the months ahead.</p>
+  <div class="navrow">
+    <a class="navbtn" href="index.html">The shelf</a>
+    <a class="navbtn" href="reviews.html">Reviews</a>
+    <a class="navbtn" href="lists.html">Lists</a>
+    <a class="navbtn here" href="#">Anniversaries</a>
+    <a class="navbtn" href="stats.html">The numbers</a>
   </div>
+</header>
 
-  <div id="list">
+<section class="headline" id="hero"></section>
+<section class="today" id="todayBox"></section>
 
-    <div class="day" data-round="true" data-hw="false">
-      <div class="date"><div class="mon">SEP</div><span class="num">13</span></div>
-      <div class="entries">
-        <div class="entry" data-shot="mortal-kombat-sega-genesis">
-          <span class="meta"><span class="title">Mortal Kombat</span> <span class="sys">Genesis</span></span>
-          <span class="yrs">33 yrs</span>
-        </div>
-        <div class="entry" data-shot="mortal-kombat-snes">
-          <span class="meta"><span class="title">Mortal Kombat</span> <span class="sys">SNES</span></span>
-          <span class="yrs">33 yrs</span>
-        </div>
-        <p class="daynote">Mortal Monday, 1993. Both versions shipped the same day and the blood code is the whole story.</p>
-      </div>
-    </div>
+<div class="controls">
+  <button class="chip" id="f-all" aria-pressed="true">Everything</button>
+  <button class="chip" id="f-hw" aria-pressed="false">Hardware</button>
+  <button class="chip" id="f-round" aria-pressed="false">Round numbers</button>
+</div>
 
-    <div class="day" data-round="false" data-hw="false">
-      <div class="date"><div class="mon">SEP</div><span class="num">14</span></div>
-      <div class="entries">
-        <div class="entry" data-shot="halo-reach-limited-edition-xbox-360">
-          <span class="meta"><span class="title">Halo: Reach</span> <span class="sys">Xbox 360</span></span>
-          <span class="yrs">16 yrs</span>
-        </div>
-        <div class="entry" data-shot="cruis-n-blast-nintendo-switch">
-          <span class="meta"><span class="title">Cruis'n Blast</span> <span class="sys">Switch</span></span>
-          <span class="yrs round">5 yrs</span>
-        </div>
-      </div>
-    </div>
+<div id="list"></div>
 
-    <div class="day" data-round="false" data-hw="false">
-      <div class="date"><div class="mon">SEP</div><span class="num">16</span></div>
-      <div class="entries">
-        <div class="entry" data-shot="simpsons-hit-run-gamecube">
-          <span class="meta"><span class="title">The Simpsons: Hit &amp; Run</span> <span class="sys">GameCube</span></span>
-          <span class="yrs">23 yrs</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="day" data-round="false" data-hw="false">
-      <div class="date"><div class="mon">SEP</div><span class="num">17</span></div>
-      <div class="entries">
-        <div class="entry" data-shot="grand-theft-auto-v-xbox-one">
-          <span class="meta"><span class="title">Grand Theft Auto V</span> <span class="sys">Xbox One</span></span>
-          <span class="yrs">13 yrs</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="day" data-round="false" data-hw="false">
-      <div class="date"><div class="mon">SEP</div><span class="num">20</span></div>
-      <div class="entries">
-        <div class="entry" data-shot="gears-of-war-3-xbox-360">
-          <span class="meta"><span class="title">Gears of War 3</span> <span class="sys">Xbox 360</span></span>
-          <span class="yrs round">15 yrs</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="day" data-round="false" data-hw="false">
-      <div class="date"><div class="mon">SEP</div><span class="num">21</span></div>
-      <div class="entries">
-        <div class="entry" data-shot="star-wars-battlefront-xbox">
-          <span class="meta"><span class="title">Star Wars: Battlefront</span> <span class="sys">Xbox</span></span>
-          <span class="yrs">22 yrs</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="day" data-round="false" data-hw="false">
-      <div class="date"><div class="mon">SEP</div><span class="num">22</span></div>
-      <div class="entries">
-        <div class="entry" data-shot="halo-3-odst-xbox-360">
-          <span class="meta"><span class="title">Halo 3: ODST</span> <span class="sys">Xbox 360</span></span>
-          <span class="yrs">17 yrs</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="day" data-round="false" data-hw="false">
-      <div class="date"><div class="mon">SEP</div><span class="num">25</span></div>
-      <div class="entries">
-        <div class="entry" data-shot="halo-3-xbox-360">
-          <span class="meta"><span class="title">Halo 3</span> <span class="sys">Xbox 360, three editions</span></span>
-          <span class="yrs">19 yrs</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="day" data-round="true" data-hw="true">
-      <div class="date"><div class="mon">SEP</div><span class="num">29</span></div>
-      <div class="entries">
-        <div class="entry" data-shot="nintendo-64-console">
-          <span class="meta"><span class="title">Nintendo 64</span> <span class="sys">NA launch</span></span>
-          <span class="yrs round">30 yrs</span>
-        </div>
-        <div class="entry" data-shot="super-mario-64-nintendo-64">
-          <span class="meta"><span class="title">Super Mario 64</span> <span class="sys">N64</span></span>
-          <span class="yrs round">30 yrs</span>
-        </div>
-        <div class="entry" data-shot="pilotwings-64-nintendo-64">
-          <span class="meta"><span class="title">Pilotwings 64</span> <span class="sys">N64</span></span>
-          <span class="yrs round">30 yrs</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="day" data-round="false" data-hw="false">
-      <div class="date"><div class="mon">OCT</div><span class="num">3</span></div>
-      <div class="entries">
-        <div class="entry" data-shot="secret-of-mana-snes">
-          <span class="meta"><span class="title">Secret of Mana</span> <span class="sys">SNES</span></span>
-          <span class="yrs">33 yrs</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="day" data-round="false" data-hw="false">
-      <div class="date"><div class="mon">OCT</div><span class="num">8</span></div>
-      <div class="entries">
-        <div class="entry" data-shot="metroid-dread-nintendo-switch">
-          <span class="meta"><span class="title">Metroid Dread</span> <span class="sys">Switch</span></span>
-          <span class="yrs round">5 yrs</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  
+<p class="note">North American release dates. Photos come from the same images folder the shelf uses.</p>
 
 </div>
 
 <script>
-/* Each row names the photo it wants: images/<slug>.jpg
-   Same folder and naming the collection page already uses.
-   Nothing there yet? Show the filename instead of a broken image. */
-document.querySelectorAll('.entry[data-shot]').forEach(entry => {
-  const slug = entry.dataset.shot;
-  const img = new Image();
-  img.className = 'shot';
-  img.loading = 'lazy';
-  img.alt = '';
-  img.onerror = () => {
-    const box = document.createElement('span');
-    box.className = 'shot missing';
-    box.textContent = slug + '.jpg';
-    img.replaceWith(box);
-  };
-  img.src = 'images/' + slug + '.jpg';
-  entry.prepend(img);
-});
 
-/* Hero uses the same slug, as a background image */
-(function(){
-  const hero = document.getElementById('heroShot');
-  if (!hero) return;
+/* month, day, year, name, console, kind
+   kind: "hw" = hardware, "" = game. Year-only entries use day 0. */
+const EVENTS = [
+  // ---- hardware, North American launch ----
+  [10,18,1985,"Nintendo Entertainment System","NES","hw"],
+  [8,23,1991,"Super Nintendo","SNES","hw"],
+  [9,29,1996,"Nintendo 64","Nintendo 64","hw"],
+  [11,18,2001,"Nintendo GameCube","GameCube","hw"],
+  [7,31,1989,"Game Boy","Game Boy","hw"],
+  [11,18,1998,"Game Boy Color","Game Boy Color","hw"],
+  [11,21,2004,"Nintendo DS","Nintendo DS","hw"],
+  [3,27,2011,"Nintendo 3DS","Nintendo 3DS","hw"],
+  [11,19,2006,"Nintendo Wii","Wii","hw"],
+  [3,3,2017,"Nintendo Switch","Nintendo Switch","hw"],
+  [9,9,1995,"Sony PlayStation","PlayStation 1","hw"],
+  [10,26,2000,"PlayStation 2","PlayStation 2","hw"],
+  [11,17,2006,"PlayStation 3","PlayStation 3","hw"],
+  [3,24,2005,"PlayStation Portable","PSP","hw"],
+  [11,15,2013,"PlayStation 4","PlayStation 4","hw"],
+  [11,15,2001,"Xbox","Xbox","hw"],
+  [11,22,2005,"Xbox 360","Xbox 360","hw"],
+  [11,22,2013,"Xbox One","Xbox One","hw"],
+  [11,10,2020,"Xbox Series X and S","Xbox Series X/S","hw"],
+  [8,14,1989,"Sega Genesis","Sega Genesis","hw"],
+  [9,9,1999,"Sega Dreamcast","Sega Dreamcast","hw"],
+  [5,11,1995,"Sega Saturn","Sega Saturn","hw"],
+  [7,15,1983,"Famicom","Famicom","hw"],      // Japan
+  [4,28,1980,"Game & Watch","Game & Watch","hw"],  // Japan
+
+  // ---- games ----
+  [9,13,1993,"Mortal Kombat","Sega Genesis",""],
+  [9,13,1993,"Mortal Kombat","SNES",""],
+  [9,14,2010,"Halo: Reach","Xbox 360",""],
+  [9,14,2021,"Cruis'n Blast","Nintendo Switch",""],
+  [9,16,2003,"The Simpsons: Hit & Run","GameCube",""],
+  [9,17,2013,"Grand Theft Auto V","Xbox One",""],
+  [9,20,2011,"Gears of War 3","Xbox 360",""],
+  [9,21,2004,"Star Wars: Battlefront","Xbox",""],
+  [9,22,2009,"Halo 3: ODST","Xbox 360",""],
+  [9,25,2007,"Halo 3","Xbox 360",""],
+  [9,29,1996,"Super Mario 64","Nintendo 64",""],
+  [9,29,1996,"Pilotwings 64","Nintendo 64",""],
+  [10,3,1993,"Secret of Mana","SNES",""],
+  [10,8,2021,"Metroid Dread","Nintendo Switch",""],
+  [2,12,1990,"Super Mario Bros. 3","NES",""],
+  [8,22,1987,"The Legend of Zelda","NES",""],
+  [12,1,1988,"Zelda II: The Adventure of Link","NES",""],
+  [10,18,1985,"Duck Hunt","NES",""],
+  [11,1,1996,"Wave Race 64","Nintendo 64",""],
+  [2,10,1997,"Mario Kart 64","Nintendo 64",""],
+  [7,1,1997,"Star Fox 64","Nintendo 64",""],
+  [8,25,1997,"GoldenEye 007","Nintendo 64",""],
+  [11,24,1997,"Diddy Kong Racing","Nintendo 64",""],
+  [4,1,1998,"1080 Snowboarding","Nintendo 64",""],
+  [11,23,1998,"The Legend of Zelda: Ocarina of Time","Nintendo 64",""],
+  [12,3,1998,"Star Wars: Rogue Squadron","Nintendo 64",""],
+  [5,18,1999,"Star Wars Episode I: Racer","Nintendo 64",""],
+  [11,22,1999,"Donkey Kong 64","Nintendo 64",""],
+  [5,22,2000,"Perfect Dark","Nintendo 64",""],
+  [10,26,2000,"The Legend of Zelda: Majora's Mask","Nintendo 64",""],
+  [11,17,2000,"WWF No Mercy","Nintendo 64",""],
+  [9,7,1997,"Final Fantasy VII","PlayStation 1",""],
+  [5,12,1998,"Gran Turismo","PlayStation 1",""],
+  [4,29,1998,"Tekken 3","PlayStation 1",""],
+  [9,9,1998,"Parasite Eve","PlayStation 1",""],
+  [10,21,1998,"Metal Gear Solid","PlayStation 1",""],
+  [11,14,2000,"Final Fantasy IX","PlayStation 1",""],
+  [8,23,1991,"Super Mario World","SNES",""],
+  [8,30,1995,"Killer Instinct","SNES",""],
+  [11,24,1992,"Sonic the Hedgehog 2","Sega Genesis",""],
+  [11,15,2001,"Halo: Combat Evolved","Xbox",""],
+  [11,9,2004,"Halo 2","Xbox",""],
+  [7,15,2003,"Star Wars: Knights of the Old Republic","Xbox",""],
+  [12,6,2004,"Star Wars: Knights of the Old Republic II: The Sith Lords","Xbox",""],
+  [3,23,2004,"Tom Clancy's Splinter Cell: Pandora Tomorrow","Xbox",""],
+  [11,17,2002,"Metroid Prime","GameCube",""],
+  [12,3,2001,"Super Smash Bros. Melee","GameCube",""],
+  [9,23,2002,"Star Fox Adventures","GameCube",""],
+  [11,17,2004,"Metal Gear Solid 3: Snake Eater","PlayStation 2",""],
+  [6,12,2008,"Metal Gear Solid 4: Guns of the Patriots","PlayStation 3",""],
+  [8,25,2009,"Batman: Arkham Asylum","Xbox 360",""],
+  [10,18,2011,"Batman: Arkham City","Xbox 360",""],
+  [5,1,2009,"X-Men Origins: Wolverine","Xbox 360",""],
+  [6,25,2013,"Deadpool","Xbox 360",""],
+  [4,29,2008,"Grand Theft Auto IV","Xbox 360",""],
+  [11,11,2011,"The Elder Scrolls V: Skyrim","PC",""],
+  [3,3,2017,"Breath of the Wild","Nintendo Switch",""],
+  [11,22,2013,"A Link Between Worlds","Nintendo 3DS",""],
+  [9,7,2018,"Marvel's Spider-Man","PlayStation 4",""],
+  [10,26,2018,"Red Dead Redemption II","Xbox One",""],
+  [2,17,2004,"007: Everything or Nothing","GameCube",""],
+  [11,15,2005,"007: From Russia With Love","GameCube",""],
+  [11,19,2002,"007: NightFire","Xbox",""],
+  [11,16,1999,"007: Tomorrow Never Dies","PlayStation 1",""],
+  [5,31,2005,"Advent Rising","Xbox",""],
+  [4,20,1989,"Adventures of Lolo","NES",""],
+  [8,14,1989,"Altered Beast","Sega Genesis",""],
+  [6,14,2005,"Batman Begins","GameCube",""],
+  [2,2,1988,"Contra","NES",""],
+  [4,4,2005,"DOOM 3","Xbox",""],
+  [10,1,1997,"Extreme-G","Nintendo 64",""],
+  [11,8,2005,"Gun","Xbox",""],
+  [10,17,2006,"Justice League Heroes","Xbox",""],
+  [6,3,1996,"Ken Griffey Jr.'s Winning Run","SNES",""],
+  [2,22,2005,"MVP Baseball 2005","GameCube",""],
+  [11,19,2006,"Marvel: Ultimate Alliance","Wii",""],
+  [11,12,2002,"MechAssault","Xbox",""],
+  [8,31,1998,"Mega Man Legends","PlayStation 1",""],
+  [10,24,2000,"Mega Man Legends 2","PlayStation 1",""],
+  [9,9,1994,"Mortal Kombat II","Sega Genesis",""],
+  [2,23,1994,"NBA Jam","SNES",""],
+  [2,23,1995,"NBA Jam Tournament Edition","SNES",""],
+  [3,13,2001,"Onimusha: Warlords","PlayStation 2",""],
+  [5,14,2001,"Oracle of Seasons","Game Boy Color",""],
+  [11,17,2003,"Project Gotham Racing 2","Xbox",""],
+  [2,15,1988,"R.C. Pro-Am","NES",""],
+  [9,16,1994,"Spider-Man & Venom: Maximum Carnage","SNES",""],
+  [11,18,2003,"Star Wars Jedi Knight: Jedi Academy","Xbox",""],
+  [11,26,2001,"Star Wars Starfighter: Special Edition","Xbox",""],
+  [3,10,2002,"Star Wars: Jedi Starfighter","PlayStation 2",""],
+  [10,26,2000,"Street Fighter EX3","PlayStation 2",""],
+  [7,15,1992,"Street Fighter II","SNES",""],
+  [6,19,2000,"Street Fighter III: Double Impact","Sega Dreamcast",""],
+  [12,20,1992,"Streets of Rage 2","Sega Genesis",""],
+  [9,1,1992,"Super Mario Kart","SNES",""],
+  [10,4,1995,"Super Mario World 2: Yoshi's Island","SNES",""],
+  [11,17,1992,"Super Star Wars","SNES",""],
+  [7,7,1994,"Super Street Fighter II","SNES",""],
+  [2,16,1999,"Syphon Filter","PlayStation 1",""],
+  [8,10,1992,"Teenage Mutant Ninja Turtles IV: Turtles in Time","SNES",""],
+  [7,31,1989,"Tetris","Game Boy",""],
+  [12,11,1998,"Turok 2: Seeds of Evil","Nintendo 64",""],
+  [11,23,1999,"Turok: Rage Wars","Nintendo 64",""],
+  [10,31,1996,"Twisted Metal 2","PlayStation 1",""],
+  [12,4,1995,"Virtua Fighter 2","Sega Saturn",""],
+  [11,20,2000,"WWF SmackDown! 2: Know Your Role","PlayStation 1",""],
+  [11,24,1999,"WWF WrestleMania 2000","Nintendo 64",""],
+  [9,21,2004,"X-Men Legends","Xbox",""],
+  [9,20,2005,"X-Men Legends II: Rise of Apocalypse","GameCube",""],
+  [4,15,2003,"X2: Wolverine's Revenge","GameCube",""],
+  [6,28,1990,"Batman: The Video Game","Sega Genesis",""],
+  [2,28,1992,"Desert Strike: Return to the Gulf","Sega Genesis",""],
+  [8,2,1994,"Earthworm Jim","Sega Genesis",""],
+  [7,1,1993,"Flashback: The Quest for Identity","Sega Genesis",""],
+  [8,10,1993,"Jurassic Park","Sega Genesis",""],
+  [11,10,1994,"Madden NFL '95","Sega Genesis",""],
+  [10,13,1995,"Mortal Kombat 3","Sega Genesis",""],
+  [10,28,1994,"Pitfall: The Mayan Adventure","Sega Genesis",""],
+  [11,15,1993,"Sonic Spinball","Sega Genesis",""],
+  [6,23,1991,"Sonic the Hedgehog","Sega Genesis",""],
+  [2,2,1994,"Sonic the Hedgehog 3","Sega Genesis",""],
+  [9,16,1994,"Spider-Man & Venom: Maximum Carnage [Black Cart]","Sega Genesis",""],
+  [9,27,1993,"Street Fighter II': Special Champion Edition","Sega Genesis",""],
+  [2,28,1995,"X-Men 2: Clone Wars","Sega Genesis",""],
+  [10,30,2000,"4x4 Evolution","Sega Dreamcast",""],
+  [1,24,2000,"Crazy Taxi","Sega Dreamcast",""],
+  [9,9,1999,"NFL 2K","Sega Dreamcast",""],
+  [2,9,2000,"NHL 2K","Sega Dreamcast",""],
+  [11,27,1999,"SEGA Rally 2","Sega Dreamcast",""],
+  [11,8,2000,"Shenmue","Sega Dreamcast",""],
+  [9,9,1999,"Sonic Adventure","Sega Dreamcast",""],
+  [11,24,1999,"South Park: Chef's Luv Shack","Sega Dreamcast",""],
+  [11,21,2000,"Tomb Raider: Chronicles","Sega Dreamcast",""],
+  [3,13,2001,"Unreal Tournament","Sega Dreamcast",""],
+  [7,11,2000,"Virtua Tennis","Sega Dreamcast",""],
+  [8,14,2001,"World Series Baseball 2K2","Sega Dreamcast",""],
+  [8,8,2000,"WWF Royal Rumble","Sega Dreamcast",""],
+  [10,31,2000,"Xtreme Sports","Sega Dreamcast",""],
+  [3,7,1996,"Congo The Movie: The Lost City of Zinj","Sega Saturn",""],
+  [11,26,1996,"Space Jam","Sega Saturn",""],
+  [11,29,2024,"Bentley Bear's Crystal Quest [2024 Reissue]","Atari 7800+",""],
+  [7,26,2005,"Outlaw Tennis","Xbox",""],
+  [6,22,2003,"Outlaw Volleyball","Xbox",""],
+  [10,21,2003,"Outlaw Volleyball Red Hot","Xbox",""],
+  [11,15,2001,"Project Gotham Racing","Xbox",""],
+  [1,18,2005,"Punisher","Xbox",""],
+  [5,6,2003,"Return to Castle Wolfenstein: Tides of War","Xbox",""],
+  [11,26,2001,"Simpsons: Road Rage","Xbox",""],
+  [6,28,2004,"Spider-Man 2","Xbox",""],
+  [4,15,2002,"Spider-Man: The Movie","Xbox",""],
+  [5,4,2005,"Star Wars Episode III: Revenge of the Sith","Xbox",""],
+  [11,15,2002,"Star Wars: The Clone Wars / Tetris Worlds","Xbox",""],
+  [2,21,2005,"Street Fighter Anniversary Collection","Xbox",""],
+  [11,20,2006,"Superman Returns","Xbox",""],
+  [11,11,2003,"Terminator 3: Rise Of The Machines","Xbox",""],
+  [9,18,2002,"Terminator: Dawn of Fate","Xbox",""],
+  [9,4,2002,"Tetris Worlds","Xbox",""],
+  [9,20,2005,"Tiger Woods PGA Tour 06","Xbox",""],
+  [9,22,2003,"Tiger Woods PGA Tour 2004","Xbox",""],
+  [9,20,2004,"Tiger Woods PGA Tour 2005","Xbox",""],
+  [3,15,2005,"TMNT: Mutant Melee","Xbox",""],
+  [11,11,2002,"Tom Clancy's Ghost Recon","Xbox",""],
+  [11,16,2004,"Tom Clancy's Ghost Recon 2","Xbox",""],
+  [8,2,2005,"Tom Clancy's Ghost Recon 2: Summit Strike","Xbox",""],
+  [8,5,2003,"Tom Clancy's Ghost Recon: Island Thunder","Xbox",""],
+  [10,28,2003,"Top Spin","Xbox",""],
+  [3,11,2002,"Triple Play 2002","Xbox",""],
+  [9,1,2002,"Turok: Evolution","Xbox",""],
+  [11,12,2002,"Unreal Championship","Xbox",""],
+  [2,10,2004,"Unreal II: The Awakening","Xbox",""],
+  [4,20,2005,"WWE WrestleMania 21","Xbox",""],
+  [9,20,2005,"X-Men Legends II: Rise of Apocalypse","Xbox",""],
+  [10,15,2002,"X-Men: Next Dimension","Xbox",""],
+  [5,16,2006,"X-Men: The Official Game","Xbox",""],
+  [11,4,2008,"007: Quantum of Solace","Xbox 360",""],
+  [12,6,2011,"Adventures of Tintin: The Game","Xbox 360",""],
+  [6,1,2010,"Alpha Protocol","Xbox 360",""],
+  [11,15,2007,"America's Army: True Soldiers","Xbox 360",""],
+  [11,16,2010,"Apache: Air Assault","Xbox 360",""],
+  [10,25,2013,"Batman: Arkham Origins [Collector's Edition]","Xbox 360",""],
+  [10,25,2011,"Battlefield 3 [Limited Edition]","Xbox 360",""],
+  [12,3,2013,"Battlefield 4: China Rising Expansion Pack","Xbox 360",""],
+  [6,23,2008,"Battlefield: Bad Company","Xbox 360",""],
+  [3,2,2010,"Battlefield: Bad Company 2","Xbox 360",""],
+  [5,15,2012,"Battleship","Xbox 360",""],
+  [11,19,2006,"Big Bumpin'","Xbox 360",""],
+  [2,22,2011,"Bulletstorm [Epic Edition]","Xbox 360",""],
+  [11,9,2010,"Call of Duty: Black Ops","Xbox 360",""],
+  [11,13,2012,"Call of Duty: Black Ops II","Xbox 360",""],
+  [11,5,2013,"Call of Duty: Ghosts","Xbox 360",""],
+  [11,10,2009,"Call of Duty: Modern Warfare 2","Xbox 360",""],
+  [11,8,2011,"Call of Duty: Modern Warfare 3","Xbox 360",""],
+  [11,11,2008,"Call of Duty: World at War","Xbox 360",""],
+  [2,20,2007,"Crackdown","Xbox 360",""],
+  [1,5,2010,"Darksiders","Xbox 360",""],
+  [8,14,2012,"Darksiders II","Xbox 360",""],
+  [6,26,2012,"Dead Island [Game of the Year Edition]","Xbox 360",""],
+  [11,15,2013,"Deadfall Adventures","Xbox 360",""],
+  [8,23,2011,"Deus Ex: Human Revolution","Xbox 360",""],
+  [8,4,2009,"G.I. Joe: The Rise of Cobra","Xbox 360",""],
+  [11,7,2006,"Gears of War","Xbox 360",""],
+  [11,7,2008,"Gears of War 2 [Limited Edition]","Xbox 360",""],
+  [9,28,2010,"Greg Hastings Paintball 2","Xbox 360",""],
+  [10,28,2007,"Guitar Hero III: Legends of Rock","Xbox 360",""],
+  [11,17,2005,"Gun","Xbox 360",""],
+  [11,6,2012,"Halo 4","Xbox 360",""],
+  [3,3,2009,"Halo Wars","Xbox 360",""],
+  [11,15,2011,"Halo: Combat Evolved Anniversary","Xbox 360",""],
+  [6,25,2007,"Harry Potter and the Order of the Phoenix","Xbox 360",""],
+  [11,23,2010,"Majin and the Forsaken Kingdom","Xbox 360",""],
+  [4,10,2006,"Major League Baseball 2K6","Xbox 360",""],
+  [1,26,2010,"Mass Effect 2","Xbox 360",""],
+  [3,6,2012,"Mass Effect 3","Xbox 360",""],
+  [11,16,2008,"Mortal Kombat vs. DC Universe","Xbox 360",""],
+  [11,13,2007,"Need For Speed: ProStreet","Xbox 360",""],
+  [9,12,2006,"NHL 07","Xbox 360",""],
+  [11,22,2005,"Project Gotham Racing 3","Xbox 360",""],
+  [10,2,2007,"Project Gotham Racing 4","Xbox 360",""],
+  [11,18,2005,"Quake 4","Xbox 360",""],
+  [6,2,2009,"Red Faction: Guerrilla","Xbox 360",""],
+  [8,20,2013,"Saints Row IV [Super Dangerous Wub Wub Edition]","Xbox 360",""],
+  [9,1,2009,"Section 8","Xbox 360",""],
+  [7,8,2008,"Sid Meier's Civilization Revolution","Xbox 360",""],
+  [11,19,2006,"Sneak King","Xbox 360",""],
+  [6,26,2012,"Spec Ops: The Line","Xbox 360",""],
+  [6,8,2010,"Tiger Woods PGA Tour 11","Xbox 360",""],
+  [3,9,2006,"Tom Clancy's Ghost Recon Advanced Warfighter","Xbox 360",""],
+  [8,20,2013,"Tom Clancy's Splinter Cell: Blacklist","Xbox 360",""],
+  [10,23,2015,"Assassin's Creed: Syndicate","Xbox One",""],
+  [6,23,2015,"Batman: Arkham Knight","Xbox One",""],
+  [3,24,2015,"Borderlands: The Handsome Collection","Xbox One",""],
+  [11,22,2013,"Call of Duty: Ghosts","Xbox One",""],
+  [10,28,2022,"Call of Duty: Modern Warfare II [Cross-Gen Bundle]","Xbox One",""],
+  [12,10,2020,"Cyberpunk 2077","Xbox One",""],
+  [10,11,2016,"Gears of War 4","Xbox One",""],
+  [8,25,2015,"Gears of War: Ultimate Edition","Xbox One",""],
+  [10,27,2015,"Halo 5: Guardians","Xbox One",""],
+  [2,17,2017,"Halo Wars 2 [Ultimate Edition]","Xbox One",""],
+  [11,11,2014,"Halo: The Master Chief Collection","Xbox One",""],
+  [4,23,2019,"Mortal Kombat 11","Xbox One",""],
+  [11,8,2022,"Sonic Frontiers","Xbox One",""],
+  [8,15,2017,"Sonic Mania Collector's Edition","Xbox One",""],
+  [10,17,2023,"Sonic Superstars","Xbox One",""],
+  [10,25,2024,"Sonic X Shadow Generations [Day One Edition]","Xbox One",""],
+  [10,17,2017,"South Park: The Fractured but Whole","Xbox One",""],
+  [8,30,2022,"Teenage Mutant Ninja Turtles: The Cowabunga Collection","Xbox One",""],
+  [10,28,2016,"Titanfall 2","Xbox One",""],
+  [3,15,2019,"Tom Clancy's: The Division 2","Xbox One",""],
+  [10,27,2017,"Wolfenstein II: The New Colossus","Xbox One",""],
+  [5,20,2014,"Wolfenstein: The New Order","Xbox One",""],
+  [11,22,2013,"Zumba Fitness World Party","Xbox One",""],
+  [7,19,2024,"EA SPORTS College Football 25","Xbox Series X/S",""],
+  [11,17,2022,"Goat Simulator 3","Xbox Series X/S",""],
+  [8,28,2025,"Metal Gear Solid Delta: Snake Eater [Tactical Edition]","Xbox Series X/S",""],
+  [10,24,2023,"Metal Gear Solid: Master Collection Vol. 1","Xbox Series X/S",""],
+  [8,27,2024,"Star Wars Outlaws [Gold Edition]","Xbox Series X/S",""],
+  [9,30,2002,"Conflict: Desert Storm","PlayStation 2",""],
+  [10,22,2002,"Contra: Shattered Soldier","PlayStation 2",""],
+  [6,18,2002,"Fire Blade","PlayStation 2",""],
+  [11,22,2004,"GoldenEye: Rogue Agent","PlayStation 2",""],
+  [7,9,2001,"Gran Turismo 3: A-Spec","PlayStation 2",""],
+  [11,8,2005,"Gun","PlayStation 2",""],
+  [10,10,2005,"L.A. Rush","PlayStation 2",""],
+  [3,29,2005,"LEGO Star Wars: The Video Game","PlayStation 2",""],
+  [5,27,2002,"Looney Tunes: Space Race","PlayStation 2",""],
+  [3,3,2009,"Major League Baseball 2K9","PlayStation 2",""],
+  [11,12,2001,"Metal Gear Solid 2: Sons Of Liberty","PlayStation 2",""],
+  [3,14,2006,"Metal Gear Solid 3: Subsistence","PlayStation 2",""],
+  [3,18,2008,"Metal Gear Solid: The Essential Collection","PlayStation 2",""],
+  [11,18,2002,"Minority Report: Everybody Runs","PlayStation 2",""],
+  [12,2,2003,"Mission: Impossible: Operation Surma","PlayStation 2",""],
+  [9,16,2005,"Mortal Kombat: Shaolin Monks","PlayStation 2",""],
+  [1,23,2001,"NBA Shootout 2001","PlayStation 2",""],
+  [10,26,2000,"NHL 2001","PlayStation 2",""],
+  [8,27,2002,"Onimusha 2: Samurai's Destiny","PlayStation 2",""],
+  [10,19,2004,"Outlaw Golf 2","PlayStation 2",""],
+  [11,21,2005,"Peter Jackson's King Kong: The Official Game of the Movie","PlayStation 2",""],
+  [5,6,2003,"Primal","PlayStation 2",""],
+  [11,9,2004,"Rumble Roses","PlayStation 2",""],
+  [8,11,2003,"Seek and Destroy","PlayStation 2",""],
+  [2,19,2001,"Star Wars: Starfighter","PlayStation 2",""],
+  [9,9,2003,"Starsky & Hutch","PlayStation 2",""],
+  [6,24,2002,"Stuntman","PlayStation 2",""],
+  [6,30,2003,"Summer Heat Beach Volleyball","PlayStation 2",""],
+  [9,18,2007,"Syphon Filter: Dark Mirror","PlayStation 2",""],
+  [5,17,2004,"Syphon Filter: The Omega Strain","PlayStation 2",""],
+  [3,20,2007,"TMNT","PlayStation 2",""],
+  [2,5,2008,"Twisted Metal: Head-On - Extra Twisted Edition","PlayStation 2",""],
+  [2,11,2003,"Vexx","PlayStation 2",""],
+  [3,17,2002,"Virtua Fighter 4","PlayStation 2",""],
+  [10,15,2002,"X-Men: Next Dimension","PlayStation 2",""],
+  [11,2,2010,"007: Blood Stone","PlayStation 3",""],
+  [11,4,2008,"007: Quantum of Solace","PlayStation 3",""],
+  [10,30,2012,"Assassin's Creed III [Walmart Edition]","PlayStation 3",""],
+  [10,29,2013,"Assassin's Creed IV: Black Flag [Gamestop Edition]","PlayStation 3",""],
+  [11,16,2010,"Assassin's Creed: Brotherhood","PlayStation 3",""],
+  [11,15,2011,"Assassin's Creed: Revelations","PlayStation 3",""],
+  [2,9,2010,"BioShock 2","PlayStation 3",""],
+  [9,4,2008,"FaceBreaker","PlayStation 3",""],
+  [4,15,2008,"Gran Turismo 5 Prologue","PlayStation 3",""],
+  [1,17,2012,"Gran Turismo 5: XL Edition","PlayStation 3",""],
+  [12,6,2013,"Gran Turismo 6","PlayStation 3",""],
+  [10,26,2008,"Guitar Hero World Tour","PlayStation 3",""],
+  [10,23,2012,"Killzone Trilogy","PlayStation 3",""],
+  [1,26,2010,"MAG","PlayStation 3",""],
+  [3,8,2011,"Major League Baseball 2K11","PlayStation 3",""],
+  [7,9,2013,"Metal Gear Solid: The Legacy Collection","PlayStation 3",""],
+  [12,1,2009,"MX vs. ATV Reflex","PlayStation 3",""],
+  [9,15,2009,"Need for Speed: Shift","PlayStation 3",""],
+  [11,4,2008,"Resistance 2","PlayStation 3",""],
+  [11,9,2010,"Sly Collection","PlayStation 3",""],
+  [6,28,2011,"Sniper: Ghost Warrior","PlayStation 3",""],
+  [11,20,2007,"Time Crisis 4","PlayStation 3",""],
+  [12,7,2010,"TRON: Evolution","PlayStation 3",""],
+  [8,5,2014,"Ultra Street Fighter IV","PlayStation 3",""],
+  [12,11,2007,"Unreal Tournament III","PlayStation 3",""],
+  [5,1,2009,"X-Men Origins: Wolverine [Uncaged Edition]","PlayStation 3",""],
+  [3,22,2005,"Metal Gear Ac!d","PSP",""],
+  [3,21,2006,"Metal Gear Ac!d 2","PSP",""],
+  [6,13,2006,"Metal Gear Solid: Digital Graphic Novel","PSP",""],
+  [6,8,2010,"Metal Gear Solid: Peace Walker [Limited Edition]","PSP",""],
+  [12,5,2006,"Metal Gear Solid: Portable Ops","PSP",""],
+  [11,13,2007,"Metal Gear Solid: Portable Ops Plus","PSP",""],
+  [6,28,2018,"Bloodborne [PlayStation Hits]","PlayStation 4",""],
+  [10,25,2019,"Call of Duty: Modern Warfare","PlayStation 4",""],
+  [10,4,2019,"Gran Turismo Sport (PlayStation Hits)","PlayStation 4",""],
+  [9,1,2015,"Metal Gear Solid V: The Phantom Pain","PlayStation 4",""],
+  [2,20,2018,"Metal Gear Survive","PlayStation 4",""],
+  [3,26,2019,"MLB The Show 19","PlayStation 4",""],
+  [10,10,2017,"Raid: World War II","PlayStation 4",""],
+  [9,28,2021,"Streets of Rage 4: Anniversary Edition","PlayStation 4",""],
+  [4,5,2004,"All-Star Baseball 2005","Xbox",""],
+  [2,7,2006,"America's Army: Rise of a Soldier","Xbox",""],
+  [7,22,2003,"Aquaman: Battle for Atlantis","Xbox",""],
+  [2,7,2006,"Arena Football","Xbox",""],
+  [6,14,2005,"Batman Begins","Xbox",""],
+  [3,18,2003,"Batman: Dark Tomorrow","Xbox",""],
+  [10,24,2005,"Battlefield 2: Modern Combat","Xbox",""],
+  [8,23,2005,"Big Mutha Truckers 2","Xbox",""],
+  [9,7,2004,"Conflict: Vietnam","Xbox",""],
+  [7,19,2005,"Delta Force: Black Hawk Down","Xbox",""],
+  [6,21,2005,"Destroy All Humans!","Xbox",""],
+  [10,5,2005,"Doom 3: Resurrection of Evil","Xbox",""],
+  [5,14,2003,"Enter the Matrix","Xbox",""],
+  [7,20,2004,"ESPN NFL 2K5","Xbox",""],
+  [4,24,2006,"FIFA World Cup: Germany 2006","Xbox",""],
+  [8,9,2004,"Guy Game","Xbox",""],
+  [11,15,2005,"Half-Life 2","Xbox",""],
+  [7,5,2005,"Halo 2 Multiplayer Map Pack","Xbox",""],
+  [5,27,2003,"Hulk","Xbox",""],
+  [8,23,2005,"Incredible Hulk: Ultimate Destruction","Xbox",""],
+  [9,20,2005,"Indigo Prophecy","Xbox",""],
+  [3,12,2002,"James Bond 007: Agent Under Fire","Xbox",""],
+  [11,18,2002,"James Cameron's Dark Angel","Xbox",""],
+  [10,5,2004,"Leisure Suit Larry: Magna Cum Laude","Xbox",""],
+  [11,11,2003,"Links 2004","Xbox",""],
+  [8,10,2004,"Madden NFL 2005","Xbox",""],
+  [2,26,2007,"Major League Baseball 2K7","Xbox",""],
+  [11,4,2002,"Metal Gear Solid 2: Substance","Xbox",""],
+  [4,11,2005,"Midnight Club 3: Dub Edition","Xbox",""],
+  [11,18,2003,"Midway Arcade Treasures","Xbox",""],
+  [11,18,2002,"Minority Report: Everybody Runs","Xbox",""],
+  [12,2,2003,"Mission: Impossible: Operation Surma","Xbox",""],
+  [3,20,2006,"MLB SlugFest 2006","Xbox",""],
+  [10,4,2004,"Mortal Kombat: Deception","Xbox",""],
+  [10,4,2004,"Mortal Kombat: Deception (Kollector's Edition -- Mileena Version)","Xbox",""],
+  [9,29,2003,"NBA Jam","Xbox",""],
+  [4,29,2003,"NBA Street Vol. 2","Xbox",""],
+  [12,2,2002,"NCAA College Basketball 2k3","Xbox",""],
+  [7,22,2002,"NCAA Football 2003","Xbox",""],
+  [10,31,2005,"NCAA Football 2005 / Top Spin Combo","Xbox",""],
+  [6,10,2002,"Outlaw Golf","Xbox",""],
+  [6,1,1992,"Yoshi","Game Boy",""],
+  [4,1,1993,"Yoshi's Cookie","Game Boy",""],
+  [12,19,2000,"Caesars Palace II","Game Boy Color",""],
+  [6,6,2000,"Croc","Game Boy Color",""],
+  [11,6,2000,"Grinch","Game Boy Color",""],
+  [5,14,2001,"Legend of Zelda: Oracle of Seasons","Game Boy Color",""],
+  [5,29,2001,"Shrek: Fairy Tale Freakdown","Game Boy Color",""],
+  [4,17,2006,"Brain Age: Train Your Brain in Minutes a Day!","Nintendo DS",""],
+  [9,10,2007,"DK: Jungle Climber","Nintendo DS",""],
+  [10,15,2007,"Flash Focus: Vision Training in Minutes a Day","Nintendo DS",""],
+  [9,11,2006,"Mario Hoops: 3 on 3","Nintendo DS",""],
+  [8,28,2006,"Star Fox Command","Nintendo DS",""],
+  [8,28,2007,"Tiger Woods PGA Tour 08","Nintendo DS",""],
+  [11,18,2012,"Epic Mickey: Power of Illusion","Nintendo 3DS",""],
+  [11,22,2013,"Legend of Zelda: A Link Between Worlds","Nintendo 3DS",""],
+  [11,4,2016,"Mario Party: Star Rush","Nintendo 3DS",""],
+  [8,19,2012,"New Super Mario Bros. 2","Nintendo 3DS",""],
+  [9,9,2011,"Star Fox 64 3D","Nintendo 3DS",""],
+  [9,7,2010,"Batman: The Brave and the Bold - The Videogame","Wii",""],
+  [5,6,2008,"Boom Blox","Wii",""],
+  [11,19,2006,"Call of Duty 3","Wii",""],
+  [10,19,2010,"Cars Toon: Mater's Tall Tales","Wii",""],
+  [9,22,2008,"de Blob","Wii",""],
+  [11,19,2006,"Excite Truck","Wii",""],
+  [11,2,2010,"GoldenEye 007","Wii",""],
+  [11,10,2008,"MLB Superstars","Wii",""],
+  [5,22,2007,"Pirates of the Caribbean: At World's End","Wii",""],
+  [9,9,2008,"Price Is Right","Wii",""],
+  [11,20,2012,"Rise of the Guardians","Wii",""],
+  [7,20,2009,"Science papa","Wii",""],
+  [11,11,2008,"Star Wars The Clone Wars: Lightsaber Duels","Wii",""],
+  [3,9,2008,"Super Smash Bros. Brawl","Wii",""],
+  [9,22,2009,"Teenage Mutant Ninja Turtles: Smash-Up","Wii",""],
+  [11,19,2006,"Wii Sports [Cardboard Sleeve]","Wii",""],
+  [7,26,2009,"Wii Sports Resort [Cardboard Sleeve]","Wii",""],
+  [1,16,2025,"Donkey Kong Country Returns HD","Nintendo Switch",""],
+  [3,3,2017,"Legend of Zelda: Breath of the Wild","Nintendo Switch",""],
+  [10,31,2019,"Luigi's Mansion 3","Nintendo Switch",""],
+  [6,25,2021,"Mario Golf: Super Rush","Nintendo Switch",""],
+  [1,11,2019,"New Super Mario Bros. U Deluxe","Nintendo Switch",""],
+  [6,5,2018,"Shaq Fu: A Legend Reborn","Nintendo Switch",""],
+  [11,16,2018,"Sid Meier's Civilization VI","Nintendo Switch",""],
+  [9,7,2021,"Sonic Colors Ultimate [Launch Edition]","Nintendo Switch",""],
+  [11,16,2021,"Star Wars Racer & Commando Combo","Nintendo Switch",""],
+  [2,12,2021,"Super Mario 3D World + Bowser's Fury","Nintendo Switch",""],
+  [10,20,2023,"Super Mario Bros. Wonder","Nintendo Switch",""],
+  [11,17,2023,"Super Mario RPG","Nintendo Switch",""],
+  [11,7,2000,"007: The World Is Not Enough","PlayStation 1",""],
+  [12,1,1995,"Agile Warrior F-111X [Long Box]","PlayStation 1",""],
+  [10,10,2000,"Alien Resurrection","PlayStation 1",""],
+  [3,3,1999,"Army Men 3D","PlayStation 1",""],
+  [8,5,1998,"Batman & Robin","PlayStation 1",""],
+  [8,13,2001,"Bob the Builder: Can We Fix It?","PlayStation 1",""],
+  [5,25,2000,"Colony Wars III: Red Sun","PlayStation 1",""],
+  [9,9,1995,"Cyber Sled [Long Box]","PlayStation 1",""],
+  [7,2,2002,"Delta Force: Urban Warfare","PlayStation 1",""],
+  [9,30,1998,"Duke Nukem: Time to Kill","PlayStation 1",""],
+  [9,30,1998,"Fifth Element","PlayStation 1",""],
+  [9,9,1999,"Final Fantasy VIII","PlayStation 1",""],
+  [12,23,1999,"Gran Turismo 2","PlayStation 1",""],
+  [4,30,1999,"Grand Theft Auto Mission Pack #1: London 1969","PlayStation 1",""],
+  [10,31,1997,"Judge Dredd","PlayStation 1",""],
+  [6,7,2000,"Legend of Mana","PlayStation 1",""],
+  [10,18,2001,"M&M's Shell Shocked","PlayStation 1",""],
+  [9,23,1999,"Metal Gear Solid: VR Missions","PlayStation 1",""],
+  [3,28,2000,"MLB 2001","PlayStation 1",""],
+  [3,26,2002,"MLB 2003","PlayStation 1",""],
+  [6,28,2000,"Mortal Kombat: Special Forces","PlayStation 1",""],
+  [9,15,1998,"NASCAR 99","PlayStation 1",""],
+  [10,31,1999,"NBA Live 2000","PlayStation 1",""],
+  [10,24,2000,"NBA ShootOut 2001","PlayStation 1",""],
+  [8,12,1997,"NCAA Gamebreaker 98","PlayStation 1",""],
+  [9,4,2001,"NFL Gameday 2002","PlayStation 1",""],
+  [11,4,1995,"NFL GameDay [Long Box]","PlayStation 1",""],
+  [10,6,1998,"One","PlayStation 1",""],
+  [9,12,2000,"Parasite Eve II","PlayStation 1",""],
+  [11,8,1999,"Rugrats: Studio Tour","PlayStation 1",""],
+  [11,8,1995,"Shockwave Assault [Long Box]","PlayStation 1",""],
+  [11,14,2000,"Star Wars: Demolition","PlayStation 1",""],
+  [2,29,2000,"Syphon Filter 2","PlayStation 1",""],
+  [11,6,2001,"Syphon Filter 3","PlayStation 1",""],
+  [11,24,1999,"Tom Clancy's Rainbow Six","PlayStation 1",""],
+  [3,22,1999,"Triple Play 2000","PlayStation 1",""],
+  [3,14,2000,"Triple Play 2001","PlayStation 1",""],
+  [1,31,1999,"WCW-NWO Thunder","PlayStation 1",""],
+  [10,25,2000,"Who Wants To Be A Millionaire: 2nd Edition","PlayStation 1",""],
+  [9,9,1995,"WWF WrestleMania: The Arcade Game [Long Box]","PlayStation 1",""],
+  [11,19,2002,"Activision Anthology","PlayStation 2",""],
+  [3,12,2002,"Army Men: Green Rogue","PlayStation 2",""],
+  [10,24,2006,"ATV Offroad Fury 4","PlayStation 2",""],
+  [3,25,2008,"Backyard Baseball '09","PlayStation 2",""],
+  [10,15,2001,"Batman: Vengeance","PlayStation 2",""],
+  [11,1,2005,"Call of Duty 2: Big Red One","PlayStation 2",""],
+  [10,11,1994,"Final Fantasy III","SNES",""],
+  [10,5,1992,"Final Fantasy: Mystic Quest","SNES",""],
+  [10,21,1993,"Jurassic Park","SNES",""],
+  [4,1,1994,"Ken Griffey Jr. Presents Major League Baseball","SNES",""],
+  [10,13,1995,"Mortal Kombat 3","SNES",""],
+  [9,9,1994,"Mortal Kombat II","SNES",""],
+  [8,23,1991,"Pilotwings","SNES",""],
+  [8,25,1995,"Primal Rage","SNES",""],
+  [3,26,1993,"Star Fox","SNES",""],
+  [8,2,1993,"Street Fighter II Turbo","SNES",""],
+  [8,11,1993,"Super Mario All-Stars","SNES",""],
+  [10,17,1994,"Super Punch-Out!!","SNES",""],
+  [2,1,1992,"Super Scope 6","SNES",""],
+  [10,11,1994,"Super Star Wars: Return of the Jedi","SNES",""],
+  [9,28,1999,"Army Men: Sarge's Heroes","Nintendo 64",""],
+  [9,27,2000,"Army Men: Sarge's Heroes 2","Nintendo 64",""],
+  [12,13,2000,"Batman Beyond: Return of the Joker","Nintendo 64",""],
+  [11,16,2000,"Blues Brothers 2000","Nintendo 64",""],
+  [3,18,1999,"California Speed","Nintendo 64",""],
+  [10,7,1998,"Deadly Arts","Nintendo 64",""],
+  [4,9,2001,"Dr. Mario 64","Nintendo 64",""],
+  [11,4,1998,"Extreme-G 2","Nintendo 64",""],
+  [10,24,1997,"Madden Football 64","Nintendo 64",""],
+  [8,22,2000,"Madden NFL 2001","Nintendo 64",""],
+  [5,18,1998,"Major League Baseball Featuring Ken Griffey, Jr.","Nintendo 64",""],
+  [7,16,1998,"Mission: Impossible","Nintendo 64",""],
+  [12,1,1999,"NBA Jam 2000","Nintendo 64",""],
+  [12,4,1998,"NBA Jam 99","Nintendo 64",""],
+  [11,16,1999,"NBA Showtime: NBA on NBC","Nintendo 64",""],
+  [10,24,1997,"NFL Quarterback Club 98","Nintendo 64",""],
+  [3,24,1998,"Quake","Nintendo 64",""],
+  [7,7,1999,"Quake II","Nintendo 64",""],
+  [9,28,1999,"Ready 2 Rumble Boxing","Nintendo 64",""],
+  [5,31,1999,"Superman: The New Superman Adventures","Nintendo 64",""],
+  [3,24,1999,"Triple Play 2000","Nintendo 64",""],
+  [9,28,1999,"WCW Mayhem","Nintendo 64",""],
+  [11,10,1998,"WCW/nWo Revenge","Nintendo 64",""],
+  [2,15,1998,"Yoshi's Story","Nintendo 64",""],
+  [3,12,2002,"All-Star Baseball 2002","GameCube",""],
+  [10,10,2006,"Avatar: The Last Airbender","GameCube",""],
+  [9,14,2004,"Bad Boys: Miami Takedown","GameCube",""],
+  [11,6,2002,"BloodRayne","GameCube",""],
+  [9,14,2005,"Cabela's Outdoor Adventures","GameCube",""],
+  [11,16,2004,"Call of Duty: Finest Hour","GameCube",""],
+  [3,2,2004,"Carmen Sandiego: The Secret of the Stolen Drums","GameCube",""],
+  [11,18,2001,"Crazy Taxi","GameCube",""],
+  [11,18,2001,"Dave Mirra Freestyle BMX 2","GameCube",""],
+  [11,19,2002,"Die Hard: Vendetta","GameCube",""],
+  [4,16,2002,"Driven","GameCube",""],
+  [11,8,2005,"Gun","GameCube",""],
+  [11,17,2003,"Legend of Zelda: Collector's Edition","GameCube",""],
+  [11,17,2003,"Mario Kart: Double Dash!!","GameCube",""],
+  [9,21,2004,"Mega Man X: Command Mission","GameCube",""],
+  [3,9,2004,"Metal Gear Solid: The Twin Snakes","GameCube",""],
+  [11,24,2002,"Minority Report: Everybody Runs","GameCube",""],
+  [11,12,2002,"Monopoly Party!","GameCube",""],
+  [7,15,2004,"NCAA Football 2005","GameCube",""],
+  [9,13,2005,"NHL 06","GameCube",""],
+  [11,19,2002,"Rocky","GameCube",""],
+  [9,10,2002,"Scorpion King: Rise of the Akkadian","GameCube",""],
+  [6,28,2004,"Spider-Man 2","GameCube",""],
+  [3,12,2002,"Spy Hunter","GameCube",""],
+  [2,14,2005,"Star Fox: Assault","GameCube",""],
+  [12,7,2002,"Star Wars: Bounty Hunter","GameCube",""],
+  [3,18,2003,"Sum of All Fears","GameCube",""],
+  [10,28,2002,"Swingerz Golf","GameCube",""],
+  [10,21,2003,"Teenage Mutant Ninja Turtles","GameCube",""],
+  [10,19,2004,"Teenage Mutant Ninja Turtles 2: Battle Nexus","GameCube",""],
+  [11,1,2005,"Teenage Mutant Ninja Turtles 3: Mutant Nightmare","GameCube",""],
+  [11,19,2002,"Top Gun: Combat Zones","GameCube",""],
+  [11,27,2001,"XGIII: Extreme G Racing","GameCube",""],
+  [2,28,1998,"James Bond 007","Game Boy",""],
+  [1,31,1993,"Capcom's Gold Medal Challenge '92","NES",""],
+  [10,1,1990,"Dr. Mario","NES",""],
+  [8,1,1989,"Dragon Warrior","NES",""],
+  [10,18,1985,"Excitebike [5 Screw]","NES",""],
+  [7,12,1990,"Final Fantasy","NES",""],
+  [10,18,1985,"Gyromite [5 Screw]","NES",""],
+  [10,18,1985,"Hogan's Alley","NES",""],
+  [5,1,1993,"Kirby's Adventure","NES",""],
+  [3,15,1994,"Mega Man 6","NES",""],
+  [10,18,1987,"Mike Tyson's Punch-Out!!","NES",""],
+  [10,18,1985,"Pinball","NES",""],
+  [11,1,1991,"Star Wars","NES",""],
+  [4,1,1990,"Super C","NES",""],
+  [12,1,1990,"Super Mario Bros. - Duck Hunt - World Class Track Meet","NES",""],
+  [11,1,1988,"Super Mario Bros. / Duck Hunt","NES",""],
+  [10,18,1985,"Super Mario Bros. [5 Screw]","NES",""],
+  [12,13,1991,"Tecmo Super Bowl","NES",""],
+  [6,1,1989,"Teenage Mutant Ninja Turtles","NES",""],
+  [12,4,1990,"Teenage Mutant Ninja Turtles II: The Arcade Game","NES",""],
+  [11,1,1989,"Tetris","NES",""],
+  [11,1,1987,"Top Gun","NES",""],
+  [10,18,1985,"Wrecking Crew","NES",""],
+  [11,21,1993,"Aladdin","SNES",""],
+  [11,1,1994,"Animaniacs","SNES",""],
+  [10,1,1992,"Battle Clash","SNES",""],
+  [11,23,1991,"Final Fantasy II","SNES",""],
+  [3,27,2026,"Mega Man Star Force Legacy Collection","Nintendo Switch",""],
+  [9,25,2025,"Sonic Racing: CrossWorlds","Nintendo Switch",""],
+  [5,27,2026,"007 First Light","Xbox Series X/S",""],
+  [10,10,2025,"Battlefield 6","Xbox Series X/S",""],
+  [8,27,2026,"Metal Gear Solid: Master Collection Vol. 2 [Day One Edition]","Xbox Series X/S",""]
+];
+
+const COLORS = {
+  "NES":"#d3d0c8","Famicom":"#d1553f","SNES":"#8f6fd6","Nintendo 64":"#3fa65b",
+  "GameCube":"#6f68c9","Game Boy":"#9bbc0f","Game Boy Color":"#3fb8b0",
+  "Nintendo DS":"#5aa2e0","Nintendo 3DS":"#e0466f","Wii":"#7fd4f5",
+  "Nintendo Switch":"#f0413f","Game & Watch":"#b3aea1","PlayStation 1":"#a9b0c4",
+  "PlayStation 2":"#3b6fd4","PlayStation 3":"#c9a94a","PSP":"#7c869c",
+  "PlayStation 4":"#2b8ce0","Xbox":"#8ec63f","Xbox 360":"#5fbf3a","Xbox One":"#3aa832",
+  "Xbox Series X/S":"#2ed15a","Sega Genesis":"#e04a3c","Sega Dreamcast":"#f2793f",
+  "Sega Saturn":"#4a63c9","Atari 7800+":"#e07a35","Sega Master System":"#c94a4a","Intellivision":"#d1a83a","PC":"#9aa3b5"
+};
+
+const MON=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+const slug = (t,c) => (t+"-"+c).toLowerCase().normalize("NFD")
+  .replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+
+const now = new Date();
+const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+/* next time this anniversary comes round, and how old it turns */
+function next(e){
+  const [m,d,y] = e;
+  let when = new Date(today.getFullYear(), m-1, d);
+  if (when < today) when = new Date(today.getFullYear()+1, m-1, d);
+  return { when, age: when.getFullYear() - y,
+           days: Math.round((when - today) / 86400000) };
+}
+const isRound = n => n % 5 === 0;
+
+const all = EVENTS.map(e => ({
+  m:e[0], d:e[1], y:e[2], name:e[3], con:e[4], hw:e[5]==="hw", ...next(e)
+})).sort((a,b) => a.days - b.days || (b.hw?1:0) - (a.hw?1:0));
+
+/* weight: rounder and bigger anniversaries lead */
+const weight = x => (isRound(x.age)?40:0) + (x.age%10===0?30:0) + (x.hw?25:0) + x.age/10;
+
+const todays = all.filter(x => x.days === 0);
+const ahead  = all.filter(x => x.days > 0);
+
+/* ---- hero: the biggest thing coming up in the next 90 days ---- */
+const hero = ahead.filter(x => x.days <= 90).sort((a,b)=>weight(b)-weight(a))[0] || ahead[0];
+if (hero) {
+  const sameDay = ahead.filter(x => x.days === hero.days && x !== hero);
+  const sl = slug(hero.name, hero.con);
+  document.getElementById("hero").innerHTML =
+    `<div class="hero-shot" id="heroShot" data-shot="${sl}">images/${sl}.jpg</div>
+     <div class="hero-body">
+       <div class="countdown">${hero.days === 1 ? "Tomorrow" : "In " + hero.days + " days"}</div>
+       <h2>${hero.name}</h2>
+       <span class="big">${hero.age} years</span>
+       <p>${hero.hw ? "North American launch" : hero.con}, ${MON[hero.m-1].charAt(0)+MON[hero.m-1].slice(1).toLowerCase()} ${hero.d}, ${hero.y}.</p>
+       ${sameDay.length ? `<div class="riders">Same day: ${
+         sameDay.map(x=>`<b>${x.name}</b>`).join(" and ")} ${sameDay.length>1?"both turn":"turns"} ${sameDay[0].age}.</div>` : ""}
+     </div>`;
   const probe = new Image();
   probe.onload = () => {
-    hero.style.backgroundImage = "url('images/" + hero.dataset.shot + ".jpg')";
-    hero.textContent = '';
+    const h = document.getElementById("heroShot");
+    h.style.backgroundImage = `url('images/${sl}.jpg')`; h.textContent = "";
   };
-  probe.src = 'images/' + hero.dataset.shot + '.jpg';
-})();
+  probe.src = "images/" + sl + ".jpg";
+}
 
-const chips = {
-  all: document.getElementById('f-all'),
-  hw: document.getElementById('f-hw'),
-  round: document.getElementById('f-round')
-};
-const days = Array.from(document.querySelectorAll('.day'));
+/* ---- today ---- */
+const tb = document.getElementById("todayBox");
+if (todays.length) {
+  tb.innerHTML = `<h3>Today</h3>` + todays.map(x =>
+    `<p><b>${x.name}</b> turns ${x.age}${x.hw?"":" &middot; "+x.con}</p>`).join("");
+} else {
+  const nx = ahead[0];
+  tb.innerHTML = `<h3>Today</h3><p>Nothing on the shelf has an anniversary today.</p>` +
+    (nx ? `<p class="quiet">Next up is ${nx.name}, ${nx.days === 1 ? "tomorrow" : "in " + nx.days + " days"}.</p>` : "");
+}
 
-function apply(mode){
-  Object.entries(chips).forEach(([k,el]) => el.setAttribute('aria-pressed', String(k === mode)));
-  days.forEach(d => {
-    let show = true;
-    if (mode === 'hw') show = d.dataset.hw === 'true';
-    if (mode === 'round') show = d.dataset.round === 'true';
-    d.classList.toggle('hidden', !show);
+/* ---- the list ---- */
+let mode = "all";
+function draw(){
+  const rows = ahead.filter(x =>
+    mode === "hw" ? x.hw : mode === "round" ? isRound(x.age) : true).slice(0, 40);
+  const byDay = new Map();
+  rows.forEach(x => {
+    const k = x.when.toDateString();
+    if (!byDay.has(k)) byDay.set(k, []);
+    byDay.get(k).push(x);
+  });
+  document.getElementById("list").innerHTML = [...byDay].map(([k, xs]) => {
+    const w = xs[0].when;
+    return `<div class="day">
+      <div class="date"><div class="mon">${MON[w.getMonth()]}</div><span class="num">${w.getDate()}</span></div>
+      <div class="entries">${xs.map(x => {
+        const sl = slug(x.name, x.con);
+        return `<div class="entry" data-shot="${sl}">
+          <span class="meta"><span class="title">${x.hw?`<b>${x.name}</b>`:x.name}</span>
+          <span class="sys" style="--c:${COLORS[x.con]||"#8e93a2"}">${x.hw?"North American launch":x.con}</span></span>
+          <span class="yrs${isRound(x.age)?" round":""}">${x.age} yrs</span></div>`;
+      }).join("")}</div></div>`;
+  }).join("");
+
+  document.querySelectorAll(".entry[data-shot]").forEach(entry => {
+    const sl = entry.dataset.shot, img = new Image();
+    img.className = "shot"; img.loading = "lazy"; img.alt = "";
+    img.onerror = () => {
+      const box = document.createElement("span");
+      box.className = "shot missing"; box.textContent = sl + ".jpg";
+      img.replaceWith(box);
+    };
+    img.src = "images/" + sl + ".jpg";
+    entry.prepend(img);
   });
 }
-Object.entries(chips).forEach(([k,el]) => el.addEventListener('click', () => apply(k)));
+const chips = {all:document.getElementById("f-all"),hw:document.getElementById("f-hw"),round:document.getElementById("f-round")};
+Object.entries(chips).forEach(([k,el]) => el.addEventListener("click", () => {
+  mode = k;
+  Object.entries(chips).forEach(([j,e2]) => e2.setAttribute("aria-pressed", String(j===k)));
+  draw();
+}));
+draw();
 </script>
 </body>
 </html>
