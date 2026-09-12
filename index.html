@@ -3,6 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Every physical game I own, 831 of them across 29 systems. Search any title and find out if it's on the shelf, what condition it's in, and whether I've beaten it.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro — Is it on the shelf?">
+<meta property="og:description" content="Every physical game I own, 831 of them across 29 systems. Search any title and find out if it's on the shelf, what condition it's in, and whether I've beaten it.">
+<meta property="og:url" content="https://thenostalgiapro.com/index.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro — Is it on the shelf?">
+<meta name="twitter:description" content="Every physical game I own, 831 of them across 29 systems. Search any title and find out if it's on the shelf, what condition it's in, and whether I've beaten it.">
+<link rel="canonical" href="https://thenostalgiapro.com/index.html">
 <title>The Nostalgia Pro — Is it on the shelf?</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -109,8 +125,45 @@
     font-family:"Silkscreen",monospace;font-size:11px;
     letter-spacing:.09em;color:var(--dim);
   }
+  a.score{
+    text-decoration:none;cursor:pointer;position:relative;
+    transition:background .12s ease;
+  }
+  a.score:hover,a.score:focus-visible{background:var(--panel);outline:none}
+  a.score:hover b,a.score:focus-visible b{color:var(--hot)}
+  a.score::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:2px;
+    background:var(--hot);opacity:0;transition:opacity .12s ease;
+  }
+  a.score:hover::after,a.score:focus-visible::after{opacity:1}
 
-  .sitenav{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 0}
+  .todaybar{
+    display:none;align-items:center;gap:18px;flex-wrap:wrap;
+    margin:14px 0 0;padding:14px 18px;
+    background:var(--bg2);border:1px solid var(--line);
+    border-left:4px solid var(--hot);border-radius:2px;
+  }
+  .todaybar.on{display:flex}
+  .todaybar .lbl{
+    flex:none;font-family:"Silkscreen",monospace;font-size:10px;
+    letter-spacing:.1em;color:var(--hot);
+  }
+  .todaybar .items{
+    flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:10px 22px;
+  }
+  .todaybar .item{font-size:15px}
+  .todaybar .item b{font-weight:600}
+  .todaybar .item em{
+    font-style:normal;font-family:"Silkscreen",monospace;font-size:10px;
+    letter-spacing:.06em;color:var(--dim);margin-left:9px;
+  }
+  .todaybar a.more{
+    flex:none;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;
+    color:var(--dim);text-decoration:none;border:1px solid var(--line);
+    border-radius:2px;padding:6px 11px;
+  }
+  .todaybar a.more:hover{border-color:var(--hot);color:var(--hot)}
+  .sitenav{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0}
   .viewrow{
     display:flex;flex-wrap:wrap;align-items:center;gap:14px;
     margin:16px 0 0;padding-top:16px;border-top:1px solid var(--line);
@@ -125,10 +178,11 @@
   .toggle button[aria-pressed="true"]{background:var(--hot);color:#12070a}
   .toggle button:focus-visible{outline:2px solid var(--hot);outline-offset:-2px}
   .shelflink{
-    display:inline-flex;align-items:center;
+    display:inline-flex;align-items:center;justify-content:center;
+    flex:1 1 auto;                       /* share the row, no gap at the end */
     border:2px solid var(--hot);color:var(--hot);text-decoration:none;
-    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
-    padding:9px 14px;border-radius:2px;
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.03em;
+    padding:9px 10px;border-radius:2px;white-space:nowrap;
   }
   .shelflink:hover{background:var(--hot);color:#12070a}
   .shelflink:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
@@ -172,8 +226,17 @@
     width:4px;height:8px;border:solid #0b1410;
     border-width:0 2px 2px 0;transform:rotate(42deg);
   }
+  .beat.endless{
+    display:flex;align-items:center;justify-content:center;
+    border-color:#6d7488;color:#8e93a2;
+    font-family:"IBM Plex Sans",sans-serif;font-size:13px;line-height:1;
+    font-weight:600;padding-bottom:1px;
+  }
+  .beat.endless::after{content:"∞"}
   .games li .beat{display:block;cursor:pointer}
+  .games li .beat.endless{display:flex}
   .games li .beat:hover{border-color:#3fbf6a}
+  .games li .beat.endless:hover{border-color:#a2a9bd}
   .savebar{
     position:fixed;left:0;right:0;bottom:0;z-index:60;
     display:none;align-items:center;gap:14px;flex-wrap:wrap;
@@ -336,12 +399,19 @@
 
     <div id="verdict" role="status" aria-live="polite"></div>
     <div class="scores" id="scores"></div>
+    <div class="todaybar" id="todaybar"></div>
+
     <div class="sitenav">
       <a class="shelflink" href="shelf.html">Virtual shelf</a>
       <a class="shelflink" href="anniversaries.html">Anniversaries</a>
       <a class="shelflink" href="reviews.html">Reviews</a>
       <a class="shelflink" href="lists.html">Lists</a>
       <a class="shelflink" href="rank.html">Your list</a>
+      <a class="shelflink" href="movies.html">Movies</a>
+      <a class="shelflink" href="tv.html">TV</a>
+      <a class="shelflink" href="music.html">Music</a>
+      <a class="shelflink" href="boardgames.html">Board games</a>
+      <a class="shelflink" href="consoles.html">Consoles</a>
       <a class="shelflink" href="stats.html">The numbers</a>
     </div>
 
@@ -349,6 +419,7 @@
       <div class="toggle" id="viewtoggle" role="group" aria-label="Sort by">
         <button type="button" data-view="system" aria-pressed="true">By system</button>
         <button type="button" data-view="franchise" aria-pressed="false">By series</button>
+        <button type="button" data-view="genre" aria-pressed="false">By genre</button>
       </div>
       <div class="foldbtns">
         <button class="chip" type="button" id="openAll">Expand all</button>
@@ -1319,31 +1390,521 @@ const FALLBACK = ["#9aa3b5","#0c0e14"];
    Same game on two systems? Both get a check. To mark only one, write it as
    Mortal Kombat | Sega Genesis                                            */
 const BEATEN = `
-Super Mario Bros. 3
-The Legend of Zelda
+007 first light
+007: blood stone
+007: everything or nothing
+007: from russia with love
+007: nightfire
+007: the world is not enough
+007: tomorrow never dies
+advent rising
+adventure island
+adventures of lolo
+animaniacs
+arcade1up teenage mutant ninja turtles: turtles in time arcade machine
+avatar: the last airbender
+batman & robin
+batman returns
+batman: arkham asylum [game of the year edition]
+batman: arkham city
+batman: arkham knight
+batman: arkham origins [collector's edition]
+batman: dark tomorrow
+batman: the video game
+battlefield 2
+battlefield 2: modern combat
+battlefield 3 [limited edition]
+battlefield 4: china rising expansion pack
+battlefield 6
+battlefield: bad company
+battlefield: bad company 2
+battlefield: bad company 2 [limited edition]
+bram stoker's dracula
+call of duty: finest hour
+conquest of the crystal palace
+contra
+cyberpunk 2077
+dead island [game of the year edition]
+deadpool
+destroy all humans!
+dk: jungle climber
+donkey kong 64
+doom 3
+doom 3 [limited collector's edition]
+doom 3: resurrection of evil
+epic mickey: power of illusion
+final fantasy vii
+final fantasy viii
+final fight
+gears of war
+gears of war 2 [limited edition]
+gears of war 3
+gears of war 4
+gears of war [limited collector's edition]
+gears of war: ultimate edition
+goat simulator 3
+goldeneye: rogue agent
+grand theft auto v
+guitar hero iii: legends of rock
+guitar hero world tour
+gun
+guy game
+halo 2
+halo 3 [legendary edition]
+halo 3 [limited edition]
+halo 3: odst
+halo 4
+halo 4 [limited edition]
+halo 5: guardians
+halo 5: guardians [limited edition]
+halo reach [with recon helmet dlc]
+halo wars 2 [ultimate edition]
+halo: combat evolved
+halo: combat evolved [game of the year edition]
+halo: combat evolved anniversary
+halo: reach [limited edition]
+halo: the master chief collection
+indigo prophecy
+james bond 007: agent under fire
+judge dredd
+jurassic park
+justice league heroes
+killer instinct
+killer instinct gold
+legend of zelda
+legend of zelda: a link between worlds
+legend of zelda: collector's edition
+legend of zelda: majora's mask [collector's edition]
+legend of zelda: ocarina of time
+mario is missing!
+marvel super heroes vs. street fighter
+marvel: ultimate alliance
+mega man legends
+mega man legends 2
+metal gear solid 2: sons of liberty
+metal gear solid 2: substance
+metal gear solid 3: snake eater
+metal gear solid 3: subsistence
+metal gear solid [greatest hits]
+metal gear solid delta: snake eater [tactical edition]
+metal gear solid v: the phantom pain
+metal gear solid: master collection vol. 1
+metal gear solid: master collection vol. 2 [day one edition]
+metal gear solid: the essential collection
+metal gear solid: the legacy collection
+metal gear solid: the twin snakes
+metal gear solid: vr missions
+metroid prime
+metroid prime [metroid prime 2: echoes bonus disc]
+michael jordan: chaos in the windy city
+mike tyson's punch-out!!
+mortal kombat
+mortal kombat 3
+mortal kombat ii
+mortal kombat vs. dc universe
+narc
+new super mario bros. 2
+new super mario bros. u deluxe
+nickleodeon teenage mutant ninja turtles: master splinter's training pack
+perfect dark
+primal rage
+punch-out!!
+quake
+quake 4
+quake ii
+r.c. pro-am
+red dead redemption ii
+robocop versus the terminator
+saints row iv [super dangerous wub wub edition]
+sid meier's civilization vi
+sonic colors ultimate [launch edition]
+sonic frontiers
+sonic mania collector's edition
+sonic superstars
+sonic the hedgehog
+south park: the fractured but whole
+spec ops: the line
+spider-man & venom: maximum carnage [black cart]
+spider-man & venom: maximum carnage [special limited edition red cartridge]
+spider-man & x-men: arcade's revenge
+spider-man / x-men: arcade's revenge
+spider-man: the movie
+star fox
+star fox 64 3d
+star fox 64 [player's choice]
+star fox adventures
+star fox command
+star fox: assault
+star wars racer & commando combo
+star wars: battlefront
+star wars: the old republic
+street fighter ii
+street fighter ii turbo
+street fighter ii': special champion edition
+streets of rage
+streets of rage 2
+streets of rage 4: anniversary edition
+super mario 64
+super mario all-stars
+super mario bros. - duck hunt - world class track meet
+super mario bros. / duck hunt
+super mario bros. 2
+super mario bros. 3
+super mario bros. [5 screw]
+super mario bros. wonder
+super mario world
+super mario world 2: yoshi's island
+super punch-out!!
+super street fighter ii
+syphon filter
+syphon filter 2
+syphon filter 3
+syphon filter: dark mirror
+syphon filter: the omega strain
+teenage mutant ninja turtles
+teenage mutant ninja turtles ii: back from the sewers
+teenage mutant ninja turtles ii: the arcade game
+teenage mutant ninja turtles iv: turtles in time
+teenage mutant ninja turtles tournament fighters [cardboard box]
+teenage mutant ninja turtles: fall of the foot clan
+teenage mutant ninja turtles: the cowabunga collection
+teenage mutant ninja turtles: the hyperstone heist
+teenage mutant ninja turtles: tournament fighters
+tekken 3 [greatest hits]
+titanfall 2
+tmnt: mutant melee
+tom clancy's ghost recon
+tom clancy's ghost recon 2
+tom clancy's ghost recon 2: summit strike
+tom clancy's ghost recon advanced warfighter
+tom clancy's ghost recon: future soldier signature edition
+tom clancy's ghost recon: island thunder
+tom clancy's rainbow six
+tom clancy's splinter cell: blacklist
+tom clancy's splinter cell: pandora tomorrow
+tom clancy's: the division 2
+tomb raider [greatest hits]
+uncanny x-men
+venom - spider-man: separation anxiety
+wolfenstein ii: the new colossus
+wolfenstein: the new order
+wolverine: adamantium rage
+x-men
+x-men 2: clone wars
+x-men legends
+x-men legends ii: rise of apocalypse
+x-men origins: wolverine
+x-men origins: wolverine [uncaged edition]
+x-men: children of the atom
+x-men: mutant apocalypse
+x2: wolverine's revenge
+yoshi's story
+zelda ii: the adventure of link
+`;
+
+/* ===== GAMES WITH NO ENDING =====
+   Sports, puzzle, arcade - anything that just keeps going. Same format. */
+const NO_ENDING = `
+500,000 Games
+Activision Anthology
+All-Star Baseball 2002
+All-Star Baseball 2005
+America's Army: Rise of a Soldier
+America's Army: True Soldiers
+Arcade Classics
+Arena Football
+ATV Offroad Fury 4
+Backyard Baseball '09
+Barkley Shut Up and Jam!
+Barkley Shut Up and Jam! 2
+Battlefield 2
+Battlefield 4: China Rising Expansion Pack
+Big Bumpin'
+Bill Walsh College Football
+Blue's Clues: Blue's Alphabet Book
+Boggle Plus
+Brain Age: Train Your Brain in Minutes a Day!
+Bulls vs Lakers and the NBA Playoffs
+Caesar's Palace
+Caesars Palace II
+California Speed
+Casino FunPak
+Chessmaster
+Chessmaster 6000
+College Slam
+Crazy Taxi
+Cruis'n Blast
+Dave Mirra Freestyle BMX 2
+Defender II
+Dilbert's Desktop Games
+Dogz
+Dr. Mario
+Dreamcast Web Browser 2.0
+Driven
+EA SPORTS College Football 25
+ESPN Baseball Tonight
+ESPN NFL 2K5
+ESPN NFL Primetime 2002
+ESPN Sunday Night NFL
+Excite Truck
+Excitebike [5 Screw]
+Extreme-G
+Extreme-G 2
+FaceBreaker
+FIFA World Cup: Germany 2006
+Flash Focus: Vision Training in Minutes a Day
+Frank Thomas' Big Hurt Baseball
+Frogger
+Galaga: Demons of Death
+Gran Turismo 5 Prologue
+Gran Turismo Sport (PlayStation Hits)
+Grand Theft Auto Mission Pack #1: London 1969
+Greg Hastings Paintball 2
+Gyromite [5 Screw]
+Halo 2 Multiplayer Map Pack
+HardBall '95
+HardBall III
+Hogan's Alley
+Hot Shots Golf 3
+Ivan "Ironman" Stewart's Super Off Road
+Jack Nicklaus' Greatest 18 Holes of Major Championship Golf
+John Elway's Quarterback
+Ken Griffey Jr. Presents Major League Baseball
+Ken Griffey Jr.'s Winning Run
+L.A. Rush
+Links 2004
+Madden Football 64
+Madden NFL '94
+Madden NFL '95
+Madden NFL 2001
+Madden NFL 2005
+MAG
+Major League Baseball
+Major League Baseball 2K11
+Major League Baseball 2K6
+Major League Baseball 2K7
+Major League Baseball 2K9
+Major League Baseball Featuring Ken Griffey, Jr.
+Mario Golf: Super Rush
+Mario Hoops: 3 on 3
+Mario Kart 64
+Mario Kart: Double Dash!!
+Mario Party: Star Rush
+Metal Gear Solid: Portable Ops Plus
+Metroid Prime [Metroid Prime 2: Echoes Bonus Disc]
+Micro Machines
+Midnight Club 3: Dub Edition
+Midway Arcade Treasures
+MLB 2001
+MLB 2003
+MLB SlugFest 2006
+MLB Superstars
+MLB The Show 19
+Monopoly
+Monopoly Party!
+Ms. Pac-Man
+Ms. Pac-Man: Special Color Edition
+MVP Baseball 2005
+MX vs. ATV Reflex
+NASCAR 99
+NBA Jam
+NBA Jam 2000
+NBA Jam 99
+NBA Jam Extreme
+NBA Jam Tournament Edition
+NBA Live 2000
+NBA Live 97
+NBA ShootOut 2001
+NBA Showdown 94
+NBA Showtime: NBA on NBC
+NBA Street Vol. 2
+NCAA College Basketball 2k3
+NCAA Football 2003
+NCAA Football 2005
+NCAA Football 2005 / Top Spin Combo
+NCAA Gamebreaker 98
+Need For Speed: ProStreet
+Need for Speed: Shift
+NFL 2K
+NFL Football '94 Starring Joe Montana
+NFL Gameday 2002
+NFL GameDay [Long Box]
+NFL Quarterback Club 96
+NFL Quarterback Club 98
+NFL Quarterback Club II
+NFL Sports Talk Football '93 Starring Joe Montana
+NHL 06
+NHL 07
+NHL 2001
+NHL 2K
+NHL Stanley Cup
+Nintendo GameCube Preview Disc
+Official Xbox Magazine Demo Disc 59
+Outlaw Golf
+Outlaw Golf 2
+Outlaw Tennis
+Outlaw Volleyball
+Outlaw Volleyball Red Hot
+Pebble Beach Golf Links
+Pinball
+Pitfall!
+Popeye
+Price Is Right
+Project Gotham Racing
+Project Gotham Racing 2
+Project Gotham Racing 3
+Project Gotham Racing 4
+Q*bert
+R.B.I. Baseball 3
+R.C. Pro-Am
+Roger Clemens' MVP Baseball
+San Francisco Rush: Extreme Racing
+Scrabble Champion Edition
+Sega Dreamcast Web Browser
+Skate or Die
+Sneak King
+Sonic Racing: CrossWorlds
+South Park: Chef's Luv Shack
+Sports Talk Baseball
+Spot: The Video Game
+Spy vs. Spy
+Summer Heat Beach Volleyball
+Super Baseball Simulator 1.000
+Super Games 150 in 1
+Super Mario Bros (Game Watch
+Super Scope 6
+Swingerz Golf
+Tecmo Super Bowl
+Tetris
+Tetris 2
+Tetris Worlds
+Tiger Woods PGA Tour 06
+Tiger Woods PGA Tour 08
+Tiger Woods PGA Tour 11
+Tiger Woods PGA Tour 2004
+Tiger Woods PGA Tour 2005
+Tommy Lasorda Baseball
+Top Spin
+Track & Field
+Triple Play 2000
+Triple Play 2001
+Triple Play 2002
+Unreal Championship
+Virtua Tennis
+Wave Race
+Wave Race 64
+WCW Mayhem
+WCW-NWO Thunder
+Wheel of Fortune
+Who Wants To Be A Millionaire: 2nd Edition
+Wii Sports [Cardboard Sleeve]
+Wii Sports Resort [Cardboard Sleeve]
+World Class Track Meet
+World Series Baseball
+World Series Baseball '95
+World Series Baseball 2K2
+Wrecking Crew
+WWF Royal Rumble
+WWF Super WrestleMania
+WWF WrestleMania
+WWF WrestleMania: The Arcade Game [Long Box]
+Xbox Music Mixer
+Xenophobe
+XGIII: Extreme G Racing
+Yoshi
+Yoshi's Cookie
+Zoop
+Zumba Fitness World Party
 `;
 
 let BEATEN_SET = new Set(
   BEATEN.split("\n").map(x => x.trim()).filter(Boolean).map(x => x.toLowerCase())
 );
+let ENDLESS_SET = new Set(
+  NO_ENDING.split("\n").map(x => x.trim()).filter(Boolean).map(x => x.toLowerCase())
+);
 const PUBLISHED = new Set(BEATEN_SET);
+const PUBLISHED_E = new Set(ENDLESS_SET);
 
 /* Ticks are backed up to this browser on every click, so a reload,
    a closed tab or a misclick never loses work. */
 const DRAFT = "np-beaten-draft";
+const DRAFT_E = "np-endless-draft";
+const DRAFT_BASE = "np-draft-base";
+
+/* A draft is only valid against the published lists it was started from.
+   If the file has changed since, the draft is stale and gets dropped -
+   otherwise an old empty draft would wipe a list added in the file. */
+const baseStamp = PUBLISHED.size + ":" + PUBLISHED_E.size + ":" +
+  [...PUBLISHED].concat([...PUBLISHED_E]).sort().join("|").length;
+
 try {
-  const d = localStorage.getItem(DRAFT);
-  if (d) BEATEN_SET = new Set(JSON.parse(d));
-} catch (err) { /* storage blocked: carry on with the published list */ }
+  if (localStorage.getItem(DRAFT_BASE) === baseStamp) {
+    const d = localStorage.getItem(DRAFT);
+    if (d) BEATEN_SET = new Set(JSON.parse(d));
+    const e = localStorage.getItem(DRAFT_E);
+    if (e) ENDLESS_SET = new Set(JSON.parse(e));
+  } else {
+    localStorage.removeItem(DRAFT);
+    localStorage.removeItem(DRAFT_E);
+    localStorage.setItem(DRAFT_BASE, baseStamp);
+  }
+} catch (err) { /* storage blocked: carry on with the published lists */ }
+
 function backup(){
-  try { localStorage.setItem(DRAFT, JSON.stringify([...BEATEN_SET])); }
-  catch (err) {}
+  try {
+    localStorage.setItem(DRAFT, JSON.stringify([...BEATEN_SET]));
+    localStorage.setItem(DRAFT_E, JSON.stringify([...ENDLESS_SET]));
+    localStorage.setItem(DRAFT_BASE, baseStamp);
+  } catch (err) {}
 }
+
+
+
+/* ===== CONSOLES I OWN =====
+   One per line: Name | shelf it matches (or leave the shelf blank).
+   The shelf name links the console to its games. Revisions and variants
+   that share a shelf just repeat it. */
+const CONSOLES = `
+Nintendo Entertainment System | NES
+Famicom | Famicom
+Super Nintendo | SNES
+Nintendo 64 | Nintendo 64
+Nintendo GameCube | GameCube
+Game Boy | Game Boy
+Game Boy Color | Game Boy Color
+Nintendo DS | Nintendo DS
+Nintendo 3DS | Nintendo 3DS
+Nintendo Wii | Wii
+Nintendo Switch | Nintendo Switch
+Game & Watch | Game & Watch
+Sony PlayStation | PlayStation 1
+PlayStation 2 | PlayStation 2
+PlayStation 3 | PlayStation 3
+PlayStation Portable | PSP
+PlayStation 4 | PlayStation 4
+Xbox | Xbox
+Xbox 360 | Xbox 360
+Xbox One | Xbox One
+Xbox One X | Xbox One
+Xbox Series X | Xbox Series X/S
+Sega Genesis | Sega Genesis
+Sega Dreamcast | Sega Dreamcast
+Sega Saturn | Sega Saturn
+Sega Master System | Sega Master System
+Atari 7800+ | Atari 7800+
+Intellivision | Intellivision
+Arcade1Up TMNT cabinet | Arcade1Up
+`;
 
 
 const FRANCHISES = [["Star Wars", ["star wars", "super star wars", "lego star wars"]], ["Metal Gear", ["metal gear", "snake's revenge"]], ["Mario", ["mario", "yoshi", "luigi's mansion", "wrecking crew"]], ["Batman", ["batman", "arkham"]], ["Halo", ["halo"]], ["Teenage Mutant Ninja Turtles", ["teenage mutant", "tmnt"]], ["James Bond 007", ["007", "goldeneye", "james bond", "nightfire", "tomorrow never dies", "world is not enough", "quantum of solace", "blood stone", "russia with love", "everything or nothing", "agent under fire", "the duel"]], ["Spider-Man", ["spider-man", "venom - ", "separation anxiety", "maximum carnage"]], ["X-Men", ["x-men", "x2:", "wolverine"]], ["Mortal Kombat", ["mortal kombat"]], ["Call of Duty", ["call of duty"]], ["Sonic the Hedgehog", ["sonic"]], ["Street Fighter", ["street fighter"]], ["Tom Clancy", ["tom clancy", "ghost recon", "splinter cell", "rainbow six", "the division"]], ["The Legend of Zelda", ["zelda"]], ["Terminator", ["terminator", "t2: the arcade", "t2: judgment"]], ["RoboCop", ["robocop"]], ["Tiger Woods PGA Tour", ["tiger woods"]], ["Final Fantasy", ["final fantasy"]], ["Battlefield", ["battlefield"]], ["Mega Man", ["mega man"]], ["Gran Turismo", ["gran turismo"]], ["WWF / WWE", ["wwf", "wwe", "wrestlemania"]], ["Madden NFL", ["madden"]], ["NBA Jam", ["nba jam"]], ["Looney Tunes", ["looney tunes", "bugs bunny", "taz-mania", "tiny toon", "speedy gonzales", "sylvester and tweety", "road runner"]], ["Gears of War", ["gears of war"]], ["Doom", ["doom"]], ["Quake", ["quake"]], ["Wolfenstein", ["wolfenstein"]], ["Star Fox", ["star fox"]], ["Syphon Filter", ["syphon filter"]], ["Assassin's Creed", ["assassin's creed"]], ["Project Gotham Racing", ["project gotham"]], ["World Series Baseball", ["world series baseball"]], ["Major League Baseball 2K", ["major league baseball 2k", "mlb 20", "mlb the show", "mlb slugfest", "mlb superstars"]], ["Metroid", ["metroid"]], ["Donkey Kong", ["donkey kong", "diddy kong", "dk: jungle"]], ["Punch-Out!!", ["punch-out"]], ["Tetris", ["tetris"]], ["Contra", ["contra", "super c "]], ["Killer Instinct", ["killer instinct"]], ["Outlaw", ["outlaw "]], ["Army Men", ["army men"]], ["Turok", ["turok"]], ["Streets of Rage", ["streets of rage"]], ["Twisted Metal", ["twisted metal"]], ["Onimusha", ["onimusha"]], ["Darksiders", ["darksiders"]], ["Ken Griffey Jr.", ["griffey"]], ["WCW / nWo", ["wcw"]], ["NFL Quarterback Club", ["quarterback club"]], ["ESPN", ["espn"]], ["NCAA Football", ["ncaa football", "ncaa college", "ncaa gamebreaker"]], ["Triple Play", ["triple play"]], ["NBA Live / ShootOut", ["nba live", "nba shootout", "nba shootout", "nba showtime", "nba street", "nba showdown"]], ["Extreme-G", ["extreme-g", "xgiii"]], ["ATV / MX Offroad", ["atv offroad", "mx vs. atv"]], ["Need for Speed", ["need for speed"]], ["Simpsons", ["simpsons"]], ["Jurassic Park", ["jurassic park"]], ["Mission: Impossible", ["mission: impossible"]], ["Ren & Stimpy", ["ren & stimpy"]], ["Adventure Island", ["adventure island"]], ["Adventures of Lolo", ["adventures of lolo"]], ["Double Dragon", ["double dragon"]], ["Ikari Warriors", ["ikari warriors"]], ["Dragon Warrior", ["dragon warrior"]], ["Top Gun", ["top gun"]], ["Pitfall", ["pitfall"]], ["Pac-Man", ["pac-man"]], ["Caesars Palace", ["caesar"]], ["Sly Cooper", ["sly collection"]], ["Wave Race", ["wave race"]], ["Pilotwings", ["pilotwings"]], ["Excite", ["excitebike", "excite truck"]], ["Crazy Taxi", ["crazy taxi"]], ["Carmen Sandiego", ["carmen sandiego"]], ["Frogger", ["frogger"]], ["Justice League", ["justice league"]], ["Superman", ["superman"]], ["Hulk", ["hulk"]], ["Guitar Hero", ["guitar hero"]], ["Civilization", ["civilization"]], ["Chessmaster", ["chessmaster"]], ["Hardball", ["hardball"]], ["Big Bumpin' / Burger King", ["big bumpin", "sneak king"]], ["Unreal", ["unreal"]], ["Bram Stoker's Dracula", ["bram stoker"]], ["Cliffhanger", ["cliffhanger"]], ["American Gladiators", ["american gladiators"]], ["Judge Dredd", ["judge dredd"]], ["Captain America and the Avengers", ["captain america"]], ["Minority Report", ["minority report"]], ["Gun", ["gun ("]], ["Barkley Shut Up and Jam!", ["barkley"]], ["Strike series", ["desert strike", "jungle strike", "urban strike"]], ["Epic Mickey", ["epic mickey"]], ["The Jungle Book", ["jungle book"]], ["Spot", ["spot:", "spot goes", "cool spot"]]];
 
 const fold = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const HARDWARE = CONSOLES.split("\n").map(x => x.trim()).filter(Boolean).map(x => {
+  const [name, shelf] = x.split("|").map(p => (p || "").trim());
+  return { name, shelf, key: fold(name) };
+});
 const systems = [];
 let cur = null;
 for (const rawLine of RAW.split("\n")) {
@@ -1376,6 +1937,9 @@ const looseCount = all.filter(g => g.cls === "").length;
 const isBeaten = g =>
   BEATEN_SET.has(g.title.toLowerCase()) ||
   BEATEN_SET.has((g.title + " | " + g.system).toLowerCase());
+const isEndless = g =>
+  ENDLESS_SET.has(g.title.toLowerCase()) ||
+  ENDLESS_SET.has((g.title + " | " + g.system).toLowerCase());
 
 let query = "";
 let condFilter = "all";
@@ -1416,7 +1980,31 @@ loose_.sort((a,b) => (sysIndex.get(a.system) - sysIndex.get(b.system)) || a.titl
 series.push({ name: "Not part of a series", id: "s-standalone", games: loose_,
               color: "#7b8294", ink: "#0b0d12", showSys: true });
 
-const groups = () => view === "system" ? systems : series;
+
+/* Genre per game, keyed "title|console". */
+const GENRES = {"Adventure Island|NES":"Platformer","Adventure Island II|NES":"Platformer","Adventures of Bayou Billy|NES":"Action","Adventures of Dino Riki|NES":"Shooter","Adventures of Gilligan's Island|NES":"Adventure","Adventures of Lolo|NES":"Puzzle","Adventures of Lolo 2|NES":"Puzzle","Adventures of Tom Sawyer|NES":"Platformer","Airwolf|NES":"Shooter","Bad Dudes|NES":"Action","Batman: The Video Game|NES":"Platformer","Beetlejuice|NES":"Platformer","Bill & Ted's Excellent Video Game Adventure|NES":"Adventure","Bugs Bunny Birthday Blowout|NES":"Platformer","Capcom's Gold Medal Challenge '92|NES":"Sports","Captain America and the Avengers|NES":"Action","Captain Skyhawk|NES":"Shooter","Chessmaster|NES":"Strategy","Chip 'n Dale|NES":"Platformer","Conquest of the Crystal Palace|NES":"Platformer","Contra|NES":"Shooter","Crystalis|NES":"RPG","Cybernoid: The Fighting Machine|NES":"Shooter","Defender II|NES":"Shooter","Dick Tracy|NES":"Action","Dirty Harry|NES":"Action","Double Dragon|NES":"Action","Double Dragon II: The Revenge|NES":"Action","Dr. Mario|NES":"Puzzle","Dragon Warrior|NES":"RPG","Dragon Warrior II|NES":"RPG","Excitebike [5 Screw]|NES":"Racing","Fester's Quest|NES":"Adventure","Final Fantasy|NES":"RPG","Friday the 13th|NES":"Adventure","Galaga: Demons of Death|NES":"Shooter","Great Waldo Search|NES":"Puzzle","Gyromite [5 Screw]|NES":"Puzzle","Hogan's Alley|NES":"Shooter","Hunt for Red October|NES":"Shooter","Ikari Warriors|NES":"Shooter","Ikari Warriors II: Victory Road|NES":"Shooter","Indiana Jones and the Temple of Doom|NES":"Action","Infiltrator|NES":"Simulation","Ivan \"Ironman\" Stewart's Super Off Road|NES":"Racing","Jack Nicklaus' Greatest 18 Holes of Major Championship Golf|NES":"Sports","Jaws|NES":"Action","John Elway's Quarterback|NES":"Sports","Karate Kid|NES":"Action","Kirby's Adventure|NES":"Platformer","Knight Rider|NES":"Racing","Legend of Zelda|NES":"Adventure","Mad Max|NES":"Action","Major League Baseball|NES":"Sports","Mega Man 2|NES":"Platformer","Mega Man 6|NES":"Platformer","Metal Gear|NES":"Action","Mike Tyson's Punch-Out!!|NES":"Sports","Mission: Impossible|NES":"Action","NARC|NES":"Shooter","Ninja Gaiden III: The Ancient Ship of Doom|NES":"Platformer","Operation Wolf|NES":"Shooter","Paperboy|NES":"Action","Pinball|NES":"Action","Platoon|NES":"Action","Popeye|NES":"Platformer","Predator|NES":"Platformer","Punch-Out!!|NES":"Sports","Punisher|NES":"Shooter","R.C. Pro-Am|NES":"Racing","Rambo|NES":"Action","River City Ransom|NES":"Action","Robin Hood: Prince of Thieves|NES":"RPG","RoboCop|NES":"Action","RoboCop 2|NES":"Platformer","Roger Clemens' MVP Baseball|NES":"Sports","Simpsons: Bart vs. the Space Mutants|NES":"Platformer","Skate or Die|NES":"Sports","Sky Shark|NES":"Shooter","Snake's Revenge|NES":"Action","Spot: The Video Game|NES":"Puzzle","Spy vs. Spy|NES":"Action","Star Trek: The Next Generation|NES":"Simulation","Star Wars|NES":"Platformer","Star Wars: The Empire Strikes Back|NES":"Platformer","Stealth ATF|NES":"Simulation","Super C|NES":"Shooter","Super Games 150 in 1|NES":"Compilation","Super Mario Bros. - Duck Hunt - World Class Track Meet|NES":"Compilation","Super Mario Bros. / Duck Hunt|NES":"Compilation","Super Mario Bros. 2|NES":"Platformer","Super Mario Bros. 3|NES":"Platformer","Super Mario Bros. [5 Screw]|NES":"Platformer","Tecmo Super Bowl|NES":"Sports","Teenage Mutant Ninja Turtles|NES":"Platformer","Teenage Mutant Ninja Turtles II: The Arcade Game|NES":"Action","Terminator 2: Judgment Day|NES":"Action","Tetris|NES":"Puzzle","Time Lord|NES":"Action","Top Gun|NES":"Simulation","Top Gun: The Second Mission|NES":"Simulation","Total Recall|NES":"Platformer","Town & Country Surf Designs: Wood & Water Rage|NES":"Sports","Track & Field|NES":"Sports","Uncanny X-Men|NES":"Action","Wheel of Fortune|NES":"Party","Who Framed Roger Rabbit|NES":"Adventure","Wizards & Warriors|NES":"Platformer","World Class Track Meet|NES":"Sports","Wrecking Crew|NES":"Puzzle","WWF WrestleMania|NES":"Sports","Xenophobe|NES":"Shooter","Yo! Noid|NES":"Platformer","Zelda II: The Adventure of Link|NES":"Adventure","Metal Gear|Famicom":"Action","Aladdin|SNES":"Platformer","American Gladiators|SNES":"Sports","Animaniacs|SNES":"Platformer","Batman Forever|SNES":"Action","Batman Returns|SNES":"Action","Battle Clash|SNES":"Shooter","Beavis and Butt-head|SNES":"Adventure","Bram Stoker's Dracula|SNES":"Platformer","Captain America and the Avengers|SNES":"Action","Cliffhanger|SNES":"Action","College Slam|SNES":"Sports","Final Fantasy II|SNES":"RPG","Final Fantasy III|SNES":"RPG","Final Fantasy: Mystic Quest|SNES":"RPG","Final Fight|SNES":"Action","Frank Thomas' Big Hurt Baseball|SNES":"Sports","Hunt for Red October|SNES":"Shooter","Judge Dredd|SNES":"Platformer","Jungle Book|SNES":"Platformer","Jurassic Park|SNES":"Action","Ken Griffey Jr. Presents Major League Baseball|SNES":"Sports","Ken Griffey Jr.'s Winning Run|SNES":"Sports","Killer Instinct|SNES":"Fighting","Lethal Weapon|SNES":"Platformer","Madden NFL '94|SNES":"Sports","Mario is Missing!|SNES":"Adventure","Michael Jordan: Chaos in the Windy City|SNES":"Platformer","Mortal Kombat|SNES":"Fighting","Mortal Kombat 3|SNES":"Fighting","Mortal Kombat II|SNES":"Fighting","NBA Jam|SNES":"Sports","NBA Jam Tournament Edition|SNES":"Sports","NBA Live 97|SNES":"Sports","NHL Stanley Cup|SNES":"Sports","Pilotwings|SNES":"Simulation","Primal Rage|SNES":"Fighting","Ren & Stimpy Show - Veediots!|SNES":"Platformer","Rise of the Robots|SNES":"Fighting","Secret of Mana|SNES":"RPG","Spanky's Quest|SNES":"Puzzle","Speedy Gonzales: Los Gatos Bandidos|SNES":"Platformer","Spider-Man & Venom: Maximum Carnage [Special Limited Edition Red Cartridge]|SNES":"Action","Spider-Man & X-Men: Arcade's Revenge|SNES":"Platformer","Star Fox|SNES":"Shooter","Street Fighter II|SNES":"Fighting","Street Fighter II Turbo|SNES":"Fighting","Super Baseball Simulator 1.000|SNES":"Sports","Super Mario All-Stars|SNES":"Compilation","Super Mario Kart|SNES":"Racing","Super Mario World|SNES":"Platformer","Super Mario World 2: Yoshi's Island|SNES":"Platformer","Super Punch-Out!!|SNES":"Sports","Super Scope 6|SNES":"Compilation","Super Star Wars [Player's Choice]|SNES":"Platformer","Super Star Wars: Return of the Jedi|SNES":"Platformer","Super Street Fighter II|SNES":"Fighting","Taz-Mania|SNES":"Platformer","Teenage Mutant Ninja Turtles IV: Turtles In Time|SNES":"Action","Teenage Mutant Ninja Turtles: Tournament Fighters|SNES":"Fighting","Terminator 2: Judgment Day|SNES":"Action","Tetris 2|SNES":"Puzzle","Tiny Toon Adventures: Buster Busts Loose!|SNES":"Platformer","Venom - Spider-Man: Separation Anxiety|SNES":"Action","Warlock|SNES":"Action","Wayne's World|SNES":"Platformer","X-Men: Mutant Apocalypse|SNES":"Action","Zoop|SNES":"Puzzle","1080° Snowboarding|Nintendo 64":"Sports","Army Men: Sarge's Heroes|Nintendo 64":"Shooter","Army Men: Sarge's Heroes 2|Nintendo 64":"Shooter","Batman Beyond: Return of the Joker|Nintendo 64":"Action","Blues Brothers 2000|Nintendo 64":"Platformer","Body Harvest|Nintendo 64":"Action","California Speed|Nintendo 64":"Racing","Deadly Arts|Nintendo 64":"Fighting","Diddy Kong Racing|Nintendo 64":"Racing","Donkey Kong 64|Nintendo 64":"Platformer","Dr. Mario 64|Nintendo 64":"Puzzle","Duke Nukem: Zero Hour|Nintendo 64":"Shooter","Extreme-G|Nintendo 64":"Racing","Extreme-G 2|Nintendo 64":"Racing","GoldenEye 007|Nintendo 64":"Shooter","Killer Instinct Gold|Nintendo 64":"Fighting","Legend of Zelda: Majora's Mask [Collector's Edition]|Nintendo 64":"Adventure","Legend of Zelda: Ocarina of Time|Nintendo 64":"Adventure","Madden Football 64|Nintendo 64":"Sports","Madden NFL 2001|Nintendo 64":"Sports","Major League Baseball Featuring Ken Griffey, Jr.|Nintendo 64":"Sports","Mario Kart 64|Nintendo 64":"Racing","Mission: Impossible|Nintendo 64":"Action","NBA Jam 2000|Nintendo 64":"Sports","NBA Jam 99|Nintendo 64":"Sports","NBA Showtime: NBA on NBC|Nintendo 64":"Sports","NFL Quarterback Club 98|Nintendo 64":"Sports","Perfect Dark|Nintendo 64":"Shooter","Pilotwings 64|Nintendo 64":"Simulation","Quake|Nintendo 64":"Shooter","Quake II|Nintendo 64":"Shooter","Ready 2 Rumble Boxing|Nintendo 64":"Sports","San Francisco Rush: Extreme Racing|Nintendo 64":"Racing","Star Fox 64 [Player's Choice]|Nintendo 64":"Shooter","Star Wars Episode I: Racer|Nintendo 64":"Racing","Star Wars: Rogue Squadron|Nintendo 64":"Shooter","Super Mario 64|Nintendo 64":"Platformer","Super Smash Bros.|Nintendo 64":"Fighting","Superman: The New Superman Adventures|Nintendo 64":"Action","Triple Play 2000|Nintendo 64":"Sports","Turok 2: Seeds of Evil|Nintendo 64":"Shooter","Turok: Rage Wars|Nintendo 64":"Shooter","Wave Race 64|Nintendo 64":"Racing","WCW Mayhem|Nintendo 64":"Sports","WCW/nWo Revenge|Nintendo 64":"Sports","WWF No Mercy|Nintendo 64":"Sports","WWF WrestleMania 2000|Nintendo 64":"Sports","Yoshi's Story|Nintendo 64":"Platformer","007: Everything or Nothing|GameCube":"Shooter","007: From Russia With Love|GameCube":"Shooter","All-Star Baseball 2002|GameCube":"Sports","Avatar: The Last Airbender|GameCube":"Action","Bad Boys: Miami Takedown|GameCube":"Shooter","Batman Begins|GameCube":"Action","BloodRayne|GameCube":"Action","Cabela's Outdoor Adventures|GameCube":"Sports","Call of Duty: Finest Hour|GameCube":"Shooter","Carmen Sandiego: The Secret of the Stolen Drums|GameCube":"Platformer","Crazy Taxi|GameCube":"Action","Dave Mirra Freestyle BMX 2|GameCube":"Sports","Die Hard: Vendetta|GameCube":"Shooter","Driven|GameCube":"Racing","Gun|GameCube":"Action","Legend of Zelda: Collector's Edition|GameCube":"Compilation","Mario Kart: Double Dash!!|GameCube":"Racing","Mega Man X: Command Mission|GameCube":"RPG","Metal Gear Solid: The Twin Snakes|GameCube":"Action","Metroid Prime|GameCube":"Shooter","Metroid Prime [Metroid Prime 2: Echoes Bonus Disc]|GameCube":"Compilation","Minority Report: Everybody Runs|GameCube":"Action","Monopoly Party!|GameCube":"Party","MVP Baseball 2005|GameCube":"Sports","NCAA Football 2005|GameCube":"Sports","NHL 06|GameCube":"Sports","Nintendo GameCube Preview Disc|GameCube":"Compilation","Paper Mario: The Thousand-Year Door [Player's Choice]|GameCube":"RPG","Pokémon Colosseum [Not for Resale]|GameCube":"RPG","Rocky|GameCube":"Sports","Scorpion King: Rise of the Akkadian|GameCube":"Action","Simpsons: Hit & Run|GameCube":"Action","Spider-Man 2|GameCube":"Action","Spy Hunter|GameCube":"Racing","Star Fox Adventures|GameCube":"Adventure","Star Fox: Assault|GameCube":"Shooter","Star Wars: Bounty Hunter|GameCube":"Action","Sum of All Fears|GameCube":"Shooter","Super Smash Bros. Melee|GameCube":"Fighting","Swingerz Golf|GameCube":"Sports","Teenage Mutant Ninja Turtles|GameCube":"Action","Teenage Mutant Ninja Turtles 2: Battle Nexus|GameCube":"Action","Teenage Mutant Ninja Turtles 3: Mutant Nightmare|GameCube":"Action","Top Gun: Combat Zones|GameCube":"Simulation","X-Men Legends II: Rise of Apocalypse|GameCube":"RPG","X2: Wolverine's Revenge|GameCube":"Action","XGIII: Extreme G Racing|GameCube":"Racing","Battletoads|Game Boy":"Action","Boggle Plus|Game Boy":"Puzzle","Caesar's Palace|Game Boy":"Party","Casino FunPak|Game Boy":"Party","Frogger|Game Boy":"Action","Go! Go! Tank|Game Boy":"Strategy","James Bond 007|Game Boy":"Adventure","Ken Griffey Jr. Presents Major League Baseball|Game Boy":"Sports","Little Mermaid|Game Boy":"Action","Makai Toushi SaGa|Game Boy":"RPG","Micro Machines|Game Boy":"Racing","NFL Quarterback Club II|Game Boy":"Sports","SaGa 2: Hihou Densetsu|Game Boy":"RPG","Teenage Mutant Ninja Turtles II: Back from the Sewers|Game Boy":"Action","Teenage Mutant Ninja Turtles: Fall of the Foot Clan|Game Boy":"Action","Terminator 2: Judgment Day|Game Boy":"Action","Tetris|Game Boy":"Puzzle","Wave Race|Game Boy":"Racing","Yoshi|Game Boy":"Puzzle","Yoshi's Cookie|Game Boy":"Puzzle","Blue's Clues: Blue's Alphabet Book|Game Boy Color":"Other","Caesars Palace II|Game Boy Color":"Party","Croc|Game Boy Color":"Platformer","Dinosaur|Game Boy Color":"Adventure","Dogz|Game Boy Color":"Simulation","E.T. The Extra-Terrestrial: Escape from Planet Earth|Game Boy Color":"Adventure","Frogger 2: Swampy's Revenge|Game Boy Color":"Action","Grinch|Game Boy Color":"Adventure","Legend of Zelda: Oracle of Seasons|Game Boy Color":"Adventure","Looney Tunes|Game Boy Color":"Platformer","Mr. Nutz|Game Boy Color":"Platformer","Ms. Pac-Man: Special Color Edition|Game Boy Color":"Action","Q*bert|Game Boy Color":"Puzzle","Quest for Camelot|Game Boy Color":"Adventure","Shrek: Fairy Tale Freakdown|Game Boy Color":"Fighting","Brain Age: Train Your Brain in Minutes a Day!|Nintendo DS":"Puzzle","DK: Jungle Climber|Nintendo DS":"Platformer","Flash Focus: Vision Training in Minutes a Day|Nintendo DS":"Other","Mario Hoops: 3 on 3|Nintendo DS":"Sports","Star Fox Command|Nintendo DS":"Shooter","Tiger Woods PGA Tour 08|Nintendo DS":"Sports","Epic Mickey: Power of Illusion|Nintendo 3DS":"Platformer","Legend of Zelda: A Link Between Worlds|Nintendo 3DS":"Adventure","Mario Party: Star Rush|Nintendo 3DS":"Party","New Super Mario Bros. 2|Nintendo 3DS":"Platformer","Nickleodeon Teenage Mutant Ninja Turtles: Master Splinter's Training Pack|Nintendo 3DS":"Compilation","Star Fox 64 3D|Nintendo 3DS":"Shooter","Batman: The Brave and the Bold - The Videogame|Wii":"Action","Boom Blox|Wii":"Puzzle","Call of Duty 3|Wii":"Shooter","Cars Toon: Mater's Tall Tales|Wii":"Party","de Blob|Wii":"Platformer","Excite Truck|Wii":"Racing","GoldenEye 007|Wii":"Shooter","Marvel: Ultimate Alliance|Wii":"RPG","MLB Superstars|Wii":"Sports","Pirates of the Caribbean: At World's End|Wii":"Action","Price Is Right|Wii":"Party","Rise of the Guardians|Wii":"Action","Science papa|Wii":"Puzzle","Star Wars The Clone Wars: Lightsaber Duels|Wii":"Fighting","Super Smash Bros. Brawl|Wii":"Fighting","Teenage Mutant Ninja Turtles: Smash-Up|Wii":"Fighting","Wii Sports [Cardboard Sleeve]|Wii":"Sports","Wii Sports Resort [Cardboard Sleeve]|Wii":"Sports","Cruis'n Blast|Nintendo Switch":"Racing","Donkey Kong Country Returns HD|Nintendo Switch":"Platformer","Legend of Zelda: Breath of the Wild|Nintendo Switch":"Adventure","Luigi's Mansion 3|Nintendo Switch":"Adventure","Mario Golf: Super Rush|Nintendo Switch":"Sports","Mega Man Star Force Legacy Collection|Nintendo Switch":"Compilation","Metroid Dread|Nintendo Switch":"Adventure","New Super Mario Bros. U Deluxe|Nintendo Switch":"Platformer","Shaq Fu: A Legend Reborn|Nintendo Switch":"Action","Sid Meier's Civilization VI|Nintendo Switch":"Strategy","Sonic Colors Ultimate [Launch Edition]|Nintendo Switch":"Platformer","Sonic Racing: CrossWorlds|Nintendo Switch":"Racing","Star Wars Racer & Commando Combo|Nintendo Switch":"Compilation","Super Mario 3D World + Bowser's Fury|Nintendo Switch":"Platformer","Super Mario Bros. Wonder|Nintendo Switch":"Platformer","Super Mario RPG|Nintendo Switch":"RPG","Super Mario Bros (Game Watch|Game & Watch":"Other","007: The World Is Not Enough|PlayStation 1":"Shooter","007: Tomorrow Never Dies|PlayStation 1":"Shooter","Agile Warrior F-111X [Long Box]|PlayStation 1":"Simulation","Alien Resurrection|PlayStation 1":"Shooter","Army Men 3D|PlayStation 1":"Shooter","Batman & Robin|PlayStation 1":"Action","Bob the Builder: Can We Fix It?|PlayStation 1":"Party","Colony Wars III: Red Sun|PlayStation 1":"Shooter","Cyber Sled [Long Box]|PlayStation 1":"Shooter","Cyberia|PlayStation 1":"Adventure","Delta Force: Urban Warfare|PlayStation 1":"Shooter","Duke Nukem: Time to Kill|PlayStation 1":"Shooter","Fifth Element|PlayStation 1":"Action","Final Doom|PlayStation 1":"Shooter","Final Fantasy IX [Greatest Hits]|PlayStation 1":"RPG","Final Fantasy VII|PlayStation 1":"RPG","Final Fantasy VIII|PlayStation 1":"RPG","Gran Turismo|PlayStation 1":"Racing","Gran Turismo 2|PlayStation 1":"Racing","Grand Theft Auto Mission Pack #1: London 1969|PlayStation 1":"Action","Gunship|PlayStation 1":"Simulation","Judge Dredd|PlayStation 1":"Shooter","Legend of Mana|PlayStation 1":"RPG","M&M's Shell Shocked|PlayStation 1":"Platformer","Marvel Super Heroes vs. Street Fighter|PlayStation 1":"Fighting","Mega Man Legends|PlayStation 1":"Action","Mega Man Legends 2|PlayStation 1":"Action","Metal Gear Solid [Greatest Hits]|PlayStation 1":"Action","Metal Gear Solid: VR Missions|PlayStation 1":"Action","MLB 2001|PlayStation 1":"Sports","MLB 2003|PlayStation 1":"Sports","Mortal Kombat: Special Forces|PlayStation 1":"Action","NASCAR 99|PlayStation 1":"Racing","NBA Jam Extreme|PlayStation 1":"Sports","NBA Live 2000|PlayStation 1":"Sports","NBA ShootOut 2001|PlayStation 1":"Sports","NCAA Gamebreaker 98|PlayStation 1":"Sports","NFL Gameday 2002|PlayStation 1":"Sports","NFL GameDay [Long Box]|PlayStation 1":"Sports","Novastorm|PlayStation 1":"Shooter","One|PlayStation 1":"Shooter","Parasite Eve|PlayStation 1":"RPG","Parasite Eve II|PlayStation 1":"Action","Ready 2 Rumble Boxing [Greatest Hits]|PlayStation 1":"Sports","Rugrats: Studio Tour|PlayStation 1":"Party","Shockwave Assault [Long Box]|PlayStation 1":"Shooter","Spec Ops: Covert Assault|PlayStation 1":"Shooter","Star Wars: Demolition|PlayStation 1":"Action","Street Fighter Alpha: Warriors' Dreams [Long Box]|PlayStation 1":"Fighting","Street Fighter The Movie [Long Box]|PlayStation 1":"Fighting","Syphon Filter|PlayStation 1":"Shooter","Syphon Filter 2|PlayStation 1":"Shooter","Syphon Filter 3|PlayStation 1":"Shooter","Tekken 3 [Greatest Hits]|PlayStation 1":"Fighting","Tom Clancy's Rainbow Six|PlayStation 1":"Shooter","Tomb Raider [Greatest Hits]|PlayStation 1":"Adventure","Triple Play 2000|PlayStation 1":"Sports","Triple Play 2001|PlayStation 1":"Sports","Twisted Metal 2|PlayStation 1":"Action","WCW-NWO Thunder|PlayStation 1":"Sports","Who Wants To Be A Millionaire: 2nd Edition|PlayStation 1":"Party","WWF Smackdown! 2: Know Your Role [Greatest Hits]|PlayStation 1":"Sports","WWF WrestleMania: The Arcade Game [Long Box]|PlayStation 1":"Sports","Activision Anthology|PlayStation 2":"Compilation","Army Men: Green Rogue|PlayStation 2":"Shooter","ATV Offroad Fury 4|PlayStation 2":"Racing","Backyard Baseball '09|PlayStation 2":"Sports","Batman: Vengeance|PlayStation 2":"Action","Call of Duty 2: Big Red One|PlayStation 2":"Shooter","Conflict: Desert Storm|PlayStation 2":"Shooter","Contra: Shattered Soldier|PlayStation 2":"Shooter","Fire Blade|PlayStation 2":"Simulation","GoldenEye: Rogue Agent|PlayStation 2":"Shooter","Gran Turismo 3: A-Spec|PlayStation 2":"Racing","Gun|PlayStation 2":"Action","Hot Shots Golf 3|PlayStation 2":"Sports","L.A. Rush|PlayStation 2":"Racing","LEGO Star Wars: The Video Game|PlayStation 2":"Action","Looney Tunes: Space Race|PlayStation 2":"Racing","Major League Baseball 2K9|PlayStation 2":"Sports","Metal Gear Solid 2: Sons Of Liberty|PlayStation 2":"Action","Metal Gear Solid 3: Snake Eater|PlayStation 2":"Action","Metal Gear Solid 3: Subsistence|PlayStation 2":"Action","Metal Gear Solid: The Essential Collection|PlayStation 2":"Compilation","Minority Report: Everybody Runs|PlayStation 2":"Action","Mission: Impossible: Operation Surma|PlayStation 2":"Action","Mortal Kombat: Shaolin Monks|PlayStation 2":"Action","NBA Shootout 2001|PlayStation 2":"Sports","NHL 2001|PlayStation 2":"Sports","Onimusha 2: Samurai's Destiny|PlayStation 2":"Action","Onimusha: Warlords|PlayStation 2":"Action","Outlaw Golf 2|PlayStation 2":"Sports","Peter Jackson's King Kong: The Official Game of the Movie|PlayStation 2":"Shooter","Primal|PlayStation 2":"Action","Rumble Roses|PlayStation 2":"Sports","Seek and Destroy|PlayStation 2":"Action","Star Wars: Jedi Starfighter|PlayStation 2":"Shooter","Star Wars: Starfighter|PlayStation 2":"Shooter","Starsky & Hutch|PlayStation 2":"Action","Street Fighter EX3|PlayStation 2":"Fighting","Stuntman|PlayStation 2":"Racing","Summer Heat Beach Volleyball|PlayStation 2":"Sports","Syphon Filter: Dark Mirror|PlayStation 2":"Shooter","Syphon Filter: The Omega Strain|PlayStation 2":"Shooter","TMNT|PlayStation 2":"Action","Twisted Metal: Head-On - Extra Twisted Edition|PlayStation 2":"Action","Vexx|PlayStation 2":"Platformer","Virtua Fighter 4|PlayStation 2":"Fighting","X-Men: Next Dimension|PlayStation 2":"Fighting","007: Blood Stone|PlayStation 3":"Shooter","007: Quantum of Solace|PlayStation 3":"Shooter","Assassin's Creed III [Walmart Edition]|PlayStation 3":"Action","Assassin's Creed IV: Black Flag [Gamestop Edition]|PlayStation 3":"Action","Assassin's Creed: Brotherhood|PlayStation 3":"Action","Assassin's Creed: Revelations|PlayStation 3":"Action","BioShock 2|PlayStation 3":"Shooter","FaceBreaker|PlayStation 3":"Sports","Gran Turismo 5 Prologue|PlayStation 3":"Racing","Gran Turismo 5: XL Edition|PlayStation 3":"Racing","Gran Turismo 6|PlayStation 3":"Racing","Guitar Hero World Tour|PlayStation 3":"Party","Killzone Trilogy|PlayStation 3":"Compilation","MAG|PlayStation 3":"Shooter","Major League Baseball 2K11|PlayStation 3":"Sports","Metal Gear Solid 4: Guns of the Patriots|PlayStation 3":"Action","Metal Gear Solid: The Legacy Collection|PlayStation 3":"Compilation","MX vs. ATV Reflex|PlayStation 3":"Racing","Need for Speed: Shift|PlayStation 3":"Racing","Resistance 2|PlayStation 3":"Shooter","Sly Collection|PlayStation 3":"Compilation","Sniper: Ghost Warrior|PlayStation 3":"Shooter","Time Crisis 4|PlayStation 3":"Shooter","TRON: Evolution|PlayStation 3":"Action","Ultra Street Fighter IV|PlayStation 3":"Fighting","Unreal Tournament III|PlayStation 3":"Shooter","X-Men Origins: Wolverine [Uncaged Edition]|PlayStation 3":"Action","Metal Gear Ac!d|PSP":"Strategy","Metal Gear Ac!d 2|PSP":"Strategy","Metal Gear Solid: Digital Graphic Novel|PSP":"Other","Metal Gear Solid: Peace Walker [Limited Edition]|PSP":"Action","Metal Gear Solid: Portable Ops|PSP":"Action","Metal Gear Solid: Portable Ops Plus|PSP":"Action","Bloodborne [PlayStation Hits]|PlayStation 4":"Action","Call of Duty: Modern Warfare|PlayStation 4":"Shooter","Gran Turismo Sport (PlayStation Hits)|PlayStation 4":"Racing","Marvel's Spider-Man [Game of the Year Edition]|PlayStation 4":"Action","Metal Gear Solid V: The Phantom Pain|PlayStation 4":"Action","Metal Gear Survive|PlayStation 4":"Action","MLB The Show 19|PlayStation 4":"Sports","Raid: World War II|PlayStation 4":"Shooter","Streets of Rage 4: Anniversary Edition|PlayStation 4":"Action","007: NightFire|Xbox":"Shooter","Advent Rising|Xbox":"Action","All-Star Baseball 2005|Xbox":"Sports","America's Army: Rise of a Soldier|Xbox":"Shooter","Aquaman: Battle for Atlantis|Xbox":"Action","Arena Football|Xbox":"Sports","Batman Begins|Xbox":"Action","Batman: Dark Tomorrow|Xbox":"Action","Battlefield 2: Modern Combat|Xbox":"Shooter","Big Mutha Truckers 2|Xbox":"Simulation","Conflict: Vietnam|Xbox":"Shooter","Delta Force: Black Hawk Down|Xbox":"Shooter","Destroy All Humans!|Xbox":"Action","DOOM 3|Xbox":"Shooter","DOOM 3 [Limited Collector's Edition]|Xbox":"Shooter","Doom 3: Resurrection of Evil|Xbox":"Shooter","Enter the Matrix|Xbox":"Action","ESPN NFL 2K5|Xbox":"Sports","ESPN NFL Primetime 2002|Xbox":"Sports","FIFA World Cup: Germany 2006|Xbox":"Sports","Grand Theft Auto: Vice City [The Xbox Collection]|Xbox":"Action","Gun|Xbox":"Action","Guy Game|Xbox":"Party","Half-Life 2|Xbox":"Shooter","Halo 2|Xbox":"Shooter","Halo 2 Multiplayer Map Pack|Xbox":"Compilation","Halo: Combat Evolved|Xbox":"Shooter","Halo: Combat Evolved [Game of the Year Edition]|Xbox":"Shooter","Hulk|Xbox":"Action","Incredible Hulk: Ultimate Destruction|Xbox":"Action","Indigo Prophecy|Xbox":"Adventure","James Bond 007: Agent Under Fire|Xbox":"Shooter","James Cameron's Dark Angel|Xbox":"Action","Justice League Heroes|Xbox":"RPG","Leisure Suit Larry: Magna Cum Laude|Xbox":"Adventure","Links 2004|Xbox":"Sports","Madden NFL 2005|Xbox":"Sports","Major League Baseball 2K7|Xbox":"Sports","MechAssault|Xbox":"Shooter","Metal Gear Solid 2: Substance|Xbox":"Action","Midnight Club 3: Dub Edition|Xbox":"Racing","Midway Arcade Treasures|Xbox":"Compilation","Minority Report: Everybody Runs|Xbox":"Action","Mission: Impossible: Operation Surma|Xbox":"Action","MLB SlugFest 2006|Xbox":"Sports","Mortal Kombat: Deadly Alliance [Platinum Hits]|Xbox":"Fighting","Mortal Kombat: Deception|Xbox":"Fighting","Mortal Kombat: Deception (Kollector's Edition -- Mileena Version)|Xbox":"Fighting","NBA Jam|Xbox":"Sports","NBA Street Vol. 2|Xbox":"Sports","NCAA College Basketball 2k3|Xbox":"Sports","NCAA Football 2003|Xbox":"Sports","NCAA Football 2005 / Top Spin Combo|Xbox":"Compilation","Outlaw Golf|Xbox":"Sports","Outlaw Tennis|Xbox":"Sports","Outlaw Volleyball|Xbox":"Sports","Outlaw Volleyball Red Hot|Xbox":"Sports","Project Gotham Racing|Xbox":"Racing","Project Gotham Racing 2|Xbox":"Racing","Punisher|Xbox":"Shooter","Return to Castle Wolfenstein: Tides of War|Xbox":"Shooter","Simpsons: Road Rage|Xbox":"Action","Spider-Man 2|Xbox":"Action","Spider-Man: The Movie|Xbox":"Action","Star Wars Episode III: Revenge of the Sith|Xbox":"Action","Star Wars Jedi Knight: Jedi Academy|Xbox":"Shooter","Star Wars Starfighter: Special Edition [Platinum Hits]|Xbox":"Shooter","Star Wars: Battlefront|Xbox":"Shooter","Star Wars: Knights of the Old Republic|Xbox":"RPG","Star Wars: Knights of the Old Republic II: The Sith Lords|Xbox":"RPG","Star Wars: Republic Commando [Platinum Hits]|Xbox":"Shooter","Star Wars: The Clone Wars / Tetris Worlds|Xbox":"Compilation","Street Fighter Anniversary Collection|Xbox":"Compilation","Superman Returns|Xbox":"Action","Terminator 3: Rise Of The Machines|Xbox":"Shooter","Terminator: Dawn of Fate|Xbox":"Action","Tetris Worlds|Xbox":"Puzzle","Tiger Woods PGA Tour 06|Xbox":"Sports","Tiger Woods PGA Tour 2004|Xbox":"Sports","Tiger Woods PGA Tour 2005|Xbox":"Sports","TMNT: Mutant Melee|Xbox":"Action","Tom Clancy's Ghost Recon|Xbox":"Shooter","Tom Clancy's Ghost Recon 2|Xbox":"Shooter","Tom Clancy's Ghost Recon 2: Summit Strike|Xbox":"Shooter","Tom Clancy's Ghost Recon: Island Thunder|Xbox":"Shooter","Tom Clancy's Splinter Cell: Pandora Tomorrow|Xbox":"Action","Top Spin|Xbox":"Sports","Triple Play 2002|Xbox":"Sports","Turok: Evolution|Xbox":"Shooter","Unreal Championship|Xbox":"Shooter","Unreal II: The Awakening|Xbox":"Shooter","WWE WrestleMania 21|Xbox":"Sports","X-Men Legends|Xbox":"RPG","X-Men Legends II: Rise of Apocalypse|Xbox":"RPG","X-Men: Next Dimension|Xbox":"Fighting","X-Men: The Official Game|Xbox":"Action","Xbox Music Mixer|Xbox":"Other","007: Quantum of Solace|Xbox 360":"Shooter","Adventures of Tintin: The Game|Xbox 360":"Platformer","Alpha Protocol|Xbox 360":"RPG","America's Army: True Soldiers|Xbox 360":"Shooter","Apache: Air Assault|Xbox 360":"Simulation","Batman: Arkham Asylum [Game of the Year Edition]|Xbox 360":"Action","Batman: Arkham City|Xbox 360":"Action","Batman: Arkham Origins [Collector's Edition]|Xbox 360":"Action","Battlefield 3 [Limited Edition]|Xbox 360":"Shooter","Battlefield 4: China Rising Expansion Pack|Xbox 360":"Other","Battlefield: Bad Company|Xbox 360":"Shooter","Battlefield: Bad Company 2|Xbox 360":"Shooter","Battlefield: Bad Company 2 [Limited Edition]|Xbox 360":"Shooter","Battleship|Xbox 360":"Shooter","Big Bumpin'|Xbox 360":"Party","Bulletstorm [Epic Edition]|Xbox 360":"Shooter","Call of Duty: Black Ops|Xbox 360":"Shooter","Call of Duty: Black Ops II|Xbox 360":"Shooter","Call of Duty: Ghosts|Xbox 360":"Shooter","Call of Duty: Modern Warfare 2|Xbox 360":"Shooter","Call of Duty: Modern Warfare 3|Xbox 360":"Shooter","Call of Duty: World at War|Xbox 360":"Shooter","Crackdown|Xbox 360":"Action","Darksiders|Xbox 360":"Action","Darksiders II|Xbox 360":"Action","Dead Island [Game of the Year Edition]|Xbox 360":"Action","Deadfall Adventures|Xbox 360":"Shooter","Deadpool|Xbox 360":"Action","Deus Ex: Human Revolution|Xbox 360":"RPG","G.I. Joe: The Rise of Cobra|Xbox 360":"Shooter","Gears of War|Xbox 360":"Shooter","Gears of War 2 [Limited Edition]|Xbox 360":"Shooter","Gears of War 3|Xbox 360":"Shooter","Gears of War [Limited Collector's Edition]|Xbox 360":"Shooter","Greg Hastings Paintball 2|Xbox 360":"Shooter","Guitar Hero III: Legends of Rock|Xbox 360":"Party","Gun|Xbox 360":"Action","Halo 3|Xbox 360":"Shooter","Halo 3 [Legendary Edition]|Xbox 360":"Shooter","Halo 3 [Limited Edition]|Xbox 360":"Shooter","Halo 3: ODST|Xbox 360":"Shooter","Halo 4|Xbox 360":"Shooter","Halo 4 [Limited Edition]|Xbox 360":"Shooter","Halo Reach [With Recon Helmet DLC]|Xbox 360":"Shooter","Halo Wars|Xbox 360":"Strategy","Halo: Combat Evolved Anniversary|Xbox 360":"Shooter","Halo: Reach [Limited Edition]|Xbox 360":"Shooter","Harry Potter and the Order of the Phoenix|Xbox 360":"Adventure","Majin and the Forsaken Kingdom|Xbox 360":"Action","Major League Baseball 2K6|Xbox 360":"Sports","Mass Effect 2|Xbox 360":"RPG","Mass Effect 3|Xbox 360":"RPG","Mortal Kombat vs. DC Universe|Xbox 360":"Fighting","Need For Speed: ProStreet|Xbox 360":"Racing","NHL 07|Xbox 360":"Sports","Official Xbox Magazine Demo Disc 59|Xbox 360":"Compilation","Project Gotham Racing 3|Xbox 360":"Racing","Project Gotham Racing 4|Xbox 360":"Racing","Quake 4|Xbox 360":"Shooter","Red Faction: Guerrilla|Xbox 360":"Shooter","Saints Row IV [Super Dangerous Wub Wub Edition]|Xbox 360":"Action","Section 8|Xbox 360":"Shooter","Sid Meier's Civilization Revolution|Xbox 360":"Strategy","Sneak King|Xbox 360":"Action","Spec Ops: The Line|Xbox 360":"Shooter","Tiger Woods PGA Tour 11|Xbox 360":"Sports","Tom Clancy's Ghost Recon Advanced Warfighter|Xbox 360":"Shooter","Tom Clancy's Ghost Recon: Future Soldier Signature Edition|Xbox 360":"Shooter","Tom Clancy's Splinter Cell: Blacklist|Xbox 360":"Action","X-Men Origins: Wolverine|Xbox 360":"Action","Assassin's Creed: Syndicate|Xbox One":"Action","Batman: Arkham Knight|Xbox One":"Action","Borderlands: The Handsome Collection|Xbox One":"Compilation","Call of Duty: Ghosts|Xbox One":"Shooter","Call of Duty: Modern Warfare II [Cross-Gen Bundle]|Xbox One":"Shooter","Cyberpunk 2077|Xbox One":"RPG","Epic Mickey: Rebrushed|Xbox One":"Platformer","Gears of War 4|Xbox One":"Shooter","Gears of War: Ultimate Edition|Xbox One":"Shooter","Grand Theft Auto V|Xbox One":"Action","Halo 5: Guardians|Xbox One":"Shooter","Halo 5: Guardians [Limited Edition]|Xbox One":"Shooter","Halo Wars 2 [Ultimate Edition]|Xbox One":"Strategy","Halo: The Master Chief Collection|Xbox One":"Compilation","Mortal Kombat 11|Xbox One":"Fighting","Red Dead Redemption II|Xbox One":"Action","Sonic Frontiers|Xbox One":"Platformer","Sonic Mania Collector's Edition|Xbox One":"Platformer","Sonic Superstars|Xbox One":"Platformer","Sonic X Shadow Generations [Day One Edition]|Xbox One":"Platformer","South Park: The Fractured but Whole|Xbox One":"RPG","Teenage Mutant Ninja Turtles: The Cowabunga Collection|Xbox One":"Compilation","Titanfall 2|Xbox One":"Shooter","Tom Clancy's: The Division 2|Xbox One":"Shooter","Wolfenstein II: The New Colossus|Xbox One":"Shooter","Wolfenstein: The New Order|Xbox One":"Shooter","Zumba Fitness World Party|Xbox One":"Sports","007 First Light|Xbox Series X/S":"Shooter","Battlefield 6|Xbox Series X/S":"Shooter","EA SPORTS College Football 25|Xbox Series X/S":"Sports","Goat Simulator 3|Xbox Series X/S":"Simulation","Metal Gear Solid Delta: Snake Eater [Tactical Edition]|Xbox Series X/S":"Action","Metal Gear Solid: Master Collection Vol. 1|Xbox Series X/S":"Compilation","Metal Gear Solid: Master Collection Vol. 2 [Day One Edition]|Xbox Series X/S":"Compilation","Star Wars Outlaws [Gold Edition]|Xbox Series X/S":"Action","Adventures of Batman & Robin|Sega Genesis":"Action","Adventures of Rocky and Bullwinkle and Friends|Sega Genesis":"Platformer","Altered Beast|Sega Genesis":"Action","American Gladiators|Sega Genesis":"Sports","Arcade Classics|Sega Genesis":"Compilation","Barkley Shut Up and Jam!|Sega Genesis":"Sports","Barkley Shut Up and Jam! 2|Sega Genesis":"Sports","Batman Forever|Sega Genesis":"Action","Batman Returns|Sega Genesis":"Platformer","Batman: Revenge of the Joker|Sega Genesis":"Platformer","Batman: The Video Game|Sega Genesis":"Platformer","Bill Walsh College Football|Sega Genesis":"Sports","Boogerman: A Pick and Flick Adventure|Sega Genesis":"Platformer","Bram Stoker's Dracula|Sega Genesis":"Platformer","Bugs Bunny in Double Trouble|Sega Genesis":"Platformer","Bulls vs Lakers and the NBA Playoffs|Sega Genesis":"Sports","Captain America and the Avengers|Sega Genesis":"Action","Cliffhanger|Sega Genesis":"Action","Cool Spot|Sega Genesis":"Platformer","Demolition Man|Sega Genesis":"Action","Desert Strike: Return to the Gulf|Sega Genesis":"Shooter","Dynamite Duke|Sega Genesis":"Shooter","Earthworm Jim|Sega Genesis":"Platformer","ESPN Baseball Tonight|Sega Genesis":"Sports","ESPN Sunday Night NFL|Sega Genesis":"Sports","ESWAT: City Under Siege|Sega Genesis":"Action","F-117 Night Storm|Sega Genesis":"Simulation","Flashback: The Quest for Identity|Sega Genesis":"Platformer","Golden Axe II|Sega Genesis":"Action","HardBall '95|Sega Genesis":"Sports","HardBall III|Sega Genesis":"Sports","James Bond 007: The Duel|Sega Genesis":"Action","Judge Dredd|Sega Genesis":"Platformer","Jungle Book|Sega Genesis":"Platformer","Jungle Strike|Sega Genesis":"Shooter","Jurassic Park|Sega Genesis":"Action","Justice League Task Force|Sega Genesis":"Fighting","Krusty's Super Fun House|Sega Genesis":"Puzzle","Madden NFL '95|Sega Genesis":"Sports","Monopoly|Sega Genesis":"Party","Mortal Kombat|Sega Genesis":"Fighting","Mortal Kombat 3|Sega Genesis":"Fighting","Mortal Kombat II|Sega Genesis":"Fighting","Ms. Pac-Man|Sega Genesis":"Action","NBA Showdown 94|Sega Genesis":"Sports","NFL Football '94 Starring Joe Montana|Sega Genesis":"Sports","NFL Quarterback Club 96|Sega Genesis":"Sports","NFL Sports Talk Football '93 Starring Joe Montana|Sega Genesis":"Sports","Pebble Beach Golf Links|Sega Genesis":"Sports","Pink Goes to Hollywood|Sega Genesis":"Platformer","Pitfall: The Mayan Adventure|Sega Genesis":"Platformer","R.B.I. Baseball 3|Sega Genesis":"Sports","Ren & Stimpy Show Presents: Stimpy's Invention|Sega Genesis":"Platformer","RoboCop versus The Terminator|Sega Genesis":"Action","Sonic Spinball|Sega Genesis":"Action","Sonic the Hedgehog|Sega Genesis":"Platformer","Sonic the Hedgehog 2 [Not for Resale]|Sega Genesis":"Platformer","Sonic the Hedgehog 3|Sega Genesis":"Platformer","Spider-Man & Venom: Maximum Carnage [Black Cart]|Sega Genesis":"Action","Spider-Man / X-Men: Arcade's Revenge|Sega Genesis":"Platformer","Sports Talk Baseball|Sega Genesis":"Sports","Spot Goes To Hollywood|Sega Genesis":"Platformer","Stargate|Sega Genesis":"Action","Street Fighter II': Special Champion Edition|Sega Genesis":"Fighting","Streets of Rage|Sega Genesis":"Action","Streets of Rage 2|Sega Genesis":"Action","Superman|Sega Genesis":"Action","Sylvester and Tweety in Cagey Capers|Sega Genesis":"Platformer","T2: The Arcade Game|Sega Genesis":"Shooter","Teenage Mutant Ninja Turtles Tournament Fighters [Cardboard Box]|Sega Genesis":"Fighting","Teenage Mutant Ninja Turtles: The Hyperstone Heist|Sega Genesis":"Action","Terminator|Sega Genesis":"Action","Terminator 2: Judgment Day|Sega Genesis":"Action","Tick|Sega Genesis":"Action","Tiny Toon Adventures: Buster's Hidden Treasure|Sega Genesis":"Platformer","Tommy Lasorda Baseball|Sega Genesis":"Sports","Urban Strike|Sega Genesis":"Shooter","Where in Time Is Carmen Sandiego?|Sega Genesis":"Adventure","Wolverine: Adamantium Rage|Sega Genesis":"Action","World Series Baseball|Sega Genesis":"Sports","World Series Baseball '95|Sega Genesis":"Sports","WWF Super WrestleMania|Sega Genesis":"Sports","X-Men|Sega Genesis":"Action","X-Men 2: Clone Wars|Sega Genesis":"Action","4x4 Evolution|Sega Dreamcast":"Racing","Crazy Taxi|Sega Dreamcast":"Action","Dreamcast Web Browser 2.0|Sega Dreamcast":"Other","NFL 2K|Sega Dreamcast":"Sports","NHL 2K|Sega Dreamcast":"Sports","Sega Dreamcast Web Browser|Sega Dreamcast":"Other","SEGA Rally 2|Sega Dreamcast":"Racing","Shenmue|Sega Dreamcast":"Adventure","Sonic Adventure|Sega Dreamcast":"Platformer","South Park: Chef's Luv Shack|Sega Dreamcast":"Party","Street Fighter III: Double Impact|Sega Dreamcast":"Fighting","Tomb Raider: Chronicles|Sega Dreamcast":"Adventure","Unreal Tournament|Sega Dreamcast":"Shooter","Virtua Tennis|Sega Dreamcast":"Sports","World Series Baseball 2K2|Sega Dreamcast":"Sports","WWF Royal Rumble|Sega Dreamcast":"Sports","Xtreme Sports|Sega Dreamcast":"Sports","Black Dawn|Sega Saturn":"Shooter","Christmas Nights Into Dreams|Sega Saturn":"Action","Congo The Movie: The Lost City of Zinj|Sega Saturn":"Shooter","Grandread|Sega Saturn":"RPG","Space Jam|Sega Saturn":"Sports","Virtua Fighter 2|Sega Saturn":"Fighting","X-Men: Children Of The Atom|Sega Saturn":"Fighting","Ghostbusters|Sega Master System":"Action","Bentley Bear's Crystal Quest [2024 Reissue]|Atari 7800+":"Platformer","Pitfall!|Intellivision":"Platformer","Arcade1Up Teenage Mutant Ninja Turtles: Turtles in Time Arcade Machine|Arcade1Up":"Compilation","500,000 Games|PC":"Compilation","Battlefield 2|PC":"Shooter","Chessmaster 6000|PC":"Strategy","Dilbert's Desktop Games|PC":"Party","Driver [Sold Out]|PC":"Racing","Scrabble Champion Edition|PC":"Party","Star Wars: The Old Republic|PC":"RPG"};
+const GENRE_PAL = {"Action":["#e0553f","#12070a"],"Shooter":["#5a8fd6","#0a0e16"],"Sports":["#3fbf6a","#07140c"],"Platformer":["#e0a33a","#150e04"],"Racing":["#c85cc8","#140716"],"Fighting":["#d63a4a","#140407"],"RPG":["#8f6fd6","#0e0818"],"Adventure":["#3fb8b0","#04120f"],"Compilation":["#9aa3b5","#0c0e14"],"Puzzle":["#e0c93a","#141003"],"Party":["#e07a35","#150a03"],"Simulation":["#6f8fa8","#080e13"],"Strategy":["#b8d63a","#0f1404"],"Other":["#7b8294","#0b0d12"]};
+const GENRE_ORDER = ["Action", "Shooter", "Platformer", "Sports", "Fighting", "RPG", "Adventure", "Racing", "Puzzle", "Compilation", "Party", "Simulation", "Strategy", "Other"];
+
+const genres = [];
+{
+  const byGenre = new Map();
+  for (const g of all) {
+    const k = GENRES[g.title + "|" + g.system] || "Other";
+    if (!byGenre.has(k)) byGenre.set(k, []);
+    byGenre.get(k).push(g);
+  }
+  for (const name of GENRE_ORDER) {
+    const gs = byGenre.get(name);
+    if (!gs || !gs.length) continue;
+    gs.sort((a,b) => (sysIndex.get(a.system) - sysIndex.get(b.system)) || a.title.localeCompare(b.title));
+    const pal = GENRE_PAL[name] || FALLBACK;
+    genres.push({ name, id: "g-" + name.toLowerCase().replace(/[^a-z0-9]+/g,"-"),
+                  games: gs, color: pal[0], ink: pal[1], showSys: true });
+  }
+}
+
+const groups = () => view === "system" ? systems : view === "genre" ? genres : series;
 
 /* Filename a photo gets to appear next to its game: images/<slug>.jpg */
 function slug(g){
@@ -1564,6 +2152,38 @@ function anniversary(g){
   return { text: `${MONTHNAME[m-1]} ${d}, ${y}`, age, soon: false };
 }
 
+/* The front page's one moving part: what's having a birthday. */
+(function todayBar(){
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const hits = [];
+  for (const g of all) {
+    const r = RELEASED[nkey(g.title) + "|" + g.system];
+    if (!r) continue;
+    const [m,d,y] = r;
+    if (!d) continue;
+    let when = new Date(today.getFullYear(), m-1, d);
+    if (when < today) when = new Date(today.getFullYear()+1, m-1, d);
+    const days = Math.round((when - today) / 86400000);
+    hits.push({ g, age: when.getFullYear() - y, days });
+  }
+  if (!hits.length) return;
+  hits.sort((a,b) => a.days - b.days || b.age - a.age);
+
+  const bar = document.getElementById("todaybar");
+  const soon = hits.filter(h => h.days === hits[0].days).slice(0, 3);
+  const when = hits[0].days === 0 ? "Today"
+             : hits[0].days === 1 ? "Tomorrow"
+             : "In " + hits[0].days + " days";
+  bar.className = "todaybar on";
+  bar.innerHTML =
+    `<span class="lbl">${when}</span>
+     <span class="items">` +
+     soon.map(h => `<span class="item"><b>${esc(h.g.title)}</b> turns ${h.age}<em>${esc(h.g.system)}</em></span>`).join("") +
+     `</span>
+     <a class="more" href="anniversaries.html">All anniversaries</a>`;
+})();
+
 function wiki(title){
   return "https://en.wikipedia.org/w/index.php?search=" +
          encodeURIComponent(title + " video game");
@@ -1572,14 +2192,42 @@ function esc(s){ return s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"
 
 function drawScores(){
   const beat = all.filter(isBeaten).length;
+  const endless = all.filter(isEndless).length;
+  const beatable = total - endless;
+  const pct = beatable ? Math.round(beat / beatable * 100) : 0;
   document.getElementById("scores").innerHTML = [
-    [total, "games"], [systems.length, "systems"],
-    [cibCount, "complete"], [looseCount, "loose"], [beat, "beaten"]
-  ].map(([n, l]) => `<div class="score"><b>${n}</b><span>${l}</span></div>`).join("");
+    [total, "games", null],
+    [systems.length, "systems", "consoles.html"],
+    [cibCount, "complete", "cond:cib"],
+    [looseCount, "loose", "cond:"],
+    [beat, "beaten", "beat:beaten"],
+    [endless, "no ending", "beat:endless"],
+    [pct + "%", "of beatable", null]
+  ].map(([n, l, go]) => go
+      ? `<a class="score go" href="${go.includes(":") ? "#" : go}" data-go="${go}"><b>${n}</b><span>${l}</span></a>`
+      : `<div class="score"><b>${n}</b><span>${l}</span></div>`
+  ).join("");
 }
 
+document.getElementById("scores").addEventListener("click", e => {
+  const a = e.target.closest("a[data-go]"); if (!a) return;
+  const go = a.dataset.go;
+  if (!go.includes(":")) return;          /* a real page, let the link work */
+  e.preventDefault();
+  const [kind, val] = go.split(":");
+  if (kind === "cond") { condFilter = val; beatFilter = "all"; }
+  else { beatFilter = val; condFilter = "all"; }
+  filterBox.querySelectorAll(".chip").forEach(c => {
+    if (c.dataset.beat !== undefined) c.setAttribute("aria-pressed", c.dataset.beat === beatFilter);
+    else c.setAttribute("aria-pressed", c.dataset.cond === condFilter);
+  });
+  collapsed.clear();
+  render();
+  document.getElementById("results").scrollIntoView({behavior:"smooth", block:"start"});
+});
+
 const FILTERS = [["all","Everything"],["cib","Complete in box"],["","Loose"],["part","Missing a piece"]];
-const BEATFILTERS = [["beaten","Beaten"],["unbeaten","Not beaten"]];
+const BEATFILTERS = [["beaten","Beaten"],["unbeaten","Not beaten"],["endless","No ending"]];
 const filterBox = document.getElementById("filters");
 filterBox.innerHTML =
   FILTERS.map(([v,l]) =>
@@ -1633,7 +2281,9 @@ function toggleShelf(head){
 function matches(g) {
   if (condFilter !== "all" && g.cls !== condFilter) return false;
   if (beatFilter === "beaten" && !isBeaten(g)) return false;
-  if (beatFilter === "unbeaten" && isBeaten(g)) return false;
+  /* Not beaten is a to-do list, so games with no ending stay out of it. */
+  if (beatFilter === "unbeaten" && (isBeaten(g) || isEndless(g))) return false;
+  if (beatFilter === "endless" && !isEndless(g)) return false;
   if (query && !g.key.includes(query)) return false;
   return true;
 }
@@ -1653,7 +2303,7 @@ function render() {
         `<img class="shot" loading="lazy" src="images/${slug(g)}.jpg" alt="${esc(g.title)}"` +
         ` onerror="this.remove()">` +
         `<i class="mark ${g.cls}"></i>` +
-        `<i class="beat${isBeaten(g) ? " on" : ""}"></i>` +
+        `<i class="beat${isBeaten(g) ? " on" : isEndless(g) ? " endless" : ""}"></i>` +
         `<span class="title"><a href="${wiki(g.title)}" target="_blank" rel="noopener">${esc(g.title)}</a></span>` +
         (s.showSys ? `<span class="sysflag">${esc(g.system)}</span>` : "") +
         (videoFor(g) ? `<a class="play" href="${videoFor(g)}" target="_blank" rel="noopener" title="ASMR short on YouTube">&#9654;</a>` : "") +
@@ -1679,6 +2329,7 @@ function extras(g){
       out.push(`<a href="lists.html#game=${encodeURIComponent(g.title)}">on ${ranks.length} lists</a>`);
   }
   if (isBeaten(g)) out.push(`<span class="done">Beaten</span>`);
+  else if (isEndless(g)) out.push(`<span>No ending</span>`);
   const vid = videoFor(g);
   if (vid) out.push(`<a href="${vid}" target="_blank" rel="noopener">ASMR short</a>`);
   const ann = anniversary(g);
@@ -1689,7 +2340,8 @@ function extras(g){
 function updateVerdict() {
   if (!query) { verdict.className = ""; verdict.innerHTML = ""; return; }
   const hits = all.filter(g => g.key.includes(query));
-  if (!hits.length) {
+  const cons = HARDWARE.filter(h => h.key.includes(query));
+  if (!hits.length && !cons.length) {
     verdict.className = "on";
     verdict.innerHTML = `<div class="vbox" style="--hit:#8e93a2">
       <p class="vhead">Not on the shelf</p>
@@ -1697,10 +2349,19 @@ function updateVerdict() {
     return;
   }
   verdict.className = "on";
-  const head = hits.length === 1 ? "Got it" : `Got it &times;${hits.length}`;
-  verdict.innerHTML = `<div class="vbox" style="--hit:${hits[0].color}">
+  const tint = hits.length ? hits[0].color : "#ff4b3e";
+  const head = !hits.length ? (cons.length === 1 ? "That's a console" : "Those are consoles")
+             : hits.length === 1 ? "Got it" : `Got it &times;${hits.length}`;
+  verdict.innerHTML = `<div class="vbox" style="--hit:${tint}">
     <p class="vhead">${head}</p>
     <ul class="vlist">` +
+    cons.map(h => {
+      const shelf = systems.find(s => s.name === h.shelf);
+      return `<li><strong>${esc(h.name)}</strong><br><span class="sys">Console` +
+        (shelf ? ` &middot; ${shelf.games.length} games on the shelf` : "") + `</span>` +
+        `<div class="vextra"><a href="consoles.html">See the consoles</a>` +
+        (shelf ? `<a href="#${shelf.id}">Go to the shelf</a>` : "") + `</div></li>`;
+    }).join("") +
     hits.slice(0, 8).map(g =>
       `<li><strong>${esc(g.title)}</strong><br><span class="sys">${esc(g.system)} &middot; ${esc(g.cond)}</span>${extras(g)}</li>`
     ).join("") +
@@ -1757,27 +2418,38 @@ const saveBtn = document.getElementById("saveBtn");
 
 function beatKey(g){ return g.title.toLowerCase(); }
 
+/* Empty -> beaten -> no ending -> empty. */
 results.addEventListener("click", e => {
   const box = e.target.closest(".beat");
   if (!box) return;
   const li = box.closest("li[data-slug]");
   const key = li.dataset.beatkey;
-  if (BEATEN_SET.has(key)) BEATEN_SET.delete(key); else BEATEN_SET.add(key);
+  if (BEATEN_SET.has(key)) {            /* beaten -> no ending */
+    BEATEN_SET.delete(key); ENDLESS_SET.add(key);
+  } else if (ENDLESS_SET.has(key)) {    /* no ending -> empty */
+    ENDLESS_SET.delete(key);
+  } else {                              /* empty -> beaten */
+    BEATEN_SET.add(key);
+  }
   box.classList.toggle("on", BEATEN_SET.has(key));
+  box.classList.toggle("endless", ENDLESS_SET.has(key));
   backup();
   drawScores();
   showBar();
 });
 
+function sameSet(a,b){
+  if (a.size !== b.size) return false;
+  for (const k of a) if (!b.has(k)) return false;
+  return true;
+}
 function dirty(){
-  if (BEATEN_SET.size !== PUBLISHED.size) return true;
-  for (const k of BEATEN_SET) if (!PUBLISHED.has(k)) return true;
-  return false;
+  return !sameSet(BEATEN_SET, PUBLISHED) || !sameSet(ENDLESS_SET, PUBLISHED_E);
 }
 function showBar(){
-  const n = BEATEN_SET.size;
   savebar.classList.toggle("on", dirty());
-  savemsg.textContent = n + " beaten, not saved yet";
+  savemsg.textContent = BEATEN_SET.size + " beaten, " +
+                        ENDLESS_SET.size + " no ending, not saved yet";
   saveBtn.disabled = false;
   saveBtn.textContent = "Save to site";
 }
@@ -1786,9 +2458,12 @@ document.getElementById("undoBtn").addEventListener("click", () => {
   let n = 0;
   for (const k of BEATEN_SET) if (!PUBLISHED.has(k)) n++;
   for (const k of PUBLISHED) if (!BEATEN_SET.has(k)) n++;
+  for (const k of ENDLESS_SET) if (!PUBLISHED_E.has(k)) n++;
+  for (const k of PUBLISHED_E) if (!ENDLESS_SET.has(k)) n++;
   if (!confirm("Throw away " + n + " unsaved change" + (n === 1 ? "" : "s") +
                " and go back to what's on the site? This can't be undone.")) return;
   BEATEN_SET = new Set(PUBLISHED);
+  ENDLESS_SET = new Set(PUBLISHED_E);
   backup();
   render();
   savebar.classList.remove("on");
@@ -1834,9 +2509,21 @@ saveBtn.addEventListener("click", async () => {
     if (!block.test(text)) throw new Error("Could not find the beaten list in the file on GitHub.");
     text = text.replace(block, "const BEATEN = `\n" + list + "\n`;");
 
+    const elist = [...ENDLESS_SET].sort().join("\n");
+    const eblock = /const NO_ENDING = `[\s\S]*?`;/;
+    if (!eblock.test(text)) throw new Error("Could not find the no-ending list in the file on GitHub.");
+    text = text.replace(eblock, "const NO_ENDING = `\n" + elist + "\n`;");
+
+    /* The file is well over 100KB, so encode in chunks - spreading the whole
+       byte array into one call blows the argument limit. */
+    const bytes = new TextEncoder().encode(text);
+    let bin = "";
+    for (let i = 0; i < bytes.length; i += 8192)
+      bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
+
     const body = {
-      message: "beaten: " + BEATEN_SET.size + " games",
-      content: btoa(String.fromCharCode(...new TextEncoder().encode(text))),
+      message: "beaten: " + BEATEN_SET.size + " / no ending: " + ENDLESS_SET.size,
+      content: btoa(bin),
       sha: meta.sha,
       branch: REPO_BRANCH
     };
@@ -1845,7 +2532,9 @@ saveBtn.addEventListener("click", async () => {
 
     PUBLISHED.clear();
     for (const k of BEATEN_SET) PUBLISHED.add(k);
-    try { localStorage.removeItem(DRAFT); } catch (err) {}
+    PUBLISHED_E.clear();
+    for (const k of ENDLESS_SET) PUBLISHED_E.add(k);
+    try { localStorage.removeItem(DRAFT); localStorage.removeItem(DRAFT_E); } catch (err) {}
     savebar.classList.remove("on");
     saveBtn.disabled = false;
     saveBtn.textContent = "Save to site";
@@ -1891,6 +2580,11 @@ document.getElementById("openAll").addEventListener("click", () => {
 
 drawRail();
 render();
+</script>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
 </script>
 </body>
 </html>

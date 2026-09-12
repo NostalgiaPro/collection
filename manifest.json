@@ -1,0 +1,22 @@
+{
+  "name": "The Nostalgia Pro — Is it on the shelf?",
+  "short_name": "On the shelf",
+  "description": "Every physical game, film, show and record I own. Searchable, and it works with no signal.",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#101219",
+  "theme_color": "#101219",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Anniversaries", "url": "/anniversaries.html" },
+    { "name": "Consoles", "url": "/consoles.html" },
+    { "name": "Reviews", "url": "/reviews.html" }
+  ]
+}
