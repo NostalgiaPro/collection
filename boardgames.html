@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The board games on my shelf.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro — Board games">
+<meta property="og:description" content="The board games on my shelf.">
+<meta property="og:url" content="https://thenostalgiapro.com/boardgames.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro — Board games">
+<meta name="twitter:description" content="The board games on my shelf.">
+<link rel="canonical" href="https://thenostalgiapro.com/boardgames.html">
+<title>The Nostalgia Pro &mdash; Board games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 22px 90px}
+  header{padding:44px 0 0}
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,28px);line-height:1.55;margin:0}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:60ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;border:2px solid var(--line);color:var(--dim);
+    text-decoration:none;font-family:"Silkscreen",monospace;font-size:11px;
+    letter-spacing:.05em;padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+
+  .searchbar{margin:26px 0 0}
+  #q{
+    width:100%;background:#0a0c11;border:2px solid var(--line);border-bottom-color:var(--hot);
+    color:var(--text);font-family:"IBM Plex Sans Condensed",sans-serif;
+    font-size:clamp(19px,3vw,25px);font-weight:600;padding:14px 16px;border-radius:2px;
+  }
+  #q::placeholder{color:#565c6e;font-weight:500}
+  #q:focus{outline:none;border-color:var(--hot);box-shadow:0 0 0 3px rgba(255,75,62,.18)}
+
+  .scores{display:flex;flex-wrap:wrap;margin:24px 0 0;border:2px solid var(--line);border-radius:2px;overflow:hidden}
+  .score{flex:1 1 130px;padding:13px 15px;background:var(--bg2);border-right:1px solid var(--line)}
+  .score:last-child{border-right:none}
+  .score b{display:block;font-family:"Press Start 2P",monospace;font-size:18px;line-height:1}
+  .score span{display:block;margin-top:8px;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.09em;color:var(--dim)}
+
+  section.shelf{margin:34px 0 0}
+  .shelfhead{
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+    padding:11px 14px;background:var(--c);border-radius:2px 2px 0 0;cursor:pointer;user-select:none;
+  }
+  .shelfhead h2{
+    font-family:"IBM Plex Sans Condensed",sans-serif;font-size:22px;font-weight:700;
+    margin:0;color:#0b0d12;letter-spacing:-.005em;display:flex;align-items:center;
+  }
+  .shelfhead .caret{
+    font-family:"Silkscreen",monospace;font-size:30px;line-height:.7;margin-right:13px;
+    transition:transform .12s ease;display:inline-block;position:relative;top:2px;
+  }
+  section.shelf.shut .caret{transform:rotate(-90deg)}
+  section.shelf.shut ol{display:none}
+  .shelfhead p{margin:0;font-family:"Silkscreen",monospace;font-size:11px;color:#0b0d12;opacity:.72}
+  ol.items{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-top:none;border-radius:0 0 2px 2px}
+  ol.items li{
+    display:flex;gap:13px;align-items:baseline;padding:9px 14px;
+    border-bottom:1px solid rgba(44,48,64,.7);background:var(--bg2);
+  }
+  ol.items li:last-child{border-bottom:none}
+  ol.items li:hover{background:var(--panel)}
+  .mark{flex:none;width:10px;height:10px;background:var(--c);align-self:center}
+  .title{flex:1 1 auto;font-family:"IBM Plex Sans Condensed",sans-serif;font-size:17.5px;font-weight:600;line-height:1.3}
+  .yr{flex:none;color:var(--dim);font-size:12px;font-family:"Silkscreen",monospace;white-space:nowrap}
+  .shot{
+    flex:none;width:38px;height:38px;object-fit:cover;
+    border:1px solid var(--line);border-radius:2px;background:#0a0c11;
+    align-self:center;cursor:zoom-in;
+  }
+  .title a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+  .title a:hover,.title a:focus-visible{border-bottom-color:var(--c);outline:none}
+  .lightbox{
+    position:fixed;inset:0;z-index:50;display:none;
+    align-items:center;justify-content:center;padding:24px;
+    background:rgba(6,7,11,.92);
+  }
+  .lightbox.on{display:flex}
+  .lightbox img{max-width:100%;max-height:86vh;border:2px solid var(--line);border-radius:2px}
+  .lightbox p{
+    position:absolute;bottom:20px;left:0;right:0;text-align:center;
+    color:var(--dim);font-family:"Silkscreen",monospace;font-size:12px;margin:0;
+  }
+  .empty{padding:44px 0;color:var(--dim)}
+  .note{font-size:13px;color:var(--dim);margin-top:30px;max-width:62ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <p class="wordmark">The Nostalgia Pro</p>
+  <h1>Board games</h1>
+  <p class="standfirst">The ones that survived.</p>
+  <div class="navrow">
+    <a class="navbtn" href="index.html">Games</a>
+    <a class="navbtn " href="movies.html">Movies</a>
+    <a class="navbtn " href="tv.html">TV</a>
+    <a class="navbtn " href="music.html">Music</a>
+    <a class="navbtn here " href="boardgames.html">Board games</a>
+    <a class="navbtn" href="anniversaries.html">Anniversaries</a>
+    <a class="navbtn" href="stats.html">The numbers</a>
+  </div>
+  <div class="searchbar">
+    <input id="q" type="search" placeholder="Search" autocomplete="off" spellcheck="false" aria-label="Search">
+  </div>
+  <div class="scores" id="scores"></div>
+</header>
+
+<div id="results"></div>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Cover"><img alt=""><p>Click anywhere to close</p></div>
+
+<p class="note">First pass, transcribed from photos of the shelf. Corrections to come.</p>
+</div>
+
+<script>
+const ITEMS = [{"t": "Parcheesi (Selchow & Righter)", "f": "Board games", "y": null}, {"t": "Blockbuster: The Movie Game", "f": "Board games", "y": null}];
+const COLORS = {"VHS": "#e0a33a", "LaserDisc": "#c85cc8", "DVD": "#4a78d6", "Blu-ray": "#2f6fe0", "Vinyl": "#d3d0c8", "Cassette": "#c97a3a", "CD": "#8fb8d6", "Board games": "#4aab7a"};
+const fold = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+/* Cover art lives in the same images folder: images/<title>-<format>.jpg */
+const slug = x => (x.t + "-" + x.f).toLowerCase().normalize("NFD")
+  .replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const wiki = t => "https://en.wikipedia.org/w/index.php?search=" +
+  encodeURIComponent(t + " board game");
+ITEMS.forEach(x => x.key = fold(x.t));
+
+const formats = [];
+for (const x of ITEMS) {
+  let f = formats.find(g => g.name === x.f);
+  if (!f) { f = {name:x.f, items:[], color:COLORS[x.f]||"#8e93a2"}; formats.push(f); }
+  f.items.push(x);
+}
+formats.forEach(f => f.items.sort((a,b) => a.t.localeCompare(b.t)));
+
+let query = "";
+const shut = new Set();
+let first = true;
+
+function esc(s){ return s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function drawScores(){
+  const yrs = ITEMS.filter(x => x.y).map(x => x.y);
+  const cells = [[ITEMS.length,"games"],[formats.length,"formats"]];
+  if (yrs.length) cells.push([Math.min(...yrs),"oldest"],[Math.max(...yrs),"newest"]);
+  document.getElementById("scores").innerHTML = cells
+    .map(([n,l]) => `<div class="score"><b>${n}</b><span>${l}</span></div>`).join("");
+}
+
+function render(){
+  if (first) { formats.forEach(f => shut.add(f.name)); first = false; }
+  const html = formats.map(f => {
+    const hits = query ? f.items.filter(x => x.key.includes(query)) : f.items;
+    if (!hits.length) return "";
+    const isShut = !query && shut.has(f.name);
+    return `<section class="shelf${isShut?" shut":""}" style="--c:${f.color}">
+      <div class="shelfhead" data-f="${esc(f.name)}">
+        <h2><span class="caret">\u25be</span>${esc(f.name)}</h2>
+        <p>${hits.length} of ${f.items.length}</p></div>
+      <ol class="items">${hits.map(x =>
+        `<li>` +
+        `<img class="shot" loading="lazy" src="images/${slug(x)}.jpg" alt="${esc(x.t)}"` +
+        ` onerror="this.remove()">` +
+        `<i class="mark"></i>` +
+        `<span class="title"><a href="${wiki(x.t)}" target="_blank" rel="noopener">${esc(x.t)}</a></span>` +
+        (x.y ? `<span class="yr">${x.y}</span>` : "") + `</li>`).join("")}</ol>
+    </section>`;
+  }).join("");
+  document.getElementById("results").innerHTML = html || `<p class="empty">Nothing matches that.</p>`;
+  drawScores();
+}
+
+document.getElementById("results").addEventListener("click", e => {
+  const h = e.target.closest(".shelfhead"); if (!h || query) return;
+  const name = h.dataset.f;
+  if (shut.has(name)) shut.delete(name); else shut.add(name);
+  render();
+});
+document.getElementById("q").addEventListener("input", e => {
+  query = fold(e.target.value.trim()); render();
+});
+const lb = document.getElementById("lightbox");
+document.addEventListener("click", e => {
+  const shot = e.target.closest(".shot");
+  if (shot) { lb.querySelector("img").src = shot.src; lb.classList.add("on"); return; }
+  if (e.target.closest(".lightbox")) lb.classList.remove("on");
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") lb.classList.remove("on"); });
+
+render();
+</script>
+</body>
+</html>
