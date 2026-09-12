@@ -3,6 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Every TV series and special I own on physical media, grouped by format.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro — TV shows">
+<meta property="og:description" content="Every TV series and special I own on physical media, grouped by format.">
+<meta property="og:url" content="https://thenostalgiapro.com/tv.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro — TV shows">
+<meta name="twitter:description" content="Every TV series and special I own on physical media, grouped by format.">
+<link rel="canonical" href="https://thenostalgiapro.com/tv.html">
 <title>The Nostalgia Pro &mdash; TV shows</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -80,6 +91,24 @@
   .mark{flex:none;width:10px;height:10px;background:var(--c);align-self:center}
   .title{flex:1 1 auto;font-family:"IBM Plex Sans Condensed",sans-serif;font-size:17.5px;font-weight:600;line-height:1.3}
   .yr{flex:none;color:var(--dim);font-size:12px;font-family:"Silkscreen",monospace;white-space:nowrap}
+  .shot{
+    flex:none;width:38px;height:38px;object-fit:cover;
+    border:1px solid var(--line);border-radius:2px;background:#0a0c11;
+    align-self:center;cursor:zoom-in;
+  }
+  .title a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+  .title a:hover,.title a:focus-visible{border-bottom-color:var(--c);outline:none}
+  .lightbox{
+    position:fixed;inset:0;z-index:50;display:none;
+    align-items:center;justify-content:center;padding:24px;
+    background:rgba(6,7,11,.92);
+  }
+  .lightbox.on{display:flex}
+  .lightbox img{max-width:100%;max-height:86vh;border:2px solid var(--line);border-radius:2px}
+  .lightbox p{
+    position:absolute;bottom:20px;left:0;right:0;text-align:center;
+    color:var(--dim);font-family:"Silkscreen",monospace;font-size:12px;margin:0;
+  }
   .empty{padding:44px 0;color:var(--dim)}
   .note{font-size:13px;color:var(--dim);margin-top:30px;max-width:62ch}
 </style>
@@ -107,6 +136,8 @@
 
 <div id="results"></div>
 
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Cover"><img alt=""><p>Click anywhere to close</p></div>
+
 <p class="note">First pass, transcribed from photos of the shelf. Corrections to come.</p>
 </div>
 
@@ -114,6 +145,11 @@
 const ITEMS = [{"t": "Teenage Mutant Ninja Turtles: The Original Movie", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles II: The Secret of the Ooze", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: April Foolish", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: The Great Boldini", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: Sky Turtles", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: Cowabunga, Shredhead", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: Attack of the Big Macs", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: Case of the Killer Pizzas", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: The Turtles' Awesome Easter", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: Turn of the Turtleoid", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: Out of This World", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: Heroes in a Half Shell", "f": "VHS", "y": null}, {"t": "The Super Mario Bros. Super Show! Volume 1 (2-disc)", "f": "DVD", "y": null}, {"t": "The Super Mario Bros. Super Show! Volume 2 (2-disc)", "f": "DVD", "y": null}, {"t": "Super Mario World: The Complete Series (2-disc)", "f": "DVD", "y": null}, {"t": "Mighty Morphin Power Rangers: The Complete Series", "f": "DVD", "y": null}];
 const COLORS = {"VHS": "#e0a33a", "LaserDisc": "#c85cc8", "DVD": "#4a78d6", "Blu-ray": "#2f6fe0", "Vinyl": "#d3d0c8", "Cassette": "#c97a3a", "CD": "#8fb8d6", "Board games": "#4aab7a"};
 const fold = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+/* Cover art lives in the same images folder: images/<title>-<format>.jpg */
+const slug = x => (x.t + "-" + x.f).toLowerCase().normalize("NFD")
+  .replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const wiki = t => "https://en.wikipedia.org/w/index.php?search=" +
+  encodeURIComponent(t + " TV series");
 ITEMS.forEach(x => x.key = fold(x.t));
 
 const formats = [];
@@ -149,7 +185,11 @@ function render(){
         <h2><span class="caret">\u25be</span>${esc(f.name)}</h2>
         <p>${hits.length} of ${f.items.length}</p></div>
       <ol class="items">${hits.map(x =>
-        `<li><i class="mark"></i><span class="title">${esc(x.t)}</span>` +
+        `<li>` +
+        `<img class="shot" loading="lazy" src="images/${slug(x)}.jpg" alt="${esc(x.t)}"` +
+        ` onerror="this.remove()">` +
+        `<i class="mark"></i>` +
+        `<span class="title"><a href="${wiki(x.t)}" target="_blank" rel="noopener">${esc(x.t)}</a></span>` +
         (x.y ? `<span class="yr">${x.y}</span>` : "") + `</li>`).join("")}</ol>
     </section>`;
   }).join("");
@@ -166,6 +206,14 @@ document.getElementById("results").addEventListener("click", e => {
 document.getElementById("q").addEventListener("input", e => {
   query = fold(e.target.value.trim()); render();
 });
+const lb = document.getElementById("lightbox");
+document.addEventListener("click", e => {
+  const shot = e.target.closest(".shot");
+  if (shot) { lb.querySelector("img").src = shot.src; lb.classList.add("on"); return; }
+  if (e.target.closest(".lightbox")) lb.classList.remove("on");
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") lb.classList.remove("on"); });
+
 render();
 </script>
 </body>
