@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Privacy policy for The Nostalgia Pro collection site and Android app.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro — Privacy policy">
+<meta property="og:description" content="Privacy policy for The Nostalgia Pro collection site and Android app.">
+<meta property="og:url" content="https://thenostalgiapro.com/privacy.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro — Privacy policy">
+<meta name="twitter:description" content="Privacy policy for The Nostalgia Pro collection site and Android app.">
+<link rel="canonical" href="https://thenostalgiapro.com/privacy.html">
+<title>The Nostalgia Pro &mdash; Privacy policy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 22px 90px}
+  header{padding:44px 0 0}
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,28px);line-height:1.55;margin:0}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:60ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;border:2px solid var(--line);color:var(--dim);
+    text-decoration:none;font-family:"Silkscreen",monospace;font-size:11px;
+    letter-spacing:.05em;padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+
+  .searchbar{margin:26px 0 0}
+  #q{
+    width:100%;background:#0a0c11;border:2px solid var(--line);border-bottom-color:var(--hot);
+    color:var(--text);font-family:"IBM Plex Sans Condensed",sans-serif;
+    font-size:clamp(19px,3vw,25px);font-weight:600;padding:14px 16px;border-radius:2px;
+  }
+  #q::placeholder{color:#565c6e;font-weight:500}
+  #q:focus{outline:none;border-color:var(--hot);box-shadow:0 0 0 3px rgba(255,75,62,.18)}
+
+  .scores{display:flex;flex-wrap:wrap;margin:24px 0 0;border:2px solid var(--line);border-radius:2px;overflow:hidden}
+  .score{flex:1 1 130px;padding:13px 15px;background:var(--bg2);border-right:1px solid var(--line)}
+  .score:last-child{border-right:none}
+  .score b{display:block;font-family:"Press Start 2P",monospace;font-size:18px;line-height:1}
+  .score span{display:block;margin-top:8px;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.09em;color:var(--dim)}
+
+  section.shelf{margin:34px 0 0}
+  .shelfhead{
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+    padding:11px 14px;background:var(--c);border-radius:2px 2px 0 0;cursor:pointer;user-select:none;
+  }
+  .shelfhead h2{
+    font-family:"IBM Plex Sans Condensed",sans-serif;font-size:22px;font-weight:700;
+    margin:0;color:#0b0d12;letter-spacing:-.005em;display:flex;align-items:center;
+  }
+  .shelfhead .caret{
+    font-family:"Silkscreen",monospace;font-size:30px;line-height:.7;margin-right:13px;
+    transition:transform .12s ease;display:inline-block;position:relative;top:2px;
+  }
+  section.shelf.shut .caret{transform:rotate(-90deg)}
+  section.shelf.shut ol{display:none}
+  .shelfhead p{margin:0;font-family:"Silkscreen",monospace;font-size:11px;color:#0b0d12;opacity:.72}
+  ol.items{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-top:none;border-radius:0 0 2px 2px}
+  ol.items li{
+    display:flex;gap:13px;align-items:baseline;padding:9px 14px;
+    border-bottom:1px solid rgba(44,48,64,.7);background:var(--bg2);
+  }
+  ol.items li:last-child{border-bottom:none}
+  ol.items li:hover{background:var(--panel)}
+  .mark{flex:none;width:10px;height:10px;background:var(--c);align-self:center}
+  .title{flex:1 1 auto;font-family:"IBM Plex Sans Condensed",sans-serif;font-size:17.5px;font-weight:600;line-height:1.3}
+  .yr{flex:none;color:var(--dim);font-size:12px;font-family:"Silkscreen",monospace;white-space:nowrap}
+  .shot{
+    flex:none;width:38px;height:38px;object-fit:cover;
+    border:1px solid var(--line);border-radius:2px;background:#0a0c11;
+    align-self:center;cursor:zoom-in;
+  }
+  .title a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+  .title a:hover,.title a:focus-visible{border-bottom-color:var(--c);outline:none}
+  .lightbox{
+    position:fixed;inset:0;z-index:50;display:none;
+    align-items:center;justify-content:center;padding:24px;
+    background:rgba(6,7,11,.92);
+  }
+  .lightbox.on{display:flex}
+  .lightbox img{max-width:100%;max-height:86vh;border:2px solid var(--line);border-radius:2px}
+  .lightbox p{
+    position:absolute;bottom:20px;left:0;right:0;text-align:center;
+    color:var(--dim);font-family:"Silkscreen",monospace;font-size:12px;margin:0;
+  }
+  .empty{padding:44px 0;color:var(--dim)}
+  .policy{max-width:68ch;margin:34px 0 0}
+  .policy h2{
+    font-family:"IBM Plex Sans Condensed",sans-serif;font-size:21px;font-weight:700;
+    margin:30px 0 10px;color:var(--hot);letter-spacing:-.005em;
+  }
+  .policy p{margin:0 0 14px;color:var(--text)}
+  .policy a{color:var(--hot)}
+  .note{font-size:13px;color:var(--dim);margin-top:30px;max-width:62ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <p class="wordmark">The Nostalgia Pro</p>
+  <h1>Privacy policy</h1>
+  <p class="standfirst">For thenostalgiapro.com and the Nostalgia Pro Game Collection Android app. Last updated September 11, 2026.</p>
+  <div class="navrow">
+    <a class="navbtn" href="index.html">Games</a>
+    <a class="navbtn" href="movies.html">Movies</a>
+    <a class="navbtn" href="tv.html">TV</a>
+    <a class="navbtn" href="music.html">Music</a>
+    <a class="navbtn" href="boardgames.html">Board games</a>
+    <a class="navbtn" href="anniversaries.html">Anniversaries</a>
+    <a class="navbtn" href="stats.html">The numbers</a>
+  </div>
+</header>
+
+<div class="policy">
+
+<h2>The short version</h2>
+<p>This site and app do not collect, store, or share any personal information about you. There are no accounts, no sign-in, no tracking, and no advertising.</p>
+
+<h2>What is collected</h2>
+<p>Nothing. The app is a catalogue of a personal collection. It does not ask for your name, email address, location, contacts, photos, or any other personal data, and it has no way to receive them.</p>
+
+<h2>What is stored on your device</h2>
+<p>The app saves a copy of its own pages on your device so it works without an internet connection. If you use the checkboxes to mark games, that also stays on your device. None of it is sent anywhere, and all of it is removed if you uninstall the app or clear its data.</p>
+
+<h2>Hosting</h2>
+<p>The site is hosted on GitHub Pages and served through Cloudflare. Like any web host, those services keep standard server logs that may include an IP address and browser type. Those logs belong to those companies and are subject to their own policies. They are not used to identify anyone and are not available to me in a form that identifies you.</p>
+
+<h2>Links to other sites</h2>
+<p>Some entries link to Wikipedia, YouTube, X, or Substack. Following a link takes you to a service with its own privacy policy, which governs what happens once you are there.</p>
+
+<h2>Children</h2>
+<p>The app is not directed at children and collects no information from anyone, including children.</p>
+
+<h2>Changes</h2>
+<p>If this policy ever changes, the updated version will be posted on this page with a new date at the top.</p>
+
+<h2>Contact</h2>
+<p>Questions about this policy can go to <a href="mailto:thenostalgiapro@gmail.com">thenostalgiapro@gmail.com</a>.</p>
+
+</div>
+</div>
+</body>
+</html>
