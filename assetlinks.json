@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.thenostalgiapro.shelf",
+      "sha256_cert_fingerprints": [
+        "9B:F5:FA:3F:37:EA:A1:E3:96:A2:5C:23:72:34:5D:D0:3D:47:33:F7:2F:DD:68:08:21:CC:0C:D4:86:6B:A0:A0"
+      ]
+    }
+  }
+]
