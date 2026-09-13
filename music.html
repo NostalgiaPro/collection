@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="The records, tapes and CDs on my shelf, grouped by format.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Nostalgia Pro">
@@ -118,7 +123,7 @@
 <header>
   <p class="wordmark">The Nostalgia Pro</p>
   <h1>Music</h1>
-  <p class="standfirst">Records, tapes and discs.</p>
+  <p class="standfirst">Records, tapes and discs. 73 of them.</p>
   <div class="navrow">
     <a class="navbtn" href="index.html">Games</a>
     <a class="navbtn " href="movies.html">Movies</a>
@@ -142,7 +147,7 @@
 </div>
 
 <script>
-const ITEMS = [{"t": "Meat Loaf - Hits Out of Hell", "f": "Vinyl", "y": 1984}, {"t": "Beverly Hills Cop - Motion Picture Soundtrack", "f": "Cassette", "y": 1984}, {"t": "Beverly Hills Cop II - Motion Picture Soundtrack", "f": "Cassette", "y": 1987}, {"t": "C.W. McCall - Greatest Hits", "f": "Cassette", "y": null}, {"t": "Kenny Rogers - Heart of the Matter", "f": "Cassette", "y": 1985}, {"t": "Steppenwolf - Move Over", "f": "Cassette", "y": null}, {"t": "Van Morrison - The Best of Van Morrison", "f": "Cassette", "y": 1990}, {"t": "Adele - 21", "f": "CD", "y": 2011}, {"t": "Alan Jackson - Greatest Hits Volume II", "f": "CD", "y": 2003}, {"t": "Eminem - The Marshall Mathers LP", "f": "CD", "y": 2000}, {"t": "Forrest Gump - The Soundtrack", "f": "CD", "y": 1994}, {"t": "Madonna - The Immaculate Collection", "f": "CD", "y": 1990}, {"t": "Molly Hatchet - Greatest Hits", "f": "CD", "y": 1990}, {"t": "Nickelback - Silver Side Up", "f": "CD", "y": 2001}, {"t": "Smashing Pumpkins", "f": "CD", "y": null}];
+const ITEMS = [{"t": "Meat Loaf - Hits Out of Hell", "f": "Vinyl", "y": 1984}, {"t": "Beverly Hills Cop - Motion Picture Soundtrack", "f": "Cassette", "y": 1984}, {"t": "Beverly Hills Cop II - Motion Picture Soundtrack", "f": "Cassette", "y": 1987}, {"t": "C.W. McCall - Greatest Hits", "f": "Cassette", "y": null}, {"t": "Kenny Rogers - Heart of the Matter", "f": "Cassette", "y": 1985}, {"t": "Steppenwolf - Move Over", "f": "Cassette", "y": null}, {"t": "Van Morrison - The Best of Van Morrison", "f": "Cassette", "y": 1990}, {"t": "Adele - 21", "f": "CD", "y": 2011}, {"t": "Alan Jackson - Greatest Hits Volume II", "f": "CD", "y": 2003}, {"t": "Eminem - The Marshall Mathers LP", "f": "CD", "y": 2000}, {"t": "Forrest Gump - The Soundtrack", "f": "CD", "y": 1994}, {"t": "Madonna - The Immaculate Collection", "f": "CD", "y": 1990}, {"t": "Molly Hatchet - Greatest Hits", "f": "CD", "y": 1990}, {"t": "Nickelback - Silver Side Up", "f": "CD", "y": 2001}, {"t": "Smashing Pumpkins", "f": "CD", "y": null}, {"t": "Mortal Kombat: Annihilation - Original Motion Picture Soundtrack", "f": "Cassette", "y": 1997}, {"t": "Classic Soft Rock: The Air That I Breathe", "f": "CD", "y": null}, {"t": "Neil Diamond - Hot August Night II", "f": "CD", "y": 1987}, {"t": "Genesis - Platinum Collection", "f": "CD", "y": null}, {"t": "Counting Crows - Films About Ghosts: The Best Of...", "f": "CD", "y": null}, {"t": "Sheryl Crow - C'mon, C'mon", "f": "CD", "y": 2002}, {"t": "Sheryl Crow - Tuesday Night Music Club", "f": "CD", "y": 1993}, {"t": "Space Jam - Music From and Inspired by the Motion Picture", "f": "CD", "y": 1996}, {"t": "Staind - Break the Cycle", "f": "CD", "y": 2001}, {"t": "Team America World Police - Soundtrack", "f": "CD", "y": 2004}, {"t": "U2 - All That You Can't Leave Behind", "f": "CD", "y": 2000}, {"t": "Warrant - Cherry Pie", "f": "CD", "y": 1990}, {"t": "Creed - Human Clay", "f": "CD", "y": 1999}, {"t": "Creed - Weathered", "f": "CD", "y": 2001}, {"t": "David Bowie - Best of Bowie", "f": "CD", "y": null}, {"t": "Die Another Day - Music From the MGM Motion Picture", "f": "CD", "y": 2002}, {"t": "The Moody Blues - Days of Future Passed", "f": "CD", "y": 1967}, {"t": "Blues Traveler - Four", "f": "CD", "y": 1994}, {"t": "John Cena - You Can't See Me", "f": "CD", "y": 2005}, {"t": "Huey Lewis and the News - Sports", "f": "CD", "y": 1983}, {"t": "A Tribute to Bruce Springsteen", "f": "CD", "y": null}, {"t": "Limp Bizkit", "f": "CD", "y": null}, {"t": "Puddle of Mudd - CD-R", "f": "CD", "y": null}, {"t": "Puddle of Mudd - Life on Display", "f": "CD", "y": 2003}, {"t": "DMX - Music", "f": "CD", "y": null}, {"t": "3 Doors Down - Bonus DVD", "f": "CD", "y": null}, {"t": "Toad the Wet Sprocket", "f": "CD", "y": null}, {"t": "Switchfoot - The Beautiful Letdown", "f": "CD", "y": 2003}, {"t": "Green Day - American Idiot", "f": "CD", "y": 2004}, {"t": "Johnny Cash", "f": "CD", "y": null}, {"t": "Avril Lavigne - Let Go", "f": "CD", "y": 2002}, {"t": "Spider-Man - Soundtrack", "f": "CD", "y": 2002}, {"t": "Deep Blue Something - Home", "f": "CD", "y": 1995}, {"t": "Franz Ferdinand - Franz Ferdinand", "f": "CD", "y": 2004}, {"t": "Rod Stewart - It Had to Be You: The Great American Songbook", "f": "CD", "y": 2002}, {"t": "Garth Brooks - Jackpot 777", "f": "CD", "y": null}, {"t": "Alice in Chains - MTV Unplugged", "f": "CD", "y": 1996}, {"t": "Barenaked Ladies - Stunt", "f": "CD", "y": 1998}, {"t": "Batman Forever - Soundtrack", "f": "CD", "y": 1995}, {"t": "Britney Spears - ...Baby One More Time", "f": "CD", "y": 1999}, {"t": "Brooks & Dunn - Brand New Man", "f": "CD", "y": 1991}, {"t": "Def Leppard - Best Of", "f": "CD", "y": null}, {"t": "Del Amitri - Twisted", "f": "CD", "y": 1995}, {"t": "Eagles - Their Greatest Hits 1971-1975", "f": "CD", "y": 1976}, {"t": "Eagles - Hotel California", "f": "CD", "y": 1976}, {"t": "Eagle-Eye Cherry - Desireless", "f": "CD", "y": 1997}, {"t": "EMF - Schubert Dip", "f": "CD", "y": 1991}, {"t": "Garth Brooks - The Magic of Christmas", "f": "CD", "y": 1999}, {"t": "Hulk Hogan - Hulk Rules", "f": "CD", "y": 1995}, {"t": "Interview with the Vampire - Soundtrack", "f": "CD", "y": 1994}, {"t": "John Fogerty - Centerfield", "f": "CD", "y": 1985}, {"t": "Last Action Hero - Soundtrack", "f": "CD", "y": 1993}, {"t": "Linkin Park - Hybrid Theory", "f": "CD", "y": 2000}, {"t": "Matchbox Twenty - Yourself or Someone Like You", "f": "CD", "y": 1996}, {"t": "Muppets From Space - Music From the Motion Picture", "f": "CD", "y": 1999}, {"t": "Natalie Imbruglia - Left of the Middle", "f": "CD", "y": 1997}, {"t": "New Kids on the Block - 10", "f": "CD", "y": 2013}, {"t": "Paula Cole - This Fire", "f": "CD", "y": 1996}];
 const COLORS = {"VHS": "#e0a33a", "LaserDisc": "#c85cc8", "DVD": "#4a78d6", "Blu-ray": "#2f6fe0", "Vinyl": "#d3d0c8", "Cassette": "#c97a3a", "CD": "#8fb8d6", "Board games": "#4aab7a"};
 const fold = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
 /* Cover art lives in the same images folder: images/<title>-<format>.jpg */
@@ -215,6 +220,11 @@ document.addEventListener("click", e => {
 document.addEventListener("keydown", e => { if (e.key === "Escape") lb.classList.remove("on"); });
 
 render();
+</script>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
 </script>
 </body>
 </html>
