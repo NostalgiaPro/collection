@@ -1,0 +1,198 @@
+/* ===========================================================
+   1996 mode. Toggled by adding class "y1996" to <body>.
+   Every rule here is scoped to .y1996, so removing the class
+   puts the site back exactly as it was.
+   =========================================================== */
+
+body.y1996{
+  background:#000080;
+  color:#c0c0c0;
+  font-family:"Times New Roman",Times,serif;
+  font-size:15px;
+}
+body.y1996::before{
+  background:
+    radial-gradient(1px 1px at 20% 30%, #fff, transparent),
+    radial-gradient(1px 1px at 70% 15%, #fff, transparent),
+    radial-gradient(1px 1px at 40% 70%, #fff, transparent),
+    radial-gradient(1px 1px at 85% 55%, #fff, transparent),
+    radial-gradient(1px 1px at 12% 85%, #fff, transparent),
+    radial-gradient(1px 1px at 55% 45%, #fff, transparent),
+    radial-gradient(1px 1px at 92% 88%, #fff, transparent),
+    radial-gradient(1px 1px at 32% 12%, #fff, transparent);
+  background-size:260px 260px;
+  opacity:.5;
+}
+
+/* ---- header ---- */
+body.y1996 .wordmark{
+  font-family:"Courier New",monospace;color:#00ff00;
+  letter-spacing:2px;text-align:center;font-size:13px;
+}
+body.y1996 h1{
+  font-family:"Times New Roman",Times,serif;
+  color:#ffff00;text-align:center;font-weight:700;
+  font-size:clamp(26px,5vw,42px);line-height:1.2;
+  text-shadow:2px 2px 0 #ff0000;
+}
+body.y1996 .standfirst{
+  color:#00ffff;text-align:center;max-width:none;font-size:15px;
+}
+body.y1996 header::after{
+  content:"";display:block;height:6px;margin:16px 0 0;
+  background:repeating-linear-gradient(90deg,#ff0000 0 12px,#ffff00 12px 24px,
+    #00ff00 24px 36px,#00ffff 36px 48px);
+}
+
+/* ---- search ---- */
+body.y1996 #q{
+  background:#fff;color:#000;border:2px inset #808080;border-radius:0;
+  font-family:"Courier New",monospace;font-size:16px;font-weight:400;
+}
+body.y1996 #q::placeholder{color:#808080}
+body.y1996 .btn,
+body.y1996 .chip,
+body.y1996 .shelflink,
+body.y1996 .navbtn,
+body.y1996 .toggle button{
+  background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0;
+  font-family:"Times New Roman",Times,serif;font-size:14px;letter-spacing:0;
+  text-transform:none;
+}
+body.y1996 .btn:hover,
+body.y1996 .chip:hover,
+body.y1996 .shelflink:hover,
+body.y1996 .navbtn:hover{border-style:inset;color:#000080}
+body.y1996 .chip[aria-pressed="true"],
+body.y1996 .toggle button[aria-pressed="true"],
+body.y1996 .navbtn.here{background:#000080;color:#ffff00;border-style:inset}
+
+/* ---- stats ---- */
+body.y1996 .scores{border:2px inset #808080;border-radius:0;background:#c0c0c0}
+body.y1996 .score{background:#c0c0c0;border:2px outset #fff;border-right:2px outset #fff}
+body.y1996 .score b{font-family:"Courier New",monospace;color:#000080;font-size:22px}
+body.y1996 .score span{color:#000;font-family:"Times New Roman",Times,serif;letter-spacing:0;font-size:12px}
+body.y1996 a.score:hover{background:#dcdcdc}
+body.y1996 a.score::after{display:none}
+
+/* ---- the marquee ---- */
+body.y1996 .todaybar{
+  background:#ffff00;border:2px solid #000;border-left:2px solid #000;
+  border-radius:0;color:#000080;overflow:hidden;
+}
+body.y1996 .todaybar .lbl{color:#ff0000;font-family:"Courier New",monospace}
+body.y1996 .todaybar .item{color:#000080}
+body.y1996 .todaybar .item b{color:#000}
+body.y1996 .todaybar .item em{color:#800080}
+body.y1996 .todaybar .items{
+  flex-wrap:nowrap;white-space:nowrap;
+  animation:y1996marquee 22s linear infinite;
+}
+@keyframes y1996marquee{
+  from{transform:translateX(8%)}
+  to{transform:translateX(-100%)}
+}
+body.y1996 .todaybar a.more{background:#c0c0c0;border:2px outset #fff;color:#000}
+
+/* ---- shelves ---- */
+body.y1996 .shelfhead{
+  background:#008080;border:2px outset #fff;border-radius:0;
+}
+body.y1996 .shelfhead h2{color:#ffff00;font-family:"Times New Roman",Times,serif;font-weight:700}
+body.y1996 .shelfhead p{color:#c0c0c0;font-family:"Courier New",monospace}
+body.y1996 ol.games,body.y1996 ol.items{border:2px inset #808080;border-radius:0}
+body.y1996 ol.games li,body.y1996 ol.items li{
+  background:#000040;border-bottom:1px solid #000080;
+}
+body.y1996 ol.games li:nth-child(even),
+body.y1996 ol.items li:nth-child(even){background:#191970}
+body.y1996 ol.games li:hover,body.y1996 ol.items li:hover{background:#000080}
+body.y1996 .title{font-family:"Times New Roman",Times,serif;font-weight:400;font-size:17px}
+body.y1996 .title a{color:#00ffff;border-bottom:none;text-decoration:underline}
+body.y1996 .title a:visited{color:#ee82ee}
+body.y1996 .cond,body.y1996 .yr{color:#c0c0c0;font-family:"Courier New",monospace}
+body.y1996 .sysflag{font-family:"Courier New",monospace}
+
+/* condition and status become bracketed text, the way a BBS would do it */
+body.y1996 .mark{
+  width:auto;height:auto;border:none;background:none;
+  font-family:"Courier New",monospace;font-size:13px;color:var(--c);
+}
+body.y1996 .mark::before{content:"[*]"}
+body.y1996 .mark.cib::before{content:"[#]"}
+body.y1996 .mark.sealed::before{content:"[!]"}
+body.y1996 .mark.part::before{content:"[/]"}
+body.y1996 .beat{
+  width:auto;height:auto;border:none;background:none;
+  font-family:"Courier New",monospace;font-size:13px;color:#808080;
+}
+body.y1996 .beat::before{content:"[ ]"}
+body.y1996 .beat.on{background:none;color:#00ff00}
+body.y1996 .beat.on::before{content:"[X]"}
+body.y1996 .beat.on::after{display:none}
+body.y1996 .beat.endless{color:#808080}
+body.y1996 .beat.endless::before{content:"["}
+body.y1996 .beat.endless::after{content:"\221e]"}
+
+/* ---- rail and panels ---- */
+body.y1996 nav a{
+  background:#c0c0c0;color:#000080;border-left:4px solid var(--c);
+  font-family:"Times New Roman",Times,serif;
+}
+body.y1996 nav a:hover{background:#dcdcdc;color:#000}
+body.y1996 nav a em{color:#800000;font-family:"Courier New",monospace}
+body.y1996 .vbox{background:#c0c0c0;border:2px outset #fff;border-radius:0;color:#000}
+body.y1996 .vhead{font-family:"Times New Roman",Times,serif;color:#000080;font-size:20px;font-weight:700}
+body.y1996 .vtitle{color:#000}
+body.y1996 .vlist li{border-top:1px solid #808080;color:#000}
+body.y1996 .vlist .sys{color:#000080}
+body.y1996 .vextra a,body.y1996 .vextra span{
+  background:#c0c0c0;border:2px outset #fff;border-radius:0;color:#000080;
+  font-family:"Times New Roman",Times,serif;letter-spacing:0;font-size:12px;
+}
+
+/* ---- footer ---- */
+body.y1996 footer{
+  border-top:0;text-align:center;color:#c0c0c0;
+  font-family:"Times New Roman",Times,serif;
+}
+body.y1996 footer::before{
+  content:"";display:block;height:6px;margin:0 0 16px;
+  background:repeating-linear-gradient(90deg,#00ffff 0 12px,#ee82ee 12px 24px,#ffff00 24px 36px);
+}
+body.y1996 .legend{justify-content:center;color:#c0c0c0}
+body.y1996 .elsewhere{justify-content:center}
+body.y1996 .elsewhere a{
+  background:#c0c0c0;border:2px outset #fff;border-radius:0;color:#000080;
+  font-family:"Times New Roman",Times,serif;letter-spacing:0;
+}
+
+/* ---- the bits that only exist in 1996 ---- */
+.y1996only{display:none}
+body.y1996 .y1996only{display:block}
+
+body.y1996 .hitcounter{text-align:center;margin:26px 0 14px}
+body.y1996 .hitcounter .box{
+  display:inline-block;background:#c0c0c0;border:2px outset #fff;padding:8px 13px;
+}
+body.y1996 .hitcounter .lbl{font-size:12px;color:#000}
+body.y1996 .hitcounter .digits{
+  background:#000;border:2px inset #808080;display:inline-block;
+  padding:3px 8px;margin-left:8px;font-family:"Courier New",monospace;
+  font-size:18px;color:#00ff00;letter-spacing:5px;
+}
+body.y1996 .bestviewed{font-size:12px;color:#c0c0c0;line-height:1.9;margin:10px 0 0}
+body.y1996 .bestviewed a{color:#00ffff}
+
+/* the toggle itself, visible in both modes */
+#y1996btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  border:2px solid var(--line);color:var(--dim);background:transparent;
+  font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.03em;
+  padding:8px 13px;border-radius:2px;cursor:pointer;
+}
+#y1996btn:hover{border-color:var(--hot);color:var(--hot)}
+body.y1996 #y1996btn{
+  background:#c0c0c0;color:#000080;border:2px outset #fff;border-radius:0;
+  font-family:"Times New Roman",Times,serif;font-size:14px;
+}

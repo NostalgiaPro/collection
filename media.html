@@ -3,10 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Work with The Nostalgia Pro. Audience, reach and contact details for brands and partners.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro — Partnerships">
+<meta property="og:description" content="Work with The Nostalgia Pro. Audience, reach and contact details for brands and partners.">
+<meta property="og:url" content="https://thenostalgiapro.com/media.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro — Partnerships">
+<meta name="twitter:description" content="Work with The Nostalgia Pro. Audience, reach and contact details for brands and partners.">
+<link rel="canonical" href="https://thenostalgiapro.com/media.html">
 <title>The Nostalgia Pro — Partnerships</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/retro.css">
 <style>
   :root{
     --bg:#101219; --bg2:#171a23; --panel:#1d2029;
@@ -148,5 +165,44 @@
 <p class="asof"><a href="index.html" style="color:var(--dim)">Back to the collection</a> &middot; Figures as of September 2026.</p>
 
 </div>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
+<script>
+/* 1996 mode. The class does all the work, retro.css does the rest. */
+(function(){
+  var on = false;
+  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
+  if (on) document.body.classList.add("y1996");
+
+  var b = document.createElement("button");
+  b.id = "y1996btn";
+  b.type = "button";
+  b.textContent = on ? "Back to now" : "1996 mode";
+  b.addEventListener("click", function(){
+    var nowOn = document.body.classList.toggle("y1996");
+    b.textContent = nowOn ? "Back to now" : "1996 mode";
+    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
+  });
+
+  var foot = document.querySelector("footer") || document.querySelector(".wrap");
+  var wrap = document.createElement("p");
+  wrap.style.cssText = "text-align:center;margin:18px 0 0";
+  wrap.appendChild(b);
+  foot.appendChild(wrap);
+
+  /* The counter is a joke, but it should at least count. */
+  var el = document.getElementById("hits");
+  if (el) {
+    var n = 0;
+    try { n = parseInt(localStorage.getItem("np-hits") || "0", 10) || 0; } catch (e) {}
+    n += 1;
+    try { localStorage.setItem("np-hits", String(n)); } catch (e) {}
+    el.textContent = String(14273 + n).padStart(7, "0");
+  }
+})();
+</script>
 </body>
 </html>
