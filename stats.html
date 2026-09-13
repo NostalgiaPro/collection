@@ -3,6 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="The collection by the numbers. Games per console, biggest franchises, condition breakdown, and how much of it I've actually finished.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro — The numbers">
+<meta property="og:description" content="The collection by the numbers. Games per console, biggest franchises, condition breakdown, and how much of it I've actually finished.">
+<meta property="og:url" content="https://thenostalgiapro.com/stats.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro — The numbers">
+<meta name="twitter:description" content="The collection by the numbers. Games per console, biggest franchises, condition breakdown, and how much of it I've actually finished.">
+<link rel="canonical" href="https://thenostalgiapro.com/stats.html">
 <title>The Nostalgia Pro &mdash; The numbers</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1076,6 +1092,11 @@ stack(document.getElementById("byCond"),
    ["Missing a piece",all.filter(g=>g.cls==="part")],
    ["Loose",all.filter(g=>g.cls==="loose")]],
   all.filter(g=>g.cls==="cib").length);
+</script>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
 </script>
 </body>
 </html>

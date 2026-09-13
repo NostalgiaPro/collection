@@ -3,6 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="What in my collection is having a birthday. Release-date anniversaries for games, films, TV and music, today and in the months ahead.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro — Anniversaries">
+<meta property="og:description" content="What in my collection is having a birthday. Release-date anniversaries for games, films, TV and music, today and in the months ahead.">
+<meta property="og:url" content="https://thenostalgiapro.com/anniversaries.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro — Anniversaries">
+<meta name="twitter:description" content="What in my collection is having a birthday. Release-date anniversaries for games, films, TV and music, today and in the months ahead.">
+<link rel="canonical" href="https://thenostalgiapro.com/anniversaries.html">
 <title>The Nostalgia Pro &mdash; Anniversaries</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -116,6 +132,7 @@
       <a class="navbtn" href="rank.html">Your list</a>
     <a class="navbtn here" href="#">Anniversaries</a>
     <a class="navbtn" href="consoles.html">Consoles</a>
+    <a class="navbtn" href="gaps.html">The gaps</a>
     <a class="navbtn" href="stats.html">The numbers</a>
   </div>
 </header>
@@ -1383,6 +1400,11 @@ document.querySelectorAll(".chip[data-kind]").forEach(el => el.addEventListener(
 }));
 
 draw();
+</script>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
 </script>
 </body>
 </html>
