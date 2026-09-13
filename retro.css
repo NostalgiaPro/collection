@@ -196,3 +196,29 @@ body.y1996 #y1996btn{
   background:#c0c0c0;color:#000080;border:2px outset #fff;border-radius:0;
   font-family:"Times New Roman",Times,serif;font-size:14px;
 }
+
+/* ---- back to top ---- */
+#totop{
+  position:fixed;right:22px;bottom:22px;z-index:70;
+  display:flex;align-items:center;justify-content:center;
+  width:46px;height:46px;padding:0;
+  background:var(--bg2);color:var(--dim);
+  border:2px solid var(--line);border-radius:2px;
+  font-family:"Silkscreen",monospace;font-size:20px;line-height:1;
+  cursor:pointer;opacity:0;pointer-events:none;
+  transition:opacity .15s ease,border-color .12s ease,color .12s ease;
+}
+#totop.on{opacity:1;pointer-events:auto}
+#totop:hover{border-color:var(--hot);color:var(--hot)}
+#totop:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+/* the save bar lives along the bottom, so step over it when it shows */
+body:has(.savebar.on) #totop{bottom:80px}
+@media (max-width:560px){
+  #totop{right:14px;bottom:14px;width:42px;height:42px}
+  body:has(.savebar.on) #totop{bottom:92px}
+}
+body.y1996 #totop{
+  background:#c0c0c0;color:#000080;border:2px outset #fff;border-radius:0;
+  font-family:"Times New Roman",Times,serif;font-size:22px;
+}
+body.y1996 #totop:hover{border-style:inset}

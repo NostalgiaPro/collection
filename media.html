@@ -203,6 +203,23 @@ if ("serviceWorker" in navigator)
     el.textContent = String(14273 + n).padStart(7, "0");
   }
 })();
+
+/* Back to top. Appears once you've scrolled far enough to want it. */
+(function(){
+  var b = document.createElement("button");
+  b.id = "totop";
+  b.type = "button";
+  b.setAttribute("aria-label", "Back to top");
+  b.innerHTML = "&#9650;";
+  b.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.body.appendChild(b);
+
+  function check(){ b.classList.toggle("on", window.scrollY > 600); }
+  addEventListener("scroll", check, { passive: true });
+  check();
+})();
 </script>
 </body>
 </html>
