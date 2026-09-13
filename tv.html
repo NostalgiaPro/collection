@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="Every TV series and special I own on physical media, grouped by format.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Nostalgia Pro">
@@ -126,6 +131,7 @@
     <a class="navbtn " href="music.html">Music</a>
     <a class="navbtn " href="boardgames.html">Board games</a>
     <a class="navbtn" href="anniversaries.html">Anniversaries</a>
+    <a class="navbtn" href="gaps.html">The gaps</a>
     <a class="navbtn" href="stats.html">The numbers</a>
   </div>
   <div class="searchbar">
@@ -215,6 +221,11 @@ document.addEventListener("click", e => {
 document.addEventListener("keydown", e => { if (e.key === "Escape") lb.classList.remove("on"); });
 
 render();
+</script>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
 </script>
 </body>
 </html>
