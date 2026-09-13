@@ -23,6 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/retro.css">
 <style>
   :root{
     --bg:#101219;
@@ -458,6 +459,17 @@
       <a href="media.html">Partnerships</a>
     </div>
     <p>The Nostalgia Pro. Pulled from my Gameye export of September 3, 2026.</p>
+      <div class="hitcounter y1996only">
+      <div class="box">
+        <span class="lbl">You are visitor number</span>
+        <span class="digits" id="hits">0000000</span>
+      </div>
+    </div>
+    <p class="bestviewed y1996only">
+      <a href="#" onclick="return false">Sign my guestbook!</a> &middot;
+      <a href="mailto:thenostalgiapro@gmail.com">E-mail me</a><br>
+      Best viewed in Netscape Navigator 3.0 at 800x600
+    </p>
   </footer>
 
 </div>
@@ -2415,7 +2427,7 @@ document.getElementById("whatnext").addEventListener("click", () => {
   verdict.innerHTML = `<div class="vbox" style="--hit:${g.color}">
     <p class="vhead">Play this</p>
     <p class="vtitle">${esc(g.title)}</p>
-    <p style="margin:0;color:var(--dim)">${esc(g.system)} &middot; ${esc(g.cond)} &middot; one of ${pool.length} you haven't finished</p>
+    <p style="margin:0;color:var(--dim)">${esc(g.system)} &middot; ${esc(g.cond)} &middot; one of ${pool.length} I haven't finished</p>
     ${extras(g)}</div>`;
 });
 
@@ -2619,6 +2631,40 @@ render();
 /* Installable, and the whole collection works offline once you've opened it. */
 if ("serviceWorker" in navigator)
   addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
+<script>
+/* 1996 mode. The class does all the work, retro.css does the rest. */
+(function(){
+  var on = false;
+  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
+  if (on) document.body.classList.add("y1996");
+
+  var b = document.createElement("button");
+  b.id = "y1996btn";
+  b.type = "button";
+  b.textContent = on ? "Back to now" : "1996 mode";
+  b.addEventListener("click", function(){
+    var nowOn = document.body.classList.toggle("y1996");
+    b.textContent = nowOn ? "Back to now" : "1996 mode";
+    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
+  });
+
+  var foot = document.querySelector("footer") || document.querySelector(".wrap");
+  var wrap = document.createElement("p");
+  wrap.style.cssText = "text-align:center;margin:18px 0 0";
+  wrap.appendChild(b);
+  foot.appendChild(wrap);
+
+  /* The counter is a joke, but it should at least count. */
+  var el = document.getElementById("hits");
+  if (el) {
+    var n = 0;
+    try { n = parseInt(localStorage.getItem("np-hits") || "0", 10) || 0; } catch (e) {}
+    n += 1;
+    try { localStorage.setItem("np-hits", String(n)); } catch (e) {}
+    el.textContent = String(14273 + n).padStart(7, "0");
+  }
+})();
 </script>
 </body>
 </html>
