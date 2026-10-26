@@ -52,6 +52,21 @@ CSS = """  .crumb{font-family:"Silkscreen",monospace;font-size:10px;letter-spaci
   .mentions a{color:inherit;text-decoration:none}
   .mentions a:hover{color:var(--hot)}
   .mentions em{font-style:normal;font-family:"Press Start 2P",monospace;font-size:11px;color:var(--hot);margin-right:10px}
+  .ranks{margin:0;padding:0;list-style:none}
+  .ranks li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:9px 12px;background:var(--bg2);
+    border:1px solid var(--line);border-left:4px solid var(--hot);border-radius:2px;margin:0 0 7px;font-size:15px}
+  .ranks em{font-style:normal;font-family:"Press Start 2P",monospace;font-size:11px;color:var(--hot)}
+  .ranks .rt{flex:1 1 220px;color:inherit;text-decoration:none}
+  .ranks .rt:hover{color:var(--hot)}
+  .ranks .rx{font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.06em;color:var(--dim);text-decoration:none;
+    border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .ranks .rx:hover{border-color:var(--hot);color:var(--hot)}
+  .short{max-width:360px}
+  .short .frame{position:relative;width:100%;aspect-ratio:9/16;background:#0a0c11;border:2px solid var(--line);border-radius:2px;overflow:hidden}
+  .short iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .short p{margin:8px 0 0;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em}
+  .short p a{color:var(--dim)}
+  .short p a:hover{color:var(--hot)}
   .lightbox{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(6,7,11,.92)}
   .lightbox.on{display:flex}
   .lightbox img{max-width:100%;max-height:86vh;border:2px solid var(--line);border-radius:2px}
@@ -116,7 +131,21 @@ def posts_for(posts, matcher):
     return out
 
 
-def page(g, total, photo, review, mentions, posts):
+def youtube_id(url):
+    """The video id from a youtu.be, /shorts/, /embed/ or watch?v= link, or None."""
+    m = re.search(r"(?:youtu\.be/|/shorts/|/embed/|[?&]v=)([A-Za-z0-9_-]{11})", url or "")
+    return m.group(1) if m else None
+
+
+def rank_rows(rows):
+    out = []
+    for r in rows:
+        x = (f'<a class="rx" href="{esc(r["x"])}" target="_blank" rel="noopener">View on X</a>' if r.get("x") else "")
+        out.append(f'  <li><em>{esc(r["place"])}</em><a class="rt" href="{esc(r["href"])}">{esc(r["title"])}</a>{x}</li>\n')
+    return "".join(out)
+
+
+def page(g, total, photo, review, mentions, posts, ranks=(), overrated=()):
     cond = COND.get(g["cond"].lower(), g["cond"])
     status = ("Beaten" if g["beaten"] else "No ending" if g["endless"] else "Not beaten yet")
     path = f"/game/{g['slug']}.html"
@@ -156,10 +185,26 @@ def page(g, total, photo, review, mentions, posts):
             h.append(f'      <a href="{esc(review[2])}" target="_blank" rel="noopener">Read my review on X</a>\n')
         else:   # not on X: the review lives on reviews.html
             h.append(f'      <a href="/reviews.html#r-{review[0]}">Read my review</a>\n')
-    if g.get("video"):
+    vid = youtube_id(g.get("video"))
+    if g.get("video") and not vid:
         h.append(f'      <a href="{esc(g["video"])}" target="_blank" rel="noopener">ASMR short on YouTube</a>\n')
     h.append(f'      <a href="https://en.wikipedia.org/w/index.php?search={_q(g["title"] + " video game")}" target="_blank" rel="noopener">Look it up on Wikipedia</a>\n')
     h.append('    </div>\n  </div>\n</div>\n')
+    if ranks or overrated:
+        h.append('\n<p class="barlabel" id="rankings">IN MY RANKINGS</p>\n<ul class="ranks">\n')
+        h.append(rank_rows(ranks))
+        h.append(rank_rows(overrated))
+        if review:
+            h.append(rank_rows([{"place": f"No. {review[0]}", "title": "Honest and Unpopular Reviews",
+                                 "href": f"/reviews.html#r-{review[0]}", "x": review[2]}]))
+        h.append('</ul>\n')
+    if vid:
+        h.append(f'\n<p class="barlabel">MY ASMR SHORT</p>\n<div class="short">\n'
+                 f'  <div class="frame"><iframe src="https://www.youtube-nocookie.com/embed/{vid}" loading="lazy" '
+                 f'title="{esc(g["title"])} ASMR short on YouTube" '
+                 f'allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share" '
+                 f'referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>\n'
+                 f'  <p><a href="{esc(g["video"])}" target="_blank" rel="noopener">Watch on YouTube</a></p>\n</div>\n')
     if mentions:
         h.append('\n<p class="barlabel">ON MY LISTS</p>\n<ul class="mentions">\n')
         for lt, pos, label in mentions:
@@ -219,13 +264,18 @@ def main():
     reviews = review_for(sd.load_reviews(), matcher)
     mentions = list_mentions(lists, matcher)
     posts = posts_for(sd.load_posts(), matcher)
+    import build_rankings, build_overrated
+    linker = build_rankings.Linker()
+    ranks, missed = build_rankings.game_rankings(linker)
+    overrated = build_overrated.game_overrated(linker)
     os.makedirs(OUT, exist_ok=True)
     keep = set()
     for g in games:
         name = g["slug"] + ".html"
         keep.add(name)
         html = page(g, len(games), sd.photo_for(g["slug"]), reviews.get(g["slug"]),
-                    mentions.get(g["slug"], []), posts.get(g["slug"], []))
+                    mentions.get(g["slug"], []), posts.get(g["slug"], []),
+                    ranks.get(g["slug"], []), overrated.get(g["slug"], []))
         with open(os.path.join(OUT, name), "w", encoding="utf-8") as f:
             f.write(html)
     for f in os.listdir(OUT):
@@ -237,7 +287,11 @@ def main():
     write_sitemap([g["slug"] for g in games], extra)
     print(f"{len(games)} game pages, {sum(1 for g in games if posts.get(g['slug']))} with X posts, "
           f"{sum(1 for g in games if mentions.get(g['slug']))} on lists, {len(reviews)} reviewed, "
-          f"{sum(1 for g in games if sd.photo_for(g['slug']))} with photos")
+          f"{sum(1 for g in games if sd.photo_for(g['slug']))} with photos, "
+          f"{sum(1 for g in games if ranks.get(g['slug']) or overrated.get(g['slug']))} with rankings, "
+          f"{sum(1 for g in games if youtube_id(g.get('video')))} with an embedded short")
+    if missed:
+        print(f"{len(missed)} ranked names with no game page (not on the shelf, or more than one console fits)")
     # the "From my shelf" box on onthisday.html follows the same shelf
     import build_otd_shelf
     build_otd_shelf.main()

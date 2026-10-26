@@ -167,6 +167,37 @@ def build():
           f"{len(ov['reviews'])} reviews, {len(ov['posts'])} other posts")
 
 
+def game_overrated(L=None):
+    """slug -> every spot on overrated.html that links to that game page, as
+    [{"place", "title", "href", "x"}]. Same matching as build()."""
+    import build_rankings as br
+    L = L or br.Linker()
+    ov = br.load()["overrated"]
+    fake = (ov.get("fakeout") or {}).get("id")
+    out = {}
+
+    def add(g, place, title, anchor, post_id):
+        if g:
+            row = {"place": place, "title": title, "href": "/overrated.html#" + anchor, "x": br.xurl(post_id)}
+            if row not in out.setdefault(g["slug"], []):
+                out[g["slug"]].append(row)
+
+    for it in ov["top5"]["items"]:
+        text = " ".join(x for x in (it.get("reason"), it.get("more")) if x)
+        add(L.game(it["name"], None, text), f"#{it['n']}", "Top 5 most overrated games of all time", "top-5-list",
+            it.get("id") or ov["top5"]["id"])
+    for e in entries():
+        p = e["post"]
+        title = "Overrated Game of the Day" + (" (the Just kidding post)" if p["id"] == fake else "")
+        add(e["game"], post_date(p["created_at"]), title, f'x-{p["id"]}', p["id"])
+    for r in ov["reviews"]:
+        add(L.game(r["game"]), br.nice_date(r["date"]), f'Overrated page, in my review No. {r["review"]}', f'x-{r["id"]}', r["id"])
+    for r in ov["posts"]:
+        for n in r["games"]:
+            add(L.game(n), br.nice_date(r["date"]), "Overrated page, other posts", f'x-{r["id"]}', r["id"])
+    return out
+
+
 def add_to_sitemap(path):
     p = os.path.join(sd.ROOT, "sitemap.xml")
     src = open(p, encoding="utf-8").read()

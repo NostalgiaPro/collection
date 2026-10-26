@@ -48,6 +48,14 @@ deleted. Each page has:
   `og-image.png` when there's no photo)
 * the review score and a link to it, if reviewed
 * every list on `lists.html` it's ranked on
+* "In my rankings": every ranking on `rankings.html` that links to the game
+  (list title, its place, a link to that list's section and to the post on
+  X), plus its spots on `overrated.html` and its review, if any. Same shelf
+  match as `build_rankings.py` (`game_rankings()`) and `build_overrated.py`
+  (`game_overrated()`). Only shown when the game is in at least one ranking
+  or on the Overrated page.
+* the ASMR short from `VIDEOS`, embedded (youtube-nocookie.com, lazy
+  loaded, 9:16) with a plain "Watch on YouTube" link
 * RC's X posts about it, quoted in full with the date and a link
 
 **When to re-run:** after changing the shelf, ticking games beaten on the

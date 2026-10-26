@@ -102,6 +102,21 @@
   .mentions a{color:inherit;text-decoration:none}
   .mentions a:hover{color:var(--hot)}
   .mentions em{font-style:normal;font-family:"Press Start 2P",monospace;font-size:11px;color:var(--hot);margin-right:10px}
+  .ranks{margin:0;padding:0;list-style:none}
+  .ranks li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:9px 12px;background:var(--bg2);
+    border:1px solid var(--line);border-left:4px solid var(--hot);border-radius:2px;margin:0 0 7px;font-size:15px}
+  .ranks em{font-style:normal;font-family:"Press Start 2P",monospace;font-size:11px;color:var(--hot)}
+  .ranks .rt{flex:1 1 220px;color:inherit;text-decoration:none}
+  .ranks .rt:hover{color:var(--hot)}
+  .ranks .rx{font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.06em;color:var(--dim);text-decoration:none;
+    border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .ranks .rx:hover{border-color:var(--hot);color:var(--hot)}
+  .short{max-width:360px}
+  .short .frame{position:relative;width:100%;aspect-ratio:9/16;background:#0a0c11;border:2px solid var(--line);border-radius:2px;overflow:hidden}
+  .short iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .short p{margin:8px 0 0;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em}
+  .short p a{color:var(--dim)}
+  .short p a:hover{color:var(--hot)}
   .lightbox{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(6,7,11,.92)}
   .lightbox.on{display:flex}
   .lightbox img{max-width:100%;max-height:86vh;border:2px solid var(--line);border-radius:2px}
@@ -145,10 +160,20 @@
     </ul>
     <div class="links">
       <a href="/index.html?find=Dirty%20Harry">Find it on the shelf</a>
-      <a href="https://youtu.be/aWBA1_zJ6o4" target="_blank" rel="noopener">ASMR short on YouTube</a>
       <a href="https://en.wikipedia.org/w/index.php?search=Dirty%20Harry%20video%20game" target="_blank" rel="noopener">Look it up on Wikipedia</a>
     </div>
   </div>
+</div>
+
+<p class="barlabel" id="rankings">IN MY RANKINGS</p>
+<ul class="ranks">
+  <li><em>C tier</em><a class="rt" href="/rankings.html#nes-tiers-c">NES tier list</a><a class="rx" href="https://x.com/NostalgiaPro/status/2107913103291916336" target="_blank" rel="noopener">View on X</a></li>
+</ul>
+
+<p class="barlabel">MY ASMR SHORT</p>
+<div class="short">
+  <div class="frame"><iframe src="https://www.youtube-nocookie.com/embed/aWBA1_zJ6o4" loading="lazy" title="Dirty Harry ASMR short on YouTube" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+  <p><a href="https://youtu.be/aWBA1_zJ6o4" target="_blank" rel="noopener">Watch on YouTube</a></p>
 </div>
 
 <p class="barlabel">ON MY LISTS</p>

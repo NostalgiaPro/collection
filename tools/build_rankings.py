@@ -102,7 +102,7 @@ CSS = """  .jump{margin:30px 0 0;border:2px solid var(--line);border-radius:2px;
   .nm a.px{float:right;margin:0 0 0 10px;font-weight:400;border-bottom:1px solid var(--line);color:var(--dim)}
   .rk details.post{margin:14px 0 0;border-top:1px dashed var(--line);padding-top:10px}
   .rk details.post h5{margin:12px 0 0;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim)}
-  details.earlier{margin:16px 0 0;border:1px dashed var(--line);border-radius:2px;padding:10px 14px}
+  details.earlier{scroll-margin-top:16px;margin:16px 0 0;border:1px dashed var(--line);border-radius:2px;padding:10px 14px}
   details.earlier>summary{cursor:pointer;font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.06em;color:var(--text)}
   details.earlier>summary:hover{color:var(--hot)}
   .bw{display:grid;grid-template-columns:64px minmax(0,1fr);gap:4px 14px;padding:12px 0;border-top:1px solid var(--line);scroll-margin-top:16px}
@@ -115,7 +115,7 @@ CSS = """  .jump{margin:30px 0 0;border:2px solid var(--line);border-radius:2px;
   .bw .pick a.px{float:right;margin:0 0 0 10px;border:1px solid var(--line);border-radius:2px;padding:3px 7px;
     font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.06em;color:var(--dim)}
   .tiers{margin:14px 0 0;border:1px solid var(--line)}
-  .tier{display:grid;grid-template-columns:58px minmax(0,1fr);border-top:1px solid var(--line)}
+  .tier{display:grid;grid-template-columns:58px minmax(0,1fr);border-top:1px solid var(--line);scroll-margin-top:16px}
   .tier:first-child{border-top:none}
   .tier .tl{display:flex;align-items:center;justify-content:center;font-family:"Press Start 2P",monospace;font-size:16px;color:#1a1a1a}
   .tier .tg{padding:10px 14px;font-size:14.5px;line-height:1.6}
@@ -295,7 +295,7 @@ def list_card(L, e, color, kind=None):
     h.append(post_text(e, not e.get("thread")))
     if e.get("earlier"):
         o = e["earlier"]
-        h.append(f'<details class="earlier"><summary>Earlier version from {nice_date(o["date"])}</summary>\n')
+        h.append(f'<details class="earlier" id="{e["key"]}-earlier"><summary>Earlier version from {nice_date(o["date"])}</summary>\n')
         h.append(meta(o, "Earlier list"))
         h.append(items_ol(L, o["items"], e.get("system")))
         h.append(post_text(o, not o.get("thread")))
@@ -327,7 +327,7 @@ def tier_card(L, e, color):
         h.append('<div class="tiers">\n')
         for t in e["tiers"]:
             names = ", ".join(game_link(L, n, e["system"]) for n in t["games"])
-            h.append(f'<div class="tier"><span class="tl" style="background:{TIER_COLORS.get(t["tier"], "#ccc")}">{t["tier"]}</span>'
+            h.append(f'<div class="tier" id="{e["key"]}-{t["tier"].lower()}"><span class="tl" style="background:{TIER_COLORS.get(t["tier"], "#ccc")}">{t["tier"]}</span>'
                      f'<div class="tg">{names}<a class="px" href="{xurl(t["id"])}" target="_blank" rel="noopener">Post</a></div></div>\n')
         h.append("</div>\n")
         h.append(post_text(e, True))
@@ -359,6 +359,71 @@ def h2h_card(L, e):
     h.append(post_text(e, True))
     h.append("</article>\n")
     return h, key
+
+
+def game_rankings(L=None):
+    """slug -> every ranking on rankings.html that game is in, as
+    [{"place", "title", "href", "x"}], plus the names that didn't match a
+    game page. Walks the lists the same way build() does and asks the same
+    Linker with the same console and text, so a game page lists exactly the
+    rankings that link to it."""
+    L = L or Linker()
+    d = load()
+    out, missed = {}, []
+
+    def add(name, system, text, place, title, anchor, post_id):
+        g = L.game(name, system, text)
+        if not g:
+            missed.append((title, name))
+            return
+        row = {"place": place, "title": title, "href": "/rankings.html#" + anchor, "x": xurl(post_id)}
+        rows = out.setdefault(g["slug"], [])
+        if row not in rows:
+            rows.append(row)
+
+    def from_list(e, items, title, anchor, kind, system):
+        for it in items:
+            text = " ".join(x for x in (it.get("reason"), it.get("more")) if x)
+            pid = it.get("id") or e["id"]
+            if kind == "percat":
+                label, _, game = it["name"].partition(": ")
+                sys_ = SYS_ALIASES.get(label.strip().lower())
+                game = re.sub(r"\s*\([^()]*\)$", "", game)
+                if sys_:
+                    add(game, sys_, "", f"{label.strip()} pick", title, anchor, pid)
+                continue
+            if it.get("group"):
+                side = "best" if "best" in it["group"].lower() else "worst"
+                place = f"#{it['n']} {side}" if it.get("n") is not None else side.capitalize()
+            else:
+                place = f"#{it['n']}" if it.get("n") is not None else "Listed"
+            add(it["name"], system, text, place, title, anchor, pid)
+
+    for e in d["lists"]:
+        if e["group"] == "hardware":
+            continue
+        from_list(e, e["items"], e["heading"], e["key"], e["kind"], e.get("system"))
+        if e.get("earlier"):
+            o = e["earlier"]
+            from_list(o, o["items"], f'{e["heading"]} (earlier version, {nice_date(o["date"])})', e["key"] + "-earlier",
+                      "list", e.get("system"))
+    for e in sorted(d["best_worst"], key=lambda r: r["year"]):
+        for it in e["items"]:
+            add(it["name"], None, "", f'{it["label"]} of {e["year"]}', "Best and Worst Games I Own, 1985 to 2000",
+                f'best-worst-{e["year"]}', e["id"])
+    for e in d["tiers"]:
+        for t in e.get("tiers") or []:
+            for n in t["games"]:
+                add(n, e["system"], "", f'{t["tier"]} tier', e["heading"], f'{e["key"]}-{t["tier"].lower()}', t["id"])
+    for e in d["head_to_head"]:
+        key = "vs-" + re.sub(r"[^a-z0-9]+", "-", sd.fold(e["a"] + " " + e["b"])).strip("-")
+        if e.get("photo_pick"):
+            key += "-carts"
+        title = f'{e["a"]} vs. {e["b"]}' + (" (the two carts)" if e.get("photo_pick") else "")
+        for side in (e["a"], e["b"]):
+            place = "My pick" if sd.nkey(side) == sd.nkey(e["pick"]) else "Head-to-head"
+            add(side, None, "", place, title, key, e["id"])
+    return out, missed
 
 
 def build():
