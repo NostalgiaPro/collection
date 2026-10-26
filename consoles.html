@@ -1159,7 +1159,7 @@ document.getElementById("grid").innerHTML =
     const line=ageLine(s.name);
     /* consoles with 6+ games have a page, built by tools/build_console_pages.py */
     const more = s.id && n >= 6
-      ? `<a class="more" href="console/${s.id}.html">${n > 12 ? "Also on the shelf" : "All " + n + " games"} &rarr;</a>` : "";
+      ? `<a class="more" href="console/${s.id}.html">${["sega-genesis","snes","nintendo-64"].includes(s.id) ? "The library goes deeper" : "All " + n + " games, A to Z"} &rarr;</a>` : "";
     return `<div class="card" style="--c:${s.color}"><a class="cardmain" href="${s.id?`index.html#${s.id}`:`index.html`}">
       <div class="shot" data-shot="${sl}">images/${sl}.webp</div>
       <div class="body">

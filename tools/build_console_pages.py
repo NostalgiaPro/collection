@@ -13,19 +13,16 @@ Two parts per page:
    thread-starting post that mentions the "library" and has a run of
    "No <game>." sentences, for a system named in it.
 
-2. "Also on the shelf": every game owned for the console except the
-   "usual few", which are picked like this, without anyone's opinion:
-     - if RC's thread names them ("No Sonic. No Streets of Rage. ..."),
-       those are the ones (every shelf game whose title contains a name);
-     - otherwise, the 6 games for that console with the most user ratings
-       on Metacritic (tools/data/metacritic_counts.csv, a count of
-       ratings, i.e. how many people bothered to rate it, not a score).
-   Consoles with 12 games or fewer just list everything.
-   The ten games from his thread are listed in part 1, not again in 2.
+2. The shelf, A to Z:
+     - on a console with RC's thread, "Also on the shelf" is every game
+       owned except the "usual few" his thread names ("No Sonic. No
+       Streets of Rage. ..."), exactly as posted (every shelf game whose
+       title contains a name), and the ten games from part 1;
+     - on every other console, every game owned, A to Z, nothing left out.
 
 Consoles with fewer than 6 games on the shelf don't get a page. Safe to
 re-run; re-run build_game_pages.py afterwards to refresh sitemap.xml."""
-import csv, os, re, sys
+import os, re, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sitedata as sd
@@ -35,10 +32,7 @@ from postmatch import Matcher, SYS_ALIASES
 
 esc = sd.esc
 OUT = os.path.join(sd.ROOT, "console")
-COUNTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "metacritic_counts.csv")
 MIN_GAMES = 6       # smaller consoles get no page
-SMALL = 12          # at or below this, list everything
-FAMOUS_N = 6        # "Every console has the same six games people name" (RC, Genesis thread)
 
 CSS = """  .crumb{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;margin:30px 0 0}
   .crumb a{color:var(--dim);text-decoration:none}
@@ -72,34 +66,6 @@ CSS = """  .crumb{font-family:"Silkscreen",monospace;font-size:10px;letter-spaci
   @media (max-width:600px){ .pick{grid-template-columns:80px 1fr} .pick img,.pick .nopic{width:80px}
     .shelfgrid{grid-template-columns:repeat(3,1fr)} }
 """
-
-# Metacritic platform names -> shelf system names
-MC_PLATFORM = {
-    "NES/Famicom": "NES", "SNES/Super Famicom": "SNES", "Nintendo 64": "Nintendo 64",
-    "Nintendo GameCube": "GameCube", "Nintendo Game Boy": "Game Boy", "Nintendo Game Boy Color": "Game Boy Color",
-    "Nintendo DS": "Nintendo DS", "Nintendo 3DS": "Nintendo 3DS", "Nintendo Wii": "Wii",
-    "Nintendo Switch": "Nintendo Switch", "Sony PlayStation": "PlayStation 1", "Sony PlayStation 2": "PlayStation 2",
-    "Sony PlayStation 3": "PlayStation 3", "Sony PSP": "PSP", "Sony PlayStation 4": "PlayStation 4",
-    "Microsoft Xbox": "Xbox", "Microsoft Xbox 360": "Xbox 360", "Microsoft Xbox One": "Xbox One",
-    "Microsoft Xbox Series X": "Xbox Series X/S", "Sega Genesis/Mega Drive": "Sega Genesis",
-    "Sega Dreamcast": "Sega Dreamcast", "Sega Saturn": "Sega Saturn", "PC": "PC",
-}
-
-
-def rating_counts():
-    out = {}
-    if not os.path.exists(COUNTS):
-        return out
-    for r in csv.DictReader(open(COUNTS, encoding="utf-8")):
-        sys_ = MC_PLATFORM.get(r["platform"])
-        try:
-            n = int(r["user_ratings"] or 0)
-        except ValueError:
-            n = 0
-        if sys_:
-            out[(sd.nkey(r["title"]), sys_)] = n
-    return out
-
 
 def find_threads(posts, matcher):
     """{system name: thread dict} for RC's 'library goes deeper' threads."""
@@ -157,7 +123,7 @@ def entry_text(post, title):
     return clean_post_text("\n".join(lines[i + 1:])).strip()
 
 
-def build_page(sysinfo, games, thread, counts, matcher):
+def build_page(sysinfo, games, thread, matcher):
     name, sid, color = sysinfo["name"], sysinfo["id"], sysinfo["color"]
     n = len(games)
     h = []
@@ -197,39 +163,27 @@ def build_page(sysinfo, games, thread, counts, matcher):
         for c in thread["closers"]:
             h.append(post_block(c, color) + "\n")
 
-    # the "usual few"
+    # the "usual few": only where RC's own thread names them, exactly as posted
     famous, why = [], ""
-    if n > SMALL:
-        if thread:
-            famous = []
-            for x in thread["nos"]:
-                exact = [g for g in matcher.match_piece(x) if g["system"] == name]
-                if exact:      # "Mario 64" is Super Mario 64, not Dr. Mario 64; sequels that start
-                               # with the same name count too ("Streets of Rage 2")
-                    keys = {g["nkey"] for g in exact}
-                    famous += [g for g in games if any(g["nkey"] == k or g["nkey"].startswith(k + " ") for k in keys)]
-                else:          # "Sonic", "Mario Kart": every title with that name in it
-                    k = sd.nkey(x)
-                    famous += [g for g in games if re.search(r"(^| )" + re.escape(k) + r"( |$)", g["nkey"])]
-            why = (f'Leaving out the games my thread names as the ones everybody played '
-                   f'(&ldquo;{esc(" ".join("No " + x + "." for x in thread["nos"]))}&rdquo;) and the ten above.')
-        else:
-            # top FAMOUS_N distinct titles; every copy of those titles is left out
-            best = {}
-            for g in games:
-                best[g["nkey"]] = max(best.get(g["nkey"], 0), counts.get((g["nkey"], name), 0))
-            top = [k for k, c in sorted(best.items(), key=lambda t: -t[1])[:FAMOUS_N] if c > 0]
-            famous = [g for g in games if g["nkey"] in top]
-            why = (f'Leaving out the {len(top)} {esc(name)} games on the shelf with the most user ratings on '
-                   f'Metacritic. That\'s a count of how many people rated each one, used here only as a '
-                   f'stand-in for &ldquo;the ones everybody names&rdquo;, not a score.')
+    if thread:
+        for x in thread["nos"]:
+            exact = [g for g in matcher.match_piece(x) if g["system"] == name]
+            if exact:      # "Mario 64" is Super Mario 64, not Dr. Mario 64; sequels that start
+                           # with the same name count too ("Streets of Rage 2")
+                keys = {g["nkey"] for g in exact}
+                famous += [g for g in games if any(g["nkey"] == k or g["nkey"].startswith(k + " ") for k in keys)]
+            else:          # "Sonic", "Mario Kart": every title with that name in it
+                k = sd.nkey(x)
+                famous += [g for g in games if re.search(r"(^| )" + re.escape(k) + r"( |$)", g["nkey"])]
+        why = (f'Leaving out the games my thread names as the ones everybody played '
+               f'(&ldquo;{esc(" ".join("No " + x + "." for x in thread["nos"]))}&rdquo;) and the ten above.')
     fam = {g["slug"] for g in famous}
     rest = sorted((g for g in games if g["slug"] not in fam and g["slug"] not in shown),
                   key=lambda g: g["nkey"])
-    if n > SMALL:
+    if thread:
         h.append(f'\n<p class="sec">ALSO ON THE SHELF &middot; {len(rest)} GAMES</p>\n<p class="why">{why}</p>\n')
     else:
-        h.append(f'\n<p class="sec">ON THE SHELF &middot; {len(rest)} GAMES</p>\n')
+        h.append(f'\n<p class="sec">ON THE SHELF, A TO Z &middot; {len(rest)} GAMES</p>\n')
     h.append('<div class="shelfgrid">\n' + "\n".join(tile(g) for g in rest) + '\n</div>\n')
     if famous:
         h.append('<p class="famous" style="margin-top:22px">Left out: ' +
@@ -244,14 +198,13 @@ def main():
     systems, games = sd.load_shelf()
     matcher = Matcher(games)
     threads = find_threads(sd.load_posts(), matcher)
-    counts = rating_counts()
     os.makedirs(OUT, exist_ok=True)
     keep = set()
     for s in systems:
         gs = [g for g in games if g["system"] == s["name"]]
         if len(gs) < MIN_GAMES:
             continue
-        html, nrest, nfam = build_page(s, gs, threads.get(s["name"]), counts, matcher)
+        html, nrest, nfam = build_page(s, gs, threads.get(s["name"]), matcher)
         keep.add(s["id"] + ".html")
         open(os.path.join(OUT, s["id"] + ".html"), "w", encoding="utf-8").write(html)
         t = threads.get(s["name"])

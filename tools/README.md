@@ -88,16 +88,13 @@ from each card on `consoles.html`). Each page has:
 * RC's own "the library goes deeper" thread for that console, when there
   is one (Genesis, SNES, N64 so far): opening post, the ten games in his
   order with his text, closing post, all as posted and linked to X.
-* **Also on the shelf**: every game owned for that console, A to Z, minus
-  the handful everybody names. That handful is never picked by taste:
-  - where RC's thread names them ("No Sonic. No Streets of Rage. No Mortal
-    Kombat."), it's exactly those (plus sequels starting with the name);
-  - otherwise it's the 6 titles with the most user *ratings* (a count of
-    how many people rated it, not the score) on Metacritic, from
-    `tools/data/metacritic_counts.csv`. RC's own line: "Every console has
-    the same six games people name."
-  - consoles with 12 games or fewer just list everything.
-  The page says which rule was used and lists what was left out.
+* The shelf, A to Z:
+  - on a console with RC's thread, **Also on the shelf** is every game
+    owned minus the "usual few" his thread names ("No Sonic. No Streets
+    of Rage. No Mortal Kombat."), exactly those (plus sequels starting
+    with the name), and minus the ten games already shown in the thread;
+    the page lists what was left out;
+  - on every other console, every game owned, A to Z, nothing left out.
 
 ## `import_x_rankings.py`: rankings from X onto `lists.html`
 
