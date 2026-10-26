@@ -2381,7 +2381,7 @@ function render() {
         `<img class="shot" loading="lazy" ${shotAttrs(slug(g))} alt="${esc(g.title)}">` +
         `<i class="mark ${g.cls}"></i>` +
         `<i class="beat${isBeaten(g) ? " on" : isEndless(g) ? " endless" : ""}"></i>` +
-        `<span class="title"><a href="${wiki(g.title)}" target="_blank" rel="noopener">${esc(g.title)}</a></span>` +
+        `<span class="title"><a href="${gamePage(g)}">${esc(g.title)}</a></span>` +
         (s.showSys ? `<span class="sysflag">${esc(g.system)}</span>` : "") +
         (videoFor(g) ? `<a class="play" href="${videoFor(g)}" target="_blank" rel="noopener" title="ASMR short on YouTube">&#9654;</a>` : "") +
         `<span class="cond">${esc(g.cond)}</span></li>`
@@ -2394,8 +2394,11 @@ function render() {
   updateVerdict();
 }
 
+/* Every game has its own page (built by tools/build_game_pages.py). */
+function gamePage(g){ return "game/" + slug(g) + ".html"; }
+
 function extras(g){
-  const k = nkey(g.title), out = [];
+  const k = nkey(g.title), out = [`<a href="${gamePage(g)}">Game page</a>`];
   const r = REVIEWED[k];
   if (r) out.push(`<a href="reviews.html#r-${r[0]}">Reviewed ${r[1]}/5 &middot; No. ${r[0]}</a>`);
   const ranks = RANKED[k];
