@@ -16,6 +16,7 @@
   ],
   "shortcuts": [
     { "name": "Anniversaries", "url": "/anniversaries.html" },
+    { "name": "On this day", "url": "/onthisday.html" },
     { "name": "Consoles", "url": "/consoles.html" },
     { "name": "Reviews", "url": "/reviews.html" }
   ]

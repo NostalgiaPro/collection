@@ -212,3 +212,45 @@ body.y1996 #totop{
   font-family:"Times New Roman",Times,serif;font-size:22px;
 }
 body.y1996 #totop:hover{border-style:inset}
+
+/* ---- on this day ---- */
+body.y1996 .dayhead{background:#c0c0c0;border:2px outset #fff;border-radius:0;color:#000}
+body.y1996 .dayhead .kicker{color:#ff0000;font-family:"Courier New",monospace}
+body.y1996 .dayhead h2{font-family:"Times New Roman",Times,serif;color:#000080;font-size:30px;font-weight:700}
+body.y1996 .dayhead .sub{color:#000;font-family:"Times New Roman",Times,serif}
+body.y1996 .daynav select{
+  background:#fff;color:#000;border:2px inset #808080;border-radius:0;
+  font-family:"Times New Roman",Times,serif;font-size:14px;letter-spacing:0;
+}
+body.y1996 .monthhead{
+  color:#ffff00;font-family:"Times New Roman",Times,serif;font-size:18px;letter-spacing:0;
+  border-bottom:2px solid #00ffff;
+}
+body.y1996 .catdot{border-radius:0;border:1px solid #fff}
+body.y1996 ol.otd{border:2px inset #808080}
+body.y1996 ol.otd li{background:#000040;border-bottom:1px solid #000080;padding:9px 10px}
+body.y1996 ol.otd li:nth-child(even){background:#191970}
+body.y1996 .otd .yr{font-family:"Courier New",monospace;font-size:15px;font-weight:700;color:#00ff00}
+body.y1996 .otd .t{color:#c0c0c0;font-family:"Times New Roman",Times,serif;font-size:16px}
+body.y1996 .otd .src{color:#00ffff;text-decoration:underline;font-family:"Times New Roman",Times,serif;font-size:13px;letter-spacing:0}
+body.y1996 .otd .ago{color:#ffff00;font-family:"Courier New",monospace}
+body.y1996 .otd .ago.round{color:#ff0000}
+body.y1996 .shelfbox{background:#c0c0c0;border:2px outset #fff;border-radius:0;color:#000}
+body.y1996 .shelfbox h3{font-family:"Times New Roman",Times,serif;color:#000080;font-size:20px;letter-spacing:0}
+body.y1996 .shelfbox .row{border-top:1px solid #808080}
+body.y1996 .shelfbox .row .c,body.y1996 .shelfbox .row .a,body.y1996 .shelfbox .quiet{color:#000080}
+body.y1996 .shelfbox a.more{background:#c0c0c0;border:2px outset #fff;border-radius:0;color:#000080;font-family:"Times New Roman",Times,serif;font-size:13px;letter-spacing:0}
+body.y1996 .note,body.y1996 .empty{color:#c0c0c0;font-family:"Times New Roman",Times,serif}
+body.y1996 .note a{color:#00ffff}
+
+/* ---- nav spacing (both modes) ----
+   Tightened a touch when "On this day" joined the nav, so every page's nav
+   takes no more rows than it did with one button fewer. Measured at
+   1280/1024/900/768/600/390px wide. */
+div.navrow{gap:6px}
+.navrow .navbtn{padding:9px 8px;letter-spacing:.02em}
+.sitenav .shelflink{padding:9px 7px;letter-spacing:0}
+@media (max-width:560px){
+  div.navrow{gap:5px}
+  .navrow .navbtn{padding:8px 6px;letter-spacing:0}
+}

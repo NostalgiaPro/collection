@@ -170,6 +170,11 @@
     border-radius:2px;padding:6px 11px;
   }
   .todaybar a.more:hover{border-color:var(--hot);color:var(--hot)}
+  /* On this day teaser: its lines are longer, so on a phone stack it instead of squeezing it */
+  @media (max-width:560px){
+    .todaybar.otdbar{flex-direction:column;align-items:flex-start;gap:10px}
+    .todaybar.otdbar .items{flex-direction:column;gap:8px}
+  }
   .sitenav{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0}
   .viewrow{
     display:flex;flex-wrap:wrap;align-items:center;gap:14px;
@@ -411,10 +416,12 @@
     <div id="verdict" role="status" aria-live="polite"></div>
     <div class="scores" id="scores"></div>
     <div class="todaybar" id="todaybar"></div>
+    <div class="todaybar otdbar" id="otdbar"></div>
 
     <div class="sitenav">
       <a class="shelflink" href="shelf.html">Virtual shelf</a>
       <a class="shelflink" href="anniversaries.html">Anniversaries</a>
+      <a class="shelflink" href="onthisday.html">On this day</a>
       <a class="shelflink" href="reviews.html">Reviews</a>
       <a class="shelflink" href="lists.html">Lists</a>
       <a class="shelflink" href="rank.html">Rank games</a>
@@ -2688,6 +2695,38 @@ document.getElementById("openAll").addEventListener("click", () => {
 
 drawRail();
 render();
+</script>
+<script>
+/* On this day in pop culture: three of today's, one each from different
+   shelves, from the site's own data file (data/on-this-day/MM.json). */
+(function otdTeaser(){
+  const bar = document.getElementById("otdbar");
+  if (!bar || !window.fetch) return;
+  const now = new Date();
+  const p = n => String(n).padStart(2, "0");
+  const k = p(now.getMonth()+1) + "-" + p(now.getDate());
+  const e = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  fetch("data/on-this-day/" + p(now.getMonth()+1) + ".json")
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      const xs = data && data.days && data.days[k];
+      if (!xs || !xs.length) return;
+      /* games first, then whatever else the day has */
+      const order = ["Games","Movies","Music","TV","Toys","Sports","Tech"];
+      const pick = [];
+      for (const c of order) {
+        const x = xs.find(x => x.cat === c);
+        if (x) pick.push(x);
+        if (pick.length === 3) break;
+      }
+      bar.className = "todaybar otdbar on";
+      bar.innerHTML =
+        `<span class="lbl">On this day</span><span class="items">` +
+        pick.map(x => `<span class="item"><b>${x.y}</b> ${e(x.text)}<em>${e(x.cat)}</em></span>`).join("") +
+        `</span><a class="more" href="onthisday.html">More from today</a>`;
+    })
+    .catch(() => {});
+})();
 </script>
 <script>
 /* Installable, and the whole collection works offline once you've opened it. */

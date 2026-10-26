@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="On this day in pop culture: the films, TV, music, games, toys, sports moments and gadgets from 1980 on, for every day of the year. Plus what on my shelf turns a year older.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro — On this day">
+<meta property="og:description" content="On this day in pop culture: the films, TV, music, games, toys, sports moments and gadgets from 1980 on, for every day of the year.">
+<meta property="og:url" content="https://thenostalgiapro.com/onthisday.html">
+<meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Nostalgia Pro: 846 games on the shelf">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro — On this day">
+<meta name="twitter:description" content="On this day in pop culture: the films, TV, music, games, toys, sports moments and gadgets from 1980 on, for every day of the year.">
+<meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
+<link rel="canonical" href="https://thenostalgiapro.com/onthisday.html">
+<title>The Nostalgia Pro &mdash; On this day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/retro.css">
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 22px 90px}
+
+  header{padding:44px 0 0}
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3.3vw,30px);line-height:1.55;margin:0}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:60ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;border:2px solid var(--line);color:var(--dim);
+    text-decoration:none;font-family:"Silkscreen",monospace;font-size:11px;
+    letter-spacing:.05em;padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+
+  /* the date and how to move it */
+  .dayhead{
+    margin:34px 0 0;background:var(--bg2);border:2px solid var(--hot);border-radius:2px;
+    padding:22px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:18px 22px;
+  }
+  .dayhead .when{flex:1 1 260px;min-width:0}
+  .dayhead .kicker{font-family:"Silkscreen",monospace;font-weight:700;font-size:12px;letter-spacing:.1em;color:var(--hot);margin:0 0 10px}
+  .dayhead h2{font-family:"Press Start 2P",monospace;font-size:clamp(17px,3.4vw,24px);line-height:1.45;margin:0}
+  .dayhead .sub{margin:10px 0 0;color:var(--dim);font-size:14px}
+  .daynav{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .chip,.daynav select{
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;cursor:pointer;
+    background:transparent;color:var(--dim);border:2px solid var(--line);
+    border-radius:2px;padding:9px 12px;text-decoration:none;
+  }
+  .daynav select{background:var(--bg);color:var(--text);padding:8px 8px}
+  .chip:hover,.daynav select:hover{border-color:var(--hot);color:var(--hot)}
+  .chip:focus-visible,.daynav select:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .chip[aria-pressed="true"]{background:var(--hot);color:#12070a;border-color:var(--hot)}
+  .chip[hidden]{display:none}
+  .pick{display:flex;gap:6px}
+
+  .monthhead{
+    font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;letter-spacing:.1em;
+    color:var(--dim);margin:40px 0 4px;padding-bottom:8px;border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;gap:12px;
+  }
+  .monthhead .n{font-weight:400;letter-spacing:.04em}
+  .catdot{display:inline-block;width:9px;height:9px;border-radius:1px;background:var(--c);margin-right:9px;vertical-align:1px}
+
+  .otd{list-style:none;margin:0;padding:0}
+  .otd li{display:flex;gap:16px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line)}
+  .otd .yr{flex:0 0 52px;font-family:"Press Start 2P",monospace;font-size:12px;color:var(--c,var(--text))}
+  .otd .t{flex:1;min-width:0;font-size:15px}
+  .otd .src{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;color:var(--dim);margin-left:10px;text-decoration:none;white-space:nowrap}
+  .otd .src:hover{color:var(--hot)}
+  .otd .ago{flex:none;font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;letter-spacing:.05em;color:var(--dim);white-space:nowrap}
+  .otd .ago.round{color:var(--hot)}
+
+  .shelfbox{margin:40px 0 0;background:var(--bg2);border:2px solid var(--line);border-radius:2px;padding:18px 20px}
+  .shelfbox h3{font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;letter-spacing:.1em;color:var(--dim);margin:0 0 10px}
+  .shelfbox .row{display:flex;align-items:baseline;gap:12px;padding:7px 0;border-top:1px solid var(--line)}
+  .shelfbox .row:first-of-type{border-top:none}
+  .shelfbox .row{align-items:center}
+  .shelfbox .row .pic{flex:none;width:40px;height:40px;object-fit:cover;border:1px solid var(--line);border-radius:2px;background:#0a0c11}
+  .shelfbox .row .pic.none{display:inline-block}
+  .shelfbox .row .t{flex:1;min-width:0;font-size:15px}
+  .shelfbox .row .t a{color:var(--text);text-decoration:none;border-bottom:1px solid var(--line)}
+  .shelfbox .row .t a:hover{color:var(--hot);border-color:var(--hot)}
+  .shelfbox .row .c{font-size:12px;color:var(--dim);margin-left:8px}
+  .shelfbox .row .a{font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;color:var(--dim);white-space:nowrap}
+  .shelfbox .row .a.round{color:var(--hot)}
+  .shelfbox .quiet{color:var(--dim);font-size:14px;margin:0}
+  .shelfbox a.more{display:inline-block;margin-top:12px;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:6px 11px}
+  .shelfbox a.more:hover{border-color:var(--hot);color:var(--hot)}
+
+  .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:66ch}
+  .note a{color:var(--dim)}
+  .empty{color:var(--dim);font-size:15px;margin:30px 0 0}
+  @media (max-width:560px){
+    .dayhead{padding:18px}
+    .otd li{gap:12px;flex-wrap:wrap}
+    .otd .yr{flex-basis:44px}
+    .otd .t{flex:1 1 calc(100% - 76px)}
+    .otd .ago{margin-left:56px}
+    .shelfbox .row{flex-wrap:wrap}
+    .shelfbox .row .t{flex:1 1 calc(100% - 56px)}
+    .shelfbox .row .a{margin-left:52px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="wordmark">The Nostalgia Pro</p>
+  <h1>On this day</h1>
+  <p class="standfirst">Pop culture from 1980 on, one day at a time. Films, TV, music, games, toys, sports and gadgets, and whatever on my shelf turns a year older.</p>
+  <div class="navrow">
+    <a class="navbtn" href="index.html">The shelf</a>
+    <a class="navbtn" href="reviews.html">Reviews</a>
+    <a class="navbtn" href="lists.html">Lists</a>
+    <a class="navbtn" href="rank.html">Rank games</a>
+    <a class="navbtn" href="anniversaries.html">Anniversaries</a>
+    <a class="navbtn here" href="#">On this day</a>
+    <a class="navbtn" href="consoles.html">Consoles</a>
+    <a class="navbtn" href="gaps.html">The gaps</a>
+    <a class="navbtn" href="stats.html">The numbers</a>
+  </div>
+</header>
+
+<section class="dayhead" aria-labelledby="dayTitle">
+  <div class="when">
+    <p class="kicker" id="kicker">Today</p>
+    <h2 id="dayTitle">&nbsp;</h2>
+    <p class="sub" id="daySub"></p>
+  </div>
+  <div class="daynav">
+    <a class="chip" id="prev" href="#" rel="prev">&laquo; Prev</a>
+    <span class="pick">
+      <select id="pickM" aria-label="Month"></select>
+      <select id="pickD" aria-label="Day"></select>
+    </span>
+    <a class="chip" id="next" href="#" rel="next">Next &raquo;</a>
+    <a class="chip" id="todayBtn" href="onthisday.html" hidden>Today</a>
+  </div>
+</section>
+
+<div class="controls" id="cats" style="display:flex;gap:10px;flex-wrap:wrap;margin:26px 0 0"></div>
+
+<div id="list" aria-live="polite"></div>
+
+<section class="shelfbox" id="shelf">
+  <h3>From my shelf</h3>
+  <div id="shelfList"><p class="quiet">Checking the shelf&hellip;</p></div>
+  <a class="more" href="anniversaries.html">All anniversaries</a>
+</section>
+
+<p class="note">Every entry links to the page it came from: Wikipedia&rsquo;s <em>On this day</em> lists and release dates from Wikidata, each checked against the date on the film, show, album or game&rsquo;s Wikipedia article. Films use US release dates, games and consoles North American ones unless the line says otherwise. Built ahead of time and served from this site, so nothing here calls anyone else. <em>From my shelf</em> uses the release dates on the shelf; photos I haven&rsquo;t taken yet are stand-ins (<a href="credits.html">image credits</a>).</p>
+
+</div>
+
+<script>
+const MONTHNAME=["January","February","March","April","May","June","July",
+  "August","September","October","November","December"];
+const DAYS_IN=[31,29,31,30,31,30,31,31,30,31,30,31];
+const CATS=[
+  ["Movies","#e0a33a"],["TV","#7fd4f5"],["Music","#c85cc8"],["Games","#3fa65b"],
+  ["Toys","#f0413f"],["Sports","#4a78d6"],["Tech","#9aa3b5"]
+];
+const COLOR=Object.fromEntries(CATS);
+const pad=n=>String(n).padStart(2,"0");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const now=new Date();
+const TODAY={m:now.getMonth()+1,d:now.getDate()};
+const isRound=n=>n>0&&n%5===0;
+
+/* ?d=MM-DD (or ?date=MM-DD) picks the day. Anything else means today, in the visitor's own time zone. */
+function parseDay(s){
+  const m=/^(\d{1,2})-(\d{1,2})$/.exec(s||"");
+  if(!m) return null;
+  const mo=+m[1], d=+m[2];
+  if(mo<1||mo>12||d<1||d>DAYS_IN[mo-1]) return null;
+  return {m:mo,d};
+}
+const qDay=()=>{ const q=new URLSearchParams(location.search); return parseDay(q.get("d")||q.get("date")); };
+let cur=qDay()||{...TODAY};
+let catMode="all";
+
+/* step through a leap year so Feb 29 is always reachable */
+function step(day,delta){
+  const t=new Date(2024,day.m-1,day.d+delta);
+  return {m:t.getMonth()+1,d:t.getDate()};
+}
+const key=day=>pad(day.m)+"-"+pad(day.d);
+const isToday=day=>day.m===TODAY.m&&day.d===TODAY.d;
+const href=day=>isToday(day)?"onthisday.html":"onthisday.html?d="+key(day);
+
+const monthCache={};
+function loadMonth(m){
+  if(!monthCache[m]) monthCache[m]=fetch("data/on-this-day/"+pad(m)+".json")
+    .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .catch(e=>{ delete monthCache[m]; throw e; });
+  return monthCache[m];
+}
+
+/* ---- From my shelf: games on RC's shelf (and consoles he owns) released on this day.
+   data/on-this-day/shelf.json is built from the shelf by tools/build_otd_shelf.py ---- */
+let shelfP=null;
+function loadShelf(){
+  if(!shelfP) shelfP=fetch("data/on-this-day/shelf.json")
+    .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .catch(e=>{ shelfP=null; throw e; });
+  return shelfP;
+}
+
+function fillPicker(){
+  const pm=document.getElementById("pickM"), pd=document.getElementById("pickD");
+  if(!pm.options.length) pm.innerHTML=MONTHNAME.map((n,i)=>`<option value="${i+1}">${n.slice(0,3)}</option>`).join("");
+  pm.value=String(cur.m);
+  const n=DAYS_IN[cur.m-1];
+  if(pd.options.length!==n) pd.innerHTML=Array.from({length:n},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join("");
+  pd.value=String(cur.d);
+}
+
+function drawHead(){
+  const title=MONTHNAME[cur.m-1]+" "+cur.d;
+  document.getElementById("dayTitle").textContent=title;
+  document.getElementById("kicker").textContent=isToday(cur)?"Today":"On this day";
+  document.title="The Nostalgia Pro — On this day: "+title;
+  document.getElementById("todayBtn").hidden=isToday(cur);
+  const p=step(cur,-1), n=step(cur,1);
+  const prev=document.getElementById("prev"), next=document.getElementById("next");
+  prev.href=href(p); prev.setAttribute("aria-label","Previous day, "+MONTHNAME[p.m-1]+" "+p.d);
+  next.href=href(n); next.setAttribute("aria-label","Next day, "+MONTHNAME[n.m-1]+" "+n.d);
+  fillPicker();
+}
+
+function drawCats(items){
+  const have=new Set(items.map(x=>x.cat));
+  if(catMode!=="all"&&!have.has(catMode)) catMode="all";
+  const box=document.getElementById("cats");
+  box.innerHTML=`<button class="chip" type="button" data-cat="all" aria-pressed="${catMode==="all"}">Everything</button>`+
+    CATS.filter(([c])=>have.has(c)).map(([c])=>
+      `<button class="chip" type="button" data-cat="${c}" aria-pressed="${catMode===c}">${c}</button>`).join("");
+  box.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{
+    catMode=b.dataset.cat; drawList(items); drawCats(items);
+  }));
+}
+
+function drawList(items){
+  const year=now.getFullYear();
+  const groups=CATS.map(([c])=>[c,items.filter(x=>x.cat===c&&(catMode==="all"||catMode===c))]).filter(g=>g[1].length);
+  const el=document.getElementById("list");
+  if(!groups.length){ el.innerHTML=`<p class="empty">Nothing on file for this day yet.</p>`; return; }
+  el.innerHTML=groups.map(([c,xs])=>
+    `<h2 class="monthhead" style="--c:${COLOR[c]}"><span><span class="catdot"></span>${c}</span><span class="n">${xs.length}</span></h2>
+     <ol class="otd" style="--c:${COLOR[c]}">${xs.sort((a,b)=>a.y-b.y).map(x=>{
+       const age=year-x.y;
+       return `<li><span class="yr">${x.y}</span>
+         <span class="t">${esc(x.text)}<a class="src" href="${esc(x.src)}" target="_blank" rel="noopener">Source</a></span>
+         <span class="ago${isRound(age)?" round":""}">${age>0?age+" yrs ago":"This year"}</span></li>`;
+     }).join("")}</ol>`).join("");
+}
+
+function drawShelf(){
+  const box=document.getElementById("shelfList"), want={...cur};
+  loadShelf().then(data=>{
+    if(want.m!==cur.m||want.d!==cur.d) return;
+    const year=now.getFullYear();
+    const hits=(data.days&&data.days[key(cur)])||[];
+    if(!hits.length){
+      box.innerHTML=`<p class="quiet">Nothing on my shelf came out on ${MONTHNAME[cur.m-1]} ${cur.d}.</p>`;
+      return;
+    }
+    box.innerHTML=hits.map(x=>{
+      const age=year-x.y;
+      const what=x.hw?esc(x.where)+" launch":esc(x.system);
+      const pic=x.img?`<img class="pic" src="${esc(x.img)}" alt="" loading="lazy" width="40" height="40" onerror="this.remove()">`:`<span class="pic none"></span>`;
+      const name=x.hw?`<b>${esc(x.title)}</b>`:esc(x.title);
+      const title=x.href?`<a href="${esc(x.href)}">${name}</a>`:name;
+      return `<div class="row">${pic}<span class="t">${title}<span class="c">${what}</span></span>
+        <span class="a${isRound(age)?" round":""}">${x.y} &middot; ${age>0?age+" yrs":"this year"}</span></div>`;
+    }).join("");
+  }).catch(()=>{ box.innerHTML=`<p class="quiet">Couldn't read the shelf just now.</p>`; });
+}
+
+let drawToken=0;
+function draw(){
+  drawHead();
+  const t=++drawToken, want={...cur};
+  document.getElementById("daySub").textContent="";
+  loadMonth(cur.m).then(data=>{
+    if(t!==drawToken) return;
+    const items=(data.days&&data.days[key(want)])||[];
+    document.getElementById("daySub").textContent=items.length?items.length+" moments in pop culture.":"";
+    drawCats(items); drawList(items);
+  }).catch(()=>{
+    if(t!==drawToken) return;
+    document.getElementById("cats").innerHTML="";
+    document.getElementById("list").innerHTML=`<p class="empty">Couldn't load this day. Check your connection and try again.</p>`;
+  });
+  drawShelf();
+}
+
+function go(day,push=true){
+  cur=day; catMode="all";
+  if(push) history.pushState({m:day.m,d:day.d},"",href(day));
+  draw();
+}
+document.getElementById("prev").addEventListener("click",e=>{ e.preventDefault(); go(step(cur,-1)); });
+document.getElementById("next").addEventListener("click",e=>{ e.preventDefault(); go(step(cur,1)); });
+document.getElementById("todayBtn").addEventListener("click",e=>{ e.preventDefault(); go({...TODAY}); });
+document.getElementById("pickM").addEventListener("change",e=>{
+  const m=+e.target.value; go({m,d:Math.min(cur.d,DAYS_IN[m-1])});
+});
+document.getElementById("pickD").addEventListener("change",e=>go({m:cur.m,d:+e.target.value}));
+addEventListener("popstate",()=>{
+  go(qDay()||{...TODAY},false);
+});
+/* arrow keys step through days, unless you're in the pickers */
+addEventListener("keydown",e=>{
+  if(e.target.closest&&e.target.closest("select,input,textarea")) return;
+  if(e.altKey||e.ctrlKey||e.metaKey) return;
+  if(e.key==="ArrowLeft") go(step(cur,-1));
+  else if(e.key==="ArrowRight") go(step(cur,1));
+});
+draw();
+</script>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
+<script>
+/* 1996 mode. The class does all the work, retro.css does the rest. */
+(function(){
+  var on = false;
+  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
+  if (on) document.body.classList.add("y1996");
+
+  var b = document.createElement("button");
+  b.id = "y1996btn";
+  b.type = "button";
+  b.textContent = on ? "Back to now" : "1996 mode";
+  b.addEventListener("click", function(){
+    var nowOn = document.body.classList.toggle("y1996");
+    b.textContent = nowOn ? "Back to now" : "1996 mode";
+    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
+  });
+
+  var foot = document.querySelector("footer") || document.querySelector(".wrap");
+  var wrap = document.createElement("p");
+  wrap.style.cssText = "text-align:center;margin:18px 0 0";
+  wrap.appendChild(b);
+  foot.appendChild(wrap);
+
+})();
+
+/* Back to top. Appears once you've scrolled far enough to want it. */
+(function(){
+  var b = document.createElement("button");
+  b.id = "totop";
+  b.type = "button";
+  b.setAttribute("aria-label", "Back to top");
+  b.innerHTML = "&#9650;";
+  b.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.body.appendChild(b);
+
+  function check(){ b.classList.toggle("on", window.scrollY > 600); }
+  addEventListener("scroll", check, { passive: true });
+  check();
+})();
+</script>
+</body>
+</html>

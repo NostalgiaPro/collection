@@ -230,6 +230,9 @@ def main():
     print(f"{len(games)} game pages, {sum(1 for g in games if posts.get(g['slug']))} with X posts, "
           f"{sum(1 for g in games if mentions.get(g['slug']))} on lists, {len(reviews)} reviewed, "
           f"{sum(1 for g in games if sd.photo_for(g['slug']))} with photos")
+    # the "From my shelf" box on onthisday.html follows the same shelf
+    import build_otd_shelf
+    build_otd_shelf.main()
 
 
 if __name__ == "__main__":

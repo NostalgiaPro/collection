@@ -124,3 +124,41 @@ It's safe to run every day. `tools/data/x_rankings_imported.json` holds:
 
 The exact detection rules and the known ways it can get one wrong are at
 the top of the script.
+
+## `build_on_this_day.py`: the "On this day" pop-culture data
+
+```
+python3 tools/build_on_this_day.py            # uses tools/.otd-cache where it can
+python3 tools/build_on_this_day.py --refresh  # downloads everything again
+```
+
+Writes `data/on-this-day/01.json` to `12.json` (one file per month, every
+day of the year including Feb 29) for `onthisday.html` and the home-page
+teaser. Pop culture only, 1980 on: films (US release), TV premieres and
+channel launches, albums and singles, video games and consoles (North
+American dates unless the line says otherwise), toys and card games, sports
+moments and tech launches. Release dates come from Wikidata and are kept
+only when the same date is in the lead or infobox of the English Wikipedia
+article; a few lines come from Wikipedia's own *On this day* feed. Every
+line links its Wikipedia article.
+
+It's a family-friendly page, so the script drops anything negative or
+political: a word blocklist, Wikidata genres (horror, war, crime thriller...)
+and main subjects (serial killers, drugs, war, politics...), adult TV
+networks, and a hand-picked list from a read-through (`MANUAL_EXCLUDE_NAMES`,
+grouped by reason, so anything can be put back by deleting its name).
+`tools/.otd-cache/chosen.tsv` lists every line chosen and
+`tools/.otd-cache/dropped.tsv` every candidate dropped and why. The cache is
+big (a few GB of raw downloads) and git-ignored.
+
+## `build_otd_shelf.py`: "From my shelf" on the On this day page
+
+```
+python3 tools/build_otd_shelf.py
+```
+
+Writes `data/on-this-day/shelf.json`: for each day, the games on the shelf
+released that day (from `RELEASED` in `index.html`; month-only dates are
+skipped) and the consoles from `EVENTS` in `anniversaries.html`, each with
+its game or console page and photo. Offline and quick, and
+`build_game_pages.py` runs it at the end, so it keeps up with the shelf.

@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+
+# On this day build cache (big raw Wikidata/Wikipedia downloads)
+tools/.otd-cache
