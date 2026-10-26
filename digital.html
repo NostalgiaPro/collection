@@ -8,11 +8,11 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="57 digital games I've finished on Xbox: 34 at 100% and 23 beaten. The boxed ones are ticked on the shelf.">
+<meta name="description" content="55 digital games I've finished on Xbox: 34 at 100% and 21 beaten. The boxed ones are ticked on the shelf.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Nostalgia Pro">
 <meta property="og:title" content="The Nostalgia Pro — Digital games I've beaten">
-<meta property="og:description" content="57 digital games I've finished on Xbox: 34 at 100% and 23 beaten. The boxed ones are ticked on the shelf.">
+<meta property="og:description" content="55 digital games I've finished on Xbox: 34 at 100% and 21 beaten. The boxed ones are ticked on the shelf.">
 <meta property="og:url" content="https://thenostalgiapro.com/digital.html">
 <meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -21,7 +21,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@NostalgiaPro">
 <meta name="twitter:title" content="The Nostalgia Pro — Digital games I've beaten">
-<meta name="twitter:description" content="57 digital games I've finished on Xbox: 34 at 100% and 23 beaten. The boxed ones are ticked on the shelf.">
+<meta name="twitter:description" content="55 digital games I've finished on Xbox: 34 at 100% and 21 beaten. The boxed ones are ticked on the shelf.">
 <meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
 <link rel="canonical" href="https://thenostalgiapro.com/digital.html">
 <title>The Nostalgia Pro — Digital games I've beaten</title>
@@ -91,7 +91,17 @@
   ol.dlist li:hover{background:var(--panel)}
   ol.dlist .t{flex:1 1 auto;min-width:0;font-family:"IBM Plex Sans Condensed",sans-serif;font-size:17.5px;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
   ol.dlist .p{flex:none;color:#7fc97f;font-family:"Silkscreen",monospace;font-size:11px;white-space:nowrap}
-  ol.dlist .shot{flex:none;width:38px;height:38px;object-fit:cover;border:1px solid var(--line);border-radius:2px;background:#0a0c11}
+  ol.dlist .cover{flex:none;width:46px;height:60px;object-fit:contain;border:1px solid var(--line);border-radius:2px;background:#0a0c11}
+  ol.dlist span.cover{display:flex;align-items:center;justify-content:center;font-family:"Silkscreen",monospace;font-size:8px;
+    line-height:1.3;text-align:center;color:var(--dim);letter-spacing:.04em}
+  ol.dlist a.t{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+  ol.dlist a.t:hover,ol.dlist a.t:focus-visible{border-bottom-color:#7fc97f;outline:none}
+  ol.dlist a.t .w{margin-left:7px;font-family:"Silkscreen",monospace;font-size:9px;font-weight:400;letter-spacing:.06em;color:var(--dim);white-space:nowrap}
+  body.y1996 ol.dlist .cover{border:2px inset #808080;border-radius:0;background:#000}
+  body.y1996 ol.dlist span.cover{color:#c0c0c0;font-family:"Courier New",monospace}
+  body.y1996 ol.dlist a.t{color:#00ffff;border-bottom:none;text-decoration:underline}
+  body.y1996 ol.dlist a.t:visited{color:#ee82ee}
+  body.y1996 ol.dlist a.t .w{color:#c0c0c0;font-family:"Courier New",monospace}
   .tick{flex:none;width:15px;height:15px;border:2px solid #3fbf6a;background:#3fbf6a;border-radius:2px;position:relative}
   .tick::after{content:"";position:absolute;left:3.5px;top:.5px;width:4px;height:8px;border:solid #0b1410;border-width:0 2px 2px 0;transform:rotate(42deg)}
   .hundo{flex:none;font-style:normal;font-family:"Silkscreen",monospace;font-size:9px;line-height:1;letter-spacing:.03em;
@@ -101,8 +111,11 @@
   body.y1996 .tick::after{display:none}
   @media (max-width:560px){
     ol.dlist li{flex-wrap:wrap;row-gap:2px}
-    ol.dlist .p{flex-basis:100%;padding-left:28px;white-space:normal}
-    ol.dlist li.c100 .p{padding-left:52px}
+    ol.dlist li{display:grid;grid-template-columns:auto 46px 1fr;column-gap:12px;row-gap:3px;align-items:center}
+    ol.dlist .cover{grid-row:span 2}
+    ol.dlist .t{align-self:end}
+    ol.dlist .p{grid-column:3;align-self:start;white-space:normal}
+    ol.dlist li>i{grid-row:span 2}
   }
 </style>
 </head>
@@ -126,78 +139,76 @@
     <a class="navbtn" href="/stats.html">The numbers</a>
   </div>
   <div class="scores">
-    <div class="score"><b>57</b><span>digital games finished</span></div>
+    <div class="score"><b>55</b><span>digital games finished</span></div>
     <div class="score"><b>34</b><span>100% complete</span></div>
-    <div class="score"><b>23</b><span>beaten</span></div>
+    <div class="score"><b>21</b><span>beaten</span></div>
   </div>
 </header>
 
 <section class="dgroup" id="complete">
 <h2><i class="hundo">100%</i> 100% complete <small>34 GAMES</small></h2>
 <ol class="dlist">
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">50 Years</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">80's OVERDRIVE</span><span class="p">PC</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Avatar: The Last Airbender - The Burning Earth</span><span class="p">Xbox 360</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Batman: The Enemy Within</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Batman: The Telltale Series</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Castle Walker</span><span class="p">Xbox One / Series X|S</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Chess Brain: Dark Troops</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Croc's World Construction Kit 2</span><span class="p">PC</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Destroy All Humans! (2020)</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Devoured by Darkness</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Discolored</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">DOOM 64</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Door Kickers: Action Squad</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Flaskoman</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Mighty Goose</span><span class="p">Xbox One / Series X|S</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">MONOPOLY Plus</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Murder on the Marine Express</span><span class="p">Xbox One / Series X|S</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">My Friend Peppa Pig</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">NBA 2K6</span><span class="p">Xbox 360</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Pity Pit</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">The Procession to Calvary</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Rabio</span><span class="p">Xbox One / Series X|S</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">ReactorX 2</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">RoboCop: Rogue City</span><span class="p">Series X|S</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">RoboCop: Rogue City - Unfinished Business</span><span class="p">Series X|S</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Saints Row: The Third Remastered</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Sonic the Fighters</span><span class="p">Xbox 360</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Space Science Investigations: Humans in Space</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Space Warlord Organ Trading Simulator</span><span class="p">Xbox One / Series X|S</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Terminator 2D: NO FATE</span><span class="p">Xbox One / Series X|S</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Terminator: Resistance</span><span class="p">Xbox One</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Townscaper</span><span class="p">Xbox One / Series X|S</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">The Turing Test</span><span class="p">Xbox One / Series X|S</span></li>
-  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">X-Force Genesis</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/50-years.webp" width="300" height="172" alt="50 Years box art"><a class="t" href="https://www.pcgamingwiki.com/wiki/50_Years_(Aleksandr_Golovkin)" target="_blank" rel="noopener">50 Years<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/80-s-overdrive.webp" width="300" height="300" alt="80's OVERDRIVE box art"><span class="t">80's OVERDRIVE</span><span class="p">PC</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/avatar-the-last-airbender-the-burning-earth.webp" width="300" height="373" alt="Avatar: The Last Airbender - The Burning Earth box art"><a class="t" href="https://en.wikipedia.org/wiki/Avatar:_The_Last_Airbender_%E2%80%93_The_Burning_Earth" target="_blank" rel="noopener">Avatar: The Last Airbender - The Burning Earth<span class="w">WIKI ↗</span></a><span class="p">Xbox 360</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/batman-the-enemy-within.webp" width="300" height="357" alt="Batman: The Enemy Within box art"><a class="t" href="https://en.wikipedia.org/wiki/Batman:_The_Enemy_Within" target="_blank" rel="noopener">Batman: The Enemy Within<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/batman-the-telltale-series.webp" width="300" height="450" alt="Batman: The Telltale Series box art"><a class="t" href="https://en.wikipedia.org/wiki/Batman:_The_Telltale_Series" target="_blank" rel="noopener">Batman: The Telltale Series<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/castle-walker.webp" width="300" height="300" alt="Castle Walker box art"><span class="t">Castle Walker</span><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/chess-brain-dark-troops.webp" width="300" height="300" alt="Chess Brain: Dark Troops box art"><span class="t">Chess Brain: Dark Troops</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/croc-s-world-construction-kit-2.webp" width="300" height="300" alt="Croc's World Construction Kit 2 box art"><span class="t">Croc's World Construction Kit 2</span><span class="p">PC</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/destroy-all-humans-2020.webp" width="300" height="450" alt="Destroy All Humans! (2020) box art"><a class="t" href="https://en.wikipedia.org/wiki/Destroy_All_Humans!_(2020_video_game)" target="_blank" rel="noopener">Destroy All Humans! (2020)<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/devoured-by-darkness.webp" width="300" height="300" alt="Devoured by Darkness box art"><span class="t">Devoured by Darkness</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/discolored.webp" width="300" height="450" alt="Discolored box art"><a class="t" href="https://www.pcgamingwiki.com/wiki/Discolored" target="_blank" rel="noopener">Discolored<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/doom-64.webp" width="300" height="206" alt="DOOM 64 box art"><a class="t" href="https://en.wikipedia.org/wiki/Doom_64" target="_blank" rel="noopener">DOOM 64<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/door-kickers-action-squad.webp" width="300" height="450" alt="Door Kickers: Action Squad box art"><a class="t" href="https://www.pcgamingwiki.com/wiki/Door_Kickers:_Action_Squad" target="_blank" rel="noopener">Door Kickers: Action Squad<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/flaskoman.webp" width="300" height="300" alt="Flaskoman box art"><span class="t">Flaskoman</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/mighty-goose.webp" width="300" height="300" alt="Mighty Goose box art"><a class="t" href="https://en.wikipedia.org/wiki/Mighty_Goose" target="_blank" rel="noopener">Mighty Goose<span class="w">WIKI ↗</span></a><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/monopoly-plus.webp" width="300" height="450" alt="MONOPOLY Plus box art"><a class="t" href="https://www.pcgamingwiki.com/wiki/Monopoly_Plus" target="_blank" rel="noopener">MONOPOLY Plus<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/murder-on-the-marine-express.webp" width="300" height="300" alt="Murder on the Marine Express box art"><span class="t">Murder on the Marine Express</span><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/my-friend-peppa-pig.webp" width="300" height="450" alt="My Friend Peppa Pig box art"><a class="t" href="https://www.pcgamingwiki.com/wiki/My_Friend_Peppa_Pig" target="_blank" rel="noopener">My Friend Peppa Pig<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/nba-2k6.webp" width="300" height="426" alt="NBA 2K6 box art"><a class="t" href="https://en.wikipedia.org/wiki/NBA_2K6" target="_blank" rel="noopener">NBA 2K6<span class="w">WIKI ↗</span></a><span class="p">Xbox 360</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/pity-pit.webp" width="300" height="300" alt="Pity Pit box art"><span class="t">Pity Pit</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/the-procession-to-calvary.webp" width="300" height="140" alt="The Procession to Calvary box art"><a class="t" href="https://en.wikipedia.org/wiki/The_Procession_to_Calvary" target="_blank" rel="noopener">The Procession to Calvary<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/rabio.webp" width="300" height="300" alt="Rabio box art"><span class="t">Rabio</span><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/reactorx-2.webp" width="300" height="300" alt="ReactorX 2 box art"><span class="t">ReactorX 2</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/robocop-rogue-city.webp" width="300" height="401" alt="RoboCop: Rogue City box art"><a class="t" href="https://en.wikipedia.org/wiki/RoboCop:_Rogue_City" target="_blank" rel="noopener">RoboCop: Rogue City<span class="w">WIKI ↗</span></a><span class="p">Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/robocop-rogue-city-unfinished-business.webp" width="300" height="450" alt="RoboCop: Rogue City - Unfinished Business box art"><a class="t" href="https://www.pcgamingwiki.com/wiki/RoboCop:_Rogue_City_-_Unfinished_Business" target="_blank" rel="noopener">RoboCop: Rogue City - Unfinished Business<span class="w">WIKI ↗</span></a><span class="p">Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/saints-row-the-third-remastered.webp" width="300" height="450" alt="Saints Row: The Third Remastered box art"><a class="t" href="https://en.wikipedia.org/wiki/Saints_Row:_The_Third" target="_blank" rel="noopener">Saints Row: The Third Remastered<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/sonic-the-fighters.webp" width="300" height="403" alt="Sonic the Fighters box art"><a class="t" href="https://en.wikipedia.org/wiki/Sonic_the_Fighters" target="_blank" rel="noopener">Sonic the Fighters<span class="w">WIKI ↗</span></a><span class="p">Xbox 360</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/space-science-investigations-humans-in-space.webp" width="300" height="300" alt="Space Science Investigations: Humans in Space box art"><span class="t">Space Science Investigations: Humans in Space</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/space-warlord-organ-trading-simulator.webp" width="300" height="172" alt="Space Warlord Organ Trading Simulator box art"><a class="t" href="https://en.wikipedia.org/wiki/Space_Warlord_Organ_Trading_Simulator" target="_blank" rel="noopener">Space Warlord Organ Trading Simulator<span class="w">WIKI ↗</span></a><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/terminator-2d-no-fate.webp" width="300" height="300" alt="Terminator 2D: NO FATE box art"><a class="t" href="https://en.wikipedia.org/wiki/Terminator_2D:_No_Fate" target="_blank" rel="noopener">Terminator 2D: NO FATE<span class="w">WIKI ↗</span></a><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/terminator-resistance.webp" width="300" height="300" alt="Terminator: Resistance box art"><a class="t" href="https://en.wikipedia.org/wiki/Terminator:_Resistance" target="_blank" rel="noopener">Terminator: Resistance<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/townscaper.webp" width="300" height="172" alt="Townscaper box art"><a class="t" href="https://en.wikipedia.org/wiki/Townscaper" target="_blank" rel="noopener">Townscaper<span class="w">WIKI ↗</span></a><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/the-turing-test.webp" width="300" height="391" alt="The Turing Test box art"><a class="t" href="https://en.wikipedia.org/wiki/The_Turing_Test_(video_game)" target="_blank" rel="noopener">The Turing Test<span class="w">WIKI ↗</span></a><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><img class="cover" loading="lazy" src="/images/digital/x-force-genesis.webp" width="300" height="300" alt="X-Force Genesis box art"><span class="t">X-Force Genesis</span><span class="p">Xbox One</span></li>
 </ol>
 </section>
 
 <section class="dgroup" id="beaten">
-<h2><i class="tick"></i> Beaten <small>23 GAMES</small></h2>
+<h2><i class="tick"></i> Beaten <small>21 GAMES</small></h2>
 <ol class="dlist">
-  <li><i class="tick" title="Beaten"></i><span class="t">Alien: Isolation</span><span class="p">Xbox One</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Army of TWO: The 40th Day</span><span class="p">Xbox 360</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Batman: Return to Arkham - Arkham Asylum</span><span class="p">Xbox One</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Battlefield 1</span><span class="p">Xbox One</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Battlefield 4</span><span class="p">Xbox One</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Battlefield V</span><span class="p">Xbox One</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Broforce</span><span class="p">Xbox One</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Contra: Operation Galuga</span><span class="p">Xbox One / Series X|S</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Dead Space</span><span class="p">Series X|S</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Ghostbusters: The Video Game Remastered</span><span class="p">Xbox One</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Injustice: Gods Among Us</span><span class="p">Xbox 360</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Mafia III</span><span class="p">Xbox One</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Marvel: Ultimate Alliance</span><span class="p">Xbox 360</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Marvel Ultimate Alliance 2</span><span class="p">Xbox 360</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Metal Gear Solid V: Ground Zeroes</span><span class="p">Xbox One</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Metal Gear Solid V: The Phantom Pain</span><span class="p">Xbox One</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Pragmata</span><span class="p">Series X|S</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Saints Row IV: Re-Elected</span><span class="p">Xbox One</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Teenage Mutant Ninja Turtles: Shredder's Revenge</span><span class="p">Xbox One</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Tom Clancy's Splinter Cell: Conviction</span><span class="p">Xbox 360</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Tom Clancy's The Division</span><span class="p">Xbox One</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">Watch Dogs</span><span class="p">Xbox One</span></li>
-  <li><i class="tick" title="Beaten"></i><span class="t">The Wolf Among Us</span><span class="p">Xbox 360</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/alien-isolation.webp" width="300" height="346" alt="Alien: Isolation box art"><a class="t" href="https://en.wikipedia.org/wiki/Alien:_Isolation" target="_blank" rel="noopener">Alien: Isolation<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/army-of-two-the-40th-day.webp" width="300" height="375" alt="Army of TWO: The 40th Day box art"><a class="t" href="https://en.wikipedia.org/wiki/Army_of_Two:_The_40th_Day" target="_blank" rel="noopener">Army of TWO: The 40th Day<span class="w">WIKI ↗</span></a><span class="p">Xbox 360</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/battlefield-1.webp" width="300" height="449" alt="Battlefield 1 box art"><a class="t" href="https://en.wikipedia.org/wiki/Battlefield_1" target="_blank" rel="noopener">Battlefield 1<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/battlefield-4.webp" width="300" height="442" alt="Battlefield 4 box art"><a class="t" href="https://en.wikipedia.org/wiki/Battlefield_4" target="_blank" rel="noopener">Battlefield 4<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/battlefield-v.webp" width="300" height="410" alt="Battlefield V box art"><a class="t" href="https://en.wikipedia.org/wiki/Battlefield_V" target="_blank" rel="noopener">Battlefield V<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/broforce.webp" width="300" height="147" alt="Broforce box art"><a class="t" href="https://en.wikipedia.org/wiki/Broforce" target="_blank" rel="noopener">Broforce<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/contra-operation-galuga.webp" width="300" height="450" alt="Contra: Operation Galuga box art"><a class="t" href="https://www.pcgamingwiki.com/wiki/Contra:_Operation_Galuga" target="_blank" rel="noopener">Contra: Operation Galuga<span class="w">WIKI ↗</span></a><span class="p">Xbox One / Series X|S</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/dead-space.webp" width="300" height="376" alt="Dead Space box art"><a class="t" href="https://en.wikipedia.org/wiki/Dead_Space_(2023_video_game)" target="_blank" rel="noopener">Dead Space<span class="w">WIKI ↗</span></a><span class="p">Series X|S</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/ghostbusters-the-video-game-remastered.webp" width="300" height="400" alt="Ghostbusters: The Video Game Remastered box art"><a class="t" href="https://en.wikipedia.org/wiki/Ghostbusters:_The_Video_Game" target="_blank" rel="noopener">Ghostbusters: The Video Game Remastered<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/injustice-gods-among-us.webp" width="300" height="369" alt="Injustice: Gods Among Us box art"><a class="t" href="https://en.wikipedia.org/wiki/Injustice:_Gods_Among_Us" target="_blank" rel="noopener">Injustice: Gods Among Us<span class="w">WIKI ↗</span></a><span class="p">Xbox 360</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/mafia-iii.webp" width="300" height="450" alt="Mafia III box art"><a class="t" href="https://en.wikipedia.org/wiki/Mafia_III" target="_blank" rel="noopener">Mafia III<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/marvel-ultimate-alliance.webp" width="300" height="379" alt="Marvel: Ultimate Alliance box art"><a class="t" href="https://en.wikipedia.org/wiki/Marvel:_Ultimate_Alliance" target="_blank" rel="noopener">Marvel: Ultimate Alliance<span class="w">WIKI ↗</span></a><span class="p">Xbox 360</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/marvel-ultimate-alliance-2.webp" width="300" height="375" alt="Marvel Ultimate Alliance 2 box art"><a class="t" href="https://en.wikipedia.org/wiki/Marvel:_Ultimate_Alliance_2" target="_blank" rel="noopener">Marvel Ultimate Alliance 2<span class="w">WIKI ↗</span></a><span class="p">Xbox 360</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/metal-gear-solid-v-ground-zeroes.webp" width="300" height="371" alt="Metal Gear Solid V: Ground Zeroes box art"><a class="t" href="https://en.wikipedia.org/wiki/Metal_Gear_Solid_V:_Ground_Zeroes" target="_blank" rel="noopener">Metal Gear Solid V: Ground Zeroes<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/metal-gear-solid-v-the-phantom-pain.webp" width="300" height="401" alt="Metal Gear Solid V: The Phantom Pain box art"><a class="t" href="https://en.wikipedia.org/wiki/Metal_Gear_Solid_V:_The_Phantom_Pain" target="_blank" rel="noopener">Metal Gear Solid V: The Phantom Pain<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/pragmata.webp" width="300" height="439" alt="Pragmata box art"><a class="t" href="https://en.wikipedia.org/wiki/Pragmata" target="_blank" rel="noopener">Pragmata<span class="w">WIKI ↗</span></a><span class="p">Series X|S</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/teenage-mutant-ninja-turtles-shredder-s-revenge.webp" width="300" height="450" alt="Teenage Mutant Ninja Turtles: Shredder's Revenge box art"><a class="t" href="https://en.wikipedia.org/wiki/Teenage_Mutant_Ninja_Turtles:_Shredder%27s_Revenge" target="_blank" rel="noopener">Teenage Mutant Ninja Turtles: Shredder's Revenge<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/tom-clancy-s-splinter-cell-conviction.webp" width="300" height="393" alt="Tom Clancy's Splinter Cell: Conviction box art"><a class="t" href="https://en.wikipedia.org/wiki/Tom_Clancy%27s_Splinter_Cell:_Conviction" target="_blank" rel="noopener">Tom Clancy's Splinter Cell: Conviction<span class="w">WIKI ↗</span></a><span class="p">Xbox 360</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/tom-clancy-s-the-division.webp" width="300" height="392" alt="Tom Clancy's The Division box art"><a class="t" href="https://en.wikipedia.org/wiki/Tom_Clancy%27s_The_Division" target="_blank" rel="noopener">Tom Clancy's The Division<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/watch-dogs.webp" width="300" height="392" alt="Watch Dogs box art"><a class="t" href="https://en.wikipedia.org/wiki/Watch_Dogs_(video_game)" target="_blank" rel="noopener">Watch Dogs<span class="w">WIKI ↗</span></a><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><img class="cover" loading="lazy" src="/images/digital/the-wolf-among-us.webp" width="300" height="311" alt="The Wolf Among Us box art"><a class="t" href="https://en.wikipedia.org/wiki/The_Wolf_Among_Us" target="_blank" rel="noopener">The Wolf Among Us<span class="w">WIKI ↗</span></a><span class="p">Xbox 360</span></li>
 </ol>
 </section>
 

@@ -5,13 +5,15 @@ on Xbox, so they're not on the physical shelf.
     python3 tools/build_digital.py
 
 Reads tools/data/digital_games.json: two lists, "completed" (every
-achievement) and "beaten" (finished the story), each entry a title and the
-platform it was played on. Only titles and status go on the page. A game
-that's on the shelf for that same Xbox belongs in BEATEN / COMPLETED in
-index.html instead, so the script warns if one turns up here (a copy on a
-different console, like the N64 Doom 64 cart, is a different game here). If a photo already exists in
-images/ for the title on that Xbox it's used (unless the entry says
-"photo": false); nothing is fetched. Safe to
+achievement) and "beaten" (finished the story), each entry a title, the
+platform it was played on and, when found, box art ("image", a 300px .webp
+in images/digital/ with "image_w"/"image_h"; "image_source" is the page it
+came from, kept for the record and not shown) and a "wiki" link (Wikipedia,
+else PCGamingWiki), which the title links to in a new tab. A game without
+art gets a plain stand-in tile. A game that's on the shelf for that same
+Xbox belongs in BEATEN / COMPLETED in index.html instead, so the script
+warns if one turns up here (a copy on a different console, like the N64
+Doom 64 cart, is a different game here). Nothing is fetched. Safe to
 re-run; it also makes sure digital.html is in sitemap.xml."""
 import json, os, sys
 
@@ -22,7 +24,7 @@ from build_overrated import add_to_sitemap
 
 esc = sd.esc
 SRC = os.path.join(sd.DATA, "digital_games.json")
-# platform label -> the shelf name its photos would be filed under
+# platform label -> the shelf system name, for the "already on the shelf" warning
 SHELF_NAME = {"Xbox": "Xbox", "Xbox 360": "Xbox 360", "Xbox One": "Xbox One", "Series X|S": "Xbox Series X/S"}
 
 CSS = """  .scores{display:flex;flex-wrap:wrap;margin:24px 0 0;border:2px solid var(--line);border-radius:2px;overflow:hidden}
@@ -41,7 +43,17 @@ CSS = """  .scores{display:flex;flex-wrap:wrap;margin:24px 0 0;border:2px solid 
   ol.dlist li:hover{background:var(--panel)}
   ol.dlist .t{flex:1 1 auto;min-width:0;font-family:"IBM Plex Sans Condensed",sans-serif;font-size:17.5px;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
   ol.dlist .p{flex:none;color:#7fc97f;font-family:"Silkscreen",monospace;font-size:11px;white-space:nowrap}
-  ol.dlist .shot{flex:none;width:38px;height:38px;object-fit:cover;border:1px solid var(--line);border-radius:2px;background:#0a0c11}
+  ol.dlist .cover{flex:none;width:46px;height:60px;object-fit:contain;border:1px solid var(--line);border-radius:2px;background:#0a0c11}
+  ol.dlist span.cover{display:flex;align-items:center;justify-content:center;font-family:"Silkscreen",monospace;font-size:8px;
+    line-height:1.3;text-align:center;color:var(--dim);letter-spacing:.04em}
+  ol.dlist a.t{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+  ol.dlist a.t:hover,ol.dlist a.t:focus-visible{border-bottom-color:#7fc97f;outline:none}
+  ol.dlist a.t .w{margin-left:7px;font-family:"Silkscreen",monospace;font-size:9px;font-weight:400;letter-spacing:.06em;color:var(--dim);white-space:nowrap}
+  body.y1996 ol.dlist .cover{border:2px inset #808080;border-radius:0;background:#000}
+  body.y1996 ol.dlist span.cover{color:#c0c0c0;font-family:"Courier New",monospace}
+  body.y1996 ol.dlist a.t{color:#00ffff;border-bottom:none;text-decoration:underline}
+  body.y1996 ol.dlist a.t:visited{color:#ee82ee}
+  body.y1996 ol.dlist a.t .w{color:#c0c0c0;font-family:"Courier New",monospace}
   .tick{flex:none;width:15px;height:15px;border:2px solid #3fbf6a;background:#3fbf6a;border-radius:2px;position:relative}
   .tick::after{content:"";position:absolute;left:3.5px;top:.5px;width:4px;height:8px;border:solid #0b1410;border-width:0 2px 2px 0;transform:rotate(42deg)}
   .hundo{flex:none;font-style:normal;font-family:"Silkscreen",monospace;font-size:9px;line-height:1;letter-spacing:.03em;
@@ -51,20 +63,13 @@ CSS = """  .scores{display:flex;flex-wrap:wrap;margin:24px 0 0;border:2px solid 
   body.y1996 .tick::after{display:none}
   @media (max-width:560px){
     ol.dlist li{flex-wrap:wrap;row-gap:2px}
-    ol.dlist .p{flex-basis:100%;padding-left:28px;white-space:normal}
-    ol.dlist li.c100 .p{padding-left:52px}
+    ol.dlist li{display:grid;grid-template-columns:auto 46px 1fr;column-gap:12px;row-gap:3px;align-items:center}
+    ol.dlist .cover{grid-row:span 2}
+    ol.dlist .t{align-self:end}
+    ol.dlist .p{grid-column:3;align-self:start;white-space:normal}
+    ol.dlist li>i{grid-row:span 2}
   }
 """
-
-
-def photo(title, platform):
-    for part in platform.split(" / "):
-        name = SHELF_NAME.get(part)
-        if name:
-            p = sd.photo_for(sd.slug(title, name))
-            if p and "/placeholders/" not in p:
-                return p
-    return None
 
 
 def rows(items, completed):
@@ -72,10 +77,18 @@ def rows(items, completed):
     for it in sorted(items, key=lambda x: sd.nkey(x["title"])):
         mark = ('<i class="hundo" title="100% complete">100%</i>' if completed
                 else '<i class="tick" title="Beaten"></i>')
-        img = photo(it["title"], it["platform"]) if it.get("photo", True) else None
-        pic = f'<img class="shot" loading="lazy" src="{esc(img)}" alt="{esc(it["title"])}">' if img else ""
+        if it.get("image"):
+            pic = (f'<img class="cover" loading="lazy" src="/{esc(it["image"])}" width="{it["image_w"]}" '
+                   f'height="{it["image_h"]}" alt="{esc(it["title"])} box art">')
+        else:
+            pic = '<span class="cover" aria-hidden="true">NO<br>ART</span>'
+        if it.get("wiki"):
+            title = (f'<a class="t" href="{esc(it["wiki"])}" target="_blank" rel="noopener">{esc(it["title"])}'
+                     f'<span class="w">WIKI \u2197</span></a>')
+        else:
+            title = f'<span class="t">{esc(it["title"])}</span>'
         cls = ' class="c100"' if completed else ""
-        out.append(f'  <li{cls}>{mark}{pic}<span class="t">{esc(it["title"])}</span>'
+        out.append(f'  <li{cls}>{mark}{pic}{title}'
                    f'<span class="p">{esc(it["platform"])}</span></li>\n')
     return "".join(out)
 
