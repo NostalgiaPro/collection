@@ -379,6 +379,15 @@
    "wiki": "https://en.wikipedia.org/wiki/Ghostbusters:_The_Video_Game"
   },
   {
+   "title": "Halo Infinite",
+   "platform": "Xbox One / Series X|S",
+   "image": "images/digital/halo-infinite.webp",
+   "image_w": 300,
+   "image_h": 381,
+   "image_source": "https://en.wikipedia.org/wiki/File:Halo_Infinite.png",
+   "wiki": "https://en.wikipedia.org/wiki/Halo_Infinite"
+  },
+  {
    "title": "Injustice: Gods Among Us",
    "platform": "Xbox 360",
    "image": "images/digital/injustice-gods-among-us.webp",
@@ -397,15 +406,6 @@
    "wiki": "https://en.wikipedia.org/wiki/Mafia_III"
   },
   {
-   "title": "Marvel: Ultimate Alliance",
-   "platform": "Xbox 360",
-   "image": "images/digital/marvel-ultimate-alliance.webp",
-   "image_w": 300,
-   "image_h": 379,
-   "image_source": "https://en.wikipedia.org/wiki/File:Ultimate_alliance.PNG",
-   "wiki": "https://en.wikipedia.org/wiki/Marvel:_Ultimate_Alliance"
-  },
-  {
    "title": "Marvel Ultimate Alliance 2",
    "platform": "Xbox 360",
    "image": "images/digital/marvel-ultimate-alliance-2.webp",
@@ -413,6 +413,15 @@
    "image_h": 375,
    "image_source": "https://en.wikipedia.org/wiki/File:Marvel_Ultimate_Alliance_2.jpg",
    "wiki": "https://en.wikipedia.org/wiki/Marvel:_Ultimate_Alliance_2"
+  },
+  {
+   "title": "Marvel: Ultimate Alliance",
+   "platform": "Xbox 360",
+   "image": "images/digital/marvel-ultimate-alliance.webp",
+   "image_w": 300,
+   "image_h": 379,
+   "image_source": "https://en.wikipedia.org/wiki/File:Ultimate_alliance.PNG",
+   "wiki": "https://en.wikipedia.org/wiki/Marvel:_Ultimate_Alliance"
   },
   {
    "title": "Metal Gear Solid V: Ground Zeroes",
