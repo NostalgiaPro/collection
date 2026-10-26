@@ -144,11 +144,13 @@
     letter-spacing:.05em;color:var(--hot);
   }
   .titles small{font-size:12px;color:var(--dim)}
-  .want .dig{color:var(--dim);letter-spacing:.02em}
   .pip{white-space:nowrap}
+  .pip.has.dig{background:transparent;border:2px solid var(--c);color:var(--c)}
+  .want.done{color:var(--dim)}
+  .note b{color:var(--text);font-weight:600}
   header{margin-bottom:26px}
   @media (max-width:560px){
-    .score{flex:1 1 30%;padding:11px 10px}
+    .score{flex:1 1 45%;padding:11px 10px}
     .score b{font-size:15px}
     .score span{font-size:9px;letter-spacing:.05em}
   }
@@ -176,16 +178,17 @@
   </div>
   <div class="scores">
     <div class="score"><b>8</b><span>series</span></div>
-    <div class="score"><b>16</b><span>games missing</span></div>
-    <div class="score"><b>28</b><span>already owned</span></div>
+    <div class="score"><b>17</b><span>games missing</span></div>
+    <div class="score"><b>28</b><span>on the shelf</span></div>
+    <div class="score"><b>12*</b><span>digital</span></div>
   </div>
 </header>
 
 <div class="gap" style="--c:#8ec63f">
   <h2>Battlefield</h2>
-  <div class="run"><span class="pip has">2</span><span class="pip has">3</span><span class="pip gone">4</span><span class="pip gone">V</span><span class="pip has">6</span></div>
-  <p class="titles"><b>Battlefield 2</b> <span>PC</span> &middot; <b>Battlefield 3 [Limited Edition]</b> <span>Xbox 360</span> &middot; <b>Battlefield 6</b> <span>Xbox Series X/S</span></p>
-  <p class="want">Missing: Battlefield 4 <span class="dig">(have it digitally; only the China Rising expansion disc is on the shelf)</span>, Battlefield V <span class="dig">(have it digitally)</span></p>
+  <div class="run"><span class="pip has">2</span><span class="pip has">3</span><span class="pip has dig" title="Digital">4*</span><span class="pip has dig" title="Digital">V*</span><span class="pip has">6</span></div>
+  <p class="titles"><b>Battlefield 2</b> <span>PC</span> &middot; <b>Battlefield 3 [Limited Edition]</b> <span>Xbox 360</span> &middot; <b>Battlefield 4*</b> <span>Xbox One, Xbox 360</span> &middot; <b>Battlefield V*</b> <span>Xbox One</span> &middot; <b>Battlefield 6</b> <span>Xbox Series X/S</span></p>
+  <p class="want done">Complete, counting digital. The Battlefield 4 disc on the shelf is the China Rising expansion pack, not the game.</p>
 </div><div class="gap" style="--c:#a9b0c4">
   <h2>Gran Turismo</h2>
   <div class="run"><span class="pip has">1</span><span class="pip has">2</span><span class="pip has">3</span><span class="pip gone">4</span><span class="pip has">5</span><span class="pip has">6</span></div>
@@ -193,9 +196,9 @@
   <p class="want">Missing: Gran Turismo 4</p>
 </div><div class="gap" style="--c:#e04a3c">
   <h2>Streets of Rage</h2>
-  <div class="run"><span class="pip has">1</span><span class="pip has">2</span><span class="pip gone">3</span><span class="pip has">4</span></div>
-  <p class="titles"><b>Streets of Rage</b> <span>Sega Genesis</span> &middot; <b>Streets of Rage 2</b> <span>Sega Genesis</span> &middot; <b>Streets of Rage 4: Anniversary Edition</b> <span>PlayStation 4</span></p>
-  <p class="want">Missing: Streets of Rage 3</p>
+  <div class="run"><span class="pip has">1</span><span class="pip has">2</span><span class="pip has dig" title="Digital">3*</span><span class="pip has">4</span></div>
+  <p class="titles"><b>Streets of Rage</b> <span>Sega Genesis</span> &middot; <b>Streets of Rage 2</b> <span>Sega Genesis</span> &middot; <b>Streets of Rage 3*</b> <span>Xbox, in SEGA Genesis Classics and Sega Vintage Collection: Streets of Rage</span> &middot; <b>Streets of Rage 4: Anniversary Edition</b> <span>PlayStation 4</span></p>
+  <p class="want done">Complete, counting digital.</p>
 </div><div class="gap" style="--c:#f2793f">
   <h2>Unreal Tournament</h2>
   <div class="run"><span class="pip has">1</span><span class="pip gone">2003</span><span class="pip gone">2004</span><span class="pip has">III</span></div>
@@ -203,19 +206,19 @@
   <p class="want">Missing: Unreal Tournament 2003, Unreal Tournament 2004</p>
 </div><div class="gap" style="--c:#4a63c9">
   <h2>Virtua Fighter</h2>
-  <div class="run"><span class="pip has">2</span><span class="pip gone">3</span><span class="pip has">4</span></div>
-  <p class="titles"><b>Virtua Fighter 2</b> <span>Sega Saturn</span> &middot; <b>Virtua Fighter 4</b> <span>PlayStation 2</span></p>
+  <div class="run"><span class="pip has">2</span><span class="pip gone">3</span><span class="pip has">4</span><span class="pip has dig" title="Digital">5*</span></div>
+  <p class="titles"><b>Virtua Fighter 2</b> <span>Sega Saturn</span> &middot; <b>Virtua Fighter 4</b> <span>PlayStation 2</span> &middot; <b>Virtua Fighter 5 Final Showdown*</b> <span>Xbox 360</span></p>
   <p class="want">Missing: Virtua Fighter 3</p>
 </div><div class="gap" style="--c:#d3d0c8">
   <h2>Final Fantasy</h2>
-  <div class="run"><span class="pip has">1</span><span class="pip gone">2</span><span class="pip gone">3</span><span class="pip has">4</span><span class="pip gone">5</span><span class="pip has">6</span><span class="pip has">7</span><span class="pip has">8</span><span class="pip has">9</span></div>
-  <p class="titles"><b>Final Fantasy</b> <span>NES</span> &middot; <b>Final Fantasy II <small>(IV)</small></b> <span>SNES</span> &middot; <b>Final Fantasy III <small>(VI)</small></b> <span>SNES</span> &middot; <b>Final Fantasy VII</b> <span>PlayStation 1</span> &middot; <b>Final Fantasy VIII</b> <span>PlayStation 1</span> &middot; <b>Final Fantasy IX [Greatest Hits]</b> <span>PlayStation 1</span></p>
-  <p class="want">Missing: Final Fantasy II, Final Fantasy III (the Famicom ones), Final Fantasy V</p>
+  <div class="run"><span class="pip has">1</span><span class="pip gone">2</span><span class="pip gone">3</span><span class="pip has">4</span><span class="pip gone">5</span><span class="pip has">6</span><span class="pip has">7</span><span class="pip has">8</span><span class="pip has">9</span><span class="pip gone">10</span><span class="pip gone">11</span><span class="pip gone">12</span><span class="pip has dig" title="Digital">13*</span><span class="pip gone">14</span><span class="pip has dig" title="Digital">15*</span></div>
+  <p class="titles"><b>Final Fantasy</b> <span>NES</span> &middot; <b>Final Fantasy II <small>(IV)</small></b> <span>SNES</span> &middot; <b>Final Fantasy III <small>(VI)</small></b> <span>SNES</span> &middot; <b>Final Fantasy VII</b> <span>PlayStation 1</span> &middot; <b>Final Fantasy VIII</b> <span>PlayStation 1</span> &middot; <b>Final Fantasy IX [Greatest Hits]</b> <span>PlayStation 1</span> &middot; <b>Final Fantasy XIII*</b> <span>Xbox 360</span> &middot; <b>Final Fantasy XV*</b> <span>Xbox One</span></p>
+  <p class="want">Missing: Final Fantasy II, Final Fantasy III (the Famicom ones), Final Fantasy V, Final Fantasy X, Final Fantasy XI, Final Fantasy XII, Final Fantasy XIV</p>
 </div><div class="gap" style="--c:#d3d0c8">
   <h2>Mega Man</h2>
-  <div class="run"><span class="pip has">2</span><span class="pip gone">3</span><span class="pip gone">4</span><span class="pip gone">5</span><span class="pip has">6</span></div>
-  <p class="titles"><b>Mega Man 2</b> <span>NES</span> &middot; <b>Mega Man 6</b> <span>NES</span></p>
-  <p class="want">Missing: Mega Man 3, Mega Man 4, Mega Man 5</p>
+  <div class="run"><span class="pip has dig" title="Digital">1*</span><span class="pip has">2</span><span class="pip has dig" title="Digital">3*</span><span class="pip has dig" title="Digital">4*</span><span class="pip has dig" title="Digital">5*</span><span class="pip has">6</span><span class="pip gone">7</span><span class="pip gone">8</span><span class="pip gone">9</span><span class="pip has dig" title="Digital">10*</span><span class="pip has dig" title="Digital">11*</span></div>
+  <p class="titles"><b>Mega Man 2</b> <span>NES</span> &middot; <b>Mega Man 6</b> <span>NES</span> &middot; <b>Mega Man*, Mega Man 3*, Mega Man 4*, Mega Man 5*</b> <span>Xbox One, in Mega Man Legacy Collection</span> &middot; <b>Mega Man 10*</b> <span>Xbox 360</span> &middot; <b>Mega Man 11*</b> <span>Xbox One</span></p>
+  <p class="want">Missing: Mega Man 7, Mega Man 8, Mega Man 9</p>
 </div><div class="gap" style="--c:#8ec63f">
   <h2>Tiger Woods PGA Tour</h2>
   <div class="run"><span class="pip has">2004</span><span class="pip has">2005</span><span class="pip has">06</span><span class="pip gone">07</span><span class="pip has">08</span><span class="pip gone">09</span><span class="pip gone">10</span><span class="pip has">11</span></div>
@@ -223,12 +226,14 @@
   <p class="want">Missing: Tiger Woods PGA Tour 07, Tiger Woods PGA Tour 09, Tiger Woods PGA Tour 10</p>
 </div>
 
+<p class="note"><b>* Digital.</b> On my Xbox, not on the shelf. A digital copy fills its spot
+in the run, so it isn't counted as missing.</p>
+
 <p class="note">Worked out from the numbering on the boxes, so it only catches numbered
 sequels. A series that switched to subtitles part way through, like Mortal Kombat after 3,
 won't show up here. Final Fantasy is the awkward one: the SNES games sold as II and III in
 America are IV and VI everywhere else, so they fill those spots here, and the missing II and
-III are the Famicom originals. Physical copies only: a game I have digitally still counts as
-missing.</p>
+III are the Famicom originals.</p>
 
     <p class="bestviewed y1996only">
       <a href="mailto:thenostalgiapro@gmail.com">E-mail me</a><br>
