@@ -232,3 +232,63 @@ released that day (from `RELEASED` in `index.html`; month-only dates are
 skipped) and the consoles from `EVENTS` in `anniversaries.html`, each with
 its game or console page and photo. Offline and quick, and
 `build_game_pages.py` runs it at the end, so it keeps up with the shelf.
+
+## `build_daily.py`: data for Daily Shelf and Shelf vs. Mine
+
+```
+python3 tools/build_daily.py
+```
+
+Writes two files that `daily.html` and `match.html` load:
+
+* `data/shelf-games.json`: every game on the shelf (title, system,
+  condition, photo, release year, beaten, genre, whether it has a game page),
+  straight from the `RAW` block in `index.html` via `sitedata.py`.
+* `data/daily.json`: the Daily Shelf schedule, one game per day from
+  `EPOCH` (2026-10-26 is puzzle #1). Only games with a real photo of my copy
+  (`images/<slug>.webp` or `.jpg`, not a stand-in cover) are used. The order
+  is a seeded shuffle (mulberry32, fixed `SEED`) of those games, written out
+  in full, so nothing random happens in the browser and everyone gets the
+  same game on the same day. The day changes at midnight Arizona time.
+
+**When to re-run:** after changing the shelf or adding photos (same time as
+`build_game_pages.py`). It's safe any time: if nothing changed the schedule
+is left byte-for-byte alone; if something did, every day up to and including
+today stays frozen (so the archive and past answers never change), games that
+left the shelf drop out of the future, and newly photographed games are
+slotted into future days. Don't change `EPOCH` or `SEED` after launch (that
+reshuffles everything). If the launch moves to a later date, change `EPOCH`
+in `build_daily.py` and the matching `EPOCH` in the small "Homepage tiles"
+script near the bottom of `index.html`, then re-run.
+
+Note: the answers are in a public JSON file, as they have to be on a static
+site. Anyone determined to cheat can; it's an honour system like every other
+daily guessing game.
+
+## `daily_answers.py`: Daily Shelf answers for a date range
+
+```
+python3 tools/daily_answers.py                          # today
+python3 tools/daily_answers.py 2026-10-26 2026-11-01    # a range, inclusive
+python3 tools/daily_answers.py --week                   # the 7 days ending today
+python3 tools/daily_answers.py --week 2026-11-01 --md   # Markdown list, for the Substack recap
+python3 tools/daily_answers.py 2026-10-26 2026-11-01 --json
+```
+
+Prints puzzle number, date, title, console and release year (when it's on
+file), with a link to the game page in `--md` mode. It reads the same
+`data/daily.json` and `data/shelf-games.json` the page does, so it always
+matches what visitors saw.
+
+## Daily Shelf, Shelf vs. Mine and the intro: where things live
+
+* `daily.html`: the game. Progress, streak and stats are in localStorage
+  (`np-daily-v1`), only games finished on their own day count toward the
+  streak, and `daily.html?n=5` replays puzzle #5 from the archive.
+* `match.html`: Shelf vs. Mine. Ticks are saved in localStorage
+  (`np-match-v1`); the share card is drawn on a canvas in the browser.
+* `index.html`: the CRT power-on intro (first visit only, flag
+  `np-intro-seen`; skipped for reduced motion and crawlers; "Replay intro" in
+  the footer) and the two tiles under the stats bar.
+* Both pages are in the nav (`NAV` in `pagekit.py`, so generated pages keep
+  them), `sitemap.xml` and the `sw.js` offline list.

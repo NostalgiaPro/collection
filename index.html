@@ -507,9 +507,130 @@ body.y1996 .o1 #lucky{background:#c0c0c0;color:#000;border:2px outset #fff}
 }
 @media (max-width:560px){.o1 .searchbar .btn{padding:13px 6px;font-size:9.5px;letter-spacing:.02em}}
 
+
+/* ===== Daily Shelf / Shelf vs. Mine tiles ===== */
+.playtiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0 0}
+.ptile{position:relative;display:flex;gap:14px;align-items:center;min-width:0;overflow:hidden;
+  text-decoration:none;color:var(--text);background:var(--bg2);border:1px solid var(--line);
+  border-left:4px solid var(--hot);border-radius:4px;padding:14px 16px;transition:border-color .15s,background .15s}
+.ptile:hover,.ptile:focus-visible{border-color:var(--hot);background:var(--panel);outline:none}
+.ptile::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.025) 0 1px,transparent 1px 3px)}
+.ptile .pico{flex:none;width:54px;height:54px;display:grid;grid-template-columns:repeat(6,1fr);gap:1px;
+  border:1px solid var(--line);background:#0a0c11;padding:3px}
+.ptile .pico i{display:block;background:var(--c,#3a3f52)}
+.ptile .pmeter{flex:none;width:54px;height:54px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);background:#0a0c11;font-family:"Press Start 2P",monospace;font-size:11px;color:var(--hot)}
+.ptile .ptxt{min-width:0}
+.ptile .pkick{display:block;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.12em;color:var(--hot);margin:0 0 4px}
+.ptile .phead{display:block;font-family:"Press Start 2P",monospace;font-size:13px;line-height:1.5}
+.ptile .psub{display:block;font-size:14px;color:var(--dim);margin:4px 0 0;line-height:1.35}
+.ptile .pgo{margin-left:auto;flex:none;font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;letter-spacing:.06em;
+  border:2px solid var(--hot);color:var(--hot);padding:8px 10px;border-radius:2px}
+.ptile:hover .pgo{background:var(--hot);color:#12070a}
+@media (max-width:720px){
+  .playtiles{grid-template-columns:1fr;gap:8px}
+  .ptile{padding:11px 12px;gap:11px}
+  .ptile .pico,.ptile .pmeter{width:44px;height:44px}
+  .ptile .phead{font-size:11px}
+  .ptile .psub{font-size:13px}
+  .ptile .pgo{padding:7px 8px;font-size:10px}
+}
+body.y1996 .ptile{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0}
+body.y1996 .ptile .phead{font-family:"Times New Roman",Times,serif;font-size:18px;color:#000080}
+body.y1996 .ptile .psub{color:#000}
+
+/* ===== CRT power-on intro (first visit only; the page is already rendered underneath) ===== */
+#crt{position:fixed;inset:0;z-index:2147483000;background:#000;overflow:hidden;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:opacity .35s ease}
+#crt.out{opacity:0;pointer-events:none}
+#crt .crt-line{position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;background:#fff;
+  box-shadow:0 0 18px 4px rgba(255,255,255,.85),0 0 60px 10px rgba(160,190,255,.45);
+  transform:scaleX(0);animation:crtLine .9s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes crtLine{
+  0%{transform:scaleX(0) scaleY(1);opacity:1}
+  35%{transform:scaleX(1) scaleY(1);opacity:1}
+  62%{transform:scaleX(1) scaleY(260);opacity:1}
+  100%{transform:scaleX(1) scaleY(260);opacity:0}
+}
+#crt canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;opacity:0;
+  animation:crtStatic 1.5s .45s linear forwards}
+@keyframes crtStatic{0%{opacity:0}10%{opacity:.95}34%{opacity:.9}48%{opacity:.32}100%{opacity:.14}}
+#crt .crt-wm{position:relative;z-index:2;text-align:center;opacity:0;padding:0 18px;
+  animation:crtMark 1.2s .95s steps(1,end) forwards}
+#crt .crt-wm b{display:block;font-family:"Press Start 2P",monospace;font-weight:400;color:#fff;
+  font-size:clamp(18px,4.6vw,46px);line-height:1.4;letter-spacing:.02em;
+  text-shadow:-3px 0 rgba(255,75,62,.85),3px 0 rgba(80,160,255,.75),0 0 28px rgba(255,255,255,.55)}
+#crt .crt-wm span{display:block;margin:16px 0 0;font-family:"Silkscreen",monospace;font-size:clamp(10px,1.6vw,14px);
+  letter-spacing:.3em;color:#ff4b3e}
+@keyframes crtMark{0%{opacity:0}8%{opacity:1}14%{opacity:.25}20%{opacity:1}52%{opacity:.85}56%{opacity:1}100%{opacity:1}}
+#crt .crt-scan{position:absolute;inset:0;z-index:3;pointer-events:none;
+  background:repeating-linear-gradient(to bottom,rgba(0,0,0,.38) 0 2px,transparent 2px 4px);
+  animation:crtFlicker .12s steps(2,end) infinite}
+#crt .crt-bar{position:absolute;left:0;right:0;height:18%;z-index:3;pointer-events:none;
+  background:linear-gradient(to bottom,transparent,rgba(255,255,255,.07),transparent);animation:crtRoll 1.4s linear infinite}
+#crt .crt-vig{position:absolute;inset:0;z-index:4;pointer-events:none;box-shadow:inset 0 0 160px 40px rgba(0,0,0,.9);border-radius:18px}
+@keyframes crtFlicker{0%{opacity:.85}100%{opacity:1}}
+@keyframes crtRoll{from{transform:translateY(-120%)}to{transform:translateY(620%)}}
+#crt .crt-skip{position:absolute;z-index:5;right:16px;bottom:16px;bottom:calc(16px + env(safe-area-inset-bottom));
+  background:rgba(0,0,0,.6);color:#eceae2;border:2px solid #2c3040;border-radius:2px;cursor:pointer;
+  font-family:"Silkscreen",monospace;font-weight:700;font-size:12px;letter-spacing:.08em;padding:10px 14px}
+#crt .crt-skip:hover,#crt .crt-skip:focus-visible{border-color:#ff4b3e;color:#ff4b3e;outline:none}
+.introline{margin:10px 0 0;font-size:13px}
+.introline a{color:var(--dim);font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.06em}
+.introline a:hover{color:var(--hot)}
+
 </style>
 </head>
 <body>
+<script>
+/* CRT power-on intro. Plays once, on the first visit, as an overlay on top of
+   the page, which is already in the HTML and keeps loading underneath (so it
+   costs nothing for search engines or slow phones). Skipped entirely for
+   reduced motion and crawlers. Tap, click, a key, or Skip ends it early.
+   "Replay intro" in the footer plays it again. No sound. */
+(function(){
+  var KEY = "np-intro-seen", LEN = 2100;
+  function seen(){ try { return localStorage.getItem(KEY) === "1"; } catch (e) { return true; } }
+  function mark(){ try { localStorage.setItem(KEY, "1"); } catch (e) {} }
+  function reduced(){ return !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches); }
+  var bot = /bot|crawl|spider|slurp|lighthouse|facebookexternalhit|embedly|preview/i.test(navigator.userAgent);
+
+  function play(){
+    if (document.getElementById("crt")) return;
+    var o = document.createElement("div");
+    o.id = "crt";
+    o.setAttribute("aria-hidden", "true");
+    o.innerHTML = '<div class="crt-line"></div><canvas width="160" height="100"></canvas>' +
+      '<div class="crt-wm"><b>The Nostalgia Pro</b><span>IS IT ON THE SHELF?</span></div>' +
+      '<div class="crt-bar"></div><div class="crt-scan"></div><div class="crt-vig"></div>' +
+      '<button type="button" class="crt-skip">Skip &#9658;</button>';
+    document.body.appendChild(o);
+    var cv = o.querySelector("canvas"), ctx = cv.getContext("2d"), img = ctx.createImageData(160, 100);
+    var t0 = performance.now(), raf, done = false;
+    (function noise(now){
+      if (done) return;
+      var d = img.data;
+      for (var i = 0; i < d.length; i += 4) { var v = Math.random() * 255 | 0; d[i] = d[i+1] = d[i+2] = v; d[i+3] = 255; }
+      ctx.putImageData(img, 0, 0);
+      if (now - t0 < LEN) raf = requestAnimationFrame(noise);
+    })(t0);
+    var timer = setTimeout(end, LEN);
+    function end(){
+      if (done) return; done = true;
+      clearTimeout(timer); cancelAnimationFrame(raf);
+      removeEventListener("keydown", onKey, true);
+      o.classList.add("out");
+      setTimeout(function(){ if (o.parentNode) o.parentNode.removeChild(o); }, 380);
+    }
+    function onKey(e){ if (e.key === "Escape" || e.key === "Enter" || e.key === " ") { e.preventDefault(); end(); } }
+    o.addEventListener("click", end);
+    addEventListener("keydown", onKey, true);
+  }
+  window.npIntro = function(){ if (!reduced()) play(); };
+  if (!seen() && !reduced() && !bot) { mark(); play(); }
+})();
+</script>
 <div class="wrap">
 
   <header class="o1">
@@ -568,8 +689,21 @@ body.y1996 .o1 #lucky{background:#c0c0c0;color:#000;border:2px outset #fff}
     <div id="verdict" role="status" aria-live="polite"></div>
     <div class="scores" id="scores"></div>
 
+    <div class="playtiles" aria-label="New on the site">
+      <a class="ptile" href="daily.html" id="tileDaily">
+        <span class="pico" aria-hidden="true"><i style="--c:#ff4b3e"></i><i style="--c:#5a8fd6"></i><i style="--c:#e0a33a"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#3fbf6a"></i><i style="--c:#3a3f52"></i><i style="--c:#e0a33a"></i><i style="--c:#8f6fd6"></i><i style="--c:#ff4b3e"></i><i style="--c:#5a8fd6"></i><i style="--c:#3a3f52"></i><i style="--c:#3fbf6a"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#e0a33a"></i><i style="--c:#3a3f52"></i><i style="--c:#5a8fd6"></i><i style="--c:#8f6fd6"></i><i style="--c:#e0a33a"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#5a8fd6"></i><i style="--c:#3fbf6a"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#e0a33a"></i><i style="--c:#3a3f52"></i><i style="--c:#8f6fd6"></i><i style="--c:#3a3f52"></i><i style="--c:#5a8fd6"></i><i style="--c:#3fbf6a"></i><i style="--c:#ff4b3e"></i><i style="--c:#3a3f52"></i><i style="--c:#e0a33a"></i><i style="--c:#5a8fd6"></i></span>
+        <span class="ptxt"><span class="pkick" id="dailyKick">New &middot; Daily Shelf</span><span class="phead">Guess the game</span><span class="psub">One pixelated photo off my shelf a day. Six guesses.</span></span>
+        <span class="pgo">Play</span>
+      </a>
+      <a class="ptile" href="match.html" id="tileMatch">
+        <span class="pmeter" aria-hidden="true" id="matchPct">?%</span>
+        <span class="ptxt"><span class="pkick">New &middot; Shelf vs. Mine</span><span class="phead">How much do you own?</span><span class="psub">Tick your games, get your match, share the card.</span></span>
+        <span class="pgo">Compare</span>
+      </a>
+    </div>
+
     <div class="sitenav o1-nav">
-      <div class="o1-group"><span class="o1-lbl">Games</span><div class="o1-links"><a class="shelflink o1-pill" href="shelf.html">Virtual shelf</a><a class="shelflink o1-pill" href="digital.html">Digital</a><a class="shelflink o1-pill" href="consoles.html">Consoles</a><a class="shelflink o1-pill" href="gaps.html">The gaps</a><a class="shelflink o1-pill" href="stats.html">The numbers</a></div></div>
+      <div class="o1-group"><span class="o1-lbl">Games</span><div class="o1-links"><a class="shelflink o1-pill" href="shelf.html">Virtual shelf</a><a class="shelflink o1-pill" href="digital.html">Digital</a><a class="shelflink o1-pill" href="consoles.html">Consoles</a><a class="shelflink o1-pill" href="gaps.html">The gaps</a><a class="shelflink o1-pill" href="stats.html">The numbers</a><a class="shelflink o1-pill" href="daily.html">Daily Shelf</a><a class="shelflink o1-pill" href="match.html">Shelf vs. Mine</a></div></div>
       <div class="o1-group"><span class="o1-lbl">Reviews &amp; lists</span><div class="o1-links"><a class="shelflink o1-pill" href="reviews.html">Reviews</a><a class="shelflink o1-pill" href="lists.html">Lists</a><a class="shelflink o1-pill" href="rankings.html">Rankings</a><a class="shelflink o1-pill" href="overrated.html">Overrated</a><a class="shelflink o1-pill" href="rank.html">Rank games</a></div></div>
       <div class="o1-group"><span class="o1-lbl">Other shelves</span><div class="o1-links"><a class="shelflink o1-pill" href="movies.html">Movies</a><a class="shelflink o1-pill" href="tv.html">TV</a><a class="shelflink o1-pill" href="music.html">Music</a><a class="shelflink o1-pill" href="boardgames.html">Board games</a></div></div>
       <div class="o1-group"><span class="o1-lbl">Dates</span><div class="o1-links"><a class="shelflink o1-pill" href="anniversaries.html">Anniversaries</a><a class="shelflink o1-pill" href="onthisday.html">On this day</a></div></div>
@@ -619,6 +753,7 @@ body.y1996 .o1 #lucky{background:#c0c0c0;color:#000;border:2px outset #fff}
       <a class="applink" href="https://play.google.com/store/apps/details?id=com.thenostalgiapro.shelf" target="_blank" rel="noopener">Get the Android app</a>
       <a href="media.html">Partnerships</a>
     </div>
+    <p class="introline"><a href="#" id="replayIntro" onclick="event.preventDefault();window.npIntro&&npIntro()">Replay intro</a></p>
     <p>The Nostalgia Pro. Pulled from my Gameye export of October 25, 2026. Games I haven't photographed yet show a stand-in cover (<a href="credits.html">image credits</a>).</p>
     <p class="bestviewed y1996only">
       <a href="mailto:thenostalgiapro@gmail.com">E-mail me</a><br>
@@ -2960,6 +3095,27 @@ if ("serviceWorker" in navigator)
   if (s) document.querySelectorAll("[data-syscount]").forEach(function(e){ e.textContent = s.textContent; });
 })();
 
+</script>
+<script>
+/* Homepage tiles: today's Daily Shelf number (same epoch as data/daily.json,
+   midnight Arizona time) and, if you've played Shelf vs. Mine, your match. */
+(function(){
+  var EPOCH = Date.UTC(2026, 9, 26), DAY = 864e5;
+  var n = Math.floor((Date.now() - 7 * 3600e3 - EPOCH) / DAY) + 1;
+  var k = document.getElementById("dailyKick");
+  if (k && n >= 1) {
+    var done = false;
+    try { var s = JSON.parse(localStorage.getItem("np-daily-v1")); done = !!(s && s.games && s.games[n] && s.games[n].done); } catch (e) {}
+    k.textContent = "Daily Shelf #" + n + (done ? " \u00b7 done today" : " \u00b7 new today");
+  }
+  try {
+    var m = JSON.parse(localStorage.getItem("np-match-v1")), tot = parseInt(document.getElementById("gamecount").textContent, 10);
+    if (m && m.owned && m.owned.length && tot) {
+      var p = 100 * m.owned.length / tot;
+      document.getElementById("matchPct").textContent = (p < 1 ? "<1" : Math.round(p)) + "%";
+    }
+  } catch (e) {}
+})();
 </script>
 </body>
 </html>
