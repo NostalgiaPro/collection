@@ -152,7 +152,10 @@ def page(g, total, photo, review, mentions, posts):
     h.append('    </ul>\n    <div class="links">\n')
     h.append(f'      <a href="/index.html?find={esc(_q(g["title"]))}">Find it on the shelf</a>\n')
     if review:
-        h.append(f'      <a href="{esc(review[2])}" target="_blank" rel="noopener">Read my review on X</a>\n')
+        if review[2]:
+            h.append(f'      <a href="{esc(review[2])}" target="_blank" rel="noopener">Read my review on X</a>\n')
+        else:   # not on X: the review lives on reviews.html
+            h.append(f'      <a href="/reviews.html#r-{review[0]}">Read my review</a>\n')
     if g.get("video"):
         h.append(f'      <a href="{esc(g["video"])}" target="_blank" rel="noopener">ASMR short on YouTube</a>\n')
     h.append(f'      <a href="https://en.wikipedia.org/w/index.php?search={_q(g["title"] + " video game")}" target="_blank" rel="noopener">Look it up on Wikipedia</a>\n')

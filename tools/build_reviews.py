@@ -10,10 +10,11 @@ Reads tools/data/reviews.json, one entry per numbered review:
   systems             the shelf system name(s) it's filed under
   kind                "game" or "console"
   score               the score out of 5 I gave in the post (null if none)
-  date, time          when it was posted, America/Phoenix
-  id, url             the X post
+  date, time          when it was posted, America/Phoenix (time null if unknown)
+  id, url             the X post (both null for a review that isn't on X)
   shelf               the shelf entries it's about: title, system, slug (game page)
   image               the photo from the post: a 600px .webp in images/reviews/
+                      (null if there's no photo)
   text                the post exactly as written (only X's trailing photo link
                       is dropped)
 The data is pulled from X once; nothing is fetched here. Safe to re-run.
@@ -75,6 +76,7 @@ CSS = """  .scores{display:flex;flex-wrap:wrap;margin:24px 0 0;border:2px solid 
   .rmeta a:hover,.rmeta a:focus-visible{border-color:var(--hot);color:var(--hot);outline:none}
   .rmeta a.onx{border-color:var(--text);color:var(--text)}
   .rmeta a.onx:hover{border-color:var(--hot);color:var(--hot)}
+  .rmeta .offx{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);padding:5px 9px 5px 0}
   .empty{color:var(--dim);padding:26px 0}
   body.y1996 ol.reviews>li{background:#000;border:2px ridge #808080;border-left:6px solid var(--c,#808080);margin:0 0 6px}
   body.y1996 .rv>summary:hover{background:#000040}
@@ -89,6 +91,7 @@ CSS = """  .scores{display:flex;flex-wrap:wrap;margin:24px 0 0;border:2px solid 
   body.y1996 .body figure img{border:2px inset #808080;border-radius:0}
   body.y1996 .rmeta a{font-family:"Times New Roman",Times,serif;font-size:14px;letter-spacing:0;color:#00ffff;border:none;padding:0 6px 0 0;text-decoration:underline}
   body.y1996 .rmeta a:visited{color:#ee82ee}
+  body.y1996 .rmeta .offx{font-family:"Times New Roman",Times,serif;font-size:14px;letter-spacing:0;color:#c0c0c0;padding:0 6px 0 0}
   body.y1996 .tools p{font-family:"Courier New",monospace;color:#c0c0c0}
   @media (max-width:640px){
     .rv>summary{gap:10px;padding:11px 10px}
@@ -196,7 +199,9 @@ def item(r, colors, onlists):
     v = r["score"]
     rating = (f'<span class="rating {band(v)}">{fmt_score(v)}/5</span>' if v is not None
               else '<span class="rating rnone">no score</span>')
-    links = [f'<a class="onx" href="{esc(r["url"])}" target="_blank" rel="noopener">Read on X &#x2197;</a>']
+    url = r.get("url")
+    links = ([f'<a class="onx" href="{esc(url)}" target="_blank" rel="noopener">Read on X &#x2197;</a>'] if url
+             else ['<span class="offx">Not on X</span>'])
     many = len(r["shelf"]) > 1
     for s in r["shelf"]:
         label = f'Game page: {s["title"]} ({s["system"]})' if many else "Game page"
@@ -211,13 +216,15 @@ def item(r, colors, onlists):
         im = r["image"]
         pic = (f'<figure><img loading="lazy" src="/{esc(im["src"])}" width="{im["w"]}" height="{im["h"]}" '
                f'alt="{esc(r["title"])}, the photo from the post"></figure>')
-    return (f'<li id="r-{r["n"]}" data-n="{r["n"]}" data-t="{r["date"]}T{r["time"]}" data-v="{"" if v is None else v}" '
+    when = r["date"] + (f'T{r["time"]}' if r.get("time") else "")
+    cite = f' cite="{esc(url)}"' if url else ""
+    return (f'<li id="r-{r["n"]}" data-n="{r["n"]}" data-t="{when}" data-v="{"" if v is None else v}" '
             f'data-k="{esc(sd.nkey(r["title"]))}" data-sys="{esc("|".join(r["systems"]))}" style="--c:{color}">\n'
             f'<details class="rv"><summary>'
             f'<span class="num">{r["n"]}</span>'
             f'<span class="who"><b>{esc(r["title"])}</b><span>{esc(sysl)} &middot; <time datetime="{r["date"]}">{nice_date(r["date"])}</time></span></span>'
             f'{rating}<i class="arrow" aria-hidden="true"></i></summary>\n'
-            f'<div class="body"><blockquote cite="{esc(r["url"])}">{esc(r["text"])}</blockquote>{pic}\n'
+            f'<div class="body"><blockquote{cite}>{esc(r["text"])}</blockquote>{pic}\n'
             f'<p class="rmeta">{"".join(links)}</p></div>\n'
             f'</details></li>\n')
 
@@ -295,7 +302,7 @@ def build():
     h.append('</div>\n\n<div class="tools"><p>Tap a review to read it</p>'
              '<button class="chip" id="openall" type="button" aria-pressed="false">Open all</button></div>\n')
     h.append('<ol class="reviews" id="list">\n')
-    for r in sorted(revs, key=lambda r: (r["date"], r["time"]), reverse=True):
+    for r in sorted(revs, key=lambda r: (r["date"], r.get("time") or ""), reverse=True):
         h.append(item(r, colors, onlists))
     h.append('</ol>\n<p class="empty" id="empty" hidden>Nothing reviewed on that one yet.</p>\n\n')
     h.append('<p class="note">Each review is copied word for word from my post on X. Scores are out of five.</p>\n\n</div>\n')

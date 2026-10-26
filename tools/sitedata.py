@@ -127,13 +127,13 @@ def load_lists():
 
 def load_reviews():
     """tools/data/reviews.json (built into reviews.html by build_reviews.py):
-    [number, title, system, score, [shelf slugs], X post url] per system it's filed under."""
+    [number, title, system, score, [shelf slugs], X post url or None] per system it's filed under."""
     p = os.path.join(DATA, "reviews.json")
     out = []
     for r in json.load(open(p, encoding="utf-8")):
         for s in r["systems"]:
             out.append([r["n"], r["title"], s, r["score"],
-                        [x["slug"] for x in r["shelf"] if x["system"] == s], r["url"]])
+                        [x["slug"] for x in r["shelf"] if x["system"] == s], r.get("url")])
     return out
 
 
