@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Two games off my shelf: which came out first? Ten pairs a day, the same for everybody, then endless practice.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro — Which Came First?">
+<meta property="og:description" content="Two games off my shelf: which came out first? Ten pairs a day, the same for everybody, then endless practice.">
+<meta property="og:url" content="https://thenostalgiapro.com/first.html">
+<meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Nostalgia Pro — Which Came First?">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro — Which Came First?">
+<meta name="twitter:description" content="Two games off my shelf: which came out first? Ten pairs a day, the same for everybody, then endless practice.">
+<meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
+<link rel="canonical" href="https://thenostalgiapro.com/first.html">
+<title>The Nostalgia Pro — Which Came First?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/retro.css">
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 22px 90px}
+  header{padding:44px 0 0}
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  .wordmark a{color:inherit;text-decoration:none}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;text-decoration:none;
+    border:2px solid var(--line);color:var(--dim);
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+  .barlabel{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:34px 0 10px}
+  .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:64ch}
+  .xpost{
+    margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);
+    border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:14px 18px;
+  }
+  .xpost blockquote{margin:0;white-space:pre-line;font-size:15px}
+  .xpost .meta{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0 0;
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);
+  }
+  .xpost .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .xpost .meta a:hover{border-color:var(--hot);color:var(--hot)}
+  .daybar{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:26px 0 0;
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.08em;color:var(--dim)}
+  .daybar b{font-family:"Press Start 2P",monospace;font-size:13px;color:var(--hot);letter-spacing:0}
+  .daybar .mode{color:var(--text)}
+  .progress{display:flex;gap:4px;margin:12px 0 0;flex-wrap:wrap}
+  .progress i{width:22px;height:10px;border:1px solid var(--line);background:#0a0c11;border-radius:1px}
+  .progress i.ok{background:#3fbf6a;border-color:#3fbf6a}
+  .progress i.bad{background:var(--hot);border-color:var(--hot)}
+  .progress i.now{border-color:var(--text)}
+  .q{font-family:"Press Start 2P",monospace;font-size:clamp(12px,2.2vw,16px);line-height:1.6;margin:18px 0 0;text-align:center}
+  .pair{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0 0}
+  .vs{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);z-index:3;pointer-events:none;
+    font-family:"Press Start 2P",monospace;font-size:14px;color:#12070a;background:var(--hot);padding:9px 8px;border-radius:2px;
+    box-shadow:0 0 0 4px var(--bg)}
+  .card{display:flex;flex-direction:column;min-width:0;text-align:left;cursor:pointer;color:var(--text);font:inherit;
+    background:var(--bg2);border:2px solid var(--line);border-radius:4px;padding:10px;transition:border-color .15s,transform .15s}
+  .card:hover:not([disabled]),.card:focus-visible{border-color:var(--hot);outline:none;transform:translateY(-2px)}
+  .card[disabled]{cursor:default}
+  .card .ph{position:relative;display:block;aspect-ratio:3/4;background:#0a0c11;border-radius:2px;overflow:hidden}
+  .card .ph img{display:block;width:100%;height:100%;object-fit:cover}
+  .card .ph::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(to bottom,rgba(0,0,0,.14) 0 1px,transparent 1px 3px)}
+  .card .nm{display:block;margin:10px 0 0;font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:19px;line-height:1.2;overflow-wrap:anywhere}
+  .card .sy{display:block;margin:4px 0 0;font-family:"Silkscreen",monospace;font-size:10.5px;letter-spacing:.06em;color:var(--c,var(--dim))}
+  .card .yr{display:block;margin:8px 0 0;min-height:24px;font-family:"Press Start 2P",monospace;font-size:18px;color:var(--dim)}
+  .card .yr.hide{color:#3a3f52}
+  .card.first .yr{color:#3fbf6a}
+  .card.right{border-color:#3fbf6a;background:#11231a}
+  .card.wrong{border-color:var(--hot);background:#1f1416}
+  .card .tag{display:inline-block;margin-left:8px;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;vertical-align:3px;color:#3fbf6a}
+  .after{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:center;margin:16px 0 0;min-height:46px}
+  .verdict{font-family:"Press Start 2P",monospace;font-size:13px;line-height:1.5}
+  .verdict.ok{color:#3fbf6a}.verdict.bad{color:var(--hot)}
+  .sbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;cursor:pointer;
+    background:transparent;color:var(--text);border:2px solid var(--line);border-radius:2px;
+    font-family:"Silkscreen",monospace;font-weight:700;font-size:12px;letter-spacing:.06em;padding:11px 16px}
+  .sbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .sbtn:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .sbtn.hot{background:var(--hot);border-color:var(--hot);color:#12070a}
+  .sbtn.hot:hover{background:transparent;color:var(--hot)}
+  .glink{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);margin:6px 0 0}
+  .glink:hover{color:var(--hot)}
+  .done{margin:18px 0 0;border:2px solid var(--hot);background:var(--panel);border-radius:2px;padding:16px 18px}
+  .done.perfect{border-color:#3fbf6a}
+  .done h2{font-family:"Press Start 2P",monospace;font-size:14px;line-height:1.6;margin:0 0 10px;color:var(--hot)}
+  .done.perfect h2{color:#3fbf6a}
+  .done p{margin:6px 0 0;color:#cfccc3}
+  .grid{font-size:22px;letter-spacing:2px;margin:12px 0 0}
+  .shareline{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+  .next{margin:14px 0 0;font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.08em;color:var(--dim)}
+  .next b{font-family:"Press Start 2P",monospace;font-size:14px;color:var(--text);letter-spacing:.04em;margin-left:6px}
+  .recap{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:4px}
+  .recap li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;font-size:14px;padding:6px 0;border-top:1px solid var(--line)}
+  .recap li:first-child{border-top:none}
+  .recap b{font-weight:600}
+  .recap a{color:var(--text);text-decoration:none;border-bottom:1px solid var(--line)}
+  .recap a:hover{color:var(--hot);border-bottom-color:var(--hot)}
+  .recap .y{font-family:"Silkscreen",monospace;font-size:10px;color:var(--dim);letter-spacing:.04em}
+  .panel{margin:34px 0 0;background:var(--bg2);border:1px solid var(--line);border-radius:2px;padding:16px 18px}
+  .panel>h2{font-family:"Press Start 2P",monospace;font-size:12px;line-height:1.6;margin:0 0 14px}
+  .nums{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+  .nums div{background:var(--panel);border:1px solid var(--line);padding:10px 6px;text-align:center}
+  .nums b{display:block;font-family:"Press Start 2P",monospace;font-size:17px;line-height:1}
+  .nums span{display:block;margin:8px 0 0;font-family:"Silkscreen",monospace;font-size:9.5px;letter-spacing:.06em;color:var(--dim)}
+  .howto{font-size:14.5px;color:#cfccc3;margin:0;padding-left:18px}
+  .howto li{margin:3px 0}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;z-index:50;
+    background:var(--text);color:#0b0d12;font-family:"Silkscreen",monospace;font-size:12px;letter-spacing:.06em;
+    padding:10px 16px;border-radius:2px;transition:.2s}
+  .toast.on{opacity:1;transform:translateX(-50%)}
+  footer{margin:56px 0 0;padding:22px 0 0;border-top:1px solid var(--line)}
+  .elsewhere{display:flex;flex-wrap:wrap;gap:10px}
+  .elsewhere a{color:var(--dim);text-decoration:none;border:1px solid var(--line);font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;padding:8px 12px;border-radius:2px}
+  .elsewhere a:hover{border-color:var(--hot);color:var(--hot)}
+  @media (max-width:640px){
+    .pair{gap:10px}
+    .card{padding:6px}
+    .card .nm{font-size:15px;margin-top:7px}
+    .card .sy{font-size:9px}
+    .card .yr{font-size:13px;margin-top:6px;min-height:18px}
+    .vs{font-size:11px;padding:7px 6px;top:34%}
+    .nums{grid-template-columns:repeat(3,1fr)}
+    .nums b{font-size:14px}
+  }
+  @media (prefers-reduced-motion:reduce){.card,.toast{transition:none}.card:hover:not([disabled]){transform:none}}
+  body.y1996 .card,body.y1996 .panel,body.y1996 .done{background:#c0c0c0;color:#000;border:2px outset #fff}
+  /* weekly roundup signup: a plain form that opens Substack's own subscribe page (no embed, no popups) */
+  .npsub{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin:16px 0 0;padding:12px 14px;
+    background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--hot);border-radius:4px}
+  .npsub-txt{flex:1 1 280px;min-width:0;margin:0;font-size:14.5px;line-height:1.4;color:var(--dim)}
+  .npsub-txt b{display:block;font-family:"Silkscreen",monospace;font-weight:700;font-size:12px;letter-spacing:.08em;color:var(--text);margin:0 0 3px}
+  .npsub-row{flex:1 1 300px;display:flex;gap:8px;min-width:0}
+  .npsub input{flex:1 1 auto;min-width:0;background:#0a0c11;border:2px solid var(--line);color:var(--text);
+    font-family:"IBM Plex Sans",sans-serif;font-size:16px;padding:9px 11px;border-radius:2px}
+  .npsub input::placeholder{color:#565c6e}
+  .npsub input:focus{outline:none;border-color:var(--hot);box-shadow:0 0 0 3px rgba(255,75,62,.18)}
+  .npsub button{flex:none;cursor:pointer;background:var(--hot);border:2px solid var(--hot);color:#12070a;border-radius:2px;
+    font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;letter-spacing:.06em;padding:9px 14px}
+  .npsub button:hover{background:transparent;color:var(--hot)}
+  .npsub button:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .npsub-note{flex:1 1 100%;margin:0;font-size:12px;color:var(--dim)}
+  .npsub-note a{color:var(--dim)}
+  footer .npsub{margin:0 0 18px}
+  body.y1996 .npsub{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0}
+  body.y1996 .npsub-txt,body.y1996 .npsub-txt b,body.y1996 .npsub-note{color:#000;font-family:"Times New Roman",Times,serif}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>
+  <h1>Which Came First?</h1>
+  <p class="standfirst">Two games off my shelf. Pick the one that came out first. Keep going until you miss. Same ten pairs for everybody, every day.</p>
+  <div class="navrow">
+    <a class="navbtn" href="/index.html">The shelf</a>
+    <a class="navbtn" href="/digital.html">Digital</a>
+    <a class="navbtn" href="/reviews.html">Reviews</a>
+    <a class="navbtn" href="/lists.html">Lists</a>
+    <a class="navbtn" href="/rankings.html">Rankings</a>
+    <a class="navbtn" href="/overrated.html">Overrated</a>
+    <a class="navbtn" href="/rank.html">Rank games</a>
+    <a class="navbtn" href="/daily.html">Daily Shelf</a>
+    <a class="navbtn" href="/match.html">Shelf vs. Mine</a>
+    <a class="navbtn here" href="/first.html">Which Came First?</a>
+    <a class="navbtn" href="/anniversaries.html">Anniversaries</a>
+    <a class="navbtn" href="/onthisday.html">On this day</a>
+    <a class="navbtn" href="/consoles.html">Consoles</a>
+    <a class="navbtn" href="/gaps.html">The gaps</a>
+    <a class="navbtn" href="/stats.html">The numbers</a>
+  </div>
+</header>
+
+<main>
+  <div class="daybar" id="daybar"><span>Loading today's pairs</span></div>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <section id="play" hidden>
+    <p class="q" id="q">Which came out first?</p>
+    <div class="pair" id="pair">
+      <button type="button" class="card" id="cardA" data-side="0"></button>
+      <span class="vs" aria-hidden="true">VS</span>
+      <button type="button" class="card" id="cardB" data-side="1"></button>
+    </div>
+    <div class="after" id="after" role="status" aria-live="polite"></div>
+  </section>
+
+  <div id="done"></div>
+
+  <section class="panel" aria-labelledby="statsH">
+    <h2 id="statsH">Your stats</h2>
+    <div class="nums" id="nums"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="howH">
+    <h2 id="howH">How it works</h2>
+    <ul class="howto">
+      <li>Every game is one I own. Years are the release years I have on file for my copy's console.</li>
+      <li>Tap the game you think came out first. One miss and the daily run is over.</li>
+      <li>The daily run is up to 10 pairs, the same for everyone. A new set drops at midnight Arizona time.</li>
+      <li>Done for the day? Practice mode deals endless random pairs and keeps your best streak.</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <form class="npsub" action="https://nostalgiapro.substack.com/subscribe" method="get" target="_blank"><p class="npsub-txt"><b>Get the weekly roundup.</b>Every review and ranking I post, once a week, free.</p><div class="npsub-row"><input type="email" name="email" required placeholder="Your email" autocomplete="email" aria-label="Your email address"><button type="submit">Subscribe</button></div><p class="npsub-note">Opens my Substack in a new tab to confirm.</p></form>
+  <div class="elsewhere">
+    <a href="https://x.com/NostalgiaPro" target="_blank" rel="noopener">X / Twitter</a>
+    <a href="https://www.youtube.com/@TheNostalgiaPro" target="_blank" rel="noopener">YouTube</a>
+    <a href="https://substack.com/@nostalgiapro" target="_blank" rel="noopener">Substack</a>
+    <a href="/daily.html">Daily Shelf</a>
+    <a href="/match.html">Shelf vs. Mine</a>
+  </div>
+</footer>
+
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+/* Which Came First? Pairs of games off the shelf (data/shelf-games.json,
+   written by tools/build_daily.py), only games with a release year on file
+   and a photo of my copy, never two from the same year. Each day's ten
+   pairs come from a seeded generator keyed on the day number (same epoch as
+   Daily Shelf, midnight Arizona time), so everyone gets the same run.
+   Results live in localStorage on this device only. */
+(function(){
+  "use strict";
+  const SITE = "thenostalgiapro.com", EPOCH = "2026-10-26", RUN = 10, MAXGAP = 15;
+  const DAY = 864e5, AZ_OFF = 7 * 3600e3, KEY = "np-first-v1";
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const nkey = t => t.toLowerCase().replace(/\s*\[[^\]]*\]/g,"").replace(/^the\s+/,"").replace(/[^a-z0-9]+/g," ").trim();
+  const azDay = ms => Math.floor((ms - AZ_OFF) / DAY);
+  const EPOCH_DN = Math.round(Date.parse(EPOCH + "T00:00:00Z") / DAY);
+  const TODAY = azDay(Date.now()) - EPOCH_DN;            /* 0 = #1 */
+  const fmtDay = dn => new Date(dn * DAY).toLocaleDateString("en-US", { timeZone: "UTC", weekday: "short", month: "short", day: "numeric", year: "numeric" });
+
+  let S = {};
+  try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
+  S.days = S.days || {}; S.prac = S.prac || { best: 0, played: 0 };
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+
+  function mulberry32(a){
+    return function(){
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  let DATA, POOL, pairs = [], mode = "daily", idx = 0, revealed = false, pracRun = [], recent = [];
+
+  fetch("data/shelf-games.json").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => {
+    DATA = d;
+    POOL = d.games.filter(g => g.y && g.i && g.ph).sort((a, b) => a.k < b.k ? -1 : 1);
+    if (TODAY < 0) { $("daybar").innerHTML = `<span>Starts ${esc(fmtDay(EPOCH_DN))}.</span>`; return; }
+    pairs = makePairs(mulberry32((20261026 + (TODAY + 1) * 7919) >>> 0), RUN, []);
+    renderStats();
+    const r = S.days[TODAY + 1];
+    if (r && r.done) showDone(); else startDaily();
+  }).catch(e => { $("daybar").innerHTML = `<span>Couldn't load the shelf. Refresh to try again.</span>`; console.warn(e); });
+
+  /* n pairs, no game twice, no same title twice, years differ by 1 to MAXGAP */
+  function makePairs(rnd, n, avoid){
+    const out = [], used = new Set(avoid);
+    let tries = 0;
+    while (out.length < n && tries++ < 20000) {
+      const a = POOL[Math.floor(rnd() * POOL.length)], b = POOL[Math.floor(rnd() * POOL.length)];
+      if (a === b || a.y === b.y || Math.abs(a.y - b.y) > MAXGAP) continue;
+      const ka = nkey(a.d), kb = nkey(b.d);
+      if (ka === kb || used.has(ka) || used.has(kb)) continue;
+      used.add(ka); used.add(kb);
+      out.push([a, b]);
+    }
+    return out;
+  }
+
+  function startDaily(){
+    mode = "daily";
+    const r = S.days[TODAY + 1] || { p: [] };
+    idx = r.p.length;
+    $("daybar").innerHTML = `<b>#${TODAY + 1}</b><span>${esc(fmtDay(EPOCH_DN + TODAY))}</span><span class="mode">Daily run</span>`;
+    $("done").innerHTML = "";
+    $("play").hidden = false;
+    showPair();
+  }
+  function startPractice(){
+    mode = "practice"; pracRun = [];
+    $("daybar").innerHTML = `<b>Practice</b><span class="mode">Endless</span><span>Best streak: <span id="pbest">${S.prac.best}</span></span><a href="first.html" style="color:inherit">Back to today</a>`;
+    $("done").innerHTML = ""; $("play").hidden = false;
+    nextPractice();
+    $("play").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function nextPractice(){
+    const p = makePairs(Math.random, 1, recent);
+    recent = recent.concat(p[0].map(g => nkey(g.d))).slice(-60);
+    pairs = [p[0]]; idx = 0; showPair();
+  }
+
+  function progress(){
+    if (mode !== "daily") {
+      $("progress").innerHTML = pracRun.map(ok => `<i class="${ok ? "ok" : "bad"}"></i>`).join("") + (revealed ? "" : `<i class="now"></i>`);
+      return;
+    }
+    const r = S.days[TODAY + 1] || { p: [] };
+    $("progress").innerHTML = Array.from({ length: RUN }, (_, i) =>
+      `<i class="${i < r.p.length ? (r.p[i] ? "ok" : "bad") : (i === r.p.length && !r.done ? "now" : "")}"></i>`).join("");
+  }
+
+  function cardHTML(g, show){
+    const sys = DATA.systems[g.s];
+    return `<span class="ph"><img src="${esc(g.i)}" alt="My copy of ${esc(g.d)}" width="300" height="400" decoding="async"></span>
+      <span class="nm">${esc(g.d)}</span>
+      <span class="sy" style="--c:${esc(sys.c)}">${esc(sys.n)}</span>
+      <span class="yr ${show ? "" : "hide"}">${show ? g.y : "????"}</span>`;
+  }
+  function showPair(){
+    revealed = false;
+    const [a, b] = pairs[idx];
+    [$("cardA"), $("cardB")].forEach((el, i) => {
+      el.className = "card"; el.disabled = false;
+      el.innerHTML = cardHTML(i ? b : a, false);
+      el.setAttribute("aria-label", `${(i ? b : a).d}, ${DATA.systems[(i ? b : a).s].n}. Pick this one`);
+    });
+    $("after").innerHTML = "";
+    $("q").textContent = mode === "daily" ? `Pair ${idx + 1} of ${RUN}: which came out first?` : `Streak ${pracRun.filter(Boolean).length}: which came out first?`;
+    progress();
+    const nx = mode === "daily" ? pairs[idx + 1] : null;     /* warm the next photos */
+    if (nx) nx.forEach(g => { const i = new Image(); i.src = g.i; });
+  }
+
+  function pick(side){
+    if (revealed) return;
+    revealed = true;
+    const pair = pairs[idx], first = pair[0].y < pair[1].y ? 0 : 1, ok = side === first;
+    [$("cardA"), $("cardB")].forEach((el, i) => {
+      const g = pair[i];
+      el.disabled = true;
+      el.innerHTML = cardHTML(g, true);
+      if (i === first) { el.classList.add("first"); el.querySelector(".yr").insertAdjacentHTML("beforeend", `<span class="tag">FIRST</span>`); }
+      if (i === side) el.classList.add(ok ? "right" : "wrong");
+      el.removeAttribute("aria-label");
+    });
+    const gap = Math.abs(pair[0].y - pair[1].y);
+    const said = ok ? `Yes! ${gap} year${gap === 1 ? "" : "s"} apart.` : `Nope. ${gap} year${gap === 1 ? "" : "s"} apart.`;
+    let btn;
+    if (mode === "daily") {
+      const r = S.days[TODAY + 1] || (S.days[TODAY + 1] = { p: [] });
+      r.p.push(ok);
+      if (!ok || r.p.length >= RUN) { r.done = true; r.at = Date.now(); }
+      save();
+      btn = r.done ? `<button type="button" class="sbtn hot" id="nextBtn">See results</button>` : `<button type="button" class="sbtn hot" id="nextBtn">Next pair</button>`;
+    } else {
+      pracRun.push(ok);
+      const streak = pracRun.filter(Boolean).length;
+      if (ok && streak > S.prac.best) S.prac.best = streak;
+      if (!ok) S.prac.played++;
+      save();
+      if ($("pbest")) $("pbest").textContent = S.prac.best;
+      btn = ok ? `<button type="button" class="sbtn hot" id="nextBtn">Next pair</button>`
+               : `<span class="verdict bad">Streak: ${streak}</span><button type="button" class="sbtn hot" id="againBtn">Go again</button>`;
+    }
+    $("after").innerHTML = `<span class="verdict ${ok ? "ok" : "bad"}">${said}</span>${btn}`;
+    progress(); renderStats();
+    const nb = $("nextBtn") || $("againBtn"); if (nb) nb.focus({ preventScroll: true });
+  }
+  $("cardA").addEventListener("click", () => pick(0));
+  $("cardB").addEventListener("click", () => pick(1));
+  $("after").addEventListener("click", e => {
+    if (e.target.id === "nextBtn") {
+      if (mode === "daily") {
+        const r = S.days[TODAY + 1];
+        if (r.done) { showDone(); return; }
+        idx++; showPair();
+      } else nextPractice();
+    } else if (e.target.id === "againBtn") startPractice();
+  });
+
+  /* ---- end of the daily run ---- */
+  function score(r){ return r.p.filter(Boolean).length; }
+  function grid(r){ return r.p.map(ok => ok ? "🟩" : "🟥").join(""); }
+  function shareText(){ const r = S.days[TODAY + 1]; return `Which Came First? #${TODAY + 1} ${grid(r)} ${score(r)} ${SITE}/first`; }
+  function showDone(){
+    mode = "daily";
+    const r = S.days[TODAY + 1], sc = score(r), perfect = sc === RUN;
+    $("play").hidden = true;
+    $("daybar").innerHTML = `<b>#${TODAY + 1}</b><span>${esc(fmtDay(EPOCH_DN + TODAY))}</span><span class="mode">Done for today</span>`;
+    progress();
+    const recap = r.p.map((ok, i) => {
+      const [a, b] = pairs[i], f = a.y < b.y ? a : b, l = f === a ? b : a;
+      const nm = g => g.p ? `<a href="game/${esc(g.k)}.html">${esc(g.d)}</a>` : esc(g.d);
+      return `<li><span>${ok ? "🟩" : "🟥"}</span><span><b>${nm(f)}</b> <span class="y">${f.y}</span> came before ${nm(l)} <span class="y">${l.y}</span></span></li>`;
+    }).join("");
+    const txt = shareText();
+    $("done").innerHTML = `<div class="done ${perfect ? "perfect" : ""}">
+      <h2>${perfect ? "Perfect 10!" : sc === 0 ? "Missed the first one" : `${sc} in a row`}</h2>
+      <div class="grid" aria-label="Your result">${grid(r)}</div>
+      <div class="shareline">
+        <button type="button" class="sbtn hot" id="shareBtn">Share result</button>
+        <a class="sbtn" href="https://x.com/intent/post?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener" id="xBtn">Post on X</a>
+        <button type="button" class="sbtn" id="pracBtn">Practice mode</button>
+      </div>
+      <p class="next">New pairs in<b id="cd">--:--:--</b></p>
+      <ol class="recap">${recap}</ol>
+    </div>`;
+    tick(); renderStats();
+  }
+  document.addEventListener("click", e => {
+    if (e.target.closest("#shareBtn")) copy(shareText()).then(ok => toast(ok ? "Copied. Paste it anywhere." : "Couldn't copy. Long-press to copy instead."));
+    if (e.target.closest("#pracBtn")) startPractice();
+  });
+  function copy(t){
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t).then(() => true, () => legacy(t));
+    return Promise.resolve(legacy(t));
+  }
+  function legacy(t){
+    const ta = document.createElement("textarea"); ta.value = t; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;top:-100px;opacity:0";
+    document.body.appendChild(ta); ta.select(); let ok = false; try { ok = document.execCommand("copy"); } catch (e) {} ta.remove(); return ok;
+  }
+  let toastT;
+  function toast(t){ const el = $("toast"); el.textContent = t; el.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove("on"), 2200); }
+  let cdTimer;
+  function tick(){
+    clearInterval(cdTimer);
+    const upd = () => {
+      const el = $("cd"); if (!el) return clearInterval(cdTimer);
+      if (azDay(Date.now()) - EPOCH_DN !== TODAY) { clearInterval(cdTimer); location.reload(); return; }
+      const s = Math.floor((DAY - ((Date.now() - AZ_OFF) % DAY + DAY) % DAY) / 1000), p = n => String(n).padStart(2, "0");
+      el.textContent = `${p(Math.floor(s / 3600))}:${p(Math.floor(s / 60) % 60)}:${p(s % 60)}`;
+    };
+    upd(); cdTimer = setInterval(upd, 1000);
+  }
+
+  function renderStats(){
+    const runs = Object.values(S.days).filter(r => r.done), scores = runs.map(score);
+    let streak = 0;
+    for (let n = (S.days[TODAY + 1] && S.days[TODAY + 1].done) ? TODAY + 1 : TODAY; n >= 1 && S.days[n] && S.days[n].done; n--) streak++;
+    const cells = [
+      [runs.length, "Days played"],
+      [scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : "0", "Average"],
+      [scores.length ? Math.max(...scores) : 0, "Best run"],
+      [streak, "Day streak"],
+      [S.prac.best, "Practice best"]
+    ];
+    $("nums").innerHTML = cells.map(([b, l]) => `<div><b>${b}</b><span>${l}</span></div>`).join("");
+  }
+})();
+</script>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
+<script>
+/* 1996 mode. The class does all the work, retro.css does the rest. */
+(function(){
+  var on = false;
+  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
+  if (on) document.body.classList.add("y1996");
+
+  var b = document.createElement("button");
+  b.id = "y1996btn";
+  b.type = "button";
+  b.textContent = on ? "Back to now" : "1996 mode";
+  b.addEventListener("click", function(){
+    var nowOn = document.body.classList.toggle("y1996");
+    b.textContent = nowOn ? "Back to now" : "1996 mode";
+    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
+  });
+
+  var foot = document.querySelector("footer") || document.querySelector(".wrap");
+  var wrap = document.createElement("p");
+  wrap.style.cssText = "text-align:center;margin:18px 0 0";
+  wrap.appendChild(b);
+  foot.appendChild(wrap);
+
+})();
+
+/* Back to top. Appears once you've scrolled far enough to want it. */
+(function(){
+  var b = document.createElement("button");
+  b.id = "totop";
+  b.type = "button";
+  b.setAttribute("aria-label", "Back to top");
+  b.innerHTML = "&#9650;";
+  b.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.body.appendChild(b);
+
+  function check(){ b.classList.toggle("on", window.scrollY > 600); }
+  addEventListener("scroll", check, { passive: true });
+  check();
+})();
+</script>
+</body>
+</html>

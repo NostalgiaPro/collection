@@ -290,5 +290,63 @@ matches what visitors saw.
 * `index.html`: the CRT power-on intro (first visit only, flag
   `np-intro-seen`; skipped for reduced motion and crawlers; "Replay intro" in
   the footer) and the two tiles under the stats bar.
-* Both pages are in the nav (`NAV` in `pagekit.py`, so generated pages keep
-  them), `sitemap.xml` and the `sw.js` offline list.
+* `first.html`: Which Came First? (see below).
+* All three pages are in the nav (`NAV` in `pagekit.py`, so generated pages
+  keep them), `sitemap.xml` and the `sw.js` offline list.
+* The game epoch, 2026-10-26, lives in four places: `EPOCH` in
+  `build_daily.py` (written into `data/daily.json`), `EPOCH` in
+  `first.html`, and the "Homepage tiles" script in `index.html` (twice, as
+  `Date.UTC(2026, 9, 26)`). Change them together, and only before launch.
+
+## Which Came First? (`first.html`)
+
+Ten pairs a day from `data/shelf-games.json`: games with a release year on
+file (`RELEASED` in `index.html`) and a photo of my copy, never the same year
+in a pair, never more than 15 years apart, never the same title twice in a
+day. The pairs come from a mulberry32 generator seeded with the day number,
+so everyone gets the same run. They're worked out in the browser from the
+current shelf, so changing the shelf (or the release dates) can change the
+pairs for days that haven't been played yet; past results saved on people's
+devices aren't affected. One miss ends the daily run; after that, practice
+mode deals endless random pairs and keeps a best streak. Everything is saved
+in localStorage (`np-first-v1`).
+
+## Weekly roundup signup
+
+The "Get the weekly roundup" box (homepage under the tiles, homepage footer,
+Daily Shelf end screen and footer, Shelf vs. Mine and Which Came First?
+footers) is a plain form: it opens
+`https://nostalgiapro.substack.com/subscribe?email=...` in a new tab, where
+Substack asks the visitor to confirm. Substack's embed iframe was tried and
+came out as a white box on the dark site, so it isn't used. Nothing from
+Substack loads until someone presses Subscribe, and the service worker
+ignores other sites' requests, so it can't get in the way.
+
+## `otd_card.py`: the On this day share card as a PNG
+
+```
+python3 tools/otd_card.py                       # today (Arizona time) -> otd-MM-DD.png
+python3 tools/otd_card.py 10-26 card.png        # MM-DD or YYYY-MM-DD
+```
+
+Opens `onthisday.html` in headless Chromium (the repo served on a throwaway
+local port) and calls the page's own `npOtdCard()`, so the PNG is exactly
+what the "Share today's card" button draws: 1200x675, the date, 3 to 5 of
+the day's items with things on my shelf first (photographed games, then
+consoles) marked ON MY SHELF, then one pop-culture item per category, and
+the URL. Prints the file path. Needs Playwright
+(`pip install playwright && python3 -m playwright install chromium`) and a
+connection for the Google Fonts.
+
+## `daily_teaser.py`: a spoiler-free Daily Shelf teaser
+
+```
+python3 tools/daily_teaser.py 2026-10-26 teaser.png
+python3 tools/daily_teaser.py today teaser.png
+```
+
+Draws that day's photo at the first (most pixelated) blur level, with the
+same code and block size as the game (`BLOCKS[0]` is read from
+`daily.html`), scaled to 900x1200 with hard pixel edges, plus a small
+"DAILY SHELF #N" label. It prints only the puzzle number and the file path,
+never the answer. Same Playwright requirement as `otd_card.py`.

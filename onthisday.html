@@ -121,6 +121,21 @@
   .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:66ch}
   .note a{color:var(--dim)}
   .empty{color:var(--dim);font-size:15px;margin:30px 0 0}
+  /* share card */
+  .sharebar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 0}
+  .sbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;cursor:pointer;
+    background:transparent;color:var(--text);border:2px solid var(--line);border-radius:2px;
+    font-family:"Silkscreen",monospace;font-weight:700;font-size:12px;letter-spacing:.06em;padding:10px 14px}
+  .sbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .sbtn:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .sbtn.hot{background:var(--hot);border-color:var(--hot);color:#12070a}
+  .sbtn.hot:hover{background:transparent;color:var(--hot)}
+  .sbtn[disabled]{opacity:.5;cursor:default}
+  .sbtn[hidden]{display:none}
+  .cardpanel{margin:12px 0 0;background:var(--bg2);border:1px solid var(--line);border-radius:2px;padding:14px}
+  .cardpanel[hidden]{display:none}
+  .cardpanel img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:2px}
+  .cardpanel p{margin:10px 0 0;font-size:13px;color:var(--dim)}
   @media (max-width:560px){
     .dayhead{padding:18px}
     .otd li{gap:12px;flex-wrap:wrap}
@@ -150,6 +165,7 @@
     <a class="navbtn" href="rank.html">Rank games</a>
     <a class="navbtn" href="daily.html">Daily Shelf</a>
     <a class="navbtn" href="match.html">Shelf vs. Mine</a>
+    <a class="navbtn" href="first.html">Which Came First?</a>
     <a class="navbtn" href="anniversaries.html">Anniversaries</a>
     <a class="navbtn here" href="#">On this day</a>
     <a class="navbtn" href="consoles.html">Consoles</a>
@@ -175,6 +191,18 @@
   </div>
 </section>
 
+<div class="sharebar">
+  <button type="button" class="sbtn hot" id="otdCardBtn">Share today's card</button>
+  <a class="sbtn" id="otdX" href="https://x.com/intent/post" target="_blank" rel="noopener">Post on X</a>
+</div>
+<div class="cardpanel" id="otdPanel" hidden>
+  <img id="otdPic" alt="">
+  <div class="sharebar">
+    <a class="sbtn" id="otdDl" href="#" download="on-this-day.png">Download</a>
+    <button type="button" class="sbtn" id="otdSh" hidden>Share image</button>
+  </div>
+  <p>The picture is drawn in your browser. X can't attach it from a link, so download it and add it to your post.</p>
+</div>
 <div class="controls" id="cats" style="display:flex;gap:10px;flex-wrap:wrap;margin:26px 0 0"></div>
 
 <div id="list" aria-live="polite"></div>
@@ -355,6 +383,191 @@ addEventListener("keydown",e=>{
   else if(e.key==="ArrowRight") go(step(cur,1));
 });
 draw();
+</script>
+<script>
+/* "Share today's card": a 1200x675 picture of the day, drawn on a canvas
+   from the same data the page shows (data/on-this-day/MM.json and
+   data/on-this-day/shelf.json). Games and consoles on my shelf come first
+   and get an ON MY SHELF badge. tools/otd_card.py calls npOtdCard() to make
+   the same card on the command line. */
+(function(){
+  const SITE = "thenostalgiapro.com";
+  const MON3 = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+  const CATCOL = {Movies:"#e0a33a",TV:"#7fd4f5",Music:"#c85cc8",Games:"#3fa65b",Toys:"#f0413f",Sports:"#4a78d6",Tech:"#9aa3b5"};
+  const strip = t => String(t).replace(/\s*\[[^\]]*\]/g, "").trim();
+  const realPhoto = src => !!src && !/placeholders\//.test(src);
+
+  function pickItems(pop, shelf){
+    const games = shelf.filter(x => !x.hw), hw = shelf.filter(x => x.hw);
+    /* shelf first: photographed games, then consoles, then the rest; one per title */
+    const seen = new Set(), mine = [];
+    for (const x of [...games.filter(g => realPhoto(g.img)), ...hw, ...games.filter(g => !realPhoto(g.img))]) {
+      const k = strip(x.title).toLowerCase();
+      if (seen.has(k)) continue; seen.add(k); mine.push(x);
+    }
+    const shelfRows = mine.slice(0, 3).map(x => ({
+      shelf: true, y: x.y, img: realPhoto(x.img) ? x.img : null, col: "#ff4b3e",
+      text: x.hw ? `${strip(x.title)} launches in ${x.where}` : strip(x.title),
+      sub: x.hw ? "Console on my shelf" : x.system
+    }));
+    /* then pop culture: one per category, in the page's own order */
+    const order = ["Movies","Music","TV","Games","Toys","Sports","Tech"], popRows = [];
+    const want = Math.max(5 - shelfRows.length, Math.min(2, pop.length));
+    for (let pass = 0; popRows.length < want && pass < 3; pass++)
+      for (const c of order) {
+        if (popRows.length >= want) break;
+        const x = pop.filter(x => x.cat === c && !popRows.includes(x)).sort((a, b) => a.y - b.y)[0];
+        if (x) popRows.push(x);
+      }
+    return shelfRows.concat(popRows.slice(0, 5 - shelfRows.length).map(x => ({
+      shelf: false, y: x.y, img: null, col: CATCOL[x.cat] || "#9aa3b5", text: x.text, sub: x.cat
+    }))).slice(0, 5);
+  }
+
+  function wrap(ctx, text, w, maxLines){
+    const words = text.split(/\s+/), lines = [];
+    let line = "";
+    for (const wd of words) {
+      const t = line ? line + " " + wd : wd;
+      if (ctx.measureText(t).width <= w || !line) line = t;
+      else { lines.push(line); line = wd; }
+    }
+    if (line) lines.push(line);
+    if (lines.length > maxLines) {
+      const keep = lines.slice(0, maxLines);
+      let last = keep[maxLines - 1];
+      while (last.length > 1 && ctx.measureText(last + "…").width > w) last = last.slice(0, -1);
+      keep[maxLines - 1] = last.replace(/[\s,.;:]+$/, "") + "…";
+      return keep;
+    }
+    return lines;
+  }
+  const loadImg = src => new Promise(res => { if (!src) return res(null); const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
+
+  async function card(m, d){
+    if (document.fonts) {
+      try { await Promise.all(['120px "Press Start 2P"','700 20px "Silkscreen"','600 26px "IBM Plex Sans"','400 18px "IBM Plex Sans"'].map(f => document.fonts.load(f))); } catch (e) {}
+    }
+    const k = String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+    const [month, shelf] = await Promise.all([loadMonth(m), loadShelf().catch(() => ({ days: {} }))]);
+    const pop = (month.days && month.days[k]) || [], mine = (shelf.days && shelf.days[k]) || [];
+    const rows = pickItems(pop, mine);
+    const imgs = await Promise.all(rows.map(r => loadImg(r.img)));
+
+    const W = 1200, H = 675, cv = document.createElement("canvas");
+    cv.width = W; cv.height = H;
+    const ctx = cv.getContext("2d");
+    ctx.fillStyle = "#101219"; ctx.fillRect(0, 0, W, H);
+    const g = ctx.createRadialGradient(220, 120, 10, 220, 120, 640);
+    g.addColorStop(0, "rgba(255,75,62,.16)"); g.addColorStop(1, "rgba(255,75,62,0)");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+    /* left: the date */
+    const P = 56;
+    ctx.fillStyle = "#8e93a2"; ctx.font = '700 18px "Silkscreen", monospace';
+    ctx.fillText("THE NOSTALGIA PRO", P, 78);
+    ctx.fillStyle = "#ff4b3e"; ctx.fillText("ON THIS DAY", P, 104);
+    ctx.shadowColor = "rgba(255,75,62,.5)"; ctx.shadowBlur = 34;
+    ctx.fillStyle = "#eceae2"; ctx.font = '72px "Press Start 2P", monospace';
+    ctx.fillText(MON3[m - 1], P, 250);
+    ctx.fillStyle = "#ff4b3e"; ctx.font = '150px "Press Start 2P", monospace';
+    ctx.fillText(String(d), P - 6, 440);
+    ctx.shadowColor = "transparent"; ctx.shadowBlur = 0;
+    ctx.fillStyle = "#8e93a2"; ctx.font = '400 19px "IBM Plex Sans", sans-serif';
+    const nShelf = mine.length;
+    ctx.fillText(`${pop.length} moments in pop culture`, P, 500);
+    ctx.fillText(nShelf ? `${nShelf} thing${nShelf === 1 ? "" : "s"} on my shelf from it` : "Nothing on my shelf from it (yet)", P, 528);
+
+    /* right: the rows */
+    const X = 452, RW = W - X - P, top = 48, bottom = H - 76;
+    const n = Math.max(1, rows.length), gap = 12, rh = Math.min(108, Math.floor((bottom - top - gap * (n - 1)) / n));
+    if (!rows.length) {
+      ctx.fillStyle = "#8e93a2"; ctx.font = '400 22px "IBM Plex Sans", sans-serif';
+      ctx.fillText("Nothing on file for this day yet.", X, 320);
+    }
+    rows.forEach((r, i) => {
+      const y = top + i * (rh + gap);
+      ctx.fillStyle = r.shelf ? "#1d2029" : "#171a23"; ctx.fillRect(X, y, RW, rh);
+      ctx.fillStyle = r.col; ctx.fillRect(X, y, 6, rh);
+      if (r.shelf) { ctx.strokeStyle = "rgba(255,75,62,.55)"; ctx.lineWidth = 2; ctx.strokeRect(X + 1, y + 1, RW - 2, rh - 2); }
+      let tx = X + 22;
+      const im = imgs[i];
+      if (im) {
+        const th = rh - 16, tw = Math.round(th * 0.75), s = Math.max(tw / im.width, th / im.height), sw = tw / s, sh = th / s;
+        ctx.drawImage(im, (im.width - sw) / 2, (im.height - sh) / 2, sw, sh, tx, y + 8, tw, th);
+        ctx.strokeStyle = "#2c3040"; ctx.lineWidth = 2; ctx.strokeRect(tx, y + 8, tw, th);
+        tx += tw + 16;
+      }
+      ctx.fillStyle = r.col; ctx.font = '20px "Press Start 2P", monospace';
+      ctx.fillText(String(r.y), tx, y + 36);
+      let bx = tx + ctx.measureText(String(r.y)).width + 16;
+      ctx.font = '700 14px "Silkscreen", monospace';
+      if (r.shelf) {
+        const lbl = "ON MY SHELF", lw = ctx.measureText(lbl).width + 16;
+        ctx.fillStyle = "#ff4b3e"; ctx.fillRect(bx, y + 17, lw, 24);
+        ctx.fillStyle = "#12070a"; ctx.fillText(lbl, bx + 8, y + 34);
+        bx += lw + 12;
+      }
+      ctx.fillStyle = "#8e93a2";
+      ctx.fillText(r.sub.toUpperCase(), bx, y + 34);
+      ctx.fillStyle = "#eceae2"; ctx.font = '600 23px "IBM Plex Sans", sans-serif';
+      const lines = wrap(ctx, r.text, X + RW - tx - 18, rh > 96 ? 2 : 1);
+      lines.forEach((ln, j) => ctx.fillText(ln, tx, y + 68 + j * 28));
+    });
+
+    /* footer */
+    ctx.fillStyle = "#1d2029"; ctx.fillRect(0, H - 56, W, 56);
+    ctx.fillStyle = "#ff4b3e"; ctx.fillRect(0, H - 56, W, 3);
+    ctx.fillStyle = "#eceae2"; ctx.font = '18px "Press Start 2P", monospace';
+    ctx.fillText(SITE + "/onthisday", P, H - 20);
+    ctx.fillStyle = "#8e93a2"; ctx.font = '700 16px "Silkscreen", monospace';
+    const tag = "POP CULTURE + WHAT'S ON MY SHELF", tw2 = ctx.measureText(tag).width;
+    ctx.fillText(tag, W - P - tw2, H - 22);
+    ctx.fillStyle = "rgba(0,0,0,.12)";
+    for (let yy = 0; yy < H; yy += 3) ctx.fillRect(0, yy, W, 1);
+    return cv;
+  }
+  window.npOtdCard = card;
+
+  /* the buttons */
+  const btn = document.getElementById("otdCardBtn"), xl = document.getElementById("otdX");
+  let blob = null, made = "";
+  function label(){
+    const t = isToday(cur);
+    btn.textContent = t ? "Share today's card" : `Share ${MONTHNAME[cur.m - 1].slice(0, 3)} ${cur.d}'s card`;
+    const when = MONTHNAME[cur.m - 1].slice(0, 3) + " " + cur.d;
+    const url = SITE + "/onthisday" + (t ? "" : "?d=" + key(cur));
+    xl.href = "https://x.com/intent/post?text=" + encodeURIComponent(`${when} in pop culture, and what's on my shelf from it. ${url}`);
+    if (made && made !== key(cur)) document.getElementById("otdPanel").hidden = true;
+  }
+  label();
+  /* keep the label in step when the day changes (prev/next, pickers, back button) */
+  ["prev","next","todayBtn","pickM","pickD"].forEach(id => document.getElementById(id).addEventListener(id.startsWith("pick") ? "change" : "click", () => setTimeout(label, 0)));
+  addEventListener("popstate", () => setTimeout(label, 0));
+  addEventListener("keydown", () => setTimeout(label, 0));
+  btn.addEventListener("click", async () => {
+    btn.disabled = true; const was = btn.textContent; btn.textContent = "Drawing";
+    try {
+      const cv = await card(cur.m, cur.d);
+      blob = await new Promise(r => cv.toBlob(r, "image/png"));
+      const url = URL.createObjectURL(blob);
+      made = key(cur);
+      const pic = document.getElementById("otdPic");
+      pic.src = url; pic.alt = `On this day card for ${MONTHNAME[cur.m - 1]} ${cur.d}`;
+      const dl = document.getElementById("otdDl");
+      dl.href = url; dl.download = `on-this-day-${key(cur)}.png`;
+      const f = new File([blob], `on-this-day-${key(cur)}.png`, { type: "image/png" });
+      document.getElementById("otdSh").hidden = !(navigator.canShare && navigator.canShare({ files: [f] }));
+      document.getElementById("otdPanel").hidden = false;
+    } catch (e) { console.warn(e); }
+    btn.disabled = false; btn.textContent = was;
+  });
+  document.getElementById("otdSh").addEventListener("click", async () => {
+    if (!blob) return;
+    const f = new File([blob], `on-this-day-${made}.png`, { type: "image/png" });
+    try { await navigator.share({ files: [f], text: decodeURIComponent(xl.href.split("text=")[1] || "") }); } catch (e) {}
+  });
+})();
 </script>
 <script>
 /* Installable, and the whole collection works offline once you've opened it. */
