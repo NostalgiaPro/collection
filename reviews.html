@@ -8,26 +8,26 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="My running review series. Scores out of five for retro games, including the ones everybody else likes that I don't.">
+<meta name="description" content="My Honest and Unpopular Reviews from X, all 58 of them: the full review, the score out of five, and a link to the post.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Nostalgia Pro">
 <meta property="og:title" content="The Nostalgia Pro — Honest and Unpopular Reviews">
-<meta property="og:description" content="My running review series. Scores out of five for retro games, including the ones everybody else likes that I don't.">
+<meta property="og:description" content="My Honest and Unpopular Reviews from X, all 58 of them: the full review, the score out of five, and a link to the post.">
 <meta property="og:url" content="https://thenostalgiapro.com/reviews.html">
 <meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Nostalgia Pro: 846 games on the shelf">
+<meta property="og:image:alt" content="The Nostalgia Pro — Honest and Unpopular Reviews">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@NostalgiaPro">
 <meta name="twitter:title" content="The Nostalgia Pro — Honest and Unpopular Reviews">
-<meta name="twitter:description" content="My running review series. Scores out of five for retro games, including the ones everybody else likes that I don't.">
+<meta name="twitter:description" content="My Honest and Unpopular Reviews from X, all 58 of them: the full review, the score out of five, and a link to the post.">
 <meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
 <link rel="canonical" href="https://thenostalgiapro.com/reviews.html">
 <title>The Nostalgia Pro — Honest and Unpopular Reviews</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/retro.css">
 <style>
   :root{
@@ -48,18 +48,11 @@
       repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
   }
   .wrap{position:relative;z-index:1;max-width:940px;margin:0 auto;padding:0 22px 90px}
-
   header{padding:44px 0 0}
-  .wordmark{
-    font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;
-    letter-spacing:.14em;color:var(--dim);margin:0 0 22px;
-  }
-  h1{
-    font-family:"Press Start 2P",monospace;
-    font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word;
-  }
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  .wordmark a{color:inherit;text-decoration:none}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word}
   .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
-
   .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
   .navbtn{
     display:inline-flex;align-items:center;text-decoration:none;
@@ -69,229 +62,1714 @@
   }
   .navbtn:hover{border-color:var(--hot);color:var(--hot)}
   .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
-
-  .scores{display:flex;flex-wrap:wrap;gap:26px;margin:30px 0 0}
-  .score b{display:block;font-family:"Press Start 2P",monospace;font-size:18px}
-  .score span{
-    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.09em;color:var(--dim);
+  .barlabel{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:34px 0 10px}
+  .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:64ch}
+  .xpost{
+    margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);
+    border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:14px 18px;
   }
-
-  .barlabel{
-    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;
-    color:var(--dim);margin:30px 0 9px;
+  .xpost blockquote{margin:0;white-space:pre-line;font-size:15px}
+  .xpost .meta{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0 0;
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);
   }
+  .xpost .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .xpost .meta a:hover{border-color:var(--hot);color:var(--hot)}
+  .scores{display:flex;flex-wrap:wrap;margin:24px 0 0;border:2px solid var(--line);border-radius:2px;overflow:hidden}
+  .score{flex:1 1 130px;padding:13px 15px;background:var(--bg2);border-right:1px solid var(--line)}
+  .score:last-child{border-right:none}
+  .score b{display:block;font-family:"Press Start 2P",monospace;font-size:18px;line-height:1}
+  .score span{display:block;margin-top:8px;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.09em;color:var(--dim)}
   .chips{display:flex;flex-wrap:wrap;gap:7px}
-  .chip{
-    background:transparent;border:1px solid var(--line);color:var(--dim);
-    font-family:"IBM Plex Sans",sans-serif;font-size:13px;font-weight:500;
-    padding:6px 12px;border-radius:2px;cursor:pointer;
-  }
+  .chip{background:transparent;border:1px solid var(--line);color:var(--dim);font-family:"IBM Plex Sans",sans-serif;
+    font-size:13px;font-weight:500;padding:6px 12px;border-radius:2px;cursor:pointer}
   .chip:hover{border-color:#4a5064;color:var(--text)}
   .chip[aria-pressed="true"]{background:var(--text);border-color:var(--text);color:var(--bg)}
   .chip em{font-style:normal;font-family:"Silkscreen",monospace;font-size:10px;opacity:.7;margin-left:6px}
-
-  ol.reviews{list-style:none;margin:26px 0 0;padding:0}
-  ol.reviews li{
-    display:flex;align-items:center;gap:14px;
-    padding:12px 10px;border-bottom:1px solid var(--line);
-    border-left:4px solid var(--c,var(--line));
-  }
-  ol.reviews li.hidden{display:none}
-  .num{
-    flex:none;width:40px;font-family:"Press Start 2P",monospace;
-    font-size:12px;color:var(--dim);
-  }
+  .tools{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:26px 0 0;flex-wrap:wrap}
+  .tools p{margin:0;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;color:var(--dim)}
+  ol.reviews{list-style:none;margin:10px 0 0;padding:0}
+  ol.reviews>li{border-bottom:1px solid var(--line);border-left:4px solid var(--c,var(--line));background:var(--bg2)}
+  ol.reviews>li:first-child{border-top:1px solid var(--line)}
+  ol.reviews>li[hidden]{display:none}
+  .rv>summary{display:flex;align-items:center;gap:14px;padding:12px 12px;cursor:pointer;list-style:none}
+  .rv>summary::-webkit-details-marker{display:none}
+  .rv>summary:hover{background:var(--panel)}
+  .rv>summary:focus-visible{outline:2px solid var(--c);outline-offset:-2px}
+  .num{flex:none;width:44px;font-family:"Press Start 2P",monospace;font-size:12px;color:var(--dim)}
   .who{flex:1;min-width:0}
-  .who b{display:block;font-weight:500;font-size:15.5px}
-  .who a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
-  .who a:hover,.who a:focus-visible{border-bottom-color:var(--c);outline:none}
-  .lists{
-    font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.05em;
-    color:var(--dim);text-decoration:none;border:1px solid var(--line);
-    border-radius:2px;padding:2px 6px;margin-left:8px;white-space:nowrap;
-  }
-  .lists:hover{border-color:var(--hot);color:var(--hot)}
+  .who b{display:block;font-weight:600;font-size:16px;line-height:1.3}
   .who span{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--c,var(--dim))}
-  .rating{
-    flex:none;font-family:"Press Start 2P",monospace;font-size:13px;
-    white-space:nowrap;
-  }
+  .who span time{color:var(--dim)}
+  .rating{flex:none;font-family:"Press Start 2P",monospace;font-size:13px;white-space:nowrap}
   .r5{color:#3fbf6a}.r4{color:#c9c34a}.r3{color:#e0913a}.r2{color:#e0663a}.r1{color:var(--hot)}
   .rnone{color:var(--dim);font-size:10px;font-family:"Silkscreen",monospace}
+  .arrow{flex:none;width:10px;height:10px;border:solid var(--dim);border-width:0 2px 2px 0;transform:rotate(45deg);margin:-4px 4px 0 0;transition:transform .15s}
+  .rv[open] .arrow{transform:rotate(225deg);margin-top:4px}
+  .body{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:22px;padding:4px 18px 18px 70px}
+  .body blockquote{margin:0;white-space:pre-line;font-size:15.5px;line-height:1.6;overflow-wrap:anywhere}
+  .body figure{margin:0}
+  .body figure img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:2px;background:#0a0c11}
+  .rmeta{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .rmeta a{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);text-decoration:none;
+    border:1px solid var(--line);border-radius:2px;padding:5px 9px}
+  .rmeta a:hover,.rmeta a:focus-visible{border-color:var(--hot);color:var(--hot);outline:none}
+  .rmeta a.onx{border-color:var(--text);color:var(--text)}
+  .rmeta a.onx:hover{border-color:var(--hot);color:var(--hot)}
   .empty{color:var(--dim);padding:26px 0}
-  .note{font-size:13px;color:var(--dim);margin-top:30px;max-width:64ch}
+  body.y1996 ol.reviews>li{background:#000;border:2px ridge #808080;border-left:6px solid var(--c,#808080);margin:0 0 6px}
+  body.y1996 .rv>summary:hover{background:#000040}
+  body.y1996 .num{font-family:"Courier New",monospace;font-size:14px;color:#ffff00}
+  body.y1996 .who b{font-family:"Times New Roman",Times,serif;color:#00ffff;text-decoration:underline;font-weight:700}
+  body.y1996 .who span{font-family:"Courier New",monospace;font-size:12px}
+  body.y1996 .rating{font-family:"Courier New",monospace;font-size:16px;font-weight:700}
+  body.y1996 .arrow{display:none}
+  body.y1996 .rv>summary::after{content:"[+]";font-family:"Courier New",monospace;color:#c0c0c0}
+  body.y1996 .rv[open]>summary::after{content:"[-]"}
+  body.y1996 .body blockquote{font-family:"Times New Roman",Times,serif;color:#fff;font-size:16px}
+  body.y1996 .body figure img{border:2px inset #808080;border-radius:0}
+  body.y1996 .rmeta a{font-family:"Times New Roman",Times,serif;font-size:14px;letter-spacing:0;color:#00ffff;border:none;padding:0 6px 0 0;text-decoration:underline}
+  body.y1996 .rmeta a:visited{color:#ee82ee}
+  body.y1996 .tools p{font-family:"Courier New",monospace;color:#c0c0c0}
+  @media (max-width:640px){
+    .rv>summary{gap:10px;padding:11px 10px}
+    .num{width:34px;font-size:10px}
+    .who b{font-size:15px}
+    .rating{font-size:11px}
+    .body{grid-template-columns:1fr;padding:2px 14px 16px 14px;gap:14px}
+    .body figure{order:-1;max-width:220px}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <header>
-    <p class="wordmark">The Nostalgia Pro</p>
-    <h1>Honest and Unpopular Reviews</h1>
-    <p class="standfirst">Every game I've scored, in order. Filter by console, or sort by rating to see what I actually stand behind.</p>
-
-    <div class="navrow">
-      <a class="navbtn" href="index.html">The shelf</a>
-      <a class="navbtn" href="digital.html">Digital</a>
-      <a class="navbtn here" href="#">Reviews</a>
-      <a class="navbtn" href="lists.html">Lists</a>
-      <a class="navbtn" href="rank.html">Rank games</a>
-      <a class="navbtn" href="anniversaries.html">Anniversaries</a>
-      <a class="navbtn" href="onthisday.html">On this day</a>
-      <a class="navbtn" href="consoles.html">Consoles</a>
-    <a class="navbtn" href="gaps.html">The gaps</a>
-    <a class="navbtn" href="stats.html">The numbers</a>
-    </div>
-
-    <div class="scores" id="scores"></div>
-  </header>
-
-  <p class="barlabel">Console</p>
-  <div class="chips" id="sysChips"></div>
-
-  <p class="barlabel">Sort</p>
-  <div class="chips" id="sortChips">
-    <button class="chip" data-sort="num" aria-pressed="true">By number</button>
-    <button class="chip" data-sort="high" aria-pressed="false">Highest rated</button>
-    <button class="chip" data-sort="low" aria-pressed="false">Lowest rated</button>
+<header>
+  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>
+  <h1>Honest and Unpopular Reviews</h1>
+  <p class="standfirst">Every game I've reviewed on X, newest first. Open one to read the whole review, or go to the post on X. Filter by console, or sort by number, rating or title.</p>
+  <div class="navrow">
+    <a class="navbtn" href="/index.html">The shelf</a>
+    <a class="navbtn" href="/digital.html">Digital</a>
+    <a class="navbtn here" href="/reviews.html">Reviews</a>
+    <a class="navbtn" href="/lists.html">Lists</a>
+    <a class="navbtn" href="/rank.html">Rank games</a>
+    <a class="navbtn" href="/anniversaries.html">Anniversaries</a>
+    <a class="navbtn" href="/onthisday.html">On this day</a>
+    <a class="navbtn" href="/consoles.html">Consoles</a>
+    <a class="navbtn" href="/gaps.html">The gaps</a>
+    <a class="navbtn" href="/stats.html">The numbers</a>
   </div>
+  <div class="scores">
+    <div class="score"><b>58</b><span>reviews</span></div>
+    <div class="score"><b>12</b><span>consoles</span></div>
+    <div class="score"><b>4.2</b><span>average</span></div>
+    <div class="score"><b>14</b><span>perfect scores</span></div>
+  </div>
+</header>
 
-  <ol class="reviews" id="list"></ol>
-
-  
-
+<p class="barlabel">Console</p>
+<div class="chips" id="sysChips">
+  <button class="chip" data-sys="all" aria-pressed="true">All<em>58</em></button>
+  <button class="chip" data-sys="NES" aria-pressed="false">NES<em>15</em></button>
+  <button class="chip" data-sys="Nintendo 64" aria-pressed="false">Nintendo 64<em>11</em></button>
+  <button class="chip" data-sys="SNES" aria-pressed="false">SNES<em>10</em></button>
+  <button class="chip" data-sys="PlayStation 1" aria-pressed="false">PlayStation 1<em>6</em></button>
+  <button class="chip" data-sys="Xbox 360" aria-pressed="false">Xbox 360<em>5</em></button>
+  <button class="chip" data-sys="GameCube" aria-pressed="false">GameCube<em>3</em></button>
+  <button class="chip" data-sys="Xbox" aria-pressed="false">Xbox<em>3</em></button>
+  <button class="chip" data-sys="PlayStation 3" aria-pressed="false">PlayStation 3<em>2</em></button>
+  <button class="chip" data-sys="Game Boy" aria-pressed="false">Game Boy<em>1</em></button>
+  <button class="chip" data-sys="Sega Dreamcast" aria-pressed="false">Sega Dreamcast<em>1</em></button>
+  <button class="chip" data-sys="Sega Genesis" aria-pressed="false">Sega Genesis<em>1</em></button>
+  <button class="chip" data-sys="Xbox One" aria-pressed="false">Xbox One<em>1</em></button>
 </div>
 
+<p class="barlabel">Sort</p>
+<div class="chips" id="sortChips">
+  <button class="chip" data-sort="new" aria-pressed="true">Newest</button>
+  <button class="chip" data-sort="num" aria-pressed="false">By number</button>
+  <button class="chip" data-sort="high" aria-pressed="false">Highest rated</button>
+  <button class="chip" data-sort="low" aria-pressed="false">Lowest rated</button>
+  <button class="chip" data-sort="az" aria-pressed="false">Title A–Z</button>
+</div>
+
+<div class="tools"><p>Tap a review to read it</p><button class="chip" id="openall" type="button" aria-pressed="false">Open all</button></div>
+<ol class="reviews" id="list">
+<li id="r-59" data-n="59" data-t="2026-10-25T13:22" data-v="4.5" data-k="max payne 3" data-sys="Xbox 360" style="--c:#5fbf3a">
+<details class="rv"><summary><span class="num">59</span><span class="who"><b>Max Payne 3</b><span>Xbox 360 &middot; <time datetime="2026-10-25">Oct 25, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2114452518495461884">Honest and Unpopular Reviews No. 59
+
+Max Payne 3 (Xbox 360)
+
+Ask most people for Rockstar’s best game and it’s GTA V or Red Dead Redemption 2. I just played Max Payne 3 and I’m picking this one over anything Rockstar has ever made.
+
+There’s no slowdown when you’re playing. Once this game begins, it’s just wave after wave of enemies. The story keeps bringing it. Red Dead Redemption 2 is the exact opposite: you have to go out and find the action in that one. 
+
+The story in this game is fantastic. Max is a washed up drunk working private security for a rich family in São Paulo, at least until his boss’s wife gets kidnapped on his watch. The game keeps jumping back to how he got to Brazil in the first place, all the way back to New Jersey.
+
+The soundtrack is one of the best I’ve ever heard in a game. It was done by a band called HEALTH.
+
+The airport scene is one of the best scenes I’ve ever played in any video game ever made. The amount of enemies that come at you with that music playing, it’s its own vibe.
+
+Bullet time is back from the first two games. So is the shootdodge. Drop the last guy in a fight and the camera follows the bullet all the way in, every time. Your health doesn’t come back on its own either. That’s what the painkillers are for (go down with one left and you get one last shot at whoever got you).
+
+One thing I really liked in this game is it wants you to keep progressing.
+
+A few parts of it are legitimately tough. There were a few times I kept dying in the same spot, and the game would give me extra painkillers and ammo.
+
+The only knock on this game is the cutscenes. Well, not the cutscenes themselves, more how often they show up. You get 20 seconds of action and then a 3 minute cutscene you can’t skip that’s really just the game loading the next scene.
+
+Despite being 14 years old, it holds up better than most of what’s coming out now.
+
+I rate Max Payne 3 a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/59-max-payne-3.webp" width="600" height="798" alt="Max Payne 3, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2114452518495461884" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/max-payne-3-xbox-360.html">Game page</a></p></div>
+</details></li>
+<li id="r-58" data-n="58" data-t="2026-10-08T16:26" data-v="5.0" data-k="disney epic mickey rebrushed" data-sys="Xbox One" style="--c:#3aa832">
+<details class="rv"><summary><span class="num">58</span><span class="who"><b>Disney Epic Mickey: Rebrushed</b><span>Xbox One &middot; <time datetime="2026-10-08">Oct 8, 2026</time></span></span><span class="rating r5">5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2108338314088747284">Honest and Unpopular Reviews No. 58
+
+Disney Epic Mickey: Rebrushed (Xbox)
+
+I completed Epic Mickey: Rebrushed yesterday.
+
+The game came out in 2024, and most critics gave it a 7 or an 8. It’s sitting in the mid 70s on Metacritic.
+
+Those critics are wrong.
+
+This looks like a kid’s game until you play it. The story is dark and grim, with the whole game basically taking place at a post apocalyptic Disneyland. Running around the Wasteland and seeing the ruins of the animatronics all across the park, some of it had me thinking, “What game am I playing?” Some of it was really dark, and I loved it.
+
+The gameplay is smooth with simple fight mechanics. It’s a very pro-player game. Lose a heart? Smash open a box and the game supplies you with another one.
+
+The game wants you to win.
+
+It wants you to have fun.
+
+Pretty much everything in the game can be fixed with paint or wiped out with thinner, even some of the bosses. Paint an enemy and they turn into your friend. Their reactions after that got a chuckle out of me. Whatever you pick, the game remembers it. The characters treat you differently because of it, all the way to the ending.
+
+You also fight a robot Captain Hook, right after running into Pete from A Goofy Movie dressed up as Peter Pan.
+
+The music pulls from some of Disney’s most famous movies. The Fantasia level is fantastic. Hard to not hum along to the theme as you’re rushing through Yen Sid’s lab while the brooms are flooding the place.
+
+One of the best Easter eggs I’ve ever seen in a video game is in this one, with Super Nintendo carts of “The Magical Quest” sitting in the ruins. Capcom released it in 1992, and it was awesome seeing the oversized cartridges lying in the toxic sludge.
+
+It’s not often I call a game a masterpiece, but this one is a masterpiece.
+
+I rate Epic Mickey: Rebrushed a 5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/58-disney-epic-mickey-rebrushed.webp" width="600" height="797" alt="Disney Epic Mickey: Rebrushed, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2108338314088747284" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/epic-mickey-rebrushed-xbox-one.html">Game page</a></p></div>
+</details></li>
+<li id="r-57" data-n="57" data-t="2026-10-06T16:46" data-v="4.5" data-k="michael jordan chaos in the windy city" data-sys="SNES" style="--c:#8f6fd6">
+<details class="rv"><summary><span class="num">57</span><span class="who"><b>Michael Jordan: Chaos in the Windy City</b><span>SNES &middot; <time datetime="2026-10-06">Oct 6, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2107618497140600854">Honest and Unpopular Reviews No. 57
+
+Michael Jordan: Chaos in the Windy City (SNES)
+
+Back in the 90s it felt like every famous athlete got a video game, whether it made sense or not.
+
+I was all in on Michael Jordan as a kid. If it had his name on it I wanted it. Jordan is the reason why I rooted for the Chicago Bulls even though I was a Kings fan growing up just south of SacTown.
+
+This one started out as a Blockbuster rental until I finally talked my mom into buying it.
+
+EA released this game in 1994 while Jordan was off playing baseball. Which, by the way, I think if MJ had stuck with baseball, he would have been pretty good. Just needed to learn how to hit the curveball.
+
+Chaos in the Windy City is a side scrolling platformer where a mad scientist named Dr. Maximus Cranium kidnaps the other players before an All-Star charity game, leaving Jordan to rescue them with nothing but basketballs.
+
+If you don't think this is the greatest plotline for a video game, I don't know what to tell you.
+
+You find different basketballs as you go, like an ice ball that freezes enemies or a gold one that chases them down. 
+
+There's even one called the Knuckle Ball that's white and looks just like a baseball. Not sure if that was a nod to Jordan playing baseball at the time.
+
+My only knock on this game is there's no battery save, so you're stuck relying on passwords.
+
+In 1997 Nintendo Power ranked it the seventh worst game of all time, right there with Shaq Fu. They got this one wrong. 
+
+The game is as weird as anything that came out in the 90s, but it showed how good some of those weird games could be.
+
+To me, this is a top 10 SNES game that doesn't deserve the slander it receives. It's a fantastic 2D exploration platformer that isn't afraid to be different.
+
+I rate Michael Jordan: Chaos in the Windy City a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/57-michael-jordan-chaos-in-the-windy-city.webp" width="600" height="797" alt="Michael Jordan: Chaos in the Windy City, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2107618497140600854" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/michael-jordan-chaos-in-the-windy-city-snes.html">Game page</a></p></div>
+</details></li>
+<li id="r-56" data-n="56" data-t="2026-10-05T16:20" data-v="4.5" data-k="teenage mutant ninja turtles tournament fighters" data-sys="SNES" style="--c:#8f6fd6">
+<details class="rv"><summary><span class="num">56</span><span class="who"><b>Teenage Mutant Ninja Turtles: Tournament Fighters</b><span>SNES &middot; <time datetime="2026-10-05">Oct 5, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2107249720892744006">Honest and Unpopular Reviews No. 56
+
+Teenage Mutant Ninja Turtles: Tournament Fighters (SNES)
+
+After Street Fighter II took off, every major franchise in the 90s wanted its own fighting game. Justice League got one, even the Power Rangers got one. A lot of good ones got lost in the pile.
+
+Tournament Fighters is one of them.
+
+A massively underrated 2D fighter and one of the best fighting games of the 90s.
+
+This game had the unfortunate reality of existing at the same time as Street Fighter II Turbo and Mortal Kombat. Both hit the Super Nintendo in 1993, so Tournament Fighters never really stood a chance.
+
+I didn't play this one much growing up. One of my friends had it and I only played it a few times. It wasn't until a couple of years ago that I finally bought it for myself and played it from start to finish.
+
+The learning curve is pretty small. If you've ever messed around with Street Fighter II you'll be fine here, as the controls are easy to learn.
+
+There are two stories. The tournament one is just Shredder entering with a bunch of other fighters so the Turtles go to stop him. Story mode has Karai grabbing April and Splinter, with the Turtles flying in the blimp across the country to get them back.
+
+Konami filled out the roster with Wingnut, Armaggon and Chrome Dome next to the four Turtles, plus Aska, who they made up just for this game.
+
+One of the best things about this game is the super move meter. Once it fills up during a fight you get to unleash a super special move on your opponent, something Street Fighter II didn't have yet.
+
+I also have the Sega Genesis version. Same name, though the roster and story are different since Casey Jones and April O'Neil are playable and the Turtles end up in space. Still, the SNES version is far superior.
+
+Also, bonus points for this game having the best box art cover for any SNES game made.
+
+I rate TMNT: Tournament Fighters (SNES) a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/56-teenage-mutant-ninja-turtles-tournament-fighters.webp" width="600" height="452" alt="Teenage Mutant Ninja Turtles: Tournament Fighters, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2107249720892744006" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/teenage-mutant-ninja-turtles-tournament-fighters-snes.html">Game page</a><a href="/lists.html#game=Teenage%20Mutant%20Ninja%20Turtles%3A%20Tournament%20Fighters">On 1 list</a></p></div>
+</details></li>
+<li id="r-55" data-n="55" data-t="2026-10-04T17:22" data-v="3.5" data-k="fable ii" data-sys="Xbox 360" style="--c:#5fbf3a">
+<details class="rv"><summary><span class="num">55</span><span class="who"><b>Fable II</b><span>Xbox 360 &middot; <time datetime="2026-10-04">Oct 4, 2026</time></span></span><span class="rating r3">3.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2106902793827287213">Honest and Unpopular Reviews No. 55
+
+Fable II (Xbox 360)
+
+I completed Fable II today.
+
+I almost quit this game very early on. This might be the slowest start to any game I've ever played. The first 30 minutes were downright dreadful, and the loading screens being unskippable cutscenes didn't help either.
+
+It took 3 to 4 hours before it started to actually get entertaining. Really, it didn't pick up until I got to the Crucible. That's when I felt a little bit of redemption for sticking with it.
+
+The story wasn't good, and it got weird. It got dark in a hurry with Lucien murdering your sister Rose while you're both still kids, then coming back years later to murder your dog too.
+
+The fighting mechanics aren't the best. Taking the game's age into account, I guess it's fine, although I've played older games that had better CQC.
+
+The second half was great. After the Crucible the pacing improved quite a bit, with more action and more fighting. There's a lot less pointless dialogue too. That lasted right up until the end, when it all became so anticlimactic. All of a sudden the game slows down. You're doing slow walks and listening to characters babble on and on. Then you finally get to the last fight with Lucien, and what a letdown that was.
+
+It was funny watching my character get fatter and fatter as the game went on. He started off a skinny little kid and was morbidly obese by the end.
+
+In total, I think it took about 12 hours to get through the story.
+
+I rate Fable II a 3.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/55-fable-ii.webp" width="600" height="798" alt="Fable II, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2106902793827287213" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/fable-ii-xbox-360.html">Game page</a></p></div>
+</details></li>
+<li id="r-54" data-n="54" data-t="2026-09-30T13:29" data-v="4.5" data-k="contra" data-sys="NES" style="--c:#d3d0c8">
+<details class="rv"><summary><span class="num">54</span><span class="who"><b>Contra</b><span>NES &middot; <time datetime="2026-09-30">Sep 30, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2105394560532975805">Honest and Unpopular Reviews No. 54
+
+Contra (NES)
+
+Up, Up, Down, Down, Left, Right, Left, Right, B, A, Start.
+
+If you had an NES growing up, you know that code. Put it in on the title screen and Contra gives you 30 lives instead of 3. I have never beaten this game without it.
+
+I first played Contra as a kid at a friend's house in the late 80s during a sleepover. This game felt impossible to beat and turned into one of my earliest rage quits. We stayed up all night playing it. We weren't any older than 6 or 7 years old, struggling hard to get through this. I never owned this game until just a few years ago and I was finally able to beat it, thanks to that cheat code.
+
+For most of this game you're running through the jungle shooting at anything that moves, which ends up being just about everything on the screen. Every so often a capsule flies by that gives you a new gun if you shoot it down. 
+
+At that sleepover, my friend and I played it together on 2 player and it was a struggle no matter what.
+
+Contra is hard, the kind of hard where one bullet from anything on the screen kills you and every death costs you whatever gun you had, Spread Gun included.
+
+Even with all that, it's still one of the greatest games on the original Nintendo.
+
+I rate this one a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/54-contra.webp" width="600" height="797" alt="Contra, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2105394560532975805" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/contra-nes.html">Game page</a><a href="/lists.html#game=Contra">On 3 lists</a></p></div>
+</details></li>
+<li id="r-53" data-n="53" data-t="2026-09-29T15:05" data-v="4.5" data-k="nintendo 64" data-sys="Nintendo 64" style="--c:#3fa65b">
+<details class="rv"><summary><span class="num">53</span><span class="who"><b>Nintendo 64</b><span>Nintendo 64 &middot; <time datetime="2026-09-29">Sep 29, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2105056377823703385">Honest and Unpopular Reviews No. 53
+
+Nintendo 64
+
+Everybody says Sony won the 90s. If you're only counting consoles sold, sure, the PlayStation outsold the N64 3-to-1, but the N64 dominated pop culture.
+
+It's hard to describe how big it was. 
+
+It was the hardest thing to find for Christmas in 1996 besides Tickle Me Elmo, sold out in most stores across the country, the same year Jingle All the Way came out, a movie about a dad losing his mind trying to find the Turbo Man action figure. 
+
+Super Mario 64 was what every kid at school was talking about until GoldenEye came out the next summer and took over.
+
+The PS1 had somewhere around 1,300 games come out in North America. There are some all time greats in there like Metal Gear Solid, but most of it was nonsense shovelware. 
+
+The N64 had under 400 games and still had the better library. 
+
+Wave Race 64 and 1080° Snowboarding are two of the best games on the system, with Wave Race still at the top.
+
+Mario 64 was the first game we played on ours in 1997. I was 13 and we were all blown away by it.
+
+Most of my memories with my brother from back then are on the N64. We played through both Ocarina of Time and Majora's Mask together, and when he borrowed Episode I: Racer from a friend I pretty much took it over until his friend wanted it back. 
+
+On Saturdays the neighborhood kids would come over to play four player GoldenEye for hours at a time and then Mario Kart 64 whenever we took a break from GoldenEye. 
+
+The summer of 2000 I played an unhealthy amount of Major League Baseball Featuring Ken Griffey Jr. before discovering Perfect Dark.
+
+My only knock on the console is the controller, that three pronged thing with the analog stick right in the middle. A big downgrade from the Super Nintendo controller. But it didn't matter. We still made it work.
+
+The Dreamcast is still the greatest console ever made. But 30 years later, I'd still take the N64 library over the PlayStation's.
+
+I rate the Nintendo 64 a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/53-nintendo-64.webp" width="600" height="797" alt="Nintendo 64, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2105056377823703385" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/console/nintendo-64.html">Nintendo 64 on the shelf</a><a href="/lists.html#game=Nintendo%2064">On 1 list</a></p></div>
+</details></li>
+<li id="r-52" data-n="52" data-t="2026-09-28T10:57" data-v="4.0" data-k="gears of war" data-sys="Xbox 360" style="--c:#5fbf3a">
+<details class="rv"><summary><span class="num">52</span><span class="who"><b>Gears of War</b><span>Xbox 360 &middot; <time datetime="2026-09-28">Sep 28, 2026</time></span></span><span class="rating r4">4/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2104631549690044432">Honest and Unpopular Reviews No. 52
+
+Gears of War (Xbox 360)
+
+There's always that one game you wrote off for years without ever giving it a chance.
+
+Admittedly, for me that was Gears of War. I figured it was a dumbed-down version of Halo, basically a rip-off, so I skipped it when it came out in 2006.
+
+And I kept skipping it.
+
+I finally gave in and played it in 2018 after one of my friends, a huge Gears fan, was able to talk me into it.
+
+All the preconceived thoughts I had about Gears turned out wildly incorrect. Now I regret not playing it sooner.
+
+You spend most of this game stuck to a wall, popping up to shoot at the Locust and getting back down before they can hit you.
+
+A lot of the third-person shooters that came out after it play the same way. Gears usually gets the credit for that, even if it wasn't the first game to use cover.
+
+The Lancer has a chainsaw on the end of it. This is the best part of the game. Sawing your enemies in half right down the middle is high-quality entertainment.
+
+The addition of active reload was a great design, giving you a damage boost when you tap the button at the right moment or jamming your gun when you miss the target.
+
+At some point the campaign throws a blind Berserker at you that hunts by sound. The Kryll are their own problem, since stepping out of the light for even a second gets you torn apart.
+
+The controls are the only thing I don't particularly care for in this game. They're way different from your typical shooter, but after an adjustment period they're doable.
+
+When I ranked my top 10 games of the 2000s, Gears landed at No. 10. I've played every Gears outside of Tactics, and I'm actually a fan of the franchise.
+
+Looking forward to eventually getting around to playing E-Day after it releases.
+
+I rate Gears of War a 4 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/52-gears-of-war.webp" width="600" height="797" alt="Gears of War, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2104631549690044432" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/gears-of-war-xbox-360.html">Game page</a></p></div>
+</details></li>
+<li id="r-51" data-n="51" data-t="2026-09-26T18:04" data-v="4.5" data-k="pilotwings 64" data-sys="Nintendo 64" style="--c:#3fa65b">
+<details class="rv"><summary><span class="num">51</span><span class="who"><b>Pilotwings 64</b><span>Nintendo 64 &middot; <time datetime="2026-09-26">Sep 26, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2104014156857008382">Honest and Unpopular Reviews No. 51
+
+Pilotwings 64 (N64)
+
+When people talk about the Nintendo 64 launch, Super Mario 64 is usually the only game that comes up. 
+
+Pilotwings 64 came out right alongside it 30 years ago today, as one of only two games you could buy for the system on day one.
+
+It's a flight game where every mission is a test you get graded on, whether you're in the hang glider or setting the rocket belt down on a landing pad without overshooting it. 
+
+Hang gliding is the best part of the game, just floating along and lazily working your way through the rings with the music playing. Dan Hess created an amazing soundtrack for this game.
+
+The 3D world is very impressive for a game from 1996, with Little States giving you a shrunk down version of the whole United States to fly around.
+
+Out of the two N64 launch titles, Pilotwings 64 is the better game.
+
+I rate this one a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/51-pilotwings-64.webp" width="600" height="798" alt="Pilotwings 64, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2104014156857008382" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/pilotwings-64-nintendo-64.html">Game page</a><a href="/lists.html#game=Pilotwings%2064">On 1 list</a></p></div>
+</details></li>
+<li id="r-50" data-n="50" data-t="2026-09-25T14:04" data-v="5.0" data-k="street fighter ii turbo" data-sys="SNES" style="--c:#8f6fd6">
+<details class="rv"><summary><span class="num">50</span><span class="who"><b>Street Fighter II Turbo</b><span>SNES &middot; <time datetime="2026-09-25">Sep 25, 2026</time></span></span><span class="rating r5">5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2103591406782861456">Honest and Unpopular Reviews No. 50
+
+Street Fighter II Turbo (SNES)
+
+Everyone who played Street Fighter II as a kid had that one character they picked every single time.
+
+Mine was Ryu.
+
+I rented Street Fighter II from Blockbuster so many times that it would have been cheaper for my mom to just buy it.
+
+This was a game everyone I knew had. Any time we went to a cousin's house or a friend's house, they had Street Fighter II Turbo.
+
+I was 10 years old and my parents took us to a get-together at their friends' house. I was so bored. One of the kids asked me if I wanted to play Street Fighter. I asked him which one he had and he said Turbo. I got excited and we played for hours. I still remember that day vividly.
+
+Turbo is the original Street Fighter II on steroids. You can play as Balrog, Vega, Sagat and M. Bison now, where before they were just the bosses you had to beat at the end.
+
+Once you turn the stars up on the speed setting, it's a completely different game from the original. Everything moves so fast you barely have time to react to what the other guy is doing. Both players can finally pick Ryu now too, so you get Ryu against Ryu at full speed.
+
+This is the best Street Fighter ever made and the best fighting game ever made. Nothing released in the 33 years since has knocked it out of the top spot for me, Mortal Kombat II and Tekken 3 included.
+
+I rate Street Fighter II Turbo an astounding 5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/50-street-fighter-ii-turbo.webp" width="600" height="452" alt="Street Fighter II Turbo, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2103591406782861456" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/street-fighter-ii-turbo-snes.html">Game page</a><a href="/lists.html#game=Street%20Fighter%20II%20Turbo">On 2 lists</a></p></div>
+</details></li>
+<li id="r-49" data-n="49" data-t="2026-09-24T13:43" data-v="4.5" data-k="batman returns" data-sys="SNES" style="--c:#8f6fd6">
+<details class="rv"><summary><span class="num">49</span><span class="who"><b>Batman Returns</b><span>SNES &middot; <time datetime="2026-09-24">Sep 24, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2103223829992792322">Honest and Unpopular Reviews No. 49
+
+Batman Returns (SNES)
+
+Nobody ever brings up this game when they talk about great Batman games. Konami made an absolute banger here, and it's constantly overlooked and never included in any all time lists, which is a travesty.
+
+This game came out on multiple consoles, but this review is strictly for the 1993 Super Nintendo version.
+
+It follows the movie pretty closely, which is very surprising because video game movie tie-ins almost never follow the movie with any accuracy. It's usually just a label slapped on some generic thing (looking at you, Friday the 13th and Bill and Ted!)
+
+The game starts with the Red Triangle Circus Gang crashing the tree lighting in Gotham Plaza and ends with Batman fighting the Penguin in his lair. Catwoman shows up on occasion to fight you along the way.
+
+Between stages you get movie stills to carry the story.
+
+The fighting mechanics are fantastic. You can grab two clowns at once and smash their heads together, or pick one up and throw him right through a store window. There's a Batmobile stage in the middle of the game too.
+
+The music, the sound effects and the overall ambiance are absolutely stellar. 
+
+Konami got Danny Elfman's score from the movie onto the cartridge, and the whole game has the same snowy Gotham at Christmas feel Tim Burton put on screen.
+
+It's one of the best licensed games from the 16-bit era, and it ranks pretty high on my all time lists.
+
+I rate Batman Returns on the Super Nintendo a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/49-batman-returns.webp" width="600" height="797" alt="Batman Returns, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2103223829992792322" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/batman-returns-snes.html">Game page</a><a href="/lists.html#game=Batman%20Returns">On 2 lists</a></p></div>
+</details></li>
+<li id="r-48" data-n="48" data-t="2026-09-23T17:44" data-v="4.5" data-k="super mario bros 2" data-sys="NES" style="--c:#d3d0c8">
+<details class="rv"><summary><span class="num">48</span><span class="who"><b>Super Mario Bros. 2</b><span>NES &middot; <time datetime="2026-09-23">Sep 23, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2102922164311937514">Honest and Unpopular Reviews No. 48
+
+Super Mario Bros. 2 (NES)
+
+One of my earliest memories is my parents taking me to Toys &quot;R&quot; Us to buy a game for Christmas in 1988.
+
+I picked out Super Mario Bros. 2 (honestly, my mom probably picked it out because she was a huge fan of Mario Bros. at the time).
+
+I remember this game being so different than the first, but I liked it anyways. I was also only 5 years old, so I didn't really know any better.
+
+For those of you unfamiliar with the backstory of Super Mario Bros. 2, it started out in Japan as a game called Doki Doki Panic. Nintendo decided to reskin the game as a Mario game for the United States because they thought Americans would struggle with the real Mario 2.
+
+This version of Mario had a slight difficulty bump over SMB1 and even SMB3. I could never beat it on my own until years later.
+
+I was disappointed when I found out there was a *real* Super Mario Bros. 2 and the one I owned wasn't actually it. I discovered this several Christmases down the road at my cousin's house, where they had Super Mario All-Stars on the SNES. That's the exact moment I found out about The Lost Levels.
+
+Nintendo turned out to be correct, because once I played it, The Lost Levels was absurdly difficult.
+
+People treat this one like the black sheep of the series. I replay this game from time to time because I just love how weird it is. It's like Mario was on some acid trip in between SMB1 and 3.
+
+I rate Super Mario Bros. 2 a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/48-super-mario-bros-2.webp" width="600" height="797" alt="Super Mario Bros. 2, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2102922164311937514" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/super-mario-bros-2-nes.html">Game page</a><a href="/lists.html#game=Super%20Mario%20Bros.%202">On 2 lists</a></p></div>
+</details></li>
+<li id="r-46" data-n="46" data-t="2026-09-21T11:15" data-v="5.0" data-k="halo combat evolved" data-sys="Xbox" style="--c:#8ec63f">
+<details class="rv"><summary><span class="num">46</span><span class="who"><b>Halo: Combat Evolved</b><span>Xbox &middot; <time datetime="2026-09-21">Sep 21, 2026</time></span></span><span class="rating r5">5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2102099347739697404">Honest and Unpopular Reviews No. 46
+
+Halo: Combat Evolved (Xbox)
+
+Have you ever played a game out of order or watched a sequel to a movie before seeing the original?
+
+That's what I did with Halo.
+
+Halo 2 was my introduction to the franchise thanks to one of my best friends, whom I've known since 1997. He rented Halo 2 from Blockbuster in late 2004 and we pulled an all nighter playing it.
+
+Shortly after this life changing experience, I went out and bought my own Xbox along with Halo CE. It's been my favorite franchise ever since.
+
+There's only been a handful of games as revolutionary as Halo was. Bungie put out one of the biggest games in pop culture history with it, on a brand new console from a company that had never made one before.
+
+Halo launched with the original Xbox in November 2001. The marketing for the new console was through the roof. Microsoft did everything they could to get people to take the Xbox seriously, and Halo is the biggest reason why anyone did.
+
+Nearly every first person shooter since has copied what Halo did. 
+
+Carrying only two guns meant every weapon you picked up cost you one you already had, but the real ones know you only need the magnum to run through this. 
+
+The shield Master Chief had was something shooters hadn't really done before. It came back on its own if you backed off for a few seconds. 
+
+Grenades had their own button, something console shooters before it mostly didn't bother with.
+
+Then it hands you the Warthog, a jeep with a turret on the back where one guy drives while the other stands up there shooting, on levels big enough to actually drive it through, or some that aren't but you're going to make it fit through this really narrow hallway anyways.
+
+One of my favorite things about Halo is how it's multiple genres in one game. It's a futuristic science fiction war game but about halfway through, it turns into a horror game with the Flood showing up. You go from fighting religious alien zealots to fighting zombies.
+
+The release of Halo CE had a massive impact on pop culture, big enough that it led to Red vs Blue, an internet comedy show filmed inside the game that ran for over twenty years.
+
+Bungie opened the decade with Combat Evolved and closed it out with Reach in 2010, showing us what first person shooters should actually be.
+
+I rate Halo: Combat Evolved a 5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/46-halo-combat-evolved.webp" width="600" height="797" alt="Halo: Combat Evolved, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2102099347739697404" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/halo-combat-evolved-xbox.html">Game page</a><a href="/lists.html#game=Halo%3A%20Combat%20Evolved">On 1 list</a></p></div>
+</details></li>
+<li id="r-45" data-n="45" data-t="2026-09-18T16:45" data-v="5.0" data-k="star fox" data-sys="SNES" style="--c:#8f6fd6">
+<details class="rv"><summary><span class="num">45</span><span class="who"><b>Star Fox</b><span>SNES &middot; <time datetime="2026-09-18">Sep 18, 2026</time></span></span><span class="rating r5">5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2101095390560854408">Honest and Unpopular Reviews No. 45
+
+Star Fox (Super Nintendo)
+
+Just about every game on the Super Nintendo looked like it was a Super Nintendo game. That changed in 1993 when Star Fox showed up.
+
+This was the first SNES game I ever rented at Blockbuster and I remember it like it happened yesterday. I was crazy excited when I picked up this game and the 5 minute car ride home felt like an eternity.
+
+Immediately after getting home and popping the cart in, I just couldn't believe the graphics. I was absolutely blown away. Nothing else on that system was doing what Star Fox was doing.
+
+The Super FX chip inside the cartridge is what made it possible. It's also why the frame rate drops the way it does when the screen gets busy. But 10 year old me didn't care about any of that. I was just super fascinated by the 3D obstacle flying in this game. I'd never played anything like this before.
+
+I'd be lying though if I didn't say I rage quit a few times as both a 10 year old and someone in his early 40s. This game was hard. It's still hard. It's one of my all time favorite games despite its difficulty being through the roof.
+
+Nintendo has remade this game about 47 times since. Star Fox 64 was the first remake in 1997, then the 3DS version was the remake of the remake, and Zero did it again on the Wii U. And now the Switch 2 got its own remake.
+
+Same story every time and the only thing that changes are the graphics.
+
+Star Fox 64 gets called the best one in the series and I've never agreed with that. The SNES original is my favorite and the best one made, Star Fox Adventures is second, and Star Fox 64 is third.
+
+I rate this one a 5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/45-star-fox.webp" width="600" height="452" alt="Star Fox, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2101095390560854408" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/star-fox-snes.html">Game page</a></p></div>
+</details></li>
+<li id="r-44" data-n="44" data-t="2026-09-17T16:41" data-v="5.0" data-k="streets of rage 2" data-sys="Sega Genesis" style="--c:#e04a3c">
+<details class="rv"><summary><span class="num">44</span><span class="who"><b>Streets of Rage 2</b><span>Sega Genesis &middot; <time datetime="2026-09-17">Sep 17, 2026</time></span></span><span class="rating r5">5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2100731826071646548">Honest and Unpopular Reviews No. 44
+
+Streets of Rage 2 (Sega Genesis)
+
+Going back to the early to mid 1990s, the most popular games seem to be beat 'em ups. These games were everywhere and on every system. Most of them were unfortunately the same game wearing a different coat of paint.
+
+Streets of Rage 2 was never one of those. I didn't get around to playing this one until years later since we never owned a Genesis growing up. Once I finally got around to playing SoR2, I see why everyone raves about it.
+
+Axel is the guy I usually go with. He’s right down the middle. He's not fast, not slow, but he hits hard enough to keep enemies off you. Plus his name is cool.
+
+The other three are nothing like him or each other. Blaze has the best throws in the game, Max moves like a brick and takes a massive chunk of health off with his suplex, and Skate rolls all over the screen landing a pile of weak hits that add up.
+
+The special moves take health away when you use it, so you're paying for it in a game that's already hitting you plenty.
+
+Yuzo Koshiro did the music and it's the first thing anybody brings up about this game.
+
+Streets of Rage 2 is one of the greatest games of all time but I still can't rank it above Turtles in Time. That's the number 1 beat 'em up ever made.
+
+I rate SoR2 a 5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/44-streets-of-rage-2.webp" width="600" height="798" alt="Streets of Rage 2, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2100731826071646548" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/streets-of-rage-2-sega-genesis.html">Game page</a><a href="/lists.html#game=Streets%20of%20Rage%202">On 1 list</a></p></div>
+</details></li>
+<li id="r-43" data-n="43" data-t="2026-09-16T16:20" data-v="5.0" data-k="perfect dark" data-sys="Nintendo 64" style="--c:#3fa65b">
+<details class="rv"><summary><span class="num">43</span><span class="who"><b>Perfect Dark</b><span>Nintendo 64 &middot; <time datetime="2026-09-16">Sep 16, 2026</time></span></span><span class="rating r5">5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2100364104997511479">Honest and Unpopular Reviews No. 43
+
+Perfect Dark (N64)
+
+There's always one major game that shows up at the end of a console's life, after everybody has already started looking at whatever is coming next. Pick the console, I'll show you the game.
+
+For the N64, that game was Perfect Dark. It released in May of 2000 and by October of that year the PlayStation 2 was in stores here and most people had stopped paying attention to the Nintendo 64.
+
+We rented Perfect Dark from Blockbuster during the summer that year. I was 16, not quite 17, and all I was doing was playing video games or shooting hoops out front. I was obsessed with sports and particularly baseball. I was playing an unhealthy amount of Major League Baseball Featuring Ken Griffey Jr. on the N64. 
+
+My mom loved taking us to Blockbuster on Fridays. That was our weekly tradition. As I usually did when we got there, I went straight to the video game aisle. I saw Perfect Dark and thought &quot;this looks interesting.&quot; We rented the game for the weekend.
+
+Rare spent three years making Perfect Dark, learning from the shortcomings of GoldenEye. Some of what they put in this game, no other console game had done. 
+
+You could add bots to the multiplayer match and adjust their difficulty. There's also a mode where a second player takes over the guards and hunts you down while you're trying to finish the mission. 
+
+The single player holds up better than GoldenEye's does. Joanna Dark got an actual story and the last stretch of the game puts you on an alien warship.
+
+GoldenEye is the one that gets called the greatest shooter of the era and it gets called that by people who are remembering their friends being over on a Saturday. Take the memory out of it and load both games up today and it isn't GoldenEye you keep playing.
+
+Perfect Dark is 2nd on my all time Nintendo 64 list and the greatest game Rare has ever made.
+
+I rate Perfect Dark a perfect 5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/43-perfect-dark.webp" width="600" height="797" alt="Perfect Dark, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2100364104997511479" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/perfect-dark-nintendo-64.html">Game page</a><a href="/lists.html#game=Perfect%20Dark">On 4 lists</a></p></div>
+</details></li>
+<li id="r-42" data-n="42" data-t="2026-09-15T15:40" data-v="4.0" data-k="diddy kong racing" data-sys="Nintendo 64" style="--c:#3fa65b">
+<details class="rv"><summary><span class="num">42</span><span class="who"><b>Diddy Kong Racing</b><span>Nintendo 64 &middot; <time datetime="2026-09-15">Sep 15, 2026</time></span></span><span class="rating r4">4/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2099991690480365666">Honest and Unpopular Reviews No. 42
+
+Diddy Kong Racing (N64)
+
+Everybody has a game from a console they owned that they somehow never got around to until years later. For me, that game is Diddy Kong Racing on the Nintendo 64.
+
+We were a Mario Kart house throughout my childhood. Going from Super Mario Kart on the SNES to Mario Kart 64 on the N64 was the obvious next step. We played it constantly and thought this game was amazing. Little did I know at the time, there were better kart style racers out there.
+
+Diddy Kong Racing came out the same year as Mario Kart 64 and I didn't play it until a few years ago.
+
+Rare went bananas with this game. They didn't just drop tracks into a menu. There's a hub world you drive around to get to them and bosses that make you beat them twice before the game lets you go anywhere.
+
+A lot of the tracks aren't run in a kart at all. Some of them you fly in a plane and some you take in a hovercraft, and none of the three handle the same way.
+
+It sits 14th on my all time N64 ranking. Mario Kart 64 sits 18th.
+
+I rate this Diddy Kong Racing a 4 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/42-diddy-kong-racing.webp" width="600" height="797" alt="Diddy Kong Racing, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2099991690480365666" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/diddy-kong-racing-nintendo-64.html">Game page</a><a href="/lists.html#game=Diddy%20Kong%20Racing">On 2 lists</a></p></div>
+</details></li>
+<li id="r-41" data-n="41" data-t="2026-09-14T08:30" data-v="4.5" data-k="halo reach" data-sys="Xbox 360" style="--c:#5fbf3a">
+<details class="rv"><summary><span class="num">41</span><span class="who"><b>Halo: Reach</b><span>Xbox 360 &middot; <time datetime="2026-09-14">Sep 14, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2099521051990573294">Honest and Unpopular Reviews No. 41
+Halo: Reach (Xbox 360)
+
+Remember Reach
+
+My all time favorite Halo game released 16 years ago today.
+
+Most of us have bought a console for one specific game at some point, with the rest of the library being stuff that showed up over the next few years.
+
+I got out of the Navy in June 2010 and bought a Wii almost immediately. That was entertaining for a little while, and then it wasn't, and what I actually wanted was to play Halo again. 
+
+In October of 2010 I went to the Meijer in Rolling Meadows, IL and walked out with an Xbox 360, ODST and Halo Reach. Got home, ran through ODST pretty quickly, then started on Reach.
+
+The campaign didn't take me long either. After that it was multiplayer with one of my best friends, a guy I worked at Walmart with before I joined the Navy. He was in Northern California, I was just outside of Chicago, and we were on Reach together just about every single day until Halo 4 came out. We played other things in between, Battlefield 3 and Halo 3, and neither one of them ever had us the way Reach did.
+
+The map designs were perfect. Whenever the two of us felt like being irritated we'd jump into a round of SWAT with the DMR. One shot and you're dead. It was irritating and hilarious at the same time.
+
+The progression system is the best thing in the game. I finished Reach as a General Grade 1. This is what modern day gaming is missing. Instead of unlocking items from playing the game, you buy everything. I hate it. (Looking at you, Halo Infinite with your $12 shade of blue.)
+
+The assassinations were an awesome addition. I can still hear that multiplayer announcer saying assassination, or killtrocity, or my personal favorite, killamanjaro.
+
+My only real negative is the armor abilities. Outside of the jetpack they were pretty useless.
+
+The ending to the campaign was sad. You keep fighting until you can't fight anymore.
+
+I don't know how many hours I have in this game but I'd bet it's in the thousands. This was the last great Halo game and Bungie went out with a bang.
+
+I rate Halo Reach a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/41-halo-reach.webp" width="600" height="798" alt="Halo: Reach, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2099521051990573294" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/halo-reach-with-recon-helmet-dlc-xbox-360.html">Game page: Halo Reach [With Recon Helmet DLC] (Xbox 360)</a><a href="/game/halo-reach-limited-edition-xbox-360.html">Game page: Halo: Reach [Limited Edition] (Xbox 360)</a></p></div>
+</details></li>
+<li id="r-40" data-n="40" data-t="2026-09-09T11:00" data-v="4.0" data-k="sony playstation" data-sys="PlayStation 1" style="--c:#a9b0c4">
+<details class="rv"><summary><span class="num">40</span><span class="who"><b>Sony PlayStation</b><span>PlayStation 1 &middot; <time datetime="2026-09-09">Sep 9, 2026</time></span></span><span class="rating r4">4/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2097747058887438585">Honest and Unpopular Reviews No. 40
+
+Sony PlayStation
+
+Growing up back in the 80s and 90s, we never got to pick the consoles we played. It was our parents, usually. So whatever ended up under the TV, that's what we were playing.
+
+For us, we were a Nintendo house. We never owned any Sega consoles and never owned a Sony console during that time. I only heard about the PS1 through friends at school and honestly, I didn't really care at the time. We had an N64 at home.
+
+The PS1 launched in North America thirty one years ago today, September 9, 1995. It went on to move over 102 million units and it was the first console ever to get to a hundred million.
+
+I didn't get to experience the PS1 until 2001. By this time, it had already been out for 6 years and the PS2 had already released. I still vividly remember buying this console. I bought it at Kmart and remember the guy asking me if I wanted the PS1 or PS2. I said PS1. It was only $99 at the time and the console being so cheap allowed for me to load up on several games that were marked down.
+
+I never thought at the time that 2001 to 2002 would be some of the best gaming of my life.
+
+Metal Gear Solid is without a doubt the greatest game on the platform and the best game in the entire franchise, Snake Eater included. And how I ran into this game was completely random. Just browsing the gaming aisle at Fry's Electronics in 2002.
+
+Gran Turismo became one of my favorite racing games ever made. GT1 used real cars with real physics while everything else I had been playing was a kart racer. I remember maxing out my Toyota Supra in this one.
+
+Mega Man Legends is one of my all time personal favorite games and the best Mega Man game ever made. The Legends series has been severely neglected by Capcom and it's sad.
+
+My only issue with PlayStation, which still holds true today, is most of the games are just nonsense shovelware. 
+
+There were roughly 1,300 games released on the PS1 in North America against under 400 on the N64, and I'd still take the N64 library over it. 
+
+The PS1 had good to great titles in there, but you had to dig through a mountain of bloat to find them.
+
+While I absolutely enjoyed gaming on the PS1, it's nowhere near the top of the greatest consoles ever made list. 
+
+Number one belongs to the Dreamcast and that's a stance I'm never breaking from.
+
+I rate the Sony PlayStation a 4 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/40-sony-playstation.webp" width="600" height="452" alt="Sony PlayStation, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2097747058887438585" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/console/playstation-1.html">PlayStation 1 on the shelf</a></p></div>
+</details></li>
+<li id="r-39" data-n="39" data-t="2026-09-08T17:25" data-v="4.5" data-k="legend of zelda majora s mask" data-sys="Nintendo 64" style="--c:#3fa65b">
+<details class="rv"><summary><span class="num">39</span><span class="who"><b>The Legend of Zelda: Majora's Mask</b><span>Nintendo 64 &middot; <time datetime="2026-09-08">Sep 8, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2097481490095648999">Honest and Unpopular Reviews No. 39
+
+The Legend of Zelda: Majora's Mask (N64)
+
+Nintendo released the trailer today for the Ocarina of Time remake. I already preordered the 40th Anniversary Zelda Switch 2 console it's coming on.
+
+I'm just going to flat out say it:
+
+Majora's Mask is the better game and it's the one that should be getting the remake.
+
+It came out in 2000 on the same N64, with a lot of the same models and animations Ocarina used, because the team only had about a year to put it together.
+
+The world is ending in three days. Most of the people in that town don't act like it until the last day.
+
+Everybody knows the moon, even people who never played it. It has a face on it that is genuinely disturbing and it's a little lower every time you look up.
+
+It's seriously nightmare fuel.
+
+That's what I want to see with the graphics the Ocarina remake is using. Nightmare fuel x1000.
+
+The timer is why a lot of people didn't like it. You get three in-game days, and when they run out the world resets to the first morning.
+
+Whatever rupees you're carrying are gone, unless you put them in the bank, and whatever you were in the middle of you're doing again.
+
+Nobody in that town remembers you either.
+
+You also spend most of the game as dead people. The Goron whose mask you wear is already dead when you find him, the Zora too.
+
+NINTENDO MADE THIS GAME FOR CHILDREN.
+
+My brother and I ran through the campaign together when this game came out. He's eight years younger than me and the N64 is where we had a lot of gaming overlap.
+
+He's a Zelda fanatic, he still thinks Ocarina is the better game, and I still tell him he's wrong.
+
+I rate Majora's Mask a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/39-the-legend-of-zelda-majora-s-mask.webp" width="600" height="797" alt="The Legend of Zelda: Majora's Mask, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2097481490095648999" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/legend-of-zelda-majora-s-mask-collector-s-edition-nintendo-64.html">Game page</a><a href="/lists.html#game=Legend%20of%20Zelda%3A%20Majora%27s%20Mask%20%5BCollector%27s%20Edition%5D">On 1 list</a></p></div>
+</details></li>
+<li id="r-38" data-n="38" data-t="2026-09-07T17:53" data-v="4.5" data-k="x men origins wolverine" data-sys="Xbox 360|PlayStation 3" style="--c:#5fbf3a">
+<details class="rv"><summary><span class="num">38</span><span class="who"><b>X-Men Origins: Wolverine</b><span>Xbox 360 / PlayStation 3 &middot; <time datetime="2026-09-07">Sep 7, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2097126191933354019">Honest and Unpopular Reviews No. 38
+
+X-Men Origins: Wolverine (Xbox 360/PS3)
+
+By the 2000s, movie tie-in games were starting to die down. Not every movie was getting a game release like the 80s and 90s produced. But we still got a few big ones that were major hits: the Spider-Man trilogy, Peter Jackson's King Kong, and X-Men Origins: Wolverine. Batman Begins got one in 2005 as well.
+
+This one released with the movie in 2009. A lot of people will tell you the movie is the low point of Fox's X-Men run. However, the game isn't, and it's massively better than the film.
+
+The best part of Wolverine is how violent it is. This isn't your typical hack and slash game. The Uncaged Edition released on the Xbox 360 and PS3 with an M rating, and the rating absolutely gets used. Bad guys get ripped apart. You can put a bad guy through spikes or even a forklift blade. The violence is what sets this game apart from previous superhero games. Those of you who bought this game on the Wii or PS2 got a completely different version. It was made by a different studio with all of the gruesome violence stripped out.
+
+The melee combat in X-Men Origins: Wolverine is incredibly smooth. Attacks chain into each other without making you memorize a string to get anything out of it. The lunge puts him across a room with the claws out before the bad guy has turned around, and the feral senses light up the weak points on whatever you're about to take apart. Very well done.
+
+The way Wolverine is able to take damage in this game is comic book accurate. He gets shot up, loses his clothes, then his skin, and then there's adamantium showing through like he's the T-800 after getting half his face blown off. Seventeen years ago a studio working against a movie's release date got all of that right.
+
+Insomniac's Wolverine is out on the 15th and the designs don't look like the comics or the cartoon or the movies or any game before it. I don't know what the excuse is. 
+
+If you haven't played the 2009 one, add it to your list before you spend money on that.
+
+I rate this one a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/38-x-men-origins-wolverine.webp" width="600" height="798" alt="X-Men Origins: Wolverine, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2097126191933354019" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/x-men-origins-wolverine-xbox-360.html">Game page: X-Men Origins: Wolverine (Xbox 360)</a><a href="/game/x-men-origins-wolverine-uncaged-edition-playstation-3.html">Game page: X-Men Origins: Wolverine [Uncaged Edition] (PlayStation 3)</a><a href="/lists.html#game=X-Men%20Origins%3A%20Wolverine">On 1 list</a></p></div>
+</details></li>
+<li id="r-37" data-n="37" data-t="2026-09-06T13:41" data-v="4.5" data-k="x men legends" data-sys="Xbox" style="--c:#8ec63f">
+<details class="rv"><summary><span class="num">37</span><span class="who"><b>X-Men Legends</b><span>Xbox &middot; <time datetime="2026-09-06">Sep 6, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2096700290724708787">Honest and Unpopular Reviews No. 37
+
+X-Men Legends (Xbox)
+
+X-Men Legends came out in 2004 and I didn't get to it until early 2006, when it was marked down at Walmart for being old. I worked there then, so the employee discount took it down even further. I had just finished Halo, Halo 2 and Gun before I started it.
+
+You take four X-Men in with you and swap between them whenever you want. I used Wolverine most of the time and switched off him when somebody else worked better for the part I was on. They level up and you put the points into their powers.
+
+I was working overnights back then. I'd get home in the morning and stay up most of the day playing this instead of sleeping. I was through the campaign in about a week.
+
+The story and the ambiance are what did it for me.
+
+The top down view is the one thing I was never a fan of, though it worked.
+
+Insomniac's Wolverine drops on September 15th with some of the worst looking characters I've seen in a Marvel game. This game is from 2004 and Wolverine looks better in it.
+
+I rate X-Men Legends a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/37-x-men-legends.webp" width="600" height="798" alt="X-Men Legends, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2096700290724708787" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/x-men-legends-xbox.html">Game page</a><a href="/lists.html#game=X-Men%20Legends">On 2 lists</a></p></div>
+</details></li>
+<li id="r-36" data-n="36" data-t="2026-09-05T17:49" data-v="5.0" data-k="tetris" data-sys="Game Boy" style="--c:#9bbc0f">
+<details class="rv"><summary><span class="num">36</span><span class="who"><b>Tetris</b><span>Game Boy &middot; <time datetime="2026-09-05">Sep 5, 2026</time></span></span><span class="rating r5">5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2096400414145130914">Honest and Unpopular Reviews No. 36
+
+Tetris (Game Boy)
+
+Most games have a point where you're finished with them. You beat it, or you've seen everything in it, and that's the end of the time you spend with that game.
+
+Tetris never hits that point. I can play it for hours and never get bored of it, put it down, then pick it up the next day and do the whole thing again.
+
+I never had a Game Boy growing up. The only time I got to play this version was at a friend's house using his Game Boy. We had Tetris on the NES and that's the one I played the most, and in the late 90s I put a stupid amount of time into an off-brand PC version called Bricklayer. If I remember correctly, it came packaged with Windows 95. 
+
+Even the knockoff was super amounts of fun. Whatever this game is doing, it survives being copied by people who had nothing to do with making it.
+
+I bought a Game Boy Color a few years back and picked up Tetris for it. Some nights I'm on the couch in my game room playing it for a while, thirty some years after the first time I did. There aren't ten games made in the last decade I'll still be doing that with.
+
+I rate Tetris a 5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/36-tetris.webp" width="600" height="798" alt="Tetris, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2096400414145130914" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/tetris-game-boy.html">Game page</a></p></div>
+</details></li>
+<li id="r-35" data-n="35" data-t="2026-09-04T16:21" data-v="4.0" data-k="007 tomorrow never dies" data-sys="PlayStation 1" style="--c:#a9b0c4">
+<details class="rv"><summary><span class="num">35</span><span class="who"><b>007 Tomorrow Never Dies</b><span>PlayStation 1 &middot; <time datetime="2026-09-04">Sep 4, 2026</time></span></span><span class="rating r4">4/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2096015706332811561">Honest and Unpopular Reviews No. 35
+
+007 Tomorrow Never Dies (PS1)
+
+The best Bond game I played this year came out in 1999, GoldenEye excluded.
+
+Two years after GoldenEye, this one showed up to a fight it had no chance in. People had two complaints in 1999:
+
+Third person view.
+No four player split screen.
+
+Those are the only two complaints anyone brings up and they're both fair. I've never thought either one of those was a good reason to skip it.
+
+This was one of the first five games I bought for my PlayStation, along with Mega Man Legends, Final Fantasy VII, Ready 2 Rumble Boxing and Gran Turismo.
+
+It's the movie. Not the whole thing, but the stuff you remember from it is in there and you're playing it instead of watching it. That sounds like the bare minimum until you go look at what licensed games in 1999 actually were. There's a stretch where you're Wai Lin instead of Bond, and no Bond game had done that before.
+
+The aiming is bad and the campaign is short. You're done with it in an afternoon.
+
+Tomorrow Never Dies ranks 4th on my Bond list and eight Bond games I own came out after it that still can't beat it.
+
+007 First Light came out this year with a massive budget behind it. The game has incredibly slow pacing, a ridiculous 45 minute training montage that you can't skip, and some of the most boring cutscenes ever used in gaming.
+
+I'd rather play the one from 1999 with the broken aiming.
+
+I rate Tomorrow Never Dies a solid 4 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/35-007-tomorrow-never-dies.webp" width="600" height="798" alt="007 Tomorrow Never Dies, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2096015706332811561" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/007-tomorrow-never-dies-playstation-1.html">Game page</a><a href="/lists.html#game=007%3A%20Tomorrow%20Never%20Dies">On 1 list</a></p></div>
+</details></li>
+<li id="r-34" data-n="34" data-t="2026-09-03T13:25" data-v="5.0" data-k="metal gear solid 4 guns of the patriots" data-sys="PlayStation 3" style="--c:#c9a94a">
+<details class="rv"><summary><span class="num">34</span><span class="who"><b>Metal Gear Solid 4: Guns of the Patriots</b><span>PlayStation 3 &middot; <time datetime="2026-09-03">Sep 3, 2026</time></span></span><span class="rating r5">5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2095609095881642161">Honest and Unpopular Reviews No. 34
+
+Metal Gear Solid 4: Guns of the Patriots (PS3)
+
+Most series never get an ending. They just stop, or they get rebooted five years later.
+
+This one ends. Twenty years of story, wrapped up, in one game.
+
+This is the only reason I ever wanted a PlayStation 3, and it's still the best game on that console.
+
+It sat locked on the PS3 for eighteen years because of how it was built. Konami finally got it off there last week, on the Master Collection Vol. 2. I'm two hours into it.
+
+Everybody's complaint is the cutscenes. Too many, too long, you watch more than you play. Same thing since 2008, and most of the people saying it watched this game on YouTube instead of playing it.
+
+Play Act 4. On the ride in you're playing Shadow Moses again in original PlayStation graphics.
+
+Then you're standing in it a decade later, in a snowstorm, and it's a ruin with machines walking the halls instead of soldiers.
+
+The microwave hallway is still the hardest thing this series ever asked anyone to sit through, and it isn't close.
+
+Old Snake is the whole idea. They aged their guy out on purpose and made you play him falling apart, and it's better for it.
+
+This is a better game than Snake Eater.
+
+The Last of Us has been the answer to &quot;best PS3 game&quot; for over a decade and it's the wrong one. Same with Uncharted 2. Both got remastered onto everything since, and this one sat on a dead console for eighteen years and is still better than either.
+
+I rate Metal Gear Solid 4 a 5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/34-metal-gear-solid-4-guns-of-the-patriots.webp" width="600" height="452" alt="Metal Gear Solid 4: Guns of the Patriots, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2095609095881642161" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/metal-gear-solid-4-guns-of-the-patriots-playstation-3.html">Game page</a><a href="/lists.html#game=Metal%20Gear%20Solid%204%3A%20Guns%20of%20the%20Patriots">On 1 list</a></p></div>
+</details></li>
+<li id="r-33" data-n="33" data-t="2026-09-02T15:20" data-v="4.5" data-k="star wars episode i racer" data-sys="Nintendo 64" style="--c:#3fa65b">
+<details class="rv"><summary><span class="num">33</span><span class="who"><b>Star Wars Episode I: Racer</b><span>Nintendo 64 &middot; <time datetime="2026-09-02">Sep 2, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2095275702392442970">Honest and Unpopular Reviews No. 33
+
+Star Wars Episode I: Racer (N64)
+
+Everybody likes to talk trash about The Phantom Menace. I'm not one of them. I liked the movie.
+
+My brother borrowed this game from a friend of his. I took it over and played it nonstop until the kid wanted it back.
+
+I have it ranked third on my N64 top 10 games list.
+
+Ranked above Mario 64.
+Ranked above Zelda Ocarina of Time.
+
+Everyone thinks I'm joking when I say this. I'm not.
+
+Mario 64 has a camera fighting you the whole game. Ocarina is a game I rented in 1998 and thought the visuals were incredible, but the game was boring. Racer is 500 miles an hour with two engines cooking and one wall between you and a dead run, and it did that in 1999 on a cartridge.
+
+Name the racing game on that system that's better.
+
+Mario Kart 64 isn't.
+Diddy Kong Racing isn't.
+
+The track list is padded. Twenty five courses sounds like a lot until you're running the same canyon backwards.
+
+Twenty five years of people telling me nothing good came out of Episode I, and the whole time the best racing game on the console came out of Episode I.
+
+I rate this one a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/33-star-wars-episode-i-racer.webp" width="600" height="798" alt="Star Wars Episode I: Racer, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2095275702392442970" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/star-wars-episode-i-racer-nintendo-64.html">Game page</a><a href="/lists.html#game=Star%20Wars%20Episode%20I%3A%20Racer">On 4 lists</a></p></div>
+</details></li>
+<li id="r-32" data-n="32" data-t="2026-09-01T12:45" data-v="4.5" data-k="star fox adventures" data-sys="GameCube" style="--c:#6f68c9">
+<details class="rv"><summary><span class="num">32</span><span class="who"><b>Star Fox Adventures</b><span>GameCube &middot; <time datetime="2026-09-01">Sep 1, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2094874283000668287">Honest and Unpopular Reviews No. 32
+
+Star Fox Adventures (GameCube)
+
+Every long running series has one game the fans decided doesn't count.
+
+Star Fox Adventures is that game, and it's my favorite one in the series.
+
+It shipped in September 2002 and it was the last game Rare made for a Nintendo console. Then they were sold to Microsoft and that was it.
+
+The complaint has been the same for over twenty years. It's a Zelda game with Fox McCloud swapped in place of Link. It started as Dinosaur Planet on the N64 and Miyamoto told Rare to put Star Fox in it. Both of those things are true. Neither one makes it a bad game.
+
+I bought it in 2003 with my GameCube and it still looks better than anything else on the system, minus Metroid Prime. Rare was at the top of what they could do and they knew it.
+
+People still say this one isn't a real Star Fox game. Meanwhile Nintendo has re-released Star Fox 64 so many times I've lost count. They'll sell you the same 1997 game on every system they make, and this is the one that gets treated like a mistake.
+
+Star Fox 64 is third for me. This one is above it.
+
+This is the second best game on the GameCube. Better than Zelda Wind Waker. Better than Mario Sunshine.
+
+I rate Star Fox Adventures a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/32-star-fox-adventures.webp" width="600" height="798" alt="Star Fox Adventures, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2094874283000668287" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/star-fox-adventures-gamecube.html">Game page</a><a href="/lists.html#game=Star%20Fox%20Adventures">On 3 lists</a></p></div>
+</details></li>
+<li id="r-31" data-n="31" data-t="2026-08-31T11:31" data-v="5.0" data-k="sega dreamcast" data-sys="Sega Dreamcast" style="--c:#f2793f">
+<details class="rv"><summary><span class="num">31</span><span class="who"><b>Sega Dreamcast</b><span>Sega Dreamcast &middot; <time datetime="2026-08-31">Aug 31, 2026</time></span></span><span class="rating r5">5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2094493395641360767">Honest and Unpopular Reviews No. 31
+
+Sega Dreamcast
+
+Every generation has one console people call ahead of its time, and it's usually a nice way of saying it lost.
+
+The Dreamcast launched September 9, 1999 and Sega pulled the plug on March 31, 2001. It moved 300,000 units in its first week in the US and 9.13 million worldwide before Sega shut it down.
+
+It shipped with a modem in the box. Sega was doing console online play with Phantasy Star Online two years before Xbox Live existed. Four controller ports standard, no adapter. VGA output, which is why Dreamcast games hold up on a modern display better than anything else from that generation. The VMU had its own screen and ran its own little games off the controller.
+
+Soul Calibur, Crazy Taxi, Power Stone, Jet Set Radio, Shenmue, Sonic Adventure, NFL 2K. Eighteen months. There's no filler stretch in that library because there wasn't time for one.
+
+It didn't lose. The PS2 beat it because it was a cheap DVD player at a moment when nobody owned one. That's it. That's the whole reason the best selling console of all time is the best selling console of all time.
+
+If the PS2 is your greatest console ever made, you didn't pick a console. You picked the thing your parents were willing to buy because it played movies. 160 million people made that call and most of them have never touched the machine that was actually better.
+
+Dreamcast people are half the problem. Ahead of its time. Gone too soon. Cult classic. That's how you talk about something you've already agreed to lose with. It's not a cult classic, it's the best console ever built, and treating it like a sad little what-if is how it stayed buried.
+
+Sega didn't get outplayed. Sega quit while it was making the best hardware in the industry, and the reward for building the future first was two years and a shutdown notice.
+
+The Sega Dreamcast is still the best console ever made and a hill I will die on.
+
+I rate this console a 5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/31-sega-dreamcast.webp" width="600" height="797" alt="Sega Dreamcast, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2094493395641360767" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/console/sega-dreamcast.html">Sega Dreamcast on the shelf</a><a href="/lists.html#game=Sega%20Dreamcast">On 1 list</a></p></div>
+</details></li>
+<li id="r-30" data-n="30" data-t="2026-08-30T11:40" data-v="4.5" data-k="killer instinct" data-sys="SNES" style="--c:#8f6fd6">
+<details class="rv"><summary><span class="num">30</span><span class="who"><b>Killer Instinct</b><span>SNES &middot; <time datetime="2026-08-30">Aug 30, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2094133087831781651">Honest and Unpopular Reviews No. 30
+
+Killer Instinct (SNES)
+
+Killer Instinct came out on the Super Nintendo 31 years ago today.
+
+When it came to fighting games on the Super Nintendo, we were a Street Fighter II house. That's the one we played often. But every so often we wanted something else, and this is the one we rented from Blockbuster when my friends stayed the night.
+
+If you call this one a button masher, you were the one mashing.
+
+Capcom didn't design the combos in Street Fighter II. Players found them and Capcom left them alone. Mortal Kombat barely had them. Killer Instinct put them in on purpose. Openers, auto doubles, linkers, enders, and the counter climbing on screen while it's happening. Then the combo breaker, so you're not just standing there eating it.
+
+None of it is hidden. People got beat by it in 1995 and called it cheap, and they're still calling it cheap.
+
+Rare put the Killer Cuts soundtrack CD right in the box. A full disc of the game's music, no extra charge, in 1995.
+
+This is my wife's favorite fighting game and Orchid is her fighter. She has done things to me with that character that I'm not going to describe here.
+
+It isn't perfect. The arcade version ran on hardware the SNES couldn't match and the cart shows it. Ten characters is thin for 1995. Defense is close to decorative, and Eyedol is a wall built to eat quarters in the arcade that nobody bothered fixing for the port.
+
+I rate Killer Instinct a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/30-killer-instinct.webp" width="600" height="452" alt="Killer Instinct, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2094133087831781651" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/killer-instinct-snes.html">Game page</a><a href="/lists.html#game=Killer%20Instinct">On 2 lists</a></p></div>
+</details></li>
+<li id="r-29" data-n="29" data-t="2026-08-28T11:09" data-v="5.0" data-k="metal gear solid" data-sys="PlayStation 1" style="--c:#a9b0c4">
+<details class="rv"><summary><span class="num">29</span><span class="who"><b>Metal Gear Solid</b><span>PlayStation 1 &middot; <time datetime="2026-08-28">Aug 28, 2026</time></span></span><span class="rating r5">5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2093400552101306531">Honest and Unpopular Reviews No. 29
+
+Metal Gear Solid (PlayStation)
+
+Some of the best games I've ever played, I found by accident.
+
+I didn't get around to Metal Gear Solid until 2002. There was a Fry's Electronics right behind the apartments I lived in, and I was going through the PS1 section one day when I came across it. It looked interesting so I bought it.
+
+It's easily the best game on the PlayStation. Not any of the Final Fantasy games. Not Gran Turismo. It's MGS.
+
+Most shooters are typically run and gun. Doom, Quake, and even GoldenEye, you're blasting away. This one, total opposite. You sneak past the guards. Somebody spots you and the alert goes off and you're hiding in a locker until everything quiets back down.
+
+It's all on a military base in Alaska. There's a boss at the end of every section and you don't beat any of them the same way you beat the last one. Ocelot, Sniper Wolf, Vulcan Raven. They're all different.
+
+The craziest part of this game was Psycho Mantis reading your memory card. He names the Konami games you've been playing. He tells you to set your controller on the floor and then makes it move with the rumble. You can't touch him until you unplug it and put it in the second port.
+
+The codec is running the whole time. Campbell, Mei Ling, Naomi, Otacon. That's where the story comes from and it never stops coming.
+
+It's also the best Metal Gear game ever made. Better than Snake Eater. It was so good the training missions got released as their own game.
+
+Twenty eight years later and nothing in the stealth genre has beaten it.
+
+I'll be hiding in my cardboard box if you need me.
+
+I rate Metal Gear Solid an outstanding 5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/29-metal-gear-solid.webp" width="600" height="797" alt="Metal Gear Solid, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2093400552101306531" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/metal-gear-solid-greatest-hits-playstation-1.html">Game page</a><a href="/lists.html#game=Metal%20Gear%20Solid%20%5BGreatest%20Hits%5D">On 3 lists</a></p></div>
+</details></li>
+<li id="r-28" data-n="28" data-t="2026-08-27T12:31" data-v="4.0" data-k="gun" data-sys="Xbox" style="--c:#8ec63f">
+<details class="rv"><summary><span class="num">28</span><span class="who"><b>Gun</b><span>Xbox &middot; <time datetime="2026-08-27">Aug 27, 2026</time></span></span><span class="rating r4">4/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2093058748927611153">Honest and Unpopular Reviews No. 28
+
+Gun (Xbox)
+
+Every so often a game comes out five years too early and gets buried for it.
+
+Gun was one of the first games I played on my Xbox that wasn't Halo or Madden. It was a lot more violent than anything else I was playing at the time and I couldn't put it down.
+
+Neversoft, the Tony Hawk studio, built the open world western in 2005. Ride anywhere, hunt, bounty work, poker, cattle drives, and a revenge story about a guy tracking the men who killed his father.
+
+Rockstar shipped Red Dead Redemption five years later and got credit for inventing all of it.
+
+Gun did it first and did it meaner.
+
+Thomas Jane and Kris Kristofferson turned in real performances when nobody expected that from a game.
+
+It does have problems though. The campaign is too short. It can easily be finished in a single night. It also hasn't aged well. The controls are rough by any standard now, and going back to it the textures and character models look worse than I remembered.
+
+It's a real shame we never got a sequel to Gun. Despite the negatives I mentioned, it's still a fantastic game.
+
+I rate Gun a 4 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/28-gun.webp" width="600" height="797" alt="Gun, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2093058748927611153" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/gun-xbox.html">Game page</a></p></div>
+</details></li>
+<li id="r-27" data-n="27" data-t="2026-08-26T14:23" data-v="4.0" data-k="popeye" data-sys="NES" style="--c:#d3d0c8">
+<details class="rv"><summary><span class="num">27</span><span class="who"><b>Popeye</b><span>NES &middot; <time datetime="2026-08-26">Aug 26, 2026</time></span></span><span class="rating r4">4/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2092724759679427044">Honest and Unpopular Reviews No. 27
+
+Popeye (NES)
+
+Donkey Kong is the most overrated arcade game Nintendo ever made, and the proof is sitting right next to it.
+
+Both games are the same three pieces. Platforms, a girl up top, a big guy chasing you. Donkey Kong gives you four screens, one of which everybody skips, and a jump button that gets you killed on a barrel you can see coming.
+
+Popeye takes the jump away. You punch instead. Olive stays at the top throwing stuff down and you're running the platforms underneath catching it before it hits the water and disappears. Brutus is on you the whole time and you can't do anything to him until you get to the spinach, and the spinach is always somewhere you don't want to go.
+
+Three stages and they're all different. The docks, catching 24 hearts, with the bucket you can drop on Brutus. The street, catching 16 notes off Olive with Wimpy on the seesaw. The ship, catching the letters that spell HELP. Later rounds put the Sea Hag on the edges throwing bottles and rolling skulls at you while you're already busy.
+
+Donkey Kong runs the same four boards over and over.
+
+The music lives rent free in my head 24/7.
+
+Nintendo wanted Popeye first. King Features told them no, so they took the same idea and made Donkey Kong out of it. The license came through right after and the arcade version was a hit anyway. It was the number one arcade game in the country in April 1983 and it was there at the start of the Famicom.
+
+I've never beaten it and it's still one of my favorites.
+
+I rate Popeye a 4 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/27-popeye.webp" width="600" height="797" alt="Popeye, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2092724759679427044" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/popeye-nes.html">Game page</a><a href="/lists.html#game=Popeye">On 2 lists</a></p></div>
+</details></li>
+<li id="r-26" data-n="26" data-t="2026-08-25T12:46" data-v="4.5" data-k="goldeneye 007" data-sys="Nintendo 64" style="--c:#3fa65b">
+<details class="rv"><summary><span class="num">26</span><span class="who"><b>GoldenEye 007</b><span>Nintendo 64 &middot; <time datetime="2026-08-25">Aug 25, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2092337819381641336">Honest and Unpopular Reviews No. 26
+
+GoldenEye 007 (N64)
+
+GoldenEye came out in North America 29 years ago today.
+
+Growing up, kids from the neighborhood would come over on a Saturday and we'd spend the whole day on local split screen multiplayer.
+
+This game caused so many arguments. &quot;Stop looking at my screen!&quot;😂
+
+There might not be a more nostalgic game from the entire decade for me.
+
+Shooters on consoles back in the 90s were pretty simple. Get through the level and find the exit.
+
+Turok came out on the N64 a few months before this one and that's essentially what it was. GoldenEye had you working through objectives, and playing on 00 Agent piled more of them into levels you'd already cleared. I hadn't played anything that did that up until that point.
+
+Shoot a guard in the leg and he grabs it going down. The weapons had zoom. Small stuff, but nobody else was bothering with it.
+
+Perfect Dark came out 3 years later. It had bots, so you could get a match going without three other people over at the house. 
+
+This is the game GoldenEye should have been.
+
+GoldenEye is 5th on my all-time N64 list. Perfect Dark is 2nd.
+
+The single player hasn't held up the way the memory of it has. Gray hallways and aiming that fights you the whole way. They put it on Xbox a few years back and I gave up on it quickly.
+
+A lot of what people love about this one is the Saturday, not the game.
+
+I rate GoldenEye a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/26-goldeneye-007.webp" width="600" height="797" alt="GoldenEye 007, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2092337819381641336" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/goldeneye-007-nintendo-64.html">Game page</a><a href="/lists.html#game=GoldenEye%20007">On 4 lists</a></p></div>
+</details></li>
+<li id="r-25" data-n="25" data-t="2026-08-24T16:01" data-v="4.5" data-k="galaga demons of death" data-sys="NES" style="--c:#d3d0c8">
+<details class="rv"><summary><span class="num">25</span><span class="who"><b>Galaga: Demons of Death</b><span>NES &middot; <time datetime="2026-08-24">Aug 24, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2092024563400122650">Honest and Unpopular Reviews No. 25
+
+Galaga: Demons of Death (NES)
+
+There are arcade games everybody agrees you can't get the same experience out of at home.
+
+Galaga is the exception. 
+
+The NES version is better than the cabinet and it's also a better game than Pac-Man.
+
+The first few stages are easy. They fly in and sit in the formation and you pick them off.
+
+Ten stages in there are more of them and they're diving at you the whole time.
+
+The tractor beam pulls your ship up into the formation and you sit there watching it with one life left. Shoot it loose and you're flying two ships with double the firepower.
+
+The challenging stages drop a whole formation in that doesn't shoot back, and at the end it puts your hit percentage on the screen.
+
+I played this one on a regular basis as a kid. The furthest I have ever gotten is stage 20.
+
+There's no ending to it. No final boss, no save. It goes until it takes your last ship and the only thing that changes is how far you got that time.
+
+I rate Galaga a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/25-galaga-demons-of-death.webp" width="600" height="797" alt="Galaga: Demons of Death, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2092024563400122650" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/galaga-demons-of-death-nes.html">Game page</a></p></div>
+</details></li>
+<li id="r-24" data-n="24" data-t="2026-08-23T11:28" data-v="4.5" data-k="paperboy" data-sys="NES" style="--c:#d3d0c8">
+<details class="rv"><summary><span class="num">24</span><span class="who"><b>Paperboy</b><span>NES &middot; <time datetime="2026-08-23">Aug 23, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2091593542296883571">Honest and Unpopular Reviews No. 24
+
+Paperboy (NES)
+
+I have a real love/hate relationship with this game.
+
+It's one of the most nostalgic games I own and I rage quit almost every time I play it.
+
+We never owned it growing up. I only got to play it at a friend's house, or when he brought it over. In the late 80s I'd stay the night over there and we'd go back and forth between Paperboy and Adventure Island while his parents ordered Domino's. After my friend and I both got tired of playing, we would fall asleep out in the living room watching Nick at Nite.
+
+Neither of us ever beat Paperboy.
+
+You ride your bike down one street throwing papers at the houses that subscribed. The ones that didn't you can skip, or you can put a paper through their window for points.
+
+Finish the street and you get the obstacle course.
+
+There's a dog, a lawnmower, a skateboarder, a tire that rolls out of a driveway, a tornado, and the Grim Reaper, all on the same block. The reflexes it takes to get through that and still land a paper on a porch is what makes the game.
+
+The game is about as simple as it gets but still 5/5 difficulty.
+
+Paperboy should be brought back but nobody will make it because it can't be sold for $70 with a season pass attached to it, and that's the whole problem with modern gaming.
+
+I rate Paperboy a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/24-paperboy.webp" width="600" height="798" alt="Paperboy, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2091593542296883571" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/paperboy-nes.html">Game page</a><a href="/lists.html#game=Paperboy">On 1 list</a></p></div>
+</details></li>
+<li id="r-23" data-n="23" data-t="2026-08-21T19:32" data-v="4.0" data-k="mario kart 64" data-sys="Nintendo 64" style="--c:#3fa65b">
+<details class="rv"><summary><span class="num">23</span><span class="who"><b>Mario Kart 64</b><span>Nintendo 64 &middot; <time datetime="2026-08-21">Aug 21, 2026</time></span></span><span class="rating r4">4/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2090990525323330038">Honest and Unpopular Reviews No. 23
+
+Mario Kart 64 (N64)
+
+This was the multiplayer game we switched to when we needed a break from GoldenEye on weekend sleepovers in the late 90s.
+
+Mario Kart 64 is a fun game. It's also a downgrade from the one before it and it isn't the best kart racer on its own system.
+
+Super Mario Kart came first and did more with less. Tighter driving, and you had to actually learn a track instead of getting bailed out.
+
+This is the game that introduced the blue shell. One item that erases whoever drove the best race. 
+
+The computer players rubber band the whole way and speed up any time they're off screen.
+
+We spent a lot of nights in Battle Mode on Block Fort and Double Deck. That's where the true entertainment was.
+
+Diddy Kong Racing is easily the better kart racer on the Nintendo 64 and I don't think it's particularly close. 
+
+I created a top 20 rankings list for the N64 and Mario Kart 64 places 18th in that list. 
+
+I rate this game a solid 4 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/23-mario-kart-64.webp" width="600" height="797" alt="Mario Kart 64, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2090990525323330038" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/mario-kart-64-nintendo-64.html">Game page</a><a href="/lists.html#game=Mario%20Kart%2064">On 1 list</a></p></div>
+</details></li>
+<li id="r-22" data-n="22" data-t="2026-08-20T12:22" data-v="4.0" data-k="captain america and the avengers" data-sys="SNES" style="--c:#8f6fd6">
+<details class="rv"><summary><span class="num">22</span><span class="who"><b>Captain America and the Avengers</b><span>SNES &middot; <time datetime="2026-08-20">Aug 20, 2026</time></span></span><span class="rating r4">4/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2090519975924744679">Honest and Unpopular Reviews No. 22
+
+Captain America and the Avengers (SNES)
+
+Most of the games I played as a kid were never mine, they were Blockbuster's. I grabbed this game off the shelf only because of the box art. It's got one of the best covers for any game ever made.
+
+I'd rent the game on a Friday, keep it until Sunday, and the next time I rented it I was starting over from the beginning. I don't think I ever got past the third or fourth level. The game is absurdly hard.
+
+I was also 10.
+
+I did eventually beat the game many years later.
+
+Captain America was always my guy, but I used everybody at some point. Iron Man and Vision fly over stuff that Cap and Hawkeye have to fight through, which is a bigger deal than it sounds like.
+
+There's nothing between the fights. No screen where you pick anything or spend anything, you just play until you die.
+
+Nobody puts this on a list of great Marvel games, it gets thrown in with the licensed junk from that era, and it's still better than any Marvel game that's come out this decade.
+
+I rate this one a 4 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/22-captain-america-and-the-avengers.webp" width="600" height="797" alt="Captain America and the Avengers, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2090519975924744679" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/captain-america-and-the-avengers-snes.html">Game page</a><a href="/lists.html#game=Captain%20America%20and%20the%20Avengers">On 2 lists</a></p></div>
+</details></li>
+<li id="r-21" data-n="21" data-t="2026-08-17T13:13" data-v="4.5" data-k="gran turismo" data-sys="PlayStation 1" style="--c:#a9b0c4">
+<details class="rv"><summary><span class="num">21</span><span class="who"><b>Gran Turismo</b><span>PlayStation 1 &middot; <time datetime="2026-08-17">Aug 17, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2089445439758278671">Honest and Unpopular Reviews No. 21 
+
+Gran Turismo (PS1)
+
+I own every Gran Turismo except GT4. The series peaked with the first one and never got back there.
+
+Coming off the N64, my racing games were Mario Kart, Diddy Kong Racing, Extreme G, and Episode I Racer. None of them were trying to be a real car.
+
+Then this. Real cars, real names, and a game that expected you to learn how one actually drives before it let you race it.
+
+I put over 100 hours into this game and maxed out a Toyota Supra. One of my all time favorite real life cars.
+
+I know the complaints. Only 11 tracks against 140 cars, and no damage model at all in a game selling itself as the real driving simulator. Neither one ever bothered me.
+
+GT7 won't even let you race by yourself without an internet connection. In 2022 the servers went down and nobody could play the game they bought. This one runs off a 29 year old disc in a 31 year old console.
+
+I rate Gran Turismo a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/21-gran-turismo.webp" width="600" height="452" alt="Gran Turismo, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2089445439758278671" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/gran-turismo-playstation-1.html">Game page</a><a href="/lists.html#game=Gran%20Turismo">On 1 list</a></p></div>
+</details></li>
+<li id="r-20" data-n="20" data-t="2026-08-14T15:46" data-v="4.5" data-k="mega man legends" data-sys="PlayStation 1" style="--c:#a9b0c4">
+<details class="rv"><summary><span class="num">20</span><span class="who"><b>Mega Man Legends</b><span>PlayStation 1 &middot; <time datetime="2026-08-14">Aug 14, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2088396993609728490">Honest and Unpopular Reviews No. 20
+
+Mega Man Legends (PS1)
+
+I came to PlayStation late. In 2001 I cashed my first paycheck from KFC and rode my bike down to Kmart and bought a PS1. 
+
+Mega Man Legends came home with me that day.
+
+Every Mega Man before it ran the same play. Pick a stage, beat the boss, take the weapon, do it eight more times. Six games on the NES alone and that never changed once.
+
+Legends threw all of it out and put Mega Man in an open world. 
+
+You crash land on Kattelox Island and make your way to the town, where people talk to you and react to what you do. You take jobs. You dig through the ruins for refractors, and that money is what Roll uses to build your weapons. And every time you get comfortable, the Bonnes show up in a giant machine.
+
+Nothing else in 1998 was doing this, and no Mega Man game before or since has come close to it.
+
+Twenty five years later it's still one of the best games I've ever played.
+
+Unfortunately, it has not aged well. 
+
+The camera fights you and that's a real problem. Capcom could have fixed it in a remaster at any point in the last two decades and instead they announced Legends 3, had fans design characters for it in their own dev room, and then cancelled it on them. That's the last thing they ever did with this series. 
+
+Shame on Capcom.
+
+I rate Mega Man Legends a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/20-mega-man-legends.webp" width="600" height="797" alt="Mega Man Legends, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2088396993609728490" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/mega-man-legends-playstation-1.html">Game page</a><a href="/lists.html#game=Mega%20Man%20Legends">On 2 lists</a></p></div>
+</details></li>
+<li id="r-19" data-n="19" data-t="2026-08-13T13:18" data-v="5.0" data-k="super mario world" data-sys="SNES" style="--c:#8f6fd6">
+<details class="rv"><summary><span class="num">19</span><span class="who"><b>Super Mario World</b><span>SNES &middot; <time datetime="2026-08-13">Aug 13, 2026</time></span></span><span class="rating r5">5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2087997181257232712">Honest and Unpopular Reviews No. 19
+
+Super Mario World (SNES)
+
+For a lot of us this is the game that came in the box with the console.
+
+Ours showed up in 1993, and my mom and I sat there and played it the same way we'd played the NES games, except now I was looking at colors the NES couldn't do and I couldn't get over it. I still catch myself humming the music to this game.
+
+It's one of the best games ever made and it's still not the best Mario game. 
+
+Super Mario Bros. 3 holds that title.
+
+What I love about this game is how much of it is hidden but not to the point where it becomes frustrating. Just enough to keep things interesting. 
+
+There are levels with a second exit you'd never find just beating them normally, and finding one opens up parts of the map you didn't know existed, so the map itself turns into the thing you're playing. 
+
+Then there's Yoshi. Everybody remembers him as the thing that takes a hit for you, and that's the least interesting part of him.
+
+What he really does is change how you get through a level based on what's in his mouth. A red shell and he's spitting fire, a blue one and he's flying.
+
+The only negative thing I can say about Super Mario World is Mario feels slippery. But once you're used to it, you stop noticing.
+
+Ultimately, this was the last truly great Mario game. The drop off from this to Super Mario 64 was massive, despite it being the most important game on the console. 
+
+I rate Super Mario World a 5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/19-super-mario-world.webp" width="600" height="797" alt="Super Mario World, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2087997181257232712" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/super-mario-world-snes.html">Game page</a><a href="/lists.html#game=Super%20Mario%20World">On 3 lists</a></p></div>
+</details></li>
+<li id="r-18" data-n="18" data-t="2026-08-12T14:42" data-v="3.5" data-k="super mario 64" data-sys="Nintendo 64" style="--c:#3fa65b">
+<details class="rv"><summary><span class="num">18</span><span class="who"><b>Super Mario 64</b><span>Nintendo 64 &middot; <time datetime="2026-08-12">Aug 12, 2026</time></span></span><span class="rating r3">3.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2087656097616371782">Honest and Unpopular Reviews No. 18
+
+Super Mario 64 (Nintendo 64)
+
+The most important game that launched the N64 and it did not age well.
+
+Before the game even started you could grab Mario's face and stretch it all over the screen. I was 13 and I sat there doing that longer than I want to admit.
+
+Then the game started and I was blown away by it. Mario in 3D running around in an open world. Amazing for 1996.
+
+You jump into a painting, the screen goes white, and Mario yells something that sounds exactly like &quot;nitz pickle.&quot; He's supposed to be saying &quot;let's a go.&quot; The N64 mangled it so badly that I heard pickle back then and I still hear pickle now.
+
+The camera is the worst part of this game. Lakitu is supposed to be filming you and half the time he's got the shot jammed into a wall, so you're pulling the C buttons around trying to see what's in front of you while something walks into you.
+
+Don't make the mistake of grabbing a star while you're running through a level. Once you get a star, it kicks you back through the painting, back to the start, and you have to walk the whole thing again.
+
+Then there's the swimming. Every water level in this game is like a wrestling match with the controller.
+
+I left this game off my N64 top 10 list. Intentionally.
+
+It was the most important game on the N64. It wasn't the best one. That's Wave Race and I'm not changing my mind on it.
+
+I rate this one a 3.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/18-super-mario-64.webp" width="600" height="797" alt="Super Mario 64, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2087656097616371782" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/super-mario-64-nintendo-64.html">Game page</a><a href="/lists.html#game=Super%20Mario%2064">On 1 list</a></p></div>
+</details></li>
+<li id="r-17" data-n="17" data-t="2026-08-11T14:15" data-v="5.0" data-k="wave race 64" data-sys="Nintendo 64" style="--c:#3fa65b">
+<details class="rv"><summary><span class="num">17</span><span class="who"><b>Wave Race 64</b><span>Nintendo 64 &middot; <time datetime="2026-08-11">Aug 11, 2026</time></span></span><span class="rating r5">5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2087286718764634439">Honest and Unpopular Reviews No. 17
+
+Wave Race 64 (Nintendo 64)
+
+Most people have Zelda: Ocarina of Time, Super Mario 64, or even Star Fox as their best N64 game ever made. 
+
+I don't. It's Wave Race 64.
+
+I scored Ocarina a 4 a few game reviews ago and (spoiler alert!) Mario 64 won't get a 5 from me either.
+
+Every other racer on the Nintendo 64 gave you a track to memorize. You ran it enough times and eventually you knew where everything was. 
+
+Wave Race doesn't work that way because the water is moving. You come around a buoy on lap three and the swell isn't where it was on lap one, so the line you had is gone and you're guessing again.
+
+The ski sits down in the water instead of riding on top of it, and you feel that when you land wrong and lose all your speed.
+
+There's a whole practice area, Dolphin Park, that exists before you ever touch a real course. I spent more time in it than I probably should have.
+
+The four riders control differently enough that you pick one and stay with him.
+
+It came out in 1996 and I still haven't played a water game that handles like it, including the GameCube one.
+
+I rate this one a 5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/17-wave-race-64.webp" width="600" height="797" alt="Wave Race 64, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2087286718764634439" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/wave-race-64-nintendo-64.html">Game page</a><a href="/lists.html#game=Wave%20Race%2064">On 4 lists</a></p></div>
+</details></li>
+<li id="r-16" data-n="16" data-t="2026-08-10T15:38" data-v="4.5" data-k="zelda ii the adventure of link" data-sys="NES" style="--c:#d3d0c8">
+<details class="rv"><summary><span class="num">16</span><span class="who"><b>Zelda II: The Adventure of Link</b><span>NES &middot; <time datetime="2026-08-10">Aug 10, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2086945372891709740">Honest and Unpopular Reviews No. 16
+
+Zelda II: The Adventure of Link (NES)
+
+The Adventure of Link is a better game than Ocarina of Time.
+
+There. I said it.
+
+Nintendo took their brand new franchise and threw out the first game's entire design on the second try. It sold over four million copies and they went right back to top down anyway. No Zelda has been a side scroller since.
+
+No other Zelda game has done anything close to this. Once you leave the map you're in a side view fighting for your life, you gain experience off every kill, and the spells come from people in towns who make you do something for them first.
+
+The sword fighting is better than anything in the top down games. You have to fight things instead of walking into them swinging until they die. Iron Knuckles move their shield to block whatever you just did, so you're faking high, going low, and backing out of range when you guess wrong.
+
+In Ocarina you hold Z and go in circles.
+
+You decide whether to take the level up in front of you or turn it down and save the experience for something better.
+
+It's hard but so were a lot of platformers on the NES.
+
+Zelda 1 has you burning bushes at random looking for a staircase. This one has combat you can actually get good at.
+
+I rate this one a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/16-zelda-ii-the-adventure-of-link.webp" width="600" height="683" alt="Zelda II: The Adventure of Link, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2086945372891709740" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/zelda-ii-the-adventure-of-link-nes.html">Game page</a><a href="/lists.html#game=Zelda%20II%3A%20The%20Adventure%20of%20Link">On 2 lists</a></p></div>
+</details></li>
+<li id="r-15" data-n="15" data-t="2026-08-08T12:50" data-v="3.0" data-k="final fantasy vii" data-sys="PlayStation 1" style="--c:#a9b0c4">
+<details class="rv"><summary><span class="num">15</span><span class="who"><b>Final Fantasy VII</b><span>PlayStation 1 &middot; <time datetime="2026-08-08">Aug 8, 2026</time></span></span><span class="rating r3">3/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2086178142729990575">Honest and Unpopular Reviews No. 15
+
+Final Fantasy VII (PS1)
+
+I've played Final Fantasy VII, I've played the remake, and both times I came away thinking the same thing. This game bored me.
+
+Midgar is the best part and it's over in a few hours. After that you're on a world map walking in a direction until the screen does the swirl and drops you into another fight you didn't ask for.
+
+The fights are a menu. You pick attack, you watch it happen, you pick it again. Summoning Knights of the Round takes over a minute and there's no skip button. That's not gameplay, that's a screensaver with a damage number at the end.
+
+People call this the greatest story ever told in a game. Most of it is characters standing still while text scrolls, and the pacing after disc one never recovers.
+
+The materia system is the one thing I'll defend without hesitation. Being able to strip a character down and rebuild them into something completely different was ahead of anything else on the console, and nothing since has done it better.
+
+Three discs, forty hours, and the parts I actually remember all happened in the first city.
+
+The remake had a chance to fix it. Instead they took Midgar, the one section that works, and stretched it into a full game.
+
+I rate this one a 3 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/15-final-fantasy-vii.webp" width="600" height="798" alt="Final Fantasy VII, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2086178142729990575" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/final-fantasy-vii-playstation-1.html">Game page</a><a href="/lists.html#game=Final%20Fantasy%20VII">On 2 lists</a></p></div>
+</details></li>
+<li id="r-14" data-n="14" data-t="2026-08-07T12:07" data-v="5.0" data-k="mvp baseball 2005" data-sys="GameCube" style="--c:#6f68c9">
+<details class="rv"><summary><span class="num">14</span><span class="who"><b>MVP Baseball 2005</b><span>GameCube &middot; <time datetime="2026-08-07">Aug 7, 2026</time></span></span><span class="rating r5">5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2085805144474837120">Honest and Unpopular Reviews No. 14
+
+MVP Baseball 2005 (GameCube)
+
+Nothing released since has been better, and that includes every game The Show has put out.
+
+Barry Bonds hit career homerun number 756 nineteen years ago today, passing Hank Aaron on the all-time homerun list, and the best baseball game ever made could not legally use him in the game.
+
+In 2003 Bonds pulled out of the MLBPA group licensing deal so he could license himself instead. EA couldn't use him after that. 
+
+So they made a guy up and put him in left field for the Giants with Bonds' ratings and Bonds' birthday. 99 contact, 99 power against righties. White guy, buzz cut, number 51 instead of 25, generic stance instead of that armored elbow out over the plate. 
+
+They named him Jon Dowd after an assistant producer in their Vancouver office.
+
+Duane Kuiper and Mike Krukow did the commentary. The actual Giants broadcasters, calling play by play on a made up left fielder standing in for their own franchise player.
+
+I spent most of 2005 playing this game. Easily my most played game on the GameCube.
+
+Hitter's Eye was the big new thing that year. The ball changed color in the pitcher's hand before he let go of it. Fastball white, breaking ball red, off-speed green, sinker pink, knuckleball orange. Nothing since has read a pitch that cleanly.
+
+Dynasty mode had real double-A and triple-A affiliates with real minor leaguers in them, and Owner mode gave you 30 years to set ticket prices and build a bare stadium into something. Your manager could come out and argue any time he wanted. Games got rained out and stuck you with a doubleheader.
+
+The soundtrack was nine songs and some of them were in here before the bands ever put them out. The Bravery, Louis XIV, Trail of Dead, The Zutons, Dropkick Murphys with &quot;Tessie&quot; fresh off the curse breaking. I can still hear all of them.
+
+Then Take-Two signed the exclusive MLB deal, EA lost the license, and this was the last one. College baseball for two years and that was it.
+
+Twenty one years later people are still modding the PC version with 2026 rosters. Not for nostalgia but because the mechanics are still the best to have ever come out.
+
+The Show has had twenty years, real budgets, and a licensed monopoly, and it still hasn't made hitting feel this good.
+
+Best baseball game ever made and it isn't close. Top five sports game of all time, any sport, any era, and one of the greatest overall games to come out of the 2000s.
+
+I rate this one a 5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/14-mvp-baseball-2005.webp" width="600" height="797" alt="MVP Baseball 2005, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2085805144474837120" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/mvp-baseball-2005-gamecube.html">Game page</a><a href="/lists.html#game=MVP%20Baseball%202005">On 1 list</a></p></div>
+</details></li>
+<li id="r-13" data-n="13" data-t="2026-08-06T13:39" data-v="4.5" data-k="metroid prime" data-sys="GameCube" style="--c:#6f68c9">
+<details class="rv"><summary><span class="num">13</span><span class="who"><b>Metroid Prime</b><span>GameCube &middot; <time datetime="2026-08-06">Aug 6, 2026</time></span></span><span class="rating r5">4.5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2085465908584280499">Honest and Unpopular Reviews No. 13
+
+Metroid Prime (GameCube)
+
+I was a PS1 only guy until I bought a GameCube in 2003. I'd been playing MLB 2001 and Syphon Filter. This was one of the first games I put in the new console and it blew me away.
+
+I had never seen a game look like that. Rain hitting your visor, your own face showing up in the reflection when something blew up in front of you. Coming off the PS1 it was mindblowing.
+
+It's close to perfect. There are a few things wrong with it though.
+
+The artifact hunt is the worst one. Twelve items you have to go find right before the final boss.
+
+You run through Magmoor Caverns over and over just to get from one part of the map to another. And the Chozo Ghosts spawn in, lock the doors, and make you fight your way out of a room you've already been through dozens of times.
+
+Late game enemies each need a specific beam to damage them. It's color matching.
+
+The Phazon Mines are the hardest part of the game and there's barely anywhere to save in there. Die and you lose a lot.
+
+None of that stops it from being one of the best games of the 2000s.
+
+Zelda: Ocarina of Time is ranked as the greatest game of all time on a lot of lists. Metroid Prime ranks higher than Ocarina of Time for me.
+
+I rate this one a 4.5 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/13-metroid-prime.webp" width="600" height="797" alt="Metroid Prime, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2085465908584280499" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/metroid-prime-gamecube.html">Game page</a><a href="/lists.html#game=Metroid%20Prime">On 3 lists</a></p></div>
+</details></li>
+<li id="r-12" data-n="12" data-t="2026-08-05T12:06" data-v="4.0" data-k="super mario kart" data-sys="SNES" style="--c:#8f6fd6">
+<details class="rv"><summary><span class="num">12</span><span class="who"><b>Super Mario Kart</b><span>SNES &middot; <time datetime="2026-08-05">Aug 5, 2026</time></span></span><span class="rating r4">4/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2085080121208414628">Honest and Unpopular Reviews No. 12
+Super Mario Kart (SNES)
+
+Mario Kart peaked in 1992.
+
+You press start and you're racing. No opening movie, no tutorial, no drivers to unlock, no menu asking what kind of experience you want.
+
+Pick a character, pick a cup, go.
+
+This is the only Mario Kart where driving decides the race. No drift boost, no assist steering, no rails on the track.
+
+You learn Ghost Valley or you fall off it. Rainbow Road has nothing on either side of you. Driving matters.
+
+The coins are the part everybody forgot. 
+
+Coins make you faster and getting hit takes them away. Speed is something you hold onto instead of something an item box hands you.
+
+No blue shell.
+
+Nothing in this game exists to punish you for being in first. That got added later because Nintendo decided last place needed to be able to win, and people who grew up on that think this game is unfair.
+
+Battle mode is the other half of it. Three balloons, a flat square, and whatever the item box gives you. 
+
+Thirty four years of bigger arenas and better graphics and none of it improved on battle mode.
+
+Double Dash is the second best one and it's not close. Two characters, the item swap, a co-op idea nobody has touched since.
+
+Mario Kart 64 gets called the best by people who played it four at a time on a sleepover and never touched it alone.
+
+My wife and I still use Super Mario Kart to settle our disputes. Whatever we can't agree on, we run it and that's the end of it.
+
+I rate this one a 4 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/12-super-mario-kart.webp" width="600" height="430" alt="Super Mario Kart, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2085080121208414628" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/super-mario-kart-snes.html">Game page</a><a href="/lists.html#game=Super%20Mario%20Kart">On 1 list</a></p></div>
+</details></li>
+<li id="r-11" data-n="11" data-t="2026-08-04T09:42" data-v="4.0" data-k="legend of zelda ocarina of time" data-sys="Nintendo 64" style="--c:#3fa65b">
+<details class="rv"><summary><span class="num">11</span><span class="who"><b>The Legend of Zelda: Ocarina of Time</b><span>Nintendo 64 &middot; <time datetime="2026-08-04">Aug 4, 2026</time></span></span><span class="rating r4">4/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2084681420908446057">Honest and Unpopular Reviews No. 11
+The Legend of Zelda: Ocarina of Time (N64)
+
+I'm just going to say it:
+
+This is the most overrated game ever made.
+
+It's a good game. I replayed it recently, start to finish, as an adult. That's where this review is coming from, because I don't think most of the people calling it the greatest game ever made have played it since they were kids.
+
+Go back to it now and the first thing that hits you is how much of this game is spent running across nothing. Hyrule Field is a big empty rectangle with a few Peahats and some holes in it, and you cross it constantly.
+
+And before you ever get out there you're stuck doing errands in Kokiri Forest with Navi talking the whole time, because you can't even get into the Deku Tree until you've got the sword and the shield.
+
+Forest Temple is great. Fire Temple is hallways.
+
+Then there's the Water Temple. It isn't hard. The puzzles are fine. The problem is the iron boots, which you need to sink and walk underwater, are an equipment item buried in a pause menu, so the dungeon becomes pause, equip boots, walk, pause, unequip boots, swim, over and over for an hour. Even Nintendo admits this one. 
+
+Eiji Aonuma, who directed the dungeon and went on to run the entire Zelda series, publicly apologized for it years later, and the 3DS remake moved the boots to a touch screen button so you'd never have to open the menu. When the guy who built it says sorry, it's not just me being contrarian.
+
+The story is thinner than people remember too. Ganondorf gets everything he wants the second you pull the Master Sword, and then he basically disappears for the entire adult half of the game while you work down a checklist of five sages, one per dungeon, until the game decides you're allowed to fight him. There's no real second act.
+
+What people are actually remembering is the music, and to be fair, the music deserves it. Gerudo Valley, Song of Storms, the Lost Woods. Koji Kondo put one of the best soundtracks ever made on that cartridge and I won't argue with anyone about that. But a great soundtrack wrapped around a thin story is still a thin story.
+
+What Ocarina actually earned is Z-targeting. Before this game, nobody had really figured out how to fight in 3D. Ocarina solved it by letting you lock onto an enemy so the camera holds on them while you circle, strafe, and block. 
+
+That system is basically in every 3D action game since. That's the real legacy, and it's a bigger one than the story or the world ever was.
+
+Majora's Mask is the better game and it isn't perfect either. Ocarina sits at number one because it got there first, and a perfect score from 1998 has been handed down ever since without anyone stopping to ask if it still holds up.
+
+I rate this one a 4 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/11-the-legend-of-zelda-ocarina-of-time.webp" width="600" height="797" alt="The Legend of Zelda: Ocarina of Time, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2084681420908446057" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/legend-of-zelda-ocarina-of-time-nintendo-64.html">Game page</a><a href="/lists.html#game=Legend%20of%20Zelda%3A%20Ocarina%20of%20Time">On 3 lists</a></p></div>
+</details></li>
+<li id="r-10" data-n="10" data-t="2026-08-02T10:35" data-v="5.0" data-k="super mario world 2 yoshi s island" data-sys="SNES" style="--c:#8f6fd6">
+<details class="rv"><summary><span class="num">10</span><span class="who"><b>Super Mario World 2: Yoshi's Island</b><span>SNES &middot; <time datetime="2026-08-02">Aug 2, 2026</time></span></span><span class="rating r5">5/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2083970044791595321">Honest and Unpopular Reviews No. 10
+
+Super Mario World 2: Yoshi's Island (SNES)
+
+This game never should have been called Super Mario World 2.
+
+Nintendo put Mario's name on it because Mario sells, and thirty years later people are still measuring it against a game it wasn't trying to be. It's not a sequel. It's barely the same genre. 
+
+Take the branding off and what you've got is one of the most original platformers of the decade.
+
+The thing nobody gives it credit for is the baby. That crying is the health bar. You get hit, you've got ten seconds to get him back and the game is screaming at you the whole time you're trying. 
+
+Every other platformer on the system just took a heart away and moved on. This one makes you go get it.
+
+The art took hits too. Crayon scribbles, looks like a kids game. That was 1995 and Donkey Kong Country had just convinced the whole industry that pre rendered plastic models were the future. Nintendo went the other way and drew a storybook by hand. One of those two games still looks good.
+
+Egg throwing doesn't get talked about enough either. You're holding a reticle that ricochets off the level while you're in the air trying to land a jump. That's aiming, in a platformer, in 1995, with no second stick on the controller. Every red coin you missed is sitting behind a shot you rushed.
+
+I'll say the rest of it plainly: This is one of my all time favorite games. My mom helped me beat every Mario game I owned before this one. Yoshi's Island is the first one I finished by myself.
+
+I rate this a 5 out of 5, and it's a better game than Donkey Kong Country.</blockquote><figure><img loading="lazy" src="/images/reviews/10-super-mario-world-2-yoshi-s-island.webp" width="600" height="452" alt="Super Mario World 2: Yoshi's Island, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2083970044791595321" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/super-mario-world-2-yoshi-s-island-snes.html">Game page</a><a href="/lists.html#game=Super%20Mario%20World%202%3A%20Yoshi%27s%20Island">On 2 lists</a></p></div>
+</details></li>
+<li id="r-9" data-n="9" data-t="2026-07-15T20:15" data-v="1.0" data-k="predator" data-sys="NES" style="--c:#d3d0c8">
+<details class="rv"><summary><span class="num">9</span><span class="who"><b>Predator</b><span>NES &middot; <time datetime="2026-07-15">Jul 15, 2026</time></span></span><span class="rating r1">1/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2077592878864564390">Honest and Unpopular Reviews No. 9
+Predator (NES)
+
+The only unpopular thing about this review is that I am even bothering to talk about it, because everyone already agrees this is one of the worst games of all time.
+
+You'd think a game based on one of the best action movies of the 80s would at least try. It doesn't. 
+ 
+Activision did such a terrible job with this game it could have been mistaken for an LJN game.
+
+It's just jungle platforming over bottomless pits with floaty jumps and controls that fight you.
+
+I only lasted a few minutes before I got annoyed and turned it off, and I have no plans to go back.
+
+I rate this one a 1 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/09-predator.webp" width="600" height="798" alt="Predator, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2077592878864564390" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/predator-nes.html">Game page</a><a href="/lists.html#game=Predator">On 1 list</a></p></div>
+</details></li>
+<li id="r-8" data-n="8" data-t="2026-07-14T19:54" data-v="1.0" data-k="bill ted s excellent video game adventure" data-sys="NES" style="--c:#d3d0c8">
+<details class="rv"><summary><span class="num">8</span><span class="who"><b>Bill &amp; Ted's Excellent Video Game Adventure</b><span>NES &middot; <time datetime="2026-07-14">Jul 14, 2026</time></span></span><span class="rating r1">1/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2077225166132908342">Honest and Unpopular Reviews No. 8
+Bill &amp; Ted's Excellent Video Game Adventure (NES)
+
+This is one of the worst games on the NES.
+
+You bounce around time zones grabbing items and there's no logic to any of it. No map, no direction, no hint that you're doing the right thing. Rufus is the only one who tells you anything and it still isn't enough.
+
+Then there's the music. A few bars on a loop that never stops. It grinds away the entire time you're wandering around lost, which is the entire time. Playing it muted is an improvement.
+
+What gets me is how easy this should have been. Two characters everyone liked, a time machine, and all of history to build levels out of.
+
+LJN had everything and did nothing with it. This is one of the games that earned that rainbow its reputation.
+
+Nothing about this one is excellent.
+
+I rate this one a 1 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/08-bill-ted-s-excellent-video-game-adventure.webp" width="600" height="797" alt="Bill &amp; Ted's Excellent Video Game Adventure, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2077225166132908342" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/bill-ted-s-excellent-video-game-adventure-nes.html">Game page</a><a href="/lists.html#game=Bill%20%26%20Ted%27s%20Excellent%20Video%20Game%20Adventure">On 2 lists</a></p></div>
+</details></li>
+<li id="r-7" data-n="7" data-t="2026-07-13T20:24" data-v="4.0" data-k="r c pro am" data-sys="NES" style="--c:#d3d0c8">
+<details class="rv"><summary><span class="num">7</span><span class="who"><b>R.C. Pro-Am</b><span>NES &middot; <time datetime="2026-07-13">Jul 13, 2026</time></span></span><span class="rating r4">4/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2076870370456735920">Honest and Unpopular Reviews No. 7
+R.C. Pro-Am (NES)
+
+Most people remember this one fondly and then leave it out of every serious racing conversation. I think that's a mistake. This is a top 5 racing game of all time.
+
+Rare had weapons, upgrades, and rubber-band AI figured out four years before kart racers got credit for inventing any of it. The drift handling still feels good today, and collecting letters to spell NINTENDO for the next car was a progression hook nobody else had in 1988.
+
+It's more fun than Mario Kart. It's more fun than Gran Turismo. It's miles ahead of Forza.
+
+It loses a point for repetition. The tracks start blurring together deep into the circuit, and that yellow car cheats like it's getting paid to.
+
+I rate this one a 4 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/07-r-c-pro-am.webp" width="600" height="797" alt="R.C. Pro-Am, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2076870370456735920" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/r-c-pro-am-nes.html">Game page</a><a href="/lists.html#game=R.C.%20Pro-Am">On 2 lists</a></p></div>
+</details></li>
+<li id="r-6" data-n="6" data-t="2026-07-02T13:19" data-v="3.0" data-k="mega man 2" data-sys="NES" style="--c:#d3d0c8">
+<details class="rv"><summary><span class="num">6</span><span class="who"><b>Mega Man 2</b><span>NES &middot; <time datetime="2026-07-02">Jul 2, 2026</time></span></span><span class="rating r3">3/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2072777099207954472">Honest and Unpopular Reviews No. 6
+Mega Man 2 (NES)
+
+This is the crown jewel of the series for most people and I understand why. The soundtrack is one of the best on the console and the robot master lineup is iconic for a reason.
+
+But the closer you look, the more the masterpiece label falls apart.
+
+Metal Blade is so overpowered the rest of the arsenal barely matters. Quick Man's stage kills you with beams you cannot see coming.
+
+And the Boobeam Trap in Wily's castle is a genuine design failure that forces you to farm weapon energy just to fight a boss.
+
+This one asks you to grind for the privilege of finishing it.
+
+I rate this one a 3 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/06-mega-man-2.webp" width="600" height="721" alt="Mega Man 2, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2072777099207954472" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/mega-man-2-nes.html">Game page</a><a href="/lists.html#game=Mega%20Man%202">On 1 list</a></p></div>
+</details></li>
+<li id="r-5" data-n="5" data-t="2026-07-01T14:42" data-v="4.0" data-k="legend of zelda" data-sys="NES" style="--c:#d3d0c8">
+<details class="rv"><summary><span class="num">5</span><span class="who"><b>The Legend of Zelda</b><span>NES &middot; <time datetime="2026-07-01">Jul 1, 2026</time></span></span><span class="rating r4">4/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2072435770187763966">Honest and Unpopular Reviews No. 5 
+The Legend of Zelda (NES)
+
+This game invented an entire genre and is heralded as one of the greatest games of all time.
+
+The opening hours are slow, and the game gives you almost nothing to go on. Entire dungeons and critical items are hidden behind burning a random bush or bombing an unmarked wall.
+
+Back in the late 80s, you didn't figure that out on your own. You figured it out with a Nintendo Power magazine, a friend at school, or a call to the Nintendo hotline.
+
+The Legend of Zelda gets a 4 out of 5 rating from me.</blockquote><figure><img loading="lazy" src="/images/reviews/05-the-legend-of-zelda.webp" width="600" height="797" alt="The Legend of Zelda, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2072435770187763966" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/legend-of-zelda-nes.html">Game page</a><a href="/lists.html#game=Legend%20of%20Zelda">On 3 lists</a></p></div>
+</details></li>
+<li id="r-4" data-n="4" data-t="2026-06-30T12:03" data-v="4.0" data-k="batman the video game" data-sys="NES" style="--c:#d3d0c8">
+<details class="rv"><summary><span class="num">4</span><span class="who"><b>Batman: The Video Game</b><span>NES &middot; <time datetime="2026-06-30">Jun 30, 2026</time></span></span><span class="rating r4">4/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2072033262021865520">Honest and Unpopular Reviews No. 4
+Batman: The Video Game (NES)
+
+This is one of the best licensed games of the entire 8-bit era. 
+
+It's a hard game, but it's a genuinely entertaining one. 
+
+The gameplay is top notch, the soundtrack is an all-time great, and the pixel art nails Tim Burton's dark aesthetic. 
+
+Most movie tie-ins from this era were garbage. This one is the exception.
+
+Batman: The Video Game gets a 4 out of 5 rating from me.</blockquote><figure><img loading="lazy" src="/images/reviews/04-batman-the-video-game.webp" width="600" height="797" alt="Batman: The Video Game, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2072033262021865520" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/batman-the-video-game-nes.html">Game page</a><a href="/lists.html#game=Batman%3A%20The%20Video%20Game">On 2 lists</a></p></div>
+</details></li>
+<li id="r-3" data-n="3" data-t="2026-06-29T13:34" data-v="1.0" data-k="adventures of gilligan s island" data-sys="NES" style="--c:#d3d0c8">
+<details class="rv"><summary><span class="num">3</span><span class="who"><b>The Adventures of Gilligan's Island</b><span>NES &middot; <time datetime="2026-06-29">Jun 29, 2026</time></span></span><span class="rating r1">1/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2071693833897996762">Honest and Unpopular Reviews No. 3
+The Adventures of Gilligan's Island (NES)
+
+I didn't last long with this one. 
+
+You control the Skipper while Gilligan follows you around, except his AI is a disaster. He wanders off, gets stuck, and generally makes you want to leave him on the island. 
+
+It's a cheap licensed cash grab on a show most NES kids barely knew, and it plays like one. I understand why this game was only 5 bucks.
+
+Rage isn't even the word. This one's just dumb. 1 out of 5.</blockquote><figure><img loading="lazy" src="/images/reviews/03-the-adventures-of-gilligan-s-island.webp" width="600" height="797" alt="The Adventures of Gilligan's Island, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2071693833897996762" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/adventures-of-gilligan-s-island-nes.html">Game page</a><a href="/lists.html#game=Adventures%20of%20Gilligan%27s%20Island">On 1 list</a></p></div>
+</details></li>
+<li id="r-2" data-n="2" data-t="2026-06-28T13:03" data-v="1.0" data-k="adventures of dino riki" data-sys="NES" style="--c:#d3d0c8">
+<details class="rv"><summary><span class="num">2</span><span class="who"><b>Adventures of Dino Riki</b><span>NES &middot; <time datetime="2026-06-28">Jun 28, 2026</time></span></span><span class="rating r1">1/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2071323690160345502">Honest and Unpopular Reviews No. 2
+Adventures of Dino Riki (NES)
+
+I lasted about five minutes with this one before it made me want to throw the controller. 
+
+The overhead perspective makes it nearly impossible to judge your jumps, you're constantly dying on platforms because you can't tell where you're going to land. 
+
+Add stiff, imprecise controls on top of that and it's just frustrating. One of the worst NES games I've ever put my hands on. 
+
+Rage inducing. This one gets a 1 out of 5 rating from me.</blockquote><figure><img loading="lazy" src="/images/reviews/02-adventures-of-dino-riki.webp" width="600" height="797" alt="Adventures of Dino Riki, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2071323690160345502" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/adventures-of-dino-riki-nes.html">Game page</a><a href="/lists.html#game=Adventures%20of%20Dino%20Riki">On 1 list</a></p></div>
+</details></li>
+<li id="r-1" data-n="1" data-t="2026-06-27T18:16" data-v="4.0" data-k="adventure island" data-sys="NES" style="--c:#d3d0c8">
+<details class="rv"><summary><span class="num">1</span><span class="who"><b>Adventure Island</b><span>NES &middot; <time datetime="2026-06-27">Jun 27, 2026</time></span></span><span class="rating r4">4/5</span><i class="arrow" aria-hidden="true"></i></summary>
+<div class="body"><blockquote cite="https://x.com/NostalgiaPro/status/2071039919859048926">I'm starting a new thing on here. I'm going to be posting honest and probably unpopular reviews and ratings of retro video games on a near daily basis. 
+
+Here's the first one:
+
+Honest and Unpopular Reviews No. 1
+Adventure Island (NES)
+
+Adventure Island, the game that's a rip-off of Wonder Boy (Sega). 
+
+Same gameplay, same opening level, just a new character slapped on. 
+
+But here's the thing, it took that stolen formula, ran with it, and the sequels turned into one of the most underrated platformers that ran on the NES. 
+
+Forgotten now, and the franchise deserves a comeback that's never coming.
+
+I rate this NES game a solid 4/5.</blockquote><figure><img loading="lazy" src="/images/reviews/01-adventure-island.webp" width="600" height="797" alt="Adventure Island, the photo from the post"></figure>
+<p class="rmeta"><a class="onx" href="https://x.com/NostalgiaPro/status/2071039919859048926" target="_blank" rel="noopener">Read on X &#x2197;</a><a href="/game/adventure-island-nes.html">Game page</a><a href="/lists.html#game=Adventure%20Island">On 2 lists</a></p></div>
+</details></li>
+</ol>
+<p class="empty" id="empty" hidden>Nothing reviewed on that one yet.</p>
+
+<p class="note">Each review is copied word for word from my post on X. Scores are out of five.</p>
+
+</div>
 <script>
-const COLORS = {
-  "NES":"#d3d0c8","SNES":"#8f6fd6","Nintendo 64":"#3fa65b","GameCube":"#6f68c9",
-  "Game Boy":"#9bbc0f","PlayStation 1":"#a9b0c4","PlayStation 3":"#c9a94a",
-  "Xbox":"#8ec63f","Xbox 360":"#5fbf3a","Sega Dreamcast":"#f2793f"
-};
-
-/* number, title, system, score (null = not supplied yet) */
-const R = [
-  [1,"Adventure Island","NES",4],
-  [2,"Adventures of Dino Riki","NES",1],
-  [3,"The Adventures of Gilligan's Island","NES",1],
-  [4,"Batman: The Video Game","NES",4],
-  [5,"The Legend of Zelda","NES",4],
-  [6,"Mega Man 2","NES",3],
-  [7,"R.C. Pro-Am","NES",4],
-  [8,"Bill & Ted's Excellent Video Game Adventure","NES",1],
-  [9,"Predator","NES",1],
-  [10,"Super Mario World 2: Yoshi's Island","SNES",5],
-  [11,"The Legend of Zelda: Ocarina of Time","Nintendo 64",4],
-  [12,"Super Mario Kart","SNES",4],
-  [13,"Metroid Prime","GameCube",4.5],
-  [14,"MVP Baseball 2005","GameCube",5],
-  [15,"Final Fantasy VII","PlayStation 1",3],
-  [16,"Zelda II: The Adventure of Link","NES",4.5],
-  [17,"Wave Race 64","Nintendo 64",5],
-  [18,"Super Mario 64","Nintendo 64",4],
-  [19,"Super Mario World","SNES",5],
-  [20,"Mega Man Legends","PlayStation 1",4.5],
-  [21,"Gran Turismo","PlayStation 1",4.5],
-  [22,"Captain America and the Avengers","SNES",4],
-  [23,"Mario Kart 64","Nintendo 64",4],
-  [24,"Paperboy","NES",4.5],
-  [25,"Galaga: Demons of Death","NES",4.5],
-  [26,"GoldenEye 007","Nintendo 64",4.5],
-  [27,"Popeye","NES",4],
-  [28,"Gun","Xbox",4],
-  [29,"Metal Gear Solid","PlayStation 1",5],
-  [30,"Killer Instinct","SNES",4.5],
-  [31,"Sega Dreamcast","Sega Dreamcast",5],
-  [32,"Star Fox Adventures","GameCube",4.5],
-  [33,"Star Wars Episode I: Racer","Nintendo 64",4.5],
-  [34,"Metal Gear Solid 4: Guns of the Patriots","PlayStation 3",5],
-  [35,"007: Tomorrow Never Dies","PlayStation 1",4],
-  [36,"Tetris","Game Boy",5],
-  [37,"X-Men Legends","Xbox",4.5],
-  [38,"X-Men Origins: Wolverine","Xbox 360",4.5],
-  [39,"The Legend of Zelda: Majora's Mask","Nintendo 64",4.5],
-  [40,"Sony PlayStation","PlayStation 1",4]
-];
-
-/* how many posted lists each game turns up on (from lists.html) */
-const ONLISTS = {
-  "street fighter ii":4,"halo 2":4,"teenage mutant ninja turtles iv: turtles in time":4,
-  "spider-man & venom: maximum carnage":4,"goldeneye 007":3,"metal gear solid":3,
-  "star wars episode i: racer":3,"star fox adventures":3,"metroid prime":3,
-  "super mario world":3,"double dragon ii: the revenge":3,"captain america and the avengers":3,
-  "perfect dark":2,"killer instinct":2,"killer instinct gold":2,"diddy kong racing":2,
-  "mega man legends":2,"wave race 64":2,"super mario bros. 3":2,"final fantasy vii":2,
-  "the legend of zelda: ocarina of time":2,"tekken 3":2,"gran turismo":2,
-  "sonic the hedgehog 2":2,"mario kart 64":2,"super mario 64":1,"popeye":1,
-  "galaga: demons of death":1,"mvp baseball 2005":1,"gun":1,"paperboy":1,
-  "the legend of zelda: majora's mask":2,"metal gear solid 4: guns of the patriots":2,
-  "x-men origins: wolverine":1,"007: tomorrow never dies":2,"adventure island":1,
-  "r.c. pro-am":1,"zelda ii: the adventure of link":1,"the legend of zelda":1,
-  "super mario world 2: yoshi's island":1,"batman: the video game":1,
-  "mega man 2":0,"tetris":0,"x-men legends":0,"super mario kart":1,
-  "adventures of dino riki":0,"the adventures of gilligan's island":0,
-  "predator":0,"bill & ted's excellent video game adventure":0,
-  "sega dreamcast":1,"sony playstation":1
-};
-const findUrl = (t,sy) => "index.html?find=" + encodeURIComponent(t);
-
-let sys = "all", sort = "num";
-const listEl = document.getElementById("list");
-
-const tally = {};
-for (const [,,s] of R) tally[s] = (tally[s]||0)+1;
-const systems = Object.keys(tally).sort((a,b)=>tally[b]-tally[a]);
-
-document.getElementById("sysChips").innerHTML =
-  `<button class="chip" data-sys="all" aria-pressed="true">All<em>${R.length}</em></button>` +
-  systems.map(s=>`<button class="chip" data-sys="${s}" aria-pressed="false">${s}<em>${tally[s]}</em></button>`).join("");
-
-function drawScores(){
-  const scored = R.filter(r=>r[3]!==null);
-  const avg = scored.reduce((a,r)=>a+r[3],0)/scored.length;
-  const fives = scored.filter(r=>r[3]===5).length;
-  document.getElementById("scores").innerHTML = [
-    [R.length,"reviews"],[systems.length,"consoles"],
-    [avg.toFixed(1),"average"],[fives,"perfect scores"]
-  ].map(([n,l])=>`<div class="score"><b>${n}</b><span>${l}</span></div>`).join("");
-}
-
-function band(v){ return v>=4.5?"r5":v>=4?"r4":v>=3?"r3":v>=2?"r2":"r1"; }
-
-function draw(){
-  let rows = R.filter(r => sys==="all" || r[2]===sys);
-  if (sort==="high") rows = [...rows].sort((a,b)=>(b[3]??-1)-(a[3]??-1)||a[0]-b[0]);
-  if (sort==="low")  rows = [...rows].sort((a,b)=>(a[3]??99)-(b[3]??99)||a[0]-b[0]);
-  if (sort==="num")  rows = [...rows].sort((a,b)=>a[0]-b[0]);
-
-  listEl.innerHTML = rows.length ? rows.map(([n,t,s,v,note]) =>
-    `<li id="r-${n}" style="--c:${COLORS[s]||"#7b8294"}">
-      <span class="num">${n}</span>
-      <span class="who">
-        <b><a href="${findUrl(t,s)}">${t}</a></b>
-        <span>${s}${note?` &middot; ${note}`:""}${
-          ONLISTS[t.toLowerCase()] ? `<a class="lists" href="lists.html">on ${ONLISTS[t.toLowerCase()]} list${ONLISTS[t.toLowerCase()]>1?"s":""}</a>` : ""
-        }</span>
-      </span>
-      <span class="rating ${v===null?"rnone":band(v)}">${v===null?"no score yet":v+"/5"}</span>
-    </li>`).join("") : `<p class="empty">Nothing reviewed on that one yet.</p>`;
-}
-
-document.getElementById("sysChips").addEventListener("click", e=>{
-  const b=e.target.closest(".chip"); if(!b) return;
-  sys=b.dataset.sys;
-  document.querySelectorAll("#sysChips .chip").forEach(c=>c.setAttribute("aria-pressed",c===b));
-  draw();
-});
-document.getElementById("sortChips").addEventListener("click", e=>{
-  const b=e.target.closest(".chip"); if(!b) return;
-  sort=b.dataset.sort;
-  document.querySelectorAll("#sortChips .chip").forEach(c=>c.setAttribute("aria-pressed",c===b));
-  draw();
-});
-
-drawScores();
-draw();
+/* Sort, filter by console, and open the review a link points at. */
+(function(){
+  var list = document.getElementById("list"), items = [].slice.call(list.children);
+  var sys = "all", sort = "new";
+  var empty = document.getElementById("empty");
+  function draw(){
+    var rows = items.slice();
+    var k = function(li, a){ return li.dataset[a]; };
+    if (sort === "new")  rows.sort(function(a,b){ return k(b,"t").localeCompare(k(a,"t")); });
+    if (sort === "num")  rows.sort(function(a,b){ return a.dataset.n - b.dataset.n; });
+    if (sort === "high") rows.sort(function(a,b){ return (b.dataset.v||-1) - (a.dataset.v||-1) || b.dataset.n - a.dataset.n; });
+    if (sort === "low")  rows.sort(function(a,b){ return (a.dataset.v||99) - (b.dataset.v||99) || b.dataset.n - a.dataset.n; });
+    if (sort === "az")   rows.sort(function(a,b){ return k(a,"k").localeCompare(k(b,"k")); });
+    var shown = 0;
+    rows.forEach(function(li){
+      var on = sys === "all" || li.dataset.sys.split("|").indexOf(sys) > -1;
+      li.hidden = !on; if (on) shown++;
+      list.appendChild(li);
+    });
+    empty.hidden = shown > 0;
+  }
+  function chips(id, key, set){
+    document.getElementById(id).addEventListener("click", function(e){
+      var b = e.target.closest(".chip"); if (!b) return;
+      set(b.dataset[key]);
+      [].forEach.call(this.querySelectorAll(".chip"), function(c){ c.setAttribute("aria-pressed", c === b); });
+      draw();
+    });
+  }
+  chips("sysChips", "sys", function(v){ sys = v; });
+  chips("sortChips", "sort", function(v){ sort = v; });
+  var all = document.getElementById("openall");
+  all.addEventListener("click", function(){
+    var open = all.getAttribute("aria-pressed") !== "true";
+    all.setAttribute("aria-pressed", open);
+    all.textContent = open ? "Close all" : "Open all";
+    items.forEach(function(li){ li.querySelector("details").open = open; });
+  });
+  function hash(){
+    var m = location.hash.match(/^#r-(\d+)$/); if (!m) return;
+    var li = document.getElementById("r-" + m[1]); if (!li) return;
+    if (li.hidden) { document.querySelector('#sysChips [data-sys="all"]').click(); }
+    li.querySelector("details").open = true;
+    li.scrollIntoView();
+  }
+  addEventListener("hashchange", hash);
+  hash();
+})();
 </script>
 <script>
 /* Installable, and the whole collection works offline once you've opened it. */

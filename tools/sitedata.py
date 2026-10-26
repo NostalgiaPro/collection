@@ -126,13 +126,14 @@ def load_lists():
 
 
 def load_reviews():
-    """reviews.html: [number, title, system, score]"""
-    src = read("reviews.html")
-    m = re.search(r"const R = \[([\s\S]*?)\n\];", src)
+    """tools/data/reviews.json (built into reviews.html by build_reviews.py):
+    [number, title, system, score, [shelf slugs], X post url] per system it's filed under."""
+    p = os.path.join(DATA, "reviews.json")
     out = []
-    for row in re.findall(r"\[(\d+),(\"(?:[^\"\\]|\\.)*\"),(\"(?:[^\"\\]|\\.)*\"),([\d.]+|null)", m.group(1)):
-        out.append([int(row[0]), json.loads(row[1]), json.loads(row[2]),
-                    None if row[3] == "null" else float(row[3])])
+    for r in json.load(open(p, encoding="utf-8")):
+        for s in r["systems"]:
+            out.append([r["n"], r["title"], s, r["score"],
+                        [x["slug"] for x in r["shelf"] if x["system"] == s], r["url"]])
     return out
 
 

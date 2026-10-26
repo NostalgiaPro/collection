@@ -4,7 +4,7 @@
     python3 tools/build_game_pages.py
 
 Reads everything from the site itself (the shelf, beaten and no-ending
-lists in index.html, reviews.html, lists.html) and RC's X posts in
+lists in index.html, tools/data/reviews.json, lists.html) and RC's X posts in
 tools/data/x_posts.json. Safe to run again any time: it rewrites every
 page, deletes pages for games no longer on the shelf, and rewrites the
 game section of sitemap.xml. Run it after changing the shelf, ticking
@@ -94,10 +94,9 @@ def list_mentions(lists, matcher):
 
 def review_for(reviews, matcher):
     out = {}
-    for n, t, s, v in reviews:
-        for g in matcher.match_piece(f"{t} ({s})") or []:
-            if g["system"] == s:
-                out[g["slug"]] = (n, v)
+    for n, t, s, v, slugs, url in reviews:
+        for sl in slugs:
+            out[sl] = (n, v, url)
     return out
 
 
@@ -152,6 +151,8 @@ def page(g, total, photo, review, mentions, posts):
                  f'{review[1]:g} out of 5 &middot; Honest and Unpopular Reviews No. {review[0]}</a></span></li>\n')
     h.append('    </ul>\n    <div class="links">\n')
     h.append(f'      <a href="/index.html?find={esc(_q(g["title"]))}">Find it on the shelf</a>\n')
+    if review:
+        h.append(f'      <a href="{esc(review[2])}" target="_blank" rel="noopener">Read my review on X</a>\n')
     if g.get("video"):
         h.append(f'      <a href="{esc(g["video"])}" target="_blank" rel="noopener">ASMR short on YouTube</a>\n')
     h.append(f'      <a href="https://en.wikipedia.org/w/index.php?search={_q(g["title"] + " video game")}" target="_blank" rel="noopener">Look it up on Wikipedia</a>\n')

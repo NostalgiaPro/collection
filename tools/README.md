@@ -65,6 +65,21 @@ and `[edition]` tags) or one of the short names in `ALIASES`. Posts about
 movies, music or TV and tier-list replies are skipped. If a post that
 should show up doesn't, add its short name to `ALIASES`.
 
+## `build_reviews.py`: Honest and Unpopular Reviews
+
+```
+python3 tools/build_reviews.py && python3 tools/build_game_pages.py
+```
+
+Builds `reviews.html` from `tools/data/reviews.json`: every numbered review
+from X with the full post text (word for word), the score, the date
+(America/Phoenix), the photo from the post (600px .webp in `images/reviews/`),
+a "Read on X" link and links to the game pages. Newest first, with sorting by
+number, rating or title and a console filter. It also rewrites `REVIEWED` in
+`index.html` and `REVIEWS` in `lists.html` so the shelf and list badges match.
+Game pages read the same JSON, so re-run `build_game_pages.py` after it.
+Nothing is fetched.
+
 ## `build_digital.py`: digital games I've beaten
 
 ```
