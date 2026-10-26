@@ -98,3 +98,32 @@ from each card on `consoles.html`). Each page has:
     the same six games people name."
   - consoles with 12 games or fewer just list everything.
   The page says which rule was used and lists what was left out.
+
+## `import_x_rankings.py`: rankings from X onto `lists.html`
+
+```
+python3 tools/import_x_rankings.py new_posts.json      # add any new ranking posts
+python3 tools/import_x_rankings.py --dry-run new.json  # show what would change, change nothing
+python3 tools/build_game_pages.py                      # so game pages show the new list spots
+```
+
+`new_posts.json` is a list of RC's posts as `{"id", "created_at", "text"}`
+(X API v2 shape is fine: `note_tweet.text` and `referenced_tweets` are
+understood), plus `"reply_to"` for replies in his own threads. The posts
+are merged into `tools/data/x_posts.json` (also used by the game pages), so
+a thread posted across two runs still comes together.
+
+New lists go into `lists.html` just above the
+`imported from X by tools/import_x_rankings.py` line, with the post's date
+and a "View on X" link. Names and order are kept exactly as posted.
+
+It's safe to run every day. `tools/data/x_rankings_imported.json` holds:
+
+* `imported`: post id -> title of every list it added
+* `on_page`: post ids whose list was already on `lists.html` (skipped)
+* `rejected`: post ids never to import (add one here after deleting a
+  wrong list from `lists.html`, or it comes back on the next run)
+* `titles`: post id -> a title to use instead of the one read off the post
+
+The exact detection rules and the known ways it can get one wrong are at
+the top of the script.

@@ -155,7 +155,7 @@ def page(g, total, photo, review, mentions, posts):
     if mentions:
         h.append('\n<p class="barlabel">ON MY LISTS</p>\n<ul class="mentions">\n')
         for lt, pos, label in mentions:
-            lab = label if not label.isdigit() else f"No. {label}"
+            lab = (f"No. {label}" if label.isdigit() else f"{label} tier" if len(label) == 1 else label)
             h.append(f'  <li><a href="/lists.html#game={_q(g["title"])}"><em>{esc(lab)}</em>{esc(lt)}</a></li>\n')
         h.append('</ul>\n')
     if posts:

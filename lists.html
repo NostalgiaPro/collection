@@ -127,7 +127,12 @@
     flex:none;width:30px;font-family:"Press Start 2P",monospace;
     font-size:11px;color:var(--dim);
   }
+  .rank.lab{width:46px;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase}
   ol.picks li.top .rank{color:var(--hot)}
+  .posted{margin:8px 0 0;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);
+    display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .posted a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:3px 8px}
+  .posted a:hover{border-color:var(--hot);color:var(--hot)}
   .pick{flex:1;min-width:0;font-size:15px}
   .pick a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
   .pick a:hover,.pick a:focus-visible{border-bottom-color:var(--c);outline:none}
@@ -566,16 +571,394 @@ const LISTS = [
       ["WWF WrestleMania 2000","Nintendo 64"],
       ["Donkey Kong 64","Nintendo 64"]
     ]
-  }
+  },
+  {
+    title:"My Top 5 James Bond Movies",
+    kind:"Ranked · 5 · movies",
+    snub:"",
+    date:"2026-08-09",
+    xid:"2086684246165647696",
+    solo:true,
+    picks:[
+      ["Skyfall", null],
+      ["Goldeneye", null],
+      ["Die Another Day", null],
+      ["Dr. No", null],
+      ["Tomorrow Never Dies", null]
+    ]
+  },
+  {
+    title:"Best and Worst Games I own: 1985",
+    kind:"Best and worst",
+    snub:"",
+    date:"2026-08-25",
+    xid:"2092456257563267470",
+    picks:[
+      ["Super Mario Bros.", "NES", "Best"],
+      ["Pinball", "NES", "Worst"]
+    ]
+  },
+  {
+    title:"Best and Worst Games I own: 1987",
+    kind:"Best and worst",
+    snub:"",
+    date:"2026-08-26",
+    xid:"2092757014279778609",
+    picks:[
+      ["The Legend of Zelda", "NES", "Best"],
+      ["Ikari Warriors", "NES", "Worst"]
+    ]
+  },
+  {
+    title:"Best and Worst Games I own: 1988",
+    kind:"Best and worst",
+    snub:"",
+    date:"2026-08-27",
+    xid:"2093116031623741833",
+    picks:[
+      ["Contra", "NES", "Best"],
+      ["Rambo", "NES", "Worst"]
+    ]
+  },
+  {
+    title:"Best and Worst Games I own: 1989",
+    kind:"Best and worst",
+    snub:"",
+    date:"2026-08-28",
+    xid:"2093530839317623276",
+    picks:[
+      ["Tetris", "NES", "Best"],
+      ["Friday the 13th", "NES", "Worst"]
+    ]
+  },
+  {
+    title:"Best and Worst Games I own: 1990",
+    kind:"Best and worst",
+    snub:"",
+    date:"2026-08-30",
+    xid:"2094188068387582141",
+    picks:[
+      ["Batman The Video Game", "NES", "Best"],
+      ["Mad Max", "NES", "Worst"]
+    ]
+  },
+  {
+    title:"Best and Worst Games I own: 1991",
+    kind:"Best and worst",
+    snub:"",
+    date:"2026-08-31",
+    xid:"2094617172572299678",
+    picks:[
+      ["Super Mario World", "SNES", "Best"],
+      ["Bill & Ted's Excellent Video Game Adventure", "NES", "Worst"]
+    ]
+  },
+  {
+    title:"Best and Worst Games I own: 1992",
+    kind:"Best and worst",
+    snub:"",
+    date:"2026-09-01",
+    xid:"2094938823667183698",
+    picks:[
+      ["Street Fighter II", "SNES", "Best"],
+      ["The Great Waldo Search", "NES", "Worst"]
+    ]
+  },
+  {
+    title:"Top 3 video game franchises",
+    kind:"Ranked · 3 · franchises",
+    snub:"",
+    date:"2026-09-02",
+    xid:"2095355729268146266",
+    solo:true,
+    picks:[
+      ["Mario", null],
+      ["Halo", null],
+      ["Metal Gear", null]
+    ]
+  },
+  {
+    title:"Best and Worst Games I own: 1993",
+    kind:"Best and worst",
+    snub:"",
+    date:"2026-09-06",
+    xid:"2096664169118613973",
+    picks:[
+      ["Street Fighter II Turbo", "SNES", "Best"],
+      ["Mario is Missing!", "SNES", "Worst"]
+    ]
+  },
+  {
+    title:"Best and Worst Games I own: 1994",
+    kind:"Best and worst",
+    snub:"",
+    date:"2026-09-07",
+    xid:"2097156193143960044",
+    picks:[
+      ["Spider-Man & Venom: Maximum Carnage", "SNES", "Best"],
+      ["Rise of the Robots", "SNES", "Worst"]
+    ]
+  },
+  {
+    title:"Best and Worst Games I own: 1995",
+    kind:"Best and worst",
+    snub:"",
+    date:"2026-09-09",
+    xid:"2097805082272424380",
+    picks:[
+      ["Super Mario World 2: Yoshi's Island", "SNES", "Best"],
+      ["Batman Forever", "SNES", "Worst"]
+    ]
+  },
+  {
+    title:"Best and Worst Games I own: 1996",
+    kind:"Best and worst",
+    snub:"",
+    date:"2026-09-13",
+    xid:"2099352753843875989",
+    picks:[
+      ["Wave Race 64", "Nintendo 64", "Best"],
+      ["NBA Jam Extreme", "PlayStation 1", "Worst"]
+    ]
+  },
+  {
+    title:"Best and Worst Games I own: 1997",
+    kind:"Best and worst",
+    snub:"",
+    date:"2026-09-14",
+    xid:"2099686464321921119",
+    picks:[
+      ["GoldenEye 007", "Nintendo 64", "Best"],
+      ["Madden Football 64", "Nintendo 64", "Worst"]
+    ]
+  },
+  {
+    title:"Top 5 GameCube games",
+    kind:"Ranked · 5",
+    snub:"",
+    date:"2026-09-14",
+    xid:"2099713695538622860",
+    picks:[
+      ["Metroid Prime", "GameCube"],
+      ["Star Fox Adventures", "GameCube"],
+      ["Mario Kart: Double Dash", "GameCube"],
+      ["Metal Gear Solid: The Twin Snakes", "GameCube"],
+      ["Super Smash Bros. Melee", "GameCube"]
+    ]
+  },
+  {
+    title:"Best and Worst Games I own: 1998",
+    kind:"Best and worst",
+    snub:"",
+    date:"2026-09-15",
+    xid:"2099926471578161402",
+    picks:[
+      ["Metal Gear Solid", "PlayStation 1", "Best"],
+      ["Batman & Robin", "PlayStation 1", "Worst"]
+    ]
+  },
+  {
+    title:"Best and Worst Games I own: 1999",
+    kind:"Best and worst",
+    snub:"",
+    date:"2026-09-18",
+    xid:"2101141459596632157",
+    picks:[
+      ["Star Wars Episode I: Racer", "Nintendo 64", "Best"],
+      ["Superman: The New Superman Adventures", "Nintendo 64", "Worst"]
+    ]
+  },
+  {
+    title:"Best and Worst Games I own: 2000",
+    kind:"Best and worst",
+    snub:"",
+    date:"2026-09-24",
+    xid:"2103193166484783188",
+    picks:[
+      ["Perfect Dark", "Nintendo 64", "Best"],
+      ["Q*bert", "Game Boy Color", "Worst"]
+    ]
+  },
+  {
+    title:"Ten best X-Men action games ever made",
+    kind:"Ranked · 10",
+    snub:"",
+    date:"2026-09-27",
+    xid:"2104365641541333385",
+    picks:[
+      ["X-Men Legends II: Rise of Apocalypse", "Xbox"],
+      ["X-Men Legends", "Xbox"],
+      ["X-Men Origins: Wolverine", ["Xbox 360", "PlayStation 3"]],
+      ["X-Men 2: Clone Wars", "Sega Genesis"],
+      ["X-Men", "Sega Genesis"],
+      ["X-Men: Mutant Apocalypse", "SNES"],
+      ["X2: Wolverine's Revenge", "GameCube"],
+      ["Spider-Man & X-Men: Arcade's Revenge", "SNES"],
+      ["Wolverine: Adamantium Rage", "Sega Genesis"],
+      ["Uncanny X-Men", "NES"]
+    ]
+  },
+  {
+    title:"My top 4 N64 games",
+    kind:"Ranked · 4",
+    snub:"",
+    date:"2026-09-29",
+    xid:"2105017146099327007",
+    picks:[
+      ["Wave Race 64", "Nintendo 64"],
+      ["Perfect Dark", "Nintendo 64"],
+      ["Star Wars Episode I: Racer", "Nintendo 64"],
+      ["1080° Snowboarding", "Nintendo 64"]
+    ]
+  },
+  {
+    title:"I decided to make a tier ranking based on the NES games I own",
+    kind:"Tier list · 113",
+    snub:"",
+    date:"2026-10-07",
+    xid:"2107912713603330477",
+    picks:[
+      ["Adventures of Lolo", "NES", "S"],
+      ["Adventures of Lolo 2", "NES", "S"],
+      ["Batman: The Video Game", "NES", "S"],
+      ["Chip 'n Dale: Rescue Rangers", "NES", "S"],
+      ["Conquest of the Crystal Palace", "NES", "S"],
+      ["Contra", "NES", "S"],
+      ["Double Dragon II: The Revenge", "NES", "S"],
+      ["Excitebike", "NES", "S"],
+      ["Galaga", "NES", "S"],
+      ["Kirby's Adventure", "NES", "S"],
+      ["Zelda II: The Adventure of Link", "NES", "S"],
+      ["Mike Tyson's Punch-Out!!", "NES", "S"],
+      ["Punch-Out!!", "NES", "S"],
+      ["Paperboy", "NES", "S"],
+      ["Popeye", "NES", "S"],
+      ["R.C. Pro-Am", "NES", "S"],
+      ["River City Ransom", "NES", "S"],
+      ["Super Mario Bros.", "NES", "S"],
+      ["Super Mario Bros. 2", "NES", "S"],
+      ["Super Mario Bros. 3", "NES", "S"],
+      ["Tecmo Super Bowl", "NES", "S"],
+      ["Teenage Mutant Ninja Turtles", "NES", "S"],
+      ["Teenage Mutant Ninja Turtles II: The Arcade Game", "NES", "S"],
+      ["Tetris", "NES", "S"],
+      ["Uncanny X-Men", "NES", "S"],
+      ["Super C", "NES", "S"],
+      ["Adventure Island", "NES", "A"],
+      ["Adventure Island II", "NES", "A"],
+      ["Airwolf", "NES", "A"],
+      ["Captain Skyhawk", "NES", "A"],
+      ["Crystalis", "NES", "A"],
+      ["Double Dragon", "NES", "A"],
+      ["Dr. Mario", "NES", "A"],
+      ["Final Fantasy", "NES", "A"],
+      ["The Legend of Zelda", "NES", "A"],
+      ["Mega Man 2", "NES", "A"],
+      ["Mega Man 6", "NES", "A"],
+      ["Metal Gear", "NES", "A"],
+      ["Snake's Revenge", "NES", "A"],
+      ["NARC", "NES", "A"],
+      ["Ninja Gaiden III: The Ancient Ship of Doom", "NES", "A"],
+      ["RoboCop", "NES", "A"],
+      ["Skate or Die", "NES", "A"],
+      ["Sky Shark", "NES", "A"],
+      ["Star Wars", "NES", "A"],
+      ["The Empire Strikes Back", "NES", "A"],
+      ["Top Gun", "NES", "A"],
+      ["Top Gun: The Second Mission", "NES", "A"],
+      ["Wrecking Crew", "NES", "A"],
+      ["Town & Country Surf Designs: Wood & Water Rage", "NES", "A"],
+      ["WWF WrestleMania", "NES", "A"],
+      ["Duck Hunt", "NES", "A"],
+      ["World Class Track Meet", "NES", "A"],
+      ["Wizards & Warriors", "NES", "A"],
+      ["The Adventures of Bayou Billy", "NES", "B"],
+      ["Adventures of Tom Sawyer", "NES", "B"],
+      ["Bad Dudes", "NES", "B"],
+      ["Bugs Bunny Birthday Blowout", "NES", "B"],
+      ["Captain America and the Avengers", "NES", "B"],
+      ["Chessmaster", "NES", "B"],
+      ["Dragon Warrior", "NES", "B"],
+      ["Dragon Warrior II", "NES", "B"],
+      ["The Hunt for Red October", "NES", "B"],
+      ["Ikari Warriors", "NES", "B"],
+      ["Ikari Warriors II: Victory Road", "NES", "B"],
+      ["Jack Nicklaus' Greatest 18 Holes of Major Championship Golf", "NES", "B"],
+      ["Knight Rider", "NES", "B"],
+      ["Mission: Impossible", "NES", "B"],
+      ["Platoon", "NES", "B"],
+      ["The Punisher", "NES", "B"],
+      ["RoboCop 2", "NES", "B"],
+      ["Time Lord", "NES", "B"],
+      ["Track & Field", "NES", "B"],
+      ["Operation Wolf", "NES", "B"],
+      ["Capcom's Gold Medal Challenge '92", "NES", "C"],
+      ["Cybernoid: The Fighting Machine", "NES", "C"],
+      ["Defender II", "NES", "C"],
+      ["Dirty Harry", "NES", "C"],
+      ["Fester's Quest", "NES", "C"],
+      ["Super Off Road", "NES", "C"],
+      ["Major League Baseball", "NES", "C"],
+      ["Pinball", "NES", "C"],
+      ["Rambo", "NES", "C"],
+      ["Roger Clemens' MVP Baseball", "NES", "C"],
+      ["Spot: The Video Game", "NES", "C"],
+      ["Spy vs. Spy", "NES", "C"],
+      ["Star Trek: The Next Generation", "NES", "C"],
+      ["Stealth ATF", "NES", "C"],
+      ["Gyromite", "NES", "C"],
+      ["Wheel of Fortune", "NES", "C"],
+      ["Xenophobe", "NES", "C"],
+      ["Yo! Noid", "NES", "C"],
+      ["Hogan's Alley", "NES", "C"],
+      ["The Simpsons: Bart vs. the Space Mutants", "NES", "C"],
+      ["Beetlejuice", "NES", "D"],
+      ["Dick Tracy", "NES", "D"],
+      ["The Great Waldo Search", "NES", "D"],
+      ["Infiltrator", "NES", "D"],
+      ["John Elway's Quarterback", "NES", "D"],
+      ["The Karate Kid", "NES", "D"],
+      ["Terminator 2: Judgment Day", "NES", "D"],
+      ["Total Recall", "NES", "D"],
+      ["Who Framed Roger Rabbit", "NES", "D"],
+      ["F tier:", "NES", "D"],
+      ["The Adventures of Dino Riki", "NES", "D"],
+      ["The Adventures of Gilligan's Island", "NES", "D"],
+      ["Bill & Ted's Excellent Video Game Adventure", "NES", "D"],
+      ["Friday the 13th", "NES", "D"],
+      ["Indiana Jones and the Temple of Doom", "NES", "D"],
+      ["Jaws", "NES", "D"],
+      ["Mad Max", "NES", "D"],
+      ["Robin Hood: Prince of Thieves", "NES", "D"],
+      ["Predator", "NES", "D"]
+    ]
+  },
+  {
+    title:"2004 was a good year for gaming. My top 3",
+    kind:"Ranked · 3",
+    snub:"",
+    date:"2026-10-22",
+    xid:"2113334831677632899",
+    picks:[
+      ["Halo 2", "Xbox"],
+      ["Metal Gear Solid 3", null],
+      ["X-Men Legends", "Xbox"]
+    ]
+  },
+  /* ---- imported from X by tools/import_x_rankings.py; newer ones are added above this line ---- */
 ];
 
 /* ---- cross-cut ---- */
+/* A third entry on a pick is a label shown instead of the rank number:
+   "Best"/"Worst" or a tier letter. Worst picks and tier placements aren't
+   counted as "showing up" on a list. */
+const counts = p => !p[2] || p[2] === "Best";
 const seen = new Map();
 /* He counts Street Fighter II and Turbo as the same game, so they count once. */
 const SAME = { "Street Fighter II Turbo":"Street Fighter II" };
 for (const L of LISTS) {
   if (L.solo) continue;            /* trilogies and hardware aren't single games */
-  L.picks.forEach(([t]) => { if (t) { const k = SAME[t]||t; seen.set(k,(seen.get(k)||0)+1); } });
+  L.picks.forEach(p => { const t = p[0]; if (t && counts(p)) { const k = SAME[t]||t; seen.set(k,(seen.get(k)||0)+1); } });
 }
 const multi = [...seen].filter(([,n]) => n>1).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
 const max = multi.length ? multi[0][1] : 1;
@@ -638,6 +1021,9 @@ function setFocus(name){
   bar.scrollIntoView({block:"start", behavior:"smooth"});
 }
 
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const postedOn = d => { const [y,m,dd] = d.split("-"); return `${MONTHS[+m-1]} ${+dd}, ${y}`; };
+
 function draw(sys){
   curSys = sys;
   const shown = focus
@@ -645,25 +1031,27 @@ function draw(sys){
     : LISTS;
   document.getElementById("lists").innerHTML = shown.map(L => {
     const hit = sys==="all" || L.picks.some(([,c]) => asList(c).includes(sys));
-    const rows = L.picks.map(([t,c],i) => {
+    const rows = L.picks.map(([t,c,lab],i) => {
       const cs = asList(c);
       const off = sys!=="all" && !cs.includes(sys);
       const r = L.solo ? null : REV.get(nrm(t));
       const href = r ? `reviews.html#r-${r.n}` : `index.html?find=${encodeURIComponent(t)}`;
       const isHit = focus && sameAs(t) === focus;
       return `<li class="${i===0?"top":""}${off?" off":""}${isHit?" hit":""}" style="--c:${COLORS[cs[0]]||"#7b8294"}">
-        <span class="rank">${i+1}</span>
+        <span class="rank${lab && lab.length > 1 ? " lab" : ""}">${lab||i+1}</span>
         <span class="pick"><a href="${href}">${t}</a>${
           r ? `<a class="sc" href="reviews.html#r-${r.n}">${r.v}/5</a>` : ""
         }${
           (!focus && !L.solo && NLISTS.get(sameAs(t)) > 1)
             ? `<a class="also" href="#game=${encodeURIComponent(sameAs(t))}">${NLISTS.get(sameAs(t))} lists</a>` : ""
         }</span>
-        ${isHit ? `<span class="placing">No. ${i+1}</span>` : ""}
+        ${isHit ? `<span class="placing">${lab ? lab : "No. " + (i+1)}</span>` : ""}
         <span class="on">${cs.join(" / ")}</span></li>`;
     }).join("");
     return `<section class="list${hit?"":" dim"}">
       <div class="listhead"><h2>${L.title}</h2><span class="kind">${L.kind}</span></div>
+      ${L.date||L.xid?`<p class="posted">${L.date?`Posted ${postedOn(L.date)}`:""}${
+        L.xid?`<a href="https://x.com/NostalgiaPro/status/${L.xid}" target="_blank" rel="noopener">View on X</a>`:""}</p>`:""}
       ${L.snub?`<p class="snub">${L.snub}</p>`:""}
       <ol class="picks">${rows}</ol>
     </section>`;
@@ -674,7 +1062,7 @@ function draw(sys){
 const NLISTS = new Map();
 for (const L of LISTS) {
   if (L.solo) continue;
-  L.picks.forEach(([t]) => { const k=sameAs(t); NLISTS.set(k,(NLISTS.get(k)||0)+1); });
+  L.picks.forEach(p => { if (!counts(p)) return; const k=sameAs(p[0]); NLISTS.set(k,(NLISTS.get(k)||0)+1); });
 }
 
 let curSys = "all";
