@@ -145,7 +145,24 @@
   }
   .titles small{font-size:12px;color:var(--dim)}
   .pip{white-space:nowrap}
-  .pip.has.dig{background:transparent;border:2px solid var(--c);color:var(--c)}
+  /* digital: hollow cyan pip (shape differs from the filled owned pip and the dashed missing one) */
+  .pip.dig{--dig:#5ccfe6;background:rgba(92,207,230,.10);border:2px solid var(--dig);color:var(--dig);box-shadow:inset 0 0 0 2px #171a23}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .ditem{display:inline-block;vertical-align:top;line-height:1.35}
+  .dtag{display:block;font-style:normal;font-family:"Silkscreen",monospace;font-size:9.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:#5ccfe6}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:22px 0 0;font-family:"Silkscreen",monospace;font-size:11px;
+    letter-spacing:.05em;color:var(--dim)}
+  .legend span{display:inline-flex;align-items:center;gap:8px}
+  .legend .pip{min-width:0;width:18px;height:18px;padding:0}
+  body.y1996 .pip{border-radius:0;font-family:"Courier New",monospace}
+  body.y1996 .pip.dig{background:#000040;border:2px solid #00ffff;box-shadow:none;color:#00ffff}
+  body.y1996 .run .pip.dig::after{content:" [digital]";font-size:11px;margin-left:4px}
+  body.y1996 .dtag{font-family:"Courier New",monospace;font-size:12px;text-transform:lowercase;letter-spacing:0;color:#00ffff}
+  body.y1996 .dtag::before{content:"["}
+  body.y1996 .dtag::after{content:"]"}
+  body.y1996 .legend{font-family:"Courier New",monospace;color:#c0c0c0}
+  body.y1996 .legend .pip.dig{background:#000040}
   .want.done{color:var(--dim)}
   .note b{color:var(--text);font-weight:600}
   header{margin-bottom:26px}
@@ -180,14 +197,14 @@
     <div class="score"><b>8</b><span>series</span></div>
     <div class="score"><b>14</b><span>games missing</span></div>
     <div class="score"><b>29</b><span>on the shelf</span></div>
-    <div class="score"><b>11*</b><span>digital</span></div>
+    <div class="score"><b>11</b><span>digital</span></div>
   </div>
 </header>
 
 <div class="gap" style="--c:#8ec63f">
   <h2>Battlefield</h2>
-  <div class="run"><span class="pip has">2</span><span class="pip has">3</span><span class="pip has">4</span><span class="pip has dig" title="Digital">V*</span><span class="pip has">6</span></div>
-  <p class="titles"><b>Battlefield 2</b> <span>PC</span> &middot; <b>Battlefield 3 [Limited Edition]</b> <span>Xbox 360</span> &middot; <b>Battlefield 4: China Rising Expansion Pack</b> <span>Xbox 360</span> &middot; <b>Battlefield V*</b> <span>Xbox One</span> &middot; <b>Battlefield 6</b> <span>Xbox Series X/S</span></p>
+  <div class="run"><span class="pip has">2</span><span class="pip has">3</span><span class="pip has">4</span><span class="pip dig" title="Digital"><span class="sr">Digital: </span>V</span><span class="pip has">6</span></div>
+  <p class="titles"><b>Battlefield 2</b> <span>PC</span> &middot; <b>Battlefield 3 [Limited Edition]</b> <span>Xbox 360</span> &middot; <b>Battlefield 4: China Rising Expansion Pack</b> <span>Xbox 360</span> &middot; <span class="ditem"><b>Battlefield V</b> <span>Xbox One</span><i class="dtag">Digital</i></span> &middot; <b>Battlefield 6</b> <span>Xbox Series X/S</span></p>
   <p class="want done">Complete, counting digital.</p>
 </div><div class="gap" style="--c:#a9b0c4">
   <h2>Gran Turismo</h2>
@@ -196,8 +213,8 @@
   <p class="want">Missing: Gran Turismo 4</p>
 </div><div class="gap" style="--c:#e04a3c">
   <h2>Streets of Rage</h2>
-  <div class="run"><span class="pip has">1</span><span class="pip has">2</span><span class="pip has dig" title="Digital">3*</span><span class="pip has">4</span></div>
-  <p class="titles"><b>Streets of Rage</b> <span>Sega Genesis</span> &middot; <b>Streets of Rage 2</b> <span>Sega Genesis</span> &middot; <b>Streets of Rage 3*</b> <span>Xbox, in SEGA Genesis Classics and Sega Vintage Collection: Streets of Rage</span> &middot; <b>Streets of Rage 4: Anniversary Edition</b> <span>PlayStation 4</span></p>
+  <div class="run"><span class="pip has">1</span><span class="pip has">2</span><span class="pip dig" title="Digital"><span class="sr">Digital: </span>3</span><span class="pip has">4</span></div>
+  <p class="titles"><b>Streets of Rage</b> <span>Sega Genesis</span> &middot; <b>Streets of Rage 2</b> <span>Sega Genesis</span> &middot; <span class="ditem"><b>Streets of Rage 3</b> <span>Xbox, in SEGA Genesis Classics and Sega Vintage Collection: Streets of Rage</span><i class="dtag">Digital</i></span> &middot; <b>Streets of Rage 4: Anniversary Edition</b> <span>PlayStation 4</span></p>
   <p class="want done">Complete, counting digital.</p>
 </div><div class="gap" style="--c:#f2793f">
   <h2>Unreal Tournament</h2>
@@ -206,18 +223,18 @@
   <p class="want">Missing: Unreal Tournament 2003, Unreal Tournament 2004</p>
 </div><div class="gap" style="--c:#4a63c9">
   <h2>Virtua Fighter</h2>
-  <div class="run"><span class="pip has">2</span><span class="pip gone">3</span><span class="pip has">4</span><span class="pip has dig" title="Digital">5*</span></div>
-  <p class="titles"><b>Virtua Fighter 2</b> <span>Sega Saturn</span> &middot; <b>Virtua Fighter 4</b> <span>PlayStation 2</span> &middot; <b>Virtua Fighter 5 Final Showdown*</b> <span>Xbox 360</span></p>
+  <div class="run"><span class="pip has">2</span><span class="pip gone">3</span><span class="pip has">4</span><span class="pip dig" title="Digital"><span class="sr">Digital: </span>5</span></div>
+  <p class="titles"><b>Virtua Fighter 2</b> <span>Sega Saturn</span> &middot; <b>Virtua Fighter 4</b> <span>PlayStation 2</span> &middot; <span class="ditem"><b>Virtua Fighter 5 Final Showdown</b> <span>Xbox 360</span><i class="dtag">Digital</i></span></p>
   <p class="want">Missing: Virtua Fighter 3</p>
 </div><div class="gap" style="--c:#d3d0c8">
   <h2>Final Fantasy</h2>
-  <div class="run"><span class="pip has">1</span><span class="pip has">2</span><span class="pip has">3</span><span class="pip has">7</span><span class="pip has">8</span><span class="pip has">9</span><span class="pip gone">10</span><span class="pip gone">11</span><span class="pip gone">12</span><span class="pip has dig" title="Digital">13*</span><span class="pip gone">14</span><span class="pip has dig" title="Digital">15*</span></div>
-  <p class="titles"><b>Final Fantasy</b> <span>NES</span> &middot; <b>Final Fantasy II</b> <span>SNES</span> &middot; <b>Final Fantasy III</b> <span>SNES</span> &middot; <b>Final Fantasy VII</b> <span>PlayStation 1</span> &middot; <b>Final Fantasy VIII</b> <span>PlayStation 1</span> &middot; <b>Final Fantasy IX [Greatest Hits]</b> <span>PlayStation 1</span> &middot; <b>Final Fantasy XIII*</b> <span>Xbox 360</span> &middot; <b>Final Fantasy XV*</b> <span>Xbox One</span></p>
+  <div class="run"><span class="pip has">1</span><span class="pip has">2</span><span class="pip has">3</span><span class="pip has">7</span><span class="pip has">8</span><span class="pip has">9</span><span class="pip gone">10</span><span class="pip gone">11</span><span class="pip gone">12</span><span class="pip dig" title="Digital"><span class="sr">Digital: </span>13</span><span class="pip gone">14</span><span class="pip dig" title="Digital"><span class="sr">Digital: </span>15</span></div>
+  <p class="titles"><b>Final Fantasy</b> <span>NES</span> &middot; <b>Final Fantasy II</b> <span>SNES</span> &middot; <b>Final Fantasy III</b> <span>SNES</span> &middot; <b>Final Fantasy VII</b> <span>PlayStation 1</span> &middot; <b>Final Fantasy VIII</b> <span>PlayStation 1</span> &middot; <b>Final Fantasy IX [Greatest Hits]</b> <span>PlayStation 1</span> &middot; <span class="ditem"><b>Final Fantasy XIII</b> <span>Xbox 360</span><i class="dtag">Digital</i></span> &middot; <span class="ditem"><b>Final Fantasy XV</b> <span>Xbox One</span><i class="dtag">Digital</i></span></p>
   <p class="want">Missing: Final Fantasy X, Final Fantasy XI, Final Fantasy XII, Final Fantasy XIV</p>
 </div><div class="gap" style="--c:#d3d0c8">
   <h2>Mega Man</h2>
-  <div class="run"><span class="pip has dig" title="Digital">1*</span><span class="pip has">2</span><span class="pip has dig" title="Digital">3*</span><span class="pip has dig" title="Digital">4*</span><span class="pip has dig" title="Digital">5*</span><span class="pip has">6</span><span class="pip gone">7</span><span class="pip gone">8</span><span class="pip gone">9</span><span class="pip has dig" title="Digital">10*</span><span class="pip has dig" title="Digital">11*</span></div>
-  <p class="titles"><b>Mega Man 2</b> <span>NES</span> &middot; <b>Mega Man 6</b> <span>NES</span> &middot; <b>Mega Man*, Mega Man 3*, Mega Man 4*, Mega Man 5*</b> <span>Xbox One, in Mega Man Legacy Collection</span> &middot; <b>Mega Man 10*</b> <span>Xbox 360</span> &middot; <b>Mega Man 11*</b> <span>Xbox One</span></p>
+  <div class="run"><span class="pip dig" title="Digital"><span class="sr">Digital: </span>1</span><span class="pip has">2</span><span class="pip dig" title="Digital"><span class="sr">Digital: </span>3</span><span class="pip dig" title="Digital"><span class="sr">Digital: </span>4</span><span class="pip dig" title="Digital"><span class="sr">Digital: </span>5</span><span class="pip has">6</span><span class="pip gone">7</span><span class="pip gone">8</span><span class="pip gone">9</span><span class="pip dig" title="Digital"><span class="sr">Digital: </span>10</span><span class="pip dig" title="Digital"><span class="sr">Digital: </span>11</span></div>
+  <p class="titles"><b>Mega Man 2</b> <span>NES</span> &middot; <b>Mega Man 6</b> <span>NES</span> &middot; <span class="ditem"><b>Mega Man, Mega Man 3, Mega Man 4, Mega Man 5</b> <span>Xbox One, in Mega Man Legacy Collection</span><i class="dtag">Digital</i></span> &middot; <span class="ditem"><b>Mega Man 10</b> <span>Xbox 360</span><i class="dtag">Digital</i></span> &middot; <span class="ditem"><b>Mega Man 11</b> <span>Xbox One</span><i class="dtag">Digital</i></span></p>
   <p class="want">Missing: Mega Man 7, Mega Man 8, Mega Man 9</p>
 </div><div class="gap" style="--c:#8ec63f">
   <h2>Tiger Woods PGA Tour</h2>
@@ -226,8 +243,8 @@
   <p class="want">Missing: Tiger Woods PGA Tour 07, Tiger Woods PGA Tour 09, Tiger Woods PGA Tour 10</p>
 </div>
 
-<p class="note"><b>* Digital.</b> On my Xbox, not on the shelf. A digital copy fills its spot
-in the run, so it isn't counted as missing.</p>
+<p class="legend"><span><i class="pip has" style="--c:#d3d0c8"></i>Owned</span><span><i class="pip dig"></i>Digital, on my Xbox</span><span><i class="pip gone"></i>Missing</span></p>
+<p class="note">A digital copy fills its spot in the run, so it isn't counted as missing.</p>
 
 <p class="note">Worked out from the numbering on the boxes, so it only catches numbered
 sequels. A series that switched to subtitles part way through, like Mortal Kombat after 3,
