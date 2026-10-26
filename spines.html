@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Every game on my shelf as a row of spines, by console. Pull one out to see my copy.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro: Spine shelf">
+<meta property="og:description" content="Every game on my shelf as a row of spines, by console. Pull one out to see my copy.">
+<meta property="og:url" content="https://thenostalgiapro.com/spines.html">
+<meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Nostalgia Pro: Spine shelf">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro: Spine shelf">
+<meta name="twitter:description" content="Every game on my shelf as a row of spines, by console. Pull one out to see my copy.">
+<meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
+<link rel="canonical" href="https://thenostalgiapro.com/spines.html">
+<title>The Nostalgia Pro: Spine shelf</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/retro.css">
+<link rel="stylesheet" href="/themes.css">
+<script src="/theme.js"></script>
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:1220px;margin:0 auto;padding:0 22px 90px}
+  header{padding:44px 0 0}
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  .wordmark a{color:inherit;text-decoration:none}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;text-decoration:none;
+    border:2px solid var(--line);color:var(--dim);
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+  .barlabel{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:34px 0 10px}
+  .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:64ch}
+  .xpost{
+    margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);
+    border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:14px 18px;
+  }
+  .xpost blockquote{margin:0;white-space:pre-line;font-size:15px}
+  .xpost .meta{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0 0;
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);
+  }
+  .xpost .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .xpost .meta a:hover{border-color:var(--hot);color:var(--hot)}
+  .sbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;cursor:pointer;
+    background:transparent;color:var(--text);border:2px solid var(--line);border-radius:2px;
+    font-family:"Silkscreen",monospace;font-weight:700;font-size:12px;letter-spacing:.06em;padding:11px 16px}
+  .sbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .sbtn:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .sbtn.hot{background:var(--hot);border-color:var(--hot);color:#12070a}
+  .sbtn.hot:hover{background:transparent;color:var(--hot)}
+  .sbtn[disabled]{opacity:.4;cursor:default}
+  .panel{margin:30px 0 0;background:var(--bg2);border:1px solid var(--line);border-radius:2px;padding:16px 18px}
+  .panel>h2{font-family:"Press Start 2P",monospace;font-size:12px;line-height:1.6;margin:0 0 14px}
+  footer{margin:56px 0 0;padding:22px 0 0;border-top:1px solid var(--line)}
+  .elsewhere{display:flex;flex-wrap:wrap;gap:10px}
+  .elsewhere a{color:var(--dim);text-decoration:none;border:1px solid var(--line);font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;padding:8px 12px;border-radius:2px}
+  .elsewhere a:hover{border-color:var(--hot);color:var(--hot)}
+  select.sel{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.04em;background:#0a0c11;color:var(--text);
+    border:2px solid var(--line);border-radius:2px;padding:9px 8px;max-width:100%}
+  select.sel:focus{outline:none;border-color:var(--hot)}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:24px 0 0}
+  .bar label{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;color:var(--dim);display:flex;gap:8px;align-items:center}
+  .bar .tally{margin-left:auto;font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.06em;color:var(--dim)}
+  .bar .tally b{color:var(--hot)}
+  .shelfrow{margin:26px 0 0;content-visibility:auto;contain-intrinsic-size:auto 260px}
+  .shelfrow h2{font-family:"Press Start 2P",monospace;font-size:11px;line-height:1.6;margin:0 0 10px;display:flex;gap:10px;align-items:center}
+  .shelfrow h2 i{display:inline-block;width:12px;height:12px;background:var(--sc)}
+  .shelfrow h2 small{font-family:"Silkscreen",monospace;font-size:10px;color:var(--dim);font-weight:400;letter-spacing:.06em}
+  .plank{display:flex;flex-wrap:wrap;align-items:flex-end;gap:3px 2px;padding:14px 10px 0;background:linear-gradient(#0a0c11,#0d0f15);
+    border:1px solid var(--line);border-bottom:none;position:relative}
+  .plank::after{content:"";flex-basis:100%;height:0}
+  .plank-edge{height:12px;background:linear-gradient(#3a3226,#241f18);border:1px solid #4a4032;border-top-color:#5a4e3c}
+  .sp{all:unset;box-sizing:border-box;cursor:pointer;width:30px;height:var(--h,176px);margin-bottom:0;
+    background:linear-gradient(90deg,rgba(255,255,255,.06),rgba(255,255,255,0) 30%,rgba(0,0,0,.25)),var(--panel);
+    border:1px solid #000;border-top:12px solid var(--sc);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;transition:transform .18s}
+  .sp span{writing-mode:vertical-rl;transform:rotate(180deg);font-family:"IBM Plex Sans",sans-serif;font-weight:600;font-size:11.5px;
+    line-height:1;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-height:calc(var(--h,176px) - 22px)}
+  .sp:hover{transform:translateY(-6px)}
+  .sp:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .sp.out{transform:translateY(-22px);box-shadow:0 0 0 2px var(--hot)}
+  .sp.cib{background:linear-gradient(90deg,rgba(255,255,255,.07),rgba(255,255,255,0) 30%,rgba(0,0,0,.3)),#20232d}
+  .sp.loose{width:24px;--h:120px}
+  .none{color:var(--dim);margin:30px 0 0}
+  /* pulled-out card */
+  .pull{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,6,10,.72)}
+  .pull[hidden]{display:none}
+  .card{position:relative;width:min(560px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--bg2);border:1px solid var(--line);
+    border-top:6px solid var(--sc,var(--hot));border-radius:2px;display:grid;grid-template-columns:200px 1fr;gap:18px;padding:18px;
+    animation:pullIn .22s ease-out}
+  @keyframes pullIn{from{transform:translateY(30px) rotate(-2deg);opacity:0}to{transform:none;opacity:1}}
+  .card .ph{background:#0a0c11;border:1px solid var(--line);aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .card .ph img{width:100%;height:100%;object-fit:cover;display:block}
+  .card .ph p{font-family:"Silkscreen",monospace;font-size:10px;color:var(--dim);text-align:center;padding:10px}
+  .card h3{font-family:"Press Start 2P",monospace;font-size:13px;line-height:1.6;margin:0 0 10px;padding-right:28px}
+  .card dl{margin:0;font-size:14px}
+  .card dl div{display:flex;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
+  .card dt{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);min-width:72px;padding-top:3px}
+  .card dd{margin:0}
+  .card .links{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+  .card .x{all:unset;cursor:pointer;position:absolute;top:10px;right:12px;font-family:"Silkscreen",monospace;font-size:18px;color:var(--dim);padding:4px 6px}
+  .card .x:hover,.card .x:focus-visible{color:var(--hot)}
+  @media (max-width:560px){
+    .card{grid-template-columns:1fr;gap:14px}
+    .card .ph{max-width:220px;margin:0 auto;width:100%}
+    .sp{width:26px}
+  }
+  @media (prefers-reduced-motion:reduce){.sp,.card{transition:none;animation:none}.sp:hover,.sp.out{transform:none}}
+  /* weekly roundup signup: a plain form that opens Substack's own subscribe page (no embed, no popups) */
+  .npsub{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin:16px 0 0;padding:12px 14px;
+    background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--hot);border-radius:4px}
+  .npsub-txt{flex:1 1 280px;min-width:0;margin:0;font-size:14.5px;line-height:1.4;color:var(--dim)}
+  .npsub-txt b{display:block;font-family:"Silkscreen",monospace;font-weight:700;font-size:12px;letter-spacing:.08em;color:var(--text);margin:0 0 3px}
+  .npsub-row{flex:1 1 300px;display:flex;gap:8px;min-width:0}
+  .npsub input{flex:1 1 auto;min-width:0;background:#0a0c11;border:2px solid var(--line);color:var(--text);
+    font-family:"IBM Plex Sans",sans-serif;font-size:16px;padding:9px 11px;border-radius:2px}
+  .npsub input::placeholder{color:#565c6e}
+  .npsub input:focus{outline:none;border-color:var(--hot);box-shadow:0 0 0 3px rgba(255,75,62,.18)}
+  .npsub button{flex:none;cursor:pointer;background:var(--hot);border:2px solid var(--hot);color:#12070a;border-radius:2px;
+    font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;letter-spacing:.06em;padding:9px 14px}
+  .npsub button:hover{background:transparent;color:var(--hot)}
+  .npsub button:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .npsub-note{flex:1 1 100%;margin:0;font-size:12px;color:var(--dim)}
+  .npsub-note a{color:var(--dim)}
+  footer .npsub{margin:0 0 18px}
+  body.y1996 .npsub{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0}
+  body.y1996 .npsub-txt,body.y1996 .npsub-txt b,body.y1996 .npsub-note{color:#000;font-family:"Times New Roman",Times,serif}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>
+  <h1>Spine shelf</h1>
+  <p class="standfirst">Every game on my shelf as a spine, sorted by console. Pick one to pull it out and see my copy.</p>
+  <div class="navrow">
+    <a class="navbtn" href="/index.html">The shelf</a>
+    <a class="navbtn" href="/digital.html">Digital</a>
+    <a class="navbtn" href="/reviews.html">Reviews</a>
+    <a class="navbtn" href="/lists.html">Lists</a>
+    <a class="navbtn" href="/rankings.html">Rankings</a>
+    <a class="navbtn" href="/overrated.html">Overrated</a>
+    <a class="navbtn" href="/rank.html">Rank games</a>
+    <a class="navbtn" href="/daily.html">Daily Shelf</a>
+    <a class="navbtn" href="/match.html">Shelf vs. Mine</a>
+    <a class="navbtn" href="/first.html">Which Came First?</a>
+    <a class="navbtn" href="/streaks.html">Streaks &amp; badges</a>
+    <a class="navbtn here" href="/spines.html">Spine shelf</a>
+    <a class="navbtn" href="/tonight.html">Play tonight</a>
+    <a class="navbtn" href="/anniversaries.html">Anniversaries</a>
+    <a class="navbtn" href="/onthisday.html">On this day</a>
+    <a class="navbtn" href="/consoles.html">Consoles</a>
+    <a class="navbtn" href="/gaps.html">The gaps</a>
+    <a class="navbtn" href="/stats.html">The numbers</a>
+  </div>
+</header>
+
+<main>
+  <div class="bar">
+    <label>Console <select class="sel" id="con" aria-label="Filter by console"><option value="">All consoles</option></select></label>
+    <label>Sort <select class="sel" id="sort" aria-label="Sort"><option value="t">A to Z</option><option value="y">Year</option></select></label>
+    <span class="tally" id="tally"></span>
+  </div>
+  <div id="shelf"><p class="none">Loading the shelf...</p></div>
+  <p class="none" style="font-size:13px">Short spines are loose carts and discs. Photos only load when you pull a game out.</p>
+</main>
+
+<div class="pull" id="pull" hidden>
+  <div class="card" id="card" role="dialog" aria-modal="true" aria-labelledby="cT"></div>
+</div>
+
+<footer>
+  <form class="npsub" action="https://nostalgiapro.substack.com/subscribe" method="get" target="_blank"><p class="npsub-txt"><b>Get the weekly roundup.</b>Every review and ranking I post, once a week, free.</p><div class="npsub-row"><input type="email" name="email" required placeholder="Your email" autocomplete="email" aria-label="Your email address"><button type="submit">Subscribe</button></div><p class="npsub-note">Opens my Substack in a new tab to confirm.</p></form>
+  <div class="elsewhere">
+    <a href="https://x.com/NostalgiaPro" target="_blank" rel="noopener">X / Twitter</a>
+    <a href="https://www.youtube.com/@TheNostalgiaPro" target="_blank" rel="noopener">YouTube</a>
+    <a href="https://substack.com/@nostalgiapro" target="_blank" rel="noopener">Substack</a>
+    <a href="/daily.html">Daily Shelf</a>
+    <a href="/first.html">Which Came First?</a>
+    <a href="/match.html">Shelf vs. Mine</a>
+  </div>
+</footer>
+
+</div>
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  let SYS = [], GAMES = [], open = null;
+  /* a stable spine height per game so the shelf looks lived in */
+  const hgt = k => { let h = 0; for (const ch of k) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return 160 + (h % 5) * 8; };
+
+  function render(){
+    const con = $("con").value, by = $("sort").value;
+    const list = GAMES.filter(g => con === "" || g.s === +con);
+    const groups = new Map();
+    list.forEach(g => { if (!groups.has(g.s)) groups.set(g.s, []); groups.get(g.s).push(g); });
+    const out = [];
+    [...groups.keys()].sort((a, b) => a - b).forEach(si => {
+      const gs = groups.get(si).sort(by === "y"
+        ? (a, b) => (a.y || 9999) - (b.y || 9999) || a.d.localeCompare(b.d)
+        : (a, b) => a.d.localeCompare(b.d));
+      const sc = SYS[si].c;
+      out.push(`<section class="shelfrow" style="--sc:${sc};contain-intrinsic-size:auto ${Math.ceil(gs.length / 26) * 200 + 60}px">
+        <h2><i></i>${esc(SYS[si].n)} <small>${gs.length}</small></h2>
+        <div class="plank">${gs.map(g => {
+          const loose = g.c === "loose";
+          return `<button class="sp${loose ? " loose" : " cib"}" data-k="${g.n}" style="${loose ? "" : `--h:${hgt(g.k)}px`}" aria-label="${esc(g.d)}${g.y ? ", " + g.y : ""}" title="${esc(g.d)}"><span>${esc(g.d)}</span></button>`;
+        }).join("")}</div><div class="plank-edge"></div></section>`);
+    });
+    $("shelf").innerHTML = out.join("") || `<p class="none">Nothing here.</p>`;
+    $("tally").innerHTML = `<b>${list.length}</b> games`;
+  }
+
+  function pull(btn){
+    const g = GAMES[+btn.dataset.k], sc = SYS[g.s].c;
+    if (open) open.classList.remove("out");
+    open = btn; btn.classList.add("out");
+    const links = [];
+    if (g.p) links.push(`<a class="sbtn hot" href="/game/${g.k}.html">Game page</a>`);
+    if (g.rv) links.push(`<a class="sbtn" href="/reviews.html#r-${g.rv}">Read my review</a>`);
+    $("card").style.setProperty("--sc", sc);
+    $("card").innerHTML = `<button class="x" id="x" aria-label="Put it back">&times;</button>
+      <div class="ph">${g.ph ? `<img src="/${g.i}" alt="My copy of ${esc(g.d)}" decoding="async">` : `<p>No photo of my copy yet</p>`}</div>
+      <div><h3 id="cT">${esc(g.d)}</h3>
+        <dl><div><dt>Console</dt><dd>${esc(SYS[g.s].n)}</dd></div>
+        <div><dt>Year</dt><dd>${g.y || "Not listed"}</dd></div>
+        <div><dt>Copy</dt><dd>${esc(g.c)}</dd></div>
+        ${g.g ? `<div><dt>Genre</dt><dd>${esc(g.g)}</dd></div>` : ""}</dl>
+        <div class="links">${links.join("")}</div></div>`;
+    $("pull").hidden = false;
+    $("x").focus();
+    $("x").onclick = close;
+  }
+  function close(){
+    $("pull").hidden = true;
+    if (open) { open.classList.remove("out"); open.focus(); open = null; }
+  }
+  $("pull").addEventListener("click", e => { if (e.target === $("pull")) close(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("pull").hidden) close(); });
+  $("shelf").addEventListener("click", e => { const b = e.target.closest(".sp"); if (b) pull(b); });
+
+  fetch("/data/shelf-games.json").then(r => r.json()).then(d => {
+    SYS = d.systems; GAMES = d.games.map((g, n) => Object.assign({ n }, g));
+    const counts = {}; GAMES.forEach(g => counts[g.s] = (counts[g.s] || 0) + 1);
+    $("con").insertAdjacentHTML("beforeend", SYS.map((s, i) => counts[i] ? `<option value="${i}">${esc(s.n)} (${counts[i]})</option>` : "").join(""));
+    const q = new URLSearchParams(location.search).get("console");
+    if (q) { const i = SYS.findIndex(s => s.n.toLowerCase() === q.toLowerCase()); if (i >= 0 && counts[i]) $("con").value = i; }
+    $("con").onchange = () => {
+      const u = new URL(location.href);
+      if ($("con").value) u.searchParams.set("console", SYS[+$("con").value].n); else u.searchParams.delete("console");
+      history.replaceState(null, "", u); render();
+    };
+    $("sort").onchange = render;
+    render();
+  }).catch(() => { $("shelf").innerHTML = `<p class="none">Couldn't load the shelf. Try again in a moment.</p>`; });
+})();
+</script>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
+<script>
+/* 1996 mode. The class does all the work, retro.css does the rest. */
+(function(){
+  var on = false;
+  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
+  if (on) document.body.classList.add("y1996");
+
+  var b = document.createElement("button");
+  b.id = "y1996btn";
+  b.type = "button";
+  b.textContent = on ? "Back to now" : "1996 mode";
+  b.addEventListener("click", function(){
+    var nowOn = document.body.classList.toggle("y1996");
+    b.textContent = nowOn ? "Back to now" : "1996 mode";
+    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
+  });
+
+  var foot = document.querySelector("footer") || document.querySelector(".wrap");
+  var wrap = document.createElement("p");
+  wrap.style.cssText = "text-align:center;margin:18px 0 0";
+  wrap.appendChild(b);
+  foot.appendChild(wrap);
+
+})();
+
+/* Back to top. Appears once you've scrolled far enough to want it. */
+(function(){
+  var b = document.createElement("button");
+  b.id = "totop";
+  b.type = "button";
+  b.setAttribute("aria-label", "Back to top");
+  b.innerHTML = "&#9650;";
+  b.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.body.appendChild(b);
+
+  function check(){ b.classList.toggle("on", window.scrollY > 600); }
+  addEventListener("scroll", check, { passive: true });
+  check();
+})();
+</script>
+</body>
+</html>

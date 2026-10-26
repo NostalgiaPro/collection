@@ -29,6 +29,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/retro.css">
+<link rel="stylesheet" href="/themes.css">
+<script src="/theme.js"></script>
 <style>
   :root{
     --bg:#101219; --bg2:#171a23; --panel:#1d2029;
@@ -227,6 +229,9 @@
     <a class="navbtn here" href="/daily.html">Daily Shelf</a>
     <a class="navbtn" href="/match.html">Shelf vs. Mine</a>
     <a class="navbtn" href="/first.html">Which Came First?</a>
+    <a class="navbtn" href="/streaks.html">Streaks &amp; badges</a>
+    <a class="navbtn" href="/spines.html">Spine shelf</a>
+    <a class="navbtn" href="/tonight.html">Play tonight</a>
     <a class="navbtn" href="/anniversaries.html">Anniversaries</a>
     <a class="navbtn" href="/onthisday.html">On this day</a>
     <a class="navbtn" href="/consoles.html">Consoles</a>
@@ -296,6 +301,7 @@
 
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="/np-progress.js"></script>
 <script>
 /* Daily Shelf. Everything comes from two static files written by
    tools/build_daily.py: data/daily.json (the schedule, one game per day from
@@ -455,6 +461,7 @@
     else if (r.g.length >= MAX) { r.done = true; }
     if (r.done) r.at = Date.now();
     save();
+    if (r.done && window.NPProgress) NPProgress.check();
     $("guess").value = ""; closeAC();
     say(r.done ? "" : k === "" ? "Skipped. The picture just got a little sharper." : "Nope. Look closer.");
     render(); renderStats(); renderArchive();
@@ -547,6 +554,7 @@
       </div>
       ${CUR === TODAY ? `<p class="next">Next game in<b id="cd">--:--:--</b></p>` : `<p class="next"><a href="daily.html" style="color:inherit">Play today's game</a></p>`}
       ${CUR === TODAY ? `<p class="next">Also today: <a href="first.html" style="color:var(--text)">Which Came First?</a></p>` : ""}
+      <p class="next"><a href="streaks.html" style="color:var(--text)">Your streaks and badges</a></p>
       ${SIGNUP_HTML}
     </div>`;
   }

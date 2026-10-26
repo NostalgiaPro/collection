@@ -5,7 +5,7 @@
 Writes two files:
 
 * data/shelf-games.json  every game on the shelf (title, system, condition,
-  photo, release year, beaten, genre, game page), read by match.html and
+  photo, release year, beaten, genre, game page, review number), read by match.html and
   daily.html. Same source as everything else: the RAW block in index.html.
 * data/daily.json        the Daily Shelf schedule: one game per day, starting
   at EPOCH (day #1). Only games with a real photo of my copy are used.
@@ -30,6 +30,13 @@ import sitedata as sd
 
 EPOCH = "2026-10-26"          # Daily Shelf #1. Change only before launch.
 SEED = 19851018               # fixed; changing it reshuffles everything
+
+# Hand-picked days. Only future days can be pinned (past days and today are
+# frozen). The pinned game swaps places with whatever day it was already on,
+# so exactly two days change and every other day stays put.
+PINS = {
+    "2026-10-31": "friday-the-13th-nes",   # Halloween: Friday the 13th (NES)
+}
 AZ = timezone(timedelta(hours=-7))   # Arizona: no daylight saving time
 
 ROOT = sd.ROOT
@@ -76,6 +83,10 @@ def build_games():
     systems, games = sd.load_shelf()
     sys_list = [{"n": s["name"], "c": s["color"]} for s in systems]
     sidx = {s["name"]: i for i, s in enumerate(systems)}
+    reviewed = {}
+    for n, _t, _s, _score, slugs, _url in sd.load_reviews():
+        for k in slugs:
+            reviewed.setdefault(k, n)
     out = []
     for g in games:
         p = sd.photo_for(g["slug"])
@@ -92,6 +103,7 @@ def build_games():
             "b": bool(g["beaten"]),
             "g": g.get("genre"),
             "p": os.path.exists(os.path.join(ROOT, "game", g["slug"] + ".html")),
+            "rv": reviewed.get(g["slug"]),                 # review number on reviews.html (#r-N)
         })
     return {"systems": sys_list, "games": out}
 
@@ -126,6 +138,20 @@ def extend(sched, upto):
     return sched
 
 
+def apply_pins(sched, today_idx):
+    days = sched["days"]
+    for d, slug in sorted(PINS.items()):
+        i = day_index(date.fromisoformat(d))
+        if i <= today_idx or i >= len(days) or days[i] == slug or slug not in sched["pool"]:
+            continue
+        if slug in days[today_idx + 1:]:
+            j = days.index(slug, today_idx + 1)
+            days[i], days[j] = days[j], days[i]
+        else:
+            days[i] = slug
+    return sched
+
+
 def main():
     data = build_games()
     os.makedirs(os.path.dirname(OUT_GAMES), exist_ok=True)
@@ -137,6 +163,7 @@ def main():
         with open(OUT_DAILY, encoding="utf-8") as f:
             old = json.load(f)
     sched = extend(build_schedule(data, old), day_index(az_today()) + 366)
+    sched = apply_pins(sched, day_index(az_today()))
     with open(OUT_DAILY, "w", encoding="utf-8") as f:
         json.dump(sched, f, ensure_ascii=False, separators=(",", ":"))
         f.write("\n")

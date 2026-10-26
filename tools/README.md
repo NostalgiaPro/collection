@@ -261,6 +261,16 @@ reshuffles everything). If the launch moves to a later date, change `EPOCH`
 in `build_daily.py` and the matching `EPOCH` in the small "Homepage tiles"
 script near the bottom of `index.html`, then re-run.
 
+**Pinned days (`PINS` in `build_daily.py`):** a date can be given a set
+game, e.g. `"2026-10-31": "friday-the-13th-nes"` for Halloween. Pins only
+apply to future days. The pinned game swaps places with whatever day it was
+already on, so every other date keeps its game. Round 3 pinned Oct 31, 2026
+to Friday the 13th (NES); it swapped with Minority Report: Everybody Runs,
+which moved from Oct 31 (#6) to 2027-07-07 (#255). Nothing else moved.
+
+`shelf-games.json` also has `rv`: the review number on `reviews.html`
+(`/reviews.html#r-N`) for games I've reviewed, else null.
+
 Note: the answers are in a public JSON file, as they have to be on a static
 site. Anyone determined to cheat can; it's an honour system like every other
 daily guessing game.
@@ -350,3 +360,62 @@ same code and block size as the game (`BLOCKS[0]` is read from
 `daily.html`), scaled to 900x1200 with hard pixel edges, plus a small
 "DAILY SHELF #N" label. It prints only the puzzle number and the file path,
 never the answer. Same Playwright requirement as `otd_card.py`.
+
+## Seasonal themes (`data/themes.json`, `themes.css`, `theme.js`)
+
+Every page that loads `/retro.css` also loads `/themes.css` and `/theme.js`
+(`pagekit.head()` adds them to generated pages). `theme.js` works out
+today's date in Arizona time, picks the first theme in `data/themes.json`
+whose `start`..`end` window (MM-DD, inclusive, can wrap past New Year) has
+today in it, and sets `<html data-theme="...">`. No match means the normal
+look. The choice is cached per day in localStorage (`np-theme-v1`) so the
+colours are applied before the page paints.
+
+* Halloween, 10-26 to 10-31: orange and purple, a slow flicker on the
+  headline, and a homepage row of horror games from the shelf (the list is
+  in `themes.json`). Friday the 13th is left out of that row on purpose
+  because it's the Oct 31 Daily Shelf answer.
+* Autumn, 11-01 to 11-30: autumn colours and a homepage strip for Planes,
+  Trains and Automobiles (1987) with original pixel art (plane, train,
+  station wagon, drawn in `theme.js` as SVG, no stills or logos) plus the
+  photographed 1987 games on the shelf. Thanksgiving week (the Sunday before
+  through the Saturday after the 4th Thursday) adds a pie and changes the
+  label to "Thanksgiving week".
+
+Preview any theme on any page with `?theme=<id>` (`?theme=autumn`,
+`?theme=halloween`, `?theme=default`). Animations are off for
+`prefers-reduced-motion`.
+
+**Adding a season (e.g. December):** add an entry to `themes` in
+`data/themes.json` (`id`, `name`, `start`, `end`, optional `strip`), add an
+`html[data-theme="<id>"]` block to `themes.css` that overrides the colour
+variables, and if it needs its own homepage strip add a branch for its id in
+`strip()` in `theme.js`. The homepage strip goes in `<div id="themeSlot">`.
+Bump the `sw.js` cache version when you ship it.
+
+## Streaks & badges (`streaks.html`, `np-progress.js`)
+
+`np-progress.js` reads what the three games already store (`np-daily-v1`,
+`np-first-v1`, `np-match-v1`), works out current and best streaks, and keeps
+unlocked badges in `np-badges-v1`. Daily Shelf, Which Came First? and Shelf
+vs. Mine call `NPProgress.check()` when something finishes; a new badge
+shows a small toast that links to `/streaks.html`. Badges are defined in the
+`BADGES` list at the top of the file (name, description, 9x9 pixel icon,
+test). All of it stays in the browser.
+
+## Spine shelf (`spines.html`) and Play tonight (`tonight.html`)
+
+Both read `data/shelf-games.json`. The spine shelf draws every game as a
+spine by console (filter with `?console=NES`); photos only load when a spine
+is pulled out. Play tonight spins a reel over photographed games, filtered
+by console and decade; with reduced motion it shows the pick straight away.
+(`shelf.html` "Virtual shelf" and `stats.html` "The numbers" are older,
+separate pages.)
+
+## Latest YouTube video (homepage)
+
+A click-to-play box under the homepage links. Nothing loads from YouTube
+until it's pressed; then it embeds the channel's uploads playlist from
+youtube-nocookie.com: `embed/videoseries?list=UUdHnuHu3XbvwJhgM5r5ZgIA`
+(channel `UCdHnuHu3XbvwJhgM5r5ZgIA`, @TheNostalgiaPro). The uploads list is
+always newest first, so it needs no updating. Shorts count as uploads too.

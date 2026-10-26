@@ -7,6 +7,7 @@ import site_config as cfg
 NAV = [("/index.html", "The shelf"), ("/digital.html", "Digital"), ("/reviews.html", "Reviews"), ("/lists.html", "Lists"),
        ("/rankings.html", "Rankings"), ("/overrated.html", "Overrated"),
        ("/rank.html", "Rank games"), ("/daily.html", "Daily Shelf"), ("/match.html", "Shelf vs. Mine"), ("/first.html", "Which Came First?"),
+       ("/streaks.html", "Streaks &amp; badges"), ("/spines.html", "Spine shelf"), ("/tonight.html", "Play tonight"),
        ("/anniversaries.html", "Anniversaries"),
        ("/onthisday.html", "On this day"),
        ("/consoles.html", "Consoles"), ("/gaps.html", "The gaps"), ("/stats.html", "The numbers")]
@@ -94,6 +95,8 @@ def head(title, desc, path, image=None, width="900px", css="", image_alt=None):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/retro.css">
+<link rel="stylesheet" href="/themes.css">
+<script src="/theme.js"></script>
 <style>
 {BASE_CSS.replace("WIDTH", width)}{css}</style>
 </head>

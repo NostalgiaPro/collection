@@ -1,0 +1,42 @@
+{
+ "_note": "Seasonal themes. Dates are America/Phoenix, MM-DD, inclusive. The first theme whose window contains today wins; otherwise the default look. Preview any theme with ?theme=<id> (or ?theme=default). To add a season: add an entry here, a html[data-theme=\"<id>\"] block in themes.css, and (optional) a homepage strip branch in strip() in theme.js.",
+ "themes": [
+  {
+   "id": "halloween",
+   "name": "Halloween",
+   "start": "10-26",
+   "end": "10-31",
+   "strip": {
+    "kicker": "Halloween",
+    "title": "From my shelf for Halloween",
+    "games": [
+     "parasite-eve-playstation-1",
+     "parasite-eve-ii-playstation-1",
+     "doom-3-xbox",
+     "doom-3-resurrection-of-evil-xbox",
+     "final-doom-playstation-1",
+     "bram-stoker-s-dracula-snes",
+     "bram-stoker-s-dracula-sega-genesis",
+     "alien-resurrection-playstation-1",
+     "dead-island-game-of-the-year-edition-xbox-360",
+     "bloodrayne-gamecube",
+     "bloodborne-playstation-hits-playstation-4",
+     "luigi-s-mansion-3-nintendo-switch",
+     "beetlejuice-nes",
+     "ghostbusters-sega-master-system"
+    ]
+   }
+  },
+  {
+   "id": "autumn",
+   "name": "Autumn",
+   "start": "11-01",
+   "end": "11-30",
+   "strip": {
+    "kicker": "November",
+    "title": "Planes, Trains and Automobiles (1987)",
+    "year": 1987
+   }
+  }
+ ]
+}

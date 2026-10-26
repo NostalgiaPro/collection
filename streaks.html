@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Your streaks, stats and pixel badges from Daily Shelf, Which Came First? and Shelf vs. Mine. Saved on your device only.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro: Streaks &amp; badges">
+<meta property="og:description" content="Your streaks, stats and pixel badges from Daily Shelf, Which Came First? and Shelf vs. Mine. Saved on your device only.">
+<meta property="og:url" content="https://thenostalgiapro.com/streaks.html">
+<meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Nostalgia Pro: Streaks &amp; badges">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro: Streaks &amp; badges">
+<meta name="twitter:description" content="Your streaks, stats and pixel badges from Daily Shelf, Which Came First? and Shelf vs. Mine. Saved on your device only.">
+<meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
+<link rel="canonical" href="https://thenostalgiapro.com/streaks.html">
+<title>The Nostalgia Pro: Streaks &amp; badges</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/retro.css">
+<link rel="stylesheet" href="/themes.css">
+<script src="/theme.js"></script>
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 22px 90px}
+  header{padding:44px 0 0}
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  .wordmark a{color:inherit;text-decoration:none}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;text-decoration:none;
+    border:2px solid var(--line);color:var(--dim);
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+  .barlabel{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:34px 0 10px}
+  .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:64ch}
+  .xpost{
+    margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);
+    border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:14px 18px;
+  }
+  .xpost blockquote{margin:0;white-space:pre-line;font-size:15px}
+  .xpost .meta{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0 0;
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);
+  }
+  .xpost .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .xpost .meta a:hover{border-color:var(--hot);color:var(--hot)}
+  .sbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;cursor:pointer;
+    background:transparent;color:var(--text);border:2px solid var(--line);border-radius:2px;
+    font-family:"Silkscreen",monospace;font-weight:700;font-size:12px;letter-spacing:.06em;padding:11px 16px}
+  .sbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .sbtn:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .sbtn.hot{background:var(--hot);border-color:var(--hot);color:#12070a}
+  .sbtn.hot:hover{background:transparent;color:var(--hot)}
+  .sbtn[disabled]{opacity:.4;cursor:default}
+  .panel{margin:30px 0 0;background:var(--bg2);border:1px solid var(--line);border-radius:2px;padding:16px 18px}
+  .panel>h2{font-family:"Press Start 2P",monospace;font-size:12px;line-height:1.6;margin:0 0 14px}
+  footer{margin:56px 0 0;padding:22px 0 0;border-top:1px solid var(--line)}
+  .elsewhere{display:flex;flex-wrap:wrap;gap:10px}
+  .elsewhere a{color:var(--dim);text-decoration:none;border:1px solid var(--line);font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;padding:8px 12px;border-radius:2px}
+  .elsewhere a:hover{border-color:var(--hot);color:var(--hot)}
+  select.sel{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.04em;background:#0a0c11;color:var(--text);
+    border:2px solid var(--line);border-radius:2px;padding:9px 8px;max-width:100%}
+  select.sel:focus{outline:none;border-color:var(--hot)}
+  .games3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:26px 0 0}
+  .gcard{background:var(--bg2);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:2px;padding:14px 16px;min-width:0}
+  .gcard h2{font-family:"Press Start 2P",monospace;font-size:11px;line-height:1.6;margin:0 0 12px}
+  .gcard h2 a{color:var(--text);text-decoration:none}
+  .gcard h2 a:hover{color:var(--hot)}
+  .big{display:flex;gap:10px}
+  .big div{flex:1;background:var(--panel);border:1px solid var(--line);padding:10px 8px;text-align:center}
+  .big b{display:block;font-family:"Press Start 2P",monospace;font-size:22px;line-height:1;color:var(--c)}
+  .big span{display:block;margin:8px 0 0;font-family:"Silkscreen",monospace;font-size:9.5px;letter-spacing:.06em;color:var(--dim)}
+  .small{list-style:none;margin:12px 0 0;padding:0;font-size:14px}
+  .small li{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid var(--line)}
+  .small li b{font-family:"Silkscreen",monospace;font-size:12px}
+  .gcard .go{display:inline-block;margin:12px 0 0;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim)}
+  .gcard .go:hover{color:var(--hot)}
+  .count{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.08em;color:var(--dim);margin:0 0 14px}
+  .count b{color:var(--hot)}
+  .badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+  .badge{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:10px 12px;min-width:0}
+  .badge svg{flex:none;image-rendering:pixelated}
+  .badge.locked svg{filter:grayscale(1) brightness(.45)}
+  .badge.locked{opacity:.75}
+  .badge b{display:block;font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em}
+  .badge span{display:block;font-size:13px;color:var(--dim);line-height:1.3;margin:2px 0 0}
+  .badge em{display:block;font-style:normal;font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.06em;color:var(--hot);margin:4px 0 0}
+  .gh{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:18px 0 8px}
+  .gh:first-of-type{margin-top:0}
+  .note2{font-size:13px;color:var(--dim);margin:12px 0 0}
+  @media (max-width:820px){.games3{grid-template-columns:1fr}}
+  @media (max-width:560px){.badges{grid-template-columns:1fr 1fr}.badge{flex-direction:column;align-items:flex-start;gap:8px}}
+  /* weekly roundup signup: a plain form that opens Substack's own subscribe page (no embed, no popups) */
+  .npsub{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin:16px 0 0;padding:12px 14px;
+    background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--hot);border-radius:4px}
+  .npsub-txt{flex:1 1 280px;min-width:0;margin:0;font-size:14.5px;line-height:1.4;color:var(--dim)}
+  .npsub-txt b{display:block;font-family:"Silkscreen",monospace;font-weight:700;font-size:12px;letter-spacing:.08em;color:var(--text);margin:0 0 3px}
+  .npsub-row{flex:1 1 300px;display:flex;gap:8px;min-width:0}
+  .npsub input{flex:1 1 auto;min-width:0;background:#0a0c11;border:2px solid var(--line);color:var(--text);
+    font-family:"IBM Plex Sans",sans-serif;font-size:16px;padding:9px 11px;border-radius:2px}
+  .npsub input::placeholder{color:#565c6e}
+  .npsub input:focus{outline:none;border-color:var(--hot);box-shadow:0 0 0 3px rgba(255,75,62,.18)}
+  .npsub button{flex:none;cursor:pointer;background:var(--hot);border:2px solid var(--hot);color:#12070a;border-radius:2px;
+    font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;letter-spacing:.06em;padding:9px 14px}
+  .npsub button:hover{background:transparent;color:var(--hot)}
+  .npsub button:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .npsub-note{flex:1 1 100%;margin:0;font-size:12px;color:var(--dim)}
+  .npsub-note a{color:var(--dim)}
+  footer .npsub{margin:0 0 18px}
+  body.y1996 .npsub{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0}
+  body.y1996 .npsub-txt,body.y1996 .npsub-txt b,body.y1996 .npsub-note{color:#000;font-family:"Times New Roman",Times,serif}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>
+  <h1>Streaks &amp; badges</h1>
+  <p class="standfirst">Your results from Daily Shelf, Which Came First? and Shelf vs. Mine, in one place. It all lives in this browser on this device. Nothing is sent anywhere.</p>
+  <div class="navrow">
+    <a class="navbtn" href="/index.html">The shelf</a>
+    <a class="navbtn" href="/digital.html">Digital</a>
+    <a class="navbtn" href="/reviews.html">Reviews</a>
+    <a class="navbtn" href="/lists.html">Lists</a>
+    <a class="navbtn" href="/rankings.html">Rankings</a>
+    <a class="navbtn" href="/overrated.html">Overrated</a>
+    <a class="navbtn" href="/rank.html">Rank games</a>
+    <a class="navbtn" href="/daily.html">Daily Shelf</a>
+    <a class="navbtn" href="/match.html">Shelf vs. Mine</a>
+    <a class="navbtn" href="/first.html">Which Came First?</a>
+    <a class="navbtn here" href="/streaks.html">Streaks &amp; badges</a>
+    <a class="navbtn" href="/spines.html">Spine shelf</a>
+    <a class="navbtn" href="/tonight.html">Play tonight</a>
+    <a class="navbtn" href="/anniversaries.html">Anniversaries</a>
+    <a class="navbtn" href="/onthisday.html">On this day</a>
+    <a class="navbtn" href="/consoles.html">Consoles</a>
+    <a class="navbtn" href="/gaps.html">The gaps</a>
+    <a class="navbtn" href="/stats.html">The numbers</a>
+  </div>
+</header>
+
+<main>
+  <div class="games3" id="games3"></div>
+  <section class="panel" aria-labelledby="bH">
+    <h2 id="bH">Badges</h2>
+    <p class="count" id="count"></p>
+    <div id="badges"></div>
+    <p class="note2">Clearing your browser data clears these too.</p>
+  </section>
+</main>
+
+<footer>
+  <form class="npsub" action="https://nostalgiapro.substack.com/subscribe" method="get" target="_blank"><p class="npsub-txt"><b>Get the weekly roundup.</b>Every review and ranking I post, once a week, free.</p><div class="npsub-row"><input type="email" name="email" required placeholder="Your email" autocomplete="email" aria-label="Your email address"><button type="submit">Subscribe</button></div><p class="npsub-note">Opens my Substack in a new tab to confirm.</p></form>
+  <div class="elsewhere">
+    <a href="https://x.com/NostalgiaPro" target="_blank" rel="noopener">X / Twitter</a>
+    <a href="https://www.youtube.com/@TheNostalgiaPro" target="_blank" rel="noopener">YouTube</a>
+    <a href="https://substack.com/@nostalgiapro" target="_blank" rel="noopener">Substack</a>
+    <a href="/daily.html">Daily Shelf</a>
+    <a href="/first.html">Which Came First?</a>
+    <a href="/match.html">Shelf vs. Mine</a>
+  </div>
+</footer>
+
+</div>
+<script src="/np-progress.js"></script>
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const P = window.NPProgress;
+  P.check({ quiet: true });            /* catch up on anything earned before badges existed */
+  const s = P.stats(), got = P.unlocked();
+  const card = (title, href, c, big, rows) => `<section class="gcard" style="--c:${c}">
+      <h2><a href="${href}">${title}</a></h2>
+      <div class="big">${big.map(([b, l]) => `<div><b>${b}</b><span>${l}</span></div>`).join("")}</div>
+      <ul class="small">${rows.map(([l, b]) => `<li><span>${l}</span><b>${b}</b></li>`).join("")}</ul>
+      <a class="go" href="${href}">Play &#9658;</a></section>`;
+  $("games3").innerHTML =
+    card("Daily Shelf", "/daily.html", "#ff4b3e", [[s.daily.cur, "Current streak"], [s.daily.best, "Best streak"]],
+      [["Played", s.daily.played], ["Won", s.daily.wins], ["First-guess wins", s.daily.oneGuess]]) +
+    card("Which Came First?", "/first.html", "#5a8fd6", [[s.first.cur, "Days in a row"], [s.first.bestDays, "Best"]],
+      [["Days played", s.first.played], ["Best run", s.first.best + " / 10"], ["Average run", s.first.avg.toFixed(1)], ["Practice best", s.first.practice]]) +
+    card("Shelf vs. Mine", "/match.html", "#3fbf6a", [[(s.match.pct > 0 && s.match.pct < 1 ? "<1" : Math.round(s.match.pct)) + "%", "Match"], [s.match.owned, "In common"]],
+      [["Whole consoles matched", s.match.full]]);
+  const n = Object.keys(got).length;
+  $("count").innerHTML = `<b>${n}</b> of ${P.BADGES.length} unlocked`;
+  const groups = [...new Set(P.BADGES.map(b => b.game))];
+  $("badges").innerHTML = groups.map(g => `<p class="gh">${g}</p><div class="badges">` +
+    P.BADGES.filter(b => b.game === g).map(b => `<div class="badge ${got[b.id] ? "" : "locked"}">${P.icon(b, 40)}
+      <div><b>${b.name}</b><span>${b.desc}</span>${got[b.id] ? `<em>Unlocked ${got[b.id]}</em>` : ""}</div></div>`).join("") + "</div>").join("");
+})();
+</script>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
+<script>
+/* 1996 mode. The class does all the work, retro.css does the rest. */
+(function(){
+  var on = false;
+  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
+  if (on) document.body.classList.add("y1996");
+
+  var b = document.createElement("button");
+  b.id = "y1996btn";
+  b.type = "button";
+  b.textContent = on ? "Back to now" : "1996 mode";
+  b.addEventListener("click", function(){
+    var nowOn = document.body.classList.toggle("y1996");
+    b.textContent = nowOn ? "Back to now" : "1996 mode";
+    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
+  });
+
+  var foot = document.querySelector("footer") || document.querySelector(".wrap");
+  var wrap = document.createElement("p");
+  wrap.style.cssText = "text-align:center;margin:18px 0 0";
+  wrap.appendChild(b);
+  foot.appendChild(wrap);
+
+})();
+
+/* Back to top. Appears once you've scrolled far enough to want it. */
+(function(){
+  var b = document.createElement("button");
+  b.id = "totop";
+  b.type = "button";
+  b.setAttribute("aria-label", "Back to top");
+  b.innerHTML = "&#9650;";
+  b.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.body.appendChild(b);
+
+  function check(){ b.classList.toggle("on", window.scrollY > 600); }
+  addEventListener("scroll", check, { passive: true });
+  check();
+})();
+</script>
+</body>
+</html>

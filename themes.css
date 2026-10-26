@@ -1,0 +1,88 @@
+/* ===========================================================
+   Seasonal themes. theme.js sets data-theme on <html> from the
+   dates in data/themes.json (Arizona time). Everything here is
+   scoped to html[data-theme="..."], so with no theme the site
+   looks exactly as it always has. Preview: ?theme=halloween
+   =========================================================== */
+
+/* ---------- Halloween ---------- */
+html[data-theme="halloween"]{
+  --bg:#0d0a13; --bg2:#16111e; --panel:#1e1727; --line:#33264a;
+  --text:#efe8dc; --dim:#9d92ad; --hot:#ff7a1a; --ink:#0b0810;
+  --accent2:#9b5de5;
+}
+html[data-theme="halloween"] body{background:var(--bg)}
+html[data-theme="halloween"] body::before{
+  background:
+    radial-gradient(circle at 50% 0%, rgba(155,93,229,.20), transparent 60%),
+    radial-gradient(circle at 85% 100%, rgba(255,122,26,.10), transparent 55%),
+    repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+}
+html[data-theme="halloween"] h1{
+  text-shadow:0 0 22px rgba(255,122,26,.45),0 0 2px rgba(155,93,229,.6);
+  animation:npFlicker 7s steps(1,end) infinite;
+}
+@keyframes npFlicker{
+  0%,100%{opacity:1}
+  92%{opacity:1} 92.6%{opacity:.55} 93.2%{opacity:1} 95%{opacity:.8} 95.4%{opacity:1}
+}
+html[data-theme="halloween"] .navbtn.here,
+html[data-theme="halloween"] .o1 #lucky{color:#140a02}
+html[data-theme="halloween"] .ptile,
+html[data-theme="halloween"] .npsub{border-left-color:var(--hot)}
+html[data-theme="halloween"] .o1-strip::after{
+  background:
+    linear-gradient(90deg,var(--bg) 0,transparent 12%,transparent 88%,var(--bg) 100%),
+    radial-gradient(ellipse at 50% 120%,rgba(255,122,26,.25),transparent 60%),
+    repeating-linear-gradient(to bottom,rgba(0,0,0,.2) 0 1px,transparent 1px 3px);
+}
+
+/* ---------- Autumn / Thanksgiving ---------- */
+html[data-theme="autumn"]{
+  --bg:#14100c; --bg2:#1c1611; --panel:#241c15; --line:#3b2e22;
+  --text:#f0e6d6; --dim:#a8977f; --hot:#e0782f; --ink:#100b07;
+  --accent2:#d9a441;
+}
+html[data-theme="autumn"] body{background:var(--bg)}
+html[data-theme="autumn"] body::before{
+  background:
+    radial-gradient(circle at 50% 0%, rgba(217,164,65,.14), transparent 62%),
+    repeating-linear-gradient(to bottom, rgba(255,255,255,.016) 0 1px, transparent 1px 3px);
+}
+html[data-theme="autumn"] h1{text-shadow:0 0 22px rgba(224,120,47,.35)}
+html[data-theme="autumn"] .navbtn.here{color:#170c04}
+
+/* ---------- the homepage strip (#themeSlot) ---------- */
+.npstrip{margin:18px 0 0;background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--hot);border-radius:4px;padding:14px 16px;overflow:hidden}
+.npstrip[hidden]{display:none}
+.npstrip .k{display:block;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.12em;color:var(--hot);margin:0 0 4px;text-transform:uppercase}
+.npstrip h2{font-family:"Press Start 2P",monospace;font-size:13px;line-height:1.5;margin:0;color:var(--text)}
+.npstrip p.s{margin:6px 0 0;font-size:14px;color:var(--dim)}
+.npstrip .row{display:flex;gap:10px;overflow-x:auto;margin:12px 0 0;padding:0 0 6px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.npstrip .row a{flex:none;width:112px;text-decoration:none;color:var(--text);scroll-snap-align:start}
+.npstrip .row img{display:block;width:112px;height:149px;object-fit:cover;border:1px solid var(--line);border-radius:2px;background:#0a0c11}
+.npstrip .row b{display:block;margin:6px 0 0;font-family:"IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;font-weight:600;font-size:13px;line-height:1.25}
+.npstrip .row span{display:block;font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.05em;color:var(--dim);margin:2px 0 0}
+.npstrip .row a:hover b{color:var(--hot)}
+.npstrip .art{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;margin:12px 0 4px}
+.npstrip .art svg{display:block;height:auto;image-rendering:pixelated}
+.npstrip .art .plane{width:156px;animation:npBob 3.2s ease-in-out infinite}
+.npstrip .art .train{width:228px}
+.npstrip .art .wagon{width:168px}
+.npstrip .art .pie{width:72px}
+@keyframes npBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@media (max-width:560px){
+  .npstrip{padding:12px}
+  .npstrip .art{gap:12px}
+  .npstrip .art .plane{width:110px}
+  .npstrip .art .train{width:160px}
+  .npstrip .art .wagon{width:118px}
+  .npstrip .art .pie{width:52px}
+  .npstrip .row a,.npstrip .row img{width:92px}
+  .npstrip .row img{height:123px}
+}
+@media (prefers-reduced-motion:reduce){
+  html[data-theme] h1{animation:none}
+  .npstrip .art .plane{animation:none}
+}
+body.y1996 .npstrip{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0}

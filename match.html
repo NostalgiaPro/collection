@@ -29,6 +29,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/retro.css">
+<link rel="stylesheet" href="/themes.css">
+<script src="/theme.js"></script>
 <style>
   :root{
     --bg:#101219; --bg2:#171a23; --panel:#1d2029;
@@ -189,6 +191,9 @@
     <a class="navbtn" href="/daily.html">Daily Shelf</a>
     <a class="navbtn here" href="/match.html">Shelf vs. Mine</a>
     <a class="navbtn" href="/first.html">Which Came First?</a>
+    <a class="navbtn" href="/streaks.html">Streaks &amp; badges</a>
+    <a class="navbtn" href="/spines.html">Spine shelf</a>
+    <a class="navbtn" href="/tonight.html">Play tonight</a>
     <a class="navbtn" href="/anniversaries.html">Anniversaries</a>
     <a class="navbtn" href="/onthisday.html">On this day</a>
     <a class="navbtn" href="/consoles.html">Consoles</a>
@@ -246,6 +251,7 @@
 </footer>
 
 </div>
+<script src="/np-progress.js"></script>
 <script>
 /* Shelf vs. Mine. The shelf comes from data/shelf-games.json (written by
    tools/build_daily.py from the RAW block in index.html). What you tick is
@@ -387,6 +393,10 @@
       f("Still to find", `${GAMES.length - c.shared.length} games`, "on my shelf, not on yours")
     ].filter(Boolean).slice(0, 8).join("") : f("Start ticking", "0 games so far", "Search, or open a console and tick what you own") ;
     $("xp").href = "https://x.com/intent/post?text=" + encodeURIComponent(postText(c));
+    if (window.NPProgress) {
+      NPProgress.noteMatch(100 * c.shared.length / GAMES.length, c.full.length);
+      clearTimeout(update.t); update.t = setTimeout(() => NPProgress.check(), 600);
+    }
   }
   function postText(c){
     const top = c.per[0];

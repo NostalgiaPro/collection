@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Spin for a game off my shelf. Pick a console or a decade and see what comes up.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro: Play tonight">
+<meta property="og:description" content="Spin for a game off my shelf. Pick a console or a decade and see what comes up.">
+<meta property="og:url" content="https://thenostalgiapro.com/tonight.html">
+<meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Nostalgia Pro: Play tonight">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro: Play tonight">
+<meta name="twitter:description" content="Spin for a game off my shelf. Pick a console or a decade and see what comes up.">
+<meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
+<link rel="canonical" href="https://thenostalgiapro.com/tonight.html">
+<title>The Nostalgia Pro: Play tonight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/retro.css">
+<link rel="stylesheet" href="/themes.css">
+<script src="/theme.js"></script>
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 22px 90px}
+  header{padding:44px 0 0}
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  .wordmark a{color:inherit;text-decoration:none}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;text-decoration:none;
+    border:2px solid var(--line);color:var(--dim);
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+  .barlabel{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:34px 0 10px}
+  .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:64ch}
+  .xpost{
+    margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);
+    border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:14px 18px;
+  }
+  .xpost blockquote{margin:0;white-space:pre-line;font-size:15px}
+  .xpost .meta{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0 0;
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);
+  }
+  .xpost .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .xpost .meta a:hover{border-color:var(--hot);color:var(--hot)}
+  .sbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;cursor:pointer;
+    background:transparent;color:var(--text);border:2px solid var(--line);border-radius:2px;
+    font-family:"Silkscreen",monospace;font-weight:700;font-size:12px;letter-spacing:.06em;padding:11px 16px}
+  .sbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .sbtn:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .sbtn.hot{background:var(--hot);border-color:var(--hot);color:#12070a}
+  .sbtn.hot:hover{background:transparent;color:var(--hot)}
+  .sbtn[disabled]{opacity:.4;cursor:default}
+  .panel{margin:30px 0 0;background:var(--bg2);border:1px solid var(--line);border-radius:2px;padding:16px 18px}
+  .panel>h2{font-family:"Press Start 2P",monospace;font-size:12px;line-height:1.6;margin:0 0 14px}
+  footer{margin:56px 0 0;padding:22px 0 0;border-top:1px solid var(--line)}
+  .elsewhere{display:flex;flex-wrap:wrap;gap:10px}
+  .elsewhere a{color:var(--dim);text-decoration:none;border:1px solid var(--line);font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;padding:8px 12px;border-radius:2px}
+  .elsewhere a:hover{border-color:var(--hot);color:var(--hot)}
+  select.sel{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.04em;background:#0a0c11;color:var(--text);
+    border:2px solid var(--line);border-radius:2px;padding:9px 8px;max-width:100%}
+  select.sel:focus{outline:none;border-color:var(--hot)}
+  .filters{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:24px 0 0}
+  .filters label{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;color:var(--dim);display:flex;gap:8px;align-items:center}
+  .filters .tally{font-family:"Silkscreen",monospace;font-size:11px;color:var(--dim);letter-spacing:.06em}
+  .filters .tally b{color:var(--hot)}
+  .machine{margin:22px 0 0;background:var(--bg2);border:2px solid var(--line);border-radius:2px;padding:18px}
+  .window{position:relative;height:168px;overflow:hidden;background:#0a0c11;border:2px solid #000;box-shadow:inset 0 0 0 1px var(--line)}
+  .window::before,.window::after{content:"";position:absolute;left:0;right:0;height:56px;z-index:2;pointer-events:none}
+  .window::before{top:0;background:linear-gradient(#0a0c11,rgba(10,12,17,.2))}
+  .window::after{bottom:0;background:linear-gradient(rgba(10,12,17,.2),#0a0c11)}
+  .payline{position:absolute;left:0;right:0;top:56px;height:56px;border-top:2px solid var(--hot);border-bottom:2px solid var(--hot);z-index:3;pointer-events:none}
+  .payline::before,.payline::after{content:"";position:absolute;top:50%;margin-top:-8px;border:8px solid transparent}
+  .payline::before{left:0;border-left-color:var(--hot)}
+  .payline::after{right:0;border-right-color:var(--hot)}
+  .strip{position:absolute;left:0;right:0;top:0;will-change:transform}
+  .cell{height:56px;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 28px;text-align:center;
+    font-family:"Press Start 2P",monospace;font-size:13px;line-height:1.4;white-space:nowrap;overflow:hidden}
+  .cell span{overflow:hidden;text-overflow:ellipsis}
+  .cell i{flex:none;width:10px;height:10px;background:var(--sc)}
+  .go{display:flex;justify-content:center;margin:16px 0 0}
+  .go .sbtn{font-size:14px;padding:14px 30px}
+  .result{margin:22px 0 0;display:grid;grid-template-columns:220px 1fr;gap:20px;background:var(--bg2);border:1px solid var(--line);
+    border-top:6px solid var(--sc,var(--hot));border-radius:2px;padding:18px}
+  .result[hidden]{display:none}
+  .result .ph{aspect-ratio:3/4;background:#0a0c11;border:1px solid var(--line);overflow:hidden}
+  .result .ph img{width:100%;height:100%;object-fit:cover;display:block}
+  .result .k{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--hot);margin:0 0 8px}
+  .result h2{font-family:"Press Start 2P",monospace;font-size:15px;line-height:1.6;margin:0 0 12px}
+  .result p.m{margin:0;color:var(--dim);font-size:15px}
+  .result .links{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
+  .none{color:var(--dim);text-align:center;margin:14px 0 0}
+  @media (max-width:560px){
+    .result{grid-template-columns:1fr}
+    .result .ph{max-width:240px;width:100%;margin:0 auto}
+    .cell{font-size:11px;padding:0 22px}
+  }
+  /* weekly roundup signup: a plain form that opens Substack's own subscribe page (no embed, no popups) */
+  .npsub{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin:16px 0 0;padding:12px 14px;
+    background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--hot);border-radius:4px}
+  .npsub-txt{flex:1 1 280px;min-width:0;margin:0;font-size:14.5px;line-height:1.4;color:var(--dim)}
+  .npsub-txt b{display:block;font-family:"Silkscreen",monospace;font-weight:700;font-size:12px;letter-spacing:.08em;color:var(--text);margin:0 0 3px}
+  .npsub-row{flex:1 1 300px;display:flex;gap:8px;min-width:0}
+  .npsub input{flex:1 1 auto;min-width:0;background:#0a0c11;border:2px solid var(--line);color:var(--text);
+    font-family:"IBM Plex Sans",sans-serif;font-size:16px;padding:9px 11px;border-radius:2px}
+  .npsub input::placeholder{color:#565c6e}
+  .npsub input:focus{outline:none;border-color:var(--hot);box-shadow:0 0 0 3px rgba(255,75,62,.18)}
+  .npsub button{flex:none;cursor:pointer;background:var(--hot);border:2px solid var(--hot);color:#12070a;border-radius:2px;
+    font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;letter-spacing:.06em;padding:9px 14px}
+  .npsub button:hover{background:transparent;color:var(--hot)}
+  .npsub button:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .npsub-note{flex:1 1 100%;margin:0;font-size:12px;color:var(--dim)}
+  .npsub-note a{color:var(--dim)}
+  footer .npsub{margin:0 0 18px}
+  body.y1996 .npsub{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0}
+  body.y1996 .npsub-txt,body.y1996 .npsub-txt b,body.y1996 .npsub-note{color:#000;font-family:"Times New Roman",Times,serif}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>
+  <h1>What should I play tonight?</h1>
+  <p class="standfirst">Spin for a game off my shelf. Narrow it to a console or a decade first if you want.</p>
+  <div class="navrow">
+    <a class="navbtn" href="/index.html">The shelf</a>
+    <a class="navbtn" href="/digital.html">Digital</a>
+    <a class="navbtn" href="/reviews.html">Reviews</a>
+    <a class="navbtn" href="/lists.html">Lists</a>
+    <a class="navbtn" href="/rankings.html">Rankings</a>
+    <a class="navbtn" href="/overrated.html">Overrated</a>
+    <a class="navbtn" href="/rank.html">Rank games</a>
+    <a class="navbtn" href="/daily.html">Daily Shelf</a>
+    <a class="navbtn" href="/match.html">Shelf vs. Mine</a>
+    <a class="navbtn" href="/first.html">Which Came First?</a>
+    <a class="navbtn" href="/streaks.html">Streaks &amp; badges</a>
+    <a class="navbtn" href="/spines.html">Spine shelf</a>
+    <a class="navbtn here" href="/tonight.html">Play tonight</a>
+    <a class="navbtn" href="/anniversaries.html">Anniversaries</a>
+    <a class="navbtn" href="/onthisday.html">On this day</a>
+    <a class="navbtn" href="/consoles.html">Consoles</a>
+    <a class="navbtn" href="/gaps.html">The gaps</a>
+    <a class="navbtn" href="/stats.html">The numbers</a>
+  </div>
+</header>
+
+<main>
+  <div class="filters">
+    <label>Console <select class="sel" id="con"><option value="">Any console</option></select></label>
+    <label>Decade <select class="sel" id="dec"><option value="">Any decade</option></select></label>
+    <span class="tally" id="tally"></span>
+  </div>
+  <div class="machine">
+    <div class="window" aria-hidden="true"><div class="strip" id="strip"></div><div class="payline"></div></div>
+    <div class="go"><button class="sbtn hot" id="spin" type="button">SPIN</button></div>
+    <p class="none" id="none" hidden>No games match those filters.</p>
+  </div>
+  <section class="result" id="result" hidden aria-live="polite"></section>
+</main>
+
+<footer>
+  <form class="npsub" action="https://nostalgiapro.substack.com/subscribe" method="get" target="_blank"><p class="npsub-txt"><b>Get the weekly roundup.</b>Every review and ranking I post, once a week, free.</p><div class="npsub-row"><input type="email" name="email" required placeholder="Your email" autocomplete="email" aria-label="Your email address"><button type="submit">Subscribe</button></div><p class="npsub-note">Opens my Substack in a new tab to confirm.</p></form>
+  <div class="elsewhere">
+    <a href="https://x.com/NostalgiaPro" target="_blank" rel="noopener">X / Twitter</a>
+    <a href="https://www.youtube.com/@TheNostalgiaPro" target="_blank" rel="noopener">YouTube</a>
+    <a href="https://substack.com/@nostalgiapro" target="_blank" rel="noopener">Substack</a>
+    <a href="/daily.html">Daily Shelf</a>
+    <a href="/first.html">Which Came First?</a>
+    <a href="/match.html">Shelf vs. Mine</a>
+  </div>
+</footer>
+
+</div>
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const CELL = 56, SPIN_MS = 2600;
+  const still = matchMedia("(prefers-reduced-motion: reduce)");
+  let SYS = [], GAMES = [], busy = false;
+  const rnd = n => Math.floor(Math.random() * n);
+
+  function pool(){
+    const c = $("con").value, d = $("dec").value;
+    return GAMES.filter(g => (c === "" || g.s === +c) && (d === "" || (g.y && Math.floor(g.y / 10) * 10 === +d)));
+  }
+  const cell = g => `<div class="cell" style="--sc:${SYS[g.s].c}"><i></i><span>${esc(g.d)}</span></div>`;
+  function tally(){
+    const n = pool().length;
+    $("tally").innerHTML = `<b>${n}</b> to pick from`;
+    $("spin").disabled = !n; $("none").hidden = !!n;
+  }
+  function idle(){
+    const p = pool(); if (!p.length) { $("strip").innerHTML = ""; return; }
+    $("strip").style.transition = "none";
+    $("strip").style.transform = "translateY(0)";
+    $("strip").innerHTML = [0, 1, 2].map(() => cell(p[rnd(p.length)])).join("");
+  }
+
+  function show(g){
+    const links = [];
+    if (g.p) links.push(`<a class="sbtn hot" href="/game/${g.k}.html">Game page</a>`);
+    if (g.rv) links.push(`<a class="sbtn" href="/reviews.html#r-${g.rv}">Read my review</a>`);
+    links.push(`<button class="sbtn" id="again" type="button">Spin again</button>`);
+    const r = $("result");
+    r.style.setProperty("--sc", SYS[g.s].c);
+    r.innerHTML = `<div class="ph"><img src="/${g.i}" alt="My copy of ${esc(g.d)}"></div>
+      <div><p class="k">TONIGHT</p><h2>${esc(g.d)}</h2>
+      <p class="m">${esc(SYS[g.s].n)}${g.y ? " &middot; " + g.y : ""}${g.g ? " &middot; " + esc(g.g) : ""}</p>
+      <div class="links">${links.join("")}</div></div>`;
+    r.hidden = false;
+    $("again").onclick = spin;
+  }
+
+  function spin(){
+    if (busy) return;
+    const p = pool(); if (!p.length) return;
+    const pick = p[rnd(p.length)];
+    new Image().src = "/" + pick.i;                        /* start loading the photo during the spin */
+    if (still.matches) { idle(); $("strip").innerHTML = cell(p[rnd(p.length)]) + cell(pick) + cell(p[rnd(p.length)]); show(pick); return; }
+    busy = true; $("spin").disabled = true;
+    const N = 34, cells = [];
+    for (let i = 0; i < N; i++) cells.push(p[rnd(p.length)]);
+    cells.push(pick, p[rnd(p.length)]);                   /* pick sits on the payline (2nd row) at the end */
+    const strip = $("strip");
+    strip.style.transition = "none";
+    strip.style.transform = "translateY(0)";
+    strip.innerHTML = cells.map(cell).join("");
+    strip.offsetHeight;                                    /* restart the transition */
+    strip.style.transition = `transform ${SPIN_MS}ms cubic-bezier(.12,.62,.18,1)`;
+    strip.style.transform = `translateY(${-(N - 1) * CELL}px)`;
+    $("result").hidden = true;
+    setTimeout(() => { busy = false; $("spin").disabled = false; show(pick); }, SPIN_MS + 80);
+  }
+
+  fetch("/data/shelf-games.json").then(r => r.json()).then(d => {
+    SYS = d.systems;
+    GAMES = d.games.filter(g => g.ph);                     /* only games with a photo of my copy */
+    const counts = {}, decs = {};
+    GAMES.forEach(g => { counts[g.s] = (counts[g.s] || 0) + 1; if (g.y) decs[Math.floor(g.y / 10) * 10] = 1; });
+    $("con").insertAdjacentHTML("beforeend", SYS.map((s, i) => counts[i] ? `<option value="${i}">${esc(s.n)}</option>` : "").join(""));
+    $("dec").insertAdjacentHTML("beforeend", Object.keys(decs).sort().map(x => `<option value="${x}">${x}s</option>`).join(""));
+    $("con").onchange = $("dec").onchange = () => { tally(); idle(); };
+    $("spin").onclick = spin;
+    tally(); idle();
+  });
+})();
+</script>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
+<script>
+/* 1996 mode. The class does all the work, retro.css does the rest. */
+(function(){
+  var on = false;
+  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
+  if (on) document.body.classList.add("y1996");
+
+  var b = document.createElement("button");
+  b.id = "y1996btn";
+  b.type = "button";
+  b.textContent = on ? "Back to now" : "1996 mode";
+  b.addEventListener("click", function(){
+    var nowOn = document.body.classList.toggle("y1996");
+    b.textContent = nowOn ? "Back to now" : "1996 mode";
+    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
+  });
+
+  var foot = document.querySelector("footer") || document.querySelector(".wrap");
+  var wrap = document.createElement("p");
+  wrap.style.cssText = "text-align:center;margin:18px 0 0";
+  wrap.appendChild(b);
+  foot.appendChild(wrap);
+
+})();
+
+/* Back to top. Appears once you've scrolled far enough to want it. */
+(function(){
+  var b = document.createElement("button");
+  b.id = "totop";
+  b.type = "button";
+  b.setAttribute("aria-label", "Back to top");
+  b.innerHTML = "&#9650;";
+  b.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.body.appendChild(b);
+
+  function check(){ b.classList.toggle("on", window.scrollY > 600); }
+  addEventListener("scroll", check, { passive: true });
+  check();
+})();
+</script>
+</body>
+</html>

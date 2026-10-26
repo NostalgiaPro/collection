@@ -29,6 +29,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/retro.css">
+<link rel="stylesheet" href="/themes.css">
+<script src="/theme.js"></script>
 <style>
   :root{
     --bg:#101219; --bg2:#171a23; --panel:#1d2029;
@@ -200,6 +202,9 @@
     <a class="navbtn" href="/daily.html">Daily Shelf</a>
     <a class="navbtn" href="/match.html">Shelf vs. Mine</a>
     <a class="navbtn here" href="/first.html">Which Came First?</a>
+    <a class="navbtn" href="/streaks.html">Streaks &amp; badges</a>
+    <a class="navbtn" href="/spines.html">Spine shelf</a>
+    <a class="navbtn" href="/tonight.html">Play tonight</a>
     <a class="navbtn" href="/anniversaries.html">Anniversaries</a>
     <a class="navbtn" href="/onthisday.html">On this day</a>
     <a class="navbtn" href="/consoles.html">Consoles</a>
@@ -253,6 +258,7 @@
 
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="/np-progress.js"></script>
 <script>
 /* Which Came First? Pairs of games off the shelf (data/shelf-games.json,
    written by tools/build_daily.py), only games with a release year on file
@@ -387,6 +393,7 @@
       r.p.push(ok);
       if (!ok || r.p.length >= RUN) { r.done = true; r.at = Date.now(); }
       save();
+      if (r.done && window.NPProgress) NPProgress.check();
       btn = r.done ? `<button type="button" class="sbtn hot" id="nextBtn">See results</button>` : `<button type="button" class="sbtn hot" id="nextBtn">Next pair</button>`;
     } else {
       pracRun.push(ok);
@@ -395,6 +402,7 @@
       if (!ok) S.prac.played++;
       save();
       if ($("pbest")) $("pbest").textContent = S.prac.best;
+      if (window.NPProgress) NPProgress.check();
       btn = ok ? `<button type="button" class="sbtn hot" id="nextBtn">Next pair</button>`
                : `<span class="verdict bad">Streak: ${streak}</span><button type="button" class="sbtn hot" id="againBtn">Go again</button>`;
     }
@@ -439,6 +447,7 @@
         <button type="button" class="sbtn" id="pracBtn">Practice mode</button>
       </div>
       <p class="next">New pairs in<b id="cd">--:--:--</b></p>
+      <p class="next"><a href="streaks.html" style="color:var(--text)">Your streaks and badges</a></p>
       <ol class="recap">${recap}</ol>
     </div>`;
     tick(); renderStats();

@@ -29,6 +29,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/retro.css">
+<link rel="stylesheet" href="/themes.css">
+<script src="/theme.js"></script>
 <style>
   :root{
     --bg:#101219;
@@ -508,6 +510,26 @@ body.y1996 .o1 #lucky{background:#c0c0c0;color:#000;border:2px outset #fff}
 @media (max-width:560px){.o1 .searchbar .btn{padding:13px 6px;font-size:9.5px;letter-spacing:.02em}}
 
 
+/* ===== Latest YouTube upload (click to load) ===== */
+.ytlatest{margin:22px 0 0}
+.ythead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 10px}
+.ythead h2{font-family:"Press Start 2P",monospace;font-size:12px;line-height:1.6;margin:0}
+.ythead a{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.06em;color:var(--dim)}
+.ythead a:hover{color:var(--hot)}
+.ytbox{position:relative;max-width:760px;aspect-ratio:16/9;background:#0a0c11;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.ytbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.ytfacade{all:unset;box-sizing:border-box;cursor:pointer;position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.03) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,#1d2029 0%,#0a0c11 75%)}
+.ytfacade:focus-visible{outline:2px solid var(--hot);outline-offset:-4px}
+.ytbtn{width:76px;height:52px;background:var(--hot);border-radius:2px;position:relative;box-shadow:4px 4px 0 #000;transition:transform .12s}
+.ytbtn::after{content:"";position:absolute;left:30px;top:15px;border-left:20px solid #12070a;border-top:11px solid transparent;border-bottom:11px solid transparent}
+.ytfacade:hover .ytbtn{transform:translate(-2px,-2px)}
+.ytlbl{font-family:"Press Start 2P",monospace;font-size:12px;color:var(--text)}
+.ytnote{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim)}
+@media (prefers-reduced-motion:reduce){.ytbtn{transition:none}}
+body.y1996 .ytbox{border:2px inset #fff;border-radius:0}
+body.y1996 .ythead h2{font-family:"Times New Roman",Times,serif;font-size:20px}
+
 /* ===== Daily Shelf / Shelf vs. Mine tiles ===== */
 .playtiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0 0}
 .ptile{position:relative;display:flex;gap:14px;align-items:center;min-width:0;overflow:hidden;
@@ -731,15 +753,26 @@ body.y1996 .ptile .psub{color:#000}
         <span class="pgo">Play</span>
       </a>
     </div>
+    <div id="themeSlot"></div>
     <form class="npsub" action="https://nostalgiapro.substack.com/subscribe" method="get" target="_blank"><p class="npsub-txt"><b>Get the weekly roundup.</b>Every review and ranking I post, once a week, free.</p><div class="npsub-row"><input type="email" name="email" required placeholder="Your email" autocomplete="email" aria-label="Your email address"><button type="submit">Subscribe</button></div><p class="npsub-note">Opens my Substack in a new tab to confirm.</p></form>
 
     <div class="sitenav o1-nav">
-      <div class="o1-group"><span class="o1-lbl">Games</span><div class="o1-links"><a class="shelflink o1-pill" href="shelf.html">Virtual shelf</a><a class="shelflink o1-pill" href="digital.html">Digital</a><a class="shelflink o1-pill" href="consoles.html">Consoles</a><a class="shelflink o1-pill" href="gaps.html">The gaps</a><a class="shelflink o1-pill" href="stats.html">The numbers</a><a class="shelflink o1-pill" href="daily.html">Daily Shelf</a><a class="shelflink o1-pill" href="match.html">Shelf vs. Mine</a><a class="shelflink o1-pill" href="first.html">Which Came First?</a></div></div>
+      <div class="o1-group"><span class="o1-lbl">Games</span><div class="o1-links"><a class="shelflink o1-pill" href="shelf.html">Virtual shelf</a><a class="shelflink o1-pill" href="digital.html">Digital</a><a class="shelflink o1-pill" href="consoles.html">Consoles</a><a class="shelflink o1-pill" href="gaps.html">The gaps</a><a class="shelflink o1-pill" href="stats.html">The numbers</a><a class="shelflink o1-pill" href="daily.html">Daily Shelf</a><a class="shelflink o1-pill" href="match.html">Shelf vs. Mine</a><a class="shelflink o1-pill" href="first.html">Which Came First?</a><a class="shelflink o1-pill" href="streaks.html">Streaks &amp; badges</a><a class="shelflink o1-pill" href="spines.html">Spine shelf</a><a class="shelflink o1-pill" href="tonight.html">Play tonight</a></div></div>
       <div class="o1-group"><span class="o1-lbl">Reviews &amp; lists</span><div class="o1-links"><a class="shelflink o1-pill" href="reviews.html">Reviews</a><a class="shelflink o1-pill" href="lists.html">Lists</a><a class="shelflink o1-pill" href="rankings.html">Rankings</a><a class="shelflink o1-pill" href="overrated.html">Overrated</a><a class="shelflink o1-pill" href="rank.html">Rank games</a></div></div>
       <div class="o1-group"><span class="o1-lbl">Other shelves</span><div class="o1-links"><a class="shelflink o1-pill" href="movies.html">Movies</a><a class="shelflink o1-pill" href="tv.html">TV</a><a class="shelflink o1-pill" href="music.html">Music</a><a class="shelflink o1-pill" href="boardgames.html">Board games</a></div></div>
       <div class="o1-group"><span class="o1-lbl">Dates</span><div class="o1-links"><a class="shelflink o1-pill" href="anniversaries.html">Anniversaries</a><a class="shelflink o1-pill" href="onthisday.html">On this day</a></div></div>
     </div>
 
+    <section class="ytlatest" aria-labelledby="ytH">
+      <div class="ythead"><h2 id="ytH">Latest on YouTube</h2><a href="https://www.youtube.com/@TheNostalgiaPro" target="_blank" rel="noopener">All videos</a></div>
+      <div class="ytbox" id="ytBox">
+        <button class="ytfacade" id="ytPlay" type="button" aria-label="Play my latest YouTube upload">
+          <span class="ytbtn" aria-hidden="true"></span>
+          <span class="ytlbl">Play my latest upload</span>
+          <span class="ytnote">YouTube loads when you press play</span>
+        </button>
+      </div>
+    </section>
     <div class="todaybar" id="todaybar"></div>
     <div class="todaybar otdbar" id="otdbar"></div>
 
@@ -3150,6 +3183,21 @@ if ("serviceWorker" in navigator)
       document.getElementById("matchPct").textContent = (p < 1 ? "<1" : Math.round(p)) + "%";
     }
   } catch (e) {}
+})();
+</script>
+<script>
+/* Latest YouTube upload: nothing loads from YouTube until the play button is pressed.
+   The uploads playlist (UU + channel id) always starts with the newest upload. */
+(function(){
+  var b = document.getElementById("ytPlay"); if (!b) return;
+  b.addEventListener("click", function(){
+    var f = document.createElement("iframe");
+    f.src = "https://www.youtube-nocookie.com/embed/videoseries?list=UUdHnuHu3XbvwJhgM5r5ZgIA&autoplay=1&rel=0";
+    f.title = "Latest videos from The Nostalgia Pro on YouTube";
+    f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+    f.referrerPolicy = "strict-origin-when-cross-origin";
+    var box = document.getElementById("ytBox"); box.innerHTML = ""; box.appendChild(f);
+  });
 })();
 </script>
 </body>
