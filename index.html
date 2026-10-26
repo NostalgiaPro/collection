@@ -244,6 +244,8 @@
   .games li .beat.endless{display:flex}
   .games li .beat:hover{border-color:#3fbf6a}
   .games li .beat.endless:hover{border-color:#a2a9bd}
+  body:not(.editing) .games li .beat{cursor:default;pointer-events:none}
+  body:not(.editing) .savebar{display:none}
   .savebar{
     position:fixed;left:0;right:0;bottom:0;z-index:60;
     display:none;align-items:center;gap:14px;flex-wrap:wrap;
@@ -1856,6 +1858,21 @@ let ENDLESS_SET = new Set(
 const PUBLISHED = new Set(BEATEN_SET);
 const PUBLISHED_E = new Set(ENDLESS_SET);
 
+/* Ticking games and the Save bar are for editing the site, so visitors
+   don't see them. Edit mode is on when this browser already holds the
+   GitHub token, or after opening the page once with ?edit=1 (remembered
+   in this browser; ?edit=0 forgets it). Neither is a secret: saving
+   still needs the token. */
+const EDIT = (() => {
+  try {
+    const p = new URLSearchParams(location.search).get("edit");
+    if (p === "1") localStorage.setItem("np-edit", "1");
+    else if (p === "0") localStorage.removeItem("np-edit");
+    return !!localStorage.getItem("np-gh-token") || localStorage.getItem("np-edit") === "1";
+  } catch (err) { return false; }
+})();
+document.body.classList.toggle("editing", EDIT);
+
 /* Ticks are backed up to this browser on every click, so a reload,
    a closed tab or a misclick never loses work. */
 const DRAFT = "np-beaten-draft";
@@ -1869,7 +1886,9 @@ const baseStamp = PUBLISHED.size + ":" + PUBLISHED_E.size + ":" +
   [...PUBLISHED].concat([...PUBLISHED_E]).sort().join("|").length;
 
 try {
-  if (localStorage.getItem(DRAFT_BASE) === baseStamp) {
+  if (!EDIT) {
+    /* visitors always see the published lists */
+  } else if (localStorage.getItem(DRAFT_BASE) === baseStamp) {
     const d = localStorage.getItem(DRAFT);
     if (d) BEATEN_SET = new Set(JSON.parse(d));
     const e = localStorage.getItem(DRAFT_E);
@@ -2484,7 +2503,7 @@ function beatKey(g){ return g.title.toLowerCase(); }
 /* Empty -> beaten -> no ending -> empty. */
 results.addEventListener("click", e => {
   const box = e.target.closest(".beat");
-  if (!box) return;
+  if (!box || !EDIT) return;
   const li = box.closest("li[data-slug]");
   const key = li.dataset.beatkey;
   if (BEATEN_SET.has(key)) {            /* beaten -> no ending */
@@ -2510,6 +2529,7 @@ function dirty(){
   return !sameSet(BEATEN_SET, PUBLISHED) || !sameSet(ENDLESS_SET, PUBLISHED_E);
 }
 function showBar(){
+  if (!EDIT) return;
   savebar.classList.toggle("on", dirty());
   savemsg.textContent = BEATEN_SET.size + " beaten, " +
                         ENDLESS_SET.size + " no ending, not saved yet";
