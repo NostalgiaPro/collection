@@ -319,15 +319,6 @@ if ("serviceWorker" in navigator)
   wrap.appendChild(b);
   foot.appendChild(wrap);
 
-  /* The counter is a joke, but it should at least count. */
-  var el = document.getElementById("hits");
-  if (el) {
-    var n = 0;
-    try { n = parseInt(localStorage.getItem("np-hits") || "0", 10) || 0; } catch (e) {}
-    n += 1;
-    try { localStorage.setItem("np-hits", String(n)); } catch (e) {}
-    el.textContent = String(14273 + n).padStart(7, "0");
-  }
 })();
 
 /* Back to top. Appears once you've scrolled far enough to want it. */

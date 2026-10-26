@@ -176,14 +176,7 @@
 <p>Questions about this policy can go to <a href="mailto:thenostalgiapro@gmail.com">thenostalgiapro@gmail.com</a>.</p>
 
 </div>
-    <div class="hitcounter y1996only">
-      <div class="box">
-        <span class="lbl">You are visitor number</span>
-        <span class="digits" id="hits">0000000</span>
-      </div>
-    </div>
     <p class="bestviewed y1996only">
-      <a href="#" onclick="return false">Sign my guestbook!</a> &middot;
       <a href="mailto:thenostalgiapro@gmail.com">E-mail me</a><br>
       Best viewed in Netscape Navigator 3.0 at 800x600
     </p>
@@ -211,15 +204,6 @@
   wrap.appendChild(b);
   foot.appendChild(wrap);
 
-  /* The counter is a joke, but it should at least count. */
-  var el = document.getElementById("hits");
-  if (el) {
-    var n = 0;
-    try { n = parseInt(localStorage.getItem("np-hits") || "0", 10) || 0; } catch (e) {}
-    n += 1;
-    try { localStorage.setItem("np-hits", String(n)); } catch (e) {}
-    el.textContent = String(14273 + n).padStart(7, "0");
-  }
 })();
 
 /* Back to top. Appears once you've scrolled far enough to want it. */

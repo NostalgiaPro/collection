@@ -171,16 +171,6 @@ body.y1996 .elsewhere a{
 .y1996only{display:none}
 body.y1996 .y1996only{display:block}
 
-body.y1996 .hitcounter{text-align:center;margin:26px 0 14px}
-body.y1996 .hitcounter .box{
-  display:inline-block;background:#c0c0c0;border:2px outset #fff;padding:8px 13px;
-}
-body.y1996 .hitcounter .lbl{font-size:12px;color:#000}
-body.y1996 .hitcounter .digits{
-  background:#000;border:2px inset #808080;display:inline-block;
-  padding:3px 8px;margin-left:8px;font-family:"Courier New",monospace;
-  font-size:18px;color:#00ff00;letter-spacing:5px;
-}
 body.y1996 .bestviewed{font-size:12px;color:#c0c0c0;line-height:1.9;margin:10px 0 0}
 body.y1996 .bestviewed a{color:#00ffff}
 
