@@ -39,6 +39,9 @@ CSS = """  .crumb{font-family:"Silkscreen",monospace;font-size:10px;letter-spaci
   .facts b{flex:0 0 120px;font-family:"Silkscreen",monospace;font-weight:400;font-size:10px;
     letter-spacing:.08em;color:var(--dim);padding-top:4px}
   .facts .yes{color:#3fbf6a}
+  .hundo{display:inline-block;vertical-align:2px;margin-left:8px;font-style:normal;
+    font-family:"Silkscreen",monospace;font-size:9px;line-height:1;letter-spacing:.03em;
+    padding:3px 4px 2px;border:1px solid #f2c94c;border-radius:2px;background:#f2c94c;color:#14110a}
   .links{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
   .links a{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;border:1px solid var(--line);
     border-radius:2px;padding:6px 10px;color:var(--dim);text-decoration:none}
@@ -119,7 +122,7 @@ def page(g, total, photo, review, mentions, posts):
     status = ("Beaten" if g["beaten"] else "No ending" if g["endless"] else "Not beaten yet")
     path = f"/game/{g['slug']}.html"
     title = f"{g['title']} ({g['system']}) | The Nostalgia Pro"
-    desc = f"{g['title']} for the {g['system']}. {cond}. {status}. One of {total} games in my collection."
+    desc = f"{g['title']} for the {g['system']}. {cond}. {status}{' (100%)' if g.get('completed') else ''}. One of {total} games in my collection."
     if review:
         desc += f" Reviewed {review[1]:g}/5."
     ink = "#0b0d12"
@@ -137,7 +140,8 @@ def page(g, total, photo, review, mentions, posts):
     h.append(f'    <h1>{esc(g["title"])}</h1>\n    <ul class="facts" style="margin-top:22px">\n')
     h.append(f'      <li><b>CONDITION</b><span>{esc(cond)}</span></li>\n')
     cls = ' class="yes"' if g["beaten"] else ""
-    h.append(f'      <li><b>BEATEN</b><span{cls}>{status}</span></li>\n')
+    badge = ' <i class="hundo" title="100% complete">100%</i>' if g.get("completed") else ""
+    h.append(f'      <li><b>BEATEN</b><span{cls}>{status}{badge}</span></li>\n')
     if g.get("genre"):
         h.append(f'      <li><b>GENRE</b><span>{esc(g["genre"])}</span></li>\n')
     rel = released_text(g.get("released"))

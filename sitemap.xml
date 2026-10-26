@@ -96,6 +96,12 @@
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://thenostalgiapro.com/digital.html</loc>
+    <lastmod>2026-10-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
   <!-- game pages: written by tools/build_game_pages.py -->
   <url>
     <loc>https://thenostalgiapro.com/console/game-boy-color.html</loc>

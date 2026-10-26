@@ -56,6 +56,7 @@ def load_shelf():
     raw = _template(src, "RAW")
     beaten = {x.strip().lower() for x in _template(src, "BEATEN").split("\n") if x.strip()}
     endless = {x.strip().lower() for x in _template(src, "NO_ENDING").split("\n") if x.strip()}
+    completed = {x.strip().lower() for x in _template(src, "COMPLETED").split("\n") if x.strip()}
     genres = _json_const(src, "GENRES")
     reviewed = _json_const(src, "REVIEWED")
     ranked = _json_const(src, "RANKED")
@@ -87,6 +88,7 @@ def load_shelf():
         tl, tsl = title.lower(), (title + " | " + cur["name"]).lower()
         g["beaten"] = tl in beaten or tsl in beaten
         g["endless"] = (not g["beaten"]) and (tl in endless or tsl in endless)
+        g["completed"] = tl in completed or tsl in completed   # 100%
         g["genre"] = genres.get(title + "|" + cur["name"])
         k = nkey(title)
         g["nkey"] = k

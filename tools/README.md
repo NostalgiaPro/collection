@@ -11,6 +11,8 @@ else. Run them from the repo root.
 |---|---|
 | The shelf (every game, system, condition) | the `RAW` block in `index.html` |
 | Beaten / no ending | `BEATEN` and `NO_ENDING` in `index.html` (the tick boxes save here) |
+| 100% (every achievement) | `COMPLETED` in `index.html`, same format as `BEATEN`, edited by hand (Save leaves it alone) |
+| Digital games beaten / 100% | `tools/data/digital_games.json` (title, platform; nothing else) |
 | Genre, release dates, ASMR videos | `GENRES`, `RELEASED`, `VIDEOS` in `index.html` |
 | Review scores | `R` in `reviews.html` |
 | Rankings | `LISTS` in `lists.html` |
@@ -62,6 +64,19 @@ The title has to match a shelf title exactly (ignoring "The", punctuation
 and `[edition]` tags) or one of the short names in `ALIASES`. Posts about
 movies, music or TV and tier-list replies are skipped. If a post that
 should show up doesn't, add its short name to `ALIASES`.
+
+## `build_digital.py`: digital games I've beaten
+
+```
+python3 tools/build_digital.py
+```
+
+Writes `digital.html` from `tools/data/digital_games.json`: a "100% complete"
+group and a "Beaten" group, each game with the Xbox it was played on. Only
+digital copies go here; a boxed game gets ticked on the shelf (and added to
+`COMPLETED` for 100%), and the script warns if a game in the file is on the
+shelf for the same Xbox. A photo is shown only if one is already in
+`images/`. Adds `digital.html` to `sitemap.xml` if it's missing.
 
 ## `build_overrated.py`: the Overrated Game of the Day archive
 

@@ -1,0 +1,240 @@
+{
+ "_about": "Games I've finished that I own digitally on Xbox (not on the shelf). Titles, platform and status only. Read by tools/build_digital.py, which writes digital.html.",
+ "completed": [
+  {
+   "title": "50 Years",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "80's OVERDRIVE",
+   "platform": "PC"
+  },
+  {
+   "title": "Avatar: The Last Airbender - The Burning Earth",
+   "platform": "Xbox 360"
+  },
+  {
+   "title": "Batman: The Enemy Within",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Batman: The Telltale Series",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Castle Walker",
+   "platform": "Xbox One / Series X|S"
+  },
+  {
+   "title": "Chess Brain: Dark Troops",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Croc's World Construction Kit 2",
+   "platform": "PC"
+  },
+  {
+   "title": "Destroy All Humans! (2020)",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Devoured by Darkness",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Discolored",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "DOOM 64",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Door Kickers: Action Squad",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Flaskoman",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Mighty Goose",
+   "platform": "Xbox One / Series X|S"
+  },
+  {
+   "title": "MONOPOLY Plus",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Murder on the Marine Express",
+   "platform": "Xbox One / Series X|S"
+  },
+  {
+   "title": "My Friend Peppa Pig",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "NBA 2K6",
+   "platform": "Xbox 360"
+  },
+  {
+   "title": "Pity Pit",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "The Procession to Calvary",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Rabio",
+   "platform": "Xbox One / Series X|S"
+  },
+  {
+   "title": "ReactorX 2",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "RoboCop: Rogue City",
+   "platform": "Series X|S"
+  },
+  {
+   "title": "RoboCop: Rogue City - Unfinished Business",
+   "platform": "Series X|S"
+  },
+  {
+   "title": "Saints Row: The Third Remastered",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Sonic the Fighters",
+   "platform": "Xbox 360"
+  },
+  {
+   "title": "Space Science Investigations: Humans in Space",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Space Warlord Organ Trading Simulator",
+   "platform": "Xbox One / Series X|S"
+  },
+  {
+   "title": "Terminator 2D: NO FATE",
+   "platform": "Xbox One / Series X|S"
+  },
+  {
+   "title": "Terminator: Resistance",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Townscaper",
+   "platform": "Xbox One / Series X|S"
+  },
+  {
+   "title": "The Turing Test",
+   "platform": "Xbox One / Series X|S"
+  },
+  {
+   "title": "X-Force Genesis",
+   "platform": "Xbox One"
+  }
+ ],
+ "beaten": [
+  {
+   "title": "Alien: Isolation",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Army of TWO: The 40th Day",
+   "platform": "Xbox 360"
+  },
+  {
+   "title": "Batman: Return to Arkham - Arkham Asylum",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Battlefield 1",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Battlefield 4",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Battlefield V",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Broforce",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Contra: Operation Galuga",
+   "platform": "Xbox One / Series X|S"
+  },
+  {
+   "title": "Dead Space",
+   "platform": "Series X|S"
+  },
+  {
+   "title": "Ghostbusters: The Video Game Remastered",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Halo Infinite",
+   "platform": "Xbox One / Series X|S",
+   "photo": false
+  },
+  {
+   "title": "Injustice: Gods Among Us",
+   "platform": "Xbox 360"
+  },
+  {
+   "title": "Mafia III",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Marvel: Ultimate Alliance",
+   "platform": "Xbox 360"
+  },
+  {
+   "title": "Marvel Ultimate Alliance 2",
+   "platform": "Xbox 360"
+  },
+  {
+   "title": "Metal Gear Solid V: Ground Zeroes",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Metal Gear Solid V: The Phantom Pain",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Pragmata",
+   "platform": "Series X|S"
+  },
+  {
+   "title": "Saints Row IV: Re-Elected",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Teenage Mutant Ninja Turtles: Shredder's Revenge",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Tom Clancy's Splinter Cell: Conviction",
+   "platform": "Xbox 360"
+  },
+  {
+   "title": "Tom Clancy's The Division",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "Watch Dogs",
+   "platform": "Xbox One"
+  },
+  {
+   "title": "The Wolf Among Us",
+   "platform": "Xbox 360"
+  }
+ ]
+}

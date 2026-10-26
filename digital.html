@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="58 digital games I've finished on Xbox: 34 at 100% and 24 beaten. The boxed ones are ticked on the shelf.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro — Digital games I've beaten">
+<meta property="og:description" content="58 digital games I've finished on Xbox: 34 at 100% and 24 beaten. The boxed ones are ticked on the shelf.">
+<meta property="og:url" content="https://thenostalgiapro.com/digital.html">
+<meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Nostalgia Pro — Digital games I've beaten">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro — Digital games I've beaten">
+<meta name="twitter:description" content="58 digital games I've finished on Xbox: 34 at 100% and 24 beaten. The boxed ones are ticked on the shelf.">
+<meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
+<link rel="canonical" href="https://thenostalgiapro.com/digital.html">
+<title>The Nostalgia Pro — Digital games I've beaten</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/retro.css">
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 22px 90px}
+  header{padding:44px 0 0}
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  .wordmark a{color:inherit;text-decoration:none}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;text-decoration:none;
+    border:2px solid var(--line);color:var(--dim);
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+  .barlabel{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:34px 0 10px}
+  .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:64ch}
+  .xpost{
+    margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);
+    border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:14px 18px;
+  }
+  .xpost blockquote{margin:0;white-space:pre-line;font-size:15px}
+  .xpost .meta{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0 0;
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);
+  }
+  .xpost .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .xpost .meta a:hover{border-color:var(--hot);color:var(--hot)}
+  .scores{display:flex;flex-wrap:wrap;margin:24px 0 0;border:2px solid var(--line);border-radius:2px;overflow:hidden}
+  .score{flex:1 1 130px;padding:13px 15px;background:var(--bg2);border-right:1px solid var(--line)}
+  .score:last-child{border-right:none}
+  .score b{display:block;font-family:"Press Start 2P",monospace;font-size:18px;line-height:1}
+  .score span{display:block;margin-top:8px;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.09em;color:var(--dim)}
+  .dgroup{margin:38px 0 0}
+  .dgroup h2{display:flex;align-items:center;gap:12px;font-family:"IBM Plex Sans Condensed",sans-serif;
+    font-size:22px;font-weight:700;margin:0 0 10px;letter-spacing:-.005em}
+  .dgroup h2 small{font-family:"Silkscreen",monospace;font-size:11px;font-weight:400;color:var(--dim);letter-spacing:.06em}
+  ol.dlist{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:2px}
+  ol.dlist li{display:flex;gap:13px;align-items:center;padding:9px 14px;
+    border-bottom:1px solid rgba(44,48,64,.7);background:var(--bg2)}
+  ol.dlist li:last-child{border-bottom:none}
+  ol.dlist li:hover{background:var(--panel)}
+  ol.dlist .t{flex:1 1 auto;min-width:0;font-family:"IBM Plex Sans Condensed",sans-serif;font-size:17.5px;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+  ol.dlist .p{flex:none;color:#7fc97f;font-family:"Silkscreen",monospace;font-size:11px;white-space:nowrap}
+  ol.dlist .shot{flex:none;width:38px;height:38px;object-fit:cover;border:1px solid var(--line);border-radius:2px;background:#0a0c11}
+  .tick{flex:none;width:15px;height:15px;border:2px solid #3fbf6a;background:#3fbf6a;border-radius:2px;position:relative}
+  .tick::after{content:"";position:absolute;left:3.5px;top:.5px;width:4px;height:8px;border:solid #0b1410;border-width:0 2px 2px 0;transform:rotate(42deg)}
+  .hundo{flex:none;font-style:normal;font-family:"Silkscreen",monospace;font-size:9px;line-height:1;letter-spacing:.03em;
+    padding:3px 4px 2px;border:1px solid #f2c94c;border-radius:2px;background:#f2c94c;color:#14110a;white-space:nowrap}
+  body.y1996 .tick{width:auto;height:auto;border:none;background:none;font-family:"Courier New",monospace;font-size:13px;color:#00ff00}
+  body.y1996 .tick::before{content:"[X]"}
+  body.y1996 .tick::after{display:none}
+  @media (max-width:560px){
+    ol.dlist li{flex-wrap:wrap;row-gap:2px}
+    ol.dlist .p{flex-basis:100%;padding-left:28px;white-space:normal}
+    ol.dlist li.c100 .p{padding-left:52px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>
+  <h1>Digital games I've beaten</h1>
+  <p class="standfirst">Games I've finished that I own digitally on Xbox, so they aren't on the shelf. 100% means every achievement. The boxed games I've beaten are ticked on <a href="/index.html" style="color:inherit">the shelf</a>.</p>
+  <div class="navrow">
+    <a class="navbtn" href="/index.html">The shelf</a>
+    <a class="navbtn here" href="/digital.html">Digital</a>
+    <a class="navbtn" href="/reviews.html">Reviews</a>
+    <a class="navbtn" href="/lists.html">Lists</a>
+    <a class="navbtn" href="/rank.html">Rank games</a>
+    <a class="navbtn" href="/anniversaries.html">Anniversaries</a>
+    <a class="navbtn" href="/onthisday.html">On this day</a>
+    <a class="navbtn" href="/consoles.html">Consoles</a>
+    <a class="navbtn" href="/gaps.html">The gaps</a>
+    <a class="navbtn" href="/stats.html">The numbers</a>
+  </div>
+  <div class="scores">
+    <div class="score"><b>58</b><span>digital games finished</span></div>
+    <div class="score"><b>34</b><span>100% complete</span></div>
+    <div class="score"><b>24</b><span>beaten</span></div>
+  </div>
+</header>
+
+<section class="dgroup" id="complete">
+<h2><i class="hundo">100%</i> 100% complete <small>34 GAMES</small></h2>
+<ol class="dlist">
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">50 Years</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">80's OVERDRIVE</span><span class="p">PC</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Avatar: The Last Airbender - The Burning Earth</span><span class="p">Xbox 360</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Batman: The Enemy Within</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Batman: The Telltale Series</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Castle Walker</span><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Chess Brain: Dark Troops</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Croc's World Construction Kit 2</span><span class="p">PC</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Destroy All Humans! (2020)</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Devoured by Darkness</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Discolored</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">DOOM 64</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Door Kickers: Action Squad</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Flaskoman</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Mighty Goose</span><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">MONOPOLY Plus</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Murder on the Marine Express</span><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">My Friend Peppa Pig</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">NBA 2K6</span><span class="p">Xbox 360</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Pity Pit</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">The Procession to Calvary</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Rabio</span><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">ReactorX 2</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">RoboCop: Rogue City</span><span class="p">Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">RoboCop: Rogue City - Unfinished Business</span><span class="p">Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Saints Row: The Third Remastered</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Sonic the Fighters</span><span class="p">Xbox 360</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Space Science Investigations: Humans in Space</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Space Warlord Organ Trading Simulator</span><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Terminator 2D: NO FATE</span><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Terminator: Resistance</span><span class="p">Xbox One</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">Townscaper</span><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">The Turing Test</span><span class="p">Xbox One / Series X|S</span></li>
+  <li class="c100"><i class="hundo" title="100% complete">100%</i><span class="t">X-Force Genesis</span><span class="p">Xbox One</span></li>
+</ol>
+</section>
+
+<section class="dgroup" id="beaten">
+<h2><i class="tick"></i> Beaten <small>24 GAMES</small></h2>
+<ol class="dlist">
+  <li><i class="tick" title="Beaten"></i><span class="t">Alien: Isolation</span><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Army of TWO: The 40th Day</span><span class="p">Xbox 360</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Batman: Return to Arkham - Arkham Asylum</span><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Battlefield 1</span><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Battlefield 4</span><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Battlefield V</span><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Broforce</span><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Contra: Operation Galuga</span><span class="p">Xbox One / Series X|S</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Dead Space</span><span class="p">Series X|S</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Ghostbusters: The Video Game Remastered</span><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Halo Infinite</span><span class="p">Xbox One / Series X|S</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Injustice: Gods Among Us</span><span class="p">Xbox 360</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Mafia III</span><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Marvel: Ultimate Alliance</span><span class="p">Xbox 360</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Marvel Ultimate Alliance 2</span><span class="p">Xbox 360</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Metal Gear Solid V: Ground Zeroes</span><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Metal Gear Solid V: The Phantom Pain</span><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Pragmata</span><span class="p">Series X|S</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Saints Row IV: Re-Elected</span><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Teenage Mutant Ninja Turtles: Shredder's Revenge</span><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Tom Clancy's Splinter Cell: Conviction</span><span class="p">Xbox 360</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Tom Clancy's The Division</span><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">Watch Dogs</span><span class="p">Xbox One</span></li>
+  <li><i class="tick" title="Beaten"></i><span class="t">The Wolf Among Us</span><span class="p">Xbox 360</span></li>
+</ol>
+</section>
+
+<p class="note">Digital only. Apps and other things that aren't games are left off.</p>
+
+</div>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
+<script>
+/* 1996 mode. The class does all the work, retro.css does the rest. */
+(function(){
+  var on = false;
+  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
+  if (on) document.body.classList.add("y1996");
+
+  var b = document.createElement("button");
+  b.id = "y1996btn";
+  b.type = "button";
+  b.textContent = on ? "Back to now" : "1996 mode";
+  b.addEventListener("click", function(){
+    var nowOn = document.body.classList.toggle("y1996");
+    b.textContent = nowOn ? "Back to now" : "1996 mode";
+    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
+  });
+
+  var foot = document.querySelector("footer") || document.querySelector(".wrap");
+  var wrap = document.createElement("p");
+  wrap.style.cssText = "text-align:center;margin:18px 0 0";
+  wrap.appendChild(b);
+  foot.appendChild(wrap);
+
+})();
+
+/* Back to top. Appears once you've scrolled far enough to want it. */
+(function(){
+  var b = document.createElement("button");
+  b.id = "totop";
+  b.type = "button";
+  b.setAttribute("aria-label", "Back to top");
+  b.innerHTML = "&#9650;";
+  b.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.body.appendChild(b);
+
+  function check(){ b.classList.toggle("on", window.scrollY > 600); }
+  addEventListener("scroll", check, { passive: true });
+  check();
+})();
+</script>
+</body>
+</html>

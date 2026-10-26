@@ -246,11 +246,32 @@ body.y1996 .note a{color:#00ffff}
 /* ---- nav spacing (both modes) ----
    Tightened a touch when "On this day" joined the nav, so every page's nav
    takes no more rows than it did with one button fewer. Measured at
-   1280/1024/900/768/600/390px wide. */
-div.navrow{gap:6px}
-.navrow .navbtn{padding:9px 8px;letter-spacing:.02em}
-.sitenav .shelflink{padding:9px 7px;letter-spacing:0}
+   1280/1024/900/768/600/390px wide.
+   Tightened again when "Digital" joined, same rule, same widths. */
+div.navrow{gap:5px}
+.navrow .navbtn{padding:9px 6px;letter-spacing:.01em}
+.sitenav .shelflink{padding:9px 5px;letter-spacing:0}
 @media (max-width:560px){
-  div.navrow{gap:5px}
-  .navrow .navbtn{padding:8px 6px;letter-spacing:0}
+  div.navrow{gap:4px}
+  .navrow .navbtn{padding:8px 5px;letter-spacing:0}
 }
+
+/* ---- 100% badge and the Digital page ---- */
+body.y1996 .hundo{
+  background:none;border:none;border-radius:0;padding:0;
+  font-family:"Courier New",monospace;font-size:13px;font-weight:700;
+  letter-spacing:0;color:#ffff00;
+}
+body.y1996 .hundo::before{content:"["}
+body.y1996 .hundo::after{content:"]"}
+body.y1996 .vextra span.hundo{background:#c0c0c0;border:2px outset #fff;color:#000080;padding:2px 6px}
+body.y1996 .vextra span.hundo::before,body.y1996 .vextra span.hundo::after{content:none}
+body.y1996 .dgroup h2{
+  color:#ffff00;font-family:"Times New Roman",Times,serif;font-size:22px;letter-spacing:0;
+  border-bottom:2px solid #00ffff;
+}
+body.y1996 ol.dlist{border:2px inset #808080;border-radius:0}
+body.y1996 ol.dlist li{background:#000040;border-bottom:1px solid #000080}
+body.y1996 ol.dlist li:nth-child(even){background:#191970}
+body.y1996 ol.dlist .t{color:#c0c0c0;font-family:"Times New Roman",Times,serif;font-size:17px;font-weight:400}
+body.y1996 ol.dlist .p{color:#00ff00;font-family:"Courier New",monospace;font-size:13px;letter-spacing:0}
