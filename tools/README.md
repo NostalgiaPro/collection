@@ -62,3 +62,15 @@ The title has to match a shelf title exactly (ignoring "The", punctuation
 and `[edition]` tags) or one of the short names in `ALIASES`. Posts about
 movies, music or TV and tier-list replies are skipped. If a post that
 should show up doesn't, add its short name to `ALIASES`.
+
+## `build_overrated.py`: the Overrated Game of the Day archive
+
+```
+python3 tools/build_overrated.py
+```
+
+Rewrites `overrated.html` from `tools/data/x_posts.json`: every post whose
+first line starts "Overrated Game of the Day", newest first, with the date,
+the post text as written, a link to the post on X, and the shelf photo and
+game page when the game is on the shelf. Re-run after new posts are added
+to the data file. It also adds `overrated.html` to `sitemap.xml` once.

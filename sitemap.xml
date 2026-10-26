@@ -84,6 +84,12 @@
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://thenostalgiapro.com/overrated.html</loc>
+    <lastmod>2026-10-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
   <!-- game pages: written by tools/build_game_pages.py -->
   <url>
     <loc>https://thenostalgiapro.com/game/adventure-island-nes.html</loc>

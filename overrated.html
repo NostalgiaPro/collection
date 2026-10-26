@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Every Overrated Game of the Day post from my X account, newest first, with the game from my collection.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro — Overrated Game of the Day">
+<meta property="og:description" content="Every Overrated Game of the Day post from my X account, newest first, with the game from my collection.">
+<meta property="og:url" content="https://thenostalgiapro.com/overrated.html">
+<meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Nostalgia Pro — Overrated Game of the Day">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro — Overrated Game of the Day">
+<meta name="twitter:description" content="Every Overrated Game of the Day post from my X account, newest first, with the game from my collection.">
+<meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
+<link rel="canonical" href="https://thenostalgiapro.com/overrated.html">
+<title>The Nostalgia Pro — Overrated Game of the Day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/retro.css">
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:0 22px 90px}
+  header{padding:44px 0 0}
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  .wordmark a{color:inherit;text-decoration:none}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;text-decoration:none;
+    border:2px solid var(--line);color:var(--dim);
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+  .barlabel{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:34px 0 10px}
+  .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:64ch}
+  .xpost{
+    margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);
+    border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:14px 18px;
+  }
+  .xpost blockquote{margin:0;white-space:pre-line;font-size:15px}
+  .xpost .meta{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0 0;
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);
+  }
+  .xpost .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .xpost .meta a:hover{border-color:var(--hot);color:var(--hot)}
+  .entry{display:grid;grid-template-columns:150px 1fr;gap:22px;margin:0 0 22px;
+    background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:18px}
+  .entry .pic{width:150px;border:1px solid var(--line);border-radius:2px;display:block;background:#0a0c11}
+  .entry .nopic{width:150px;aspect-ratio:3/4;border:1px dashed var(--line);border-radius:2px;display:flex;
+    align-items:center;justify-content:center;font-family:"Silkscreen",monospace;font-size:9px;color:var(--dim);text-align:center;padding:8px}
+  .entry .when{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;color:var(--dim);margin:0}
+  .entry h2{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:23px;font-weight:700;margin:6px 0 2px;line-height:1.25}
+  .entry h2 a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+  .entry h2 a:hover{border-bottom-color:var(--c)}
+  .entry .sys{font-family:"Silkscreen",monospace;font-size:11px;color:var(--c);margin:0 0 12px}
+  .entry blockquote{margin:0;white-space:pre-line;font-size:15px}
+  .entry .links{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+  .entry .links a{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;border:1px solid var(--line);
+    border-radius:2px;padding:5px 9px;color:var(--dim);text-decoration:none}
+  .entry .links a:hover{border-color:var(--hot);color:var(--hot)}
+  .count{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.08em;color:var(--hot);margin:30px 0 16px}
+  @media (max-width:600px){ .entry{grid-template-columns:1fr} .entry .pic,.entry .nopic{width:120px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>
+  <h1>Overrated Game of the Day</h1>
+  <p class="standfirst">Every Overrated Game of the Day post from X, newest first, kept here as posted.</p>
+  <div class="navrow">
+    <a class="navbtn" href="/index.html">The shelf</a>
+    <a class="navbtn" href="/reviews.html">Reviews</a>
+    <a class="navbtn" href="/lists.html">Lists</a>
+    <a class="navbtn" href="/rank.html">Rank games</a>
+    <a class="navbtn" href="/anniversaries.html">Anniversaries</a>
+    <a class="navbtn" href="/consoles.html">Consoles</a>
+    <a class="navbtn" href="/gaps.html">The gaps</a>
+    <a class="navbtn" href="/stats.html">The numbers</a>
+  </div>
+</header>
+
+<p class="count">7 POSTS</p>
+<article class="entry" id="x-2103268969767682096" style="--c:#3fa65b">
+  <div><img class="pic" loading="lazy" src="/images/super-mario-64-nintendo-64.jpg" alt="Super Mario 64"></div>
+  <div>
+    <p class="when">September 24, 2026</p>
+    <h2><a href="/game/super-mario-64-nintendo-64.html">Super Mario 64</a></h2>
+    <p class="sys">N64</p>
+    <blockquote>I was 13 when I first played Super Mario 64 in 1997. This was the first game we played on our N64 and we were all blown away by it. 
+
+Before the game even started I sat there stretching Mario's face all over the screen. There was not a single video game before this that you could do that on.
+
+Mario 64 was revolutionary.
+
+This was the most important game that helped launch the N64 and it just did not age well.
+
+30 years ago, we didn't know any better. We didn't think anything of it and just accepted the fact that the camera fights you the whole entire game, with Lakitu never showing you what you actually need to see.
+
+Another one of my biggest annoyances with the game is that every time you grab a star, the game kicks you out of the level, which means you have to jump back into the same painting to continue running through the level.
+
+Going from Super Mario World to Super Mario 64 was a massive drop-off.</blockquote>
+    <div class="links">
+      <a href="https://x.com/NostalgiaPro/status/2103268969767682096" target="_blank" rel="noopener">View on X</a>
+      <a href="/game/super-mario-64-nintendo-64.html">Game page</a>
+    </div>
+  </div>
+</article>
+<article class="entry" id="x-2102495726702133709" style="--c:#d3d0c8">
+  <div><img class="pic" loading="lazy" src="/images/legend-of-zelda-nes.jpg" alt="Legend of Zelda"></div>
+  <div>
+    <p class="when">September 22, 2026</p>
+    <h2><a href="/game/legend-of-zelda-nes.html">The Legend of Zelda</a></h2>
+    <p class="sys">NES</p>
+    <blockquote>This game is on every greatest games of all time list out there. You get a sword from an old man in a cave. After that, good luck, the rest is on you.
+
+Some of the dungeons you can't even find without burning a bush or bombing a wall. Not any bush either, one specific bush out of hundreds that the game never points out.
+
+The few hints you get from the old men hiding in caves barely make any sense.
+
+Calling The Legend of Zelda a masterpiece is an insult to real masterpieces.
+
+Just kidding. This is one of the greatest games of all time.
+
+It's third on my Zelda list, ahead of Ocarina of Time and Breath of the Wild. It was also my pick for the best game of 1987.</blockquote>
+    <div class="links">
+      <a href="https://x.com/NostalgiaPro/status/2102495726702133709" target="_blank" rel="noopener">View on X</a>
+      <a href="/game/legend-of-zelda-nes.html">Game page</a>
+    </div>
+  </div>
+</article>
+<article class="entry" id="x-2102148494727553126" style="--c:#8ec63f">
+  <div><img class="pic" loading="lazy" src="/images/star-wars-knights-of-the-old-republic-xbox.jpg" alt="Star Wars: Knights of the Old Republic"></div>
+  <div>
+    <p class="when">September 21, 2026</p>
+    <h2><a href="/game/star-wars-knights-of-the-old-republic-xbox.html">Star Wars: Knights of the Old Republic</a></h2>
+    <p class="sys">Xbox</p>
+    <blockquote>Knights of the Old Republic gets universally hailed as the greatest Star Wars game ever made. I just don't see it.
+
+It's definitely a top 5 Star Wars game, but that's as high as I'm willing to go with it. I remember playing it 20+ years ago and thinking how good it was. 
+
+Looking at it now, I think it deserves a remaster. If they kept the same voices and game sounds and only improved the graphics, it would easily be the best Star Wars game made in the last 10 years.
+
+A lot of it comes down to the combat system for me. You pick your moves and then wait for them to play out, so it's basically a turn based RPG even though it looks like an action game. Most turn based RPGs don't do much for me.
+
+The best Star Wars game will forever be Episode I Racer.</blockquote>
+    <div class="links">
+      <a href="https://x.com/NostalgiaPro/status/2102148494727553126" target="_blank" rel="noopener">View on X</a>
+      <a href="/game/star-wars-knights-of-the-old-republic-xbox.html">Game page</a>
+    </div>
+  </div>
+</article>
+<article class="entry" id="x-2101069943769080213" style="--c:#8ec63f">
+  <div><img class="pic" loading="lazy" src="/images/half-life-2-xbox.jpg" alt="Half-Life 2"></div>
+  <div>
+    <p class="when">September 18, 2026</p>
+    <h2><a href="/game/half-life-2-xbox.html">Half-Life 2</a></h2>
+    <p class="sys">Xbox</p>
+    <blockquote>Half-Life 2 gets called one of the greatest shooters ever made, and for a lot of PC players it's still the game every other shooter gets measured against. 
+
+I just don't see it.
+
+My younger brother is the reason why I even learned about Half-Life 2. He raved about the game relentlessly. He had it on his PC and told me to try it. I gave it a shot and immediately didn't like it, though most of that was because I hated playing PC games at the time. I was all about the consoles.
+
+I eventually tried playing it on the OG Xbox in the mid 2000s. I don't remember how far I got, maybe a third of the way, maybe halfway, but it wasn't doing it for me. Being a massive Halo fan didn't help, because I couldn't stop comparing it to Halo every step of the way.
+
+I have a tough time with games that have poor pacing, and the pacing in Half-Life 2 is slow. The story didn't grab me either. Sometimes if a game has a great story I can overlook some of the other issues I have with it, but this one never gave me that.
+
+A few years ago I bought it on Steam to give it an honest attempt. I was so bored I just couldn't do it. 
+
+Over the years I've warmed up to PC gaming, but I still prefer consoles. However, Half-Life 2 is the same no matter where you play it and it's an incredibly boring game.
+
+Half-Life 3 is never coming and for good reason.</blockquote>
+    <div class="links">
+      <a href="https://x.com/NostalgiaPro/status/2101069943769080213" target="_blank" rel="noopener">View on X</a>
+      <a href="/game/half-life-2-xbox.html">Game page</a>
+    </div>
+  </div>
+</article>
+<article class="entry" id="x-2100671854843441457" style="--c:#a9b0c4">
+  <div><img class="pic" loading="lazy" src="/images/final-fantasy-vii-playstation-1.jpg" alt="Final Fantasy VII"></div>
+  <div>
+    <p class="when">September 17, 2026</p>
+    <h2><a href="/game/final-fantasy-vii-playstation-1.html">Final Fantasy VII</a></h2>
+    <p class="sys">PS1</p>
+    <blockquote>Final Fantasy VII shows up near or at the top of best game ever made lists constantly and I've never understood how it got there.
+
+I bought it in 2001 because guys I worked with at KFC wouldn't stop telling me it was the greatest thing ever made. That's literally the only reason why I bought it.
+
+The story isn't great. A lot of the Final Fantasy die-hards describe it like it's some untouchable piece of writing, and I played the whole thing waiting for the part that was supposed to floor me. It never showed up.
+
+The game was boring. Finishing it felt like an assignment I had to get through rather than a game I wanted to keep playing. Especially when I had Gran Turismo, Mega Man Legends, Ready 2 Rumble, and Tomorrow Never Dies sitting right there next to the PS1 that were all infinitely more enjoyable to play.
+
+Calling Final Fantasy VII overrated isn't a hot take. 
+
+It's the truth.</blockquote>
+    <div class="links">
+      <a href="https://x.com/NostalgiaPro/status/2100671854843441457" target="_blank" rel="noopener">View on X</a>
+      <a href="/game/final-fantasy-vii-playstation-1.html">Game page</a>
+    </div>
+  </div>
+</article>
+<article class="entry" id="x-2100321326426677496" style="--c:#3aa832">
+  <div><img class="pic" loading="lazy" src="/images/red-dead-redemption-ii-xbox-one.jpg" alt="Red Dead Redemption II"></div>
+  <div>
+    <p class="when">September 16, 2026</p>
+    <h2><a href="/game/red-dead-redemption-ii-xbox-one.html">Red Dead Redemption 2</a></h2>
+    <p class="sys">Xbox One</p>
+    <blockquote>Red Dead Redemption 2 shows up on almost every greatest game of all time list and I legitimately don't understand why. It's like Rockstar played Gun and asked &quot;What if this was boring?&quot; That's Red Dead Redemption. Then they asked &quot;What if it was even slower?&quot; and that's 2.
+
+The visuals are stunning and the gameplay itself is decent. I'm not arguing that part.
+
+What I am arguing is the game takes forever to get going. It's not a slow first hour, it's a slow first several hours, and by the time it opens up you've already spent a night doing chores.
+
+The best thing I did in RDR2 was sit on my horse in an empty field and watch the sunset. It was actually relaxing, but I'm playing a game that's supposed to be an action game. Why is the action so far apart?
+
+I'm not hating on Rockstar at all here. I just think Red Dead Redemption 2 is incredibly overrated. It's a visually stunning game that forgot it was supposed to be fun.</blockquote>
+    <div class="links">
+      <a href="https://x.com/NostalgiaPro/status/2100321326426677496" target="_blank" rel="noopener">View on X</a>
+      <a href="/game/red-dead-redemption-ii-xbox-one.html">Game page</a>
+    </div>
+  </div>
+</article>
+<article class="entry" id="x-2099959011370324183" style="--c:#f0413f">
+  <div><img class="pic" loading="lazy" src="/images/legend-of-zelda-breath-of-the-wild-nintendo-switch.jpg" alt="Legend of Zelda: Breath of the Wild"></div>
+  <div>
+    <p class="when">September 15, 2026</p>
+    <h2><a href="/game/legend-of-zelda-breath-of-the-wild-nintendo-switch.html">The Legend of Zelda: Breath of the Wild</a></h2>
+    <p class="sys">Switch</p>
+    <blockquote>A lot of modern games get called a masterpiece before they even release. Breath of the Wild is one of those.
+
+The game genuinely looks great. The world is beautiful and the visuals are stunning. Standing still and admiring the landscape might be the best thing the game does.
+
+The gameplay is slow. Not slow in the way older games are slow where you get used to it after an hour. Breath of the Wild is slow from start to finish.
+
+Then the DLC that was released as its own thing, titled Tears of the Kingdom, showed up. $70 for more of the same thing, or a rearranged version of the same thing, whatever you want to call it. This one lost me after a few hours in. I couldn't do it anymore.
+
+Calling Breath of the Wild overrated isn't hate. 
+
+The game is fine for what it is but calling it a masterpiece is an insult to real masterpieces.</blockquote>
+    <div class="links">
+      <a href="https://x.com/NostalgiaPro/status/2099959011370324183" target="_blank" rel="noopener">View on X</a>
+      <a href="/game/legend-of-zelda-breath-of-the-wild-nintendo-switch.html">Game page</a>
+    </div>
+  </div>
+</article>
+
+<p class="note">New ones get added when tools/build_overrated.py runs.</p>
+
+</div>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
+<script>
+/* 1996 mode. The class does all the work, retro.css does the rest. */
+(function(){
+  var on = false;
+  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
+  if (on) document.body.classList.add("y1996");
+
+  var b = document.createElement("button");
+  b.id = "y1996btn";
+  b.type = "button";
+  b.textContent = on ? "Back to now" : "1996 mode";
+  b.addEventListener("click", function(){
+    var nowOn = document.body.classList.toggle("y1996");
+    b.textContent = nowOn ? "Back to now" : "1996 mode";
+    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
+  });
+
+  var foot = document.querySelector("footer") || document.querySelector(".wrap");
+  var wrap = document.createElement("p");
+  wrap.style.cssText = "text-align:center;margin:18px 0 0";
+  wrap.appendChild(b);
+  foot.appendChild(wrap);
+
+})();
+
+/* Back to top. Appears once you've scrolled far enough to want it. */
+(function(){
+  var b = document.createElement("button");
+  b.id = "totop";
+  b.type = "button";
+  b.setAttribute("aria-label", "Back to top");
+  b.innerHTML = "&#9650;";
+  b.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.body.appendChild(b);
+
+  function check(){ b.classList.toggle("on", window.scrollY > 600); }
+  addEventListener("scroll", check, { passive: true });
+  check();
+})();
+</script>
+</body>
+</html>
