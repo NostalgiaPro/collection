@@ -8,23 +8,23 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="Every Overrated Game of the Day post from my X account, newest first, with the game from my collection.">
+<meta name="description" content="Every time I've called a game overrated on X: the top 5 thread, Overrated Game of the Day, and the reviews and posts in between.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Nostalgia Pro">
-<meta property="og:title" content="The Nostalgia Pro — Overrated Game of the Day">
-<meta property="og:description" content="Every Overrated Game of the Day post from my X account, newest first, with the game from my collection.">
+<meta property="og:title" content="The Nostalgia Pro — Overrated">
+<meta property="og:description" content="Every time I've called a game overrated on X: the top 5 thread, Overrated Game of the Day, and the reviews and posts in between.">
 <meta property="og:url" content="https://thenostalgiapro.com/overrated.html">
 <meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Nostalgia Pro — Overrated Game of the Day">
+<meta property="og:image:alt" content="The Nostalgia Pro — Overrated">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@NostalgiaPro">
-<meta name="twitter:title" content="The Nostalgia Pro — Overrated Game of the Day">
-<meta name="twitter:description" content="Every Overrated Game of the Day post from my X account, newest first, with the game from my collection.">
+<meta name="twitter:title" content="The Nostalgia Pro — Overrated">
+<meta name="twitter:description" content="Every time I've called a game overrated on X: the top 5 thread, Overrated Game of the Day, and the reviews and posts in between.">
 <meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
 <link rel="canonical" href="https://thenostalgiapro.com/overrated.html">
-<title>The Nostalgia Pro — Overrated Game of the Day</title>
+<title>The Nostalgia Pro — Overrated</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
@@ -91,7 +91,101 @@
     border-radius:2px;padding:5px 9px;color:var(--dim);text-decoration:none}
   .entry .links a:hover{border-color:var(--hot);color:var(--hot)}
   .count{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.08em;color:var(--hot);margin:30px 0 16px}
+  .entry .fake{margin:0 0 12px;padding:8px 12px;border:1px dashed var(--c);border-radius:2px;font-size:14px}
+  .entry .fake b{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--c);font-weight:400;margin-right:8px}
+  .oq{margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:16px 18px}
+  .oq .when{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;color:var(--dim);margin:0}
+  .oq h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:21px;font-weight:700;margin:6px 0 2px;line-height:1.25}
+  .oq h3 a{color:inherit;text-decoration:none;border-bottom:1px solid var(--c,var(--hot))}
+  .oq .sub{font-family:"Silkscreen",monospace;font-size:11px;color:var(--dim);margin:0 0 10px}
+  .oq blockquote{margin:0;white-space:pre-line;font-size:15.5px}
+  .oq .links{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+  .oq .links a{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;border:1px solid var(--line);
+    border-radius:2px;padding:5px 9px;color:var(--dim);text-decoration:none}
+  .oq .links a:hover{border-color:var(--hot);color:var(--hot)}
   @media (max-width:600px){ .entry{grid-template-columns:1fr} .entry .pic,.entry .nopic{width:120px} }
+  .jump{margin:30px 0 0;border:2px solid var(--line);border-radius:2px;background:var(--bg2);padding:14px 18px}
+  .jump p{margin:0 0 10px;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim)}
+  .jump ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:4px 18px}
+  .jump li a{font-size:14px;color:var(--text);text-decoration:none;border-bottom:1px solid transparent}
+  .jump li a:hover{border-bottom-color:var(--hot)}
+  .jump li.g{grid-column:1/-1;margin:10px 0 2px}
+  .jump li.g:first-child{margin-top:0}
+  .jump li.g a{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.06em;color:var(--hot)}
+  .grp{margin:46px 0 0;scroll-margin-top:16px}
+  .grp>h2{font-family:"Press Start 2P",monospace;font-size:14px;line-height:1.6;margin:0 0 18px;padding-bottom:10px;border-bottom:2px solid var(--line)}
+  .rk{margin:0 0 22px;background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--c,var(--hot));
+    border-radius:2px;padding:16px 18px;scroll-margin-top:16px}
+  .rk h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:22px;font-weight:700;line-height:1.25;margin:0}
+  .rk h4{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.08em;color:var(--c,var(--hot));margin:18px 0 6px}
+  .rk .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0 0;
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim)}
+  .rk .meta a,.rk a.px{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .rk .meta a:hover,.rk a.px:hover{border-color:var(--hot);color:var(--hot)}
+  .rk .tag{color:var(--c,var(--hot))}
+  ol.items{list-style:none;margin:14px 0 0;padding:0}
+  ol.items>li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 10px;padding:10px 0;border-top:1px solid var(--line)}
+  ol.items>li:first-child{border-top:none}
+  ol.items.wide>li{grid-template-columns:150px minmax(0,1fr)}
+  .pos{font-family:"Press Start 2P",monospace;font-size:12px;color:var(--c,var(--dim));padding-top:4px}
+  ol.items.wide .pos{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.04em;padding-top:3px}
+  .nm{font-weight:600;font-size:16px;line-height:1.35}
+  .nm a{color:var(--text);text-decoration:none;border-bottom:1px solid var(--c,var(--hot))}
+  .nm a:hover{color:var(--hot)}
+  .why{margin:3px 0 0;font-size:15px;color:#cfccc3}
+  .ent details{margin:6px 0 0}
+  .ent summary,.rk details.post>summary{cursor:pointer;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim)}
+  .ent summary:hover,.rk details.post>summary:hover{color:var(--hot)}
+  .ent blockquote,.rk blockquote{margin:8px 0 0;white-space:pre-line;font-size:15px;line-height:1.55;overflow-wrap:anywhere}
+  .ent a.px{display:inline-block;margin:8px 0 0;font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.06em}
+  .nm a.px{float:right;margin:0 0 0 10px;font-weight:400;border-bottom:1px solid var(--line);color:var(--dim)}
+  .rk details.post{margin:14px 0 0;border-top:1px dashed var(--line);padding-top:10px}
+  .rk details.post h5{margin:12px 0 0;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim)}
+  details.earlier{margin:16px 0 0;border:1px dashed var(--line);border-radius:2px;padding:10px 14px}
+  details.earlier>summary{cursor:pointer;font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.06em;color:var(--text)}
+  details.earlier>summary:hover{color:var(--hot)}
+  .bw{display:grid;grid-template-columns:64px minmax(0,1fr);gap:4px 14px;padding:12px 0;border-top:1px solid var(--line);scroll-margin-top:16px}
+  .bw:first-of-type{border-top:none}
+  .bw .yr{font-family:"Press Start 2P",monospace;font-size:13px;color:var(--c,var(--hot));padding-top:3px}
+  .bw .pick{margin:0;font-size:15.5px}
+  .bw .pick b{display:inline-block;width:52px;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);font-weight:400}
+  .rk h3 a,.bw .pick a{color:inherit;text-decoration:none;border-bottom:1px solid var(--c,var(--hot))}
+  .rk h3 a:hover,.bw .pick a:hover{color:var(--hot)}
+  .bw .pick a.px{float:right;margin:0 0 0 10px;border:1px solid var(--line);border-radius:2px;padding:3px 7px;
+    font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.06em;color:var(--dim)}
+  .tiers{margin:14px 0 0;border:1px solid var(--line)}
+  .tier{display:grid;grid-template-columns:58px minmax(0,1fr);border-top:1px solid var(--line)}
+  .tier:first-child{border-top:none}
+  .tier .tl{display:flex;align-items:center;justify-content:center;font-family:"Press Start 2P",monospace;font-size:16px;color:#1a1a1a}
+  .tier .tg{padding:10px 14px;font-size:14.5px;line-height:1.6}
+  .tier .tg a{color:var(--text);text-decoration:none;border-bottom:1px solid var(--line)}
+  .tier .tg a:hover{color:var(--hot);border-bottom-color:var(--hot)}
+  .tier .tg .px{margin-left:6px;font-family:"Silkscreen",monospace;font-size:9px}
+  figure.shot{margin:14px 0 0}
+  figure.shot img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:2px;background:#0a0c11}
+  figure.shot figcaption{margin:6px 0 0;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim)}
+  figure.shot figcaption a{color:var(--dim)}
+  figure.small{max-width:420px}
+  .h2h .pick{margin:12px 0 0;font-size:16px}
+  .h2h .pick b{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);font-weight:400;margin-right:8px}
+  .h2h blockquote.q{border-left:2px solid var(--c,var(--hot));padding-left:12px;font-size:16px}
+  .h2h .aside{margin:10px 0 0;font-size:13px;color:var(--dim)}
+  body.y1996 .rk{background:#000;border:2px ridge #808080;border-left:6px solid var(--c,#808080)}
+  body.y1996 .rk h3,body.y1996 .grp>h2{font-family:"Times New Roman",Times,serif;color:#ffff00}
+  body.y1996 .nm a,body.y1996 .jump li a,body.y1996 .tier .tg a{font-family:"Times New Roman",Times,serif;color:#00ffff;text-decoration:underline;border:none}
+  body.y1996 .why,body.y1996 .rk blockquote{font-family:"Times New Roman",Times,serif;color:#fff}
+  @media (max-width:640px){
+    .jump ul{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px}
+    .jump li a{font-size:13px}
+    .rk{padding:14px 14px}
+    .rk h3{font-size:19px}
+    ol.items>li{grid-template-columns:34px minmax(0,1fr)}
+    ol.items.wide>li{grid-template-columns:1fr}
+    .pos{font-size:10px}
+    .bw{grid-template-columns:1fr}
+    .tier{grid-template-columns:40px minmax(0,1fr)}
+    .tier .tl{font-size:13px}
+  }
 </style>
 </head>
 <body>
@@ -99,13 +193,15 @@
 
 <header>
   <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>
-  <h1>Overrated Game of the Day</h1>
-  <p class="standfirst">Every Overrated Game of the Day post from X, newest first, kept here as posted.</p>
+  <h1>Overrated</h1>
+  <p class="standfirst">Every game I've called overrated on X, kept here as posted.</p>
   <div class="navrow">
     <a class="navbtn" href="/index.html">The shelf</a>
     <a class="navbtn" href="/digital.html">Digital</a>
     <a class="navbtn" href="/reviews.html">Reviews</a>
     <a class="navbtn" href="/lists.html">Lists</a>
+    <a class="navbtn" href="/rankings.html">Rankings</a>
+    <a class="navbtn here" href="/overrated.html">Overrated</a>
     <a class="navbtn" href="/rank.html">Rank games</a>
     <a class="navbtn" href="/anniversaries.html">Anniversaries</a>
     <a class="navbtn" href="/onthisday.html">On this day</a>
@@ -115,6 +211,52 @@
   </div>
 </header>
 
+<nav class="jump" aria-label="Jump to a part">
+<p>JUMP TO</p>
+<ul>
+<li><a href="#top-5">Top 5 most overrated</a></li><li><a href="#game-of-the-day">Overrated Game of the Day</a></li><li><a href="#reviews">In my reviews</a></li><li><a href="#posts">Other posts</a></li>
+</ul>
+</nav>
+
+<section class="grp" id="top-5">
+<h2>Top 5 most overrated</h2>
+<article class="rk" id="top-5-list" style="--c:#ff4b3e">
+<h3>Top 5 most overrated games of all time</h3>
+<div class="meta"><span>September 7, 2026</span><a href="https://x.com/NostalgiaPro/status/2097096344670495120" target="_blank" rel="noopener">View on X</a></div>
+<ol class="items">
+<li class="ent"><span class="pos">1</span><div><div class="nm"><a href="/game/legend-of-zelda-ocarina-of-time-nintendo-64.html">Ocarina of Time</a> <a class="px" href="https://x.com/NostalgiaPro/status/2097096356599095787" target="_blank" rel="noopener">Post</a></div><p class="why">The highest reviewed video game in history at a 99, and the default number one pick on more lists than anything else ever released.</p><details><summary>More</summary><blockquote>It was fun in 1998 and it has not aged well at all. 
+
+Majora's Mask is the better game on the same engine, darker and more interesting from start to finish.</blockquote></details></div></li>
+<li class="ent"><span class="pos">2</span><div><div class="nm"><a href="/game/final-fantasy-vii-playstation-1.html">Final Fantasy VII</a> <a class="px" href="https://x.com/NostalgiaPro/status/2097096354082554251" target="_blank" rel="noopener">Post</a></div><p class="why">Every list of the best games ever made has this one on it somewhere.</p><details><summary>More</summary><blockquote>I bought it because people I worked with told me it was the best game ever made. 
+
+It bored me then, and the remake didn't change my mind.</blockquote></details></div></li>
+<li class="ent"><span class="pos">3</span><div><div class="nm">Grand Theft Auto IV <a class="px" href="https://x.com/NostalgiaPro/status/2097096352123773149" target="_blank" rel="noopener">Post</a></div><p class="why">This one got called the best Grand Theft Auto ever made when it came out and people still defend it that way.</p><details><summary>More</summary><blockquote>I played about an hour of it years ago and was
+bored out of my mind. 
+
+I thought GTA 5 was better.</blockquote></details></div></li>
+<li class="ent"><span class="pos">4</span><div><div class="nm">The Elder Scrolls V: Skyrim <a class="px" href="https://x.com/NostalgiaPro/status/2097096349741367630" target="_blank" rel="noopener">Post</a></div><p class="why">Game of the year in 2011, then re-released on almost every piece of hardware that has come out since. I played Skyrim on PC in 2012 to see what the big deal was.</p><details><summary>More</summary><blockquote>Open world bloat. 
+
+The only good thing to come out of that game is the &quot;took an arrow to the knee&quot; meme.</blockquote></details></div></li>
+<li class="ent"><span class="pos">5</span><div><div class="nm"><a href="/game/red-dead-redemption-ii-xbox-one.html">Red Dead Redemption 2</a> <a class="px" href="https://x.com/NostalgiaPro/status/2097096347040292961" target="_blank" rel="noopener">Post</a></div><p class="why">People called it the best western game ever made.</p><details><summary>More</summary><blockquote>It bored me. 
+
+Gun did the open world western first, years earlier, on weaker hardware, and got none of the credit for it.</blockquote></details></div></li>
+</ol>
+<details class="post"><summary>Opening and closing posts</summary><h5>How the thread opened</h5><blockquote>Top 5 most overrated games of all time.
+
+Every single one of these sits near the top of somebody's greatest games ever list. One of them is the highest reviewed game in history.
+
+Number one is going to anger a lot of people.
+
+Top 5🧵⤵️</blockquote><h5>How it closed <a class="px" href="https://x.com/NostalgiaPro/status/2097096358641704973" target="_blank" rel="noopener">Post</a></h5><blockquote>None of these are bad games. Not one of them belongs near the top of a greatest of all time list though.
+
+These games either haven't aged well or were incredibly boring.
+
+Click the follow button for more unpopular opinions!</blockquote></details>
+</article>
+</section>
+
+<section class="grp" id="game-of-the-day">
+<h2>Overrated Game of the Day</h2>
 <p class="count">7 POSTS</p>
 <article class="entry" id="x-2103268969767682096" style="--c:#3fa65b">
   <div><img class="pic" loading="lazy" src="/images/super-mario-64-nintendo-64.webp" alt="Super Mario 64"></div>
@@ -147,6 +289,7 @@ Going from Super Mario World to Super Mario 64 was a massive drop-off.</blockquo
     <p class="when">September 22, 2026</p>
     <h2><a href="/game/legend-of-zelda-nes.html">The Legend of Zelda</a></h2>
     <p class="sys">NES</p>
+    <p class="fake"><b>JUST KIDDING</b>Not a real pick: “Just kidding. This is one of the greatest games of all time.”</p>
     <blockquote>This game is on every greatest games of all time list out there. You get a sword from an old man in a cave. After that, good luck, the rest is on you.
 
 Some of the dungeons you can't even find without burning a bush or bombing a wall. Not any bush either, one specific bush out of hundreds that the game never points out.
@@ -279,8 +422,60 @@ The game is fine for what it is but calling it a masterpiece is an insult to rea
     </div>
   </div>
 </article>
+</section>
 
-<p class="note">New ones get added when tools/build_overrated.py runs.</p>
+<section class="grp" id="reviews">
+<h2>In my reviews</h2>
+<article class="oq" id="x-2084681420908446057">
+<p class="when">August 4, 2026 · HONEST AND UNPOPULAR REVIEWS NO. 11</p>
+<h3><a href="/game/legend-of-zelda-ocarina-of-time-nintendo-64.html">The Legend of Zelda: Ocarina of Time (N64)</a></h3>
+<blockquote>This is the most overrated game ever made.</blockquote>
+<div class="links">
+  <a href="/reviews.html#r-11">Read the review</a>
+  <a href="https://x.com/NostalgiaPro/status/2084681420908446057" target="_blank" rel="noopener">View on X</a>
+</div>
+</article>
+<article class="oq" id="x-2092724759679427044">
+<p class="when">August 26, 2026 · HONEST AND UNPOPULAR REVIEWS NO. 27</p>
+<h3>Donkey Kong</h3>
+<p class="sub">From my review of Popeye (NES)</p>
+<blockquote>Donkey Kong is the most overrated arcade game Nintendo ever made, and the proof is sitting right next to it.</blockquote>
+<div class="links">
+  <a href="/reviews.html#r-27">Read the review</a>
+  <a href="https://x.com/NostalgiaPro/status/2092724759679427044" target="_blank" rel="noopener">View on X</a>
+</div>
+</article>
+</section>
+
+<section class="grp" id="posts">
+<h2>Other posts</h2>
+<article class="oq" id="x-2069297360354857203">
+<p class="when">June 22, 2026</p>
+<h3>Super Mario Galaxy and <a href="/game/super-mario-odyssey-nintendo-switch.html">Super Mario Odyssey</a></h3>
+<blockquote>Super Mario Galaxy and Odyssey are the most overrated games Nintendo ever made. I quit Galaxy in under an hour and finally gave up on Odyssey about halfway through.
+ 
+Then Super Mario Wonder comes out and reminds you what a Mario game is supposed to feel like. Tight, inventive, fun from the first jump. I didn't want to put it down.
+ 
+Super Mario World did it in 1990. Wonder did it in 2023. The 3D games keep chasing spectacle and forgetting the part where it's fun.
+
+The best 2D Mario beats anything they've made in 3D. Not close.</blockquote>
+<div class="links">
+  <a href="https://x.com/NostalgiaPro/status/2069297360354857203" target="_blank" rel="noopener">View on X</a>
+</div>
+</article>
+<article class="oq" id="x-2065654755339448336">
+<p class="when">June 12, 2026 · QUOTE POST</p>
+<h3><a href="/game/legend-of-zelda-ocarina-of-time-nintendo-64.html">The Legend of Zelda: Ocarina of Time (N64)</a></h3>
+<blockquote>I'm dropping Zelda Ocarina of Time. 
+
+Not only is this the most overrated franchise in the history of gaming, it's not even the best Zelda game on the N64.</blockquote>
+<div class="links">
+  <a href="https://x.com/NostalgiaPro/status/2065654755339448336" target="_blank" rel="noopener">View on X</a>
+</div>
+</article>
+</section>
+
+<p class="note">Every other list I've posted is on the <a href="/rankings.html" style="color:inherit">Rankings</a> page.</p>
 
 </div>
 <script>

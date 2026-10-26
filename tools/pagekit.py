@@ -5,6 +5,7 @@ from sitedata import esc
 import site_config as cfg
 
 NAV = [("/index.html", "The shelf"), ("/digital.html", "Digital"), ("/reviews.html", "Reviews"), ("/lists.html", "Lists"),
+       ("/rankings.html", "Rankings"), ("/overrated.html", "Overrated"),
        ("/rank.html", "Rank games"), ("/anniversaries.html", "Anniversaries"),
        ("/onthisday.html", "On this day"),
        ("/consoles.html", "Consoles"), ("/gaps.html", "The gaps"), ("/stats.html", "The numbers")]

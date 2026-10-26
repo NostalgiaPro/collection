@@ -1,11 +1,11 @@
 /* Bump this string whenever you upload new files, or phones keep the old ones. */
-const CACHE = "nostalgiapro-v16";
+const CACHE = "nostalgiapro-v17";
 
 const PAGES = [
   "/", "/index.html", "/anniversaries.html", "/consoles.html", "/reviews.html",
   "/lists.html", "/stats.html", "/gaps.html", "/rank.html", "/movies.html", "/tv.html",
   "/music.html", "/boardgames.html", "/shelf.html", "/media.html", "/credits.html",
-  "/overrated.html", "/onthisday.html", "/digital.html", "/data/on-this-day/shelf.json",
+  "/overrated.html", "/rankings.html", "/onthisday.html", "/digital.html", "/data/on-this-day/shelf.json",
   "/console/game-boy-color.html", "/console/game-boy.html", "/console/gamecube.html", "/console/nes.html", "/console/nintendo-3ds.html", "/console/nintendo-64.html", "/console/nintendo-ds.html", "/console/nintendo-switch.html", "/console/pc.html", "/console/playstation-1.html", "/console/playstation-2.html", "/console/playstation-3.html", "/console/playstation-4.html", "/console/psp.html", "/console/sega-dreamcast.html", "/console/sega-genesis.html", "/console/sega-saturn.html", "/console/snes.html", "/console/wii.html", "/console/xbox-360.html", "/console/xbox-one.html", "/console/xbox-series-x-s.html", "/console/xbox.html",
   "/retro.css", "/icon-192.png", "/icon-512.png"
 ];

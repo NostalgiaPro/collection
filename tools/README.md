@@ -17,6 +17,7 @@ else. Run them from the repo root.
 | Review scores | `R` in `reviews.html` |
 | Rankings | `LISTS` in `lists.html` |
 | RC's X posts | `tools/data/x_posts.json` (id, created_at, text, reply_to) |
+| Rankings and overrated posts (word for word) | `tools/data/rankings.json` |
 
 `tools/sitedata.py` reads all of these the same way the pages' own
 JavaScript does (same slug code, same `nkey()`), so a generated page and
@@ -97,17 +98,44 @@ PCGamingWiki) in a new tab; games with no art get a plain stand-in tile.
 Nothing is fetched by the script. Adds `digital.html` to `sitemap.xml` if
 it's missing.
 
-## `build_overrated.py`: the Overrated Game of the Day archive
+## `build_rankings.py`: the Rankings page
+
+```
+python3 tools/build_rankings.py
+```
+
+Writes `rankings.html` from `tools/data/rankings.json`: every ranking from
+X as its own section, grouped by console, by series and topic, consoles,
+by year (including the Best and Worst Games I Own series, 1985 to 2000),
+tier lists and head-to-heads, with a jump list at the top. Names, order
+and reasons are word for word. Each list links to its post, and each
+thread entry to its own reply; the rest of an entry's post and a thread's
+opening and closing posts fold away under it. The SNES top 10 shows the
+May 2026 list with the January 2026 one folded under it. The SNES, PS1 and
+N64 tier lists were only ever a picture, so the picture from the post is
+shown (`images/rankings/`, .webp, no metadata); the NES one was typed out
+in the replies and is shown as text. Only head-to-heads where the post
+names the winner are in (plus the two-carts post, where the photo makes it
+clear). A game links to its game page when it's on the shelf (strict
+match, see the top of the script and `ALIASES` there), a console to its
+console page. Adds `rankings.html` to `sitemap.xml` once. Nothing is
+fetched.
+
+## `build_overrated.py`: the Overrated page
 
 ```
 python3 tools/build_overrated.py
 ```
 
-Rewrites `overrated.html` from `tools/data/x_posts.json`: every post whose
-first line starts "Overrated Game of the Day", newest first, with the date,
-the post text as written, a link to the post on X, and the shelf photo and
-game page when the game is on the shelf. Re-run after new posts are added
-to the data file. It also adds `overrated.html` to `sitemap.xml` once.
+Rewrites `overrated.html`: the Top 5 most overrated thread (from
+`tools/data/rankings.json`), then every post from `tools/data/x_posts.json`
+whose first line starts "Overrated Game of the Day", newest first, with the
+date, the post text as written, a link to the post on X, and the shelf
+photo and game page when the game is on the shelf (the Zelda one is marked
+as the "Just kidding" fake-out it is), then the reviews where a game gets
+called overrated (linked to `reviews.html`), then other posts. Re-run after
+new posts are added to the data files. It also adds `overrated.html` to
+`sitemap.xml` once.
 
 ## `build_console_pages.py`: a page per console
 

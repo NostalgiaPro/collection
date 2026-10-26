@@ -1,13 +1,22 @@
 #!/usr/bin/env python3
-"""Build overrated.html: every "Overrated Game of the Day!" post, newest first.
+"""Build overrated.html: every time I've called a game overrated on X.
 
     python3 tools/build_overrated.py
 
-Reads tools/data/x_posts.json. A post counts when its first line starts
-with "Overrated Game of the Day". The next line is the game, written
-"Title (System)"; if that game is on the shelf the entry gets its photo and
-a link to its game page. Post text is shown exactly as posted (links to
-pictures removed). Safe to re-run."""
+Four parts, in this order:
+  * the Top 5 most overrated games thread, from tools/data/rankings.json
+    ("overrated" -> "top5"), each entry linked to its post;
+  * every "Overrated Game of the Day!" post, newest first, from
+    tools/data/x_posts.json. A post counts when its first line starts with
+    "Overrated Game of the Day". The next line is the game, written
+    "Title (System)"; if that game is on the shelf the entry gets its photo
+    and a link to its game page. The post rankings.json names as the
+    fake-out ("overrated" -> "fakeout") is marked with his own line;
+  * the reviews where I called a game overrated ("overrated" -> "reviews"),
+    linked to reviews.html#r-N and to X;
+  * other posts ("overrated" -> "posts"), quoted in full.
+Post text is shown exactly as posted (links to pictures removed). Safe to
+re-run."""
 import os, re, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -35,6 +44,18 @@ CSS = """  .entry{display:grid;grid-template-columns:150px 1fr;gap:22px;margin:0
     border-radius:2px;padding:5px 9px;color:var(--dim);text-decoration:none}
   .entry .links a:hover{border-color:var(--hot);color:var(--hot)}
   .count{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.08em;color:var(--hot);margin:30px 0 16px}
+  .entry .fake{margin:0 0 12px;padding:8px 12px;border:1px dashed var(--c);border-radius:2px;font-size:14px}
+  .entry .fake b{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--c);font-weight:400;margin-right:8px}
+  .oq{margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:16px 18px}
+  .oq .when{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;color:var(--dim);margin:0}
+  .oq h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:21px;font-weight:700;margin:6px 0 2px;line-height:1.25}
+  .oq h3 a{color:inherit;text-decoration:none;border-bottom:1px solid var(--c,var(--hot))}
+  .oq .sub{font-family:"Silkscreen",monospace;font-size:11px;color:var(--dim);margin:0 0 10px}
+  .oq blockquote{margin:0;white-space:pre-line;font-size:15.5px}
+  .oq .links{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+  .oq .links a{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;border:1px solid var(--line);
+    border-radius:2px;padding:5px 9px;color:var(--dim);text-decoration:none}
+  .oq .links a:hover{border-color:var(--hot);color:var(--hot)}
   @media (max-width:600px){ .entry{grid-template-columns:1fr} .entry .pic,.entry .nopic{width:120px} }
 """
 
@@ -62,15 +83,35 @@ def entries():
 
 
 def build():
+    import build_rankings as br
     es = entries()
-    desc = ("Every Overrated Game of the Day post from my X account, newest first, "
-            "with the game from my collection.")
-    h = [head("The Nostalgia Pro \u2014 Overrated Game of the Day", desc, "/overrated.html", None, "860px", CSS)]
+    ov = br.load()["overrated"]
+    L = br.Linker()
+    desc = ("Every time I've called a game overrated on X: the top 5 thread, "
+            "Overrated Game of the Day, and the reviews and posts in between.")
+    h = [head("The Nostalgia Pro \u2014 Overrated", desc, "/overrated.html", None, "860px", CSS + br.CSS)]
     h.append('<body>\n<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>\n')
-    h.append('  <h1>Overrated Game of the Day</h1>\n')
-    h.append('  <p class="standfirst">Every Overrated Game of the Day post from X, newest first, kept here as posted.</p>\n')
-    h.append(nav())
+    h.append('  <h1>Overrated</h1>\n')
+    h.append("  <p class=\"standfirst\">Every game I've called overrated on X, kept here as posted.</p>\n")
+    h.append(nav("/overrated.html"))
     h.append('</header>\n\n')
+    parts = [("top-5", "Top 5 most overrated"), ("game-of-the-day", "Overrated Game of the Day"),
+             ("reviews", "In my reviews"), ("posts", "Other posts")]
+    h.append('<nav class="jump" aria-label="Jump to a part">\n<p>JUMP TO</p>\n<ul>\n'
+             + "".join(f'<li><a href="#{k}">{t}</a></li>' for k, t in parts) + '\n</ul>\n</nav>\n\n')
+
+    # 1. the top 5 thread
+    t = ov["top5"]
+    h.append('<section class="grp" id="top-5">\n<h2>Top 5 most overrated</h2>\n')
+    h.append('<article class="rk" id="top-5-list" style="--c:#ff4b3e">\n<h3>Top 5 most overrated games of all time</h3>\n')
+    h.append(br.meta(t))
+    h.append(br.items_ol(L, t["items"], None))
+    h.append(br.post_text(t, False))
+    h.append('</article>\n</section>\n\n')
+
+    # 2. Overrated Game of the Day
+    fake = ov.get("fakeout") or {}
+    h.append(f'<section class="grp" id="game-of-the-day">\n<h2>Overrated Game of the Day</h2>\n')
     h.append(f'<p class="count">{len(es)} POSTS</p>\n')
     for e in es:
         g, p = e["game"], e["post"]
@@ -84,17 +125,46 @@ def build():
         h.append(f'<article class="entry" id="x-{p["id"]}" style="--c:{color}">\n  <div>{pic}</div>\n  <div>\n')
         h.append(f'    <p class="when">{post_date(p["created_at"])}</p>\n    <h2>{name}</h2>\n')
         h.append(f'    <p class="sys">{esc(e["system"])}</p>\n')
+        if p["id"] == fake.get("id"):
+            h.append(f'    <p class="fake"><b>JUST KIDDING</b>Not a real pick: \u201c{esc(fake["quote"])}\u201d</p>\n')
         h.append(f'    <blockquote>{esc(e["body"])}</blockquote>\n    <div class="links">\n')
         h.append(f'      <a href="https://x.com/{cfg.X_HANDLE}/status/{p["id"]}" target="_blank" rel="noopener">View on X</a>\n')
         if g:
             h.append(f'      <a href="/game/{g["slug"]}.html">Game page</a>\n')
         h.append('    </div>\n  </div>\n</article>\n')
-    h.append('\n<p class="note">New ones get added when tools/build_overrated.py runs.</p>\n\n</div>\n')
+    h.append('</section>\n\n')
+
+    # 3. reviews
+    h.append('<section class="grp" id="reviews">\n<h2>In my reviews</h2>\n')
+    for r in ov["reviews"]:
+        g = L.game(r["game"])
+        name = f'<a href="/game/{g["slug"]}.html">{esc(r["game"])}</a>' if g else esc(r["game"])
+        sub = f'From my review of {r["reviewed"]}' if r.get("reviewed") else ""
+        h.append(f'<article class="oq" id="x-{r["id"]}">\n<p class="when">{br.nice_date(r["date"])} \u00b7 HONEST AND UNPOPULAR REVIEWS NO. {r["review"]}</p>\n')
+        h.append(f'<h3>{name}</h3>\n' + (f'<p class="sub">{esc(sub)}</p>\n' if sub else ""))
+        h.append(f'<blockquote>{esc(r["quote"])}</blockquote>\n<div class="links">\n')
+        h.append(f'  <a href="/reviews.html#r-{r["review"]}">Read the review</a>\n')
+        h.append(f'  <a href="{br.xurl(r["id"])}" target="_blank" rel="noopener">View on X</a>\n</div>\n</article>\n')
+    h.append('</section>\n\n')
+
+    # 4. other posts
+    h.append('<section class="grp" id="posts">\n<h2>Other posts</h2>\n')
+    for r in ov["posts"]:
+        names = " and ".join(
+            (f'<a href="/game/{g["slug"]}.html">{esc(n)}</a>' if (g := L.game(n)) else esc(n)) for n in r["games"])
+        label = " \u00b7 QUOTE POST" if r.get("quote_post") else ""
+        h.append(f'<article class="oq" id="x-{r["id"]}">\n<p class="when">{br.nice_date(r["date"])}{label}</p>\n<h3>{names}</h3>\n')
+        h.append(f'<blockquote>{esc(r["text"])}</blockquote>\n<div class="links">\n')
+        h.append(f'  <a href="{br.xurl(r["id"])}" target="_blank" rel="noopener">View on X</a>\n</div>\n</article>\n')
+    h.append('</section>\n\n')
+
+    h.append('<p class="note">Every other list I\'ve posted is on the <a href="/rankings.html" style="color:inherit">Rankings</a> page.</p>\n\n</div>\n')
     h.append(FOOT_JS)
     with open(os.path.join(sd.ROOT, "overrated.html"), "w", encoding="utf-8") as f:
         f.write("".join(h))
     add_to_sitemap("/overrated.html")
-    print(f"overrated.html: {len(es)} posts, {sum(1 for e in es if e['game'])} on the shelf")
+    print(f"overrated.html: top 5, {len(es)} Game of the Day posts ({sum(1 for e in es if e['game'])} on the shelf), "
+          f"{len(ov['reviews'])} reviews, {len(ov['posts'])} other posts")
 
 
 def add_to_sitemap(path):
