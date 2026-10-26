@@ -157,7 +157,29 @@
 const ITEMS = [{"t": "Parcheesi (Selchow & Righter)", "f": "Board games", "y": null}, {"t": "Blockbuster: The Movie Game", "f": "Board games", "y": null}];
 const COLORS = {"VHS": "#e0a33a", "LaserDisc": "#c85cc8", "DVD": "#4a78d6", "Blu-ray": "#2f6fe0", "Vinyl": "#d3d0c8", "Cassette": "#c97a3a", "CD": "#8fb8d6", "Board games": "#4aab7a"};
 const fold = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-/* Cover art lives in the same images folder: images/<title>-<format>.jpg */
+/* Photos: images/<slug>.webp first, then a .jpg straight off the phone.
+   Whatever loads first wins. */
+const SHOT_TRIES = ["images/{s}.webp", "images/{s}.jpg"];
+function shotTries(s){ return SHOT_TRIES.map(p => p.replace("{s}", s)); }
+function shotAttrs(s){
+  const t = shotTries(s);
+  return `src="${t[0]}" data-next="${t.slice(1).join("|")}" onerror="nextShot(this)"`;
+}
+function nextShot(img){
+  const t = (img.dataset.next || "").split("|").filter(Boolean);
+  if (!t.length) { img.remove(); return; }
+  img.dataset.next = t.slice(1).join("|");
+  img.src = t[0];
+}
+function loadShot(s, ok, fail){
+  const t = shotTries(s);
+  (function next(){
+    if (!t.length) { if (fail) fail(); return; }
+    const u = t.shift(), i = new Image();
+    i.onload = () => ok(u); i.onerror = next; i.src = u;
+  })();
+}
+/* Cover art lives in the same images folder: images/<title>-<format>.webp */
 const slug = x => (x.t + "-" + x.f).toLowerCase().normalize("NFD")
   .replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 const wiki = t => "https://en.wikipedia.org/w/index.php?search=" +
@@ -198,8 +220,7 @@ function render(){
         <p>${hits.length} of ${f.items.length}</p></div>
       <ol class="items">${hits.map(x =>
         `<li>` +
-        `<img class="shot" loading="lazy" src="images/${slug(x)}.jpg" alt="${esc(x.t)}"` +
-        ` onerror="this.remove()">` +
+        `<img class="shot" loading="lazy" ${shotAttrs(slug(x))} alt="${esc(x.t)}">` +
         `<i class="mark"></i>` +
         `<span class="title"><a href="${wiki(x.t)}" target="_blank" rel="noopener">${esc(x.t)}</a></span>` +
         (x.y ? `<span class="yr">${x.y}</span>` : "") + `</li>`).join("")}</ol>

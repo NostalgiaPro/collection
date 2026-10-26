@@ -917,7 +917,7 @@ const EVENTS = [
   [10,0,1999,"Ms. Pac-Man: Special Color Edition","Game Boy Color",""],
   [12,0,2000,"Q*bert","Game Boy Color",""],
   [12,0,1998,"Quest for Camelot","Game Boy Color",""],
-  [3,0,1988,"Super Mario Bros (Game Watch","Game & Watch",""],
+  [3,0,1988,"Super Mario Bros. (Game & Watch)","Game & Watch",""],
   [1,0,1996,"Cyberia","PlayStation 1",""],
   [9,0,1996,"Final Doom","PlayStation 1",""],
   [11,0,1996,"Gunship","PlayStation 1",""],
@@ -1250,11 +1250,33 @@ const COLORS = {
 };
 
 const MON=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+/* Photos: images/<slug>.webp first, then a .jpg straight off the phone.
+   Whatever loads first wins. */
+const SHOT_TRIES = ["images/{s}.webp", "images/{s}.jpg"];
+function shotTries(s){ return SHOT_TRIES.map(p => p.replace("{s}", s)); }
+function shotAttrs(s){
+  const t = shotTries(s);
+  return `src="${t[0]}" data-next="${t.slice(1).join("|")}" onerror="nextShot(this)"`;
+}
+function nextShot(img){
+  const t = (img.dataset.next || "").split("|").filter(Boolean);
+  if (!t.length) { img.remove(); return; }
+  img.dataset.next = t.slice(1).join("|");
+  img.src = t[0];
+}
+function loadShot(s, ok, fail){
+  const t = shotTries(s);
+  (function next(){
+    if (!t.length) { if (fail) fail(); return; }
+    const u = t.shift(), i = new Image();
+    i.onload = () => ok(u); i.onerror = next; i.src = u;
+  })();
+}
 const slug = (t,c) => (t+"-"+c).toLowerCase().normalize("NFD")
   .replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 
 /* Hardware photos are named after the console plus "-console", e.g.
-   nintendo-64-console.jpg, so the same file serves the consoles page.
+   nintendo-64-console.webp, so the same file serves the consoles page.
    Games stay title plus console. */
 const shotSlug = x => x.hw ? slug(x.con,"console") : slug(x.name,x.con);
 
@@ -1300,7 +1322,7 @@ if (hero) {
   const sameDay = ahead.filter(x => x.days === hero.days && x !== hero);
   const sl = shotSlug(hero);
   document.getElementById("hero").innerHTML =
-    `<div class="hero-shot" id="heroShot" data-shot="${sl}">images/${sl}.jpg</div>
+    `<div class="hero-shot" id="heroShot" data-shot="${sl}">images/${sl}.webp</div>
      <div class="hero-body">
        <div class="countdown">${hero.days === 1 ? "Tomorrow" : "In " + hero.days + " days"}</div>
        <h2>${hero.name}</h2>
@@ -1309,12 +1331,10 @@ if (hero) {
        ${sameDay.length ? `<div class="riders">Same day: ${
          sameDay.map(x=>`<b>${x.name}</b>`).join(" and ")} ${sameDay.length>1?"both turn":"turns"} ${sameDay[0].age}.</div>` : ""}
      </div>`;
-  const probe = new Image();
-  probe.onload = () => {
+  loadShot(sl, u => {
     const h = document.getElementById("heroShot");
-    h.style.backgroundImage = `url('images/${sl}.jpg')`; h.textContent = "";
-  };
-  probe.src = "images/" + sl + ".jpg";
+    h.style.backgroundImage = `url('${u}')`; h.textContent = "";
+  });
 }
 
 /* ---- today ---- */
@@ -1358,12 +1378,14 @@ function draw(){
   document.querySelectorAll(".entry[data-shot]:not([data-nomedia])").forEach(entry => {
     const sl = entry.dataset.shot, img = new Image();
     img.className = "shot"; img.loading = "lazy"; img.alt = "";
+    const tries = shotTries(sl);
     img.onerror = () => {
+      if (tries.length) { img.src = tries.shift(); return; }
       const box = document.createElement("span");
-      box.className = "shot missing"; box.textContent = sl + ".jpg";
+      box.className = "shot missing"; box.textContent = sl + ".webp";
       img.replaceWith(box);
     };
-    img.src = "images/" + sl + ".jpg";
+    img.src = tries.shift();
     entry.prepend(img);
   });
 }

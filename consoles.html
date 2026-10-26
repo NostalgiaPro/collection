@@ -517,7 +517,7 @@ Super Mario Odyssey (CIB)
 Super Mario RPG (CIB)
 
 ## Game & Watch
-Super Mario Bros (Game Watch (CIB)
+Super Mario Bros. (Game & Watch) (CIB)
 
 ## PlayStation 1
 007: The World Is Not Enough (loose)
@@ -1109,6 +1109,28 @@ function ageLine(name){
 }
 
 const TINT={cib:"#3fbf6a",part:"#c9c34a",loose:"#6b7185"};
+/* Photos: images/<slug>.webp first, then a .jpg straight off the phone.
+   Whatever loads first wins. */
+const SHOT_TRIES = ["images/{s}.webp", "images/{s}.jpg"];
+function shotTries(s){ return SHOT_TRIES.map(p => p.replace("{s}", s)); }
+function shotAttrs(s){
+  const t = shotTries(s);
+  return `src="${t[0]}" data-next="${t.slice(1).join("|")}" onerror="nextShot(this)"`;
+}
+function nextShot(img){
+  const t = (img.dataset.next || "").split("|").filter(Boolean);
+  if (!t.length) { img.remove(); return; }
+  img.dataset.next = t.slice(1).join("|");
+  img.src = t[0];
+}
+function loadShot(s, ok, fail){
+  const t = shotTries(s);
+  (function next(){
+    if (!t.length) { if (fail) fail(); return; }
+    const u = t.shift(), i = new Image();
+    i.onload = () => ok(u); i.onerror = next; i.src = u;
+  })();
+}
 const slug = s => s.toLowerCase().normalize("NFD")
   .replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 
@@ -1131,7 +1153,7 @@ document.getElementById("grid").innerHTML =
     }).join(""):"";
     const line=ageLine(s.name);
     return `<a class="card" href="${s.id?`index.html#${s.id}`:`index.html`}" style="--c:${s.color}">
-      <div class="shot" data-shot="${sl}">images/${sl}.jpg</div>
+      <div class="shot" data-shot="${sl}">images/${sl}.webp</div>
       <div class="body">
         <h2>${s.name}</h2>
         ${line?`<p class="launch">${line}</p>`:""}
@@ -1145,9 +1167,7 @@ document.getElementById("grid").innerHTML =
   }).join("");
 
 document.querySelectorAll(".shot[data-shot]").forEach(el => {
-  const sl=el.dataset.shot, probe=new Image();
-  probe.onload = () => { el.style.backgroundImage=`url('images/${sl}.jpg')`; el.textContent=""; };
-  probe.src="images/"+sl+".jpg";
+  loadShot(el.dataset.shot, u => { el.style.backgroundImage=`url('${u}')`; el.textContent=""; });
 });
 </script>
 <script>
