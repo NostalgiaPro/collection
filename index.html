@@ -356,6 +356,7 @@
   }
   .elsewhere a:hover{border-color:var(--hot);color:var(--hot)}
   .elsewhere a:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  @media (display-mode: standalone){.applink{display:none}} /* already in the app */
 
   @media (max-width:880px){
     .cols{grid-template-columns:1fr;gap:22px}
@@ -462,6 +463,7 @@
       <a href="https://x.com/NostalgiaPro" target="_blank" rel="noopener">X / Twitter</a>
       <a href="https://www.youtube.com/@TheNostalgiaPro" target="_blank" rel="noopener">YouTube</a>
       <a href="https://substack.com/@nostalgiapro" target="_blank" rel="noopener">Substack</a>
+      <a class="applink" href="https://play.google.com/store/apps/details?id=com.thenostalgiapro.shelf" target="_blank" rel="noopener">Get the Android app</a>
       <a href="media.html">Partnerships</a>
     </div>
     <p>The Nostalgia Pro. Pulled from my Gameye export of October 25, 2026.</p>
