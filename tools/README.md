@@ -74,3 +74,27 @@ first line starts "Overrated Game of the Day", newest first, with the date,
 the post text as written, a link to the post on X, and the shelf photo and
 game page when the game is on the shelf. Re-run after new posts are added
 to the data file. It also adds `overrated.html` to `sitemap.xml` once.
+
+## `build_console_pages.py`: a page per console
+
+```
+python3 tools/build_console_pages.py
+python3 tools/build_game_pages.py     # refreshes sitemap.xml with the console pages
+```
+
+Writes `console/<id>.html` for every console with 6 or more games (linked
+from each card on `consoles.html`). Each page has:
+
+* RC's own "the library goes deeper" thread for that console, when there
+  is one (Genesis, SNES, N64 so far): opening post, the ten games in his
+  order with his text, closing post, all as posted and linked to X.
+* **Also on the shelf**: every game owned for that console, A to Z, minus
+  the handful everybody names. That handful is never picked by taste:
+  - where RC's thread names them ("No Sonic. No Streets of Rage. No Mortal
+    Kombat."), it's exactly those (plus sequels starting with the name);
+  - otherwise it's the 6 titles with the most user *ratings* (a count of
+    how many people rated it, not the score) on Metacritic, from
+    `tools/data/metacritic_counts.csv`. RC's own line: "Every console has
+    the same six games people name."
+  - consoles with 12 games or fewer just list everything.
+  The page says which rule was used and lists what was left out.

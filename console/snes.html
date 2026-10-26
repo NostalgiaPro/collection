@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="All 68 SNES games in my collection, and my thread on the rest of the SNES library.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="SNES | The Nostalgia Pro">
+<meta property="og:description" content="All 68 SNES games in my collection, and my thread on the rest of the SNES library.">
+<meta property="og:url" content="https://thenostalgiapro.com/console/snes.html">
+<meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SNES | The Nostalgia Pro">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="SNES | The Nostalgia Pro">
+<meta name="twitter:description" content="All 68 SNES games in my collection, and my thread on the rest of the SNES library.">
+<meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
+<link rel="canonical" href="https://thenostalgiapro.com/console/snes.html">
+<title>SNES | The Nostalgia Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/retro.css">
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 22px 90px}
+  header{padding:44px 0 0}
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  .wordmark a{color:inherit;text-decoration:none}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;text-decoration:none;
+    border:2px solid var(--line);color:var(--dim);
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+  .barlabel{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:34px 0 10px}
+  .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:64ch}
+  .xpost{
+    margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);
+    border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:14px 18px;
+  }
+  .xpost blockquote{margin:0;white-space:pre-line;font-size:15px}
+  .xpost .meta{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0 0;
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);
+  }
+  .xpost .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .xpost .meta a:hover{border-color:var(--hot);color:var(--hot)}
+  .crumb{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;margin:30px 0 0}
+  .crumb a{color:var(--dim);text-decoration:none}
+  .crumb a:hover{color:var(--hot)}
+  h1{color:var(--c)}
+  .sec{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.1em;color:var(--c);margin:44px 0 6px}
+  .why{font-size:13.5px;color:var(--dim);margin:0 0 18px;max-width:70ch}
+  .why a{color:var(--dim)}
+  .pick{display:grid;grid-template-columns:110px 1fr;gap:18px;margin:0 0 16px;background:var(--bg2);
+    border:1px solid var(--line);border-left:4px solid var(--c);border-radius:2px;padding:16px}
+  .pick img,.pick .nopic{width:110px;border:1px solid var(--line);border-radius:2px;display:block}
+  .pick .nopic{aspect-ratio:3/4;border-style:dashed;display:flex;align-items:center;justify-content:center;
+    font-family:"Silkscreen",monospace;font-size:8px;color:var(--dim);text-align:center;padding:6px}
+  .pick h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:20px;margin:0 0 8px;line-height:1.25}
+  .pick h3 a{color:inherit;text-decoration:none}
+  .pick h3 a:hover{color:var(--c)}
+  .pick h3 em{font-style:normal;font-family:"Press Start 2P",monospace;font-size:11px;color:var(--c);margin-right:10px}
+  .pick blockquote{margin:0;white-space:pre-line;font-size:14.5px}
+  .pick .meta{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;color:var(--dim);margin:12px 0 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .pick .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .pick .meta a:hover{border-color:var(--hot);color:var(--hot)}
+  .shelfgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:14px;margin:8px 0 0}
+  .tile{text-decoration:none;color:inherit;display:block}
+  .tile .im{aspect-ratio:3/4;background:var(--panel) center/cover no-repeat;border:1px solid var(--line);border-radius:2px;
+    display:flex;align-items:center;justify-content:center;font-family:"Silkscreen",monospace;font-size:8px;color:var(--dim);
+    text-align:center;padding:6px}
+  .tile:hover .im{border-color:var(--c)}
+  .tile span{display:block;font-size:12.5px;line-height:1.3;margin-top:6px}
+  .famous{font-size:13.5px;color:var(--dim)}
+  .famous a{color:var(--dim)}
+  @media (max-width:600px){ .pick{grid-template-columns:80px 1fr} .pick img,.pick .nopic{width:80px}
+    .shelfgrid{grid-template-columns:repeat(3,1fr)} }
+</style>
+</head>
+<body style="--c:#8f6fd6">
+<div class="wrap">
+
+<header>
+  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>
+  <div class="navrow">
+    <a class="navbtn" href="/index.html">The shelf</a>
+    <a class="navbtn" href="/reviews.html">Reviews</a>
+    <a class="navbtn" href="/lists.html">Lists</a>
+    <a class="navbtn" href="/rank.html">Rank games</a>
+    <a class="navbtn" href="/anniversaries.html">Anniversaries</a>
+    <a class="navbtn here" href="/consoles.html">Consoles</a>
+    <a class="navbtn" href="/gaps.html">The gaps</a>
+    <a class="navbtn" href="/stats.html">The numbers</a>
+  </div>
+  <p class="crumb"><a href="/consoles.html">&larr; All consoles</a></p>
+  <h1>SNES</h1>
+  <p class="standfirst">68 games on the shelf. <a href="/index.html#snes" style="color:inherit">See them all on the shelf</a>.</p>
+</header>
+
+<p class="sec">THE SNES LIBRARY GOES DEEPER</p>
+<p class="why">My thread from X, as posted.</p>
+<article class="xpost" style="--c:#8f6fd6"><blockquote>The SNES library is a lot deeper than the handful of games that get named every time somebody brings it up.
+
+The Super Nintendo launched in North America on August 23, 1991.
+
+No Mario. No Donkey Kong. No Zelda. Everyone has played those.
+
+Here are ten SNES games worth playing instead to help celebrate the 35th anniversary of my all time favorite console.</blockquote><div class="meta"><span>August 23, 2026</span><a href="https://x.com/NostalgiaPro/status/2091671850971799871" target="_blank" rel="noopener">View on X</a></div></article>
+<div class="pick"><div><img loading="lazy" src="/images/michael-jordan-chaos-in-the-windy-city-snes.jpg" alt="Michael Jordan: Chaos in the Windy City"></div><div>
+  <h3><em>1</em><a href="/game/michael-jordan-chaos-in-the-windy-city-snes.html">Michael Jordan: Chaos in the Windy City</a></h3>
+  <blockquote>A mad scientist kidnaps the Chicago Bulls players and Michael Jordan goes in alone to save them.
+
+Equipped with a duffel bag of trick basketballs. He's in a tank top and basketball shorts the entire time, dribbling the ball constantly as you move throughout the game. 
+
+This is one of the weirdest but best platformers on the system.</blockquote>
+  <p class="meta"><span>August 23, 2026</span><a href="https://x.com/NostalgiaPro/status/2091671853211521120" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/college-slam-snes.jpg" alt="College Slam"></div><div>
+  <h3><em>2</em><a href="/game/college-slam-snes.html">College Slam</a></h3>
+  <blockquote>Acclaim took NBA Jam, swapped in college programs, and shipped it. Two on two, catching fire, dunks from the logo.
+
+I played this one more than NBA Jam.
+
+University of North Carolina was my team.</blockquote>
+  <p class="meta"><span>August 23, 2026</span><a href="https://x.com/NostalgiaPro/status/2091671855195386162" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/primal-rage-snes.jpg" alt="Primal Rage"></div><div>
+  <h3><em>3</em><a href="/game/primal-rage-snes.html">Primal Rage</a></h3>
+  <blockquote>Seven prehistoric monsters beating each other across a wrecked Earth while tiny humans worship at the edge of the screen. 
+
+You can eat them mid fight to get health back. 
+
+Every character is stop motion clay, digitized frame by frame.</blockquote>
+  <p class="meta"><span>August 23, 2026</span><a href="https://x.com/NostalgiaPro/status/2091671857305211182" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/taz-mania-snes.jpg" alt="Taz-Mania"></div><div>
+  <h3><em>4</em><a href="/game/taz-mania-snes.html">Taz-Mania</a></h3>
+  <blockquote>Taz is hunting a giant seabird egg and destroys most of Tasmania looking for it.
+
+He eats bombs, cars, cactus, whatever is in front of him.
+
+The spin is the whole game. You hold it down, tear through a level, and let the game sort out what happened.</blockquote>
+  <p class="meta"><span>August 23, 2026</span><a href="https://x.com/NostalgiaPro/status/2091671859389661281" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><div class="nopic">No photo yet</div></div><div>
+  <h3><em>5</em><a href="/game/jungle-book-snes.html">Disney's The Jungle Book</a></h3>
+  <blockquote>Some of the prettiest animation on the console sitting on top of one of the hardest platformers on it.
+
+You have to find enough gems before the game will even let you leave a level, so you're hunting the whole stage while everything in it is trying to kill you.
+
+Kaa, the monkeys, the snakes in the trees. None of it lets up.</blockquote>
+  <p class="meta"><span>August 23, 2026</span><a href="https://x.com/NostalgiaPro/status/2091671861600092244" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/aladdin-snes.jpg" alt="Aladdin"></div><div>
+  <h3><em>6</em><a href="/game/aladdin-snes.html">Aladdin</a></h3>
+  <blockquote>Capcom's take on the movie.
+
+Aladdin never picks up a weapon in this one. You bounce off heads, throw apples, and climb everything, so the whole game is built around movement instead of combat.
+
+Agrabah, the Cave of Wonders, the carpet ride. It hits every part of the movie you'd want it to.</blockquote>
+  <p class="meta"><span>August 23, 2026</span><a href="https://x.com/NostalgiaPro/status/2091671863751831586" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/animaniacs-snes.jpg" alt="Animaniacs"></div><div>
+  <h3><em>7</em><a href="/game/animaniacs-snes.html">Animaniacs</a></h3>
+  <blockquote>Yakko, Wakko and Dot move as one line across the Warner Bros lot stealing movie props, and you rotate who's in front depending on what's in the way. 
+
+Ralph the security guard is always about half a screen behind you.
+
+The game is fun. If you're an Animaniacs fan, this one is for you.</blockquote>
+  <p class="meta"><span>August 23, 2026</span><a href="https://x.com/NostalgiaPro/status/2091671866046046271" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/bram-stoker-s-dracula-snes.jpg" alt="Bram Stoker's Dracula"></div><div>
+  <h3><em>8</em><a href="/game/bram-stoker-s-dracula-snes.html">Bram Stoker's Dracula</a></h3>
+  <blockquote>Sony Imagesoft cashed a movie license and then actually made something. 
+
+Fog, wolves, gaslit streets, and a difficulty curve that does not care that this is a licensed game.
+
+This one creeped me out as a kid. It wasn't the enemies, it was the way the whole thing looked and sounded while you were walking through it.</blockquote>
+  <p class="meta"><span>August 23, 2026</span><a href="https://x.com/NostalgiaPro/status/2091671868327739694" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/tiny-toon-adventures-buster-busts-loose-snes.jpg" alt="Tiny Toon Adventures: Buster Busts Loose!"></div><div>
+  <h3><em>9</em><a href="/game/tiny-toon-adventures-buster-busts-loose-snes.html">Tiny Toon Adventures: Buster Busts Loose!</a></h3>
+  <blockquote>Konami at full power. Buster dashes, slides and dropkicks through a western train robbery and a sci fi stage, and then there's a football level where you juke an entire defense of Perfectos.
+
+Every stage is built like its own cartoon episode instead of a level, and Konami never phoned in a single one of them.</blockquote>
+  <p class="meta"><span>August 23, 2026</span><a href="https://x.com/NostalgiaPro/status/2091671870466834553" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/ken-griffey-jr-presents-major-league-baseball-snes.jpg" alt="Ken Griffey Jr. Presents Major League Baseball"></div><div>
+  <h3><em>10</em><a href="/game/ken-griffey-jr-presents-major-league-baseball-snes.html">Ken Griffey Jr. Presents Major League Baseball</a></h3>
+  <blockquote>Real teams with real logos, and every player except Griffey is made up. He's out there in a lineup of invented names hitting balls into orbit and robbing home runs at the wall.
+
+I'm still upset my mom made me turn this game off when I was in a 22 inning game. She had to return it to Blockbuster.
+
+The greatest baseball game of the 90s.</blockquote>
+  <p class="meta"><span>August 23, 2026</span><a href="https://x.com/NostalgiaPro/status/2091671872782131434" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<article class="xpost" style="--c:#8f6fd6"><blockquote>Thirty five years later and it's always the same five games people recommend.
+
+The SNES has a lot more than that in it, and every one of these is still worth playing today.</blockquote><div class="meta"><span>August 23, 2026</span><a href="https://x.com/NostalgiaPro/status/2091671874740887682" target="_blank" rel="noopener">View on X</a></div></article>
+
+<p class="sec">ALSO ON THE SHELF &middot; 53 GAMES</p>
+<p class="why">Leaving out the games my thread names as the ones everybody played (&ldquo;No Mario. No Donkey Kong. No Zelda.&rdquo;) and the ten above.</p>
+<div class="shelfgrid">
+<a class="tile" href="/game/american-gladiators-snes.html"><div class="im" style="background-image:url('/images/american-gladiators-snes.jpg')"></div><span>American Gladiators</span></a>
+<a class="tile" href="/game/batman-forever-snes.html"><div class="im" style="background-image:url('/images/batman-forever-snes.jpg')"></div><span>Batman Forever</span></a>
+<a class="tile" href="/game/batman-returns-snes.html"><div class="im" style="background-image:url('/images/batman-returns-snes.jpg')"></div><span>Batman Returns</span></a>
+<a class="tile" href="/game/battle-clash-snes.html"><div class="im">No photo yet</div><span>Battle Clash</span></a>
+<a class="tile" href="/game/beavis-and-butt-head-snes.html"><div class="im" style="background-image:url('/images/beavis-and-butt-head-snes.jpg')"></div><span>Beavis and Butt-head</span></a>
+<a class="tile" href="/game/captain-america-and-the-avengers-snes.html"><div class="im" style="background-image:url('/images/captain-america-and-the-avengers-snes.jpg')"></div><span>Captain America and the Avengers</span></a>
+<a class="tile" href="/game/cliffhanger-snes.html"><div class="im" style="background-image:url('/images/cliffhanger-snes.jpg')"></div><span>Cliffhanger</span></a>
+<a class="tile" href="/game/doom-snes.html"><div class="im">No photo yet</div><span>Doom</span></a>
+<a class="tile" href="/game/final-fantasy-ii-snes.html"><div class="im" style="background-image:url('/images/final-fantasy-ii-snes.jpg')"></div><span>Final Fantasy II</span></a>
+<a class="tile" href="/game/final-fantasy-iii-snes.html"><div class="im" style="background-image:url('/images/final-fantasy-iii-snes.jpg')"></div><span>Final Fantasy III</span></a>
+<a class="tile" href="/game/final-fantasy-mystic-quest-snes.html"><div class="im" style="background-image:url('/images/final-fantasy-mystic-quest-snes.jpg')"></div><span>Final Fantasy: Mystic Quest</span></a>
+<a class="tile" href="/game/final-fight-snes.html"><div class="im" style="background-image:url('/images/final-fight-snes.jpg')"></div><span>Final Fight</span></a>
+<a class="tile" href="/game/frank-thomas-big-hurt-baseball-snes.html"><div class="im" style="background-image:url('/images/frank-thomas-big-hurt-baseball-snes.jpg')"></div><span>Frank Thomas' Big Hurt Baseball</span></a>
+<a class="tile" href="/game/hunt-for-red-october-snes.html"><div class="im" style="background-image:url('/images/hunt-for-red-october-snes.jpg')"></div><span>Hunt for Red October</span></a>
+<a class="tile" href="/game/judge-dredd-snes.html"><div class="im" style="background-image:url('/images/judge-dredd-snes.jpg')"></div><span>Judge Dredd</span></a>
+<a class="tile" href="/game/jurassic-park-snes.html"><div class="im" style="background-image:url('/images/jurassic-park-snes.jpg')"></div><span>Jurassic Park</span></a>
+<a class="tile" href="/game/ken-griffey-jr-s-winning-run-snes.html"><div class="im" style="background-image:url('/images/ken-griffey-jr-s-winning-run-snes.jpg')"></div><span>Ken Griffey Jr.'s Winning Run</span></a>
+<a class="tile" href="/game/killer-instinct-snes.html"><div class="im" style="background-image:url('/images/killer-instinct-snes.jpg')"></div><span>Killer Instinct</span></a>
+<a class="tile" href="/game/lethal-weapon-snes.html"><div class="im" style="background-image:url('/images/lethal-weapon-snes.jpg')"></div><span>Lethal Weapon</span></a>
+<a class="tile" href="/game/madden-nfl-94-snes.html"><div class="im" style="background-image:url('/images/madden-nfl-94-snes.jpg')"></div><span>Madden NFL '94</span></a>
+<a class="tile" href="/game/mortal-kombat-snes.html"><div class="im" style="background-image:url('/images/mortal-kombat-snes.jpg')"></div><span>Mortal Kombat</span></a>
+<a class="tile" href="/game/mortal-kombat-3-snes.html"><div class="im" style="background-image:url('/images/mortal-kombat-3-snes.jpg')"></div><span>Mortal Kombat 3</span></a>
+<a class="tile" href="/game/mortal-kombat-ii-snes.html"><div class="im" style="background-image:url('/images/mortal-kombat-ii-snes.jpg')"></div><span>Mortal Kombat II</span></a>
+<a class="tile" href="/game/nba-jam-snes.html"><div class="im" style="background-image:url('/images/nba-jam-snes.jpg')"></div><span>NBA Jam</span></a>
+<a class="tile" href="/game/nba-jam-tournament-edition-snes.html"><div class="im" style="background-image:url('/images/nba-jam-tournament-edition-snes.jpg')"></div><span>NBA Jam Tournament Edition</span></a>
+<a class="tile" href="/game/nba-live-97-snes.html"><div class="im" style="background-image:url('/images/nba-live-97-snes.jpg')"></div><span>NBA Live 97</span></a>
+<a class="tile" href="/game/nhl-stanley-cup-snes.html"><div class="im" style="background-image:url('/images/nhl-stanley-cup-snes.jpg')"></div><span>NHL Stanley Cup</span></a>
+<a class="tile" href="/game/pilotwings-snes.html"><div class="im" style="background-image:url('/images/pilotwings-snes.jpg')"></div><span>Pilotwings</span></a>
+<a class="tile" href="/game/ren-stimpy-show-veediots-snes.html"><div class="im" style="background-image:url('/images/ren-stimpy-show-veediots-snes.jpg')"></div><span>Ren &amp; Stimpy Show - Veediots!</span></a>
+<a class="tile" href="/game/rise-of-the-robots-snes.html"><div class="im" style="background-image:url('/images/rise-of-the-robots-snes.jpg')"></div><span>Rise of the Robots</span></a>
+<a class="tile" href="/game/secret-of-mana-snes.html"><div class="im" style="background-image:url('/images/secret-of-mana-snes.jpg')"></div><span>Secret of Mana</span></a>
+<a class="tile" href="/game/spanky-s-quest-snes.html"><div class="im" style="background-image:url('/images/spanky-s-quest-snes.jpg')"></div><span>Spanky's Quest</span></a>
+<a class="tile" href="/game/speedy-gonzales-los-gatos-bandidos-snes.html"><div class="im" style="background-image:url('/images/speedy-gonzales-los-gatos-bandidos-snes.jpg')"></div><span>Speedy Gonzales: Los Gatos Bandidos</span></a>
+<a class="tile" href="/game/spider-man-venom-maximum-carnage-special-limited-edition-red-cartridge-snes.html"><div class="im" style="background-image:url('/images/spider-man-venom-maximum-carnage-special-limited-edition-red-cartridge-snes.jpg')"></div><span>Spider-Man &amp; Venom: Maximum Carnage [Special Limited Edition Red Cartridge]</span></a>
+<a class="tile" href="/game/spider-man-x-men-arcade-s-revenge-snes.html"><div class="im" style="background-image:url('/images/spider-man-x-men-arcade-s-revenge-snes.jpg')"></div><span>Spider-Man &amp; X-Men: Arcade's Revenge</span></a>
+<a class="tile" href="/game/star-fox-snes.html"><div class="im" style="background-image:url('/images/star-fox-snes.jpg')"></div><span>Star Fox</span></a>
+<a class="tile" href="/game/street-fighter-ii-snes.html"><div class="im" style="background-image:url('/images/street-fighter-ii-snes.jpg')"></div><span>Street Fighter II</span></a>
+<a class="tile" href="/game/street-fighter-ii-turbo-snes.html"><div class="im" style="background-image:url('/images/street-fighter-ii-turbo-snes.jpg')"></div><span>Street Fighter II Turbo</span></a>
+<a class="tile" href="/game/super-baseball-simulator-1-000-snes.html"><div class="im" style="background-image:url('/images/super-baseball-simulator-1-000-snes.jpg')"></div><span>Super Baseball Simulator 1.000</span></a>
+<a class="tile" href="/game/super-punch-out-snes.html"><div class="im" style="background-image:url('/images/super-punch-out-snes.jpg')"></div><span>Super Punch-Out!!</span></a>
+<a class="tile" href="/game/super-scope-6-snes.html"><div class="im" style="background-image:url('/images/super-scope-6-snes.jpg')"></div><span>Super Scope 6</span></a>
+<a class="tile" href="/game/super-star-wars-player-s-choice-snes.html"><div class="im" style="background-image:url('/images/super-star-wars-player-s-choice-snes.jpg')"></div><span>Super Star Wars [Player's Choice]</span></a>
+<a class="tile" href="/game/super-star-wars-return-of-the-jedi-snes.html"><div class="im" style="background-image:url('/images/super-star-wars-return-of-the-jedi-snes.jpg')"></div><span>Super Star Wars: Return of the Jedi</span></a>
+<a class="tile" href="/game/super-street-fighter-ii-snes.html"><div class="im" style="background-image:url('/images/super-street-fighter-ii-snes.jpg')"></div><span>Super Street Fighter II</span></a>
+<a class="tile" href="/game/teenage-mutant-ninja-turtles-iv-turtles-in-time-snes.html"><div class="im" style="background-image:url('/images/teenage-mutant-ninja-turtles-iv-turtles-in-time-snes.jpg')"></div><span>Teenage Mutant Ninja Turtles IV: Turtles In Time</span></a>
+<a class="tile" href="/game/teenage-mutant-ninja-turtles-tournament-fighters-snes.html"><div class="im" style="background-image:url('/images/teenage-mutant-ninja-turtles-tournament-fighters-snes.jpg')"></div><span>Teenage Mutant Ninja Turtles: Tournament Fighters</span></a>
+<a class="tile" href="/game/terminator-2-judgment-day-snes.html"><div class="im" style="background-image:url('/images/terminator-2-judgment-day-snes.jpg')"></div><span>Terminator 2: Judgment Day</span></a>
+<a class="tile" href="/game/tetris-2-snes.html"><div class="im" style="background-image:url('/images/tetris-2-snes.jpg')"></div><span>Tetris 2</span></a>
+<a class="tile" href="/game/venom-spider-man-separation-anxiety-snes.html"><div class="im" style="background-image:url('/images/venom-spider-man-separation-anxiety-snes.jpg')"></div><span>Venom - Spider-Man: Separation Anxiety</span></a>
+<a class="tile" href="/game/warlock-snes.html"><div class="im" style="background-image:url('/images/warlock-snes.jpg')"></div><span>Warlock</span></a>
+<a class="tile" href="/game/wayne-s-world-snes.html"><div class="im" style="background-image:url('/images/wayne-s-world-snes.jpg')"></div><span>Wayne's World</span></a>
+<a class="tile" href="/game/x-men-mutant-apocalypse-snes.html"><div class="im" style="background-image:url('/images/x-men-mutant-apocalypse-snes.jpg')"></div><span>X-Men: Mutant Apocalypse</span></a>
+<a class="tile" href="/game/zoop-snes.html"><div class="im" style="background-image:url('/images/zoop-snes.jpg')"></div><span>Zoop</span></a>
+</div>
+<p class="famous" style="margin-top:22px">Left out: <a href="/game/mario-is-missing-snes.html">Mario is Missing!</a>, <a href="/game/super-mario-all-stars-snes.html">Super Mario All-Stars</a>, <a href="/game/super-mario-kart-snes.html">Super Mario Kart</a>, <a href="/game/super-mario-world-snes.html">Super Mario World</a>, <a href="/game/super-mario-world-2-yoshi-s-island-snes.html">Super Mario World 2: Yoshi's Island</a>.</p>
+
+<footer>
+  <p>The Nostalgia Pro. <a href="/consoles.html">All consoles</a> &middot; <a href="https://x.com/NostalgiaPro" target="_blank" rel="noopener">@NostalgiaPro on X</a></p>
+</footer>
+
+</div>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
+<script>
+/* 1996 mode. The class does all the work, retro.css does the rest. */
+(function(){
+  var on = false;
+  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
+  if (on) document.body.classList.add("y1996");
+
+  var b = document.createElement("button");
+  b.id = "y1996btn";
+  b.type = "button";
+  b.textContent = on ? "Back to now" : "1996 mode";
+  b.addEventListener("click", function(){
+    var nowOn = document.body.classList.toggle("y1996");
+    b.textContent = nowOn ? "Back to now" : "1996 mode";
+    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
+  });
+
+  var foot = document.querySelector("footer") || document.querySelector(".wrap");
+  var wrap = document.createElement("p");
+  wrap.style.cssText = "text-align:center;margin:18px 0 0";
+  wrap.appendChild(b);
+  foot.appendChild(wrap);
+
+})();
+
+/* Back to top. Appears once you've scrolled far enough to want it. */
+(function(){
+  var b = document.createElement("button");
+  b.id = "totop";
+  b.type = "button";
+  b.setAttribute("aria-label", "Back to top");
+  b.innerHTML = "&#9650;";
+  b.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.body.appendChild(b);
+
+  function check(){ b.classList.toggle("on", window.scrollY > 600); }
+  addEventListener("scroll", check, { passive: true });
+  check();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="All 49 Nintendo 64 games in my collection, and my thread on the rest of the Nintendo 64 library.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="Nintendo 64 | The Nostalgia Pro">
+<meta property="og:description" content="All 49 Nintendo 64 games in my collection, and my thread on the rest of the Nintendo 64 library.">
+<meta property="og:url" content="https://thenostalgiapro.com/console/nintendo-64.html">
+<meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Nintendo 64 | The Nostalgia Pro">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="Nintendo 64 | The Nostalgia Pro">
+<meta name="twitter:description" content="All 49 Nintendo 64 games in my collection, and my thread on the rest of the Nintendo 64 library.">
+<meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
+<link rel="canonical" href="https://thenostalgiapro.com/console/nintendo-64.html">
+<title>Nintendo 64 | The Nostalgia Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/retro.css">
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 22px 90px}
+  header{padding:44px 0 0}
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  .wordmark a{color:inherit;text-decoration:none}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;text-decoration:none;
+    border:2px solid var(--line);color:var(--dim);
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+  .barlabel{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:34px 0 10px}
+  .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:64ch}
+  .xpost{
+    margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);
+    border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:14px 18px;
+  }
+  .xpost blockquote{margin:0;white-space:pre-line;font-size:15px}
+  .xpost .meta{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0 0;
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);
+  }
+  .xpost .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .xpost .meta a:hover{border-color:var(--hot);color:var(--hot)}
+  .crumb{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;margin:30px 0 0}
+  .crumb a{color:var(--dim);text-decoration:none}
+  .crumb a:hover{color:var(--hot)}
+  h1{color:var(--c)}
+  .sec{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.1em;color:var(--c);margin:44px 0 6px}
+  .why{font-size:13.5px;color:var(--dim);margin:0 0 18px;max-width:70ch}
+  .why a{color:var(--dim)}
+  .pick{display:grid;grid-template-columns:110px 1fr;gap:18px;margin:0 0 16px;background:var(--bg2);
+    border:1px solid var(--line);border-left:4px solid var(--c);border-radius:2px;padding:16px}
+  .pick img,.pick .nopic{width:110px;border:1px solid var(--line);border-radius:2px;display:block}
+  .pick .nopic{aspect-ratio:3/4;border-style:dashed;display:flex;align-items:center;justify-content:center;
+    font-family:"Silkscreen",monospace;font-size:8px;color:var(--dim);text-align:center;padding:6px}
+  .pick h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:20px;margin:0 0 8px;line-height:1.25}
+  .pick h3 a{color:inherit;text-decoration:none}
+  .pick h3 a:hover{color:var(--c)}
+  .pick h3 em{font-style:normal;font-family:"Press Start 2P",monospace;font-size:11px;color:var(--c);margin-right:10px}
+  .pick blockquote{margin:0;white-space:pre-line;font-size:14.5px}
+  .pick .meta{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;color:var(--dim);margin:12px 0 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .pick .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .pick .meta a:hover{border-color:var(--hot);color:var(--hot)}
+  .shelfgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:14px;margin:8px 0 0}
+  .tile{text-decoration:none;color:inherit;display:block}
+  .tile .im{aspect-ratio:3/4;background:var(--panel) center/cover no-repeat;border:1px solid var(--line);border-radius:2px;
+    display:flex;align-items:center;justify-content:center;font-family:"Silkscreen",monospace;font-size:8px;color:var(--dim);
+    text-align:center;padding:6px}
+  .tile:hover .im{border-color:var(--c)}
+  .tile span{display:block;font-size:12.5px;line-height:1.3;margin-top:6px}
+  .famous{font-size:13.5px;color:var(--dim)}
+  .famous a{color:var(--dim)}
+  @media (max-width:600px){ .pick{grid-template-columns:80px 1fr} .pick img,.pick .nopic{width:80px}
+    .shelfgrid{grid-template-columns:repeat(3,1fr)} }
+</style>
+</head>
+<body style="--c:#3fa65b">
+<div class="wrap">
+
+<header>
+  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>
+  <div class="navrow">
+    <a class="navbtn" href="/index.html">The shelf</a>
+    <a class="navbtn" href="/reviews.html">Reviews</a>
+    <a class="navbtn" href="/lists.html">Lists</a>
+    <a class="navbtn" href="/rank.html">Rank games</a>
+    <a class="navbtn" href="/anniversaries.html">Anniversaries</a>
+    <a class="navbtn here" href="/consoles.html">Consoles</a>
+    <a class="navbtn" href="/gaps.html">The gaps</a>
+    <a class="navbtn" href="/stats.html">The numbers</a>
+  </div>
+  <p class="crumb"><a href="/consoles.html">&larr; All consoles</a></p>
+  <h1>Nintendo 64</h1>
+  <p class="standfirst">49 games on the shelf. <a href="/index.html#nintendo-64" style="color:inherit">See them all on the shelf</a>.</p>
+</header>
+
+<p class="sec">THE NINTENDO 64 LIBRARY GOES DEEPER</p>
+<p class="why">My thread from X, as posted.</p>
+<article class="xpost" style="--c:#3fa65b"><blockquote>When people talk about the N64 it's usually the same few games that get brought up.
+
+The Nintendo 64 turns 30 today in North America. There's a lot more to the library than the games everybody already knows.
+
+No Mario 64. No Ocarina. No GoldenEye. No Mario Kart. Everyone played those.
+
+Here's the 10 you should play this weekend.🧵</blockquote><div class="meta"><span>September 26, 2026</span><a href="https://x.com/NostalgiaPro/status/2103982326921462071" target="_blank" rel="noopener">View on X</a></div></article>
+<div class="pick"><div><img loading="lazy" src="/images/wave-race-64-nintendo-64.jpg" alt="Wave Race 64"></div><div>
+  <h3><em>1</em><a href="/game/wave-race-64-nintendo-64.html">Wave Race 64</a></h3>
+  <blockquote>The waves actually move in this one, so the same turn can play out different every lap. 
+
+It came out about a month after the console did. 
+
+Spend some time in Dolphin Park before you start racing.</blockquote>
+  <p class="meta"><span>September 26, 2026</span><a href="https://x.com/NostalgiaPro/status/2103982329110892621" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/perfect-dark-nintendo-64.jpg" alt="Perfect Dark"></div><div>
+  <h3><em>2</em><a href="/game/perfect-dark-nintendo-64.html">Perfect Dark</a></h3>
+  <blockquote>You needed the Expansion Pak to play most of it. Without one you only got a small piece of the game.
+
+The Combat Simulator lets you add computer bots to a match if you don't have three other people to play with.</blockquote>
+  <p class="meta"><span>September 26, 2026</span><a href="https://x.com/NostalgiaPro/status/2103982331296170284" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/star-wars-episode-i-racer-nintendo-64.jpg" alt="Star Wars Episode I: Racer"></div><div>
+  <h3><em>3</em><a href="/game/star-wars-episode-i-racer-nintendo-64.html">Star Wars Episode I: Racer</a></h3>
+  <blockquote>This is the podrace from the movie turned into a full racing game, with Watto's junkyard between races where you spend your winnings on parts. 
+
+Hold the boost too long and your engines will catch fire, at least until you buy better parts.</blockquote>
+  <p class="meta"><span>September 26, 2026</span><a href="https://x.com/NostalgiaPro/status/2103982333846298665" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/1080-snowboarding-nintendo-64.jpg" alt="1080° Snowboarding"></div><div>
+  <h3><em>4</em><a href="/game/1080-snowboarding-nintendo-64.html">1080° Snowboarding</a></h3>
+  <blockquote>Nintendo's snowboarding game from 1998 is slower and heavier than the other snowboarding games from back then. 
+
+Ice and powder handle differently, so you have to pay attention to what you're riding on.</blockquote>
+  <p class="meta"><span>September 26, 2026</span><a href="https://x.com/NostalgiaPro/status/2103982335926652967" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/pilotwings-64-nintendo-64.jpg" alt="Pilotwings 64"></div><div>
+  <h3><em>5</em><a href="/game/pilotwings-64-nintendo-64.html">Pilotwings 64</a></h3>
+  <blockquote>It launched here the same day as Super Mario 64 but didn't get close to the same attention.
+
+Most of the game is flying a hang glider or a rocket belt over Little States, a small version of the U.S. that has Mario's face on Mount Rushmore.</blockquote>
+  <p class="meta"><span>September 26, 2026</span><a href="https://x.com/NostalgiaPro/status/2103982338107703504" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/killer-instinct-gold-nintendo-64.jpg" alt="Killer Instinct Gold"></div><div>
+  <h3><em>6</em><a href="/game/killer-instinct-gold-nintendo-64.html">Killer Instinct Gold</a></h3>
+  <blockquote>This is Rare's home version of Killer Instinct 2. 
+
+It has the combo breakers and ultras from the arcade, plus a training mode that shows you how to do the combos step by step. 
+
+The stages are 3D with a camera that moves around during fights.</blockquote>
+  <p class="meta"><span>September 26, 2026</span><a href="https://x.com/NostalgiaPro/status/2103982340401971289" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/san-francisco-rush-extreme-racing-nintendo-64.jpg" alt="San Francisco Rush: Extreme Racing"></div><div>
+  <h3><em>7</em><a href="/game/san-francisco-rush-extreme-racing-nintendo-64.html">San Francisco Rush: Extreme Racing</a></h3>
+  <blockquote>The hills send your car way up in the air.
+
+There are shortcuts hidden all over every track that take a lot of runs to find. 
+
+Crash hard enough and the car blows up, then drops you back on the road a second later.</blockquote>
+  <p class="meta"><span>September 26, 2026</span><a href="https://x.com/NostalgiaPro/status/2103982342553690512" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/duke-nukem-zero-hour-nintendo-64.jpg" alt="Duke Nukem: Zero Hour"></div><div>
+  <h3><em>8</em><a href="/game/duke-nukem-zero-hour-nintendo-64.html">Duke Nukem: Zero Hour</a></h3>
+  <blockquote>Eurocom made this one only for the N64 in 1999. 
+
+It's a third person Duke game where he goes back in time chasing aliens, from the Old West to Victorian London.</blockquote>
+  <p class="meta"><span>September 26, 2026</span><a href="https://x.com/NostalgiaPro/status/2103982344634081402" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/wwf-no-mercy-nintendo-64.jpg" alt="WWF No Mercy"></div><div>
+  <h3><em>9</em><a href="/game/wwf-no-mercy-nintendo-64.html">WWF No Mercy</a></h3>
+  <blockquote>This was AKI's last wrestling game on the N64. 
+
+A lot of wrestling fans still call it the best one ever made. Championship mode changes depending on whether you win or lose your matches, so a title run can go a lot of different ways. 
+
+People are still making mods for it more than 25 years later.</blockquote>
+  <p class="meta"><span>September 26, 2026</span><a href="https://x.com/NostalgiaPro/status/2103982346903138523" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<div class="pick"><div><img loading="lazy" src="/images/star-wars-rogue-squadron-nintendo-64.jpg" alt="Star Wars: Rogue Squadron"></div><div>
+  <h3><em>10</em><a href="/game/star-wars-rogue-squadron-nintendo-64.html">Star Wars: Rogue Squadron</a></h3>
+  <blockquote>Factor 5's Star Wars flight game takes place between A New Hope and Empire. 
+
+On the Hoth mission you trip AT-ATs with the tow cable on the snowspeeder. 
+
+It was also one of the first games to use the Expansion Pak for higher resolution.</blockquote>
+  <p class="meta"><span>September 26, 2026</span><a href="https://x.com/NostalgiaPro/status/2103982349092618583" target="_blank" rel="noopener">View on X</a></p>
+</div></div>
+<article class="xpost" style="--c:#3fa65b"><blockquote>That's the ten.
+
+Happy 30th to the Nintendo 64.</blockquote><div class="meta"><span>September 26, 2026</span><a href="https://x.com/NostalgiaPro/status/2103982351886041570" target="_blank" rel="noopener">View on X</a></div></article>
+
+<p class="sec">ALSO ON THE SHELF &middot; 35 GAMES</p>
+<p class="why">Leaving out the games my thread names as the ones everybody played (&ldquo;No Mario 64. No Ocarina. No GoldenEye. No Mario Kart.&rdquo;) and the ten above.</p>
+<div class="shelfgrid">
+<a class="tile" href="/game/army-men-sarge-s-heroes-nintendo-64.html"><div class="im" style="background-image:url('/images/army-men-sarge-s-heroes-nintendo-64.jpg')"></div><span>Army Men: Sarge's Heroes</span></a>
+<a class="tile" href="/game/army-men-sarge-s-heroes-2-nintendo-64.html"><div class="im" style="background-image:url('/images/army-men-sarge-s-heroes-2-nintendo-64.jpg')"></div><span>Army Men: Sarge's Heroes 2</span></a>
+<a class="tile" href="/game/batman-beyond-return-of-the-joker-nintendo-64.html"><div class="im" style="background-image:url('/images/batman-beyond-return-of-the-joker-nintendo-64.jpg')"></div><span>Batman Beyond: Return of the Joker</span></a>
+<a class="tile" href="/game/blues-brothers-2000-nintendo-64.html"><div class="im" style="background-image:url('/images/blues-brothers-2000-nintendo-64.jpg')"></div><span>Blues Brothers 2000</span></a>
+<a class="tile" href="/game/body-harvest-nintendo-64.html"><div class="im" style="background-image:url('/images/body-harvest-nintendo-64.jpg')"></div><span>Body Harvest</span></a>
+<a class="tile" href="/game/california-speed-nintendo-64.html"><div class="im" style="background-image:url('/images/california-speed-nintendo-64.jpg')"></div><span>California Speed</span></a>
+<a class="tile" href="/game/deadly-arts-nintendo-64.html"><div class="im" style="background-image:url('/images/deadly-arts-nintendo-64.jpg')"></div><span>Deadly Arts</span></a>
+<a class="tile" href="/game/diddy-kong-racing-nintendo-64.html"><div class="im" style="background-image:url('/images/diddy-kong-racing-nintendo-64.jpg')"></div><span>Diddy Kong Racing</span></a>
+<a class="tile" href="/game/donkey-kong-64-nintendo-64.html"><div class="im" style="background-image:url('/images/donkey-kong-64-nintendo-64.jpg')"></div><span>Donkey Kong 64</span></a>
+<a class="tile" href="/game/doom-64-nintendo-64.html"><div class="im">No photo yet</div><span>Doom 64</span></a>
+<a class="tile" href="/game/dr-mario-64-nintendo-64.html"><div class="im" style="background-image:url('/images/dr-mario-64-nintendo-64.jpg')"></div><span>Dr. Mario 64</span></a>
+<a class="tile" href="/game/extreme-g-nintendo-64.html"><div class="im" style="background-image:url('/images/extreme-g-nintendo-64.jpg')"></div><span>Extreme-G</span></a>
+<a class="tile" href="/game/extreme-g-2-nintendo-64.html"><div class="im" style="background-image:url('/images/extreme-g-2-nintendo-64.jpg')"></div><span>Extreme-G 2</span></a>
+<a class="tile" href="/game/legend-of-zelda-majora-s-mask-collector-s-edition-nintendo-64.html"><div class="im" style="background-image:url('/images/legend-of-zelda-majora-s-mask-collector-s-edition-nintendo-64.jpg')"></div><span>Legend of Zelda: Majora's Mask [Collector's Edition]</span></a>
+<a class="tile" href="/game/madden-football-64-nintendo-64.html"><div class="im" style="background-image:url('/images/madden-football-64-nintendo-64.jpg')"></div><span>Madden Football 64</span></a>
+<a class="tile" href="/game/madden-nfl-2001-nintendo-64.html"><div class="im" style="background-image:url('/images/madden-nfl-2001-nintendo-64.jpg')"></div><span>Madden NFL 2001</span></a>
+<a class="tile" href="/game/major-league-baseball-featuring-ken-griffey-jr-nintendo-64.html"><div class="im" style="background-image:url('/images/major-league-baseball-featuring-ken-griffey-jr-nintendo-64.jpg')"></div><span>Major League Baseball Featuring Ken Griffey, Jr.</span></a>
+<a class="tile" href="/game/mission-impossible-nintendo-64.html"><div class="im" style="background-image:url('/images/mission-impossible-nintendo-64.jpg')"></div><span>Mission: Impossible</span></a>
+<a class="tile" href="/game/nba-jam-2000-nintendo-64.html"><div class="im" style="background-image:url('/images/nba-jam-2000-nintendo-64.jpg')"></div><span>NBA Jam 2000</span></a>
+<a class="tile" href="/game/nba-jam-99-nintendo-64.html"><div class="im" style="background-image:url('/images/nba-jam-99-nintendo-64.jpg')"></div><span>NBA Jam 99</span></a>
+<a class="tile" href="/game/nba-showtime-nba-on-nbc-nintendo-64.html"><div class="im" style="background-image:url('/images/nba-showtime-nba-on-nbc-nintendo-64.jpg')"></div><span>NBA Showtime: NBA on NBC</span></a>
+<a class="tile" href="/game/nfl-quarterback-club-98-nintendo-64.html"><div class="im" style="background-image:url('/images/nfl-quarterback-club-98-nintendo-64.jpg')"></div><span>NFL Quarterback Club 98</span></a>
+<a class="tile" href="/game/quake-nintendo-64.html"><div class="im" style="background-image:url('/images/quake-nintendo-64.jpg')"></div><span>Quake</span></a>
+<a class="tile" href="/game/quake-ii-nintendo-64.html"><div class="im" style="background-image:url('/images/quake-ii-nintendo-64.jpg')"></div><span>Quake II</span></a>
+<a class="tile" href="/game/ready-2-rumble-boxing-nintendo-64.html"><div class="im" style="background-image:url('/images/ready-2-rumble-boxing-nintendo-64.jpg')"></div><span>Ready 2 Rumble Boxing</span></a>
+<a class="tile" href="/game/star-fox-64-player-s-choice-nintendo-64.html"><div class="im" style="background-image:url('/images/star-fox-64-player-s-choice-nintendo-64.jpg')"></div><span>Star Fox 64 [Player's Choice]</span></a>
+<a class="tile" href="/game/super-smash-bros-nintendo-64.html"><div class="im" style="background-image:url('/images/super-smash-bros-nintendo-64.jpg')"></div><span>Super Smash Bros.</span></a>
+<a class="tile" href="/game/superman-the-new-superman-adventures-nintendo-64.html"><div class="im" style="background-image:url('/images/superman-the-new-superman-adventures-nintendo-64.jpg')"></div><span>Superman: The New Superman Adventures</span></a>
+<a class="tile" href="/game/triple-play-2000-nintendo-64.html"><div class="im" style="background-image:url('/images/triple-play-2000-nintendo-64.jpg')"></div><span>Triple Play 2000</span></a>
+<a class="tile" href="/game/turok-2-seeds-of-evil-nintendo-64.html"><div class="im" style="background-image:url('/images/turok-2-seeds-of-evil-nintendo-64.jpg')"></div><span>Turok 2: Seeds of Evil</span></a>
+<a class="tile" href="/game/turok-rage-wars-nintendo-64.html"><div class="im" style="background-image:url('/images/turok-rage-wars-nintendo-64.jpg')"></div><span>Turok: Rage Wars</span></a>
+<a class="tile" href="/game/wcw-mayhem-nintendo-64.html"><div class="im" style="background-image:url('/images/wcw-mayhem-nintendo-64.jpg')"></div><span>WCW Mayhem</span></a>
+<a class="tile" href="/game/wcw-nwo-revenge-nintendo-64.html"><div class="im" style="background-image:url('/images/wcw-nwo-revenge-nintendo-64.jpg')"></div><span>WCW/nWo Revenge</span></a>
+<a class="tile" href="/game/wwf-wrestlemania-2000-nintendo-64.html"><div class="im" style="background-image:url('/images/wwf-wrestlemania-2000-nintendo-64.jpg')"></div><span>WWF WrestleMania 2000</span></a>
+<a class="tile" href="/game/yoshi-s-story-nintendo-64.html"><div class="im" style="background-image:url('/images/yoshi-s-story-nintendo-64.jpg')"></div><span>Yoshi's Story</span></a>
+</div>
+<p class="famous" style="margin-top:22px">Left out: <a href="/game/super-mario-64-nintendo-64.html">Super Mario 64</a>, <a href="/game/legend-of-zelda-ocarina-of-time-nintendo-64.html">Legend of Zelda: Ocarina of Time</a>, <a href="/game/goldeneye-007-nintendo-64.html">GoldenEye 007</a>, <a href="/game/mario-kart-64-nintendo-64.html">Mario Kart 64</a>.</p>
+
+<footer>
+  <p>The Nostalgia Pro. <a href="/consoles.html">All consoles</a> &middot; <a href="https://x.com/NostalgiaPro" target="_blank" rel="noopener">@NostalgiaPro on X</a></p>
+</footer>
+
+</div>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
+<script>
+/* 1996 mode. The class does all the work, retro.css does the rest. */
+(function(){
+  var on = false;
+  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
+  if (on) document.body.classList.add("y1996");
+
+  var b = document.createElement("button");
+  b.id = "y1996btn";
+  b.type = "button";
+  b.textContent = on ? "Back to now" : "1996 mode";
+  b.addEventListener("click", function(){
+    var nowOn = document.body.classList.toggle("y1996");
+    b.textContent = nowOn ? "Back to now" : "1996 mode";
+    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
+  });
+
+  var foot = document.querySelector("footer") || document.querySelector(".wrap");
+  var wrap = document.createElement("p");
+  wrap.style.cssText = "text-align:center;margin:18px 0 0";
+  wrap.appendChild(b);
+  foot.appendChild(wrap);
+
+})();
+
+/* Back to top. Appears once you've scrolled far enough to want it. */
+(function(){
+  var b = document.createElement("button");
+  b.id = "totop";
+  b.type = "button";
+  b.setAttribute("aria-label", "Back to top");
+  b.innerHTML = "&#9650;";
+  b.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.body.appendChild(b);
+
+  function check(){ b.classList.toggle("on", window.scrollY > 600); }
+  addEventListener("scroll", check, { passive: true });
+  check();
+})();
+</script>
+</body>
+</html>

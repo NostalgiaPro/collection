@@ -68,6 +68,10 @@
     display:flex;flex-direction:column;text-decoration:none;color:inherit;
   }
   .card:hover{border-color:var(--c)}
+  .cardmain{display:flex;flex-direction:column;text-decoration:none;color:inherit;flex:1}
+  .more{display:block;margin:0 18px 16px;padding:8px 10px;border:1px solid var(--line);border-radius:2px;
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);text-decoration:none}
+  .more:hover{border-color:var(--c);color:var(--c)}
   .shot{
     height:150px;background:var(--panel) center/cover no-repeat;
     display:flex;align-items:center;justify-content:center;
@@ -1153,7 +1157,10 @@ document.getElementById("grid").innerHTML =
       return c?`<i style="width:${c/n*100}%;background:${TINT[k]}"></i>`:"";
     }).join(""):"";
     const line=ageLine(s.name);
-    return `<a class="card" href="${s.id?`index.html#${s.id}`:`index.html`}" style="--c:${s.color}">
+    /* consoles with 6+ games have a page, built by tools/build_console_pages.py */
+    const more = s.id && n >= 6
+      ? `<a class="more" href="console/${s.id}.html">${n > 12 ? "Also on the shelf" : "All " + n + " games"} &rarr;</a>` : "";
+    return `<div class="card" style="--c:${s.color}"><a class="cardmain" href="${s.id?`index.html#${s.id}`:`index.html`}">
       <div class="shot" data-shot="${sl}">images/${sl}.webp</div>
       <div class="body">
         <h2>${s.name}</h2>
@@ -1164,7 +1171,7 @@ document.getElementById("grid").innerHTML =
           <div><b>${cib}</b><span>complete</span></div>
           <div><b>${n?Math.round(cib/n*100):0}%</b><span>in box</span></div>
         </div>
-      </div></a>`;
+      </div></a>${more}</div>`;
   }).join("");
 
 document.querySelectorAll(".shot[data-shot]").forEach(el => {

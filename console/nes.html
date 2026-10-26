@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="All 114 NES games in my collection.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="NES | The Nostalgia Pro">
+<meta property="og:description" content="All 114 NES games in my collection.">
+<meta property="og:url" content="https://thenostalgiapro.com/console/nes.html">
+<meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="NES | The Nostalgia Pro">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="NES | The Nostalgia Pro">
+<meta name="twitter:description" content="All 114 NES games in my collection.">
+<meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
+<link rel="canonical" href="https://thenostalgiapro.com/console/nes.html">
+<title>NES | The Nostalgia Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/retro.css">
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 22px 90px}
+  header{padding:44px 0 0}
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  .wordmark a{color:inherit;text-decoration:none}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;text-decoration:none;
+    border:2px solid var(--line);color:var(--dim);
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+  .barlabel{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:34px 0 10px}
+  .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:64ch}
+  .xpost{
+    margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);
+    border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:14px 18px;
+  }
+  .xpost blockquote{margin:0;white-space:pre-line;font-size:15px}
+  .xpost .meta{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0 0;
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);
+  }
+  .xpost .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .xpost .meta a:hover{border-color:var(--hot);color:var(--hot)}
+  .crumb{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;margin:30px 0 0}
+  .crumb a{color:var(--dim);text-decoration:none}
+  .crumb a:hover{color:var(--hot)}
+  h1{color:var(--c)}
+  .sec{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.1em;color:var(--c);margin:44px 0 6px}
+  .why{font-size:13.5px;color:var(--dim);margin:0 0 18px;max-width:70ch}
+  .why a{color:var(--dim)}
+  .pick{display:grid;grid-template-columns:110px 1fr;gap:18px;margin:0 0 16px;background:var(--bg2);
+    border:1px solid var(--line);border-left:4px solid var(--c);border-radius:2px;padding:16px}
+  .pick img,.pick .nopic{width:110px;border:1px solid var(--line);border-radius:2px;display:block}
+  .pick .nopic{aspect-ratio:3/4;border-style:dashed;display:flex;align-items:center;justify-content:center;
+    font-family:"Silkscreen",monospace;font-size:8px;color:var(--dim);text-align:center;padding:6px}
+  .pick h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:20px;margin:0 0 8px;line-height:1.25}
+  .pick h3 a{color:inherit;text-decoration:none}
+  .pick h3 a:hover{color:var(--c)}
+  .pick h3 em{font-style:normal;font-family:"Press Start 2P",monospace;font-size:11px;color:var(--c);margin-right:10px}
+  .pick blockquote{margin:0;white-space:pre-line;font-size:14.5px}
+  .pick .meta{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;color:var(--dim);margin:12px 0 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .pick .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .pick .meta a:hover{border-color:var(--hot);color:var(--hot)}
+  .shelfgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:14px;margin:8px 0 0}
+  .tile{text-decoration:none;color:inherit;display:block}
+  .tile .im{aspect-ratio:3/4;background:var(--panel) center/cover no-repeat;border:1px solid var(--line);border-radius:2px;
+    display:flex;align-items:center;justify-content:center;font-family:"Silkscreen",monospace;font-size:8px;color:var(--dim);
+    text-align:center;padding:6px}
+  .tile:hover .im{border-color:var(--c)}
+  .tile span{display:block;font-size:12.5px;line-height:1.3;margin-top:6px}
+  .famous{font-size:13.5px;color:var(--dim)}
+  .famous a{color:var(--dim)}
+  @media (max-width:600px){ .pick{grid-template-columns:80px 1fr} .pick img,.pick .nopic{width:80px}
+    .shelfgrid{grid-template-columns:repeat(3,1fr)} }
+</style>
+</head>
+<body style="--c:#d3d0c8">
+<div class="wrap">
+
+<header>
+  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>
+  <div class="navrow">
+    <a class="navbtn" href="/index.html">The shelf</a>
+    <a class="navbtn" href="/reviews.html">Reviews</a>
+    <a class="navbtn" href="/lists.html">Lists</a>
+    <a class="navbtn" href="/rank.html">Rank games</a>
+    <a class="navbtn" href="/anniversaries.html">Anniversaries</a>
+    <a class="navbtn here" href="/consoles.html">Consoles</a>
+    <a class="navbtn" href="/gaps.html">The gaps</a>
+    <a class="navbtn" href="/stats.html">The numbers</a>
+  </div>
+  <p class="crumb"><a href="/consoles.html">&larr; All consoles</a></p>
+  <h1>NES</h1>
+  <p class="standfirst">114 games on the shelf. <a href="/index.html#nes" style="color:inherit">See them all on the shelf</a>.</p>
+</header>
+
+<p class="sec">ALSO ON THE SHELF &middot; 108 GAMES</p>
+<p class="why">Leaving out the 6 NES games on the shelf with the most user ratings on Metacritic. That's a count of how many people rated each one, used here only as a stand-in for &ldquo;the ones everybody names&rdquo;, not a score.</p>
+<div class="shelfgrid">
+<a class="tile" href="/game/adventure-island-nes.html"><div class="im" style="background-image:url('/images/adventure-island-nes.jpg')"></div><span>Adventure Island</span></a>
+<a class="tile" href="/game/adventure-island-ii-nes.html"><div class="im" style="background-image:url('/images/adventure-island-ii-nes.jpg')"></div><span>Adventure Island II</span></a>
+<a class="tile" href="/game/adventures-of-bayou-billy-nes.html"><div class="im" style="background-image:url('/images/adventures-of-bayou-billy-nes.jpg')"></div><span>Adventures of Bayou Billy</span></a>
+<a class="tile" href="/game/adventures-of-dino-riki-nes.html"><div class="im" style="background-image:url('/images/adventures-of-dino-riki-nes.jpg')"></div><span>Adventures of Dino Riki</span></a>
+<a class="tile" href="/game/adventures-of-gilligan-s-island-nes.html"><div class="im" style="background-image:url('/images/adventures-of-gilligan-s-island-nes.jpg')"></div><span>Adventures of Gilligan's Island</span></a>
+<a class="tile" href="/game/adventures-of-lolo-nes.html"><div class="im" style="background-image:url('/images/adventures-of-lolo-nes.jpg')"></div><span>Adventures of Lolo</span></a>
+<a class="tile" href="/game/adventures-of-lolo-2-nes.html"><div class="im" style="background-image:url('/images/adventures-of-lolo-2-nes.jpg')"></div><span>Adventures of Lolo 2</span></a>
+<a class="tile" href="/game/adventures-of-tom-sawyer-nes.html"><div class="im" style="background-image:url('/images/adventures-of-tom-sawyer-nes.jpg')"></div><span>Adventures of Tom Sawyer</span></a>
+<a class="tile" href="/game/airwolf-nes.html"><div class="im" style="background-image:url('/images/airwolf-nes.jpg')"></div><span>Airwolf</span></a>
+<a class="tile" href="/game/bad-dudes-nes.html"><div class="im" style="background-image:url('/images/bad-dudes-nes.jpg')"></div><span>Bad Dudes</span></a>
+<a class="tile" href="/game/batman-the-video-game-nes.html"><div class="im" style="background-image:url('/images/batman-the-video-game-nes.jpg')"></div><span>Batman: The Video Game</span></a>
+<a class="tile" href="/game/beetlejuice-nes.html"><div class="im" style="background-image:url('/images/beetlejuice-nes.jpg')"></div><span>Beetlejuice</span></a>
+<a class="tile" href="/game/bill-ted-s-excellent-video-game-adventure-nes.html"><div class="im" style="background-image:url('/images/bill-ted-s-excellent-video-game-adventure-nes.jpg')"></div><span>Bill &amp; Ted's Excellent Video Game Adventure</span></a>
+<a class="tile" href="/game/bugs-bunny-birthday-blowout-nes.html"><div class="im" style="background-image:url('/images/bugs-bunny-birthday-blowout-nes.jpg')"></div><span>Bugs Bunny Birthday Blowout</span></a>
+<a class="tile" href="/game/capcom-s-gold-medal-challenge-92-nes.html"><div class="im" style="background-image:url('/images/capcom-s-gold-medal-challenge-92-nes.jpg')"></div><span>Capcom's Gold Medal Challenge '92</span></a>
+<a class="tile" href="/game/captain-america-and-the-avengers-nes.html"><div class="im" style="background-image:url('/images/captain-america-and-the-avengers-nes.jpg')"></div><span>Captain America and the Avengers</span></a>
+<a class="tile" href="/game/captain-skyhawk-nes.html"><div class="im" style="background-image:url('/images/captain-skyhawk-nes.jpg')"></div><span>Captain Skyhawk</span></a>
+<a class="tile" href="/game/chessmaster-nes.html"><div class="im" style="background-image:url('/images/chessmaster-nes.jpg')"></div><span>Chessmaster</span></a>
+<a class="tile" href="/game/chip-n-dale-nes.html"><div class="im" style="background-image:url('/images/chip-n-dale-nes.jpg')"></div><span>Chip 'n Dale</span></a>
+<a class="tile" href="/game/conquest-of-the-crystal-palace-nes.html"><div class="im" style="background-image:url('/images/conquest-of-the-crystal-palace-nes.jpg')"></div><span>Conquest of the Crystal Palace</span></a>
+<a class="tile" href="/game/contra-nes.html"><div class="im" style="background-image:url('/images/contra-nes.jpg')"></div><span>Contra</span></a>
+<a class="tile" href="/game/crystalis-nes.html"><div class="im" style="background-image:url('/images/crystalis-nes.jpg')"></div><span>Crystalis</span></a>
+<a class="tile" href="/game/cybernoid-the-fighting-machine-nes.html"><div class="im" style="background-image:url('/images/cybernoid-the-fighting-machine-nes.jpg')"></div><span>Cybernoid: The Fighting Machine</span></a>
+<a class="tile" href="/game/defender-ii-nes.html"><div class="im" style="background-image:url('/images/defender-ii-nes.jpg')"></div><span>Defender II</span></a>
+<a class="tile" href="/game/dick-tracy-nes.html"><div class="im" style="background-image:url('/images/dick-tracy-nes.jpg')"></div><span>Dick Tracy</span></a>
+<a class="tile" href="/game/dirty-harry-nes.html"><div class="im" style="background-image:url('/images/dirty-harry-nes.jpg')"></div><span>Dirty Harry</span></a>
+<a class="tile" href="/game/double-dragon-nes.html"><div class="im" style="background-image:url('/images/double-dragon-nes.jpg')"></div><span>Double Dragon</span></a>
+<a class="tile" href="/game/double-dragon-ii-the-revenge-nes.html"><div class="im" style="background-image:url('/images/double-dragon-ii-the-revenge-nes.jpg')"></div><span>Double Dragon II: The Revenge</span></a>
+<a class="tile" href="/game/dr-mario-nes.html"><div class="im" style="background-image:url('/images/dr-mario-nes.jpg')"></div><span>Dr. Mario</span></a>
+<a class="tile" href="/game/dragon-warrior-nes.html"><div class="im" style="background-image:url('/images/dragon-warrior-nes.jpg')"></div><span>Dragon Warrior</span></a>
+<a class="tile" href="/game/dragon-warrior-ii-nes.html"><div class="im" style="background-image:url('/images/dragon-warrior-ii-nes.jpg')"></div><span>Dragon Warrior II</span></a>
+<a class="tile" href="/game/excitebike-5-screw-nes.html"><div class="im" style="background-image:url('/images/excitebike-5-screw-nes.jpg')"></div><span>Excitebike [5 Screw]</span></a>
+<a class="tile" href="/game/fester-s-quest-nes.html"><div class="im" style="background-image:url('/images/fester-s-quest-nes.jpg')"></div><span>Fester's Quest</span></a>
+<a class="tile" href="/game/friday-the-13th-nes.html"><div class="im" style="background-image:url('/images/friday-the-13th-nes.jpg')"></div><span>Friday the 13th</span></a>
+<a class="tile" href="/game/galaga-demons-of-death-nes.html"><div class="im" style="background-image:url('/images/galaga-demons-of-death-nes.jpg')"></div><span>Galaga: Demons of Death</span></a>
+<a class="tile" href="/game/great-waldo-search-nes.html"><div class="im" style="background-image:url('/images/great-waldo-search-nes.jpg')"></div><span>Great Waldo Search</span></a>
+<a class="tile" href="/game/gyromite-5-screw-nes.html"><div class="im" style="background-image:url('/images/gyromite-5-screw-nes.jpg')"></div><span>Gyromite [5 Screw]</span></a>
+<a class="tile" href="/game/hogan-s-alley-nes.html"><div class="im" style="background-image:url('/images/hogan-s-alley-nes.jpg')"></div><span>Hogan's Alley</span></a>
+<a class="tile" href="/game/hunt-for-red-october-nes.html"><div class="im" style="background-image:url('/images/hunt-for-red-october-nes.jpg')"></div><span>Hunt for Red October</span></a>
+<a class="tile" href="/game/ikari-warriors-nes.html"><div class="im" style="background-image:url('/images/ikari-warriors-nes.jpg')"></div><span>Ikari Warriors</span></a>
+<a class="tile" href="/game/ikari-warriors-ii-victory-road-nes.html"><div class="im" style="background-image:url('/images/ikari-warriors-ii-victory-road-nes.jpg')"></div><span>Ikari Warriors II: Victory Road</span></a>
+<a class="tile" href="/game/indiana-jones-and-the-temple-of-doom-nes.html"><div class="im" style="background-image:url('/images/indiana-jones-and-the-temple-of-doom-nes.jpg')"></div><span>Indiana Jones and the Temple of Doom</span></a>
+<a class="tile" href="/game/infiltrator-nes.html"><div class="im" style="background-image:url('/images/infiltrator-nes.jpg')"></div><span>Infiltrator</span></a>
+<a class="tile" href="/game/ivan-ironman-stewart-s-super-off-road-nes.html"><div class="im" style="background-image:url('/images/ivan-ironman-stewart-s-super-off-road-nes.jpg')"></div><span>Ivan &quot;Ironman&quot; Stewart's Super Off Road</span></a>
+<a class="tile" href="/game/jack-nicklaus-greatest-18-holes-of-major-championship-golf-nes.html"><div class="im" style="background-image:url('/images/jack-nicklaus-greatest-18-holes-of-major-championship-golf-nes.jpg')"></div><span>Jack Nicklaus' Greatest 18 Holes of Major Championship Golf</span></a>
+<a class="tile" href="/game/jaws-nes.html"><div class="im" style="background-image:url('/images/jaws-nes.jpg')"></div><span>Jaws</span></a>
+<a class="tile" href="/game/john-elway-s-quarterback-nes.html"><div class="im" style="background-image:url('/images/john-elway-s-quarterback-nes.jpg')"></div><span>John Elway's Quarterback</span></a>
+<a class="tile" href="/game/karate-kid-nes.html"><div class="im" style="background-image:url('/images/karate-kid-nes.jpg')"></div><span>Karate Kid</span></a>
+<a class="tile" href="/game/knight-rider-nes.html"><div class="im" style="background-image:url('/images/knight-rider-nes.jpg')"></div><span>Knight Rider</span></a>
+<a class="tile" href="/game/legend-of-zelda-nes.html"><div class="im" style="background-image:url('/images/legend-of-zelda-nes.jpg')"></div><span>Legend of Zelda</span></a>
+<a class="tile" href="/game/mad-max-nes.html"><div class="im" style="background-image:url('/images/mad-max-nes.jpg')"></div><span>Mad Max</span></a>
+<a class="tile" href="/game/major-league-baseball-nes.html"><div class="im" style="background-image:url('/images/major-league-baseball-nes.jpg')"></div><span>Major League Baseball</span></a>
+<a class="tile" href="/game/mega-man-2-nes.html"><div class="im" style="background-image:url('/images/mega-man-2-nes.jpg')"></div><span>Mega Man 2</span></a>
+<a class="tile" href="/game/mega-man-6-nes.html"><div class="im" style="background-image:url('/images/mega-man-6-nes.jpg')"></div><span>Mega Man 6</span></a>
+<a class="tile" href="/game/metal-gear-nes.html"><div class="im" style="background-image:url('/images/metal-gear-nes.jpg')"></div><span>Metal Gear</span></a>
+<a class="tile" href="/game/mike-tyson-s-punch-out-nes.html"><div class="im" style="background-image:url('/images/mike-tyson-s-punch-out-nes.jpg')"></div><span>Mike Tyson's Punch-Out!!</span></a>
+<a class="tile" href="/game/mission-impossible-nes.html"><div class="im" style="background-image:url('/images/mission-impossible-nes.jpg')"></div><span>Mission: Impossible</span></a>
+<a class="tile" href="/game/narc-nes.html"><div class="im" style="background-image:url('/images/narc-nes.jpg')"></div><span>NARC</span></a>
+<a class="tile" href="/game/ninja-gaiden-iii-the-ancient-ship-of-doom-nes.html"><div class="im" style="background-image:url('/images/ninja-gaiden-iii-the-ancient-ship-of-doom-nes.jpg')"></div><span>Ninja Gaiden III: The Ancient Ship of Doom</span></a>
+<a class="tile" href="/game/operation-wolf-nes.html"><div class="im" style="background-image:url('/images/operation-wolf-nes.jpg')"></div><span>Operation Wolf</span></a>
+<a class="tile" href="/game/paperboy-nes.html"><div class="im" style="background-image:url('/images/paperboy-nes.jpg')"></div><span>Paperboy</span></a>
+<a class="tile" href="/game/pinball-nes.html"><div class="im" style="background-image:url('/images/pinball-nes.jpg')"></div><span>Pinball</span></a>
+<a class="tile" href="/game/platoon-nes.html"><div class="im" style="background-image:url('/images/platoon-nes.jpg')"></div><span>Platoon</span></a>
+<a class="tile" href="/game/popeye-nes.html"><div class="im" style="background-image:url('/images/popeye-nes.jpg')"></div><span>Popeye</span></a>
+<a class="tile" href="/game/predator-nes.html"><div class="im" style="background-image:url('/images/predator-nes.jpg')"></div><span>Predator</span></a>
+<a class="tile" href="/game/punisher-nes.html"><div class="im" style="background-image:url('/images/punisher-nes.jpg')"></div><span>Punisher</span></a>
+<a class="tile" href="/game/r-c-pro-am-nes.html"><div class="im" style="background-image:url('/images/r-c-pro-am-nes.jpg')"></div><span>R.C. Pro-Am</span></a>
+<a class="tile" href="/game/rambo-nes.html"><div class="im" style="background-image:url('/images/rambo-nes.jpg')"></div><span>Rambo</span></a>
+<a class="tile" href="/game/river-city-ransom-nes.html"><div class="im" style="background-image:url('/images/river-city-ransom-nes.jpg')"></div><span>River City Ransom</span></a>
+<a class="tile" href="/game/robin-hood-prince-of-thieves-nes.html"><div class="im" style="background-image:url('/images/robin-hood-prince-of-thieves-nes.jpg')"></div><span>Robin Hood: Prince of Thieves</span></a>
+<a class="tile" href="/game/robocop-nes.html"><div class="im" style="background-image:url('/images/robocop-nes.jpg')"></div><span>RoboCop</span></a>
+<a class="tile" href="/game/robocop-2-nes.html"><div class="im" style="background-image:url('/images/robocop-2-nes.jpg')"></div><span>RoboCop 2</span></a>
+<a class="tile" href="/game/roger-clemens-mvp-baseball-nes.html"><div class="im" style="background-image:url('/images/roger-clemens-mvp-baseball-nes.jpg')"></div><span>Roger Clemens' MVP Baseball</span></a>
+<a class="tile" href="/game/simpsons-bart-vs-the-space-mutants-nes.html"><div class="im" style="background-image:url('/images/simpsons-bart-vs-the-space-mutants-nes.jpg')"></div><span>Simpsons: Bart vs. the Space Mutants</span></a>
+<a class="tile" href="/game/skate-or-die-nes.html"><div class="im" style="background-image:url('/images/skate-or-die-nes.jpg')"></div><span>Skate or Die</span></a>
+<a class="tile" href="/game/sky-shark-nes.html"><div class="im" style="background-image:url('/images/sky-shark-nes.jpg')"></div><span>Sky Shark</span></a>
+<a class="tile" href="/game/snake-s-revenge-nes.html"><div class="im" style="background-image:url('/images/snake-s-revenge-nes.jpg')"></div><span>Snake's Revenge</span></a>
+<a class="tile" href="/game/spot-the-video-game-nes.html"><div class="im" style="background-image:url('/images/spot-the-video-game-nes.jpg')"></div><span>Spot: The Video Game</span></a>
+<a class="tile" href="/game/spy-vs-spy-nes.html"><div class="im" style="background-image:url('/images/spy-vs-spy-nes.jpg')"></div><span>Spy vs. Spy</span></a>
+<a class="tile" href="/game/star-trek-the-next-generation-nes.html"><div class="im" style="background-image:url('/images/star-trek-the-next-generation-nes.jpg')"></div><span>Star Trek: The Next Generation</span></a>
+<a class="tile" href="/game/star-wars-nes.html"><div class="im" style="background-image:url('/images/star-wars-nes.jpg')"></div><span>Star Wars</span></a>
+<a class="tile" href="/game/star-wars-the-empire-strikes-back-nes.html"><div class="im" style="background-image:url('/images/star-wars-the-empire-strikes-back-nes.jpg')"></div><span>Star Wars: The Empire Strikes Back</span></a>
+<a class="tile" href="/game/stealth-atf-nes.html"><div class="im" style="background-image:url('/images/stealth-atf-nes.jpg')"></div><span>Stealth ATF</span></a>
+<a class="tile" href="/game/super-c-nes.html"><div class="im" style="background-image:url('/images/super-c-nes.jpg')"></div><span>Super C</span></a>
+<a class="tile" href="/game/super-games-150-in-1-nes.html"><div class="im" style="background-image:url('/images/super-games-150-in-1-nes.jpg')"></div><span>Super Games 150 in 1</span></a>
+<a class="tile" href="/game/super-mario-bros-2-nes.html"><div class="im" style="background-image:url('/images/super-mario-bros-2-nes.jpg')"></div><span>Super Mario Bros. 2</span></a>
+<a class="tile" href="/game/super-mario-bros-3-nes.html"><div class="im" style="background-image:url('/images/super-mario-bros-3-nes.jpg')"></div><span>Super Mario Bros. 3</span></a>
+<a class="tile" href="/game/super-mario-bros-duck-hunt-nes.html"><div class="im" style="background-image:url('/images/super-mario-bros-duck-hunt-nes.jpg')"></div><span>Super Mario Bros. / Duck Hunt</span></a>
+<a class="tile" href="/game/super-mario-bros-duck-hunt-world-class-track-meet-nes.html"><div class="im" style="background-image:url('/images/super-mario-bros-duck-hunt-world-class-track-meet-nes.jpg')"></div><span>Super Mario Bros. - Duck Hunt - World Class Track Meet</span></a>
+<a class="tile" href="/game/tecmo-super-bowl-nes.html"><div class="im" style="background-image:url('/images/tecmo-super-bowl-nes.jpg')"></div><span>Tecmo Super Bowl</span></a>
+<a class="tile" href="/game/teenage-mutant-ninja-turtles-ii-the-arcade-game-nes.html"><div class="im" style="background-image:url('/images/teenage-mutant-ninja-turtles-ii-the-arcade-game-nes.jpg')"></div><span>Teenage Mutant Ninja Turtles II: The Arcade Game</span></a>
+<a class="tile" href="/game/terminator-2-judgment-day-nes.html"><div class="im" style="background-image:url('/images/terminator-2-judgment-day-nes.jpg')"></div><span>Terminator 2: Judgment Day</span></a>
+<a class="tile" href="/game/tetris-nes.html"><div class="im" style="background-image:url('/images/tetris-nes.jpg')"></div><span>Tetris</span></a>
+<a class="tile" href="/game/time-lord-nes.html"><div class="im" style="background-image:url('/images/time-lord-nes.jpg')"></div><span>Time Lord</span></a>
+<a class="tile" href="/game/top-gun-nes.html"><div class="im" style="background-image:url('/images/top-gun-nes.jpg')"></div><span>Top Gun</span></a>
+<a class="tile" href="/game/top-gun-the-second-mission-nes.html"><div class="im" style="background-image:url('/images/top-gun-the-second-mission-nes.jpg')"></div><span>Top Gun: The Second Mission</span></a>
+<a class="tile" href="/game/total-recall-nes.html"><div class="im" style="background-image:url('/images/total-recall-nes.jpg')"></div><span>Total Recall</span></a>
+<a class="tile" href="/game/town-country-surf-designs-wood-water-rage-nes.html"><div class="im" style="background-image:url('/images/town-country-surf-designs-wood-water-rage-nes.jpg')"></div><span>Town &amp; Country Surf Designs: Wood &amp; Water Rage</span></a>
+<a class="tile" href="/game/track-field-nes.html"><div class="im" style="background-image:url('/images/track-field-nes.jpg')"></div><span>Track &amp; Field</span></a>
+<a class="tile" href="/game/uncanny-x-men-nes.html"><div class="im" style="background-image:url('/images/uncanny-x-men-nes.jpg')"></div><span>Uncanny X-Men</span></a>
+<a class="tile" href="/game/wheel-of-fortune-nes.html"><div class="im" style="background-image:url('/images/wheel-of-fortune-nes.jpg')"></div><span>Wheel of Fortune</span></a>
+<a class="tile" href="/game/who-framed-roger-rabbit-nes.html"><div class="im" style="background-image:url('/images/who-framed-roger-rabbit-nes.jpg')"></div><span>Who Framed Roger Rabbit</span></a>
+<a class="tile" href="/game/wizards-warriors-nes.html"><div class="im" style="background-image:url('/images/wizards-warriors-nes.jpg')"></div><span>Wizards &amp; Warriors</span></a>
+<a class="tile" href="/game/world-class-track-meet-nes.html"><div class="im" style="background-image:url('/images/world-class-track-meet-nes.jpg')"></div><span>World Class Track Meet</span></a>
+<a class="tile" href="/game/wrecking-crew-nes.html"><div class="im" style="background-image:url('/images/wrecking-crew-nes.jpg')"></div><span>Wrecking Crew</span></a>
+<a class="tile" href="/game/wwf-wrestlemania-nes.html"><div class="im" style="background-image:url('/images/wwf-wrestlemania-nes.jpg')"></div><span>WWF WrestleMania</span></a>
+<a class="tile" href="/game/xenophobe-nes.html"><div class="im" style="background-image:url('/images/xenophobe-nes.jpg')"></div><span>Xenophobe</span></a>
+<a class="tile" href="/game/yo-noid-nes.html"><div class="im" style="background-image:url('/images/yo-noid-nes.jpg')"></div><span>Yo! Noid</span></a>
+</div>
+<p class="famous" style="margin-top:22px">Left out: <a href="/game/final-fantasy-nes.html">Final Fantasy</a>, <a href="/game/kirby-s-adventure-nes.html">Kirby's Adventure</a>, <a href="/game/punch-out-nes.html">Punch-Out!!</a>, <a href="/game/super-mario-bros-5-screw-nes.html">Super Mario Bros. [5 Screw]</a>, <a href="/game/teenage-mutant-ninja-turtles-nes.html">Teenage Mutant Ninja Turtles</a>, <a href="/game/zelda-ii-the-adventure-of-link-nes.html">Zelda II: The Adventure of Link</a>.</p>
+
+<footer>
+  <p>The Nostalgia Pro. <a href="/consoles.html">All consoles</a> &middot; <a href="https://x.com/NostalgiaPro" target="_blank" rel="noopener">@NostalgiaPro on X</a></p>
+</footer>
+
+</div>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
+<script>
+/* 1996 mode. The class does all the work, retro.css does the rest. */
+(function(){
+  var on = false;
+  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
+  if (on) document.body.classList.add("y1996");
+
+  var b = document.createElement("button");
+  b.id = "y1996btn";
+  b.type = "button";
+  b.textContent = on ? "Back to now" : "1996 mode";
+  b.addEventListener("click", function(){
+    var nowOn = document.body.classList.toggle("y1996");
+    b.textContent = nowOn ? "Back to now" : "1996 mode";
+    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
+  });
+
+  var foot = document.querySelector("footer") || document.querySelector(".wrap");
+  var wrap = document.createElement("p");
+  wrap.style.cssText = "text-align:center;margin:18px 0 0";
+  wrap.appendChild(b);
+  foot.appendChild(wrap);
+
+})();
+
+/* Back to top. Appears once you've scrolled far enough to want it. */
+(function(){
+  var b = document.createElement("button");
+  b.id = "totop";
+  b.type = "button";
+  b.setAttribute("aria-label", "Back to top");
+  b.innerHTML = "&#9650;";
+  b.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.body.appendChild(b);
+
+  function check(){ b.classList.toggle("on", window.scrollY > 600); }
+  addEventListener("scroll", check, { passive: true });
+  check();
+})();
+</script>
+</body>
+</html>

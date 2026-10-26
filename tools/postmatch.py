@@ -55,6 +55,8 @@ ALIASES = {
     "metal gear solid 4": "metal gear solid 4 guns of the patriots",
     "mario kart double dash": "mario kart double dash",
     "wave race": "wave race 64",
+    "disney s the jungle book": "jungle book",
+    "desert strike": "desert strike return to the gulf",
     "1080 snowboarding": "1080 snowboarding",
     "red dead redemption 2": "red dead redemption ii",
     "star wars knights of the old republic": "star wars knights of the old republic",

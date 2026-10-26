@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="All 63 PlayStation 1 games in my collection.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="PlayStation 1 | The Nostalgia Pro">
+<meta property="og:description" content="All 63 PlayStation 1 games in my collection.">
+<meta property="og:url" content="https://thenostalgiapro.com/console/playstation-1.html">
+<meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="PlayStation 1 | The Nostalgia Pro">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="PlayStation 1 | The Nostalgia Pro">
+<meta name="twitter:description" content="All 63 PlayStation 1 games in my collection.">
+<meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
+<link rel="canonical" href="https://thenostalgiapro.com/console/playstation-1.html">
+<title>PlayStation 1 | The Nostalgia Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/retro.css">
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 22px 90px}
+  header{padding:44px 0 0}
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  .wordmark a{color:inherit;text-decoration:none}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;text-decoration:none;
+    border:2px solid var(--line);color:var(--dim);
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+  .barlabel{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:34px 0 10px}
+  .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:64ch}
+  .xpost{
+    margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);
+    border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:14px 18px;
+  }
+  .xpost blockquote{margin:0;white-space:pre-line;font-size:15px}
+  .xpost .meta{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0 0;
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);
+  }
+  .xpost .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .xpost .meta a:hover{border-color:var(--hot);color:var(--hot)}
+  .crumb{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;margin:30px 0 0}
+  .crumb a{color:var(--dim);text-decoration:none}
+  .crumb a:hover{color:var(--hot)}
+  h1{color:var(--c)}
+  .sec{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.1em;color:var(--c);margin:44px 0 6px}
+  .why{font-size:13.5px;color:var(--dim);margin:0 0 18px;max-width:70ch}
+  .why a{color:var(--dim)}
+  .pick{display:grid;grid-template-columns:110px 1fr;gap:18px;margin:0 0 16px;background:var(--bg2);
+    border:1px solid var(--line);border-left:4px solid var(--c);border-radius:2px;padding:16px}
+  .pick img,.pick .nopic{width:110px;border:1px solid var(--line);border-radius:2px;display:block}
+  .pick .nopic{aspect-ratio:3/4;border-style:dashed;display:flex;align-items:center;justify-content:center;
+    font-family:"Silkscreen",monospace;font-size:8px;color:var(--dim);text-align:center;padding:6px}
+  .pick h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:20px;margin:0 0 8px;line-height:1.25}
+  .pick h3 a{color:inherit;text-decoration:none}
+  .pick h3 a:hover{color:var(--c)}
+  .pick h3 em{font-style:normal;font-family:"Press Start 2P",monospace;font-size:11px;color:var(--c);margin-right:10px}
+  .pick blockquote{margin:0;white-space:pre-line;font-size:14.5px}
+  .pick .meta{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;color:var(--dim);margin:12px 0 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .pick .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
+  .pick .meta a:hover{border-color:var(--hot);color:var(--hot)}
+  .shelfgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:14px;margin:8px 0 0}
+  .tile{text-decoration:none;color:inherit;display:block}
+  .tile .im{aspect-ratio:3/4;background:var(--panel) center/cover no-repeat;border:1px solid var(--line);border-radius:2px;
+    display:flex;align-items:center;justify-content:center;font-family:"Silkscreen",monospace;font-size:8px;color:var(--dim);
+    text-align:center;padding:6px}
+  .tile:hover .im{border-color:var(--c)}
+  .tile span{display:block;font-size:12.5px;line-height:1.3;margin-top:6px}
+  .famous{font-size:13.5px;color:var(--dim)}
+  .famous a{color:var(--dim)}
+  @media (max-width:600px){ .pick{grid-template-columns:80px 1fr} .pick img,.pick .nopic{width:80px}
+    .shelfgrid{grid-template-columns:repeat(3,1fr)} }
+</style>
+</head>
+<body style="--c:#a9b0c4">
+<div class="wrap">
+
+<header>
+  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>
+  <div class="navrow">
+    <a class="navbtn" href="/index.html">The shelf</a>
+    <a class="navbtn" href="/reviews.html">Reviews</a>
+    <a class="navbtn" href="/lists.html">Lists</a>
+    <a class="navbtn" href="/rank.html">Rank games</a>
+    <a class="navbtn" href="/anniversaries.html">Anniversaries</a>
+    <a class="navbtn here" href="/consoles.html">Consoles</a>
+    <a class="navbtn" href="/gaps.html">The gaps</a>
+    <a class="navbtn" href="/stats.html">The numbers</a>
+  </div>
+  <p class="crumb"><a href="/consoles.html">&larr; All consoles</a></p>
+  <h1>PlayStation 1</h1>
+  <p class="standfirst">63 games on the shelf. <a href="/index.html#playstation-1" style="color:inherit">See them all on the shelf</a>.</p>
+</header>
+
+<p class="sec">ALSO ON THE SHELF &middot; 57 GAMES</p>
+<p class="why">Leaving out the 6 PlayStation 1 games on the shelf with the most user ratings on Metacritic. That's a count of how many people rated each one, used here only as a stand-in for &ldquo;the ones everybody names&rdquo;, not a score.</p>
+<div class="shelfgrid">
+<a class="tile" href="/game/007-the-world-is-not-enough-playstation-1.html"><div class="im" style="background-image:url('/images/007-the-world-is-not-enough-playstation-1.jpg')"></div><span>007: The World Is Not Enough</span></a>
+<a class="tile" href="/game/007-tomorrow-never-dies-playstation-1.html"><div class="im" style="background-image:url('/images/007-tomorrow-never-dies-playstation-1.jpg')"></div><span>007: Tomorrow Never Dies</span></a>
+<a class="tile" href="/game/agile-warrior-f-111x-long-box-playstation-1.html"><div class="im" style="background-image:url('/images/agile-warrior-f-111x-long-box-playstation-1.jpg')"></div><span>Agile Warrior F-111X [Long Box]</span></a>
+<a class="tile" href="/game/alien-resurrection-playstation-1.html"><div class="im" style="background-image:url('/images/alien-resurrection-playstation-1.jpg')"></div><span>Alien Resurrection</span></a>
+<a class="tile" href="/game/army-men-3d-playstation-1.html"><div class="im" style="background-image:url('/images/army-men-3d-playstation-1.jpg')"></div><span>Army Men 3D</span></a>
+<a class="tile" href="/game/batman-robin-playstation-1.html"><div class="im" style="background-image:url('/images/batman-robin-playstation-1.jpg')"></div><span>Batman &amp; Robin</span></a>
+<a class="tile" href="/game/bob-the-builder-can-we-fix-it-playstation-1.html"><div class="im" style="background-image:url('/images/bob-the-builder-can-we-fix-it-playstation-1.jpg')"></div><span>Bob the Builder: Can We Fix It?</span></a>
+<a class="tile" href="/game/colony-wars-iii-red-sun-playstation-1.html"><div class="im" style="background-image:url('/images/colony-wars-iii-red-sun-playstation-1.jpg')"></div><span>Colony Wars III: Red Sun</span></a>
+<a class="tile" href="/game/cyber-sled-long-box-playstation-1.html"><div class="im" style="background-image:url('/images/cyber-sled-long-box-playstation-1.jpg')"></div><span>Cyber Sled [Long Box]</span></a>
+<a class="tile" href="/game/cyberia-playstation-1.html"><div class="im" style="background-image:url('/images/cyberia-playstation-1.jpg')"></div><span>Cyberia</span></a>
+<a class="tile" href="/game/delta-force-urban-warfare-playstation-1.html"><div class="im" style="background-image:url('/images/delta-force-urban-warfare-playstation-1.jpg')"></div><span>Delta Force: Urban Warfare</span></a>
+<a class="tile" href="/game/duke-nukem-time-to-kill-playstation-1.html"><div class="im" style="background-image:url('/images/duke-nukem-time-to-kill-playstation-1.jpg')"></div><span>Duke Nukem: Time to Kill</span></a>
+<a class="tile" href="/game/fifth-element-playstation-1.html"><div class="im" style="background-image:url('/images/fifth-element-playstation-1.jpg')"></div><span>Fifth Element</span></a>
+<a class="tile" href="/game/final-doom-playstation-1.html"><div class="im" style="background-image:url('/images/final-doom-playstation-1.jpg')"></div><span>Final Doom</span></a>
+<a class="tile" href="/game/final-fantasy-ix-greatest-hits-playstation-1.html"><div class="im" style="background-image:url('/images/final-fantasy-ix-greatest-hits-playstation-1.jpg')"></div><span>Final Fantasy IX [Greatest Hits]</span></a>
+<a class="tile" href="/game/grand-theft-auto-mission-pack-1-london-1969-playstation-1.html"><div class="im" style="background-image:url('/images/grand-theft-auto-mission-pack-1-london-1969-playstation-1.jpg')"></div><span>Grand Theft Auto Mission Pack #1: London 1969</span></a>
+<a class="tile" href="/game/gunship-playstation-1.html"><div class="im" style="background-image:url('/images/gunship-playstation-1.jpg')"></div><span>Gunship</span></a>
+<a class="tile" href="/game/judge-dredd-playstation-1.html"><div class="im" style="background-image:url('/images/judge-dredd-playstation-1.jpg')"></div><span>Judge Dredd</span></a>
+<a class="tile" href="/game/legend-of-mana-playstation-1.html"><div class="im" style="background-image:url('/images/legend-of-mana-playstation-1.jpg')"></div><span>Legend of Mana</span></a>
+<a class="tile" href="/game/m-m-s-shell-shocked-playstation-1.html"><div class="im" style="background-image:url('/images/m-m-s-shell-shocked-playstation-1.jpg')"></div><span>M&amp;M's Shell Shocked</span></a>
+<a class="tile" href="/game/marvel-super-heroes-vs-street-fighter-playstation-1.html"><div class="im" style="background-image:url('/images/marvel-super-heroes-vs-street-fighter-playstation-1.jpg')"></div><span>Marvel Super Heroes vs. Street Fighter</span></a>
+<a class="tile" href="/game/mega-man-legends-playstation-1.html"><div class="im" style="background-image:url('/images/mega-man-legends-playstation-1.jpg')"></div><span>Mega Man Legends</span></a>
+<a class="tile" href="/game/mega-man-legends-2-playstation-1.html"><div class="im" style="background-image:url('/images/mega-man-legends-2-playstation-1.jpg')"></div><span>Mega Man Legends 2</span></a>
+<a class="tile" href="/game/metal-gear-solid-greatest-hits-playstation-1.html"><div class="im" style="background-image:url('/images/metal-gear-solid-greatest-hits-playstation-1.jpg')"></div><span>Metal Gear Solid [Greatest Hits]</span></a>
+<a class="tile" href="/game/metal-gear-solid-vr-missions-playstation-1.html"><div class="im" style="background-image:url('/images/metal-gear-solid-vr-missions-playstation-1.jpg')"></div><span>Metal Gear Solid: VR Missions</span></a>
+<a class="tile" href="/game/mlb-2001-playstation-1.html"><div class="im" style="background-image:url('/images/mlb-2001-playstation-1.jpg')"></div><span>MLB 2001</span></a>
+<a class="tile" href="/game/mlb-2003-playstation-1.html"><div class="im" style="background-image:url('/images/mlb-2003-playstation-1.jpg')"></div><span>MLB 2003</span></a>
+<a class="tile" href="/game/mortal-kombat-special-forces-playstation-1.html"><div class="im" style="background-image:url('/images/mortal-kombat-special-forces-playstation-1.jpg')"></div><span>Mortal Kombat: Special Forces</span></a>
+<a class="tile" href="/game/nascar-99-playstation-1.html"><div class="im" style="background-image:url('/images/nascar-99-playstation-1.jpg')"></div><span>NASCAR 99</span></a>
+<a class="tile" href="/game/nba-jam-extreme-playstation-1.html"><div class="im" style="background-image:url('/images/nba-jam-extreme-playstation-1.jpg')"></div><span>NBA Jam Extreme</span></a>
+<a class="tile" href="/game/nba-live-2000-playstation-1.html"><div class="im" style="background-image:url('/images/nba-live-2000-playstation-1.jpg')"></div><span>NBA Live 2000</span></a>
+<a class="tile" href="/game/nba-shootout-2001-playstation-1.html"><div class="im" style="background-image:url('/images/nba-shootout-2001-playstation-1.jpg')"></div><span>NBA ShootOut 2001</span></a>
+<a class="tile" href="/game/ncaa-gamebreaker-98-playstation-1.html"><div class="im" style="background-image:url('/images/ncaa-gamebreaker-98-playstation-1.jpg')"></div><span>NCAA Gamebreaker 98</span></a>
+<a class="tile" href="/game/nfl-gameday-long-box-playstation-1.html"><div class="im" style="background-image:url('/images/nfl-gameday-long-box-playstation-1.jpg')"></div><span>NFL GameDay [Long Box]</span></a>
+<a class="tile" href="/game/nfl-gameday-2002-playstation-1.html"><div class="im" style="background-image:url('/images/nfl-gameday-2002-playstation-1.jpg')"></div><span>NFL Gameday 2002</span></a>
+<a class="tile" href="/game/novastorm-playstation-1.html"><div class="im" style="background-image:url('/images/novastorm-playstation-1.jpg')"></div><span>Novastorm</span></a>
+<a class="tile" href="/game/one-playstation-1.html"><div class="im" style="background-image:url('/images/one-playstation-1.jpg')"></div><span>One</span></a>
+<a class="tile" href="/game/parasite-eve-ii-playstation-1.html"><div class="im" style="background-image:url('/images/parasite-eve-ii-playstation-1.jpg')"></div><span>Parasite Eve II</span></a>
+<a class="tile" href="/game/ready-2-rumble-boxing-greatest-hits-playstation-1.html"><div class="im" style="background-image:url('/images/ready-2-rumble-boxing-greatest-hits-playstation-1.jpg')"></div><span>Ready 2 Rumble Boxing [Greatest Hits]</span></a>
+<a class="tile" href="/game/rugrats-studio-tour-playstation-1.html"><div class="im" style="background-image:url('/images/rugrats-studio-tour-playstation-1.jpg')"></div><span>Rugrats: Studio Tour</span></a>
+<a class="tile" href="/game/shockwave-assault-long-box-playstation-1.html"><div class="im" style="background-image:url('/images/shockwave-assault-long-box-playstation-1.jpg')"></div><span>Shockwave Assault [Long Box]</span></a>
+<a class="tile" href="/game/spec-ops-covert-assault-playstation-1.html"><div class="im" style="background-image:url('/images/spec-ops-covert-assault-playstation-1.jpg')"></div><span>Spec Ops: Covert Assault</span></a>
+<a class="tile" href="/game/star-wars-demolition-playstation-1.html"><div class="im" style="background-image:url('/images/star-wars-demolition-playstation-1.jpg')"></div><span>Star Wars: Demolition</span></a>
+<a class="tile" href="/game/street-fighter-alpha-warriors-dreams-long-box-playstation-1.html"><div class="im" style="background-image:url('/images/street-fighter-alpha-warriors-dreams-long-box-playstation-1.jpg')"></div><span>Street Fighter Alpha: Warriors' Dreams [Long Box]</span></a>
+<a class="tile" href="/game/street-fighter-the-movie-long-box-playstation-1.html"><div class="im" style="background-image:url('/images/street-fighter-the-movie-long-box-playstation-1.jpg')"></div><span>Street Fighter The Movie [Long Box]</span></a>
+<a class="tile" href="/game/syphon-filter-2-playstation-1.html"><div class="im" style="background-image:url('/images/syphon-filter-2-playstation-1.jpg')"></div><span>Syphon Filter 2</span></a>
+<a class="tile" href="/game/syphon-filter-3-playstation-1.html"><div class="im" style="background-image:url('/images/syphon-filter-3-playstation-1.jpg')"></div><span>Syphon Filter 3</span></a>
+<a class="tile" href="/game/tekken-3-greatest-hits-playstation-1.html"><div class="im" style="background-image:url('/images/tekken-3-greatest-hits-playstation-1.jpg')"></div><span>Tekken 3 [Greatest Hits]</span></a>
+<a class="tile" href="/game/tom-clancy-s-rainbow-six-playstation-1.html"><div class="im" style="background-image:url('/images/tom-clancy-s-rainbow-six-playstation-1.jpg')"></div><span>Tom Clancy's Rainbow Six</span></a>
+<a class="tile" href="/game/tomb-raider-greatest-hits-playstation-1.html"><div class="im" style="background-image:url('/images/tomb-raider-greatest-hits-playstation-1.jpg')"></div><span>Tomb Raider [Greatest Hits]</span></a>
+<a class="tile" href="/game/triple-play-2000-playstation-1.html"><div class="im" style="background-image:url('/images/triple-play-2000-playstation-1.jpg')"></div><span>Triple Play 2000</span></a>
+<a class="tile" href="/game/triple-play-2001-playstation-1.html"><div class="im" style="background-image:url('/images/triple-play-2001-playstation-1.jpg')"></div><span>Triple Play 2001</span></a>
+<a class="tile" href="/game/twisted-metal-2-playstation-1.html"><div class="im" style="background-image:url('/images/twisted-metal-2-playstation-1.jpg')"></div><span>Twisted Metal 2</span></a>
+<a class="tile" href="/game/wcw-nwo-thunder-playstation-1.html"><div class="im" style="background-image:url('/images/wcw-nwo-thunder-playstation-1.jpg')"></div><span>WCW-NWO Thunder</span></a>
+<a class="tile" href="/game/who-wants-to-be-a-millionaire-2nd-edition-playstation-1.html"><div class="im" style="background-image:url('/images/who-wants-to-be-a-millionaire-2nd-edition-playstation-1.jpg')"></div><span>Who Wants To Be A Millionaire: 2nd Edition</span></a>
+<a class="tile" href="/game/wwf-smackdown-2-know-your-role-greatest-hits-playstation-1.html"><div class="im" style="background-image:url('/images/wwf-smackdown-2-know-your-role-greatest-hits-playstation-1.jpg')"></div><span>WWF Smackdown! 2: Know Your Role [Greatest Hits]</span></a>
+<a class="tile" href="/game/wwf-wrestlemania-the-arcade-game-long-box-playstation-1.html"><div class="im" style="background-image:url('/images/wwf-wrestlemania-the-arcade-game-long-box-playstation-1.jpg')"></div><span>WWF WrestleMania: The Arcade Game [Long Box]</span></a>
+</div>
+<p class="famous" style="margin-top:22px">Left out: <a href="/game/final-fantasy-vii-playstation-1.html">Final Fantasy VII</a>, <a href="/game/final-fantasy-viii-playstation-1.html">Final Fantasy VIII</a>, <a href="/game/gran-turismo-playstation-1.html">Gran Turismo</a>, <a href="/game/gran-turismo-2-playstation-1.html">Gran Turismo 2</a>, <a href="/game/parasite-eve-playstation-1.html">Parasite Eve</a>, <a href="/game/syphon-filter-playstation-1.html">Syphon Filter</a>.</p>
+
+<footer>
+  <p>The Nostalgia Pro. <a href="/consoles.html">All consoles</a> &middot; <a href="https://x.com/NostalgiaPro" target="_blank" rel="noopener">@NostalgiaPro on X</a></p>
+</footer>
+
+</div>
+<script>
+/* Installable, and the whole collection works offline once you've opened it. */
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
+<script>
+/* 1996 mode. The class does all the work, retro.css does the rest. */
+(function(){
+  var on = false;
+  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
+  if (on) document.body.classList.add("y1996");
+
+  var b = document.createElement("button");
+  b.id = "y1996btn";
+  b.type = "button";
+  b.textContent = on ? "Back to now" : "1996 mode";
+  b.addEventListener("click", function(){
+    var nowOn = document.body.classList.toggle("y1996");
+    b.textContent = nowOn ? "Back to now" : "1996 mode";
+    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
+  });
+
+  var foot = document.querySelector("footer") || document.querySelector(".wrap");
+  var wrap = document.createElement("p");
+  wrap.style.cssText = "text-align:center;margin:18px 0 0";
+  wrap.appendChild(b);
+  foot.appendChild(wrap);
+
+})();
+
+/* Back to top. Appears once you've scrolled far enough to want it. */
+(function(){
+  var b = document.createElement("button");
+  b.id = "totop";
+  b.type = "button";
+  b.setAttribute("aria-label", "Back to top");
+  b.innerHTML = "&#9650;";
+  b.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.body.appendChild(b);
+
+  function check(){ b.classList.toggle("on", window.scrollY > 600); }
+  addEventListener("scroll", check, { passive: true });
+  check();
+})();
+</script>
+</body>
+</html>
