@@ -1,10 +1,10 @@
 /* Bump this string whenever you upload new files, or phones keep the old ones. */
-const CACHE = "nostalgiapro-v5";
+const CACHE = "nostalgiapro-v6";
 
 const PAGES = [
   "/", "/index.html", "/anniversaries.html", "/consoles.html", "/reviews.html",
   "/lists.html", "/stats.html", "/gaps.html", "/rank.html", "/movies.html", "/tv.html",
-  "/music.html", "/boardgames.html", "/shelf.html", "/media.html",
+  "/music.html", "/boardgames.html", "/shelf.html", "/media.html", "/credits.html",
   "/retro.css", "/icon-192.png", "/icon-512.png"
 ];
 

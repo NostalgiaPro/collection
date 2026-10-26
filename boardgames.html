@@ -150,16 +150,17 @@
 
 <div class="lightbox" id="lightbox" role="dialog" aria-label="Cover"><img alt=""><p>Click anywhere to close</p></div>
 
-<p class="note">First pass, transcribed from photos of the shelf. Corrections to come.</p>
+<p class="note">First pass, transcribed from photos of the shelf. Corrections to come. Covers I haven't photographed yet are stand-ins (<a href="credits.html">image credits</a>).</p>
 </div>
 
 <script>
 const ITEMS = [{"t": "Parcheesi (Selchow & Righter)", "f": "Board games", "y": null}, {"t": "Blockbuster: The Movie Game", "f": "Board games", "y": null}];
 const COLORS = {"VHS": "#e0a33a", "LaserDisc": "#c85cc8", "DVD": "#4a78d6", "Blu-ray": "#2f6fe0", "Vinyl": "#d3d0c8", "Cassette": "#c97a3a", "CD": "#8fb8d6", "Board games": "#4aab7a"};
 const fold = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-/* Photos: images/<slug>.webp first, then a .jpg straight off the phone.
+/* Photos: images/<slug>.webp first, then a .jpg straight off the phone,
+   then a stand-in cover from images/placeholders/ (see credits.html).
    Whatever loads first wins. */
-const SHOT_TRIES = ["images/{s}.webp", "images/{s}.jpg"];
+const SHOT_TRIES = ["images/{s}.webp", "images/{s}.jpg", "images/placeholders/{s}.webp"];
 function shotTries(s){ return SHOT_TRIES.map(p => p.replace("{s}", s)); }
 function shotAttrs(s){
   const t = shotTries(s);

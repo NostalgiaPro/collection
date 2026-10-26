@@ -468,7 +468,7 @@
       <a class="applink" href="https://play.google.com/store/apps/details?id=com.thenostalgiapro.shelf" target="_blank" rel="noopener">Get the Android app</a>
       <a href="media.html">Partnerships</a>
     </div>
-    <p>The Nostalgia Pro. Pulled from my Gameye export of October 25, 2026.</p>
+    <p>The Nostalgia Pro. Pulled from my Gameye export of October 25, 2026. Games I haven't photographed yet show a stand-in cover (<a href="credits.html">image credits</a>).</p>
     <p class="bestviewed y1996only">
       <a href="mailto:thenostalgiapro@gmail.com">E-mail me</a><br>
       Best viewed in Netscape Navigator 3.0 at 800x600
@@ -2061,9 +2061,10 @@ const genres = [];
 
 const groups = () => view === "system" ? systems : view === "genre" ? genres : series;
 
-/* Photos: images/<slug>.webp first, then a .jpg straight off the phone.
+/* Photos: images/<slug>.webp first, then a .jpg straight off the phone,
+   then a stand-in cover from images/placeholders/ (see credits.html).
    Whatever loads first wins. */
-const SHOT_TRIES = ["images/{s}.webp", "images/{s}.jpg"];
+const SHOT_TRIES = ["images/{s}.webp", "images/{s}.jpg", "images/placeholders/{s}.webp"];
 function shotTries(s){ return SHOT_TRIES.map(p => p.replace("{s}", s)); }
 function shotAttrs(s){
   const t = shotTries(s);

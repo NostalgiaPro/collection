@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Where the stand-in cover pictures on this site come from, and their licenses.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro — Image credits">
+<meta property="og:description" content="Where the stand-in cover pictures on this site come from, and their licenses.">
+<meta property="og:url" content="https://thenostalgiapro.com/credits.html">
+<meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Nostalgia Pro: 846 games on the shelf">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro — Image credits">
+<meta name="twitter:description" content="Where the stand-in cover pictures on this site come from, and their licenses.">
+<meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
+<link rel="canonical" href="https://thenostalgiapro.com/credits.html">
+<title>The Nostalgia Pro &mdash; Image credits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/retro.css">
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 22px 90px}
+  header{padding:44px 0 0}
+  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
+  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,28px);line-height:1.55;margin:0}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:60ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;border:2px solid var(--line);color:var(--dim);
+    text-decoration:none;font-family:"Silkscreen",monospace;font-size:11px;
+    letter-spacing:.05em;padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+
+  .searchbar{margin:26px 0 0}
+  #q{
+    width:100%;background:#0a0c11;border:2px solid var(--line);border-bottom-color:var(--hot);
+    color:var(--text);font-family:"IBM Plex Sans Condensed",sans-serif;
+    font-size:clamp(19px,3vw,25px);font-weight:600;padding:14px 16px;border-radius:2px;
+  }
+  #q::placeholder{color:#565c6e;font-weight:500}
+  #q:focus{outline:none;border-color:var(--hot);box-shadow:0 0 0 3px rgba(255,75,62,.18)}
+
+  .scores{display:flex;flex-wrap:wrap;margin:24px 0 0;border:2px solid var(--line);border-radius:2px;overflow:hidden}
+  .score{flex:1 1 130px;padding:13px 15px;background:var(--bg2);border-right:1px solid var(--line)}
+  .score:last-child{border-right:none}
+  .score b{display:block;font-family:"Press Start 2P",monospace;font-size:18px;line-height:1}
+  .score span{display:block;margin-top:8px;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.09em;color:var(--dim)}
+
+  section.shelf{margin:34px 0 0}
+  .shelfhead{
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+    padding:11px 14px;background:var(--c);border-radius:2px 2px 0 0;cursor:pointer;user-select:none;
+  }
+  .shelfhead h2{
+    font-family:"IBM Plex Sans Condensed",sans-serif;font-size:22px;font-weight:700;
+    margin:0;color:#0b0d12;letter-spacing:-.005em;display:flex;align-items:center;
+  }
+  .shelfhead .caret{
+    font-family:"Silkscreen",monospace;font-size:30px;line-height:.7;margin-right:13px;
+    transition:transform .12s ease;display:inline-block;position:relative;top:2px;
+  }
+  section.shelf.shut .caret{transform:rotate(-90deg)}
+  section.shelf.shut ol{display:none}
+  .shelfhead p{margin:0;font-family:"Silkscreen",monospace;font-size:11px;color:#0b0d12;opacity:.72}
+  ol.items{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-top:none;border-radius:0 0 2px 2px}
+  ol.items li{
+    display:flex;gap:13px;align-items:baseline;padding:9px 14px;
+    border-bottom:1px solid rgba(44,48,64,.7);background:var(--bg2);
+  }
+  ol.items li:last-child{border-bottom:none}
+  ol.items li:hover{background:var(--panel)}
+  .mark{flex:none;width:10px;height:10px;background:var(--c);align-self:center}
+  .title{flex:1 1 auto;font-family:"IBM Plex Sans Condensed",sans-serif;font-size:17.5px;font-weight:600;line-height:1.3}
+  .yr{flex:none;color:var(--dim);font-size:12px;font-family:"Silkscreen",monospace;white-space:nowrap}
+  .shot{
+    flex:none;width:38px;height:38px;object-fit:cover;
+    border:1px solid var(--line);border-radius:2px;background:#0a0c11;
+    align-self:center;cursor:zoom-in;
+  }
+  .title a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+  .title a:hover,.title a:focus-visible{border-bottom-color:var(--c);outline:none}
+  .lightbox{
+    position:fixed;inset:0;z-index:50;display:none;
+    align-items:center;justify-content:center;padding:24px;
+    background:rgba(6,7,11,.92);
+  }
+  .lightbox.on{display:flex}
+  .lightbox img{max-width:100%;max-height:86vh;border:2px solid var(--line);border-radius:2px}
+  .lightbox p{
+    position:absolute;bottom:20px;left:0;right:0;text-align:center;
+    color:var(--dim);font-family:"Silkscreen",monospace;font-size:12px;margin:0;
+  }
+  .empty{padding:44px 0;color:var(--dim)}
+  .policy{max-width:68ch;margin:34px 0 0}
+  .policy h2{
+    font-family:"IBM Plex Sans Condensed",sans-serif;font-size:21px;font-weight:700;
+    margin:30px 0 10px;color:var(--hot);letter-spacing:-.005em;
+  }
+  .policy p{margin:0 0 14px;color:var(--text)}
+  .policy a{color:var(--hot)}
+  .note{font-size:13px;color:var(--dim);margin-top:30px;max-width:62ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <p class="wordmark">The Nostalgia Pro</p>
+  <h1>Image credits</h1>
+  <p class="standfirst">Every photo on this site is mine unless it is listed here. Items I haven't photographed yet show a stand-in cover until I do.</p>
+  <div class="navrow">
+    <a class="navbtn" href="index.html">Games</a>
+    <a class="navbtn" href="movies.html">Movies</a>
+    <a class="navbtn" href="tv.html">TV</a>
+    <a class="navbtn" href="music.html">Music</a>
+    <a class="navbtn" href="boardgames.html">Board games</a>
+    <a class="navbtn" href="anniversaries.html">Anniversaries</a>
+    <a class="navbtn" href="gaps.html">The gaps</a>
+    <a class="navbtn" href="stats.html">The numbers</a>
+  </div>
+</header>
+
+<div class="policy">
+<h2>Free-licensed photos (Wikimedia Commons)</h2>
+<p>Used under the license shown. CC BY and CC BY-SA images are credited to their authors here, and the license link gives the terms.</p><ul>
+<li><b>Famicom</b>: <a href="https://commons.wikimedia.org/wiki/File:Nintendo-Famicom-Console-Set-FL.jpg" target="_blank" rel="noopener">Nintendo-Famicom-Console-Set-FL.jpg</a> by Evan-Amos, Public domain</li>
+<li><b>Game Boy</b>: <a href="https://commons.wikimedia.org/wiki/File:Game-Boy-FL.png" target="_blank" rel="noopener">Game-Boy-FL.png</a> by Transfrom JPEG version and remove white background. Original by Evan-Amos., Public domain</li>
+<li><b>Game Boy Color</b>: <a href="https://commons.wikimedia.org/wiki/File:Nintendo-Game-Boy-Color-FL.png" target="_blank" rel="noopener">Nintendo-Game-Boy-Color-FL.png</a> by Evan-Amos, modified by Gunnar.offel, Public domain</li>
+<li><b>Intellivision</b>: <a href="https://commons.wikimedia.org/wiki/File:Intellivision-Console-Set.png" target="_blank" rel="noopener">Intellivision-Console-Set.png</a> by Evan-Amos, CC BY-SA 3.0</li>
+<li><b>Nintendo 3DS</b>: <a href="https://commons.wikimedia.org/wiki/File:Nintendo-3DS-AquaOpen.png" target="_blank" rel="noopener">Nintendo-3DS-AquaOpen.png</a> by Evan-Amos, Public domain</li>
+<li><b>Nintendo DS</b>: <a href="https://commons.wikimedia.org/wiki/File:Nintendo-DS-Fat-Blue.jpg" target="_blank" rel="noopener">Nintendo-DS-Fat-Blue.jpg</a> by Evan-Amos, Public domain</li>
+<li><b>Nintendo Entertainment System</b>: <a href="https://commons.wikimedia.org/wiki/File:NES-Console-Set.jpg" target="_blank" rel="noopener">NES-Console-Set.jpg</a> by Evan-Amos, Public domain</li>
+<li><b>Nintendo GameCube</b>: <a href="https://commons.wikimedia.org/wiki/File:GameCube-Console-Set.png" target="_blank" rel="noopener">GameCube-Console-Set.png</a> by Evan-Amos, Public domain</li>
+<li><b>Nintendo Switch</b>: <a href="https://commons.wikimedia.org/wiki/File:Nintendo-Switch-Console-Docked-wJoyConRB.jpg" target="_blank" rel="noopener">Nintendo-Switch-Console-Docked-wJoyConRB.jpg</a> by Evan-Amos, Public domain</li>
+<li><b>Nintendo Wii</b>: <a href="https://commons.wikimedia.org/wiki/File:Wii-Console.png" target="_blank" rel="noopener">Wii-Console.png</a> by Evan-Amos, Public domain</li>
+<li><b>Parcheesi (Selchow &amp; Righter)</b>: <a href="https://commons.wikimedia.org/wiki/File:Parcheesi-board.jpg" target="_blank" rel="noopener">Parcheesi-board.jpg</a> by Micha L. Rieser, Attribution</li>
+<li><b>PlayStation 2</b>: <a href="https://commons.wikimedia.org/wiki/File:Sony_PlayStation_2.png" target="_blank" rel="noopener">Sony PlayStation 2.png</a> by Perchybits, CC0</li>
+<li><b>PlayStation 3</b>: <a href="https://commons.wikimedia.org/wiki/File:PS3_consoles_montage_HQ.png" target="_blank" rel="noopener">PS3 consoles montage HQ.png</a> by Evan-Amos (original photos), Public domain</li>
+<li><b>PlayStation 4</b>: <a href="https://commons.wikimedia.org/wiki/File:PS4_consoles_montage.jpg" target="_blank" rel="noopener">PS4 consoles montage.jpg</a> by JoeJohnson2 (complied cropped adjusted), CC BY 4.0</li>
+<li><b>PlayStation Portable</b>: <a href="https://commons.wikimedia.org/wiki/File:Psp-1000.jpg" target="_blank" rel="noopener">Psp-1000.jpg</a> by Evan-Amos, Public domain</li>
+<li><b>Sega Dreamcast</b>: <a href="https://commons.wikimedia.org/wiki/File:Dreamcast-Console-Set.png" target="_blank" rel="noopener">Dreamcast-Console-Set.png</a> by Evan-Amos, CC BY-SA 3.0</li>
+<li><b>Sega Genesis</b>: <a href="https://commons.wikimedia.org/wiki/File:Sega-Genesis-Mod1-Set.jpg" target="_blank" rel="noopener">Sega-Genesis-Mod1-Set.jpg</a> by Evan-Amos, Public domain</li>
+<li><b>Sega Master System</b>: <a href="https://commons.wikimedia.org/wiki/File:Sega-Master-System-Set.jpg" target="_blank" rel="noopener">Sega-Master-System-Set.jpg</a> by Evan-Amos, Public domain</li>
+<li><b>Sega Saturn</b>: <a href="https://commons.wikimedia.org/wiki/File:Sega-Saturn-Console-Set-Mk2.png" target="_blank" rel="noopener">Sega-Saturn-Console-Set-Mk2.png</a> by Evan-Amos, CC BY-SA 3.0</li>
+<li><b>Sony PlayStation</b>: <a href="https://en.wikipedia.org/wiki/File:PlayStation-SCPH-1000-with-Controller.png" target="_blank" rel="noopener">PlayStation-SCPH-1000-with-Controller.png</a> by Evan-Amos, Public domain</li>
+<li><b>Super Nintendo</b>: <a href="https://commons.wikimedia.org/wiki/File:SNES-Mod1-Console-Set.png" target="_blank" rel="noopener">SNES-Mod1-Console-Set.png</a> by Evan-Amos, CC BY-SA 3.0</li>
+<li><b>Xbox</b>: <a href="https://commons.wikimedia.org/wiki/File:Xbox-Console-wDuke-L.png" target="_blank" rel="noopener">Xbox-Console-wDuke-L.png</a> by Remove white background. Original by Evan-Amos., Public domain</li>
+<li><b>Xbox 360</b>: <a href="https://commons.wikimedia.org/wiki/File:Xbox-360-Pro-wController.jpg" target="_blank" rel="noopener">Xbox-360-Pro-wController.jpg</a> by Evan-Amos, Public domain</li>
+<li><b>Xbox One</b>: <a href="https://commons.wikimedia.org/wiki/File:Xbox_One_consoles_montage.png" target="_blank" rel="noopener">Xbox One consoles montage.png</a> by Evan-Amos (original photos), Public domain</li>
+<li><b>Xbox One X</b>: <a href="https://commons.wikimedia.org/wiki/File:Microsoft-Xbox-One-X-Console-Set.jpg" target="_blank" rel="noopener">Microsoft-Xbox-One-X-Console-Set.jpg</a> by Evan-Amos, Public domain</li>
+<li><b>Xbox Series X</b>: <a href="https://commons.wikimedia.org/wiki/File:Xbox_Series_X_2.jpg" target="_blank" rel="noopener">Xbox Series X 2.jpg</a> by Der. Bellemer, CC BY-SA 4.0</li>
+</ul>
+<h2>Cover art and posters (via Wikipedia)</h2>
+<p>Box art, film posters and title cards belong to their publishers and studios. They are shown small, only to identify items I own, and they come down as soon as I add my own photo.</p><ul>
+<li>&quot;Crocodile&quot; Dundee: <a href="https://en.wikipedia.org/wiki/File:Crocodile_Dundee_original_Australian_New_Zealand_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>007: The World Is Not Enough: <a href="https://en.wikipedia.org/wiki/File:The_World_Is_Not_Enough_(UK_cinema_poster).jpg" target="_blank" rel="noopener">source</a></li>
+<li>007: Tomorrow Never Dies: <a href="https://en.wikipedia.org/wiki/File:Tomorrow_Never_Dies_(UK_cinema_poster).jpg" target="_blank" rel="noopener">source</a></li>
+<li>A League of Their Own: <a href="https://en.wikipedia.org/wiki/File:League_of_their_own_ver2.jpg" target="_blank" rel="noopener">source</a></li>
+<li>An American Tail: <a href="https://en.wikipedia.org/wiki/File:An_American_Tail_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Angels in the Outfield: <a href="https://en.wikipedia.org/wiki/File:Angels_in_the_outfield.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Backdraft: <a href="https://en.wikipedia.org/wiki/File:Backdraft_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Batman &amp; Robin: <a href="https://en.wikipedia.org/wiki/File:Batman_%26_Robin_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Batman Forever: <a href="https://en.wikipedia.org/wiki/File:Batman_Forever_poster.png" target="_blank" rel="noopener">source</a></li>
+<li>Batman Returns: <a href="https://en.wikipedia.org/wiki/File:Batman_returns_poster2.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Batman: <a href="https://en.wikipedia.org/wiki/File:Batman_(1989)_theatrical_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Big Bumpin&#x27;: <a href="https://en.wikipedia.org/wiki/File:Big_Bumpin.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Blue Chips: <a href="https://en.wikipedia.org/wiki/File:Blue_Chips_Movie_Poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Blues Brothers 2000: <a href="https://en.wikipedia.org/wiki/File:Blues_brothers_2000_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Bull Durham: <a href="https://en.wikipedia.org/wiki/File:Bull_Durham_film_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Call of Duty: Black Ops II: <a href="https://en.wikipedia.org/wiki/File:Call_of_Duty_Black_Ops_II_box_artwork.png" target="_blank" rel="noopener">source</a></li>
+<li>Call of Duty: Modern Warfare II [Cross-Gen Bundle]: <a href="https://en.wikipedia.org/wiki/File:Call_of_Duty_Modern_Warfare_II_Key_Art.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Christmas Vacation: <a href="https://en.wikipedia.org/wiki/File:NationalLampoonsChristmasVacationPoster.JPG" target="_blank" rel="noopener">source</a></li>
+<li>City Slickers II: <a href="https://en.wikipedia.org/wiki/File:Legend_of_curlys_gold_ver2.jpg" target="_blank" rel="noopener">source</a></li>
+<li>City Slickers: <a href="https://en.wikipedia.org/wiki/File:City_Slickers.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Coyote Ugly: <a href="https://en.wikipedia.org/wiki/File:Coyote_ugly_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Cyborg: <a href="https://en.wikipedia.org/wiki/File:Cyborgposter.jpg" target="_blank" rel="noopener">source</a></li>
+<li>DOOM Eternal: <a href="https://en.wikipedia.org/wiki/File:Cover_Art_of_Doom_Eternal.png" target="_blank" rel="noopener">source</a></li>
+<li>DOOM [Collector&#x27;s Edition]: <a href="https://en.wikipedia.org/wiki/File:Doom_Cover.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Demolition Man: <a href="https://en.wikipedia.org/wiki/File:Demolition_man.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Dick Tracy: <a href="https://en.wikipedia.org/wiki/File:Dick_tracy1.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Die Hard 2: Die Harder: <a href="https://en.wikipedia.org/wiki/File:Die_Hard_2.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Die Hard with a Vengeance: <a href="https://en.wikipedia.org/wiki/File:Die_Hard_With_A_Vengance.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Die Hard: <a href="https://en.wikipedia.org/wiki/File:Die_Hard_(1988_film)_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Dogma: <a href="https://en.wikipedia.org/wiki/File:Dogma_(movie).jpg" target="_blank" rel="noopener">source</a></li>
+<li>Doom: The Dark Ages: <a href="https://en.wikipedia.org/wiki/File:DOOM,_The_Dark_Ages_Game_Cover.jpeg" target="_blank" rel="noopener">source</a></li>
+<li>E.T. the Extra-Terrestrial: <a href="https://en.wikipedia.org/wiki/File:E_t_the_extra_terrestrial_ver3.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Eraser: <a href="https://en.wikipedia.org/wiki/File:Eraser_(movie_poster).jpg" target="_blank" rel="noopener">source</a></li>
+<li>Fable II: <a href="https://commons.wikimedia.org/wiki/File:Fable_II_cover_(cropped).png" target="_blank" rel="noopener">source</a> (CC BY 3.0)</li>
+<li>Field of Dreams: <a href="https://en.wikipedia.org/wiki/File:Field_of_Dreams_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>For Love of the Game: <a href="https://en.wikipedia.org/wiki/File:For_Love_of_the_Game_(1999_film)_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Gladiator: <a href="https://en.wikipedia.org/wiki/File:Gladiator_(2000_film_poster).png" target="_blank" rel="noopener">source</a></li>
+<li>GoldenEye: <a href="https://en.wikipedia.org/wiki/File:GoldenEye_-_UK_cinema_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Gone with the Wind: <a href="https://commons.wikimedia.org/wiki/File:Poster_-_Gone_With_the_Wind_01.jpg" target="_blank" rel="noopener">source</a> (Public domain)</li>
+<li>Highlander: <a href="https://en.wikipedia.org/wiki/File:Highlander_1986,poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Honey, I Shrunk the Kids: <a href="https://en.wikipedia.org/wiki/File:Honey_I_Shrunk_the_kids.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Hoosiers: <a href="https://en.wikipedia.org/wiki/File:Hoosiers_movie_poster_copyright_fairuse.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Hot Shots!: <a href="https://en.wikipedia.org/wiki/File:Hot_Shots_2.jpg" target="_blank" rel="noopener">source</a></li>
+<li>In the Army Now: <a href="https://en.wikipedia.org/wiki/File:Inthearmynowposter.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Independence Day: <a href="https://en.wikipedia.org/wiki/File:Independence_day_movieposter.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Indiana Jones and the Last Crusade: <a href="https://en.wikipedia.org/wiki/File:Indiana_Jones_and_the_Last_Crusade.png" target="_blank" rel="noopener">source</a></li>
+<li>It&#x27;s a Wonderful Life: <a href="https://commons.wikimedia.org/wiki/File:It%27s_a_Wonderful_Life_(1946_poster).jpeg" target="_blank" rel="noopener">source</a> (Public domain)</li>
+<li>Jumanji: <a href="https://en.wikipedia.org/wiki/File:Jumanji_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Jurassic Park: <a href="https://en.wikipedia.org/wiki/File:Jurassic_Park_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Jury Duty: <a href="https://en.wikipedia.org/wiki/File:Jury_dutyposter.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Last Action Hero: <a href="https://en.wikipedia.org/wiki/File:Last_action_hero_ver2.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Led Zeppelin: The Song Remains the Same: <a href="https://en.wikipedia.org/wiki/File:The_Song_Remains_the_Same_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Major League II: <a href="https://en.wikipedia.org/wiki/File:Major_league_ii.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Major League: <a href="https://en.wikipedia.org/wiki/File:Major_league_movie.jpeg" target="_blank" rel="noopener">source</a></li>
+<li>Masters of the Universe: <a href="https://en.wikipedia.org/wiki/File:Masters_of_the_universe.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Max Payne 3: <a href="https://en.wikipedia.org/wiki/File:Max_Payne_3_Cover.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Mighty Morphin Power Rangers: The Complete Series: <a href="https://en.wikipedia.org/wiki/File:Mighty_Morphin_Power_Rangers_logo.png" target="_blank" rel="noopener">source</a></li>
+<li>Miracle on 34th Street: <a href="https://commons.wikimedia.org/wiki/File:Miracle_on_34th_Street_(1947_film_poster).jpg" target="_blank" rel="noopener">source</a> (Public domain)</li>
+<li>Mr. Holland&#x27;s Opus: <a href="https://en.wikipedia.org/wiki/File:Mr_Hollands_Opus.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Mrs. Doubtfire: <a href="https://en.wikipedia.org/wiki/File:Mrs_Doubtfire.jpg" target="_blank" rel="noopener">source</a></li>
+<li>National Lampoon&#x27;s Christmas Vacation: <a href="https://en.wikipedia.org/wiki/File:NationalLampoonsChristmasVacationPoster.JPG" target="_blank" rel="noopener">source</a></li>
+<li>Navy Seals: <a href="https://en.wikipedia.org/wiki/File:Navy_seals_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Not Without My Daughter: <a href="https://en.wikipedia.org/wiki/File:Not_without_my_daughter.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Patch Adams: <a href="https://en.wikipedia.org/wiki/File:Patch_Adams_1998_movie_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Perfect Dark Zero [Limited Collector&#x27;s Edition]: <a href="https://en.wikipedia.org/wiki/File:Perfect_Dark_Zero_Coverart.png" target="_blank" rel="noopener">source</a></li>
+<li>Philadelphia: <a href="https://en.wikipedia.org/wiki/File:Philadelphia_imp.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Robin Hood: <a href="https://en.wikipedia.org/wiki/File:Robinhood_1973_poster.png" target="_blank" rel="noopener">source</a></li>
+<li>Robin Hood: Prince of Thieves: <a href="https://en.wikipedia.org/wiki/File:Robin_hood_1991.jpg" target="_blank" rel="noopener">source</a></li>
+<li>RoboCop: <a href="https://en.wikipedia.org/wiki/File:RoboCop_(1987)_theatrical_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Rush Hour: <a href="https://en.wikipedia.org/wiki/File:Rush_Hour_poster.png" target="_blank" rel="noopener">source</a></li>
+<li>Sister Act: <a href="https://en.wikipedia.org/wiki/File:Sister_Act_film_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Son in Law: <a href="https://en.wikipedia.org/wiki/File:Soninlawcover.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Space Jam: <a href="https://en.wikipedia.org/wiki/File:Space_jam.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Speed: <a href="https://en.wikipedia.org/wiki/File:Speed_movie_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Star Trek III: The Search for Spock: <a href="https://en.wikipedia.org/wiki/File:Star_Trek_III_The_Search_for_Spock.png" target="_blank" rel="noopener">source</a></li>
+<li>Star Trek VI: The Undiscovered Country: <a href="https://en.wikipedia.org/wiki/File:Star_Trek_VI-poster.png" target="_blank" rel="noopener">source</a></li>
+<li>Star Trek: Generations: <a href="https://en.wikipedia.org/wiki/File:S07-Star_Trek_Generations-poster_art.png" target="_blank" rel="noopener">source</a></li>
+<li>Starship Troopers: <a href="https://en.wikipedia.org/wiki/File:Starship_Troopers_-_movie_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Super Mario Odyssey: <a href="https://en.wikipedia.org/wiki/File:Super_Mario_Odyssey.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Super Mario World: The Complete Series (2-disc): <a href="https://commons.wikimedia.org/wiki/File:SuperMarioWorldEndingIntroSequenceTitle.jpg" target="_blank" rel="noopener">source</a> (Public domain)</li>
+<li>TRON: Evolution: <a href="https://en.wikipedia.org/wiki/File:Tron_Evolution.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Terminator 2: Judgment Day: <a href="https://en.wikipedia.org/wiki/File:Terminator_2-Judgment_Day.png" target="_blank" rel="noopener">source</a></li>
+<li>The Client: <a href="https://en.wikipedia.org/wiki/File:Clientfilmposter.jpg" target="_blank" rel="noopener">source</a></li>
+<li>The Dark Crystal: <a href="https://en.wikipedia.org/wiki/File:The_Dark_Crystal_Film_Poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>The Fan: <a href="https://en.wikipedia.org/wiki/File:Thefanmovieposter.jpg" target="_blank" rel="noopener">source</a></li>
+<li>The Flintstones: <a href="https://en.wikipedia.org/wiki/File:Flintstones_ver2.jpg" target="_blank" rel="noopener">source</a></li>
+<li>The Fox and the Hound: <a href="https://en.wikipedia.org/wiki/File:The_Fox_and_the_Hound.jpg" target="_blank" rel="noopener">source</a></li>
+<li>The Fugitive: <a href="https://en.wikipedia.org/wiki/File:The_Fugitive_movie.jpg" target="_blank" rel="noopener">source</a></li>
+<li>The Lost World: Jurassic Park: <a href="https://en.wikipedia.org/wiki/File:The_Lost_World_%E2%80%93_Jurassic_Park_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>The Muppet Christmas Carol: <a href="https://en.wikipedia.org/wiki/File:Muppet_christmas_carol.jpg" target="_blank" rel="noopener">source</a></li>
+<li>The NeverEnding Story: <a href="https://en.wikipedia.org/wiki/File:Neverendingstoryposter.jpg" target="_blank" rel="noopener">source</a></li>
+<li>The Princess Bride: <a href="https://en.wikipedia.org/wiki/File:Princess_bride.jpg" target="_blank" rel="noopener">source</a></li>
+<li>The Replacements: <a href="https://en.wikipedia.org/wiki/File:Replacements_ver3.jpg" target="_blank" rel="noopener">source</a></li>
+<li>The Rock: <a href="https://en.wikipedia.org/wiki/File:The_Rock_(movie).jpg" target="_blank" rel="noopener">source</a></li>
+<li>The Santa Clause: <a href="https://en.wikipedia.org/wiki/File:The_Santa_Clause.jpg" target="_blank" rel="noopener">source</a></li>
+<li>The Super Mario Bros. Super Show! Volume 1 (2-disc): <a href="https://en.wikipedia.org/wiki/File:Super_Mario_Bros_Super_Show_Title.PNG" target="_blank" rel="noopener">source</a></li>
+<li>The Super Mario Bros. Super Show! Volume 2 (2-disc): <a href="https://en.wikipedia.org/wiki/File:Super_Mario_Bros_Super_Show_Title.PNG" target="_blank" rel="noopener">source</a></li>
+<li>The Terminator: <a href="https://en.wikipedia.org/wiki/File:The_Terminator.png" target="_blank" rel="noopener">source</a></li>
+<li>The Wizard of Oz: <a href="https://commons.wikimedia.org/wiki/File:Wizard_of_oz_movie_poster.jpg" target="_blank" rel="noopener">source</a> (Public domain)</li>
+<li>Three Amigos!: <a href="https://en.wikipedia.org/wiki/File:Three_amigos_ver2.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Titanic: <a href="https://en.wikipedia.org/wiki/File:Titanic_(1997_film)_poster.png" target="_blank" rel="noopener">source</a></li>
+<li>Tombstone: <a href="https://en.wikipedia.org/wiki/File:Tombstoneposter.jpeg" target="_blank" rel="noopener">source</a></li>
+<li>Total Recall: <a href="https://en.wikipedia.org/wiki/File:Total_Recall_(1990_film)_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Tremors: <a href="https://en.wikipedia.org/wiki/File:Tremors_official_theatrical_poster.jpg" target="_blank" rel="noopener">source</a></li>
+<li>True Lies: <a href="https://en.wikipedia.org/wiki/File:True_Lies_poster.png" target="_blank" rel="noopener">source</a></li>
+<li>Unforgiven: <a href="https://en.wikipedia.org/wiki/File:Unforgiven_2.jpg" target="_blank" rel="noopener">source</a></li>
+<li>Wayne&#x27;s World: <a href="https://en.wikipedia.org/wiki/File:Wayne%27s_World.jpg" target="_blank" rel="noopener">source</a></li>
+<li>What About Bob?: <a href="https://en.wikipedia.org/wiki/File:What_About_Bob_(1991).png" target="_blank" rel="noopener">source</a></li>
+<li>White Christmas: <a href="https://commons.wikimedia.org/wiki/File:White_Christmas_(1954_film_poster).png" target="_blank" rel="noopener">source</a> (Public domain)</li>
+<li>White Christmas: <a href="https://commons.wikimedia.org/wiki/File:White_Christmas_(1954_film_poster).png" target="_blank" rel="noopener">source</a> (Public domain)</li>
+<li>Who Framed Roger Rabbit: <a href="https://en.wikipedia.org/wiki/File:Movie_poster_who_framed_roger_rabbit.jpg" target="_blank" rel="noopener">source</a></li>
+</ul>
+<h2>Game box scans</h2><p>Box scans for some retro games come from the <a href="https://github.com/libretro-thumbnails/libretro-thumbnails" target="_blank" rel="noopener">libretro-thumbnails</a> project. The artwork belongs to the publishers.</p>
+<h2>Album covers</h2><p>Some album covers come from the <a href="https://coverartarchive.org/" target="_blank" rel="noopener">Cover Art Archive</a>, matched through <a href="https://musicbrainz.org/" target="_blank" rel="noopener">MusicBrainz</a>. The artwork belongs to the artists and labels.</p>
+<h2>Something wrong?</h2><p>If one of these is yours and you want it gone, email <a href="mailto:thenostalgiapro@gmail.com">thenostalgiapro@gmail.com</a> and I'll take it down.</p>
+</div>
+    <p class="bestviewed y1996only">
+      <a href="mailto:thenostalgiapro@gmail.com">E-mail me</a><br>
+      Best viewed in Netscape Navigator 3.0 at 800x600
+    </p>
+</div>
+<script>
+/* 1996 mode. The class does all the work, retro.css does the rest. */
+(function(){
+  var on = false;
+  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
+  if (on) document.body.classList.add("y1996");
+
+  var b = document.createElement("button");
+  b.id = "y1996btn";
+  b.type = "button";
+  b.textContent = on ? "Back to now" : "1996 mode";
+  b.addEventListener("click", function(){
+    var nowOn = document.body.classList.toggle("y1996");
+    b.textContent = nowOn ? "Back to now" : "1996 mode";
+    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
+  });
+
+  var foot = document.querySelector("footer") || document.querySelector(".wrap");
+  var wrap = document.createElement("p");
+  wrap.style.cssText = "text-align:center;margin:18px 0 0";
+  wrap.appendChild(b);
+  foot.appendChild(wrap);
+
+})();
+
+/* Back to top. Appears once you've scrolled far enough to want it. */
+(function(){
+  var b = document.createElement("button");
+  b.id = "totop";
+  b.type = "button";
+  b.setAttribute("aria-label", "Back to top");
+  b.innerHTML = "&#9650;";
+  b.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.body.appendChild(b);
+
+  function check(){ b.classList.toggle("on", window.scrollY > 600); }
+  addEventListener("scroll", check, { passive: true });
+  check();
+})();
+</script>
+</body>
+</html>

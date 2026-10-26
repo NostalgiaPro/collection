@@ -168,7 +168,7 @@
 <h2 class="monthhead" id="nextHead"></h2>
 <div id="nextList"></div>
 
-<p class="note">North American release dates. Photos come from the same images folder the shelf uses.</p>
+<p class="note">North American release dates. Photos come from the same images folder the shelf uses. Covers I haven't photographed yet are stand-ins (<a href="credits.html">image credits</a>).</p>
 
 </div>
 
@@ -1250,9 +1250,10 @@ const COLORS = {
 };
 
 const MON=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
-/* Photos: images/<slug>.webp first, then a .jpg straight off the phone.
+/* Photos: images/<slug>.webp first, then a .jpg straight off the phone,
+   then a stand-in cover from images/placeholders/ (see credits.html).
    Whatever loads first wins. */
-const SHOT_TRIES = ["images/{s}.webp", "images/{s}.jpg"];
+const SHOT_TRIES = ["images/{s}.webp", "images/{s}.jpg", "images/placeholders/{s}.webp"];
 function shotTries(s){ return SHOT_TRIES.map(p => p.replace("{s}", s)); }
 function shotAttrs(s){
   const t = shotTries(s);

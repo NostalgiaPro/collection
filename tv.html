@@ -150,16 +150,17 @@
 
 <div class="lightbox" id="lightbox" role="dialog" aria-label="Cover"><img alt=""><p>Click anywhere to close</p></div>
 
-<p class="note">First pass, transcribed from photos of the shelf. Corrections to come.</p>
+<p class="note">First pass, transcribed from photos of the shelf. Corrections to come. Covers I haven't photographed yet are stand-ins (<a href="credits.html">image credits</a>).</p>
 </div>
 
 <script>
 const ITEMS = [{"t": "Teenage Mutant Ninja Turtles: The Original Movie", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles II: The Secret of the Ooze", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: April Foolish", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: The Great Boldini", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: Sky Turtles", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: Cowabunga, Shredhead", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: Attack of the Big Macs", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: Case of the Killer Pizzas", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: The Turtles' Awesome Easter", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: Turn of the Turtleoid", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: Out of This World", "f": "VHS", "y": null}, {"t": "Teenage Mutant Ninja Turtles: Heroes in a Half Shell", "f": "VHS", "y": null}, {"t": "The Super Mario Bros. Super Show! Volume 1 (2-disc)", "f": "DVD", "y": null}, {"t": "The Super Mario Bros. Super Show! Volume 2 (2-disc)", "f": "DVD", "y": null}, {"t": "Super Mario World: The Complete Series (2-disc)", "f": "DVD", "y": null}, {"t": "Mighty Morphin Power Rangers: The Complete Series", "f": "DVD", "y": null}];
 const COLORS = {"VHS": "#e0a33a", "LaserDisc": "#c85cc8", "DVD": "#4a78d6", "Blu-ray": "#2f6fe0", "Vinyl": "#d3d0c8", "Cassette": "#c97a3a", "CD": "#8fb8d6", "Board games": "#4aab7a"};
 const fold = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-/* Photos: images/<slug>.webp first, then a .jpg straight off the phone.
+/* Photos: images/<slug>.webp first, then a .jpg straight off the phone,
+   then a stand-in cover from images/placeholders/ (see credits.html).
    Whatever loads first wins. */
-const SHOT_TRIES = ["images/{s}.webp", "images/{s}.jpg"];
+const SHOT_TRIES = ["images/{s}.webp", "images/{s}.jpg", "images/placeholders/{s}.webp"];
 function shotTries(s){ return SHOT_TRIES.map(p => p.replace("{s}", s)); }
 function shotAttrs(s){
   const t = shotTries(s);

@@ -128,7 +128,7 @@
 
 <div class="grid" id="grid"></div>
 
-<p class="note">Launch dates are North American where there was one. Photos live in the same images folder as everything else, named after the console.</p>
+<p class="note">Launch dates are North American where there was one. Photos live in the same images folder as everything else, named after the console. Covers I haven't photographed yet are stand-ins (<a href="credits.html">image credits</a>).</p>
 
 </div>
 
@@ -1109,9 +1109,10 @@ function ageLine(name){
 }
 
 const TINT={cib:"#3fbf6a",part:"#c9c34a",loose:"#6b7185"};
-/* Photos: images/<slug>.webp first, then a .jpg straight off the phone.
+/* Photos: images/<slug>.webp first, then a .jpg straight off the phone,
+   then a stand-in cover from images/placeholders/ (see credits.html).
    Whatever loads first wins. */
-const SHOT_TRIES = ["images/{s}.webp", "images/{s}.jpg"];
+const SHOT_TRIES = ["images/{s}.webp", "images/{s}.jpg", "images/placeholders/{s}.webp"];
 function shotTries(s){ return SHOT_TRIES.map(p => p.replace("{s}", s)); }
 function shotAttrs(s){
   const t = shotTries(s);
