@@ -863,13 +863,18 @@ NP.Walk = (function () {
   function fitCanvas() {
     var cv = document.getElementById('walkcv'), box = cv && cv.parentNode, app = document.getElementById('app');
     if (!cv || !box || !app) return;
-    var ch = cv.getBoundingClientRect().height;
-    if (!ch) return;
-    var top = app.getBoundingClientRect().top + (window.pageYOffset || 0);
-    var padB = parseFloat(getComputedStyle(app).paddingBottom) || 0;
-    var chrome = top + app.offsetHeight - padB - ch;
-    var allowed = window.innerHeight - chrome - 6;
-    box.style.maxWidth = Math.max(200, Math.floor(allowed * VW / VH)) + 'px';
+    // Measure how far the page runs past the bottom of the window (or iframe), padding and safe-area insets
+    // included, and give or take that much from the canvas. A second pass catches anything that reflowed.
+    for (var pass = 0; pass < 3; pass++) {
+      var ch = cv.getBoundingClientRect().height;
+      if (!ch) return;
+      var bottom = app.getBoundingClientRect().top + (window.pageYOffset || 0) + app.offsetHeight;
+      var over = Math.ceil(bottom - window.innerHeight);
+      var bw = box.getBoundingClientRect().width;
+      if (pass === 0) box.style.maxWidth = Math.max(200, Math.floor((ch - over - 7) * VW / VH + 6)) + 'px';
+      else if (over > 0) box.style.maxWidth = Math.max(200, Math.floor(bw - over * VW / VH - 2)) + 'px';
+      else break;
+    }
   }
   window.addEventListener('resize', function () { if (active()) fitCanvas(); });
   window.addEventListener('orientationchange', function () { if (active()) setTimeout(fitCanvas, 250); });

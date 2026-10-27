@@ -83,13 +83,26 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
   k = k || 1;
   var P = function (x, y, w, h, c) { ctx.fillStyle = c; ctx.fillRect(ox + x * k, oy + y * k, w * k, h * k); };
   var kind = it.kind;
+  // the picture of what the game is about, in a thin frame (icons.js)
+  var icon = function (x, y) {
+    if (!NP.drawItemIcon || !NP.iconKey(it)) return false;
+    P(x - 1, y - 1, 18, 18, NP.COL.ink);
+    NP.drawItemIcon(ctx, it, ox + x * k, oy + y * k, k);
+    return true;
+  };
   if (kind === 'merch' || kind === 'grail') {
     var isG = kind === 'grail';
     P(3, 1, 26, 38, NP.COL.ink);
     P(4, 2, 24, 36, isG ? NP.COL.navy : NP.COL.cream);
     P(4, 2, 24, 6, NP.COL.red);
     P(4, 8, 24, 1, NP.COL.cyan);
-    // NP mark big
+    if (icon(8, 12)) {
+      P(7, 31, 18, 1, isG ? NP.COL.cyan : NP.COL.red);
+      P(7, 34, 12, 1, isG ? NP.COL.cyan : NP.COL.grey);
+      if (isG) { P(22, 33, 4, 4, NP.COL.gold); P(23, 34, 2, 2, '#fff'); }
+      return;
+    }
+    // no picture (the ads): the big NP mark
     var c = isG ? NP.COL.cream : NP.COL.navy;
     var ns = Math.max(1, Math.floor(k * 1.5)); NP.pixelText(ctx, 'NP', Math.round(ox + 16 * k - 5.5 * ns), oy + 14 * k, ns, c);
     P(7, 28, 18, 1, isG ? NP.COL.cyan : NP.COL.red);
@@ -108,7 +121,7 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
   var pl = NP.PLATFORMS[it.p] || NP.PLATFORMS.k16;
   var cond = it.cond || 'loose';
   if (cond === 'loose' && pl.media === 'disc') {
-    // a disc
+    // a disc, with the picture printed in the middle
     for (var yy = 0; yy < 28; yy++) for (var xx = 0; xx < 28; xx++) {
       var dx = xx - 13.5, dy = yy - 13.5, d = Math.sqrt(dx * dx + dy * dy);
       if (d < 14) {
@@ -117,7 +130,7 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
         if (col) P(2 + xx, 8 + yy, 1, 1, col);
       }
     }
-    sprite(ctx, it.id, ox + 12 * k, oy + 10 * k, Math.max(1, k / 2), pl.c1);
+    if (!icon(8, 14)) sprite(ctx, it.id, ox + 12 * k, oy + 10 * k, Math.max(1, k / 2), pl.c1);
     return;
   }
   if (cond === 'loose') {
@@ -125,9 +138,9 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
     var w = pl.media === 'hand' ? 22 : 28, x0 = (32 - w) / 2, top = pl.media === 'hand' ? 10 : 6;
     P(x0, top, w, 38 - top, NP.COL.ink);
     P(x0 + 1, top + 1, w - 2, 36 - top, pl.media === 'hand' ? '#59606e' : '#9aa0ad');
-    P(x0 + 3, top + 3, w - 6, 18, pl.c2);
-    P(x0 + 3, top + 3, w - 6, 3, pl.c1);
-    sprite(ctx, it.id, ox + (x0 + w / 2 - 4) * k, oy + (top + 8) * k, k, pl.c2);
+    P(x0 + 3, top + 3, w - 6, 21, pl.c2);
+    P(x0 + 3, top + 3, w - 6, 2, pl.c1);
+    if (!icon(8, top + 6)) sprite(ctx, it.id, ox + (x0 + w / 2 - 4) * k, oy + (top + 8) * k, k, pl.c2);
     for (var g = 0; g < (w - 8) / 3; g++) P(x0 + 4 + g * 3, 35, 2, 2, '#5d6370');
     return;
   }
@@ -136,7 +149,7 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
   P(3, 1, 26, 38, pl.c2);
   P(3, 1, 26, 7, pl.c1);
   P(5, 3, 14, 1, NP.COL.cream); P(5, 5, 9, 1, NP.COL.cream);
-  sprite(ctx, it.id, ox + 8 * k, oy + 12 * k, k * 2, pl.c2);
+  if (!icon(8, 11)) sprite(ctx, it.id, ox + 8 * k, oy + 12 * k, k * 2, pl.c2);
   P(3, 30, 26, 1, pl.c1);
   NP.pixelText(ctx, pl.name.split(' ')[0].slice(0, 4), ox + 5 * k, oy + 32 * k, Math.max(1, Math.floor(k * 0.5)), NP.COL.cream);
   if (cond === 'sealed') {

@@ -1,6 +1,6 @@
 // Nostalgia Pro: sound. Everything is generated with Web Audio. There are no audio files.
-// Browsers (iPhone Safari most of all) only allow sound after a tap or key press, so audio
-// unlocks on the first gesture, inside that gesture's handler. Works in iframes and from file://.
+// Browsers (iPhone Safari most of all) only allow sound after a tap or key press, so the game opens on a
+// "Tap to start" screen and audio unlocks inside that tap. Works in iframes and from file://.
 var NP = window.NP || {};
 window.NP = NP;
 
@@ -21,6 +21,7 @@ NP.Sound = (function () {
       master = ctx.createGain(); master.gain.value = muted ? 0 : MASTER; master.connect(ctx.destination);
       sfxBus = ctx.createGain(); sfxBus.gain.value = 0.55; sfxBus.connect(master);
       musicBus = ctx.createGain(); musicBus.gain.value = 0.2; musicBus.connect(master);
+      ctx.onstatechange = function () { if (ctx.state === 'running') afterUnlock(); };
       noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
       var d = noiseBuf.getChannelData(0);
       for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
@@ -30,12 +31,56 @@ NP.Sound = (function () {
   function ready() { return !!(ctx && ctx.state === 'running'); }
 
   // ---------- unlock on the first tap, click or key ----------
-  var GESTURES = ['pointerdown', 'touchend', 'mousedown', 'keydown', 'click'];
+  // Only these events count as a real tap to Chrome on Android and Safari on iPhone, so audio starts on them.
+  // (A finger touching down, pointerdown, does not count yet; the lift does.) The listeners stay on, so a phone
+  // call or a trip to another app that pauses the audio is fixed by the next tap.
+  var GESTURES = ['touchend', 'pointerup', 'mousedown', 'keydown', 'click'];
+  var isIOS = (function () {
+    try { return /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); } catch (e) { return false; }
+  })();
+
+  // iPhone: the ring/silent switch mutes Web Audio unless the page says it is playing real audio.
+  // Safari 17 and up have navigator.audioSession for that. Older iPhones need a silent <audio> loop running.
+  function playbackSession() {
+    try { if (navigator.audioSession) { navigator.audioSession.type = 'playback'; return true; } } catch (e) {}
+    return false;
+  }
+  var hasSession = playbackSession();
+  function silentWav() {
+    // half a second of 8-bit silence, built here so there is no audio file to ship
+    var n = 4000, b = new Uint8Array(44 + n), dv = new DataView(b.buffer);
+    var w = function (o, str) { for (var i = 0; i < str.length; i++) b[o + i] = str.charCodeAt(i); };
+    w(0, 'RIFF'); dv.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt ');
+    dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
+    dv.setUint32(24, 8000, true); dv.setUint32(28, 8000, true); dv.setUint16(32, 1, true); dv.setUint16(34, 8, true);
+    w(36, 'data'); dv.setUint32(40, n, true);
+    for (var i = 0; i < n; i++) b[44 + i] = 128;
+    var bin = ''; for (i = 0; i < b.length; i++) bin += String.fromCharCode(b[i]);
+    return 'data:audio/wav;base64,' + btoa(bin);
+  }
+  var silentEl = null;
+  function silentLoop() {
+    if (!isIOS || hasSession || muted) return;
+    try {
+      if (!silentEl) {
+        silentEl = document.createElement('audio');
+        silentEl.setAttribute('x-webkit-airplay', 'deny');
+        silentEl.setAttribute('playsinline', '');
+        silentEl.preload = 'auto'; silentEl.loop = true;
+        silentEl.src = silentWav();
+      }
+      if (silentEl.paused) { var p = silentEl.play(); if (p && p.catch) p.catch(function () {}); }
+    } catch (e) {}
+  }
+
   function onGesture() {
+    if (ready()) { silentLoop(); return; }
     var c = ensure();
     if (!c) { detach(); return; }
+    playbackSession();
+    silentLoop();
     try {
-      // a silent one-sample buffer, played inside the gesture, is what wakes up iOS
+      // a silent one-sample buffer, played inside the tap, is what wakes up iOS
       var b = c.createBuffer(1, 1, 22050), s = c.createBufferSource();
       s.buffer = b; s.connect(c.destination); s.start(0);
       if (c.state !== 'running' && c.resume) {
@@ -48,10 +93,12 @@ NP.Sound = (function () {
   function afterUnlock() {
     if (!ready()) return;
     unlocked = true;
-    detach();
+    if (seq) seq.next = ctx.currentTime + 0.05;
     startMusic();
   }
-  function attach() { GESTURES.forEach(function (g) { window.addEventListener(g, onGesture, true); }); }
+  function attach() {
+    GESTURES.forEach(function (g) { window.addEventListener(g, onGesture, true); });
+  }
   function detach() { GESTURES.forEach(function (g) { window.removeEventListener(g, onGesture, true); }); }
   attach();
 
@@ -59,8 +106,8 @@ NP.Sound = (function () {
   document.addEventListener('visibilitychange', function () {
     if (!ctx || !unlocked) return;
     try {
-      if (document.hidden) ctx.suspend();
-      else { var p = ctx.resume(); if (p && p.then) p.then(function () { if (seq) seq.next = ctx.currentTime + 0.05; }, function () {}); }
+      if (document.hidden) { ctx.suspend(); if (silentEl) silentEl.pause(); }
+      else { silentLoop(); var p = ctx.resume(); if (p && p.then) p.then(afterUnlock, function () {}); }
     } catch (e) {}
   });
 
@@ -183,7 +230,7 @@ NP.Sound = (function () {
     muted = !!m;
     try { localStorage.setItem(KEY, muted ? '1' : '0'); } catch (e) {}
     if (master && ctx) { try { master.gain.setTargetAtTime(muted ? 0 : MASTER, ctx.currentTime, 0.02); } catch (e) { master.gain.value = muted ? 0 : MASTER; } }
-    if (muted) { stopSeq(); playing = null; } else startMusic();
+    if (muted) { stopSeq(); playing = null; if (silentEl) silentEl.pause(); } else { silentLoop(); startMusic(); }
     var label = muted ? 'Sound: off' : 'Sound: on';
     document.querySelectorAll('[data-act="mute"]').forEach(function (b) { b.textContent = label; b.setAttribute('aria-pressed', muted ? 'true' : 'false'); });
   }
@@ -198,7 +245,8 @@ NP.Sound = (function () {
 
   return {
     sfx: sfx, music: music, toggle: toggle, setMuted: setMuted,
-    isMuted: function () { return muted; }, isReady: ready, supported: !!AC,
+    isMuted: function () { return muted; }, isReady: ready, supported: !!AC, unlock: onGesture,
+    nowPlaying: function () { return seq ? playing : null; },
     label: function () { return muted ? 'Sound: off' : 'Sound: on'; }
   };
 })();

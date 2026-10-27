@@ -450,7 +450,7 @@
   // the "get the full game" line on the start screen
   function fullGameLine() {
     if (CFG.COMING_SOON) {
-      return '<div class="scores">Full game coming soon for ' + esc(CFG.PRICE || '$0.99') + '.' +
+      return '<div class="scores">Full game coming soon &middot; ' + esc(CFG.PRICE || '$0.99') +
         (linksOk() ? ' <a class="tlink" href="' + esc(CFG.FOLLOW_URL) + '" target="_blank" rel="noopener" data-track="title_follow">Follow for updates</a>' : '') + '</div>';
     }
     return linksOk() ? '<div class="scores"><a class="tlink" href="' + esc(CFG.FULL_GAME_URL) + '" target="_blank" rel="noopener" data-track="title_buy">Get the full game (' + esc(CFG.PRICE || '$0.99') + ')</a></div>' : '';
@@ -589,9 +589,7 @@
     var n = [];
     if (it.featured) n.push(DEMO ? 'The featured lot. In the full version, there is a new one every day.' : 'Today\'s featured lot. Everyone playing today sees this exact box.');
     if (it.planted && !it.inspected) n.push('Complete in box for that price? That seems very generous.');
-    if (it.kind === 'lot') n.push('Sealed with tape. No peeking. Could be anything.');
     if (it.kind === 'merch') n.push('Official Nostalgia Pro merch. Worth nothing. Costs something.');
-    if (it.kind === 'grail') n.push('Never heard of it. Weird little label says "you are here."');
     if (it.tested) n.push('Tested. Works. Guaranteed.');
     if (it.special) n.push('"That\'s the \'97. The good one."');
     if (it.inspected) {
@@ -621,11 +619,24 @@
     return [['lowball', 'Lowball', lo], ['fair', 'Fair', fa], ['full', 'Full price', it.ask]];
   }
 
+  // the tag and one-line description you see when you look at an item (data.js)
+  function reproKnown(it) { return !!(it.flags && it.flags.repro && it.inspected && it.tell); }
+  function tagHTML(it, repro) {
+    if (!NP.itemInfo) return '';
+    var inf = NP.itemInfo(it, { repro: repro });
+    return '<div class="it-d"><span class="tag t-' + inf.tag + '">' + esc(inf.label) + '</span> ' + esc(inf.d) + '</div>';
+  }
+  function tagPill(it, repro) {
+    if (!NP.itemInfo) return '';
+    var inf = NP.itemInfo(it, { repro: repro });
+    return '<span class="tag t-' + inf.tag + '">' + esc(inf.label) + '</span>';
+  }
+
   function itemCard(it, s) {
     var plat = NP.PLATFORMS[it.p];
     var sellerName = NP.SELLERS[it.seller] ? NP.SELLERS[it.seller].name : '';
     var h = '<div class="item ' + it.state + '" id="card-' + it.uid + '"><div class="artbox" data-art="' + it.uid + '"></div><div class="info">' +
-      '<div class="it-t">' + esc(it.t) + '</div>' +
+      '<div class="it-t">' + esc(it.t) + '</div>' + tagHTML(it, reproKnown(it)) +
       '<div class="it-p">' + (it.kind === 'game' || it.kind === 'grail' ? esc(plat.name) + ' &middot; ' : '') + '<span class="pill ' + it.cond + '">' + condLabel(it) + '</span></div>' +
       '<div class="it-a">Asking <b>' + money(it.ask) + '</b>' + (s.type === 'flea' && sellerName ? ' <span class="who">(' + esc(sellerName) + ')</span>' : '') + '</div>';
     itemNotes(it).forEach(function (n) { h += '<div class="note' + (/ALREADY/.test(n) ? ' warn' : '') + '">' + esc(n) + '</div>'; });
@@ -681,7 +692,7 @@
     NP.MERCH.forEach(function (m) {
       var p = giftPrice(m);
       var got = S.bag.some(function (b) { return b.id === m.id && b.fromGift; });
-      h += '<div class="item gift' + (got ? ' sold' : '') + '"><div class="artbox" data-art="g' + m.id + '"></div><div class="info"><div class="it-t">' + esc(m.t) + '</div><div class="note">' + esc(m.blurb) + '</div>' +
+      h += '<div class="item gift' + (got ? ' sold' : '') + '"><div class="artbox" data-art="g' + m.id + '"></div><div class="info"><div class="it-t">' + esc(m.t) + '</div>' + tagHTML({ kind: 'merch', id: m.id }) +
         '<div class="it-a">Price <b>' + money(p) + '</b></div>' +
         (got ? '<div class="stamp">IN THE BAG</div>' : '<div class="btns"><button class="offer full" data-act="buygift" data-id="' + m.id + '"' + (p > S.cash ? ' disabled' : '') + '>Buy it ' + money(p) + '</button></div>') + '</div></div>';
     });
@@ -905,7 +916,7 @@
     var pending = 0;
     h += '<div class="items">';
     S.bag.forEach(function (b) {
-      h += '<div class="item"><div class="artbox" data-hart="' + b.uid + '"></div><div class="info"><div class="it-t">' + esc(b.t) + '</div>' +
+      h += '<div class="item"><div class="artbox" data-hart="' + b.uid + '"></div><div class="info"><div class="it-t">' + esc(b.t) + '</div>' + tagHTML(b, reproKnown(b)) +
         '<div class="it-p"><span class="pill ' + b.cond + '">' + condLabel(b) + '</span> paid ' + money(b.paid) + '</div>';
       if (b.kind === 'lot') {
         if (!b.opened) { pending++; h += '<div class="btns"><button data-act="openlot" data-uid="' + b.uid + '">Open the lot box</button></div>'; }
@@ -995,7 +1006,11 @@
       '<div class="btns center"><button class="big" data-act="download">Download Nostalgia Pro: The Screenshot</button><button data-act="copy">Copy result text</button>' +
       (DEMO ? '<button data-act="demoend">Continue &#9654;</button>' : '') + '</div>' +
       '<div class="appraisal"><h3>Appraisal</h3>';
-    R.lines.forEach(function (l) { h += '<div class="al"><span class="al-t">' + esc(l.t) + '</span><span class="al-p ' + (l.pts < 0 ? 'neg' : '') + '">' + (l.pts > 0 ? '+' : '') + l.pts + '</span><div class="al-n">' + esc(l.note) + '</div></div>'; });
+    R.lines.forEach(function (l, i) {
+      var rp = !!(l.it && l.it.kind === 'game' && l.it.flags && l.it.flags.repro);
+      h += '<div class="al has-art"><span class="al-art" data-rart="' + i + '"></span><div class="al-body"><div class="al-row"><span class="al-t">' + esc(l.t) + '</span><span class="al-p ' + (l.pts < 0 ? 'neg' : '') + '">' + (l.pts > 0 ? '+' : '') + l.pts + '</span></div>' +
+        (l.it ? '<div class="al-tag">' + tagPill(l.it, rp) + '</div>' : '') + '<div class="al-n">' + esc(l.note) + '</div></div></div>';
+    });
     R.bonus.forEach(function (b) { h += '<div class="al bonus"><span class="al-t">' + esc(b[0]) + '</span><span class="al-p">+' + b[1] + '</span></div>'; });
     if (!R.lines.length) h += '<div class="al-n">Nothing to appraise. The shelf respects your restraint.</div>';
     h += '</div>' +
@@ -1006,6 +1021,10 @@
         : '<div class="btns center"><button data-act="again">Replay today (just for fun)</button><button data-act="shelf">Home shelf</button><button data-act="totitle">Title screen</button></div>' +
         '<div class="foot">New Saturday at midnight, Phoenix time. thenostalgiapro.com</div></div>');
     app.innerHTML = h;
+    document.querySelectorAll('[data-rart]').forEach(function (el) {
+      var l = R.lines[+el.getAttribute('data-rart')];
+      if (l && l.it) el.appendChild(NP.makeArt(l.it, 2));
+    });
     drawCard($('#card'), R);
   }
 
@@ -1057,27 +1076,62 @@
     ctx.fillStyle = C.gold; ctx.fillRect(W / 2 - mw / 2, ly + 25, mw, 3); ctx.fillRect(W / 2 - mw / 2, ly + 57, mw, 3);
     NP.pixelText(ctx, npMsg, W / 2, ly + 32, 3, C.cream, 'center');
     var shelfY = 540, items = R.lines.map(function (l) { return l.it; }).filter(function (b) { return b; });
+    var bestIt = best ? best.it : null;
     var k = items.length <= 6 ? 5 : items.length <= 8 ? 4 : 3;
-    // keep the haul clear of the logo and its banner
-    var room = shelfY - (ly + 100) - (items.some(function (b) { return b.kind === 'grail'; }) ? 28 : 0);
-    k = Math.max(2, Math.min(k, Math.floor(room / 40)));
+    // keep the haul clear of the logo and its banner, with room for the BEST FIND flag above it
+    // (items may stand in front of the faded logo, just not the banner)
+    var room = shelfY - (ly + 64) - (bestIt || items.some(function (b) { return b.kind === 'grail'; }) ? 38 : 0);
+    k = Math.max(3, Math.min(k, Math.floor(room / 40)));
     var iw = 32 * k, gap = 14;
     var maxN = Math.floor((W - 80 + gap) / (iw + gap));
     var show = items.slice(0, maxN);
+    if (bestIt && show.indexOf(bestIt) < 0 && show.length) show[show.length - 1] = bestIt; // the best find always makes the shelf
     ctx.fillStyle = '#6b4a2b'; ctx.fillRect(20, shelfY, W - 40, 18);
     ctx.fillStyle = '#8a5e36'; ctx.fillRect(20, shelfY, W - 40, 6);
     ctx.fillStyle = '#3e2a17'; ctx.fillRect(20, shelfY + 18, W - 40, 6);
     var totalW = show.length * iw + Math.max(0, show.length - 1) * gap;
     var x0 = Math.round((W - totalW) / 2);
+    // one tag size for the whole shelf: as big as the widest tag allows
+    var slot = iw + gap - 4;
+    var tags = show.map(function (b) {
+      if (!NP.itemInfo) return null;
+      var inf = NP.itemInfo(b, { repro: !!(b.kind === 'game' && b.flags && b.flags.repro) });
+      var full = inf.label.toUpperCase(), short = (NP.TAG_SHORT[inf.tag] || inf.label).toUpperCase();
+      return { tag: inf.tag, full: full, short: short };
+    });
+    var tagFits = function (t, sc) { return !t || NP.textWidth(t.full, sc) + 12 <= slot || NP.textWidth(t.short, sc) + 12 <= slot; };
+    var tagScale = tags.every(function (t) { return tagFits(t, 3); }) ? 3 : 2;
     show.forEach(function (b, i) {
       var x = x0 + i * (iw + gap), y = shelfY - 40 * k;
-      NP.drawItem(ctx, b, x, y, k);
       var l = R.lines.filter(function (q) { return q.it === b; })[0];
-      if (l && l.pts < 0) {
-        var lab = b.kind === 'merch' ? 'MERCH' : (l.note.indexOf('shelf') >= 0 ? 'DUPE' : 'REPRO');
-        ctx.fillStyle = C.red; ctx.fillRect(x + 2 * k, y + 27 * k, 28 * k, 22); NP.pixelText(ctx, lab, x + iw / 2, y + 27 * k + 4, 2, C.cream, 'center');
+      var isBest = b === bestIt;
+      // the best find gets a gold frame and a flag
+      if (isBest) {
+        ctx.fillStyle = 'rgba(255,204,51,.22)'; ctx.fillRect(x - 7, y - 7, iw + 14, 40 * k + 7);
+        ctx.fillStyle = C.gold;
+        ctx.fillRect(x - 7, y - 7, iw + 14, 4); ctx.fillRect(x - 7, y - 7, 4, 40 * k + 7); ctx.fillRect(x + iw + 3, y - 7, 4, 40 * k + 7);
       }
-      if (b.kind === 'grail') NP.pixelText(ctx, 'GRAIL', x + iw / 2, y - 26, 3, C.gold, 'center');
+      NP.drawItem(ctx, b, x, y, k);
+      if (l && l.pts < 0 && b.kind === 'game' && l.note.indexOf('shelf') >= 0) {
+        ctx.fillStyle = C.red; ctx.fillRect(x + 2 * k, y + 27 * k, 28 * k, 22); NP.pixelText(ctx, 'DUPE', x + iw / 2, y + 27 * k + 4, 2, C.cream, 'center');
+      }
+      if (isBest) {
+        var bl = 'BEST FIND', bw = NP.textWidth(bl, 2) + 16;
+        ctx.fillStyle = C.ink; ctx.fillRect(x + iw / 2 - bw / 2 + 3, y - 33, bw, 22);
+        ctx.fillStyle = C.gold; ctx.fillRect(x + iw / 2 - bw / 2, y - 36, bw, 22);
+        NP.pixelText(ctx, bl, x + iw / 2, y - 32, 2, C.ink, 'center');
+      } else if (b.kind === 'grail') NP.pixelText(ctx, 'GRAIL', x + iw / 2, y - 26, 3, C.gold, 'center');
+      // the rarity tag, on the front edge of the shelf under each item
+      var tg = tags[i];
+      if (tg) {
+        var tc = (NP.TAG_COLORS || {})[tg.tag] || ['#3a4d82', C.cream];
+        var ts = tagScale, lab = NP.textWidth(tg.full, ts) + 12 <= slot ? tg.full : tg.short;
+        if (NP.textWidth(lab, ts) + 12 > slot) ts = 1;
+        var tw = NP.textWidth(lab, ts) + 12, tx = Math.round(x + iw / 2 - tw / 2), ty = shelfY + 28;
+        ctx.fillStyle = C.ink; ctx.fillRect(tx - 2, ty - 2, tw + 4, 7 * ts + 12);
+        ctx.fillStyle = tc[0]; ctx.fillRect(tx, ty, tw, 7 * ts + 8);
+        NP.pixelText(ctx, lab, x + iw / 2, ty + 4, ts, tc[1], 'center');
+      }
     });
     if (!show.length) NP.pixelText(ctx, 'AN EMPTY SHELF. RESPECT.', W / 2, shelfY - 70, 4, C.cream, 'center');
     // a can of Saguaro Splash, glistening at the end of the shelf, when there is room for it
@@ -1085,11 +1139,11 @@
       NP.drawCan(ctx, W - 96, shelfY - 58, 4, 1);
       NP.drawSparkle(ctx, W - 54, shelfY - 62, 3, 0.25);
     }
-    if (items.length > show.length) NP.pixelText(ctx, '+' + (items.length - show.length) + ' MORE', W - 40, shelfY + 34, 2, C.cream, 'right');
     // footer
     ctx.fillStyle = C.navy2; ctx.fillRect(0, H - 70, W, 70);
     NP.pixelText(ctx, DEMO ? 'THE FREE DEMO' : 'DAILY RUN ' + S.seed, 40, H - 46, 3, C.cream);
     NP.pixelText(ctx, 'THENOSTALGIAPRO.COM', W - 40, H - 46, 3, C.cyan, 'right');
+    if (items.length > show.length) NP.pixelText(ctx, '+' + (items.length - show.length) + ' MORE', W / 2 - 40, H - 42, 2, C.gold, 'center');
     // scanlines
     for (var y = 0; y < H; y += 3) { ctx.fillStyle = 'rgba(0,0,0,0.10)'; ctx.fillRect(0, y, W, 1); }
   }
@@ -1124,6 +1178,7 @@
     if (act === 'adfree') return; // handled on change
     var uid = el.getAttribute('data-uid');
     switch (act) {
+      case 'tapstart': leaveGate(); break;
       case 'start':
         cartOpen = false;
         if (NP.Creator && !hasLook()) showCreator(beginSaturday, 'Looks good. Start Saturday');
@@ -1198,7 +1253,33 @@
     document.addEventListener('change', onChange);
     S = null;
     track('boot', true);
+    // Phones only allow sound after a tap, so the game opens on a Tap to start screen.
+    // That first tap turns the sound on and the title music starts right away.
+    if (NP.Sound && NP.Sound.supported && !NP.Sound.isReady()) renderGate(); else renderTitle();
+  });
+
+  // ---------- tap to start ----------
+  var gateOn = false;
+  function renderGate() {
+    gateOn = true;
+    app.innerHTML = '<div class="screen gate"><button class="gate-btn" data-act="tapstart">' +
+      '<canvas id="gatecv" width="320" height="104" aria-hidden="true"></canvas>' +
+      '<span class="gate-t">' + (coarse() ? 'Tap to start' : 'Click or press Enter to start') + '</span>' +
+      '<span class="gate-s">' + (DEMO ? 'The free demo. ' : '') + 'Turn your sound up.</span></button>' +
+      '<div class="foot">A parody. Every game, console, store and company in here is made up.</div></div>';
+    NP.drawLogo($('#gatecv'), adFree);
+    var b = $('.gate-btn'); if (b) { try { b.focus({ preventScroll: true }); } catch (e) { b.focus(); } }
+  }
+  function leaveGate() {
+    if (!gateOn) return;
+    gateOn = false;
+    if (NP.Sound && NP.Sound.unlock) NP.Sound.unlock();
     renderTitle();
+  }
+  window.addEventListener('keydown', function (e) {
+    if (!gateOn || e.key === 'Tab' || e.key === 'Shift' || e.altKey || e.ctrlKey || e.metaKey) return;
+    e.preventDefault();
+    leaveGate();
   });
 
   // 1 COLLECTOR: Saturday morning, then the map

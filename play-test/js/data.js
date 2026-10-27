@@ -12,37 +12,37 @@ NP.PLATFORMS = {
 
 // tier: 1 common, 2 uncommon, 3 rare. base = loose value in dollars.
 NP.CATALOG = [
-  { id: 'mf1', t: 'Moon Ferret', p: 'k16', tier: 1, base: 9, set: 'mf' },
-  { id: 'mf2', t: 'Moon Ferret 2: Lunar Burrow', p: 'k16', tier: 2, base: 18, set: 'mf' },
-  { id: 'mf3', t: 'Moon Ferret 3: Crater Party', p: 'k16', tier: 3, base: 45, set: 'mf' },
-  { id: 'tcr', t: 'Turbo Cactus Rally', p: 'k16', tier: 1, base: 7 },
-  { id: 'wiz', t: 'Wizard Accountant', p: 'fer', tier: 2, base: 22 },
-  { id: 'skp', t: 'Skate Possum', p: 'k16', tier: 1, base: 6 },
-  { id: 'dln', t: 'Dungeon Lasagna', p: 'lum', tier: 2, base: 28 },
-  { id: 'nej', t: 'Neon Jellyfish', p: 'hal', tier: 1, base: 8 },
-  { id: 'cgr', t: 'Castle Grumble', p: 'fer', tier: 1, base: 10 },
-  { id: 'pgg', t: 'Pocket Gecko Golf', p: 'pip', tier: 1, base: 5 },
-  { id: 'rob', t: 'Robo Barista', p: 'pip', tier: 2, base: 16 },
-  { id: 'sky', t: 'Sky Llama Squadron', p: 'k16', tier: 2, base: 24 },
-  { id: 'hmp', t: 'Haunted Mall Panic', p: 'lum', tier: 3, base: 70 },
-  { id: 'vpk', t: 'Vapor Knight', p: 'hal', tier: 2, base: 20 },
-  { id: 'ttt', t: 'Tiny Tank Tactics', p: 'fer', tier: 1, base: 6 },
-  { id: 'msa', t: 'Mesa Mayhem', p: 'k16', tier: 1, base: 8 },
-  { id: 'gpn', t: 'Ghost Pepper Ninja', p: 'hal', tier: 2, base: 26 },
-  { id: 'stm', t: 'Star Mopper', p: 'fer', tier: 1, base: 5 },
-  { id: 'lll', t: 'Lava Lamp Legends', p: 'lum', tier: 1, base: 9 },
-  { id: 'bro', t: 'Brunch Crusade', p: 'hal', tier: 3, base: 85 },
-  { id: 'cyr', t: 'Cyber Raccoon 2099', p: 'lum', tier: 2, base: 19 },
-  { id: 'bfb', t: 'Bowling for Badgers', p: 'pip', tier: 1, base: 4 },
-  { id: 'pxp', t: 'Pixel Prairie', p: 'fer', tier: 2, base: 17 },
-  { id: 'tnk', t: 'Turnip Kingdom', p: 'k16', tier: 3, base: 60 },
-  { id: 'esc', t: 'Escalator Escape', p: 'pip', tier: 1, base: 6 },
-  { id: 'bgd', t: 'Bigfoot Derby', p: 'hal', tier: 1, base: 7 },
-  { id: 'hyo', t: 'Hyper Origami', p: 'lum', tier: 2, base: 23 },
-  { id: 'cmc', t: 'Comet Cabbie', p: 'fer', tier: 1, base: 8 },
-  { id: 'thd', t: 'Thunder Tortoise', p: 'k16', tier: 2, base: 21 },
-  { id: 'csf', t: 'Canal Surfer', p: 'pip', tier: 3, base: 55 },
-  { id: 'gtc', t: 'Shrine of the Golden Taco', p: 'fer', tier: 3, base: 120 }
+  { id: 'mf1', t: 'Moon Ferret', p: 'k16', tier: 1, base: 9, set: 'mf' , tag: 'common', d: 'A ferret on the moon, collecting cheese. Nobody ever explained why.' },
+  { id: 'mf2', t: 'Moon Ferret 2: Lunar Burrow', p: 'k16', tier: 2, base: 18, set: 'mf' , tag: 'uncommon', d: 'The ferret starts digging, and the moon has tunnels now. Better than the first one.' },
+  { id: 'mf3', t: 'Moon Ferret 3: Crater Party', p: 'k16', tier: 3, base: 45, set: 'mf' , tag: 'rare', d: 'The last Moon Ferret before the studio closed. Short print run.' },
+  { id: 'tcr', t: 'Turbo Cactus Rally', p: 'k16', tier: 1, base: 7, tag: 'common', d: 'Kart racing where every kart is driven by a cactus. Do not bump anyone.' },
+  { id: 'wiz', t: 'Wizard Accountant', p: 'fer', tier: 2, base: 22, tag: 'gem', d: 'Turn-based tax battles. The final boss is an audit, and it rules.' },
+  { id: 'skp', t: 'Skate Possum', p: 'k16', tier: 1, base: 6, tag: 'common', d: 'A skateboarding possum that plays dead every time you bail.' },
+  { id: 'dln', t: 'Dungeon Lasagna', p: 'lum', tier: 2, base: 28, tag: 'gem', d: 'A dungeon crawler where every floor is a layer of lasagna. People who played it still talk about it.' },
+  { id: 'nej', t: 'Neon Jellyfish', p: 'hal', tier: 1, base: 8, tag: 'shovel', d: 'A glowing jellyfish screensaver with a score counter bolted on.' },
+  { id: 'cgr', t: 'Castle Grumble', p: 'fer', tier: 1, base: 10, tag: 'common', d: 'Castle defense. The castle complains the whole time.' },
+  { id: 'pgg', t: 'Pocket Gecko Golf', p: 'pip', tier: 1, base: 5, tag: 'shovel', d: 'Nine holes of mini golf, and the gecko is the ball.' },
+  { id: 'rob', t: 'Robo Barista', p: 'pip', tier: 2, base: 16, tag: 'uncommon', d: 'Make lattes for robots before the morning rush. Weirdly stressful.' },
+  { id: 'sky', t: 'Sky Llama Squadron', p: 'k16', tier: 2, base: 24, tag: 'uncommon', d: 'A flight shooter starring llamas in goggles. Two players on one controller.' },
+  { id: 'hmp', t: 'Haunted Mall Panic', p: 'lum', tier: 3, base: 70, tag: 'rare', d: 'Survive one night in a haunted mall. Pulled from stores for scaring the food court.' },
+  { id: 'vpk', t: 'Vapor Knight', p: 'hal', tier: 2, base: 20, tag: 'uncommon', d: 'A knight, a sunset and a synth soundtrack. Mostly the soundtrack.' },
+  { id: 'ttt', t: 'Tiny Tank Tactics', p: 'fer', tier: 1, base: 6, tag: 'shovel', d: 'A strategy game with three tanks and exactly one map.' },
+  { id: 'msa', t: 'Mesa Mayhem', p: 'k16', tier: 1, base: 8, tag: 'common', d: 'Demolition derby on top of a mesa. Try not to drive off the edge.' },
+  { id: 'gpn', t: 'Ghost Pepper Ninja', p: 'hal', tier: 2, base: 26, tag: 'cult', d: 'A spicy ninja who breathes fire. Hard as nails, and its fans will tell you so.' },
+  { id: 'stm', t: 'Star Mopper', p: 'fer', tier: 1, base: 5, tag: 'shovel', d: 'You mop the floors of a space station. That is the whole game.' },
+  { id: 'lll', t: 'Lava Lamp Legends', p: 'lum', tier: 1, base: 9, tag: 'common', d: 'A puzzle game about lava lamps. Takes twenty minutes to warm up.' },
+  { id: 'bro', t: 'Brunch Crusade', p: 'hal', tier: 3, base: 85, tag: 'rare', d: 'An epic quest for the perfect pancake. Fewer than 5,000 copies made.' },
+  { id: 'cyr', t: 'Cyber Raccoon 2099', p: 'lum', tier: 2, base: 19, tag: 'cult', d: 'A raccoon hacker in the year 2099. Raids trash cans and the mainframe.' },
+  { id: 'bfb', t: 'Bowling for Badgers', p: 'pip', tier: 1, base: 4, tag: 'shovel', d: 'Bowling, with badgers as the pins. The badgers are not happy about it.' },
+  { id: 'pxp', t: 'Pixel Prairie', p: 'fer', tier: 2, base: 17, tag: 'gem', d: 'A one-screen farming game that eats whole weekends.' },
+  { id: 'tnk', t: 'Turnip Kingdom', p: 'k16', tier: 3, base: 60, tag: 'rare', d: 'A turnip becomes king. Pulled from shelves over a lawsuit with a vegetable company.' },
+  { id: 'esc', t: 'Escalator Escape', p: 'pip', tier: 1, base: 6, tag: 'common', d: 'Walk up the down escalator. 99 levels of it.' },
+  { id: 'bgd', t: 'Bigfoot Derby', p: 'hal', tier: 1, base: 7, tag: 'common', d: 'Racing as Bigfoot. Found in every bargain bin ever.' },
+  { id: 'hyo', t: 'Hyper Origami', p: 'lum', tier: 2, base: 23, tag: 'gem', d: 'Fold paper into fighters. Rented a lot, sold very little.' },
+  { id: 'cmc', t: 'Comet Cabbie', p: 'fer', tier: 1, base: 8, tag: 'common', d: 'A space taxi where every passenger wants the same planet.' },
+  { id: 'thd', t: 'Thunder Tortoise', p: 'k16', tier: 2, base: 21, tag: 'uncommon', d: 'A tortoise with lightning powers. Slow, then very fast.' },
+  { id: 'csf', t: 'Canal Surfer', p: 'pip', tier: 3, base: 55, tag: 'rare', d: 'Surfing the canals of a desert city. Only ever sold by mail order.' },
+  { id: 'gtc', t: 'Shrine of the Golden Taco', p: 'fer', tier: 3, base: 120, tag: 'rare', d: 'A quest for the legendary golden taco. The one every collector wants.' }
 ];
 
 // The sports-game-only bin. Worth basically nothing. Someone always wants $80 for one.
@@ -58,6 +58,44 @@ NP.SPORTS = [
   { id: 'dmd', t: "Diamond Dingers '98", p: 'lum', base: 1 },
   { id: 'gfp', t: "Fairway Fever '99", p: 'hal', base: 1 }
 ];
+
+// What each game is, in one line, and the tag you see when you look at it.
+// Catalog games carry their own tag and line above. Everything else is handled here.
+NP.TAGS = {
+  rare: 'Rare', uncommon: 'Uncommon', common: 'Common', shovel: 'Shovelware', gem: 'Hidden Gem', cult: 'Cult Classic',
+  sports: 'Sports bin', merch: 'Merch', lot: 'Mystery lot', grail: 'Grail', repro: 'Bootleg/Repro'
+};
+// tag colors for the share card ([background, text]), matching style.css, and short versions for tight shelves
+NP.TAG_COLORS = {
+  rare: ['#ffcc33', '#0b1022'], uncommon: ['#29adff', '#0b1022'], common: ['#8a90a0', '#0b1022'], shovel: ['#8a5e36', '#fff1d6'],
+  gem: ['#29d3e8', '#0b1022'], cult: ['#7e57c2', '#ffffff'], sports: ['#2d6a2d', '#fff1d6'], merch: ['#ff77a8', '#0b1022'],
+  lot: ['#d8b07a', '#0b1022'], grail: ['#ffcc33', '#e4343e'], repro: ['#e4343e', '#ffffff']
+};
+NP.TAG_SHORT = { shovel: 'Shovel', gem: 'Gem', cult: 'Cult', sports: 'Sports', lot: 'Lot', repro: 'Repro', uncommon: 'Uncomm' };
+NP.SPORTS_DESC = {
+  gb: 'Football. Every year it is the same game with a new number on the box.',
+  ch: 'Basketball where every player can dunk from half court.',
+  pk: 'Hockey, but mostly the fights.',
+  dm: 'Baseball. The batter catches fire on every home run, somehow.',
+  gf: 'Golf. A gentle game for gentle people. Worth about a dollar.'
+};
+// opts.repro: true once you have spotted that this copy is a bootleg
+NP.itemInfo = function (it, opts) {
+  opts = opts || {};
+  var cat = null, i;
+  for (i = 0; i < NP.CATALOG.length; i++) if (NP.CATALOG[i].id === it.id) { cat = NP.CATALOG[i]; break; }
+  var tag, d;
+  if (it.kind === 'lot') { tag = 'lot'; d = 'Taped shut. No peeking. Could be anything, usually football.'; }
+  else if (it.kind === 'grail') { tag = 'grail'; d = 'Never heard of it. The weird little label says "you are here."'; }
+  else if (it.kind === 'merch') {
+    var m = null; for (i = 0; i < NP.MERCH.length; i++) if (NP.MERCH[i].id === it.id) m = NP.MERCH[i];
+    tag = 'merch'; d = m ? m.blurb : 'Official Nostalgia Pro merch.';
+  }
+  else if (cat) { tag = cat.tag || 'common'; d = cat.d || ''; }
+  else { tag = 'sports'; d = NP.SPORTS_DESC[String(it.id || '').slice(0, 2)] || 'A sports game. There are a lot of these.'; }
+  if (opts.repro) tag = 'repro';
+  return { tag: tag, label: NP.TAGS[tag], d: d };
+};
 
 NP.GRAIL = { id: 'npg', t: 'Nostalgia Pro: The Game', p: 'pip', tier: 4, base: 0, grail: true };
 

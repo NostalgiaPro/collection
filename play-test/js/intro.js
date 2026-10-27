@@ -536,7 +536,7 @@ NP.Intro = (function () {
     if (links && opts.feedback) btns += '<a class="ibtn" href="' + esc(opts.feedback) + '" target="_blank" rel="noopener" data-track="feedback_open">Tell us what you think</a>';
     btns += '<button class="ibtn again" data-act="demoagain">Play the demo again</button>';
     app.innerHTML = '<div class="screen infomercial"><div class="info-grid">' +
-      '<div class="tvwrap"><canvas id="infocv" width="320" height="200" aria-label="The TV turns off, then comes back on with an ad for the full version of Nostalgia Pro. ' + (soon ? 'Coming soon for ' : 'Only ') + esc(opts.price) + '. Less than a churro."></canvas></div>' +
+      '<div class="tvwrap"><canvas id="infocv" width="320" height="200" aria-label="The TV turns off, then comes back on with an ad for the full version of Nostalgia Pro. ' + (soon ? 'Full game coming soon, ' : 'Only ') + esc(opts.price) + '. Less than a churro."></canvas></div>' +
       '<div class="info-side"><div class="info-btns">' + btns + '</div>' +
       '<div class="carry"><b>Heads up:</b> ' + (soon
         ? 'when the full version comes out, it will be a separate game. Demo progress will not carry over.'
