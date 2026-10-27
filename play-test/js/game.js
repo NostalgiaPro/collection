@@ -423,6 +423,7 @@
       '<button class="cart-item" disabled aria-disabled="true">2 COLLECTORS <small>sold separately</small></button>' +
       (DEMO ? '<button class="cart-item" disabled aria-disabled="true">HOME SHELF <small>full version</small></button>'
         : '<button class="cart-item" data-act="shelf">HOME SHELF</button>') +
+      '<button class="cart-item" data-act="howto">HOW TO PLAY</button>' +
       (NP.Creator ? '<button class="cart-item" data-act="look">' + (hasLook() ? 'CHANGE YOUR LOOK' : 'MAKE YOUR CHARACTER') + '</button>' : '') +
       (feedbackOk() ? '<a class="cart-item small" href="' + esc(CFG.FEEDBACK_URL) + '" target="_blank" rel="noopener" data-track="feedback_open">TELL US WHAT YOU THINK</a>' : '') +
       '</div><div class="cart-foot"><label class="adtoggle"><input type="checkbox" data-act="adfree"' + (adFree ? ' checked' : '') + '> Ad-Free Edition</label>' + soundButton() + fsButton() +
@@ -534,6 +535,24 @@
       var p = el.getAttribute('data-hs').split('|'), rec = byDay[p[0]][+p[1]];
       if (rec) el.appendChild(NP.makeArt({ kind: rec.kind, id: rec.id, p: rec.p, cond: rec.cond, sticker: rec.sticker }, 2));
     });
+    window.scrollTo(0, 0);
+  }
+
+  // ---------- How to play: the fridge list and the tips, on one short screen ----------
+  function renderHowTo() {
+    music('title');
+    var touch = coarse();
+    var h = '<div class="screen howto-scr"><h2>How to play</h2>' +
+      '<div class="howto-grid"><div class="todo"><div class="todo-h">Saturday to-do</div><ul>' +
+      (NP.GOALS ? NP.GOALS(DEMO) : []).map(function (g, i, a) { return '<li' + (i === a.length - 1 ? ' class="dex"' : '') + '>' + esc(g) + '</li>'; }).join('') + '</ul></div>' +
+      '<ul class="howto-tips">' +
+      '<li><b>Getting around.</b> Pick a stop on the map. Driving costs daylight. ' + (touch ? 'At the swap meet, drag the pad to walk and tap A at a table.' : 'At the swap meet, walk with the arrow keys or WASD and press Space at a table.') + '</li>';
+    ['offers', 'pricey', 'dupe', 'dex'].forEach(function (k) {
+      var T = NP.TIPS && NP.TIPS[k]; if (!T) return;
+      h += '<li><b>' + esc(T.h) + (/[.?!]$/.test(T.h) ? '' : '.') + '</b> ' + esc(T.short) + '</li>';
+    });
+    h += '</ul></div><div class="btns center"><button class="big" data-act="howback">Back</button></div></div>';
+    app.innerHTML = h;
     window.scrollTo(0, 0);
   }
 
@@ -838,6 +857,127 @@
     track('unsponsored_moment');
     NP.Intro.unsponsored({ adFree: adFree });
   }
+
+  // ---------- one-time tips ----------
+  // Each tip shows once, ever (saved with the rest of the game), and reading one costs no daylight.
+  // Shop tips wait for the item they explain to be on screen and sit beside its buttons, not on top of them.
+  // After you dismiss one, the next waits for your next move, so they never stack up.
+  var tipEl = null, tipAnchor = null, tipWait = false, tipQueue = [], tipFocus = null, tipTimer = null;
+  function tipsSeen() { return store.get('tips', {}) || {}; }
+  function tipOpen() { return !!tipEl; }
+  function insets() {
+    var pr = document.getElementById('saprobe');
+    if (!pr) { pr = document.createElement('div'); pr.id = 'saprobe'; pr.className = 'sa-probe'; document.body.appendChild(pr); }
+    var cs = getComputedStyle(pr);
+    return { t: parseFloat(cs.paddingTop) || 0, r: parseFloat(cs.paddingRight) || 0, b: parseFloat(cs.paddingBottom) || 0, l: parseFloat(cs.paddingLeft) || 0 };
+  }
+  function placeTip() {
+    if (!tipEl) return;
+    var ins = insets(), vw = window.innerWidth, vh = window.innerHeight, pad = 8;
+    var w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+    var minL = ins.l + pad, maxL = vw - ins.r - pad - w, minT = ins.t + pad, maxT = vh - ins.b - pad - h;
+    var left = (vw - w) / 2, top = minT + 56, below = false;
+    var a = tipAnchor && document.body.contains(tipAnchor.el) ? tipAnchor.el.getBoundingClientRect() : null;
+    if (a && tipAnchor.inside) { top = Math.max(minT, a.top + a.height * 0.3); left = a.left + (a.width - w) / 2; }
+    else if (a) {
+      left = a.left + (a.width - w) / 2;
+      var maxR = vw - ins.r - pad, side = a.right + 10 + w <= maxR || a.left - 10 - w >= minL;
+      // tips about the last buttons on a card try below, then beside, before going above (where the offers are)
+      if (tipAnchor.below && a.bottom + 10 <= maxT) { top = a.bottom + 10; below = true; }
+      else if (!(tipAnchor.below && side) && a.top - h - 10 >= minT) top = a.top - h - 10;
+      else if (a.bottom + 10 <= maxT) { top = a.bottom + 10; below = true; }
+      else if (side) {
+        // short screen: beside the button instead
+        left = a.right + 10 + w <= maxR ? a.right + 10 : a.left - 10 - w;
+        top = a.top + a.height / 2 - h / 2;
+      } else {
+        // no clean spot: whichever end of the screen covers less of it
+        var upOver = Math.max(0, Math.min(a.bottom, minT + h) - Math.max(a.top, minT));
+        var dnOver = Math.max(0, Math.min(a.bottom, maxT + h) - Math.max(a.top, maxT));
+        top = upOver <= dnOver ? minT : maxT;
+      }
+    }
+    tipEl.style.left = Math.round(Math.max(minL, Math.min(maxL, left))) + 'px';
+    tipEl.style.top = Math.round(Math.max(minT, Math.min(maxT, top))) + 'px';
+    tipEl.classList.toggle('below', below);
+  }
+  function showTip(key, anchor) {
+    var T = NP.TIPS && NP.TIPS[key];
+    if (!T) return false;
+    var seen = tipsSeen();
+    if (seen[key]) return false;
+    if (tipEl) { if (tipQueue.indexOf(key) < 0) tipQueue.push(key); return false; }
+    seen[key] = true; store.set('tips', seen);
+    tipAnchor = anchor || null;
+    tipFocus = document.activeElement;
+    tipEl = document.createElement('div');
+    tipEl.className = 'tipbox';
+    tipEl.setAttribute('role', 'dialog'); tipEl.setAttribute('aria-live', 'polite');
+    tipEl.innerHTML = '<div class="tip-k">TIP</div><div class="tip-h">' + esc(T.h) + '</div><div class="tip-b">' + esc(T.b) + '</div>' +
+      '<button class="tip-x" data-tip="ok">Got it</button>';
+    document.body.appendChild(tipEl);
+    placeTip();
+    sfx('sparkle');
+    var b = tipEl.querySelector('.tip-x');
+    try { b.focus({ preventScroll: true }); } catch (e) {}
+    return true;
+  }
+  function closeTip() {
+    if (!tipEl) return;
+    if (tipEl.parentNode) tipEl.parentNode.removeChild(tipEl);
+    tipEl = null; tipAnchor = null; tipWait = true;
+    if (tipFocus && document.body.contains(tipFocus)) { try { tipFocus.focus({ preventScroll: true }); } catch (e) {} }
+    else { var cv = document.getElementById('walkcv'); if (cv) { try { cv.focus({ preventScroll: true }); } catch (e) {} } }
+    tipFocus = null;
+    // Dex does not wait for your next move, so his tip does not either
+    var q = tipQueue.shift();
+    if (q === 'dex') showTip('dex', dexAnchor());
+  }
+  function dexAnchor() { var cv = document.getElementById('walkcv'); return cv ? { el: cv, inside: true } : null; }
+  function inView(el) {
+    var r = el.getBoundingClientRect();
+    if (!r.width || !r.height) return false;
+    // enough of it is showing to point at (the tip goes above it, or below it if there is no room)
+    return r.top >= 0 && r.top <= window.innerHeight - 30 && r.left >= 0 && r.right <= window.innerWidth;
+  }
+  // which shop tip fits what is on screen right now
+  function checkTips() {
+    if (tipEl || tipWait || !S || (S.screen !== 'stop' && S.screen !== 'walk') || !S.stop) return;
+    if (document.querySelector('.unsp, .crt-overlay, .loading-ov')) return;
+    var seen = tipsSeen();
+    var cards = Array.prototype.slice.call(document.querySelectorAll('.item[id^="card-"]')).filter(function (c) { return !c.closest('[hidden]'); });
+    var rules = [
+      ['offers', function (it, c) { return c.querySelector('.btns'); }],
+      ['pricey', function (it, c) { return it.kind === 'game' && it.ask >= 20 && c.querySelector('[data-act="inspect"]') ? c.querySelector('.btns.small') : null; }],
+      ['dupe', function (it, c) { return it.kind === 'game' && (S.day.owned[it.id] || boughtAlready(it.id)) && c.querySelector('[data-act="check"]') ? c.querySelector('.btns.small') : null; }]
+    ];
+    for (var i = 0; i < rules.length; i++) {
+      if (seen[rules[i][0]]) continue;
+      for (var j = 0; j < cards.length; j++) {
+        var it = findItem(cards[j].id.slice(5));
+        if (!it || it.state !== 'avail') continue;
+        var el = rules[i][1](it, cards[j]);
+        // the offers tip goes above the offer buttons; the Inspect and shelf tips go under the last buttons on the card
+        if (el && inView(el)) { showTip(rules[i][0], { el: el, below: i > 0 }); return; }
+      }
+    }
+  }
+  function soonCheckTips() { if (tipTimer) clearTimeout(tipTimer); tipTimer = setTimeout(function () { tipTimer = null; checkTips(); }, 220); }
+  if (window.MutationObserver) new MutationObserver(soonCheckTips).observe(document.documentElement, { childList: true, subtree: true });
+  window.addEventListener('scroll', function () { if (tipEl) placeTip(); else soonCheckTips(); }, true);
+  window.addEventListener('resize', function () { if (tipEl) placeTip(); });
+  // your next move (any tap or key that is not on the tip) lets the next tip through
+  function moved() { if (tipWait) { tipWait = false; soonCheckTips(); } }
+  window.addEventListener('pointerdown', function (e) { if (!e.target.closest || !e.target.closest('.tipbox')) moved(); }, true);
+  window.addEventListener('wheel', moved, { passive: true, capture: true });
+  window.addEventListener('keydown', function (e) {
+    if (tipEl) {
+      if (e.code === 'Enter' || e.code === 'Space' || e.code === 'Escape' || e.code === 'NumpadEnter') { e.preventDefault(); e.stopImmediatePropagation(); closeTip(); }
+      return;
+    }
+    moved();
+  }, true);
+  document.addEventListener('click', function (e) { if (tipEl && e.target.closest && e.target.closest('.tipbox')) closeTip(); });
 
   function buyGift(id) {
     var m = NP.MERCH.filter(function (x) { return x.id === id; })[0];
@@ -1179,6 +1319,8 @@
     var uid = el.getAttribute('data-uid');
     switch (act) {
       case 'tapstart': leaveGate(); break;
+      case 'howto': renderHowTo(); break;
+      case 'howback': S = null; cartOpen = true; renderTitle(); window.scrollTo(0, 0); break;
       case 'start':
         cartOpen = false;
         if (NP.Creator && !hasLook()) showCreator(beginSaturday, 'Looks good. Start Saturday');
@@ -1192,7 +1334,7 @@
         window.scrollTo(0, 0); break;
       case 'go':
         var s = S.day.stops.filter(function (x) { return x.id === el.getAttribute('data-id'); })[0];
-        var drive = function () { arrive(s); render(); window.scrollTo(0, 0); };
+        var drive = function () { arrive(s); render(); window.scrollTo(0, 0); if (S.screen === 'stop' && S.stop && S.stop.cleared) showTip('dex', null); };
         if (NP.Intro) NP.Intro.loading(NP.Intro.tip(adFree, S.wx && S.wx.id), drive); else drive();
         break;
       case 'offer': doOffer(findItem(uid), el.getAttribute('data-kind')); break;
@@ -1306,7 +1448,8 @@
     itemCard: itemCard, drawArts: drawArts, giftHTML: giftHTML, drawGiftArts: drawGiftArts, dexSetup: dexSetup,
     adLevel: adLevel, adFree: function () { return adFree; }, look: getLook, helloFor: helloFor,
     fmtTime: fmtTime, money: money, esc: esc, sfx: sfx, track: track, demo: DEMO,
-    takeToast: function () { var t = S.toast; S.toast = ''; return t; }
+    takeToast: function () { var t = S.toast; S.toast = ''; return t; },
+    tip: function (k) { return showTip(k, k === 'dex' ? dexAnchor() : null); }, tipOpen: tipOpen
   };
 
   // test hooks (harmless in production)

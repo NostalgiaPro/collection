@@ -369,3 +369,36 @@ body::before { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 
   .stopcard button, .stop-actions button { min-height: 48px; }
   .shirt a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; }
 }
+
+/* ---------- round 5: one-time tips and How to play ---------- */
+.sa-probe { position: fixed; visibility: hidden; pointer-events: none; left: 0; top: 0; width: 0; height: 0; padding: var(--sat) var(--sar) var(--sab) var(--sal); }
+.tipbox { position: fixed; z-index: 130; width: min(330px, calc(100vw - 24px)); box-sizing: border-box; background: var(--ink); color: var(--cream); border: 3px solid var(--gold); box-shadow: 4px 4px 0 #000, 0 0 24px rgba(255,204,51,.25); padding: 8px 10px 10px; animation: tipIn .16s ease-out; cursor: pointer; }
+.tip-k { position: absolute; top: -12px; left: 10px; background: var(--gold); color: var(--ink); font-size: 11px; font-weight: bold; letter-spacing: 2px; padding: 1px 6px; border: 2px solid var(--ink); }
+.tip-h { color: var(--gold); font-weight: bold; font-size: 15px; margin: 4px 0 3px; }
+.tip-b { font-size: 13px; line-height: 1.45; color: #d6dcf0; }
+.tip-x { display: block; margin: 8px 0 0 auto; min-height: 44px; min-width: 96px; padding: 8px 14px; font-size: 14px; background: var(--gold); color: var(--ink); border-bottom-color: #b8901f; }
+@keyframes tipIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .tipbox { animation: none; } }
+@media (orientation: landscape) and (max-height: 500px) { .tipbox { width: min(420px, calc(100vw - 24px)); padding: 6px 10px 8px; } .tip-h { font-size: 14px; margin: 2px 0; } .tip-b { font-size: 12px; line-height: 1.35; } .tip-x { margin-top: 4px; } }
+.howto-scr { max-width: 620px; margin: 0 auto; text-align: left; }
+.howto-scr h2 { text-align: center; }
+.todo { background: #ffe98a; color: var(--ink); border: 3px solid var(--ink); box-shadow: 4px 4px 0 rgba(0,0,0,.45); padding: 10px 14px 10px; margin: 8px auto 14px; max-width: 420px; transform: rotate(-1deg); background-image: repeating-linear-gradient(transparent 0 25px, #e8cf63 25px 26px); }
+.todo-h { color: var(--red); font-weight: bold; letter-spacing: 2px; text-transform: uppercase; font-size: 16px; text-align: center; margin-bottom: 4px; }
+.todo ul { list-style: none; margin: 0; padding: 0; }
+.todo li { font-weight: bold; font-size: 15px; line-height: 26px; padding-left: 26px; position: relative; }
+.todo li::before { content: ""; position: absolute; left: 2px; top: 6px; width: 12px; height: 12px; border: 2px solid var(--ink); background: #fff7cc; }
+.todo li.dex { color: var(--red); }
+.howto-tips { margin: 0 0 12px; padding-left: 20px; }
+.howto-tips li { margin: 6px 0; font-size: 14px; color: #d6dcf0; }
+.howto-tips b { color: var(--gold); }
+/* phone held sideways: the list and the tips side by side, so it fits without scrolling */
+@media (orientation: landscape) and (max-height: 500px) {
+  .howto-scr { max-width: none; }
+  .howto-scr h2 { margin: 0 0 4px; font-size: 18px; }
+  .howto-grid { display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, 1fr); gap: 14px; align-items: start; }
+  .howto-grid .todo { margin: 4px 0 0; }
+  .todo-h { font-size: 14px; } .todo li { font-size: 13px; line-height: 22px; } .todo { background-image: repeating-linear-gradient(transparent 0 21px, #e8cf63 21px 22px); padding: 6px 10px; }
+  .todo li::before { top: 4px; }
+  .howto-tips { margin: 0; } .howto-tips li { font-size: 12px; margin: 3px 0; line-height: 1.35; }
+  .howto-scr .btns { margin: 6px 0 0; }
+}

@@ -290,6 +290,7 @@ NP.Walk = (function () {
     showVan();
     showToast(NP.RIVAL.name + "'s van just pulled into the lot. It is wrapped in Nostalgia Pro merch. He is heading for the tables.");
     G().sfx('dex'); G().track('dex_arrived');
+    if (G().tip) G().tip('dex');
   }
 
   function bfs(from, to) {
@@ -823,7 +824,8 @@ NP.Walk = (function () {
     if (!active()) { raf = null; return; }
     var dt = Math.min(0.05, Math.max(0, (t - lastT) / 1000));
     lastT = t;
-    if (!W.panel) {
+    // the world holds still while a panel or a tip is open
+    if (!W.panel && !(G().tipOpen && G().tipOpen())) {
       var ok = update(dt);
       if (ok === false || !active()) { raf = null; return; }
       draw();
@@ -889,6 +891,8 @@ NP.Walk = (function () {
     }
     var t = G().takeToast();
     if (t) showToast(t);
+    // Dex is already here when you walk in (he beat you to it)
+    if (W.dex && W.dex.present && G().tip) G().tip('dex');
     if (W.panel) panelRender();
     if (!raf && active()) { lastT = performance.now(); raf = requestAnimationFrame(loop); }
   }

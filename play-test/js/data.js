@@ -210,3 +210,27 @@ NP.SPONSOR = {
     "It's not an ad if you don't read it. Don't read it."
   ]
 };
+
+// ---------- teaching the game (round 5) ----------
+// The Saturday to-do list on the fridge. The same list shows on the How to play screen.
+NP.GOALS = function (demo) {
+  return [
+    '$100 budget.',
+    demo ? 'Back by noon.' : 'Home by sundown (5:30).',
+    "Buy what's worth it.",
+    "Don't buy what you already own.",
+    'Watch out for fakes.',
+    'Beat Dex to the good stuff.'
+  ];
+};
+// One-time tips. Each shows once, ever, and costs no daylight. "short" is the How to play version.
+NP.TIPS = {
+  offers: { h: 'Making an offer', b: 'Lowball is half the sticker. Some sellers take it. Some take it personally. Fair is three quarters. Full price always works, which is how they get you.',
+    short: 'Lowball, Fair or Full price. Lowball can offend people. Full price always works, which is how they get you.' },
+  pricey: { h: 'That is a lot of money', b: 'Inspect takes 5 minutes and catches fakes, disc rot and suspicious shrink wrap. A repro costs you points. And a little dignity.',
+    short: 'Inspect (5 min) catches fakes, disc rot and suspicious shrink wrap. Worth it on anything pricey.' },
+  dupe: { h: 'Rings a bell?', b: 'You might already own this one. You own a lot of games. "Is it on the shelf?" checks your collection in 10 minutes. Buying it twice costs points.',
+    short: '"Is it on the shelf?" (10 min) checks your collection. Buying a game twice costs points.' },
+  dex: { h: 'That is Dex', b: 'Dex from Flipside Resale. He is after the same stuff you are, and he does not stop to read tips. Get to the good tables first.',
+    short: 'Dex from Flipside Resale is after the same stuff you are. He does not wait.' }
+};

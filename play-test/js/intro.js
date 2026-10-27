@@ -295,7 +295,8 @@ NP.Intro = (function () {
   var morningRun = 0;
   function morning(app, info, done) {
     morningRun++;
-    app.innerHTML = '<div class="screen morning"><canvas id="mcv" width="320" height="200" aria-label="Saturday morning. The alarm goes off at 6:58 AM."></canvas>' +
+    var goals = NP.GOALS ? NP.GOALS(!!info.demo) : [];
+    app.innerHTML = '<div class="screen morning"><canvas id="mcv" width="320" height="200" aria-label="Saturday morning. The alarm goes off at 6:58 AM. Then the to-do list on the fridge: ' + goals.join(' ').replace(/"/g, '') + '"></canvas>' +
       '<div class="btns center"><button data-intro="skip">Skip</button></div></div>';
     var cv = document.getElementById('mcv'), g = cv.getContext('2d'), t0 = performance.now(), fin = false;
     g.imageSmoothingEnabled = false;
@@ -306,7 +307,7 @@ NP.Intro = (function () {
       done();
     }
     // Each scene stays up until the player taps, clicks or presses a key, so there is time to read it.
-    var scene = 0, s0 = t0, SCENES = 3;
+    var scene = 0, s0 = t0, SCENES = 4;
     function next() {
       if (performance.now() - s0 < 400) return;
       scene++; s0 = performance.now();
@@ -321,13 +322,15 @@ NP.Intro = (function () {
       var t = (now - s0) / 1000;
       if (scene === 0) bedroom(g, t, look);
       else if (scene === 1) kitchen(g, t, look);
-      else forecast(g, t, info);
-      if (t > 1 && Math.floor(t * 2) % 2 === 0) TS(g, (coarseTap() ? 'TAP' : 'CLICK') + ' TO CONTINUE', 314, 176, 1, GOLD, INK, 'right');
+      else if (scene === 2) forecast(g, t, info);
+      else fridge(g, t, goals);
+      // the last scene says it in its caption instead
+      if (scene < SCENES - 1 && t > 1 && Math.floor(t * 2) % 2 === 0) TS(g, (coarseTap() ? 'TAP' : 'CLICK') + ' TO CONTINUE', 314, 176, 1, GOLD, INK, 'right');
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
   }
-  function coarseTap() { return !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches); }
+  function coarseTap() { try { return !!((window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || ('ontouchstart' in window)); } catch (e) { return false; } }
   function caption(g, s) { P(g, 0, 186, 320, 14, 'rgba(5,8,20,.9)'); T(g, s, 160, 190, 1, CREAM, 'center'); }
   function bedroom(g, t, look) {
     P(g, 0, 0, 320, 200, '#0d1226');
@@ -420,8 +423,30 @@ NP.Intro = (function () {
       fl.forEach(function (l, i) { T(g, l, 160, fy + i * 9, 1, GOLD, 'center'); });
     }
     if (spons && t > 0.9 && t < 2.6) caption(g, 'YOU: ' + SP.react);
-    else if (t > 1.2 && Math.floor(t * 2) % 2 === 0) caption(g, (coarseTap() ? 'TAP TO HIT THE ROAD' : 'PRESS ANY KEY TO HIT THE ROAD'));
     else caption(g, 'PHOENIX, ARIZONA');
+  }
+  // the goal of the game, on a to-do list stuck to the fridge
+  function fridge(g, t, goals) {
+    P(g, 0, 0, 320, 200, '#e8e2d0');
+    P(g, 304, 0, 16, 200, '#d6cfb9'); P(g, 308, 30, 5, 120, '#b8b2a0');
+    P(g, 6, 12, 8, 8, CYAN); P(g, 292, 160, 8, 8, '#00b894');
+    // the paper
+    P(g, 21, 9, 278, 176, 'rgba(0,0,0,.18)');
+    P(g, 18, 6, 278, 176, '#ffe98a');
+    for (var ly = 30; ly < 180; ly += 15) P(g, 18, ly + 14, 278, 1, '#e8cf63');
+    P(g, 36, 6, 1, 176, '#f2a3a3');
+    P(g, 150, 2, 14, 10, RED); P(g, 152, 3, 10, 2, '#ff8a8f');
+    T(g, 'SATURDAY TO-DO', 160, 14, 2, RED, 'center');
+    var y = 33;
+    goals.forEach(function (gl, i) {
+      var lines = NP.wrapPixel(gl.toUpperCase(), 2, 250);
+      // a box to tick, which you will not have time to tick
+      P(g, 22, y + 2, 10, 10, INK); P(g, 24, y + 4, 6, 6, '#ffe98a');
+      lines.forEach(function (l, j) { T(g, l, 42, y + j * 15, 2, i === goals.length - 1 ? RED : INK); });
+      y += lines.length * 15 + 2;
+    });
+    if (t > 0.8 && Math.floor(t * 2) % 2 === 0) caption(g, coarseTap() ? 'TAP TO HIT THE ROAD' : 'PRESS ANY KEY TO HIT THE ROAD');
+    else caption(g, 'THE FRIDGE IS NEVER WRONG.');
   }
 
   // ---------- loading screens ----------
