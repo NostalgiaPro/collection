@@ -305,21 +305,29 @@ NP.Intro = (function () {
       window.removeEventListener('keydown', onKey); document.removeEventListener('click', onClick);
       done();
     }
-    function onKey(e) { if (e.repeat) return; e.preventDefault(); finish(); }
-    function onClick(e) { if (e.target.closest('[data-intro="skip"]') || e.target === cv) finish(); }
+    // Each scene stays up until the player taps, clicks or presses a key, so there is time to read it.
+    var scene = 0, s0 = t0, SCENES = 3;
+    function next() {
+      if (performance.now() - s0 < 400) return;
+      scene++; s0 = performance.now();
+      if (scene >= SCENES) finish();
+    }
+    function onKey(e) { if (e.repeat) return; e.preventDefault(); next(); }
+    function onClick(e) { if (e.target.closest('[data-intro="skip"]')) { finish(); return; } if (e.target === cv) next(); }
     window.addEventListener('keydown', onKey);
     document.addEventListener('click', onClick);
     function frame(now) {
       if (fin || !document.body.contains(cv)) return;
-      var t = (now - t0) / 1000;
-      if (t < 2.3) bedroom(g, t, look);
-      else if (t < 5.0) kitchen(g, t - 2.3, look);
-      else if (t < 8.2) forecast(g, t - 5.0, info);
-      else { finish(); return; }
+      var t = (now - s0) / 1000;
+      if (scene === 0) bedroom(g, t, look);
+      else if (scene === 1) kitchen(g, t, look);
+      else forecast(g, t, info);
+      if (t > 1 && Math.floor(t * 2) % 2 === 0) TS(g, (coarseTap() ? 'TAP' : 'CLICK') + ' TO CONTINUE', 314, 176, 1, GOLD, INK, 'right');
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
   }
+  function coarseTap() { return !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches); }
   function caption(g, s) { P(g, 0, 186, 320, 14, 'rgba(5,8,20,.9)'); T(g, s, 160, 190, 1, CREAM, 'center'); }
   function bedroom(g, t, look) {
     P(g, 0, 0, 320, 200, '#0d1226');
@@ -412,7 +420,7 @@ NP.Intro = (function () {
       fl.forEach(function (l, i) { T(g, l, 160, fy + i * 9, 1, GOLD, 'center'); });
     }
     if (spons && t > 0.9 && t < 2.6) caption(g, 'YOU: ' + SP.react);
-    else if (t > 1.2 && Math.floor(t * 2) % 2 === 0) caption(g, 'PRESS ANY KEY TO HIT THE ROAD');
+    else if (t > 1.2 && Math.floor(t * 2) % 2 === 0) caption(g, (coarseTap() ? 'TAP TO HIT THE ROAD' : 'PRESS ANY KEY TO HIT THE ROAD'));
     else caption(g, 'PHOENIX, ARIZONA');
   }
 
@@ -448,15 +456,17 @@ NP.Intro = (function () {
   function loading(text, done) {
     var ov = document.createElement('div');
     ov.className = 'loading-ov';
-    ov.innerHTML = '<div class="ld-box"><canvas width="160" height="40"></canvas><div class="ld-t">LOADING</div><div class="ld-tip"></div><div class="ld-skip">Tap to skip</div></div>';
+    ov.innerHTML = '<div class="ld-box"><canvas width="160" height="40"></canvas><div class="ld-t">LOADING</div><div class="ld-tip"></div><div class="ld-skip">' + (coarseTap() ? 'Tap' : 'Click') + ' to continue</div></div>';
     ov.querySelector('.ld-tip').textContent = text;
     document.body.appendChild(ov);
     var cv = ov.querySelector('canvas'), g = cv.getContext('2d'), t0 = performance.now(), fin = false;
     g.imageSmoothingEnabled = false;
     function finish() { if (fin) return; fin = true; if (ov.parentNode) ov.parentNode.removeChild(ov); done(); }
-    ov.addEventListener('click', finish);
+    ov.addEventListener('click', function () { if (performance.now() - t0 > 400) finish(); });
+    function ldKey(e) { if (e.repeat || fin) return; if (performance.now() - t0 < 400) return; e.preventDefault(); window.removeEventListener('keydown', ldKey, true); finish(); }
+    window.addEventListener('keydown', ldKey, true);
     function frame(now) {
-      if (fin) return;
+      if (fin) { window.removeEventListener('keydown', ldKey, true); return; }
       var t = (now - t0) / 1000;
       P(g, 0, 0, 160, 40, '#111a33');
       P(g, 0, 28, 160, 12, '#4a4d57');
@@ -468,7 +478,6 @@ NP.Intro = (function () {
       for (var d = 0; d < 3; d++) P(g, 48 - d * 9 - ((t * 60) % 9), 24 - d, 4 + d, 3, 'rgba(201,160,106,' + (0.6 - d * 0.18) + ')');
       var dots = '...'.slice(0, Math.floor(t * 4) % 4);
       ov.querySelector('.ld-t').textContent = 'LOADING' + dots;
-      if (t > 1.5) { finish(); return; }
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
