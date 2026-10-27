@@ -5372,4 +5372,10 @@
     <priority>0.5</priority>
   </url>
   <!-- end game pages -->
+  <url>
+    <loc>https://thenostalgiapro.com/play/</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
