@@ -530,6 +530,71 @@ body.y1996 .o1 #lucky{background:#c0c0c0;color:#000;border:2px outset #fff}
 body.y1996 .ytbox{border:2px inset #fff;border-radius:0}
 body.y1996 .ythead h2{font-family:"Times New Roman",Times,serif;font-size:20px}
 
+/* ===== Merch store banner (Fourthwall shop, opens in a new tab) ===== */
+.npmerch{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px 28px;align-items:center;
+  margin:18px 0 0;padding:14px 18px 14px 22px;background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--hot);border-radius:4px;overflow:hidden}
+.npmerch::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.022) 0 1px,transparent 1px 3px)}
+.npmerch-txt{position:relative;z-index:1;min-width:0}
+.npmerch-k{display:block;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--hot);margin:0 0 6px}
+.npmerch h2{font-family:"Press Start 2P",monospace;font-size:17px;line-height:1.5;margin:0;color:var(--text)}
+.npmerch-line{margin:8px 0 0;font-size:15px;line-height:1.45;color:var(--dim)}
+.npmerch-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;margin:16px 0 0;
+  background:var(--hot);border:2px solid var(--hot);color:#12070a;text-decoration:none;border-radius:4px;
+  font-family:"Press Start 2P",monospace;font-size:13px;line-height:1.3;padding:15px 20px;
+  box-shadow:0 4px 0 rgba(0,0,0,.45);transition:background .15s,color .15s,transform .1s}
+.npmerch-btn span{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:17px;line-height:1}
+.npmerch-btn:hover{background:transparent;color:var(--hot)}
+.npmerch-btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.45)}
+.npmerch-btn:focus-visible{outline:3px solid var(--text);outline-offset:3px}
+.npmerch-items{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,160px);gap:12px;margin:0;padding:0;list-style:none}
+.npmerch-items a{display:block;text-decoration:none;color:var(--text);border-radius:4px}
+.npmerch-items img{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;background:#25272f;
+  border:1px solid var(--line);border-radius:4px;transition:border-color .15s,transform .15s}
+.npmerch-items b{display:block;margin:7px 0 0;font-family:"IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;font-weight:600;font-size:14px;line-height:1.25}
+.npmerch-items .pr{display:block;margin:2px 0 0;font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;color:var(--hot)}
+.npmerch-items a:hover img{border-color:var(--hot);transform:translateY(-2px)}
+.npmerch-items a:hover b{color:var(--hot)}
+.npmerch-items a:focus-visible{outline:2px solid var(--hot);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.npmerch-btn,.npmerch-items img{transition:none}.npmerch-items a:hover img{transform:none}}
+@media (max-width:880px){
+  .npmerch{grid-template-columns:1fr}
+  .npmerch-items{grid-template-columns:repeat(3,minmax(0,1fr));max-width:540px}
+}
+@media (max-width:560px){
+  .npmerch{padding:13px 12px;gap:12px}
+  .npmerch h2{font-size:13px}
+  .npmerch-line{font-size:14px;margin-top:6px}
+  .npmerch-btn{display:flex;width:100%;margin-top:12px;font-size:12px;padding:14px 12px}
+  .npmerch-items{gap:8px}
+  .npmerch-items b{font-size:12px;margin-top:5px}
+  .npmerch-items .pr{font-size:10px}
+  .npmerch .npmerch-items{order:2}
+}
+body.y1996 .npmerch{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0}
+body.y1996 .npmerch::after{display:none}
+body.y1996 .npmerch h2,body.y1996 .npmerch-items b{font-family:"Times New Roman",Times,serif;color:#000080}
+body.y1996 .npmerch h2{font-size:22px}
+body.y1996 .npmerch-line,body.y1996 .npmerch-k,body.y1996 .npmerch-items .pr{color:#000;font-family:"Times New Roman",Times,serif}
+body.y1996 .npmerch-btn{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0;box-shadow:none;font-family:"Times New Roman",Times,serif;font-size:18px}
+body.y1996 .npmerch-btn:hover{border-style:inset;color:#000080}
+body.y1996 .npmerch-items img{border:2px inset #fff;border-radius:0}
+
+/* nav: the store gets its own highlighted group under Dates */
+.o1-col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.o1-group.o1-shopgrp{border-color:var(--hot);background:linear-gradient(180deg,rgba(255,255,255,.035),transparent),var(--bg2);box-shadow:inset 3px 0 0 var(--hot)}
+.o1-nav .shelflink.o1-pill.o1-shop{background:var(--hot);border:2px solid var(--hot);color:#12070a;font-weight:700;font-size:11px;padding:8px 14px;letter-spacing:.04em}
+.o1-nav .shelflink.o1-pill.o1-shop:hover{background:transparent;color:var(--hot)}
+.o1-nav .o1-shop span{margin-left:7px;font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:13px;line-height:1}
+.o1-col>.o1-shopgrp{flex:1 1 auto}
+.o1-nav .shelflink.o1-pill.o1-shop:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+@media (max-width:560px){
+  .o1-col{gap:8px}
+  .o1-nav .shelflink.o1-pill.o1-shop{font-size:10px;padding:7px 12px}
+}
+body.y1996 .o1-group.o1-shopgrp{background:#c0c0c0;border:2px outset #fff;box-shadow:none}
+body.y1996 .o1-nav .shelflink.o1-pill.o1-shop{background:#000080;color:#ffff00;border:2px outset #fff;font-weight:700;font-size:13px}
+
 /* ===== Daily Shelf / Shelf vs. Mine tiles ===== */
 .playtiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0 0}
 .ptile{position:relative;display:flex;gap:14px;align-items:center;min-width:0;overflow:hidden;
@@ -736,6 +801,15 @@ body.y1996 .ptile .psub{color:#000}
     <div id="verdict" role="status" aria-live="polite"></div>
     <div class="scores" id="scores"></div>
 
+    <section class="npmerch" aria-labelledby="merchH">
+      <div class="npmerch-txt">
+        <span class="npmerch-k">Merch store</span>
+        <h2 id="merchH">NostalgiaPro Merch</h2>
+        <p class="npmerch-line">Shirts and hats with the shelf logo, Daily Shelf and more.</p>
+        <a class="npmerch-btn" href="https://nostalgiapro-shop.fourthwall.com/" target="_blank" rel="noopener">Shop the merch <span aria-hidden="true">&#8599;</span></a>
+      </div>
+      <ul class="npmerch-items" aria-label="Featured shirts"><li><a href="https://nostalgiapro-shop.fourthwall.com/products/is-it-on-the-shelf-tee" target="_blank" rel="noopener"><img src="images/merch-is-it-on-the-shelf-tee.webp" alt="Black tee with the words Is it on the shelf? over a pixel game shelf" width="600" height="600" loading="lazy" decoding="async"><b>Is It on the Shelf? Tee</b><span class="pr">$25</span></a></li><li><a href="https://nostalgiapro-shop.fourthwall.com/products/physical-media-enjoyer-neon-tee" target="_blank" rel="noopener"><img src="images/merch-physical-media-enjoyer-tee.webp" alt="Black tee with Physical Media Enjoyer in neon-style letters" width="600" height="600" loading="lazy" decoding="async"><b>Physical Media Enjoyer Tee</b><span class="pr">$25</span></a></li><li><a href="https://nostalgiapro-shop.fourthwall.com/products/daily-shelf-tee" target="_blank" rel="noopener"><img src="images/merch-daily-shelf-tee.webp" alt="Black tee with the Daily Shelf guess grid emblem" width="600" height="600" loading="lazy" decoding="async"><b>Daily Shelf Tee</b><span class="pr">$25</span></a></li></ul>
+    </section>
     <div class="playtiles" aria-label="New on the site">
       <a class="ptile" href="daily.html" id="tileDaily">
         <span class="pico" aria-hidden="true"><i style="--c:#ff4b3e"></i><i style="--c:#5a8fd6"></i><i style="--c:#e0a33a"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#3fbf6a"></i><i style="--c:#3a3f52"></i><i style="--c:#e0a33a"></i><i style="--c:#8f6fd6"></i><i style="--c:#ff4b3e"></i><i style="--c:#5a8fd6"></i><i style="--c:#3a3f52"></i><i style="--c:#3fbf6a"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#e0a33a"></i><i style="--c:#3a3f52"></i><i style="--c:#5a8fd6"></i><i style="--c:#8f6fd6"></i><i style="--c:#e0a33a"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#5a8fd6"></i><i style="--c:#3fbf6a"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#e0a33a"></i><i style="--c:#3a3f52"></i><i style="--c:#8f6fd6"></i><i style="--c:#3a3f52"></i><i style="--c:#5a8fd6"></i><i style="--c:#3fbf6a"></i><i style="--c:#ff4b3e"></i><i style="--c:#3a3f52"></i><i style="--c:#e0a33a"></i><i style="--c:#5a8fd6"></i></span>
@@ -759,8 +833,11 @@ body.y1996 .ptile .psub{color:#000}
     <div class="sitenav o1-nav">
       <div class="o1-group"><span class="o1-lbl">Games</span><div class="o1-links"><a class="shelflink o1-pill" href="shelf.html">Virtual shelf</a><a class="shelflink o1-pill" href="digital.html">Digital</a><a class="shelflink o1-pill" href="consoles.html">Consoles</a><a class="shelflink o1-pill" href="gaps.html">The gaps</a><a class="shelflink o1-pill" href="stats.html">The numbers</a><a class="shelflink o1-pill" href="daily.html">Daily Shelf</a><a class="shelflink o1-pill" href="match.html">Shelf vs. Mine</a><a class="shelflink o1-pill" href="first.html">Which Came First?</a><a class="shelflink o1-pill" href="streaks.html">Streaks &amp; badges</a><a class="shelflink o1-pill" href="spines.html">Spine shelf</a><a class="shelflink o1-pill" href="tonight.html">Play tonight</a></div></div>
       <div class="o1-group"><span class="o1-lbl">Reviews &amp; lists</span><div class="o1-links"><a class="shelflink o1-pill" href="reviews.html">Reviews</a><a class="shelflink o1-pill" href="lists.html">Lists</a><a class="shelflink o1-pill" href="rankings.html">Rankings</a><a class="shelflink o1-pill" href="overrated.html">Overrated</a><a class="shelflink o1-pill" href="rank.html">Rank games</a></div></div>
-      <div class="o1-group"><span class="o1-lbl">Other shelves</span><div class="o1-links"><a class="shelflink o1-pill" href="movies.html">Movies</a><a class="shelflink o1-pill" href="tv.html">TV</a><a class="shelflink o1-pill" href="music.html">Music</a><a class="shelflink o1-pill" href="boardgames.html">Board games</a><a class="shelflink o1-pill" href="https://nostalgiapro-shop.fourthwall.com/" target="_blank" rel="noopener">Merch</a></div></div>
-      <div class="o1-group"><span class="o1-lbl">Dates</span><div class="o1-links"><a class="shelflink o1-pill" href="anniversaries.html">Anniversaries</a><a class="shelflink o1-pill" href="onthisday.html">On this day</a></div></div>
+      <div class="o1-group"><span class="o1-lbl">Other shelves</span><div class="o1-links"><a class="shelflink o1-pill" href="movies.html">Movies</a><a class="shelflink o1-pill" href="tv.html">TV</a><a class="shelflink o1-pill" href="music.html">Music</a><a class="shelflink o1-pill" href="boardgames.html">Board games</a></div></div>
+      <div class="o1-col">
+        <div class="o1-group"><span class="o1-lbl">Dates</span><div class="o1-links"><a class="shelflink o1-pill" href="anniversaries.html">Anniversaries</a><a class="shelflink o1-pill" href="onthisday.html">On this day</a></div></div>
+        <div class="o1-group o1-shopgrp"><span class="o1-lbl">Store</span><div class="o1-links"><a class="shelflink o1-pill o1-shop" href="https://nostalgiapro-shop.fourthwall.com/" target="_blank" rel="noopener">Shop merch <span aria-hidden="true">&#8599;</span></a></div></div>
+      </div>
     </div>
 
     <section class="ytlatest" aria-labelledby="ytH">
