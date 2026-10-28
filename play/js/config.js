@@ -21,6 +21,9 @@ NP.CONFIG = {
   // Feedback form (Tally). The feedback buttons stay hidden until this is filled in.
   FEEDBACK_URL: 'https://tally.so/r/rDDJJl',
 
+  // Real merch store, plugged by one button on the demo's end infomercial. Leave empty to hide the button.
+  MERCH_URL: 'https://nostalgiapro-shop.fourthwall.com/',
+
   // GoatCounter site code, the part before .goatcounter.com (for example 'nostalgiapro').
   // Leave empty to turn analytics off completely.
   ANALYTICS_CODE: 'nostalgiapro',

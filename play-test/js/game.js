@@ -155,8 +155,8 @@
       return st;
     }
     var yardSellers = shuffle(r, ['grandma', 'kid', 'friendly']);
-    addStop('yard', yardSellers[0], 70, 4, 3, [0.7, 0.22], { damageP: 0.3 });
-    addStop('yard', yardSellers[1], 65, 4, 3, [0.7, 0.22], { damageP: 0.3 });
+    addStop('yard', yardSellers[0], 72, 4, 3, [0.7, 0.22], { damageP: 0.3 });
+    addStop('yard', yardSellers[1], 66, 4, 3, [0.7, 0.22], { damageP: 0.3 });
     // sports bin
     var sp = { id: 's' + stops.length, type: 'sports', name: NP.STOPNAMES.sports[0], seller: 'sports', cost: 55, items: [], dig: [], dug: false, visited: false, rivalAt: null, rumor: false, cleared: false };
     var sportsList = shuffle(r, NP.SPORTS);
@@ -170,14 +170,14 @@
     stops.push(sp);
 
     var thriftSellers = shuffle(r, ['friendly', 'firm', 'ikwig']);
-    var th1 = addStop('thrift', thriftSellers[0], 80, 4, 3, [0.6, 0.3]);
-    var th2 = addStop('thrift', thriftSellers[1], 85, 4, 3, [0.6, 0.3]);
+    var th1 = addStop('thrift', thriftSellers[0], 70, 4, 3, [0.6, 0.3]);
+    var th2 = addStop('thrift', thriftSellers[1], 72, 4, 3, [0.6, 0.3]);
     // merch hiding in thrift bins
     [th1, th2].forEach(function (th) {
       var m = pick(r, NP.MERCH);
       th.items.splice(Math.floor(r() * th.items.length), 0, makeItem(r, { id: m.id, t: m.t, p: 'k16', base: 0 }, { kind: 'merch', ask: 1 + Math.floor(r() * 4), seller: th.seller }));
     });
-    var flea = addStop('flea', null, 140, 6, 3, [0.45, 0.4], { mixed: ['friendly', 'ikwig', 'firm', 'friendly'], sealedP: 0.2, reproRare: 0.45, resealP: 0.5 });
+    var flea = addStop('flea', null, 73, 6, 3, [0.45, 0.4], { mixed: ['friendly', 'ikwig', 'firm', 'friendly'], sealedP: 0.2, reproRare: 0.45, resealP: 0.5 });
     // blind lot box
     var lot = makeItem(r, { id: 'lot', t: 'Mystery Lot Box (do not open here)', p: 'k16', base: 0 }, { kind: 'lot', seller: 'friendly', ask: 15 + Math.floor(r() * 3) * 5 });
     lot.contents = [];
@@ -189,8 +189,8 @@
       lot.contents.push(li2);
     }
     flea.items.splice(2, 0, lot);
-    addStop('pawn', 'pawn', 75, 5, 0, [0.35, 0.45], { tested: true, sealedP: 0.15 });
-    stops.push({ id: 's' + stops.length, type: 'gift', name: NP.STOPNAMES.gift[0], seller: null, cost: 60, items: [], dig: [], visited: false, gift: true });
+    addStop('pawn', 'pawn', 68, 5, 0, [0.35, 0.45], { tested: true, sealedP: 0.15 });
+    stops.push({ id: 's' + stops.length, type: 'gift', name: NP.STOPNAMES.gift[0], seller: null, cost: 40, items: [], dig: [], visited: false, gift: true });
 
     // grail: the game itself, buried in a dig pile somewhere
     var hidey = stops.filter(function (s) { return (s.type === 'yard' || s.type === 'thrift') && s.dig.length; });
@@ -374,7 +374,11 @@
     };
     S.rem = DEMO ? {} : applyMemory(day);
   }
-  function costOf(s) { return Math.round(s.cost * (S.wx ? S.wx.mult : 1)); }
+  // Drive time to a stop. Heat only adds half its usual slowdown to the drive (the van has AC),
+  // and no drive takes longer than DRIVE_CAP minutes (a safety net: every base cost is set so even the hottest day stays at or under it).
+  // Time spent at a stop still gets the full heat mult (see spend()).
+  var DRIVE_CAP = 80;
+  function costOf(s) { var m = S.wx ? S.wx.mult : 1; return Math.min(DRIVE_CAP, Math.round(s.cost * (1 + (m - 1) * 0.5))); }
 
   function adLevel() { return S ? S.visited : 0; }
 
@@ -391,8 +395,11 @@
     if (S.screen === 'title') return renderTitle();
   }
 
-  function sunPct() { return Math.max(0, Math.min(100, (S.time - START) / (END - START) * 100)); }
-  function sunText() { var left = END - S.time; return 'Sundown 5:30 PM. ' + Math.max(0, Math.floor(left / 60)) + 'h ' + Math.max(0, left % 60) + 'm left'; }
+  var NOON = 12 * 60;
+  function sunPct() { var e = DEMO ? NOON : END; return Math.max(0, Math.min(100, (S.time - START) / (e - START) * 100)); }
+  function sunText() {
+    if (DEMO) { var l = NOON - S.time; if (l < 0) return 'Past noon by ' + (-l) + 'm. Wrap it up.'; return 'Back by noon. ' + Math.floor(l / 60) + 'h ' + (l % 60) + 'm left'; }
+    var left = END - S.time; return 'Sundown 5:30 PM. ' + Math.max(0, Math.floor(left / 60)) + 'h ' + Math.max(0, left % 60) + 'm left'; }
   // light refresh for the clock while walking (no full re-render, so the ticker keeps scrolling)
   function updateHud() {
     var c = document.querySelector('.hud .clock'); if (c) c.textContent = fmtTime(Math.min(S.time, END));
@@ -474,7 +481,7 @@
       (DEMO ? '<small>This is the free demo: one Saturday, three stops, and it ends after the swap meet. The full version gets a new Saturday every day.</small></div>'
         : '<small>Same run for everyone today. Resets at midnight, Phoenix time.</small></div>') +
       '<details class="howto"><summary><b>How it works</b></summary><ul>' +
-      '<li>Pick your stops. Each one costs daylight. Sundown is 5:30 PM.</li>' +
+      (DEMO ? '<li>Pick your stops. Each one costs time. Try to be back by noon.</li>' : '<li>Pick your stops. Each one costs daylight. Sundown is 5:30 PM.</li>') +
       '<li>Make an offer: lowball, fair or full price. Sellers have opinions.</li>' +
       '<li>Is it on the shelf? Checking costs time. Buying a duplicate costs points.</li>' +
       '<li>Watch out for repros, disc rot and a guy named ' + NP.RIVAL.name + '.</li>' +
@@ -589,7 +596,7 @@
       var gp = s.gift ? Math.round(10 + adLevel() * 15) : 0;
       h += '<div class="' + cls + '"><div class="st-h"><span class="ico">' + stopIcon(s.type) + '</span> ' + esc(s.name) + '</div>' +
         '<div class="st-b">' + esc(stopBlurb(s)) + (s.gift && adLevel() >= 2 ? ' Prices up ' + gp + '% since this morning!' : '') + '</div>' +
-        '<div class="st-m">' + c + ' min' + (c !== s.cost ? ' (heat)' : '') + ' &middot; arrive ' + fmtTime(arrive) + '</div>';
+        '<div class="st-m">' + c + ' min' + (c > Math.min(DRIVE_CAP, s.cost) ? ' (heat)' : '') + ' &middot; arrive ' + fmtTime(arrive) + '</div>';
       if (S.day.featured && S.day.featured.stopId === s.id && !s.visited) h += '<div class="featured">&#9733; Today\'s featured lot is here. ' + money(S.day.featured.ask) + '.</div>';
       var mc = !s.visited ? memCard(s) : '';
       if (mc) h += '<div class="mem">' + esc(mc) + '</div>';
@@ -767,7 +774,7 @@
   }
 
   function arrive(s) {
-    spend(s.cost);
+    S.time += costOf(s); // the drive, same minutes the map card showed
     s.visited = true;
     S.stop = s;
     S.screen = 'stop';
@@ -999,7 +1006,7 @@
       // demo sundown: the demo Saturday ends when you leave the swap meet
       var wasMorning = S.time <= 12 * 60;
       if (wasMorning) S.time = 12 * 60;
-      S.toast = (wasMorning ? 'It\'s noon. ' : '') + 'Demo sundown! The demo Saturday ends at the swap meet. In the full version you have until 5:30 PM.';
+      S.toast = (wasMorning ? 'It\'s noon. ' : '') + 'That\'s the demo! The demo Saturday ends at the swap meet. In the full version you can stay out till sundown (5:30 PM).';
       track('demo_end');
       goHome();
       return;
@@ -1370,7 +1377,7 @@
           music(null);
           NP.Intro.infomercial(app, {
             comingSoon: !!CFG.COMING_SOON, url: CFG.FULL_GAME_URL, follow: CFG.FOLLOW_URL, site: CFG.SITE_URL,
-            feedback: feedbackOk() ? CFG.FEEDBACK_URL : '', links: linksOk(), price: CFG.PRICE || '$0.99', adFree: adFree
+            feedback: feedbackOk() ? CFG.FEEDBACK_URL : '', merch: linksOk() ? (CFG.MERCH_URL || '') : '', links: linksOk(), price: CFG.PRICE || '$0.99', adFree: adFree
           });
         } else { newRun(); S.screen = 'map'; render(); }
         window.scrollTo(0, 0); break;

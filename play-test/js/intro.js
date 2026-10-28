@@ -568,6 +568,8 @@ NP.Intro = (function () {
     }
     if (links) btns += '<a class="ibtn" href="' + esc(opts.site) + '" target="_blank" rel="noopener" data-track="infomercial_site">thenostalgiapro.com</a>';
     if (links && opts.feedback) btns += '<a class="ibtn" href="' + esc(opts.feedback) + '" target="_blank" rel="noopener" data-track="feedback_open">Tell us what you think</a>';
+    if (links && opts.merch) btns += '<a class="ibtn merch" href="' + esc(opts.merch) + '" target="_blank" rel="noopener" data-track="merch_click">Shop real Nostalgia Pro merch</a>' +
+      '<div class="merch-line">Yes, this ad is real. The "Is It On The Shelf?" tee is not on your shelf yet.</div>';
     btns += '<button class="ibtn again" data-act="demoagain">Play the demo again</button>';
     app.innerHTML = '<div class="screen infomercial"><div class="info-grid">' +
       '<div class="tvwrap"><canvas id="infocv" width="320" height="200" aria-label="The TV turns off, then comes back on with an ad for the full version of Nostalgia Pro. ' + (soon ? 'Full game coming soon, ' : 'Only ') + esc(opts.price) + '. Less than a churro."></canvas></div>' +
