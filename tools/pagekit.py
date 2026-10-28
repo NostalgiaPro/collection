@@ -1,5 +1,6 @@
 """The bits every generated page shares: <head> with share tags, the nav
-row, and the footer scripts (service worker, 1996 mode, back to top).
+row, the Time Machine include (BODY_JS, right after <body>), and the footer
+scripts (service worker, back to top).
 Copied from the hand-made pages so generated pages look the same."""
 from sitedata import esc
 import site_config as cfg
@@ -96,6 +97,7 @@ def head(title, desc, path, image=None, width="900px", css="", image_alt=None):
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/retro.css">
 <link rel="stylesheet" href="/themes.css">
+<link rel="stylesheet" href="/eras.css">
 <script src="/theme.js"></script>
 <style>
 {BASE_CSS.replace("WIDTH", width)}{css}</style>
@@ -111,36 +113,17 @@ def nav(here=None):
     return '  <div class="navrow">\n' + "\n".join(out) + "\n  </div>\n"
 
 
+# Time Machine (eras.js + eras.css): first thing inside <body>, so the era's
+# class is on before the page paints. Replaces the old inline 1996 switch.
+BODY_JS = '<script src="/eras.js"></script>\n'
+
+
 FOOT_JS = """<script>
 /* Installable, and the whole collection works offline once you've opened it. */
 if ("serviceWorker" in navigator)
   addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
 </script>
 <script>
-/* 1996 mode. The class does all the work, retro.css does the rest. */
-(function(){
-  var on = false;
-  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
-  if (on) document.body.classList.add("y1996");
-
-  var b = document.createElement("button");
-  b.id = "y1996btn";
-  b.type = "button";
-  b.textContent = on ? "Back to now" : "1996 mode";
-  b.addEventListener("click", function(){
-    var nowOn = document.body.classList.toggle("y1996");
-    b.textContent = nowOn ? "Back to now" : "1996 mode";
-    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
-  });
-
-  var foot = document.querySelector("footer") || document.querySelector(".wrap");
-  var wrap = document.createElement("p");
-  wrap.style.cssText = "text-align:center;margin:18px 0 0";
-  wrap.appendChild(b);
-  foot.appendChild(wrap);
-
-})();
-
 /* Back to top. Appears once you've scrolled far enough to want it. */
 (function(){
   var b = document.createElement("button");

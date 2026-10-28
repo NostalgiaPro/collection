@@ -22,7 +22,7 @@ import os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sitedata as sd
 import site_config as cfg
-from pagekit import head, nav, FOOT_JS, post_date, clean_post_text
+from pagekit import head, nav, FOOT_JS, BODY_JS, post_date, clean_post_text
 from postmatch import Matcher
 
 esc = sd.esc
@@ -90,7 +90,7 @@ def build():
     desc = ("Every time I've called a game overrated on X: the top 5 thread, "
             "Overrated Game of the Day, and the reviews and posts in between.")
     h = [head("The Nostalgia Pro \u2014 Overrated", desc, "/overrated.html", None, "860px", CSS + br.CSS)]
-    h.append('<body>\n<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>\n')
+    h.append('<body>\n' + BODY_JS + '<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>\n')
     h.append('  <h1>Overrated</h1>\n')
     h.append("  <p class=\"standfirst\">Every game I've called overrated on X, kept here as posted.</p>\n")
     h.append(nav("/overrated.html"))

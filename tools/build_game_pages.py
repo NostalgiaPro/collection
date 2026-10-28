@@ -15,7 +15,7 @@ from datetime import date
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sitedata as sd
 import site_config as cfg
-from pagekit import head, nav, FOOT_JS, post_block, MONTHS
+from pagekit import head, nav, FOOT_JS, BODY_JS, post_block, MONTHS
 from postmatch import Matcher
 
 OUT = os.path.join(sd.ROOT, "game")
@@ -155,7 +155,7 @@ def page(g, total, photo, review, mentions, posts, ranks=(), overrated=()):
         desc += f" Reviewed {review[1]:g}/5."
     ink = "#0b0d12"
     h = [head(title, desc, path, photo, "980px", CSS, image_alt=f"{g['title']} for the {g['system']}")]
-    h.append(f'<body>\n<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>\n')
+    h.append(f'<body>\n' + BODY_JS + '<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>\n')
     h.append(nav())
     h.append(f'  <p class="crumb"><a href="/index.html#{g["system_id"]}">&larr; {esc(g["system"])} shelf</a></p>\n</header>\n\n')
     h.append(f'<div class="game" style="--c:{g["color"]};--ink:{ink}">\n  <div>')

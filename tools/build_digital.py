@@ -19,7 +19,7 @@ import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sitedata as sd
-from pagekit import head, nav, FOOT_JS
+from pagekit import head, nav, FOOT_JS, BODY_JS
 from build_overrated import add_to_sitemap
 
 esc = sd.esc
@@ -106,7 +106,7 @@ def build():
     desc = (f"{n} digital games I've finished on Xbox: {len(comp)} at 100% and "
             f"{len(beat)} beaten. The boxed ones are ticked on the shelf.")
     h = [head("The Nostalgia Pro \u2014 Digital games I've beaten", desc, "/digital.html", None, "980px", CSS)]
-    h.append('<body>\n<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>\n')
+    h.append('<body>\n' + BODY_JS + '<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>\n')
     h.append("  <h1>Digital games I've beaten</h1>\n")
     h.append("  <p class=\"standfirst\">Games I've finished that I own digitally on Xbox, so they aren't on the shelf. "
              "100% means every achievement. The boxed games I've beaten are ticked on "

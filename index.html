@@ -30,6 +30,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/retro.css">
 <link rel="stylesheet" href="/themes.css">
+<link rel="stylesheet" href="/eras.css">
 <script src="/theme.js"></script>
 <style>
   :root{
@@ -697,6 +698,7 @@ body.y1996 .ptile .psub{color:#000}
 </style>
 </head>
 <body>
+<script src="/eras.js"></script>
 <script>
 /* CRT power-on intro. Plays once, on the first visit, as an overlay on top of
    the page, which is already in the HTML and keeps loading underneath (so it
@@ -912,7 +914,7 @@ body.y1996 .ptile .psub{color:#000}
     <p>The Nostalgia Pro. Pulled from my Gameye export of October 25, 2026. Games I haven't photographed yet show a stand-in cover (<a href="credits.html">image credits</a>).</p>
     <p class="bestviewed y1996only">
       <a href="mailto:thenostalgiapro@gmail.com">E-mail me</a><br>
-      Best viewed in Netscape Navigator 3.0 at 800x600
+      Best viewed at 800x600
     </p>
   </footer>
 
@@ -3202,30 +3204,6 @@ if ("serviceWorker" in navigator)
   addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
 </script>
 <script>
-/* 1996 mode. The class does all the work, retro.css does the rest. */
-(function(){
-  var on = false;
-  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
-  if (on) document.body.classList.add("y1996");
-
-  var b = document.createElement("button");
-  b.id = "y1996btn";
-  b.type = "button";
-  b.textContent = on ? "Back to now" : "1996 mode";
-  b.addEventListener("click", function(){
-    var nowOn = document.body.classList.toggle("y1996");
-    b.textContent = nowOn ? "Back to now" : "1996 mode";
-    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
-  });
-
-  var foot = document.querySelector("footer") || document.querySelector(".wrap");
-  var wrap = document.createElement("p");
-  wrap.style.cssText = "text-align:center;margin:18px 0 0";
-  wrap.appendChild(b);
-  foot.appendChild(wrap);
-
-})();
-
 /* Back to top. Appears once you've scrolled far enough to want it. */
 (function(){
   var b = document.createElement("button");

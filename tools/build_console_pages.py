@@ -27,7 +27,7 @@ import os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sitedata as sd
 import site_config as cfg
-from pagekit import head, nav, FOOT_JS, post_date, clean_post_text, post_block
+from pagekit import head, nav, FOOT_JS, BODY_JS, post_date, clean_post_text, post_block
 from postmatch import Matcher, SYS_ALIASES
 
 esc = sd.esc
@@ -129,7 +129,7 @@ def build_page(sysinfo, games, thread, matcher):
     h = []
     desc = f"All {n} {name} games in my collection" + (", and my thread on the rest of the {0} library.".format(name) if thread else ".")
     h.append(head(f"{name} | The Nostalgia Pro", desc, f"/console/{sid}.html", None, "980px", CSS))
-    h.append(f'<body style="--c:{color}">\n<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>\n')
+    h.append(f'<body style="--c:{color}">\n' + BODY_JS + f'<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>\n')
     h.append(nav("/consoles.html"))
     h.append(f'  <p class="crumb"><a href="/consoles.html">&larr; All consoles</a></p>\n')
     h.append(f'  <h1>{esc(name)}</h1>\n  <p class="standfirst">{n} games on the shelf. '

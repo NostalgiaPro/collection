@@ -30,6 +30,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/retro.css">
 <link rel="stylesheet" href="/themes.css">
+<link rel="stylesheet" href="/eras.css">
 <script src="/theme.js"></script>
 <style>
   :root{
@@ -134,6 +135,7 @@
 </style>
 </head>
 <body>
+<script src="/eras.js"></script>
 <div class="wrap">
 <header>
   <p class="wordmark">The Nostalgia Pro</p>
@@ -168,7 +170,8 @@
 <p>No accounts, no sign-in, no cookies, no advertising IDs, and no ad networks or ad trackers. I don't collect your name, email address, precise location, contacts, photos, or any other personal information, and nothing is sold or shared.</p>
 
 <h2>What is stored on your device</h2>
-<p>Daily Shelf progress and streaks, badges, arcade high scores, the demo's saved settings and character, your theme and 1996 mode choice, and any games you mark with the checkboxes are saved in your browser's local storage on your device. None of it is sent anywhere. The Android app also saves a copy of the collection pages so they work without an internet connection. All of it is removed if you clear the site's data in your browser, or uninstall the app or clear its data.</p>
+<p>Daily Shelf progress and streaks, badges, arcade high scores, the demo's saved settings and character, your theme and Time Machine era choice, and any games you mark with the checkboxes are saved in your browser's local storage on your device. None of it is sent anywhere. The Android app also saves a copy of the collection pages so they work without an internet connection. All of it is removed if you clear the site's data in your browser, or uninstall the app or clear its data.</p>
+<p>The Time Machine era you pick is saved only on your device. The visitor counter in the 1996 look is decorative and counts nothing.</p>
 
 <h2>Hosting</h2>
 <p>The site is hosted on GitHub Pages and served through Cloudflare. Like any web host, those services keep standard server logs that may include an IP address and browser type. Those logs belong to those companies and are subject to their own policies. They are not used to identify anyone and are not available to me in a form that identifies you. The collection pages load their fonts from Google Fonts, so your browser fetches those files from Google.</p>
@@ -197,34 +200,10 @@
 </div>
     <p class="bestviewed y1996only">
       <a href="mailto:thenostalgiapro@gmail.com">E-mail me</a><br>
-      Best viewed in Netscape Navigator 3.0 at 800x600
+      Best viewed at 800x600
     </p>
 </div>
 <script>
-/* 1996 mode. The class does all the work, retro.css does the rest. */
-(function(){
-  var on = false;
-  try { on = localStorage.getItem("np-1996") === "1"; } catch (e) {}
-  if (on) document.body.classList.add("y1996");
-
-  var b = document.createElement("button");
-  b.id = "y1996btn";
-  b.type = "button";
-  b.textContent = on ? "Back to now" : "1996 mode";
-  b.addEventListener("click", function(){
-    var nowOn = document.body.classList.toggle("y1996");
-    b.textContent = nowOn ? "Back to now" : "1996 mode";
-    try { localStorage.setItem("np-1996", nowOn ? "1" : "0"); } catch (e) {}
-  });
-
-  var foot = document.querySelector("footer") || document.querySelector(".wrap");
-  var wrap = document.createElement("p");
-  wrap.style.cssText = "text-align:center;margin:18px 0 0";
-  wrap.appendChild(b);
-  foot.appendChild(wrap);
-
-})();
-
 /* Back to top. Appears once you've scrolled far enough to want it. */
 (function(){
   var b = document.createElement("button");
