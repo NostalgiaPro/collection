@@ -152,13 +152,24 @@
       col = "#9bff3f";
       Shell.sfx("crowd"); Shell.sfx("score");
       if (r.D >= 50) { burst(50); Shell.sfx("best"); Shell.shake(3, 0.3); } else burst(18);
+      if (window.Trophies) {
+        Trophies.unlock("fac-good");
+        if (r.kind !== "GOOD") Trophies.unlock("fac-doink");
+        if (r.D >= 50) Trophies.unlock("fac-50");
+        if (r.D >= 50 && S.strikes === 0) Trophies.unlock("fac-clean50");
+        if (r.D >= 60) Trophies.unlock("fac-60");
+        if (r.D >= 70) Trophies.unlock("fac-70");
+      }
     } else {
       S.strikes++;
       col = "#ff4b3e";
       if (r.kind === "SHORT") { title = "SHORT"; sub = "Needs more leg."; }
       else if (r.kind === "UNDER" || r.kind === "BAR UNDER") { title = r.kind === "BAR UNDER" ? "DOINK!" : "NO GOOD"; sub = "Under the crossbar."; }
       else if (r.kind === "DOINK OUT") { title = "DOINK!"; sub = "Off the upright and out."; }
-      else { title = r.kind; sub = S.overkick ? "Overkicked it. It hooked." : "Check the wind flag."; }
+      else {
+        title = r.kind; sub = S.overkick ? "Overkicked it. It hooked." : "Check the wind flag.";
+        if (S.overkick && window.Trophies) Trophies.unlock("fac-hook");
+      }
       sub += "  Strike " + S.strikes + " of " + STRIKES + ".";
       Shell.sfx("miss");
     }
@@ -172,7 +183,8 @@
       Shell.gameOver(S.total, { title: "THREE STRIKES", html:
         row("Kicks made", S.makes + " of " + S.attempts) +
         row("Longest kick", S.longest ? S.longest + " YDS" : "None") +
-        row("Last attempt from", S.D + " YDS") });
+        row("Last attempt from", S.D + " YDS"),
+        stats: { total: S.total, makes: S.makes, attempts: S.attempts, longest: S.longest, strikes: S.strikes, lastD: S.D } });
       return;
     }
     if (good) S.D += STEP_D;

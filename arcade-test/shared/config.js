@@ -8,10 +8,7 @@ window.NP_CONFIG = {
   // so nothing on the live site points at a dead link.
   DONATE_URL: "https://nostalgiapro-shop.fourthwall.com/pages/donate",
 
-  // Off by default. When true, loads GoatCounter (code below) for page views
-  // plus one anonymous "game over" event per finished run. No scores are sent.
-  ANALYTICS: false,
-  GOATCOUNTER_CODE: "nostalgiapro",
+  // Test copy: no analytics here (the live /arcade/ has its own setup).
 
   SITE_URL: "https://thenostalgiapro.com/",
   COLLECTION_URL: "https://thenostalgiapro.com/",
@@ -23,23 +20,6 @@ window.NP_CONFIG = {
   C.donateHref = function () {
     var u = C.DONATE_URL;
     return (!u || u === "DONATE_URL") ? C.MERCH_URL : u;
-  };
-  C.loadAnalytics = function () {
-    if (!C.ANALYTICS || document.getElementById("np-gc")) return;
-    var s = document.createElement("script");
-    s.id = "np-gc";
-    s.async = true;
-    s.src = "https://gc.zgo.at/count.js";
-    s.setAttribute("data-goatcounter", "https://" + C.GOATCOUNTER_CODE + ".goatcounter.com/count");
-    document.head.appendChild(s);
-  };
-  C.trackEvent = function (path, title) {
-    if (!C.ANALYTICS) return;
-    try {
-      if (window.goatcounter && window.goatcounter.count) {
-        window.goatcounter.count({ path: path, title: title, event: true });
-      }
-    } catch (e) { /* analytics must never break a game */ }
   };
   // Wire every element marked data-donate to the one donate URL.
   C.wireDonate = function (root) {

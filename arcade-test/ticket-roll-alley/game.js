@@ -197,6 +197,11 @@
     S.score += pts;
     S.log.push(pts);
     S.tickets += Math.floor(pts / 10);
+    if (pts === 0) S.zeros = (S.zeros || 0) + 1;
+    if (pts === 100) {
+      if (r.u < 0) S.cupL = (S.cupL || 0) + 1; else S.cupR = (S.cupR || 0) + 1;
+      if (window.Trophies) { Trophies.unlock("tra-cup"); if (r.lip === "in") Trophies.unlock("tra-rattle"); }
+    }
     var col = pts >= 100 ? "#ffd23f" : pts >= 50 ? "#ff3fa4" : pts >= 30 ? "#3ff0ff" : "#eceae2";
     if (!short) {
       var title = "+" + pts, sub = "";
@@ -226,7 +231,8 @@
     html += row("In reach", got ? got[0] + " (" + got[1] + ")" : "Nothing yet");
     if (nxt && nxt !== PRIZES[PRIZES.length - 1]) html += row("Next up", nxt[0] + " (" + (nxt[1] - jar).toLocaleString("en-US") + " more)");
     html += row("The dream", PRIZES[PRIZES.length - 1][0] + " (999,999)");
-    Shell.gameOver(S.score, { title: "OUT OF BALLS", html: html });
+    Shell.gameOver(S.score, { title: "OUT OF BALLS", html: html,
+      stats: { score: S.score, balls: S.log.length, hundreds: S.hundreds, cupL: S.cupL || 0, cupR: S.cupR || 0, zeroBalls: S.zeros || 0, tickets: S.tickets, jar: jar } });
   }
   function row(a, b) { return '<div class="np-row"><span>' + a + '</span><b>' + b + '</b></div>'; }
 
