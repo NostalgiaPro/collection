@@ -606,6 +606,8 @@ body.y1996 .o1-nav .shelflink.o1-pill.o1-shop{background:#000080;color:#ffff00;b
 .ptile .pico{flex:none;width:54px;height:54px;display:grid;grid-template-columns:repeat(6,1fr);gap:1px;
   border:1px solid var(--line);background:#0a0c11;padding:3px}
 .ptile .pico i{display:block;background:var(--c,#3a3f52)}
+.ptile .pcov{flex:none;display:block;width:54px;height:54px;border:1px solid var(--line);background:#0a0c11;overflow:hidden}
+.ptile .pcov img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 35%}
 .ptile .pvs{flex:none;width:54px;height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
   border:1px solid var(--line);background:#0a0c11;font-family:"Press Start 2P",monospace;font-size:8px;color:var(--dim)}
 .ptile .pvs b{font-weight:400;color:var(--hot);font-size:10px}
@@ -624,7 +626,7 @@ body.y1996 .o1-nav .shelflink.o1-pill.o1-shop{background:#000080;color:#ffff00;b
 @media (max-width:720px){
   .playtiles{grid-template-columns:1fr;gap:8px}
   .ptile{padding:11px 12px;gap:11px}
-  .ptile .pico,.ptile .pmeter,.ptile .pvs{width:44px;height:44px}
+  .ptile .pico,.ptile .pmeter,.ptile .pvs,.ptile .pcov{width:44px;height:44px}
   .ptile .phead{font-size:11px}
   .ptile .psub{font-size:13px}
   .ptile .pgo{padding:7px 8px;font-size:10px}
@@ -811,6 +813,11 @@ body.y1996 .ptile .psub{color:#000}
       <ul class="npmerch-items" aria-label="Featured shirts"><li><a href="https://nostalgiapro-shop.fourthwall.com/products/is-it-on-the-shelf-tee" target="_blank" rel="noopener"><img src="images/merch-is-it-on-the-shelf-tee.webp" alt="Black tee with the words Is it on the shelf? over a pixel game shelf" width="600" height="600" loading="lazy" decoding="async"><b>Is It on the Shelf? Tee</b><span class="pr">$25</span></a></li><li><a href="https://nostalgiapro-shop.fourthwall.com/products/physical-media-enjoyer-neon-tee" target="_blank" rel="noopener"><img src="images/merch-physical-media-enjoyer-tee.webp" alt="Black tee with Physical Media Enjoyer in neon-style letters" width="600" height="600" loading="lazy" decoding="async"><b>Physical Media Enjoyer Tee</b><span class="pr">$25</span></a></li><li><a href="https://nostalgiapro-shop.fourthwall.com/products/daily-shelf-tee" target="_blank" rel="noopener"><img src="images/merch-daily-shelf-tee.webp" alt="Black tee with the Daily Shelf guess grid emblem" width="600" height="600" loading="lazy" decoding="async"><b>Daily Shelf Tee</b><span class="pr">$25</span></a></li></ul>
     </section>
     <div class="playtiles" aria-label="New on the site">
+      <a class="ptile" href="arcade/" id="tileArcade">
+        <picture class="pcov" aria-hidden="true"><source srcset="arcade/covers/02-bargain-bin-buckets.webp" type="image/webp"><img src="arcade/covers/02-bargain-bin-buckets.jpg" width="54" height="54" alt="" loading="lazy" decoding="async"></picture>
+        <span class="ptxt"><span class="pkick">New &middot; Free arcade</span><span class="phead">Nostalgia Pro Arcade</span><span class="psub">Mini golf, hoops and home run derby. No ads. No login. No quarters required.</span></span>
+        <span class="pgo">Play</span>
+      </a>
       <a class="ptile" href="play/" id="tileGame">
         <span class="pico" aria-hidden="true"><i style="--c:#ffd23f"></i><i style="--c:#ff4b3e"></i><i style="--c:#3a3f52"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#ffd23f"></i><i style="--c:#ffd23f"></i><i style="--c:#ff4b3e"></i><i style="--c:#3a3f52"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#ffd23f"></i><i style="--c:#ffd23f"></i><i style="--c:#ff4b3e"></i><i style="--c:#3a3f52"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#ffd23f"></i><i style="--c:#ffd23f"></i><i style="--c:#ff4b3e"></i><i style="--c:#3a3f52"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#ffd23f"></i><i style="--c:#ffd23f"></i><i style="--c:#ff4b3e"></i><i style="--c:#3a3f52"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#ffd23f"></i><i style="--c:#ffd23f"></i><i style="--c:#ff4b3e"></i><i style="--c:#3a3f52"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#ffd23f"></i></span>
         <span class="ptxt"><span class="pkick">New &middot; Free demo</span><span class="phead">Play Nostalgia Pro</span><span class="psub">One Saturday, $100, every yard sale in town. Plays on your phone or computer.</span></span>
