@@ -10,7 +10,13 @@
    Badge slots: <div data-np-gp="home"></div> where the badge goes. A footer
    badge is added to <footer> on every page (data-np-gp="foot" to place it).
    Preview in a browser: ?forceapp=1 acts as the app for this tab and shows
-   the card now; ?forceapp=0 goes back to normal. */
+   the card now; ?forceapp=0 goes back to normal.
+
+   iPhone and iPad in Safari get an "Add to Home Screen" tip in the same
+   spots instead (there is no iPhone app). Not shown in other iOS browsers,
+   in-app browsers, or once opened from the home screen. data-offline="0"
+   on the script tag drops the "offline too" part (pages the service worker
+   doesn't cache on their own, like the arcade hub). Preview: ?forceios=1. */
 (function(){
   "use strict";
   var PKG = "com.thenostalgiapro.shelf";
@@ -41,9 +47,21 @@
   var ua = navigator.userAgent || "";
   var iOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   var android = /Android/i.test(ua);
+  /* Real Safari says "Version/.. Safari/"; other iOS browsers and in-app
+     browsers add their own token or drop "Safari/". Brave looks exactly like
+     Safari and still sees the tip (its share sheet has Add to Home Screen too). */
+  var safari = /Version\/[\d.]+.*Safari\//.test(ua) &&
+    !/CriOS|FxiOS|EdgiOS|OPiOS|OPT\/|GSA\/|YaBrowser|DuckDuckGo|Ddg\/|FBAN|FBAV|Instagram|Line\/|Twitter|Snapchat|Pinterest|LinkedInApp|MicroMessenger|TikTok|musical_ly/.test(ua);
+  var qi = /[?&]forceios=([01])/.exec(location.search);
+  if (qi) sset("np-ios", qi[1] === "1" ? "1" : null);
+  var forceIos = sget("np-ios") === "1";
+  var homeScreen = standalone || navigator.standalone === true;
+  if (iOS) root.classList.add("np-ios-any");
   if (inApp) root.classList.add("np-twa");
   if (rateMode === "game-return") root.classList.add("np-arcade");
-  var showBadge = !inApp && !standalone && !iOS;
+  var showBadge = !inApp && !standalone && !iOS && !forceIos;
+  var showTip = !inApp && (forceIos || (iOS && safari && !homeScreen));
+  var offline = !(me && me.getAttribute("data-offline") === "0");
 
   /* Arizona calendar day, same as the rest of the site */
   var az = new Date(Date.now() - 7 * 3600e3);
@@ -72,14 +90,28 @@
     }
     return box;
   }
+  /* ---------- iPhone tip ---------- */
+  var GLYPH = '<svg class="npios-glyph" viewBox="0 0 20 24" width="16" height="19" aria-hidden="true" focusable="false">' +
+    '<path d="M10 1.5v13M5.5 6 10 1.5 14.5 6M6.5 10H3.5v12h13V10h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function tip(where){
+    var box = document.createElement("div");
+    box.className = "npios npios-" + where;
+    box.setAttribute("role", "note");
+    box.innerHTML = '<p class="npios-line"><b class="npios-h">On iPhone?</b> <span>Tap Share <span class="npios-share">' + GLYPH +
+      '<span class="npios-ascii" aria-hidden="true">[^]</span></span>, then <b class="npios-add">Add to Home Screen</b>. ' +
+      (offline ? "It works like an app, offline too." : "It opens full screen, like an app.") + "</span></p>";
+    return box;
+  }
+
   function placeBadges(){
-    if (!showBadge) return;
-    root.classList.add("np-gp");
+    if (!showBadge && !showTip) return;
+    var badge_ = showBadge ? badge : tip;
+    root.classList.add(showBadge ? "np-gp" : "np-ios");
     var slots = document.querySelectorAll("[data-np-gp]"), hasFoot = false;
     for (var i = 0; i < slots.length; i++) {
       var w = slots[i].getAttribute("data-np-gp") || "home";
       if (w === "foot") hasFoot = true;
-      slots[i].appendChild(badge(w));
+      slots[i].appendChild(badge_(w));
     }
     if (!hasFoot) {
       /* in the footer, above the Time Machine picker; pages with no <footer>
@@ -87,7 +119,7 @@
       var f = document.querySelector("footer"), picker = document.getElementById("npErasWrap");
       var host = f ? (f.querySelector(".wrap") || f) : (picker ? picker.parentNode : document.querySelector(".wrap"));
       if (host) {
-        var b = badge("foot");
+        var b = badge_("foot");
         if (picker && picker.parentNode === host) host.insertBefore(b, picker); else host.appendChild(b);
       }
     }
@@ -171,5 +203,5 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
 
-  window.npGrowth = { inApp: inApp, standalone: standalone, iOS: iOS, showBadge: showBadge, state: function(){ return load(); } };
+  window.npGrowth = { inApp: inApp, standalone: standalone, iOS: iOS, showBadge: showBadge, showTip: showTip, safari: safari, state: function(){ return load(); } };
 })();
