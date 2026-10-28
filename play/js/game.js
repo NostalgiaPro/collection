@@ -411,7 +411,7 @@
     var h = '<div class="hud"><div class="hud-l"><span class="clock">' + fmtTime(S.time) + '</span>' +
       (S.wx ? '<span class="wx wx-' + S.wx.id + '" title="' + esc(S.wx.name) + '">' + S.wx.icon + ' ' + S.wx.temp + '&deg;F</span>' : '') +
       '<span class="cash">' + money(S.cash) + '</span><span class="bagc">Bag: ' + S.bag.length + '</span></div>' +
-      '<div class="hud-r">' + soundButton() + fsButton() + '<label class="adtoggle"><input type="checkbox" data-act="adfree"' + (adFree ? ' checked' : '') + '> Ad-Free Edition</label></div></div>' +
+      '<div class="hud-r">' + soundButton() + fsButton() + tipsButton() + '<label class="adtoggle"><input type="checkbox" data-act="adfree"' + (adFree ? ' checked' : '') + '> Ad-Free Edition</label></div></div>' +
       '<div class="sunbar" title="Daylight left"><div style="width:' + sunPct() + '%"></div><span>' + sunText() + '</span></div>';
     var lvl = adLevel();
     if (lvl >= 1) {
@@ -871,6 +871,17 @@
   // After you dismiss one, the next waits for your next move, so they never stack up.
   var tipEl = null, tipAnchor = null, tipWait = false, tipQueue = [], tipFocus = null, tipTimer = null;
   function tipsSeen() { return store.get('tips', {}) || {}; }
+  // "Don't show tips": one switch for the tip boxes and the loading screen tips. Saved, so it sticks on later visits.
+  var tipsOff = !!store.get('tipsOff', false);
+  var TIPOFF_BOX = '<label class="tipoff"><input type="checkbox" class="tipoff-in"> Don\'t show tips</label>';
+  function tipsButton() { return '<button class="fsbtn tipsbtn" data-act="tips" aria-pressed="' + (tipsOff ? 'false' : 'true') + '">Tips: ' + (tipsOff ? 'off' : 'on') + '</button>'; }
+  function setTipsOff(v) {
+    tipsOff = !!v; store.set('tipsOff', tipsOff);
+    if (tipsOff) { tipQueue = []; track('tips_off'); }
+    document.querySelectorAll('[data-act="tips"]').forEach(function (b) { b.textContent = 'Tips: ' + (tipsOff ? 'off' : 'on'); b.setAttribute('aria-pressed', tipsOff ? 'false' : 'true'); });
+    document.querySelectorAll('.tipoff-in').forEach(function (i) { i.checked = tipsOff; });
+  }
+  NP.tipsOff = function () { return tipsOff; };
   function tipOpen() { return !!tipEl; }
   function insets() {
     var pr = document.getElementById('saprobe');
@@ -910,7 +921,7 @@
   }
   function showTip(key, anchor) {
     var T = NP.TIPS && NP.TIPS[key];
-    if (!T) return false;
+    if (!T || tipsOff) return false;
     var seen = tipsSeen();
     if (seen[key]) return false;
     if (tipEl) { if (tipQueue.indexOf(key) < 0) tipQueue.push(key); return false; }
@@ -921,7 +932,7 @@
     tipEl.className = 'tipbox';
     tipEl.setAttribute('role', 'dialog'); tipEl.setAttribute('aria-live', 'polite');
     tipEl.innerHTML = '<div class="tip-k">TIP</div><div class="tip-h">' + esc(T.h) + '</div><div class="tip-b">' + esc(T.b) + '</div>' +
-      '<button class="tip-x" data-tip="ok">Got it</button>';
+      '<div class="tip-row">' + TIPOFF_BOX + '<button class="tip-x" data-tip="ok">Got it</button></div>';
     document.body.appendChild(tipEl);
     placeTip();
     sfx('sparkle');
@@ -937,7 +948,7 @@
     else { var cv = document.getElementById('walkcv'); if (cv) { try { cv.focus({ preventScroll: true }); } catch (e) {} } }
     tipFocus = null;
     // Dex does not wait for your next move, so his tip does not either
-    var q = tipQueue.shift();
+    var q = tipsOff ? null : tipQueue.shift();
     if (q === 'dex') showTip('dex', dexAnchor());
   }
   function dexAnchor() { var cv = document.getElementById('walkcv'); return cv ? { el: cv, inside: true } : null; }
@@ -949,7 +960,7 @@
   }
   // which shop tip fits what is on screen right now
   function checkTips() {
-    if (tipEl || tipWait || !S || (S.screen !== 'stop' && S.screen !== 'walk') || !S.stop) return;
+    if (tipsOff || tipEl || tipWait || !S || (S.screen !== 'stop' && S.screen !== 'walk') || !S.stop) return;
     if (document.querySelector('.unsp, .crt-overlay, .loading-ov')) return;
     var seen = tipsSeen();
     var cards = Array.prototype.slice.call(document.querySelectorAll('.item[id^="card-"]')).filter(function (c) { return !c.closest('[hidden]'); });
@@ -979,12 +990,13 @@
   window.addEventListener('wheel', moved, { passive: true, capture: true });
   window.addEventListener('keydown', function (e) {
     if (tipEl) {
+      if (e.target && e.target.closest && e.target.closest('.tipoff') && e.code !== 'Escape') return; // Space ticks the box, Tab moves on
       if (e.code === 'Enter' || e.code === 'Space' || e.code === 'Escape' || e.code === 'NumpadEnter') { e.preventDefault(); e.stopImmediatePropagation(); closeTip(); }
       return;
     }
     moved();
   }, true);
-  document.addEventListener('click', function (e) { if (tipEl && e.target.closest && e.target.closest('.tipbox')) closeTip(); });
+  document.addEventListener('click', function (e) { if (tipEl && e.target.closest && e.target.closest('.tipbox') && !e.target.closest('.tipoff')) closeTip(); });
 
   function buyGift(id) {
     var m = NP.MERCH.filter(function (x) { return x.id === id; })[0];
@@ -1342,7 +1354,7 @@
       case 'go':
         var s = S.day.stops.filter(function (x) { return x.id === el.getAttribute('data-id'); })[0];
         var drive = function () { arrive(s); render(); window.scrollTo(0, 0); if (S.screen === 'stop' && S.stop && S.stop.cleared) showTip('dex', null); };
-        if (NP.Intro) NP.Intro.loading(NP.Intro.tip(adFree, S.wx && S.wx.id), drive); else drive();
+        if (NP.Intro) NP.Intro.loading(tipsOff ? null : NP.Intro.tip(adFree, S.wx && S.wx.id), drive); else drive();
         break;
       case 'offer': doOffer(findItem(uid), el.getAttribute('data-kind')); break;
       case 'inspect':
@@ -1384,11 +1396,13 @@
       case 'demoagain': track('replay'); newRun(); S.screen = 'map'; render(); window.scrollTo(0, 0); break;
       case 'fullscreen': toggleFullscreen(); break;
       case 'mute': if (NP.Sound) NP.Sound.toggle(); break;
+      case 'tips': setTipsOff(!tipsOff); break;
       case 'hsname': var cap = $('#hscap'); if (cap) cap.textContent = el.getAttribute('data-name'); break;
       case 'totitle': S.screen = 'title'; cartOpen = true; render(); window.scrollTo(0, 0); break;
     }
   }
   function onChange(e) {
+    if (e.target.classList && e.target.classList.contains('tipoff-in')) { setTipsOff(e.target.checked); return; }
     if (e.target.getAttribute('data-act') === 'adfree') {
       adFree = e.target.checked; store.set('adfree', adFree);
       if (S) S.toast = adFree ? 'Ad-Free Edition activated. Enjoy these ads for the Ad-Free Edition.' : 'Ads are back. They missed you.';

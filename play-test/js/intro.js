@@ -481,14 +481,19 @@ NP.Intro = (function () {
   function loading(text, done) {
     var ov = document.createElement('div');
     ov.className = 'loading-ov';
-    ov.innerHTML = '<div class="ld-box"><canvas width="160" height="40"></canvas><div class="ld-t">LOADING</div><div class="ld-tip"></div><div class="ld-skip">' + (coarseTap() ? 'Tap' : 'Click') + ' to continue</div></div>';
-    ov.querySelector('.ld-tip').textContent = text;
+    // text is null when the player turned tips off: just the car, briefly, then on to the stop
+    ov.innerHTML = '<div class="ld-box"><canvas width="160" height="40"></canvas><div class="ld-t">LOADING</div>' + (text === null ? '' :
+      '<div class="ld-tip"></div><div class="ld-skip">' + (coarseTap() ? 'Tap' : 'Click') + ' to continue</div>' +
+      '<label class="tipoff"><input type="checkbox" class="tipoff-in"> Don\'t show tips</label>') + '</div>';
+    if (text !== null) ov.querySelector('.ld-tip').textContent = text;
     document.body.appendChild(ov);
     var cv = ov.querySelector('canvas'), g = cv.getContext('2d'), t0 = performance.now(), fin = false;
     g.imageSmoothingEnabled = false;
     function finish() { if (fin) return; fin = true; if (ov.parentNode) ov.parentNode.removeChild(ov); done(); }
-    ov.addEventListener('click', function () { if (performance.now() - t0 > 400) finish(); });
-    function ldKey(e) { if (e.repeat || fin) return; if (performance.now() - t0 < 400) return; e.preventDefault(); window.removeEventListener('keydown', ldKey, true); finish(); }
+    if (text === null) setTimeout(finish, 700);
+    function onBox(e) { return e.target && e.target.closest && e.target.closest('.tipoff'); }
+    ov.addEventListener('click', function (e) { if (onBox(e)) return; if (performance.now() - t0 > 400) finish(); });
+    function ldKey(e) { if (e.repeat || fin) return; if (performance.now() - t0 < 400) return; if (onBox(e) || e.key === 'Tab' || e.key === 'Shift') return; e.preventDefault(); window.removeEventListener('keydown', ldKey, true); finish(); }
     window.addEventListener('keydown', ldKey, true);
     function frame(now) {
       if (fin) { window.removeEventListener('keydown', ldKey, true); return; }

@@ -185,6 +185,12 @@ details.howto summary { cursor: pointer; }
 .ld-t { color: var(--gold); font-weight: bold; letter-spacing: 3px; min-height: 1.4em; text-align: left; padding-left: calc(50% - 44px); }
 .ld-tip { color: var(--cream); font-weight: bold; font-size: 17px; margin-top: 8px; }
 .ld-skip { color: #6f7fa8; font-size: 11px; margin-top: 12px; }
+.tipoff { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 8px; color: var(--cream); font-size: 14px; font-weight: normal; cursor: pointer; }
+.tipoff input { width: 22px; height: 22px; margin: 0; cursor: pointer; }
+.ld-box .tipoff { margin-top: 10px; }
+.tip-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; }
+.tip-row .tipoff { padding-left: 0; }
+.tip-row .tip-x { margin: 0; }
 
 /* ---------- weather, featured lot, memory ---------- */
 .wx { color: #ffcc33; font-size: 15px !important; }
