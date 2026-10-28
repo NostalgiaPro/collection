@@ -147,6 +147,8 @@
     var r = S.result, title, sub = "", col;
     if (r.good) {
       S.makes++; S.total += r.D; S.longest = Math.max(S.longest, r.D);
+      S.row = (S.row || 0) + 1;
+      if (window.NPRewards && S.row >= 2) NPRewards.streak(S.row);
       title = r.kind === "GOOD" ? "IT'S GOOD!" : "DOINK... GOOD!";
       sub = r.D >= 50 ? "Mint condition. " + r.D + " yards." : r.D + " yards. Back 5.";
       col = "#9bff3f";
@@ -161,7 +163,7 @@
         if (r.D >= 70) Trophies.unlock("fac-70");
       }
     } else {
-      S.strikes++;
+      S.strikes++; S.row = 0;
       col = "#ff4b3e";
       if (r.kind === "SHORT") { title = "SHORT"; sub = "Needs more leg."; }
       else if (r.kind === "UNDER" || r.kind === "BAR UNDER") { title = r.kind === "BAR UNDER" ? "DOINK!" : "NO GOOD"; sub = "Under the crossbar."; }

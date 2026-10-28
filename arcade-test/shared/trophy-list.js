@@ -14,23 +14,23 @@
     { slug: "shelf-links", name: "Shelf Links", status: "live", trophies: [
       T(0, "sl-round", "Nine Holes, No Refunds", "Finish a full 9-hole round.", "loose", end(function (s) { return s.holes >= 9; })),
       T(1, "sl-ace", "Ace, Still in Shrink Wrap", "Get a hole-in-one (ACE!) on any hole.", "boxed"),
-      T(2, "sl-par", "Priced at Par", "Finish a round at E or better (28 strokes or fewer).", "boxed", end(function (s) { return s.holes >= 9 && s.rel <= 0; })),
+      T(2, "sl-par", "Priced at Par", "Finish a round at E or better (28 strokes or fewer).", "boxed", { goal: { stat: "rel", at: 0, low: true, margin: 3, unit: "strokes", one: "stroke", fromBest: true }, end: function (s) { return s.holes >= 9 && s.rel <= 0; } }),
       T(3, "sl-peanut", "Peanut Free", "Finish Packing Peanut Pit (hole 3) without the ball touching the packing peanuts.", "boxed"),
       T(4, "sl-dry", "Kept the Box Dry", "Finish a full round without one spilled soda splash.", "boxed", end(function (s) { return s.holes >= 9 && s.splashes === 0; })),
       T(5, "sl-gauntlet", "Ran the Gauntlet, Box Still Mint", "Make par or better on Mint Condition Gauntlet (hole 9).", "sealed"),
-      T(6, "sl-under3", "Under Sticker Price", "Finish a round at -3 or better.", "sealed", end(function (s) { return s.holes >= 9 && s.rel <= -3; })),
+      T(6, "sl-under3", "Under Sticker Price", "Finish a round at -3 or better.", "sealed", { goal: { stat: "rel", at: -3, low: true, margin: 3, unit: "strokes", one: "stroke", fromBest: true }, end: function (s) { return s.holes >= 9 && s.rel <= -3; } }),
       T(7, "sl-clean", "Clean Scorecard", "Finish a round with no hole over par.", "slabbed", end(function (s) {
         return s.holes >= 9 && every(s.card || [], function (v, i) { return v <= s.par[i]; });
       }))
     ] },
     { slug: "bargain-bin-buckets", name: "Bargain Bin Buckets", status: "live", trophies: [
-      T(8, "bbb-ten", "Twenty-Five Cents Well Spent", "Make 10 baskets in one game.", "loose", end(function (s) { return s.makes >= 10; })),
+      T(8, "bbb-ten", "Twenty-Five Cents Well Spent", "Make 10 baskets in one game.", "loose", { goal: { stat: "makes", at: 10, unit: "baskets", one: "basket" }, end: function (s) { return s.makes >= 10; } }),
       T(9, "bbb-swish", "Nothing But Net Worth", "Make a swish (ball touches nothing but net).", "loose"),
       T(10, "bbb-fire", "Pilot Light", "Go ON FIRE (3 makes in a row).", "boxed"),
       T(11, "bbb-bonus", "Overtime, No Extra Charge", "Unlock the bonus round (20 makes in the first 60 seconds).", "boxed"),
-      T(12, "bbb-swish5", "Swish List", "Make 5 swishes in one game.", "sealed", end(function (s) { return s.swishes >= 5; })),
+      T(12, "bbb-swish5", "Swish List", "Make 5 swishes in one game.", "sealed", { goal: { stat: "swishes", at: 5, unit: "swishes", one: "swish" }, end: function (s) { return s.swishes >= 5; } }),
       T(13, "bbb-streak10", "Ten Straight, No Returns", "Make 10 baskets in a row without a miss.", "sealed"),
-      T(14, "bbb-thirty", "The Whole Bin", "Make 30 baskets in one game, bonus round included.", "slabbed", end(function (s) { return s.makes >= 30; })),
+      T(14, "bbb-thirty", "The Whole Bin", "Make 30 baskets in one game, bonus round included.", "slabbed", { goal: { stat: "makes", at: 30, unit: "baskets", one: "basket" }, end: function (s) { return s.makes >= 30; } }),
       T(15, "bbb-clock", "Nobody Set the Clock", "Leave the title screen alone for 60 seconds while the VCR clock blinks 12:00.", "loose", { secret: true })
     ] },
     { slug: "bleacher-carts", name: "Bleacher Carts", status: "live", trophies: [
@@ -43,9 +43,11 @@
       T(22, "bc-double", "Double Feature, One Ticket", "Get 2 Bleacher Features in one derby.", "sealed", { retired: true, end: function (s) { return s.features >= 2; } }),
       T(23, "bc-5000", "Five Thousand Feet of Carts", "Finish a derby with 5,000 FT or more.", "slabbed", { retired: true, end: function (s) { return s.total >= 5000; } }),
       // Retuned Oct 28, 2026 from simulated derbies at human timing spreads (see arcade-build/tune/).
-      T(66, "bc-7500", "Seventy-Five Hundred Feet of Carts", "Finish a derby with 7,500 FT or more.", "sealed", end(function (s) { return s.total >= 7500; })),
-      T(67, "bc-feat4", "Four Features, No Intermission", "Get 4 Bleacher Features in one derby.", "sealed", end(function (s) { return s.features >= 4; })),
-      T(68, "bc-13000", "Thirteen Thousand Feet of Carts", "Finish a derby with 13,000 FT or more.", "slabbed", end(function (s) { return s.total >= 13000; }))
+      // Added Oct 28, 2026 (RC): a 6,000 FT stretch goal one notch above a mile (RC best 5,280). Sims: tune/bc6000.js.
+      T(70, "bc-6000", "A Mile of Carts, Plus Tax", "Finish a derby with 6,000 FT or more.", "boxed", { goal: { stat: "total", at: 6000, unit: "FT", fromBest: true }, end: function (s) { return s.total >= 6000; } }),
+      T(66, "bc-7500", "Seventy-Five Hundred Feet of Carts", "Finish a derby with 7,500 FT or more.", "sealed", { goal: { stat: "total", at: 7500, unit: "FT", fromBest: true }, end: function (s) { return s.total >= 7500; } }),
+      T(67, "bc-feat4", "Four Features, No Intermission", "Get 4 Bleacher Features in one derby.", "sealed", { goal: { stat: "features", at: 4, unit: "features", one: "feature" }, end: function (s) { return s.features >= 4; } }),
+      T(68, "bc-13000", "Thirteen Thousand Feet of Carts", "Finish a derby with 13,000 FT or more.", "slabbed", { goal: { stat: "total", at: 13000, unit: "FT", fromBest: true }, end: function (s) { return s.total >= 13000; } })
     ] },
     { slug: "tape-pin-lanes", name: "Tape Pin Lanes", status: "live", trophies: [
       T(24, "tpl-strike", "Rewound", "Roll a strike.", "loose"),
@@ -53,7 +55,7 @@
       T(26, "tpl-latefee", "Paid the Late Fee", "Roll a gutter ball after the bumpers come down (frame 6 or later).", "loose"),
       T(27, "tpl-turkey", "Turkey, Ex-Rental", "Roll 3 strikes in a row (TURKEY!).", "boxed"),
       T(28, "tpl-split", "Split, Then Fixed", "Turn a SPLIT into a spare.", "boxed"),
-      T(29, "tpl-150", "Weekend Rental", "Score 150 or more in one game.", "sealed", end(function (s) { return s.total >= 150; })),
+      T(29, "tpl-150", "Weekend Rental", "Score 150 or more in one game.", "sealed", { goal: { stat: "total", at: 150, unit: "pins", one: "pin", fromBest: true }, end: function (s) { return s.total >= 150; } }),
       T(30, "tpl-clean", "No Open Frames", "Finish a game with a strike or spare in every frame.", "slabbed", end(function (s) {
         var f = s.frames || [];
         return f.length >= 10 && every(f.slice(0, 10), function (fr) { return fr[0] === 10 || fr[0] + fr[1] === 10; });
@@ -67,19 +69,19 @@
       T(33, "tra-rattle", "Rattled In. It Counts.", "Score a 100 that rattles in off the lip.", "boxed"),
       T(34, "tra-both", "Both Corners, One Game", "Sink the left 100 cup and the right 100 cup in the same game.", "boxed", end(function (s) { return s.cupL > 0 && s.cupR > 0; })),
       T(35, "tra-jar150", "Strategy Guide Money", "Get the ticket jar (all games) to 150 tickets.", "boxed", end(function (s) { return s.jar >= 150; })),
-      T(37, "tra-corner4", "Corner Store", "Sink 4 corner cups in one game.", "sealed", end(function (s) { return s.hundreds >= 4; })),
+      T(37, "tra-corner4", "Corner Store", "Sink 4 corner cups in one game.", "sealed", { goal: { stat: "hundreds", at: 4, unit: "corner cups", one: "corner cup" }, end: function (s) { return s.hundreds >= 4; } }),
       T(38, "tra-jar900", "Mystery Box Lot Money", "Get the ticket jar (all games) to 900 tickets.", "sealed", end(function (s) { return s.jar >= 900; })),
       T(39, "tra-500", "Complete in Box Score", "Score 500 or more in one game.", "slabbed", { retired: true, end: function (s) { return s.score >= 500; } }),
-      T(69, "tra-600", "Complete in Box Score", "Score 600 or more in one game.", "slabbed", end(function (s) { return s.score >= 600; }))
+      T(69, "tra-600", "Complete in Box Score", "Score 600 or more in one game.", "slabbed", { goal: { stat: "score", at: 600, unit: "PTS", fromBest: true }, end: function (s) { return s.score >= 600; } })
     ] },
     { slug: "fourth-and-collect", name: "Fourth and Collect", status: "live", trophies: [
       T(40, "fac-good", "It's Good, Allegedly", "Make a field goal.", "loose"),
       T(41, "fac-hook", "Overkicked It", "Miss a kick by overkicking it (\"Overkicked it. It hooked.\").", "loose"),
       T(42, "fac-doink", "Doink, Still Counts", "Make a kick off the upright (DOINK... GOOD!).", "boxed"),
-      T(43, "fac-50", "Mint Condition, 50 Yards", "Make a kick from 50 yards or more.", "boxed"),
+      T(43, "fac-50", "Mint Condition, 50 Yards", "Make a kick from 50 yards or more.", "boxed", { goal: { stat: "longest", at: 50, unit: "YDS" } }),
       T(44, "fac-clean50", "No Strikes at the Swap Meet", "Make a kick from 50 yards with zero strikes in that game.", "sealed"),
-      T(45, "fac-60", "The Narrow Part", "Make a kick from 60 yards or more.", "sealed"),
-      T(46, "fac-70", "Booth Rental Leg", "Make a kick from 70 yards or more.", "slabbed")
+      T(45, "fac-60", "The Narrow Part", "Make a kick from 60 yards or more.", "sealed", { goal: { stat: "longest", at: 60, unit: "YDS" } }),
+      T(46, "fac-70", "Booth Rental Leg", "Make a kick from 70 yards or more.", "slabbed", { goal: { stat: "longest", at: 70, unit: "YDS" } })
     ] },
     { slug: "pawn-shop-pool", name: "Pawn Shop Pool", status: "soon", trophies: [
       T(47, "psp-scratch", "That Cue Ball Was Not for Sale", "Scratch the cue ball.", "loose"),

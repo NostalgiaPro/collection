@@ -296,6 +296,7 @@
       else { title = S.strikesRow > 3 ? S.strikesRow + " IN A ROW!" : "STRIKE!"; sub = "BE KIND, REWIND... ALL OF THEM."; col = "#ffd23f"; burst(30); }
       Shell.sfx("crowd"); Shell.sfx("score"); Shell.shake(4, 0.3);
       if (window.Trophies) { Trophies.unlock("tpl-strike"); if (S.strikesRow === 3) Trophies.unlock("tpl-turkey"); }
+      if (window.NPRewards && S.strikesRow >= 2) NPRewards.streak(S.strikesRow);
     } else {
       S.strikesRow = 0;
       if (spare) {

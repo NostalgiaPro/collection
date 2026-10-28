@@ -198,6 +198,8 @@
     S.log.push(pts);
     S.tickets += Math.floor(pts / 10);
     if (pts === 0) S.zeros = (S.zeros || 0) + 1;
+    S.hot = pts >= 50 ? (S.hot || 0) + 1 : 0;
+    if (window.NPRewards && S.hot >= 2 && !short) NPRewards.streak(S.hot, S.hot === 2 ? "2 BIG ROLLS!" : "");
     if (pts === 100) {
       if (r.u < 0) S.cupL = (S.cupL || 0) + 1; else S.cupR = (S.cupR || 0) + 1;
       if (window.Trophies) { Trophies.unlock("tra-cup"); if (r.lip === "in") Trophies.unlock("tra-rattle"); }

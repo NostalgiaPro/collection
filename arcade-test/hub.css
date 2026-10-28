@@ -226,3 +226,14 @@ a { color: inherit; }
   .marquee::before, .marquee::after, .cab-marquee::before { animation: none; }
   .cab, .cab:hover, .cab:focus-within { transition: none; transform: none; }
 }
+
+/* Rewards: next trophy hint + new-trophy pulse (arcade-test) */
+.cab-next { margin: -2px 0 10px; padding: 6px 8px; border-radius: 6px; background: #12141c; border: 1px dashed #3a3e4c; font: 400 12px/1.35 var(--ui); color: var(--text); }
+.cab-next span { display: block; font: 400 8px/1.3 var(--display); color: var(--dim); letter-spacing: .5px; }
+.cab-next b { display: block; margin-top: 3px; color: var(--gold); font-weight: 700; }
+.cab-next i { display: block; margin-top: 2px; font-style: normal; color: var(--cyan); }
+.cab-newtag { position: absolute; right: 6px; bottom: -9px; padding: 2px 6px; border-radius: 4px; background: var(--gold); color: #101219; font: 400 7px/1.3 var(--display); pointer-events: none; }
+.cab.has-new { animation: cab-glow 2.4s ease-in-out infinite; border-color: var(--c); }
+@keyframes cab-glow { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 50% { box-shadow: 0 0 22px color-mix(in srgb, var(--c) 55%, transparent); } }
+@media (max-width: 640px) { .cab-next { font-size: 11px; padding: 5px 6px; margin-bottom: 8px; } .cab-next span { font-size: 7px; } }
+@media (prefers-reduced-motion: reduce) { .cab.has-new { animation: none; box-shadow: 0 0 18px color-mix(in srgb, var(--c) 45%, transparent); } }
