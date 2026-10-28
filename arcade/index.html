@@ -14,6 +14,7 @@
 <title>Nostalgia Pro Arcade | Free retro sports and arcade games</title>
 <meta name="description" content="Free retro sports and arcade games from Nostalgia Pro. Mini golf, arcade basketball, home run derby and more. No ads, no login, high scores stay on your device.">
 <link rel="stylesheet" href="hub.css">
+<link rel="stylesheet" href="seasonal.css">
 <link rel="stylesheet" href="/growth.css">
 <script>
 /* GoatCounter page view, same counter as /play/ (code "nostalgiapro"): one small image request, no cookies, no third-party script. */
@@ -38,6 +39,9 @@
 </header>
 
 <main id="games" class="wrap">
+  <!-- Seasonal / featured slot. Filled by seasonal.js from its date config. -->
+  <section id="featured" class="feat" aria-label="Featured game"></section>
+
   <section class="hero" aria-labelledby="title">
     <div class="marquee"><h1 id="title">NOSTALGIA PRO <span>ARCADE</span></h1></div>
     <p class="tagline"><b>Free games. No ads. No login. No quarters required.</b></p>
@@ -302,6 +306,13 @@
     </li>
   </ul>
 
+  <!-- Seasonal Vault: every built seasonal game, playable all year. Filled by seasonal.js. -->
+  <section class="vault" id="vault" aria-labelledby="vault-h" hidden>
+    <h2 class="vault-h" id="vault-h">SEASONAL VAULT</h2>
+    <p class="vault-sub">Holiday cabinets stay plugged in after the holiday. Trophies count on the shelf all year.</p>
+    <ul class="grid vault-grid" id="vault-grid"></ul>
+  </section>
+
   <section class="support-strip" aria-labelledby="lights">
     <div>
       <h2 id="lights">Keep the lights on</h2>
@@ -335,6 +346,18 @@
 <script src="shared/trophy-list.js"></script>
 <script src="shared/trophies.js"></script>
 <script src="shared/rewards.js"></script>
+<script src="seasonal.js"></script>
+<script>
+/* In-app rate card (added by /growth.js): sit inline under the arcade title instead of floating over the game tiles. */
+(function () {
+  if (!window.MutationObserver) return;
+  function place() {
+    var c = document.getElementById("npRate"), hero = document.querySelector("#games .hero");
+    if (c && hero && c.previousElementSibling !== hero) hero.parentNode.insertBefore(c, hero.nextSibling);
+  }
+  new MutationObserver(place).observe(document.body, { childList: true });
+})();
+</script>
 <script>
 (function () {
   "use strict";

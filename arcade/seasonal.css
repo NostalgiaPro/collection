@@ -1,0 +1,67 @@
+/* Seasonal featured slot + Seasonal Vault (hub only). Loads after hub.css. */
+.feat {
+  --c: var(--cyan);
+  position: relative; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 0;
+  margin: 22px 0 6px; border-radius: 16px; overflow: hidden;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--c) 18%, #12141c), #12141c 60%);
+  border: 3px solid var(--c);
+  box-shadow: 0 0 0 4px #0b0c10, 0 0 34px color-mix(in srgb, var(--c) 45%, transparent);
+}
+.feat:empty { display: none; }
+.feat-art { position: relative; min-height: 220px; background: #0b0d14; }
+.feat-art svg, .feat-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.feat-art picture { position: absolute; inset: 0; }
+.feat-art::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.22) 2px 3px);
+}
+.feat-body { padding: 22px 22px 20px; display: flex; flex-direction: column; gap: 10px; }
+.feat-kicker {
+  margin: 0; align-self: flex-start; padding: 5px 9px; border-radius: 4px; background: var(--c); color: #101219;
+  font: 400 10px/1.3 var(--display); letter-spacing: .5px;
+}
+.feat-title {
+  margin: 2px 0 0; font: 400 clamp(20px, 3.6vw, 34px)/1.25 var(--display); color: var(--c);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--c) 80%, transparent), 3px 3px 0 #000;
+}
+.feat-genre { margin: 0; font: 700 14px/1.3 var(--ui); color: var(--dim); }
+.feat-hook { margin: 0; font-size: 16px; line-height: 1.5; color: var(--text); max-width: 46ch; }
+.feat-meta { display: flex; gap: 18px; margin: 2px 0 0; }
+.feat-meta .best { margin-left: 0; text-align: left; font-size: 10px; }
+.feat-meta .best b { font-size: 12px; }
+.feat-tro { font: 400 10px/1.3 var(--display); color: var(--dim); }
+.feat-tro b { display: block; margin-top: 3px; color: var(--cyan); font-weight: 400; font-size: 12px; }
+.feat-play {
+  display: flex; align-items: center; justify-content: center; min-height: 64px; margin-top: 4px; border-radius: 10px;
+  background: var(--c); color: #101219; text-decoration: none; font: 400 20px/1 var(--display); letter-spacing: 2px;
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--c) 45%, #000); animation: featpulse 1.6s ease-in-out infinite;
+}
+.feat-play:hover { filter: brightness(1.08); }
+.feat-play:active { transform: translateY(3px); box-shadow: 0 2px 0 color-mix(in srgb, var(--c) 45%, #000); }
+.feat-until { margin: 0; font-size: 13px; color: var(--dim); }
+.feat-season.feat-halloween { background: linear-gradient(135deg, #2a1236, #12141c 55%, #2a170a); }
+.feat-season.feat-halloween .feat-title { color: #ff8a1f; }
+@keyframes featpulse { 50% { box-shadow: 0 5px 0 color-mix(in srgb, var(--c) 45%, #000), 0 0 22px color-mix(in srgb, var(--c) 70%, transparent); } }
+
+/* Vault */
+.vault { margin: 0 0 40px; }
+.vault-h { margin: 0 0 6px; font: 400 14px/1.4 var(--display); color: var(--gold); text-shadow: 0 0 8px rgba(255,210,63,.5); }
+.vault-sub { margin: 0 0 16px; color: var(--dim); font-size: 14px; }
+.vault-grid { margin-bottom: 0; }
+.vault-tag {
+  position: absolute; right: 6px; bottom: -9px; padding: 2px 6px; border-radius: 4px; background: var(--c); color: #101219;
+  font: 400 7px/1.3 var(--display);
+}
+
+@media (max-width: 640px) {
+  .feat { grid-template-columns: 1fr; margin-top: 14px; }
+  .feat-art { min-height: 0; aspect-ratio: 16 / 9; }
+  .feat-body { padding: 16px 14px 16px; gap: 8px; }
+  .feat-kicker { font-size: 8px; }
+  .feat-hook { font-size: 14px; }
+  .feat-play { min-height: 60px; font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { .feat-play { animation: none; } }
+
+/* Android app (seasonal.js adds html.np-twa, same rule as /growth.css on the live hub): no donate links. */
+html.np-twa [data-donate], html.np-twa .support-strip:not(.feedback-strip), html.np-twa .nav .support { display: none !important; }

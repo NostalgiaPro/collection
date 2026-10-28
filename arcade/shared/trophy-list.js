@@ -83,6 +83,23 @@
       T(45, "fac-60", "The Narrow Part", "Make a kick from 60 yards or more.", "sealed", { goal: { stat: "longest", at: 60, unit: "YDS" } }),
       T(46, "fac-70", "Booth Rental Leg", "Make a kick from 70 yards or more.", "slabbed", { goal: { stat: "longest", at: 70, unit: "YDS" } })
     ] },
+    // Seasonal (Halloween 2026). seasonal: true keeps it out of the arcade-wide "every live game" trophies,
+    // so they do not get harder once the season ends and the game moves to the Seasonal Vault.
+    // Slots 71-82 were briefly used on /arcade-test/ only by a first draft (Pillowcase Panic); never live.
+    { slug: "creature-feature-ko", name: "Creature Feature KO", status: "live", seasonal: "halloween", trophies: [
+      T(71, "cfk-pumpkin", "Carved Out", "K.O. Sir Gourdsworth, the Pumpkin Knight.", "loose", end(function (s) { return s.beaten >= 1; })),
+      T(72, "cfk-count", "Past His Bedtime", "K.O. Count Fangworth.", "loose", end(function (s) { return s.beaten >= 2; })),
+      T(73, "cfk-wolf", "Bad Dog, No Treat", "K.O. Wolfgang Howlbert.", "loose", end(function (s) { return s.beaten >= 3; })),
+      T(74, "cfk-nohit", "Not a Scratch", "K.O. any monster without getting hit.", "loose"),
+      T(75, "cfk-mummy", "Unwrapped", "K.O. Pharaoh Wrapsody.", "boxed", { goal: { stat: "beaten", at: 4, unit: "monsters", one: "monster", margin: 1 }, end: function (s) { return s.beaten >= 4; } }),
+      T(76, "cfk-giant", "Out of Warranty", "K.O. Lugnut, the Patchwork Giant.", "boxed", end(function (s) { return s.beaten >= 5; })),
+      T(77, "cfk-fast", "Fast Forward", "K.O. any monster after the Pumpkin Knight in under 15 seconds.", "boxed"),
+      T(78, "cfk-witch", "Broom Repo", "K.O. Hagatha Brewsworth.", "sealed", end(function (s) { return s.beaten >= 6; })),
+      T(79, "cfk-horse", "Head of the Class", "K.O. the Headless Hayrider and finish the whole marathon.", "sealed", end(function (s) { return s.beaten >= 7; })),
+      T(80, "cfk-nohit3", "Mint in Box", "K.O. 3 monsters in a row without getting hit.", "sealed", { goal: { stat: "noHitBest", at: 3, unit: "no-hit K.O.s in a row", one: "no-hit K.O.", margin: 1 }, end: function (s) { return s.noHitBest >= 3; } }),
+      T(81, "cfk-rewind", "Be Kind, Rewind", "Finish the whole marathon in under 2:45.", "slabbed", { goal: { stat: "clearTime", at: 165, low: true, margin: 25, unit: "seconds", one: "second" }, end: function (s) { return s.cleared && s.clearTime < 165; } }),
+      T(82, "cfk-horse-clean", "Director's Cut", "K.O. the Headless Hayrider without getting hit.", "slabbed")
+    ] },
     { slug: "pawn-shop-pool", name: "Pawn Shop Pool", status: "soon", trophies: [
       T(47, "psp-scratch", "That Cue Ball Was Not for Sale", "Scratch the cue ball.", "loose"),
       T(48, "psp-combo", "Two for One Special", "Sink 2 or more balls with one shot.", "boxed"),
@@ -105,7 +122,7 @@
     ] }
   ];
 
-  function live() { var a = []; for (var i = 0; i < games.length; i++) if (games[i].status === "live") a.push(games[i]); return a; }
+  function live() { var a = []; for (var i = 0; i < games.length; i++) if (games[i].status === "live" && !games[i].seasonal) a.push(games[i]); return a; }
 
   var meta = [
     T(59, "arc-regular", "Arcade Regular", "Finish at least one run in every live arcade game.", "boxed", { check: function (sv) {

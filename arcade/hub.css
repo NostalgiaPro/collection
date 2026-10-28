@@ -243,3 +243,6 @@ a { color: inherit; }
 @keyframes cab-glow { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 50% { box-shadow: 0 0 22px color-mix(in srgb, var(--c) 55%, transparent); } }
 @media (max-width: 640px) { .cab-next { font-size: 11px; padding: 5px 6px; margin-bottom: 8px; } .cab-next span { font-size: 7px; } }
 @media (prefers-reduced-motion: reduce) { .cab.has-new { animation: none; box-shadow: 0 0 18px color-mix(in srgb, var(--c) 45%, transparent); } }
+
+/* In-app rate card (/growth.js): inline under the title on the hub, never fixed over the game tiles. */
+html.np-arcade #npRate { position: static; left: auto; right: auto; bottom: auto; max-width: none; margin: 0 0 18px; box-shadow: none; }
