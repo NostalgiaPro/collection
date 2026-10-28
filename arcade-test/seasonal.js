@@ -9,9 +9,9 @@
 window.NP_SEASONS = {
   events: [
     { id: "halloween", label: "Halloween", start: "10-15", end: "11-02", status: "live",
-      slug: "pillowcase-panic", name: "Pillowcase Panic", href: "pillowcase-panic/index.html", accent: "#ff8a1f",
-      kicker: "SEASONAL SPECIAL: HALLOWEEN", genre: "Trick-or-treat candy catch", fmt: "pts",
-      hook: "Curfew is 9:00 PM. Slide your sheet ghost down the block, fill the pillowcase with candy, and dodge the toothbrushes, pennies, raisins and TP.",
+      slug: "creature-feature-ko", name: "Creature Feature KO", href: "creature-feature-ko/index.html", accent: "#ff8a1f",
+      kicker: "SEASONAL SPECIAL: HALLOWEEN", genre: "Halloween boss rush", fmt: "pts",
+      hook: "The late show ran long and the monsters climbed out of the tapes. Seven boss fights, one collector, a pocket full of candy corn. Slide to dodge, stand under to hit.",
       art: "halloween" },
     { id: "thanksgiving", label: "Thanksgiving", start: "11-20", end: "11-30", status: "soon", name: "", href: "", accent: "#e0662a" },
     { id: "winter", label: "Winter holidays", start: "12-08", end: "12-28", status: "soon", name: "", href: "", accent: "#3ff0ff" },
@@ -73,15 +73,18 @@ window.NP_SEASONS = {
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   var ART = {
     halloween: '<svg viewBox="0 0 160 90" shape-rendering="crispEdges" aria-hidden="true">' +
-      '<rect width="160" height="90" fill="#140b24"/><rect y="52" width="160" height="38" fill="#0e2216"/><rect y="78" width="160" height="12" fill="#3a3e4a"/>' +
-      '<circle cx="132" cy="18" r="10" fill="#f4e7b8"/>' +
-      '<rect x="10" y="24" width="40" height="28" fill="#6b3f52"/><path d="M6 26 L30 10 L54 26Z" fill="#4a2a3a"/><rect x="26" y="36" width="8" height="16" fill="#ffe39a"/><rect x="14" y="30" width="7" height="6" fill="#ffcf5a"/><rect x="39" y="30" width="7" height="6" fill="#ffcf5a"/>' +
-      '<rect x="62" y="28" width="36" height="24" fill="#43566b"/><path d="M58 30 L80 16 L102 30Z" fill="#2f3a4a"/><rect x="76" y="38" width="8" height="14" fill="#2a1a12"/><rect x="66" y="33" width="6" height="5" fill="#1b1626"/><rect x="88" y="33" width="6" height="5" fill="#1b1626"/>' +
-      '<rect x="110" y="30" width="36" height="22" fill="#6b5636"/><path d="M106 32 L128 20 L150 32Z" fill="#4a3a26"/><rect x="124" y="40" width="8" height="12" fill="#2a1a12"/><rect x="114" y="35" width="6" height="5" fill="#ffcf5a"/>' +
-      '<rect x="16" y="49" width="9" height="7" fill="#e0662a"/><rect x="18" y="51" width="2" height="2" fill="#ffd23f"/><rect x="22" y="51" width="2" height="2" fill="#ffd23f"/><rect x="19" y="54" width="4" height="1" fill="#ffd23f"/>' +
-      '<rect x="44" y="58" width="8" height="5" fill="#ff3fa4"/><rect x="96" y="54" width="5" height="8" fill="#f6f4ee"/><rect x="96" y="58" width="5" height="4" fill="#ff8a1f"/><rect x="118" y="62" width="14" height="7" fill="#ffd23f"/><rect x="121" y="64" width="8" height="3" fill="#5a3418"/>' +
-      '<rect x="70" y="58" width="20" height="22" fill="#eceae2"/><rect x="72" y="54" width="16" height="6" fill="#eceae2"/><rect x="74" y="60" width="3" height="4" fill="#101219"/><rect x="83" y="60" width="3" height="4" fill="#101219"/>' +
-      '<rect x="64" y="70" width="32" height="14" fill="#f3efe2"/><rect x="63" y="69" width="34" height="2" fill="#fff"/><rect x="70" y="80" width="6" height="3" fill="#ff4b3e"/><rect x="84" y="80" width="6" height="3" fill="#ff4b3e"/>' +
+      '<rect width="160" height="90" fill="#140b24"/><rect y="50" width="160" height="28" fill="#2a1a26"/><rect y="78" width="160" height="12" fill="#3a2a22"/><rect y="49" width="160" height="2" fill="#3a2616"/>' +
+      '<circle cx="140" cy="14" r="8" fill="#f4e7b8"/>' +
+      '<rect x="88" y="30" width="40" height="14" fill="#0d0a14"/><rect x="122" y="22" width="9" height="14" fill="#0d0a14"/><rect x="126" y="18" width="10" height="7" fill="#0d0a14"/><rect x="133" y="20" width="2" height="2" fill="#ff4b3e"/>' +
+      '<rect x="90" y="44" width="4" height="10" fill="#0d0a14"/><rect x="101" y="44" width="4" height="8" fill="#0d0a14"/><rect x="112" y="44" width="4" height="10" fill="#0d0a14"/><rect x="122" y="44" width="4" height="8" fill="#0d0a14"/>' +
+      '<rect x="100" y="12" width="14" height="20" fill="#3a2a4a"/><rect x="98" y="11" width="18" height="4" fill="#4a3a5a"/><path d="M100 14 L80 32 L100 30Z" fill="#5a1020"/><rect x="113" y="4" width="3" height="10" fill="#3a2a4a"/>' +
+      '<rect x="109" y="0" width="11" height="7" fill="#e0662a"/><rect x="111" y="2" width="2" height="2" fill="#ffd23f"/><rect x="116" y="2" width="2" height="2" fill="#ffd23f"/>' +
+      '<rect x="14" y="20" width="24" height="18" fill="#e0662a"/><rect x="12" y="16" width="28" height="4" fill="#a8aab4"/><rect x="24" y="12" width="3" height="4" fill="#ff4b3e"/><rect x="18" y="25" width="4" height="3" fill="#ffd23f"/><rect x="30" y="25" width="4" height="3" fill="#ffd23f"/><rect x="19" y="31" width="14" height="2" fill="#ffd23f"/>' +
+      '<rect x="72" y="30" width="3" height="4" fill="#ff8a1f"/><rect x="72" y="28" width="3" height="2" fill="#f6f4ee"/><rect x="72" y="42" width="3" height="4" fill="#ff8a1f"/><rect x="72" y="40" width="3" height="2" fill="#f6f4ee"/>' +
+      '<rect x="64" y="52" width="18" height="5" fill="#1d2b53"/><rect x="62" y="56" width="22" height="2" fill="#141e3a"/><rect x="68" y="53" width="2" height="2" fill="#e4343e"/><rect x="70" y="53" width="4" height="2" fill="#fff1d6"/>' +
+      '<rect x="65" y="58" width="16" height="9" fill="#f1c28e"/><rect x="68" y="61" width="2" height="2" fill="#1b1b28"/><rect x="76" y="61" width="2" height="2" fill="#1b1b28"/>' +
+      '<rect x="64" y="67" width="18" height="11" fill="#1b1b22"/><rect x="69" y="69" width="8" height="3" fill="#fff1d6"/><rect x="69" y="72" width="8" height="1" fill="#29d3e8"/><rect x="82" y="56" width="3" height="12" fill="#f1c28e"/><rect x="66" y="78" width="6" height="6" fill="#3b5a96"/><rect x="74" y="78" width="6" height="6" fill="#3b5a96"/>' +
+      '<rect x="128" y="60" width="26" height="18" fill="#2a2d38"/><rect x="130" y="62" width="18" height="14" fill="#3ff0ff" opacity=".55"/><rect x="4" y="72" width="18" height="3" fill="#ff4b3e"/><rect x="5" y="75" width="16" height="3" fill="#ffd23f"/>' +
       '</svg>'
   };
   function best(slug, fmtName) {

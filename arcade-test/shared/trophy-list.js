@@ -85,19 +85,20 @@
     ] },
     // Seasonal (Halloween 2026). seasonal: true keeps it out of the arcade-wide "every live game" trophies,
     // so they do not get harder once the season ends and the game moves to the Seasonal Vault.
-    { slug: "pillowcase-panic", name: "Pillowcase Panic", status: "live", seasonal: "halloween", trophies: [
-      T(71, "pp-25", "Trick or Treat, Mostly Treat", "Catch 25 pieces of candy in one night.", "loose", { goal: { stat: "pieces", at: 25, unit: "pieces", one: "piece" }, end: function (s) { return s.pieces >= 25; } }),
-      T(72, "pp-full", "The Full-Size House", "Catch a FULL SIZE bar.", "loose", end(function (s) { return s.full >= 1; })),
-      T(73, "pp-glow", "Glow Stick Necklace", "Catch a glow stick.", "loose", end(function (s) { return s.glows >= 1; })),
-      T(74, "pp-pin", "Mom's Safety Pin", "Patch a rip with a safety pin.", "loose", end(function (s) { return s.pins >= 1; })),
-      T(75, "pp-combo12", "Sugar Rush", "Catch 12 pieces in a row without a drop or a dud.", "boxed", { goal: { stat: "bestCombo", at: 12, unit: "in a row", margin: 4 }, end: function (s) { return s.bestCombo >= 12; } }),
-      T(76, "pp-curfew", "Home by Curfew", "Make it to the 9:00 PM curfew before the pillowcase rips open.", "boxed", end(function (s) { return !!s.curfew; })),
-      T(77, "pp-1500", "Heavy Pillowcase", "Score 1,500 in one night.", "boxed", { goal: { stat: "score", at: 1500, unit: "PTS", fromBest: true }, end: function (s) { return s.score >= 1500; } }),
-      T(78, "pp-3500", "Trade Night Kingpin", "Score 3,500 in one night.", "sealed", { goal: { stat: "score", at: 3500, unit: "PTS", fromBest: true }, end: function (s) { return s.score >= 3500; } }),
-      T(79, "pp-full4", "Full-Size Street", "Catch 4 FULL SIZE bars in one night.", "sealed", { goal: { stat: "full", at: 4, unit: "full size bars", one: "full size bar", margin: 1 }, end: function (s) { return s.full >= 4; } }),
-      T(80, "pp-mint", "Mint Condition Pillowcase", "Make curfew with zero rips in the pillowcase (safety pins count).", "sealed", end(function (s) { return !!s.curfew && s.rips === 0; })),
-      T(81, "pp-5000", "The Whole Block, One Pillowcase", "Score 5,000 in one night.", "slabbed", { goal: { stat: "score", at: 5000, unit: "PTS", fromBest: true }, end: function (s) { return s.score >= 5000; } }),
-      T(82, "pp-combo50", "Sugar Coma", "Catch 50 pieces in a row without a drop or a dud.", "slabbed", { goal: { stat: "bestCombo", at: 50, unit: "in a row", margin: 12 }, end: function (s) { return s.bestCombo >= 50; } })
+    // Slots 71-82 were briefly used on /arcade-test/ only by a first draft (Pillowcase Panic); never live.
+    { slug: "creature-feature-ko", name: "Creature Feature KO", status: "live", seasonal: "halloween", trophies: [
+      T(71, "cfk-pumpkin", "Carved Out", "K.O. Sir Gourdsworth, the Pumpkin Knight.", "loose", end(function (s) { return s.beaten >= 1; })),
+      T(72, "cfk-count", "Past His Bedtime", "K.O. Count Fangworth.", "loose", end(function (s) { return s.beaten >= 2; })),
+      T(73, "cfk-wolf", "Bad Dog, No Treat", "K.O. Wolfgang Howlbert.", "loose", end(function (s) { return s.beaten >= 3; })),
+      T(74, "cfk-nohit", "Not a Scratch", "K.O. any monster without getting hit.", "loose"),
+      T(75, "cfk-mummy", "Unwrapped", "K.O. Pharaoh Wrapsody.", "boxed", { goal: { stat: "beaten", at: 4, unit: "monsters", one: "monster", margin: 1 }, end: function (s) { return s.beaten >= 4; } }),
+      T(76, "cfk-giant", "Out of Warranty", "K.O. Lugnut, the Patchwork Giant.", "boxed", end(function (s) { return s.beaten >= 5; })),
+      T(77, "cfk-fast", "Fast Forward", "K.O. any monster after the Pumpkin Knight in under 15 seconds.", "boxed"),
+      T(78, "cfk-witch", "Broom Repo", "K.O. Hagatha Brewsworth.", "sealed", end(function (s) { return s.beaten >= 6; })),
+      T(79, "cfk-horse", "Head of the Class", "K.O. the Headless Hayrider and finish the whole marathon.", "sealed", end(function (s) { return s.beaten >= 7; })),
+      T(80, "cfk-nohit3", "Mint in Box", "K.O. 3 monsters in a row without getting hit.", "sealed", { goal: { stat: "noHitBest", at: 3, unit: "no-hit K.O.s in a row", one: "no-hit K.O.", margin: 1 }, end: function (s) { return s.noHitBest >= 3; } }),
+      T(81, "cfk-rewind", "Be Kind, Rewind", "Finish the whole marathon in under 2:45.", "slabbed", { goal: { stat: "clearTime", at: 165, low: true, margin: 25, unit: "seconds", one: "second" }, end: function (s) { return s.cleared && s.clearTime < 165; } }),
+      T(82, "cfk-horse-clean", "Director's Cut", "K.O. the Headless Hayrider without getting hit.", "slabbed")
     ] },
     { slug: "pawn-shop-pool", name: "Pawn Shop Pool", status: "soon", trophies: [
       T(47, "psp-scratch", "That Cue Ball Was Not for Sale", "Scratch the cue ball.", "loose"),
