@@ -89,6 +89,7 @@
     ".npt-loose{height:20px;background:#8d8f99;box-shadow:inset 0 -6px #ffd23f}.npt-sealed{background:#3ff0ff}" +
     ".npt-sealed::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#fff8 20%,#0000 21% 60%,#fff6 61% 66%,#0000 67%)}" +
     ".npt-slabbed{background:#a77bff;outline:3px solid #cfe9f2}" +
+    ".npt-wrap.npt-low{top:auto;bottom:calc(env(safe-area-inset-bottom) + 14px)}" +
     "@keyframes npt{from{transform:translateY(-12px);opacity:0}}@media (prefers-reduced-motion:reduce){.npt{animation:none}}";
   var wrap = null, queue = [], showing = false, left = 0, timer = 0;
 
@@ -115,15 +116,23 @@
     if (t.more) html = '<div class="npt"><div class="npt-ic npt-boxed" aria-hidden="true"></div><div><b>ON THE SHELF</b><span>+' + t.more + ' more on the shelf</span></div></div>';
     else html = '<div class="npt"><div class="npt-ic npt-' + t.tier + '" aria-hidden="true"></div><div><b>ON THE SHELF</b><span>' + esc(t.name) + '</span><i>' + (L.tiers[t.tier] ? L.tiers[t.tier].word : "") + '</i></div></div>';
     wrap.innerHTML = html;
+    low();
     blip();
     left = 2800;
     clearInterval(timer);
     timer = setInterval(function () {
       var Sh = window.Shell;
+      low();
       if (document.hidden || (Sh && Sh.state && Sh.state() === "paused")) return;
       left -= 100;
       if (left <= 0) { clearInterval(timer); next(); }
     }, 100);
+  }
+  // On the game-over card the toast drops to the bottom edge so it never covers the score at the top.
+  function low() {
+    var Sh = window.Shell, over = false;
+    try { over = !!(Sh && Sh.state && Sh.state() === "over"); } catch (e) { }
+    if (wrap) wrap.classList.toggle("npt-low", over);
   }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (ch) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]; }); }
 

@@ -35,13 +35,17 @@
     ] },
     { slug: "bleacher-carts", name: "Bleacher Carts", status: "live", trophies: [
       T(16, "bc-hr", "Cart Launched", "Hit a home run.", "loose"),
+      T(18, "bc-board", "Scoreboard Trade-In", "Hit the scoreboard for a bonus pitch.", "loose"),
       T(17, "bc-sign", "Is It On the Sign?", "Hit the \"Is it on the shelf?\" billboard for a bonus pitch.", "boxed"),
-      T(18, "bc-board", "Scoreboard Trade-In", "Hit the scoreboard for a bonus pitch.", "boxed"),
       T(19, "bc-feature", "Bleacher Feature Presentation", "Hit 3 home runs in a row (BLEACHER FEATURE).", "boxed"),
-      T(20, "bc-moon", "Moonshot, Free Shipping", "Hit a MOONSHOT (470 FT or more).", "sealed"),
-      T(21, "bc-bonus3", "Extended Warranty", "Earn 3 bonus pitches in one derby.", "sealed", end(function (s) { return s.bonusEarned >= 3; })),
-      T(22, "bc-double", "Double Feature, One Ticket", "Get 2 Bleacher Features in one derby.", "sealed", end(function (s) { return s.features >= 2; })),
-      T(23, "bc-5000", "Five Thousand Feet of Carts", "Finish a derby with 5,000 FT or more.", "slabbed", end(function (s) { return s.total >= 5000; }))
+      T(20, "bc-moon", "Moonshot, Free Shipping", "Hit a MOONSHOT (470 FT or more).", "boxed"),
+      T(21, "bc-bonus3", "Extended Warranty", "Earn 3 bonus pitches in one derby.", "sealed", { retired: true, end: function (s) { return s.bonusEarned >= 3; } }),
+      T(22, "bc-double", "Double Feature, One Ticket", "Get 2 Bleacher Features in one derby.", "sealed", { retired: true, end: function (s) { return s.features >= 2; } }),
+      T(23, "bc-5000", "Five Thousand Feet of Carts", "Finish a derby with 5,000 FT or more.", "slabbed", { retired: true, end: function (s) { return s.total >= 5000; } }),
+      // Retuned Oct 28, 2026 from simulated derbies at human timing spreads (see arcade-build/tune/).
+      T(66, "bc-7500", "Seventy-Five Hundred Feet of Carts", "Finish a derby with 7,500 FT or more.", "sealed", end(function (s) { return s.total >= 7500; })),
+      T(67, "bc-feat4", "Four Features, No Intermission", "Get 4 Bleacher Features in one derby.", "sealed", end(function (s) { return s.features >= 4; })),
+      T(68, "bc-13000", "Thirteen Thousand Feet of Carts", "Finish a derby with 13,000 FT or more.", "slabbed", end(function (s) { return s.total >= 13000; }))
     ] },
     { slug: "tape-pin-lanes", name: "Tape Pin Lanes", status: "live", trophies: [
       T(24, "tpl-strike", "Rewound", "Roll a strike.", "loose"),
@@ -57,14 +61,16 @@
       T(31, "tpl-300", "Every Tape Rewound", "Bowl a PERFECT GAME (300).", "slabbed", { secret: true, end: function (s) { return s.total === 300; } })
     ] },
     { slug: "ticket-roll-alley", name: "Ticket Roll Alley", status: "live", trophies: [
+      T(65, "tra-ticket", "First One Off the Spool", "Earn your first ticket.", "loose", end(function (s) { return s.tickets >= 1 || s.score >= 10; })),
+      T(36, "tra-nine", "Nine for Nine", "Finish a game where all 9 balls score (no SHORT, no 0).", "loose", end(function (s) { return s.balls >= 9 && s.zeroBalls === 0; })),
       T(32, "tra-cup", "Corner Office", "Sink a ball in a 100 cup.", "loose"),
       T(33, "tra-rattle", "Rattled In. It Counts.", "Score a 100 that rattles in off the lip.", "boxed"),
       T(34, "tra-both", "Both Corners, One Game", "Sink the left 100 cup and the right 100 cup in the same game.", "boxed", end(function (s) { return s.cupL > 0 && s.cupR > 0; })),
       T(35, "tra-jar150", "Strategy Guide Money", "Get the ticket jar (all games) to 150 tickets.", "boxed", end(function (s) { return s.jar >= 150; })),
-      T(36, "tra-nine", "Nine for Nine", "Finish a game where all 9 balls score (no SHORT, no 0).", "sealed", end(function (s) { return s.balls >= 9 && s.zeroBalls === 0; })),
       T(37, "tra-corner4", "Corner Store", "Sink 4 corner cups in one game.", "sealed", end(function (s) { return s.hundreds >= 4; })),
       T(38, "tra-jar900", "Mystery Box Lot Money", "Get the ticket jar (all games) to 900 tickets.", "sealed", end(function (s) { return s.jar >= 900; })),
-      T(39, "tra-500", "Complete in Box Score", "Score 500 or more in one game.", "slabbed", end(function (s) { return s.score >= 500; }))
+      T(39, "tra-500", "Complete in Box Score", "Score 500 or more in one game.", "slabbed", { retired: true, end: function (s) { return s.score >= 500; } }),
+      T(69, "tra-600", "Complete in Box Score", "Score 600 or more in one game.", "slabbed", end(function (s) { return s.score >= 600; }))
     ] },
     { slug: "fourth-and-collect", name: "Fourth and Collect", status: "live", trophies: [
       T(40, "fac-good", "It's Good, Allegedly", "Make a field goal.", "loose"),

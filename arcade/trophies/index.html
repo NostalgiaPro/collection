@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101219">
+<title>Trophy Shelf | Nostalgia Pro</title>
+<meta name="description" content="Your Nostalgia Pro arcade trophies. Everything stays on this device.">
+<link rel="stylesheet" href="shelf.css">
+<script>
+/* GoatCounter page view, same counter as /play/ (code "nostalgiapro"): one small image request, no cookies, no third-party script. */
+(function(){try{if(!/^https?:$/.test(location.protocol))return;var i=new Image();i.referrerPolicy="no-referrer";i.src="https://nostalgiapro.goatcounter.com/count?p="+encodeURIComponent(location.pathname)+"&t="+encodeURIComponent(document.title)+"&r="+encodeURIComponent(document.referrer||"")+"&rnd="+Math.random().toString(36).slice(2);}catch(e){}})();
+</script>
+</head>
+<body>
+<a class="skip" href="#shelves">Skip to the shelf</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="badge" href="https://thenostalgiapro.com/" data-site="SITE_URL" aria-label="Nostalgia Pro home">NP</a>
+    <a class="brand" href="https://thenostalgiapro.com/" data-site="SITE_URL">Nostalgia Pro<b>Trophy Shelf</b></a>
+    <nav class="nav" aria-label="Site">
+      <a href="../">Arcade</a>
+      <a href="/play/" id="game-link">The Game</a>
+      <a class="support" href="#" data-donate hidden target="_blank" rel="noopener">Support</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="shelves">
+  <section class="hero" aria-labelledby="title">
+    <h1 id="title">TROPHY SHELF</h1>
+    <p class="summary" id="summary">Loading the shelf...</p>
+    <p class="tally" id="tally"></p>
+  </section>
+
+  <section class="empty" id="empty" hidden>
+    <p>Nothing on the shelf yet.</p>
+    <a class="big" href="../">Go to the Arcade</a>
+  </section>
+
+  <ul class="chips" role="group" aria-label="Filter trophies">
+    <li><button class="chip" type="button" data-filter="all" aria-pressed="true">All</button></li>
+    <li><button class="chip" type="button" data-filter="arcade" aria-pressed="false">Arcade</button></li>
+    <li><button class="chip" type="button" data-filter="locked" aria-pressed="false">Not on the shelf yet</button></li>
+  </ul>
+
+  <div id="list"></div>
+
+  <section class="move" aria-labelledby="move-h">
+    <h2 id="move-h">Move your shelf</h2>
+    <p>Trophies live in this browser. Make a code here, then enter it on your other phone or browser. Nothing gets sent anywhere.</p>
+    <div class="move-grid">
+      <div>
+        <button class="btn primary" type="button" id="make">Make a code</button>
+        <div class="code-out" id="code-out" hidden>
+          <label for="code-text" class="sr">Your shelf code</label>
+          <input id="code-text" readonly spellcheck="false">
+          <div class="row">
+            <button class="btn" type="button" id="copy">Copy</button>
+            <button class="btn" type="button" id="copy-link">Copy as a link</button>
+          </div>
+        </div>
+      </div>
+      <form id="enter" autocomplete="off">
+        <label for="code-in">Enter a code</label>
+        <input id="code-in" placeholder="NPS1-...." spellcheck="false" autocapitalize="characters">
+        <button class="btn primary" type="submit">Add to my shelf</button>
+      </form>
+    </div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <nav aria-label="Footer">
+      <a href="https://thenostalgiapro.com/" data-site="SITE_URL">Back to the collection</a>
+      <a href="../">Arcade</a>
+      <a href="https://nostalgiapro-shop.fourthwall.com/" data-site="MERCH_URL">Merch shop</a>
+      <a href="#" data-donate hidden target="_blank" rel="noopener">Donate</a>
+    </nav>
+    <p>Trophies stay on this device. Use a code to move them.</p>
+    <p>All games are original parodies. May your shelf never be full.</p>
+  </div>
+</footer>
+
+<div class="dlg-back" id="dlg" hidden>
+  <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlg-name">
+    <div class="dlg-item" id="dlg-item" aria-hidden="true"></div>
+    <p class="dlg-tier" id="dlg-tier"></p>
+    <h2 id="dlg-name"></h2>
+    <p id="dlg-how"></p>
+    <p class="dlg-when" id="dlg-when"></p>
+    <div class="row" id="dlg-actions">
+      <button class="btn primary" type="button" id="dlg-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="../shared-b2/config.js"></script>
+<script src="../shared/trophy-list.js"></script>
+<script src="game-list.js"></script>
+<script src="../shared/trophies.js"></script>
+<script src="shelf.js"></script>
+</body>
+</html>

@@ -11,7 +11,7 @@
   var ROUND_TIME = 60, BONUS_TIME = 15, BONUS_NEED = 20, DRIFT_AT = 20;
   var MAX_DRAG = 240, TAU = Math.PI * 2;
 
-  var S = {}, keys = {};
+  var S = {}, keys = {}, titleT = 0;
   var parts = [];
   var idleT = 0;
 
@@ -124,9 +124,10 @@
     S.makes++;
     S.streak++;
     S.bestStreak = Math.max(S.bestStreak, S.streak);
+    if (window.Trophies && S.streak >= 10) Trophies.unlock("bbb-streak10");
     var pts = S.level === 0 ? 2 : 3;
     var swish = !b.touched;
-    if (swish) { pts += 1; S.swishes++; }
+    if (swish) { pts += 1; S.swishes++; if (window.Trophies) Trophies.unlock("bbb-swish"); }
     if (S.fire) pts *= 2;
     S.score += pts;
     S.netT = 1;
@@ -136,6 +137,7 @@
     if (S.streak === 3 && !S.fire) {
       S.fire = true;
       Shell.flash("ON FIRE!", "Double points until you miss.", "#ff4b3e", 1300);
+      if (window.Trophies) Trophies.unlock("bbb-fire");
       Shell.sfx("boost");
       Shell.shake(3, 0.3);
     } else {
@@ -224,6 +226,7 @@
       if (S.round === "main" && S.makes >= BONUS_NEED && !S.bonusDone) {
         S.round = "bonus"; S.bonusDone = true; S.time = BONUS_TIME;
         Shell.flash("BONUS ROUND!", "15 more seconds. Keep it going.", "#ffd23f", 1500);
+        if (window.Trophies) Trophies.unlock("bbb-bonus");
         Shell.sfx("best");
       } else {
         S.ending = true; S.endT = 0;
@@ -241,7 +244,8 @@
           row("Buckets", S.makes + " of " + S.shots + " (" + pct + "%)") +
           row("Swishes", S.swishes) +
           row("Longest streak", S.bestStreak) +
-          row("Bonus round", S.bonusDone ? "Unlocked" : "Make " + BONUS_NEED) });
+          row("Bonus round", S.bonusDone ? "Unlocked" : "Make " + BONUS_NEED),
+          stats: { makes: S.makes, shots: S.shots, swishes: S.swishes, bestStreak: S.bestStreak, score: S.score, bonus: S.bonusDone } });
       }
     }
   }
@@ -524,7 +528,11 @@
     draw: draw,
     pointer: pointer,
     key: key,
-    idle: function (dt) { idleT += dt; },
+    idle: function (dt) {
+      idleT += dt;
+      // secret: leave the title card alone while the VCR clock blinks 12:00
+      if (Shell.state() === "title" && !document.hidden) { titleT += dt; if (titleT >= 60 && window.Trophies) Trophies.unlock("bbb-clock"); }
+    },
     onPause: function () { keys = {}; S.drag = null; S.charging = false; }
   });
 })();

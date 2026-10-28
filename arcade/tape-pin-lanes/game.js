@@ -27,7 +27,7 @@
   function fullRack() { var a = []; for (var i = 0; i < 10; i++) a.push(makePin(i)); return a; }
 
   function reset() {
-    S = { t: 0, phase: "aim", pt: 0, frame: 0, ball: 0, frames: [[]], pins: fullRack(),
+    S = { t: 0, phase: "aim", pt: 0, splitFrame: -1, frame: 0, ball: 0, frames: [[]], pins: fullRack(),
           pos: 0, spin: 0, power: 0, charging: false, chargeT: 0, drag: null, kb: false,
           b: null, camY: CAM0, strikesRow: 0, strikes: 0, spares: 0, splitMsg: "", lastClack: 0, rollSnd: 0,
           announcedBumpers: false, sweepFull: false, over: false };
@@ -295,14 +295,21 @@
       if (S.strikesRow === 3) { title = "TURKEY!"; sub = "Three in a row. BE KIND, REWIND... ALL OF THEM."; col = "#ff4b3e"; burst(60); Shell.sfx("best"); }
       else { title = S.strikesRow > 3 ? S.strikesRow + " IN A ROW!" : "STRIKE!"; sub = "BE KIND, REWIND... ALL OF THEM."; col = "#ffd23f"; burst(30); }
       Shell.sfx("crowd"); Shell.sfx("score"); Shell.shake(4, 0.3);
+      if (window.Trophies) { Trophies.unlock("tpl-strike"); if (S.strikesRow === 3) Trophies.unlock("tpl-turkey"); }
     } else {
       S.strikesRow = 0;
-      if (spare) { S.spares++; title = "SPARE!"; sub = "Picked it clean."; col = "#3ff0ff"; Shell.sfx("score"); }
-      else if (down === 0 && b.gutter) { title = "LATE FEE."; sub = "Gutter ball."; col = "#ff3fa4"; Shell.sfx("miss"); }
+      if (spare) {
+        S.spares++; title = "SPARE!"; sub = "Picked it clean."; col = "#3ff0ff"; Shell.sfx("score");
+        if (window.Trophies) { Trophies.unlock("tpl-spare"); if (S.splitFrame === f) Trophies.unlock("tpl-split"); }
+      }
+      else if (down === 0 && b.gutter) {
+        title = "LATE FEE."; sub = "Gutter ball."; col = "#ff3fa4"; Shell.sfx("miss");
+        if (window.Trophies && f >= 5) Trophies.unlock("tpl-latefee");
+      }
       else if (down === 0) { title = "MISS"; sub = "Not a scratch on them."; col = "#8e93a2"; Shell.sfx("miss"); }
       else {
         title = down + (down === 1 ? " PIN" : " PINS");
-        if (first && isSplit()) { title = "SPLIT"; sub = down + " down. Good luck with the rest."; col = "#a77bff"; }
+        if (first && isSplit()) { title = "SPLIT"; sub = down + " down. Good luck with the rest."; col = "#a77bff"; S.splitFrame = f; }
         else if (standing > 0) sub = standing + " left standing.";
         Shell.sfx("tap");
       }
@@ -365,7 +372,8 @@
     var title = t === 300 ? "PERFECT GAME!" : "TEN FRAMES DONE";
     Shell.gameOver(t, { title: title, html: cardHTML() +
       '<div class="np-row" style="margin-top:10px"><span>Strikes</span><b>' + S.strikes + '</b></div>' +
-      '<div class="np-row"><span>Spares</span><b>' + S.spares + '</b></div>' });
+      '<div class="np-row"><span>Spares</span><b>' + S.spares + '</b></div>',
+      stats: { total: t, strikes: S.strikes, spares: S.spares, frames: JSON.parse(JSON.stringify(S.frames)) } });
   }
   function cardHTML() {
     var sc = scores(S.frames), h = '<table aria-label="Scorecard"><tr>', i;

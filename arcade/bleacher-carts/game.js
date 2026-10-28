@@ -106,6 +106,12 @@
       S.total += h.d;
       S.longest = Math.max(S.longest, h.d);
       title = h.d >= 470 ? "MOONSHOT!" : "HOME RUN!";
+      if (window.Trophies) {
+        Trophies.unlock("bc-hr");
+        if (h.d >= 470) Trophies.unlock("bc-moon");
+        if (h.target === "billboard") Trophies.unlock("bc-sign");
+        if (h.target === "scoreboard") Trophies.unlock("bc-board");
+      }
       sub = h.d + " FT to " + zone(h.theta);
       col = "#ffd23f";
       if (h.target === "scoreboard") bonus.push("Off the scoreboard! Bonus pitch.");
@@ -114,6 +120,7 @@
       if (h.target) { S.left++; S.bonusEarned++; }
       if (S.streak % 3 === 0) {
         S.total += 500; S.features++;
+        if (window.Trophies) Trophies.unlock("bc-feature");
         bonus.push("BLEACHER FEATURE +500 FT");
       }
       Shell.sfx("crowd"); Shell.sfx("score");
@@ -148,7 +155,8 @@
         row("Home runs", S.hrs + " of " + S.thrown) +
         row("Longest blast", S.longest ? S.longest + " FT" : "None") +
         row("Bonus pitches", S.bonusEarned) +
-        row("Bleacher features", S.features) });
+        row("Bleacher features", S.features),
+        stats: { total: S.total, hrs: S.hrs, thrown: S.thrown, longest: S.longest, bonusEarned: S.bonusEarned, features: S.features } });
       return;
     }
     setPhase("ready");

@@ -133,7 +133,7 @@
   function step(h, b, t, dt) {
     var sp = Math.hypot(b.vx, b.vy), i, r;
     var c = FR_C, k = FR_K, ax = 0, ay = 0;
-    for (i = 0; i < h.sand.length; i++) if (inRect(b.x, b.y, h.sand[i])) { c = SAND_C; k = SAND_K; break; }
+    for (i = 0; i < h.sand.length; i++) if (inRect(b.x, b.y, h.sand[i])) { c = SAND_C; k = SAND_K; b.sanded = true; break; }
     for (i = 0; i < h.boosts.length; i++) {
       var bo = h.boosts[i];
       if (inRect(b.x, b.y, bo.r)) { ax += bo.dx * BOOST; ay += bo.dy * BOOST; c = 40; k = 0.3; b.boosted = true; }
@@ -213,7 +213,7 @@
   var paused = false;
   function reset() {
     paused = false;
-    S = { hole: 0, strokes: 0, card: [], mode: "aim", t: 0, holeT: 0, timer: 0, slide: 0,
+    S = { hole: 0, splashes: 0, strokes: 0, card: [], mode: "aim", t: 0, holeT: 0, timer: 0, slide: 0,
           ball: null, last: null, drag: null, aim: 0, power: 0, charging: false, chargeT: 0, kb: false,
           rest: 0, sinkT: 0, msgShown: false };
     conf.length = 0;
@@ -269,6 +269,7 @@
       Shell.sfx("miss");
     } else if (S.strokes === 1) {
       Shell.flash("ACE!", "Is it on the shelf? It is now.", "#ffd23f", 1800);
+      if (window.Trophies) Trophies.unlock("sl-ace");
       Shell.sfx("best"); Shell.sfx("crowd");
       burst(h.cup[0], h.cup[1], Shell.reduced ? 30 : 90);
       Shell.shake(4, 0.35);
@@ -276,6 +277,10 @@
       var col = d < 0 ? "#9bff3f" : d === 0 ? "#3ff0ff" : "#ff3fa4";
       Shell.flash(relLabel(d, S.strokes), S.strokes + (S.strokes === 1 ? " stroke" : " strokes"), col, 1200);
       if (d < 0) { Shell.sfx("score"); burst(h.cup[0], h.cup[1], Shell.reduced ? 10 : 30); }
+    }
+    if (window.Trophies && sunk) {
+      if (S.hole === 2 && !S.ball.sanded) Trophies.unlock("sl-peanut");
+      if (S.hole === 8 && S.strokes <= h.par) Trophies.unlock("sl-gauntlet");
     }
     S.mode = "done";
     S.timer = sunk && S.strokes === 1 ? 1.9 : 1.35;
@@ -285,7 +290,8 @@
     if (S.hole >= HOLES.length - 1) {
       var total = 0;
       for (var i = 0; i < S.card.length; i++) total += S.card[i];
-      Shell.gameOver(total - TOTAL_PAR, { title: "ROUND OVER", html: scorecard(total) });
+      Shell.gameOver(total - TOTAL_PAR, { title: "ROUND OVER", html: scorecard(total),
+        stats: { holes: S.card.length, total: total, rel: total - TOTAL_PAR, splashes: S.splashes, card: S.card.slice(), par: HOLES.map(function (x) { return x.par; }) } });
       return;
     }
     S.mode = "slide"; S.slide = 1;
@@ -363,6 +369,7 @@
     if (ev === "water" || ev === "lost") {
       if (ev === "water") {
         S.strokes++;
+        S.splashes++;
         Shell.sfx("splash");
         splash(b.x, b.y);
         Shell.flash("SPLASH", "Spilled soda. +1 stroke.", "#ff4b3e", 1000);

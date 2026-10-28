@@ -29,6 +29,7 @@
     <a class="brand" href="https://thenostalgiapro.com/">Nostalgia Pro<b>Arcade</b></a>
     <nav class="nav" aria-label="Site">
       <a href="https://thenostalgiapro.com/" data-site="COLLECTION_URL">Collection</a>
+      <a href="trophies/" class="tro-link">Trophy Shelf</a>
       <a href="https://nostalgiapro-shop.fourthwall.com/" data-site="MERCH_URL">Merch</a>
       <a class="nav-fb" href="https://tally.so/r/rDDJJl" data-site="FEEDBACK_URL" target="_blank" rel="noopener">Feedback</a>
       <a class="support" href="https://nostalgiapro-shop.fourthwall.com/pages/donate" data-donate target="_blank" rel="noopener">Support</a>
@@ -331,6 +332,8 @@
 </footer>
 
 <script src="shared/config.js"></script>
+<script src="shared/trophy-list.js"></script>
+<script src="shared/trophies.js"></script>
 <script>
 (function () {
   "use strict";
@@ -358,6 +361,25 @@
     if (v !== null && v !== "" && isFinite(Number(v))) {
       var f = FMT[el.getAttribute("data-fmt")];
       el.textContent = f ? f(Number(v)) : v;
+    }
+  }
+
+  // Trophy count on every cabinet (from shared/trophy-list.js)
+  if (window.Trophies) {
+    var games = window.Trophies.list.games;
+    for (i = 0; i < games.length; i++) {
+      var g = games[i], cab = null, links = document.querySelectorAll(".cab");
+      for (var k = 0; k < links.length; k++) {
+        var h2 = links[k].querySelector("h2");
+        if (h2 && h2.textContent.replace(/\s+/g, " ").trim().toUpperCase() === g.name.toUpperCase()) cab = links[k];
+      }
+      if (!cab) continue;
+      var c = window.Trophies.count(g.slug), panel = cab.querySelector(".cab-panel");
+      var el = document.createElement("span");
+      el.className = "tro";
+      el.innerHTML = "SHELF<b>" + c.got + "/" + c.total + "</b>";
+      el.setAttribute("aria-label", "Trophies " + c.got + " of " + c.total);
+      panel.insertBefore(el, panel.querySelector(".best"));
     }
   }
 

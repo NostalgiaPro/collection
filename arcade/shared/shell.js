@@ -31,6 +31,17 @@
   };
   var reduced = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   var donateHref = CFG.donateHref ? CFG.donateHref() : "#";
+  /* Inside the Android app (sessionStorage "np-twa" = "1", set by /growth.js) the
+     game-over donate link is hidden (Google Play payments policy). ?forceapp=1/0 for testing. */
+  var inApp = (function () {
+    try {
+      var q = /[?&]forceapp=([01])/.exec(location.search);
+      if (q) { if (q[1] === "1") sessionStorage.setItem("np-twa", "1"); else sessionStorage.removeItem("np-twa"); }
+      if ((document.referrer || "").indexOf("android-app://com.thenostalgiapro.shelf") === 0) sessionStorage.setItem("np-twa", "1");
+      return sessionStorage.getItem("np-twa") === "1";
+    } catch (e) { return false; }
+  })();
+  if (inApp) donateHref = "";
 
   var G = null, state = "boot";
   var canvas, ctx, stage, overlays = {}, flashEl, flashTimer = 0;
@@ -176,6 +187,7 @@
             '<p class="np-how">' + esc(G.howTo || "") + '</p>' +
             (G.keys ? '<p class="np-keys">' + esc(G.keys) + '</p>' : '') +
             '<p class="np-best">BEST <b id="np-title-best">---</b></p>' +
+            '<p class="np-best" id="np-title-tro" hidden>TROPHIES <b></b></p>' +
             '<button class="np-btn np-primary np-pulse" type="button" data-act="start" style="width:100%">TAP TO START</button>' +
             '<p class="np-tip">' + esc(G.tip || "No quarters required.") + '</p>' +
           '</div>' +
@@ -200,12 +212,13 @@
             '<p class="np-score" id="np-over-score">0</p>' +
             '<p class="np-best">BEST <b id="np-over-best">---</b></p>' +
             '<div class="np-newbest" id="np-newbest" role="status"><strong>NEW BEST!</strong><span>May your shelf never be full.</span></div>' +
+            '<p class="np-extra" id="np-over-tro" hidden></p>' +
             '<div class="np-extra" id="np-over-extra"></div>' +
             '<div class="np-actions">' +
               '<button class="np-btn np-primary" type="button" data-act="again">PLAY AGAIN</button>' +
               '<a class="np-btn" href="' + HUB_URL + '">Back to arcade</a>' +
             '</div>' +
-            '<a class="np-small" data-donate href="' + esc(donateHref) + '" target="_blank" rel="noopener">Support the arcade</a>' +
+            (donateHref ? '<a class="np-small" data-donate href="' + esc(donateHref) + '" target="_blank" rel="noopener">Support the arcade</a>' : '') +
             (CFG.FEEDBACK_URL ? '<a class="np-small" href="' + esc(CFG.FEEDBACK_URL) + '" target="_blank" rel="noopener">Tell us what you think</a>' : '') +
           '</div>' +
         '</section>' +
@@ -367,6 +380,7 @@
   function run(list) { for (var i = 0; i < list.length; i++) { try { list[i](); } catch (e) { console.error(e); } } }
 
   function begin() {
+    if (window.Trophies) window.Trophies.startRun();
     unlockAudio();
     activePointer = null;
     if (G.reset) G.reset();
@@ -411,11 +425,32 @@
     document.getElementById("np-over-best").textContent = fmt(isNew ? score : prev);
     document.getElementById("np-newbest").classList.toggle("on", isNew);
     document.getElementById("np-over-extra").innerHTML = opts.html || "";
+    trophyRunEnd(score, isNew, opts.stats);
     document.getElementById("np-title-best").textContent = fmt(isNew ? score : prev);
     hideFlash(true);
     setTimeout(function () { if (state === "over") { if (isNew) SFX.best(); else SFX.over(); } }, 60);
     show("over");
     if (CFG.trackEvent) CFG.trackEvent("arcade/" + G.slug + "/game-over", G.title + " game over");
+  }
+
+  /* ---------------- Trophies (shared/trophies.js, optional) ---------------- */
+  function trophyCount() {
+    var el = document.getElementById("np-title-tro");
+    if (!el || !window.Trophies) return;
+    var c = window.Trophies.count(G.slug);
+    if (!c.total) return;
+    el.querySelector("b").textContent = c.got + "/" + c.total;
+    el.hidden = false;
+  }
+  function trophyRunEnd(score, isNew, stats) {
+    var row = document.getElementById("np-over-tro");
+    if (/trophydebug/.test(location.search)) console.log("[np-trophy-debug]", G.slug, score, JSON.stringify(stats || {}));
+    if (!row || !window.Trophies) return;
+    var names = [];
+    try { names = window.Trophies.runEnd(G.slug, stats || {}, { newBest: isNew, score: score }); } catch (e) { names = []; }
+    row.textContent = names.length ? "On the shelf this run: " + names.join(", ") : "";
+    row.hidden = !names.length;
+    trophyCount();
   }
 
   /* ---------------- Flash + shake ---------------- */
@@ -472,6 +507,7 @@
       resize();
       if (CFG.loadAnalytics) CFG.loadAnalytics();
       document.getElementById("np-title-best").textContent = fmt(readBest());
+      trophyCount();
       if (G.reset) G.reset();
       state = "title";
       show("title");
