@@ -120,6 +120,7 @@ NP.Walk = (function () {
     buildProps(r);
     pickCola();
     setupDex(r);
+    setupRivals(r);
   }
 
   function setSolid(x, y, obj) {
@@ -369,12 +370,84 @@ NP.Walk = (function () {
     d.path = [nb[Math.floor(Math.random() * nb.length)]];
   }
 
+  // ---------- the other rivals who walk the swap meet: Phone Guy Phil and Brody ----------
+  var PHIL_LOOK = { skin: 3, hair: 'short', hairCol: 1, shirt: 'stripe', hat: 'none', glasses: 'specs' };
+  var BRODY_LOOK = { skin: 1, hair: 'spiky', hairCol: 3, shirt: 'red', hat: 'back', glasses: 'none' };
+  function setupRivals(r) {
+    W.npcs = [];
+    var here = G().rivalsAt ? G().rivalsAt(W.stop) : [];
+    if (here.indexOf('phil') >= 0) {
+      var n = [7, 9, 11, 13][Math.floor(r() * 4)], p = nodePx(n);
+      W.npcs.push({ id: 'phil', look: NP.Char.normalize(PHIL_LOOK), node: n, x: p.x, y: p.y, path: [], wait: 1, dir: 'down', step: 0, anim: 0, present: true, speed: 38 });
+    }
+    if (here.indexOf('brody') >= 0 && W.tables.length) {
+      // Brody films at one table for 30 minutes of the clock, then wanders off
+      var tb = W.tables[Math.floor(r() * W.tables.length)], q = nodePx(tb.node);
+      tb.brodyUntil = S().time + 30;
+      W.npcs.push({ id: 'brody', look: NP.Char.normalize(BRODY_LOOK), node: tb.node, x: q.x, y: q.y, path: [], wait: 0, dir: 'up', step: 0, anim: 0, present: true, speed: 44, table: tb, filming: true });
+    }
+  }
+  function npcById(id) { return (W.npcs || []).filter(function (n) { return n.id === id; })[0]; }
+  function moveNpc(n, dt) {
+    var p = nodePx(n.path[0]);
+    var dx = p.x - n.x, dy = p.y - n.y, st = n.speed * dt;
+    if (Math.abs(dx) > 0.5) { n.x += Math.sign(dx) * Math.min(st, Math.abs(dx)); n.dir = dx < 0 ? 'left' : 'right'; }
+    else if (Math.abs(dy) > 0.5) { n.x = p.x; n.y += Math.sign(dy) * Math.min(st, Math.abs(dy)); n.dir = dy < 0 ? 'up' : 'down'; }
+    else { n.x = p.x; n.y = p.y; n.node = n.path.shift(); n.step = 0; return; }
+    n.anim += dt; n.step = [1, 0, 2, 0][Math.floor(n.anim / 0.16) % 4];
+  }
+  function updateRivals(dt) {
+    (W.npcs || []).forEach(function (n) {
+      if (!n.present) return;
+      if (n.filming) {
+        n.dir = 'up'; n.step = 0;
+        if (S().time >= n.table.brodyUntil) {
+          n.filming = false; n.wait = 0.5;
+          showToast('Brody wrapped his video. "Smash that subscribe button." Nobody does. The table is open.');
+        }
+        return;
+      }
+      if (n.wait > 0) { n.wait -= dt; n.step = 0; return; }
+      if (n.path.length) { moveNpc(n, dt); return; }
+      if (Math.random() < 0.4) { n.wait = 0.8 + Math.random() * 2.5; return; }
+      var nb = ADJ[n.node].filter(function (m) { return m !== N_GATE; });
+      if (nb.length) n.path = [nb[Math.floor(Math.random() * nb.length)]];
+    });
+  }
+  // Phone Guy Phil: within two steps of you when you open a table, and that table goes up 25% (once per table)
+  function philCheck(tb) {
+    var n = npcById('phil');
+    if (!n || !n.present || !tb || !tb.seller || tb.philed) return;
+    if (Math.abs(n.x - W.x) > 2 * T + 4 || Math.abs(n.y - W.y) > 2 * T + 4) return;
+    tb.philed = true;
+    tb.items.forEach(function (it) { if (it.state === 'avail') it.ask = Math.max(1, Math.round(it.ask * 1.25)); });
+    if (G().rivalHit) G().rivalHit('phil');
+    var L = NP.RIVALS.phil.lines;
+    W.ptoast = 'Phone Guy Phil, two steps behind you: "' + L[Math.floor(Math.random() * L.length)] + '" The vendor heard him. Everything on this table just went up 25%.';
+  }
+  function npcPanel(n) {
+    var R = NP.RIVALS[n.id], L = R.lines;
+    var line = n.filming ? "Can you walk around? You're in my shot." : L[(W.npcTalk = (W.npcTalk || 0) + 1) % L.length];
+    return { small: true, html: '<div class="bubble big">' + esc(R.name) + ' (' + esc(R.tag) + '): "' + esc(line) + '"</div>' };
+  }
+  function npcObj(n) { return { title: NP.RIVALS[n.id].name, label: 'TALK TO ' + NP.RIVALS[n.id].name.toUpperCase(), open: function () { return npcPanel(n); } }; }
+  function npcNear(px, py, rx, ry) {
+    var hit = null;
+    (W.npcs || []).forEach(function (n) { if (n.present && Math.abs(n.x - px) < rx && Math.abs(n.y - py) < ry) hit = n; });
+    return hit;
+  }
+
   // ---------- panels (the existing shop UI, opened in place) ----------
   function head(title) { return '<div class="wp-head">' + esc(title) + '</div>'; }
   function flavor(text) { return { small: true, html: '<div class="bubble big">' + esc(text) + '</div>' }; }
 
   function tablePanel(tb) {
     var s = W.stop, sd = NP.SELLERS[tb.seller], SP = NP.SPONSOR;
+    if (tb.brodyUntil && S().time < tb.brodyUntil) {
+      if (!W.brodyHit) { W.brodyHit = true; if (G().rivalHit) G().rivalHit('brody'); }
+      return { small: true, html: '<div class="bubble big">Brody from BrodyBox is filming at this table. "Can you walk around? You\'re in my shot. This video is NOT sponsored."</div>' +
+        '<div class="note">The table opens back up at ' + G().fmtTime(tb.brodyUntil) + '. Come back then, or shop somewhere else.</div>' };
+    }
     var h = '<div class="bubble big">' + esc(sd.name) + ': "' + esc(tb.cola && SP ? SP.colaLine : tb.hello) + '"</div>';
     if (tb.cola && SP) h += '<div class="glam"><canvas class="glamcan" width="22" height="30" aria-label="A can of ' + esc(SP.name) + '"></canvas><div class="glam-t">' + esc(SP.colaAction) + '</div></div>';
     if (G().adLevel() >= 2) h += '<div class="poster">' + (G().adFree() ? 'TAPED TO THE TABLE: The Ad-Free Edition. No posters. (Except this one.)' : 'TAPED TO THE TABLE: Nostalgia Pro: The Shelf Dust. Now in Sealed. Booth open till ' + (G().endLabel ? G().endLabel() : '5:30 PM') + '.') + '</div>';
@@ -437,6 +510,7 @@ NP.Walk = (function () {
   function panelEl() { return document.querySelector('.wpanel'); }
 
   function openPanel(o) {
+    if (o && o.kind === 'table') philCheck(o);
     W.panel = o; keys = {}; touchVec.x = touchVec.y = 0;
     if (o && o.cola) G().sfx('sparkle');
     var el = panelEl();
@@ -541,6 +615,7 @@ NP.Walk = (function () {
     if (W.y > MH * T - 3) { W.y = MH * T - 4; W.dir = 'up'; openPanel(EXIT_OBJ); return true; }
 
     updateDex(dt);
+    updateRivals(dt);
     if (W.toastT > 0) {
       W.toastT -= dt;
       if (W.toastT <= 0) { var te = document.querySelector('.wtoast'); if (te) te.hidden = true; }
@@ -560,6 +635,8 @@ NP.Walk = (function () {
     var fx = W.x, fy = W.y - 3, d = DV[W.dir];
     var dx = W.dex;
     if (dx && dx.present && Math.abs(dx.x - W.x) < 18 && Math.abs(dx.y - W.y) < 14) return DEX_OBJ;
+    var nn = npcNear(W.x, W.y, 18, 14);
+    if (nn) return npcObj(nn);
     var o = objAt(Math.floor((fx + d[0] * 10) / T), Math.floor((fy + d[1] * 10) / T));
     if (o) return o;
     var tx = Math.floor(fx / T), ty = Math.floor(fy / T);
@@ -619,8 +696,12 @@ NP.Walk = (function () {
     var goal = null, dest = null, face = null;
     var d = W.dex;
     var o = objAtPoint(px, py);
+    var tn = npcNear(px, py + 12, 10, 15);
     if (d && d.present && Math.abs(d.x - px) < 10 && py > d.y - 26 && py < d.y + 3) {
       goal = 'dex'; dest = { x: Math.floor(d.x / T), y: Math.floor((d.y - 3) / T) };
+      if (!walkable(dest.x, dest.y) || g.dist[dest.y * MW + dest.x] < 0) dest = null;
+    } else if (tn) {
+      goal = { npc: tn }; dest = { x: Math.floor(tn.x / T), y: Math.floor((tn.y - 3) / T) };
       if (!walkable(dest.x, dest.y) || g.dist[dest.y * MW + dest.x] < 0) dest = null;
     } else if (o) {
       // the open tile next to it that is quickest to reach, and which way to face once you get there
@@ -666,6 +747,7 @@ NP.Walk = (function () {
     if (face) W.dir = face;
     if (goal === 'exit') { W.dir = 'down'; openPanel(EXIT_OBJ); return; }
     if (goal === 'dex') { var d = W.dex; if (d && d.present && Math.abs(d.x - W.x) < 26 && Math.abs(d.y - W.y) < 22) openPanel(DEX_OBJ); return; }
+    if (goal && goal.npc) { var nn = goal.npc; if (nn.present && Math.abs(nn.x - W.x) < 30 && Math.abs(nn.y - W.y) < 24) openPanel(npcObj(nn)); return; }
     if (goal && goal.open) openPanel(goal);
   }
   function cancelTap() { if (W && W.path && W.path.length) { W.path = []; W.goal = null; W.marker = null; } }
@@ -916,6 +998,7 @@ NP.Walk = (function () {
     list.push({ base: W.y, draw: function () { shadow(W.x, W.y); sprite(W.look, W.dir, W.step, W.x, W.y); } });
     var d = W.dex;
     if (d && d.present) list.push({ base: d.y, draw: function () { shadow(d.x, d.y); sprite(d.look, d.dir, d.step, d.x, d.y); } });
+    (W.npcs || []).forEach(function (n) { if (n.present) list.push({ base: n.y, draw: function () { shadow(n.x, n.y); sprite(n.look, n.dir, n.step, n.x, n.y); } }); });
     list.sort(function (a, b) { return a.base - b.base; });
     list.forEach(function (o) { o.draw(); });
 
@@ -942,6 +1025,11 @@ NP.Walk = (function () {
     }
     // Dex name tag when he is close
     if (d && d.present && Math.abs(d.x - W.x) < 64 && Math.abs(d.y - W.y) < 48) sign(d.x, d.y - 38, 'DEX', '#ff9e57', INK);
+    (W.npcs || []).forEach(function (n) {
+      if (!n.present) return;
+      if (n.filming) { sign(n.x, n.y - 38, 'REC', Math.floor(now * 2) % 2 ? RED : CREAM, Math.floor(now * 2) % 2 ? CREAM : RED); return; }
+      if (Math.abs(n.x - W.x) < 64 && Math.abs(n.y - W.y) < 48) sign(n.x, n.y - 38, n.id === 'phil' ? 'PHIL' : 'BRODY', n.id === 'phil' ? CYAN : GOLD, INK);
+    });
 
     // prompt bar
     var t = findTarget();
@@ -988,7 +1076,8 @@ NP.Walk = (function () {
       '<div class="tpad"><div class="dpad" id="dpad"><i class="u"></i><i class="l"></i><i class="c"></i><i class="r"></i><i class="d"></i></div>' +
       '<button class="abtn" data-w="act" aria-label="Look">A</button></div></div>' +
       '<div class="walk-help">' + (touch ? 'Tap anywhere to walk there. Tap a table to shop it. The pad and A button work too.' : 'Click anywhere to walk there, or use the arrow keys or WASD. Click a table (or press Space) to shop it. Esc to step back.') +
-      ' Walking uses daylight too, about a minute for every six steps.' + '</div></div>';
+      ' Walking uses daylight too, about a minute for every six steps.' + '</div>' +
+      (G().rivalNotes ? '<div class="walk-rivals">' + G().rivalNotes(W.stop) + '</div>' : '') + '</div>';
     W.floor = W.floor || buildFloor();
     bindPad();
     var cv = document.getElementById('walkcv');
@@ -1012,7 +1101,9 @@ NP.Walk = (function () {
       var ch = cv.getBoundingClientRect().height;
       if (!ch) return;
       var bottom = app.getBoundingClientRect().top + (window.pageYOffset || 0) + app.offsetHeight;
-      var over = Math.ceil(bottom - window.innerHeight);
+      // the rival notes sit under the play area and may scroll; they do not shrink the canvas (Grok Bot r3a fix)
+      var rv = app.querySelector('.walk-rivals'), rvH = rv && rv.offsetHeight ? rv.getBoundingClientRect().height + 16 : 0;
+      var over = Math.ceil(bottom - window.innerHeight - rvH);
       var bw = box.getBoundingClientRect().width;
       if (pass === 0) box.style.maxWidth = Math.max(200, Math.floor((ch - over - 7) * VW / VH + 6)) + 'px';
       else if (over > 0) box.style.maxWidth = Math.max(200, Math.floor(bw - over * VW / VH - 2)) + 'px';

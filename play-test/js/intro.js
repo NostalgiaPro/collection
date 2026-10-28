@@ -295,7 +295,7 @@ NP.Intro = (function () {
   var morningRun = 0;
   function morning(app, info, done) {
     morningRun++;
-    var goals = NP.GOALS ? NP.GOALS(info.mode || (info.demo ? 'noon' : 'sundown')) : [];
+    var goals = NP.GOALS ? NP.GOALS(info.mode || (info.demo ? 'noon' : 'sundown'), info.budget) : [];
     app.innerHTML = '<div class="screen morning"><canvas id="mcv" width="320" height="200" aria-label="Saturday morning. The alarm goes off at 6:58 AM. Then the to-do list on the fridge: ' + goals.join(' ').replace(/"/g, '') + '"></canvas>' +
       '<div class="btns center"><button data-intro="skip">Skip</button></div></div>';
     var cv = document.getElementById('mcv'), g = cv.getContext('2d'), t0 = performance.now(), fin = false;
@@ -307,7 +307,8 @@ NP.Intro = (function () {
       done();
     }
     // Each scene stays up until the player taps, clicks or presses a key, so there is time to read it.
-    var scene = 0, s0 = t0, SCENES = 4;
+    // from: start partway in (a season skips the alarm and the kitchen after the first Saturday)
+    var scene = info.from || 0, s0 = t0, SCENES = 4;
     function next() {
       if (performance.now() - s0 < 400) return;
       scene++; s0 = performance.now();
@@ -325,7 +326,9 @@ NP.Intro = (function () {
       else if (scene === 2) forecast(g, t, info);
       else fridge(g, t, goals);
       // the last scene says it in its caption instead
-      if (scene < SCENES - 1 && t > 1 && Math.floor(t * 2) % 2 === 0) TS(g, (coarseTap() ? 'TAP' : 'CLICK') + ' TO CONTINUE', 314, 176, 1, GOLD, INK, 'right');
+      // the forecast is full of text (and the rivals line sits where the prompt used to), so its prompt goes in the caption bar
+      if (scene === 2) { if (t > 2.7 && Math.floor(t * 2) % 2 === 0) TS(g, (coarseTap() ? 'TAP' : 'CLICK') + ' TO GO ON', 314, 190, 1, GOLD, INK, 'right'); }
+      else if (scene < SCENES - 1 && t > 1 && Math.floor(t * 2) % 2 === 0) TS(g, (coarseTap() ? 'TAP' : 'CLICK') + ' TO CONTINUE', 314, 176, 1, GOLD, INK, 'right');
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
@@ -390,7 +393,8 @@ NP.Intro = (function () {
   function forecast(g, t, info) {
     P(g, 0, 0, 320, 200, NAVY);
     P(g, 0, 0, 320, 22, RED); P(g, 0, 22, 320, 2, CYAN);
-    TS(g, (info.label || 'SATURDAY #' + info.runNo) + ' FORECAST', 160, 5, 2, CREAM, INK, 'center');
+    var lab = (info.label || 'SATURDAY #' + info.runNo) + ' FORECAST', lk = NP.textWidth(lab, 2) <= 312 ? 2 : 1;
+    TS(g, lab, 160, lk === 2 ? 5 : 8, lk, CREAM, INK, 'center');
     var wx = info.wx;
     var ix = 70, iy = 74;
     if (wx.id === 'rain') {
@@ -424,8 +428,16 @@ NP.Intro = (function () {
       var fy = spons ? 157 : 150;
       fl.forEach(function (l, i) { T(g, l, 160, fy + i * 9, 1, GOLD, 'center'); });
     }
+    // the rivals who are out today
+    if (info.spotted) {
+      var sy = (info.featured ? (spons ? 157 : 150) + fl.length * 9 : by + lines.length * 9) + 1;
+      var st = ('SPOTTED TODAY: ' + info.spotted).toUpperCase();
+      if (NP.textWidth(st, 1) > 300) st = st.replace('PHONE GUY PHIL', 'PHIL').replace('SLAB STEVE', 'STEVE');
+      if (NP.textWidth(st, 1) > 300) st = st.replace('SPOTTED TODAY:', 'SPOTTED:');
+      if (sy <= 178) T(g, st, 160, sy, 1, CYAN, 'center');
+    }
     if (spons && t > 0.9 && t < 2.6) caption(g, 'YOU: ' + SP.react);
-    else caption(g, 'PHOENIX, ARIZONA');
+    else caption(g, 'SUNDOWN FLATS');
   }
   // the goal of the game, on a to-do list stuck to the fridge
   function fridge(g, t, goals) {

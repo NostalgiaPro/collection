@@ -267,6 +267,88 @@ NP.NOBUY = {
 
 NP.RIVAL = { name: 'Dex', shop: 'Flipside Resale' };
 
+// ---------- the rivals. Each one changes one rule. Dex shows up every Saturday; the others rotate. ----------
+// where: the stop types they can be at. rule: one line shown at the stop. lines: what they say when you talk to them or they get you.
+NP.RIVALS = {
+  dex: { name: 'Dex', tag: 'Flipside Resale', where: ['yard', 'thrift', 'flea'],
+    rule: 'Takes the three priciest things and flips them at double the price.',
+    lines: ["I'd never sell out. That's what separates me from these guys.", 'Curated. Twice the price. You are welcome.'] },
+  brayden: { name: 'Brayden', tag: "mom's card", where: ['yard'],
+    rule: 'Look at something (Inspect, shelf check, or an offer they turn down), then move on to something else, and Brayden buys the first one.',
+    lines: ["You put it down. That means it's mine. That's the rule.", 'I do not know what this is. I am buying it anyway.', 'Mom said anything under a hundred is fine.'],
+    texts: ['MOM: what is {t} and why is it {$}', 'MOM: brayden', 'MOM: why are you at a yard sale you are at school'] },
+  phil: { name: 'Phone Guy Phil', tag: 'checks sold listings', where: ['flea'],
+    rule: 'Wanders the swap meet. If he is within two steps of you when you open a table, that table goes up 25%.',
+    lines: ['Ooh, those go for eighty. Sold, not listed. Sold.', 'Hang on, let me check. Yeah. Way more than that.', 'I have never bought anything. I just like to know.'] },
+  brody: { name: 'Brody', tag: 'BrodyBox, 11 subscribers', where: ['flea', 'yard', 'thrift'],
+    rule: 'Filming a haul video. Every action here takes 5 extra minutes while he asks you to redo your entrance.',
+    ruleWalk: 'Filming a haul video at one table. That table is locked for 30 minutes.',
+    lines: ['What is up, all eleven of you. This video is NOT sponsored. (He takes a long sip of a Saguaro Splash Cola.)', "Can you walk around? You're in my shot.", 'Can you do that again but more surprised?', 'Smash that subscribe button. Somebody. Anybody.'] },
+  gary: { name: 'Gary', tag: 'everybody knows Gary', where: ['yard', 'thrift', 'pawn'],
+    rule: 'Gary already lowballed everyone here. Nobody is taking a lowball today.',
+    lines: ['Five bucks for the whole table.', 'What is your best price? No, your real best price.', 'I will give you three dollars and a handshake. Half a handshake.'],
+    seller: 'Not today, Gary. (Wait, you are not Gary. Still no.)' },
+  steve: { name: 'Slab Steve', tag: 'sealed only', where: ['pawn', 'flea'],
+    rule: 'Every sealed game is on hold for Steve. Pay 20% more and the hold goes away.',
+    lines: ["I don't open things. Opening is for people who play games.", "If it's not in plastic, it's not real.", 'I have a climate controlled closet. It has a dehumidifier named Gerald.'] }
+};
+
+// ---------- the season: 12 Saturdays of Home by sundown ----------
+NP.SEASON = {
+  weeks: 12,
+  startSavings: 130,   // plus the first paycheck = $250 on Saturday 1, same as one Home by sundown day
+  paycheck: 120        // what is left of each Friday paycheck after rent, gas and ramen
+};
+NP.WEEKDAYS = [
+  ['You went to work. You thought about the shelf.', 'A coworker asked what you did this weekend. You said "errands."'],
+  ['Monday was long. Tuesday was longer.', 'You reorganized the shelf on Wednesday night. Then you reorganized it back.'],
+  ['You watched a 40 minute video about cartridge labels during lunch.', 'You do not remember any of your meetings.'],
+  ['Your car made a noise on Tuesday. It is probably fine.', 'You measured the shelf. It is the same size it was.'],
+  ['You had a dream about a mystery lot box. It was all football games.', 'You woke up sweating.'],
+  ['Someone at work said "video games are for kids." You smiled.', 'You said nothing. The shelf will remember.'],
+  ['You found an old price sticker in your wallet. You kept it.', 'You do not know why. You will never know why.'],
+  ['You looked at sold listings on your break. Then on your other break.', 'You might be turning into Phil.'],
+  ['You ate ramen four nights in a row.', 'The shelf looks great, though.'],
+  ['You bought a second shelf. Then you remembered you do not have a second wall.', 'You returned the shelf.'],
+  ['Your boss asked if you had weekend plans.', 'You said yes. You did not elaborate. You never elaborate.']
+];
+NP.FINALE_NOTE = 'Saturday 12. The last Saturday of the season. Make it count.';
+
+// ---------- endings. Checked top to bottom; the first one that fits is yours. ----------
+// score = all 12 Saturdays added up, plus half your leftover cash. items/dupes/merch count what is on the season shelf.
+NP.ENDINGS = [
+  { id: 'browsing', name: 'Just Browsing, All Season', test: function (e) { return e.items < 5; },
+    text: 'Twelve Saturdays. You drove to every yard sale in Sundown Flats and bought almost nothing. The sellers think you are a ghost. You might be.' },
+  { id: 'legend', name: 'Legend of the Swap Meet', test: function (e) { return e.score >= 5200; },
+    text: 'People nod when you walk into the swap meet. Dex has your picture taped up in his van, with a circle around it. The shelf is not full. It never will be. May your shelf never be full.' },
+  { id: 'savings', name: 'The Savings Account Collection', test: function (e) { return e.cash >= 700 && e.items < 20; },
+    text: 'You saved almost every paycheck. Your bank sent you a card. Your shelf did not send you anything. It is mostly empty.' },
+  { id: 'doubles', name: 'Doubles Trouble', test: function (e) { return e.dupes >= 6; },
+    text: 'You own most of these twice. A few of them three times. The note on the fridge said DO NOT BUY ANOTHER COPY. The note was right.' },
+  { id: 'merch', name: 'Fully Merchandised', test: function (e) { return e.merch >= 6; },
+    text: 'Your shelf is mostly Nostalgia Pro merch. The gift shop sent you a fruit basket. The fruit basket was also merch.' },
+  { id: 'ramen', name: 'Ramen Season', test: function (e) { return e.cash < 15; },
+    text: 'You spent every paycheck down to the coins. The shelf looks great. The fridge has one ramen in it and a note that says DO NOT BUY ANOTHER COPY.' },
+  { id: 'respectable', name: 'A Respectable Shelf', test: function (e) { return e.score >= 2600; },
+    text: 'Not legendary. Not embarrassing. The kind of shelf a guest looks at and says "oh, nice." You will hear "oh, nice" in your sleep. It is enough. It is never enough.' },
+  { id: 'decent', name: 'A Decent Little Shelf', test: function () { return true; },
+    text: 'A decent little shelf. Some gems, some football, one thing you cannot explain. Next season, maybe. The shelf can wait. The shelf cannot wait.' }
+];
+
+// ---------- catchphrases ----------
+NP.CATCH = {
+  shelf: 'May your shelf never be full.',
+  blow: 'Blow on it. It helps.',
+  question: 'Is it on the shelf?'
+};
+// "Blow on it" moments, on a loose cartridge you Inspect (one per Saturday at most)
+NP.BLOW = [
+  'It will not start. You blow on it. It helps.',
+  'Black screen. You blow on it, then blow on it again for luck. It helps.',
+  'The label is peeling and it smells like a garage. You blow on it. It helps. It always helps.'
+];
+NP.BLOW_DISC = 'It skips. You blow on it. It does not help. It never helps a disc. You did it anyway.';
+
 // CRT commercials. Still frames, skippable.
 NP.ADS = [
   { h: 'NOSTALGIA PRO: THE SHELF DUST', s: 'Authentic dust from an authentic shelf.', f: 'Now available SEALED.' },
@@ -377,10 +459,10 @@ NP.MODES = {
 // ---------- teaching the game ----------
 // The Saturday to-do list on the fridge. The same list shows on the How to play screen.
 // m is 'noon' or 'sundown' (true still means the demo, which is always noon).
-NP.GOALS = function (m) {
+NP.GOALS = function (m, budget) {
   var noon = m === true || m === 'noon';
   return [
-    noon ? '$100 budget.' : '$250 budget.',
+    budget ? '$' + budget + ' to spend.' : noon ? '$100 budget.' : '$250 budget.',
     noon ? 'Back by noon.' : 'Home by sundown (5:30).',
     "Buy what's worth it.",
     "Don't buy what you already own.",
