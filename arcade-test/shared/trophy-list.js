@@ -83,6 +83,22 @@
       T(45, "fac-60", "The Narrow Part", "Make a kick from 60 yards or more.", "sealed", { goal: { stat: "longest", at: 60, unit: "YDS" } }),
       T(46, "fac-70", "Booth Rental Leg", "Make a kick from 70 yards or more.", "slabbed", { goal: { stat: "longest", at: 70, unit: "YDS" } })
     ] },
+    // Seasonal (Halloween 2026). seasonal: true keeps it out of the arcade-wide "every live game" trophies,
+    // so they do not get harder once the season ends and the game moves to the Seasonal Vault.
+    { slug: "pillowcase-panic", name: "Pillowcase Panic", status: "live", seasonal: "halloween", trophies: [
+      T(71, "pp-25", "Trick or Treat, Mostly Treat", "Catch 25 pieces of candy in one night.", "loose", { goal: { stat: "pieces", at: 25, unit: "pieces", one: "piece" }, end: function (s) { return s.pieces >= 25; } }),
+      T(72, "pp-full", "The Full-Size House", "Catch a FULL SIZE bar.", "loose", end(function (s) { return s.full >= 1; })),
+      T(73, "pp-glow", "Glow Stick Necklace", "Catch a glow stick.", "loose", end(function (s) { return s.glows >= 1; })),
+      T(74, "pp-pin", "Mom's Safety Pin", "Patch a rip with a safety pin.", "loose", end(function (s) { return s.pins >= 1; })),
+      T(75, "pp-combo12", "Sugar Rush", "Catch 12 pieces in a row without a drop or a dud.", "boxed", { goal: { stat: "bestCombo", at: 12, unit: "in a row", margin: 4 }, end: function (s) { return s.bestCombo >= 12; } }),
+      T(76, "pp-curfew", "Home by Curfew", "Make it to the 9:00 PM curfew before the pillowcase rips open.", "boxed", end(function (s) { return !!s.curfew; })),
+      T(77, "pp-1500", "Heavy Pillowcase", "Score 1,500 in one night.", "boxed", { goal: { stat: "score", at: 1500, unit: "PTS", fromBest: true }, end: function (s) { return s.score >= 1500; } }),
+      T(78, "pp-3500", "Trade Night Kingpin", "Score 3,500 in one night.", "sealed", { goal: { stat: "score", at: 3500, unit: "PTS", fromBest: true }, end: function (s) { return s.score >= 3500; } }),
+      T(79, "pp-full4", "Full-Size Street", "Catch 4 FULL SIZE bars in one night.", "sealed", { goal: { stat: "full", at: 4, unit: "full size bars", one: "full size bar", margin: 1 }, end: function (s) { return s.full >= 4; } }),
+      T(80, "pp-mint", "Mint Condition Pillowcase", "Make curfew with zero rips in the pillowcase (safety pins count).", "sealed", end(function (s) { return !!s.curfew && s.rips === 0; })),
+      T(81, "pp-5000", "The Whole Block, One Pillowcase", "Score 5,000 in one night.", "slabbed", { goal: { stat: "score", at: 5000, unit: "PTS", fromBest: true }, end: function (s) { return s.score >= 5000; } }),
+      T(82, "pp-combo50", "Sugar Coma", "Catch 50 pieces in a row without a drop or a dud.", "slabbed", { goal: { stat: "bestCombo", at: 50, unit: "in a row", margin: 12 }, end: function (s) { return s.bestCombo >= 50; } })
+    ] },
     { slug: "pawn-shop-pool", name: "Pawn Shop Pool", status: "soon", trophies: [
       T(47, "psp-scratch", "That Cue Ball Was Not for Sale", "Scratch the cue ball.", "loose"),
       T(48, "psp-combo", "Two for One Special", "Sink 2 or more balls with one shot.", "boxed"),
@@ -105,7 +121,7 @@
     ] }
   ];
 
-  function live() { var a = []; for (var i = 0; i < games.length; i++) if (games[i].status === "live") a.push(games[i]); return a; }
+  function live() { var a = []; for (var i = 0; i < games.length; i++) if (games[i].status === "live" && !games[i].seasonal) a.push(games[i]); return a; }
 
   var meta = [
     T(59, "arc-regular", "Arcade Regular", "Finish at least one run in every live arcade game.", "boxed", { check: function (sv) {
