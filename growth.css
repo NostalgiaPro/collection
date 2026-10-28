@@ -1,0 +1,107 @@
+/* ===========================================================
+   Android app growth (growth.js): Google Play badge for website
+   visitors, "Rate it" card inside the app. The badge art is
+   Google's own and is never recoloured or filtered; each era
+   only changes the plate it sits on. 1984 swaps it for text.
+   =========================================================== */
+
+/* ---------- badge ---------- */
+.npgp{position:relative;z-index:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 16px;text-align:center}
+.npgp-home{margin:18px 0 0;padding:10px 16px;background:var(--bg2,#171a23);border:1px solid var(--line,#2c3040);border-radius:4px}
+.npgp-foot{flex-direction:column;gap:2px;margin:6px 0 10px}
+.npgp-arcade{margin:18px auto 0;max-width:640px;padding:10px 16px;background:var(--panel,#1d2029);border:2px solid var(--line,#2c3040)}
+.npgp-line{margin:0;min-width:0;flex:1 1 220px;text-align:left;font-size:14px;line-height:1.4;color:var(--dim,#8e93a2)}
+.npgp-line b{display:block;color:var(--text,#eceae2);font-size:15px}
+.npgp-badge{display:inline-block;flex:none;line-height:0;border-radius:6px}
+/* the PNG carries Google's clear space as transparent padding, so the
+   visible badge is about 168/250 of this height: 72px -> about 48px */
+.npgp-badge img{display:block;width:auto;height:72px;max-width:none;filter:none!important;border:0!important;box-shadow:none!important;background:none!important}
+.npgp-foot .npgp-badge img{height:62px}
+.npgp-badge:focus-visible{outline:2px solid var(--hot,#ff4b3e);outline-offset:-6px}
+.npgp-txt{display:none}
+.npgp-tm{margin:0;font-size:11px;line-height:1.4;color:var(--dim,#8e93a2)}
+@media (max-width:560px){
+  .npgp-home{gap:2px 10px;padding:8px 12px}
+  .npgp-line{flex-basis:100%;text-align:center;font-size:13.5px}
+  .npgp-arcade .npgp-line{text-align:center}
+}
+/* the old text link in the footer is replaced by the badge */
+html.np-gp .elsewhere .applink{display:none}
+
+/* arcade hub type */
+.npgp-arcade .npgp-line{font-family:var(--ui,inherit)}
+.npgp-arcade .npgp-line b{font-family:var(--display,inherit);font-size:11px;line-height:1.6;color:var(--gold,#ffd23f);margin-bottom:4px}
+
+/* ---------- Time Machine plates (badge itself untouched) ---------- */
+body.era-1984 .npgp-home,body.era-1984 .npgp-arcade{background:#000;border:3px double var(--text)}
+body.era-1984 .npgp-badge img{display:none}
+body.era-1984 .npgp-txt{
+  display:inline-block;padding:9px 12px;border:1px solid var(--text);color:var(--text);
+  font:700 14px/1.2 "Courier New",ui-monospace,monospace;letter-spacing:.02em;text-decoration:none;
+}
+body.era-1984 .npgp-badge{line-height:1.2;text-decoration:none}
+body.era-1984 .npgp-badge:hover .npgp-txt,body.era-1984 .npgp-badge:focus-visible .npgp-txt{background:var(--text);color:#000}
+body.era-1984 .npgp-line,body.era-1984 .npgp-tm{font-family:"Courier New",ui-monospace,monospace}
+body.era-1984 .npgp-line b{color:var(--hot)}
+
+body.y1996 .npgp-home{background:#c0c0c0;border:2px outset #fff;border-radius:0}
+body.y1996 .npgp-home .npgp-line,body.y1996 .npgp-home .npgp-line b{color:#000;font-family:"Times New Roman",Times,serif}
+body.y1996 .npgp-home .npgp-line b{color:#000080;font-size:17px}
+body.y1996 .npgp-foot{background:#c0c0c0;border:2px outset #fff;padding:4px 12px 6px;display:inline-flex}
+body.y1996 .npgp-tm{color:#000;font-family:"Times New Roman",Times,serif}
+
+body.era-1999 .npgp-home{background:#d4d0c8;border:2px outset #fff;border-radius:0;box-shadow:1px 1px 0 #404040}
+body.era-1999 .npgp-home .npgp-line{color:#000;font-family:Verdana,Tahoma,sans-serif}
+body.era-1999 .npgp-home .npgp-line b{color:#003399}
+
+body.era-2004 .npgp-home{background:var(--bg2);border:1px solid #6b62c9;border-left:4px solid var(--hot);border-radius:0}
+
+body.era-2007 .npgp-home{background:#fff;border:1px solid #bcd8ea;border-radius:12px;box-shadow:0 2px 6px rgba(28,93,153,.12)}
+body.era-2007 .npgp-home .npgp-line b{color:#1c5d99}
+body.era-2007 .npgp-foot{background:#fff;border-radius:12px;padding:4px 14px 8px;display:inline-flex}
+
+body.era-2011 .npgp-home{background:linear-gradient(#fffdf8,#f5f0e6);border:1px solid #c2b59c;border-radius:6px;box-shadow:0 1px 3px rgba(60,40,20,.25),inset 0 1px 0 #fff}
+body.era-2011 .npgp-foot{background:#fffdf8;border:1px solid #c2b59c;border-radius:6px;padding:4px 14px 8px;display:inline-flex}
+
+/* ---------- rate card (inside the app only) ---------- */
+#npRate{
+  position:fixed;z-index:80;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));
+  max-width:420px;margin:0 auto;padding:14px 16px;
+  background:var(--bg2,#171a23);color:var(--text,#eceae2);
+  border:1px solid var(--line,#2c3040);border-left:4px solid var(--hot,var(--gold,#ff4b3e));border-radius:4px;
+  box-shadow:0 8px 28px rgba(0,0,0,.45);
+  font-family:inherit;animation:nprIn .2s ease-out;
+}
+#npRate.out{opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s}
+@keyframes nprIn{from{opacity:0;transform:translateY(10px)}}
+#npRate p{margin:0;font-size:15px;line-height:1.45}
+.nprate-btns{display:flex;gap:10px;margin:12px 0 0}
+.nprate-btns a,.nprate-btns button{
+  flex:1 1 0;min-height:44px;display:inline-flex;align-items:center;justify-content:center;
+  font:inherit;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;border-radius:2px;
+}
+.nprate-go{background:var(--hot,var(--gold,#ff4b3e));color:#12070a;border:2px solid var(--hot,var(--gold,#ff4b3e))}
+.nprate-no{background:transparent;color:var(--dim,#8e93a2);border:2px solid var(--line,#2c3040)}
+.nprate-btns a:focus-visible,.nprate-btns button:focus-visible{outline:2px solid var(--text,#eceae2);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){#npRate{animation:none}#npRate.out{transition:none}}
+/* arcade hub: its own palette */
+html.np-arcade #npRate{border-left-color:var(--gold);font-family:var(--ui)}
+html.np-arcade .nprate-go{background:var(--gold);border-color:var(--gold);color:#101219}
+/* eras */
+body.era-1984 #npRate{background:#000;border:3px double var(--text);font-family:"Courier New",monospace}
+body.era-1984 .nprate-go{background:var(--hot);border-color:var(--hot);color:#000}
+body.era-1984 .nprate-no{color:var(--text);border-color:var(--text)}
+body.y1996 #npRate{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0;font-family:"Times New Roman",Times,serif}
+body.y1996 .nprate-go,body.y1996 .nprate-no{background:#c0c0c0;color:#000080;border:2px outset #fff;border-radius:0}
+body.era-1999 #npRate{background:#d4d0c8;color:#000;border:2px outset #fff;border-radius:0}
+body.era-1999 .nprate-go{background:#003399;border-color:#003399;color:#fff}
+body.era-1999 .nprate-no{background:#d4d0c8;color:#000;border:2px outset #fff}
+body.era-2007 #npRate,body.era-2011 #npRate{border-radius:12px}
+body.era-2007 .nprate-go,body.era-2011 .nprate-go{color:#fff}
+body.era-2007 .nprate-btns a,body.era-2007 .nprate-btns button{border-radius:999px}
+
+/* ---------- inside the app: no donation asks (Google Play payments policy) ---------- */
+html.np-twa [data-donate],
+html.np-twa .support-strip:not(.feedback-strip),
+html.np-twa .nav .support{display:none!important}
+body.era-1984 .npgp-tm{display:none}
