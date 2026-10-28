@@ -1,0 +1,621 @@
+/* ===========================================================
+   Time Machine. Six old looks of the web, switched by eras.js.
+   Body classes: era-1984, era-1996 (+ y1996, so retro.css is the
+   base), era-1999, era-2004, era-2007, era-2011. The non-1996
+   eras also get "npskin". Every rule here is scoped to one of
+   those classes or to the extras eras.js adds, so with no class
+   the site looks exactly as it always has.
+   Load after retro.css and themes.css.
+   =========================================================== */
+
+/* ---------- the picker (shows in every mode) ---------- */
+#npErasWrap{margin:18px auto 0;text-align:center;max-width:520px}
+.npEras-lbl{margin:0 0 8px;font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+#npEras{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+#npEras button{
+  min-height:44px;padding:6px 2px;cursor:pointer;
+  background:transparent;color:var(--dim);border:2px solid var(--line);border-radius:2px;
+  font-family:"Silkscreen",monospace;font-size:12px;letter-spacing:.02em;
+}
+#npEras button:hover{border-color:var(--hot);color:var(--hot)}
+#npEras button:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+#npEras button[aria-pressed="true"]{background:var(--hot);border-color:var(--hot);color:#12070a}
+@media (max-width:440px){#npEras{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* extras built by eras.js only exist while an era is on */
+.np-erabits{position:relative;z-index:1}
+body:not(.npskin):not(.y1996) .np-erabits{display:none}
+.np-erabits-top{margin:18px 0 0}
+.np-erabits-foot{margin:18px 0 0}
+.np-erabits h2{margin:0}
+
+/* 1984 dial-up line, shown for at most 1.5s after picking 1984 */
+#npConnect{
+  position:fixed;inset:0;z-index:2147483000;background:#000;color:#33ff66;cursor:pointer;
+  display:flex;flex-direction:column;justify-content:center;padding:0 28px;
+  font:16px/1.6 "Courier New",ui-monospace,monospace;
+}
+#npConnect p{margin:0}
+#npConnect .d2{opacity:0;animation:npConn .01s .8s forwards}
+@keyframes npConn{to{opacity:1}}
+#npConnect button{
+  position:absolute;right:16px;bottom:16px;background:#000;color:#33ff66;border:1px solid #33ff66;
+  font:inherit;font-size:14px;padding:8px 14px;cursor:pointer;
+}
+
+/* ===========================================================
+   Shared skin for the non-1996 eras. Each era sets the site's own
+   colour variables plus a few of its own (--e-*), and these rules
+   carry them onto the bits that were hard-coded dark.
+   =========================================================== */
+body.npskin{
+  background:var(--bg);color:var(--text);
+  font-family:var(--e-font);font-size:var(--e-size,16px);
+}
+html body.npskin::before{background:var(--e-bgimg,none);opacity:1}
+body.npskin h1,
+html[data-theme] body.npskin h1{
+  font-family:var(--e-head);color:var(--e-h1,var(--text));
+  text-shadow:var(--e-h1-shadow,none);animation:none;
+}
+body.npskin .o1 h1{text-shadow:var(--e-h1-shadow,none)}
+body.npskin .wordmark,
+body.npskin .o1 .wordmark{
+  font-family:var(--e-label);color:var(--text);background:var(--bg2);border-color:var(--line);
+}
+body.npskin .o1 .standfirst,
+body.npskin .standfirst{color:var(--dim)}
+body.npskin .standfirst b{color:var(--text)}
+
+/* panels */
+body.npskin .scores,body.npskin .score,body.npskin .npmerch,body.npskin .ptile,body.npskin .o1-group,
+body.npskin .npsub,body.npskin .ytbox,body.npskin .todaybar,body.npskin .vbox,body.npskin .xpost,
+body.npskin .pick,body.npskin .npstrip,body.npskin .dayhead,body.npskin .shelfbox,
+body.npskin .o1-group.o1-shopgrp{
+  border-radius:var(--e-radius);box-shadow:var(--e-panel-shadow,none);
+}
+body.npskin .npmerch::after,body.npskin .ptile::after{display:none}
+body.npskin .ptile .pico,body.npskin .ptile .pcov,body.npskin .ptile .pvs,body.npskin .ptile .pmeter{background:var(--panel)}
+body.npskin .ytfacade{background:var(--panel)}
+body.npskin .ytbox{background:var(--panel)}
+
+/* type */
+body.npskin .ptile .phead,body.npskin .npmerch h2,body.npskin .ythead h2,body.npskin .vhead,
+body.npskin .vtitle,body.npskin .shelfhead h2,body.npskin .ytlbl,body.npskin .npstrip h2,
+body.npskin .score b,body.npskin .title,body.npskin .pick h3{font-family:var(--e-head)}
+body.npskin .score span,body.npskin .o1-lbl,body.npskin .npmerch-k,body.npskin .ptile .pkick,
+body.npskin .cond,body.npskin .sysflag,body.npskin .todaybar .lbl,body.npskin .todaybar .item em,
+body.npskin .ythead a,body.npskin .ytnote,body.npskin .npsub-txt b,body.npskin .introline a,
+body.npskin .npmerch-items .pr,body.npskin .shelfhead p,body.npskin nav a em,body.npskin .barlabel,
+body.npskin .sec,body.npskin .crumb,body.npskin .pick .meta,body.npskin .xpost .meta,
+body.npskin .tile .im,body.npskin .ptile .pvs,body.npskin .ptile .pmeter,body.npskin .npstrip .k{
+  font-family:var(--e-label);letter-spacing:.02em;
+}
+
+/* inputs */
+body.npskin #q,body.npskin .npsub input{
+  background:var(--e-input,var(--panel));color:var(--e-input-text,var(--text));
+  border-color:var(--line);border-radius:var(--e-radius);font-family:var(--e-font);
+}
+body.npskin #q::placeholder,body.npskin .npsub input::placeholder{color:var(--dim)}
+
+/* buttons */
+body.npskin .btn,body.npskin .chip,body.npskin .shelflink,body.npskin .navbtn,body.npskin .toggle button,
+body.npskin .npmerch-btn,body.npskin .elsewhere a,body.npskin .todaybar a.more,body.npskin .npsub button,
+body.npskin .ptile .pgo,body.npskin .vextra a,body.npskin .vextra span,body.npskin #totop,
+body.npskin .pick .meta a,body.npskin .xpost .meta a,body.npskin #npEras button,body.npskin .shelfhead,
+body.npskin .shelflink.o1-pill{
+  border-radius:var(--e-btn-radius,var(--e-radius));font-family:var(--e-btn-font,var(--e-label));letter-spacing:0;
+}
+body.npskin .toggle button[aria-pressed="true"],body.npskin .shelflink:hover,body.npskin .o1 #lucky,
+body.npskin .npmerch-btn,body.npskin .npsub button,body.npskin .ptile:hover .pgo,
+body.npskin .o1-nav .shelflink.o1-pill.o1-shop,body.npskin .navbtn.here,body.npskin .shelflink.o1-pill:hover,
+body.npskin #npEras button[aria-pressed="true"]{color:var(--e-on-hot)}
+body.npskin .chip[aria-pressed="true"]{background:var(--text);border-color:var(--text);color:var(--bg2)}
+
+/* lists */
+body.npskin ol.games li{border-bottom-color:var(--line)}
+body.npskin .lightbox{background:rgba(0,0,0,.9)}
+
+/* the theme strip and the moving photos: most eras had neither */
+body.era-1984 .o1-strip,body.era-1999 .o1-strip,body.era-2004 .o1-strip{display:none}
+body.era-1984 .o1-hero,body.era-1999 .o1-hero,body.era-2004 .o1-hero{margin-top:0;padding-top:28px}
+body.npskin .o1-strip::after{background:linear-gradient(90deg,var(--bg) 0,transparent 12%,transparent 88%,var(--bg) 100%)}
+
+/* ===========================================================
+   1984: BBS. Green on black, monospace, box borders.
+   =========================================================== */
+body.era-1984{
+  --bg:#000;--bg2:#000;--panel:#000;--text:#33ff66;--dim:#22cc55;--line:#1d9e45;--hot:#ffb000;--ink:#000;
+  --e-on-hot:#000;--e-font:"Courier New",ui-monospace,Menlo,Consolas,monospace;--e-head:var(--e-font);
+  --e-label:var(--e-font);--e-radius:0;--e-h1:#33ff66;--e-input:#000;--e-input-text:#33ff66;
+  --e-bgimg:repeating-linear-gradient(to bottom,rgba(51,255,102,.05) 0 1px,transparent 1px 3px);
+  --e-size:15px;
+}
+body.era-1984 *{text-shadow:none}
+body.era-1984 h1{text-transform:uppercase;letter-spacing:.04em;font-size:clamp(20px,5vw,34px);font-weight:700}
+body.era-1984 h1::after{
+  content:"";display:inline-block;width:.6em;height:1em;margin-left:.15em;vertical-align:-.12em;
+  background:currentColor;animation:e84blink 1s steps(1,end) infinite;
+}
+@keyframes e84blink{50%{opacity:0}}
+body.era-1984 .wordmark,body.era-1984 .o1 .wordmark{background:#000;border:1px solid var(--line);color:var(--hot);text-transform:uppercase}
+body.era-1984 .scores,body.era-1984 .npmerch,body.era-1984 .ptile,body.era-1984 .o1-group,body.era-1984 .npsub,
+body.era-1984 .ytbox,body.era-1984 .todaybar,body.era-1984 .vbox,body.era-1984 .xpost,body.era-1984 .pick,
+body.era-1984 .npstrip,body.era-1984 .dayhead,body.era-1984 .shelfbox,body.era-1984 .o1-group.o1-shopgrp,
+body.era-1984 .e84-menu{
+  background:#000;border:3px double var(--text);box-shadow:none;
+}
+body.era-1984 .score{border-right:1px dashed var(--line);background:#000}
+body.era-1984 .score b{color:var(--hot)}
+body.era-1984 .btn,body.era-1984 .chip,body.era-1984 .shelflink,body.era-1984 .navbtn,body.era-1984 .toggle button,
+body.era-1984 .elsewhere a,body.era-1984 .todaybar a.more,body.era-1984 .ptile .pgo,body.era-1984 .vextra a,
+body.era-1984 .vextra span,body.era-1984 #totop,body.era-1984 .pick .meta a,body.era-1984 .xpost .meta a,
+body.era-1984 .shelflink.o1-pill,body.era-1984 #npEras button{
+  background:#000;color:var(--text);border:1px solid var(--text);text-transform:uppercase;
+}
+body.era-1984 .btn:hover,body.era-1984 .shelflink:hover,body.era-1984 .navbtn:hover,body.era-1984 .elsewhere a:hover,
+body.era-1984 .chip:hover,body.era-1984 #npEras button:hover,body.era-1984 .shelflink.o1-pill:hover{background:var(--text);color:#000}
+body.era-1984 .o1 #lucky,body.era-1984 .npmerch-btn,body.era-1984 .npsub button,body.era-1984 .toggle button[aria-pressed="true"],
+body.era-1984 .navbtn.here,body.era-1984 #npEras button[aria-pressed="true"],body.era-1984 .o1-nav .shelflink.o1-pill.o1-shop{
+  background:var(--hot);border:1px solid var(--hot);color:#000;box-shadow:none;
+}
+body.era-1984 #q{border:1px solid var(--text);border-bottom:1px solid var(--text);caret-color:var(--hot);font-weight:400}
+body.era-1984 #q:focus{box-shadow:none;border-color:var(--hot)}
+body.era-1984 img,body.era-1984 .tile .im{filter:grayscale(1) sepia(1) hue-rotate(70deg) saturate(2.4) brightness(.85) contrast(1.1)}
+body.era-1984 .ytbtn{background:var(--text);box-shadow:none}
+body.era-1984 .ytbtn::after{border-left-color:#000}
+body.era-1984 .ptile .pico i{background:var(--line)}
+/* shelves: inverse header bars and bracket marks */
+body.era-1984 .shelfhead{background:var(--text);border-radius:0}
+body.era-1984 .shelfhead h2,body.era-1984 .shelfhead p{color:#000;opacity:1}
+body.era-1984 ol.games,body.era-1984 ol.items{border:1px solid var(--line);border-top:none}
+body.era-1984 ol.games li,body.era-1984 ol.items li{background:#000}
+body.era-1984 ol.games li:hover{background:#062b12}
+body.era-1984 .title,body.era-1984 .title a{color:var(--text);font-weight:400;font-size:15px}
+body.era-1984 .title a:hover{border-bottom-color:var(--hot)}
+body.era-1984 .cond{color:var(--dim)}
+body.era-1984 .mark{width:auto;height:auto;border:none;background:none;box-shadow:none;font-size:13px;color:var(--text)}
+body.era-1984 .mark::before{content:"[*]"}
+body.era-1984 .mark.cib::before{content:"[#]"}
+body.era-1984 .mark.sealed::before{content:"[!]"}
+body.era-1984 .mark.part::before{content:"[/]"}
+body.era-1984 .beat{width:auto;height:auto;border:none;background:none;font-size:13px;color:var(--line)}
+body.era-1984 .beat::before{content:"[ ]"}
+body.era-1984 .beat.on{background:none;color:var(--hot)}
+body.era-1984 .beat.on::before{content:"[X]"}
+body.era-1984 .beat.on::after{display:none}
+body.era-1984 .beat.endless::before{content:"["}
+body.era-1984 .beat.endless::after{content:"\221e]"}
+body.era-1984 nav a{background:#000;color:var(--text);border-left:4px solid var(--text)}
+body.era-1984 nav a:hover{background:var(--text);color:#000}
+body.era-1984 nav a em,body.era-1984 .sysflag{color:var(--hot)}
+body.era-1984 .tile .im{border-color:var(--line)}
+body.era-1984 .pick{border-left:3px double var(--text)}
+body.era-1984 a{color:var(--text)}
+body.era-1984 .legend span{--c:#33ff66}
+body.era-1984 .hundo{background:none;border:none;color:var(--hot);padding:0}
+body.era-1984 .hundo::before{content:"["}
+body.era-1984 .hundo::after{content:"]"}
+body.era-1984 footer{border-top:1px dashed var(--line)}
+/* the BBS banner and menu */
+.e84-banner{margin:0 auto;width:max-content;max-width:100%;overflow-x:auto;color:var(--hot);font:13px/1.25 "Courier New",ui-monospace,monospace}
+.e84-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.e84-menu{max-width:520px;margin:14px auto 0;padding:12px 14px;text-align:left}
+.e84-menu p{margin:0;color:var(--hot);font-weight:700}
+.e84-menu ul{list-style:none;margin:8px 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 14px}
+.e84-menu a{display:block;padding:7px 2px;color:var(--text);text-decoration:none;font-size:14px}
+.e84-menu a:hover,.e84-menu a:focus-visible{background:var(--text);color:#000;outline:none}
+.e84-menu a b{color:var(--hot)}
+.e84-menu a:hover b{color:#000}
+.e84-menu .e84-prompt{margin-top:4px;color:var(--text);font-weight:400}
+.e84-cur{display:inline-block;width:.6em;height:1em;margin-left:.4em;vertical-align:-.15em;background:var(--text);animation:e84blink 1s steps(1,end) infinite}
+@media (max-width:440px){.e84-menu ul{grid-template-columns:1fr}}
+
+/* ===========================================================
+   1996: the existing retro.css look, plus a hit counter and an
+   under construction sign.
+   =========================================================== */
+body.era-1996 .e96-uc{
+  display:flex;align-items:center;gap:12px;max-width:520px;margin:18px auto 0;padding:10px 14px;
+  background:#000;border:4px solid transparent;
+  border-image:repeating-linear-gradient(45deg,#ffd400 0 12px,#000 12px 24px) 4;
+}
+body.era-1996 .e96-sign{flex:none}
+body.era-1996 .e96-uc p{margin:0;color:#fff;font-family:"Times New Roman",Times,serif;font-size:15px;line-height:1.35}
+body.era-1996 .e96-uc b{display:block;color:#ffd400;font-size:20px;text-transform:uppercase;letter-spacing:.04em}
+body.era-1996 .e96-uc span{color:#e0e0e0}
+body.era-1996 .e96-count{text-align:center}
+body.era-1996 .e96-count p{margin:0;color:#c0c0c0;font-family:"Times New Roman",Times,serif;font-size:14px}
+body.era-1996 .e96-odo{display:inline-flex;gap:2px;margin:6px 0;padding:3px;background:#202020;border:2px inset #808080}
+body.era-1996 .e96-odo i{
+  font-style:normal;display:inline-block;width:20px;padding:3px 0;
+  background:linear-gradient(#000 0 48%,#222 48% 52%,#000 52%);color:#fff;
+  font:700 18px/1.1 "Courier New",monospace;text-align:center;
+}
+body.era-1996 .e96-count .e96-since{font-size:12px;color:#a0a0a0}
+/* keep the 1996 colours when a seasonal theme is on (themes.css sets body background and .navbtn.here) */
+html body.y1996{background:#000080}
+html body.y1996 .navbtn.here{color:#ffff00}
+html body.y1996 .o1 #lucky{color:#000}
+body.era-1996 #npEras button{
+  background:#c0c0c0;color:#000080;border:2px outset #fff;border-radius:0;
+  font-family:"Times New Roman",Times,serif;font-size:15px;
+}
+body.era-1996 #npEras button:hover{border-style:inset}
+body.era-1996 #npEras button[aria-pressed="true"]{background:#000080;color:#ffff00;border-style:inset}
+body.era-1996 .npEras-lbl{color:#ffff00;font-family:"Times New Roman",Times,serif;font-size:15px;letter-spacing:0;text-transform:none;font-weight:700}
+
+/* ===========================================================
+   1999: dial-up portal. White page, beveled gray boxes,
+   link columns, blue underlined links.
+   =========================================================== */
+body.era-1999{
+  --bg:#ffffff;--bg2:#d4d0c8;--panel:#e8e6e0;--text:#000;--dim:#333;--line:#808080;--hot:#003399;--ink:#000;
+  --e-on-hot:#fff;--e-font:Verdana,Tahoma,Geneva,sans-serif;--e-head:Arial,Helvetica,sans-serif;
+  --e-label:Tahoma,Verdana,sans-serif;--e-radius:0;--e-h1:#003399;--e-input:#fff;--e-input-text:#000;
+  --e-bgimg:none;--e-size:14px;
+}
+body.era-1999 h1{font-weight:700;font-size:clamp(24px,5vw,36px);font-style:italic;letter-spacing:-.01em}
+body.era-1999 .o1 .wordmark,body.era-1999 .wordmark{background:#003399;color:#fff;border:2px outset #6688cc;font-weight:700}
+body.era-1999 a{color:#0000cc}
+body.era-1999 a:visited{color:#551a8b}
+body.era-1999 .scores,body.era-1999 .npmerch,body.era-1999 .ptile,body.era-1999 .o1-group,body.era-1999 .npsub,
+body.era-1999 .ytbox,body.era-1999 .todaybar,body.era-1999 .vbox,body.era-1999 .xpost,body.era-1999 .pick,
+body.era-1999 .npstrip,body.era-1999 .dayhead,body.era-1999 .shelfbox,body.era-1999 .o1-group.o1-shopgrp{
+  background:#d4d0c8;color:#000;border:2px outset #fff;border-left:2px outset #fff;box-shadow:1px 1px 0 #404040;
+}
+body.era-1999 .score{background:#d4d0c8;border-right:1px solid #808080}
+body.era-1999 .score b{color:#003399}
+body.era-1999 .npmerch-k,body.era-1999 .ptile .pkick,body.era-1999 .o1-lbl,body.era-1999 .todaybar .lbl,
+body.era-1999 .npmerch-items .pr{color:#990000}
+body.era-1999 .npmerch h2,body.era-1999 .ptile .phead{color:#003399}
+body.era-1999 .ptile,body.era-1999 .npmerch-items a,body.era-1999 .npmerch-items b{color:#000}
+body.era-1999 .btn,body.era-1999 .chip,body.era-1999 .shelflink,body.era-1999 .navbtn,body.era-1999 .toggle button,
+body.era-1999 .elsewhere a,body.era-1999 .todaybar a.more,body.era-1999 .ptile .pgo,body.era-1999 .vextra a,
+body.era-1999 .vextra span,body.era-1999 #totop,body.era-1999 .pick .meta a,body.era-1999 .xpost .meta a,
+body.era-1999 .shelflink.o1-pill,body.era-1999 #npEras button,body.era-1999 .o1 #lucky,body.era-1999 .npsub button,
+body.era-1999 .npmerch-btn,body.era-1999 .o1-nav .shelflink.o1-pill.o1-shop{
+  background:#d4d0c8;color:#000;border:2px outset #fff;box-shadow:1px 1px 0 #404040;font-family:Tahoma,Verdana,sans-serif;font-size:13px;
+}
+body.era-1999 .btn:active,body.era-1999 #npEras button:active,body.era-1999 .shelflink:active{border-style:inset}
+body.era-1999 .btn:hover,body.era-1999 .shelflink:hover,body.era-1999 .navbtn:hover,body.era-1999 .elsewhere a:hover,
+body.era-1999 .chip:hover,body.era-1999 #npEras button:hover,body.era-1999 .shelflink.o1-pill:hover,body.era-1999 .o1 #lucky:hover,
+body.era-1999 .npmerch-btn:hover,body.era-1999 .npsub button:hover{background:#e8e6e0;color:#0000cc}
+body.era-1999 .toggle button[aria-pressed="true"],body.era-1999 .navbtn.here,body.era-1999 #npEras button[aria-pressed="true"]{
+  background:#003399;color:#fff;border-style:inset;
+}
+body.era-1999 .o1 #lucky{font-weight:700}
+body.era-1999 #q{border:2px inset #808080;font-weight:400;font-size:18px}
+body.era-1999 #q:focus{box-shadow:none;border-color:#808080}
+body.era-1999 .ytfacade{background:#000}
+body.era-1999 .ytlbl{color:#fff}
+body.era-1999 .ytnote{color:#ccc}
+body.era-1999 .ythead h2{color:#003399}
+body.era-1999 .shelfhead{border:2px outset #fff;border-radius:0}
+body.era-1999 ol.games li{background:#fff}
+body.era-1999 ol.games li:nth-child(even){background:#f0f0f0}
+body.era-1999 ol.games li:hover{background:#ffffcc}
+body.era-1999 .title a{color:#0000cc;text-decoration:underline}
+body.era-1999 .cond{color:#333}
+body.era-1999 nav a{background:#d4d0c8;color:#000;border-top:1px solid #fff;border-bottom:1px solid #808080}
+body.era-1999 nav a:hover{background:#003399;color:#fff}
+body.era-1999 nav a em{color:#003399}
+body.era-1999 .sysflag{text-shadow:0 0 1px #000}
+body.era-1999 footer{border-top:2px groove #fff}
+body.era-1999 .tile .im{border:2px inset #808080}
+body.era-1999 .tile span{color:#0000cc;text-decoration:underline}
+/* the portal block */
+.e99-status{
+  display:flex;align-items:center;gap:8px;margin:0 0 10px;padding:4px 8px;
+  background:#d4d0c8;border:2px inset #fff;font:12px Tahoma,Verdana,sans-serif;color:#000;
+}
+.e99-led{width:10px;height:10px;border-radius:50%;background:#c90;border:1px solid #555}
+.e99-status.ok .e99-led{background:#2a2}
+.e99-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.e99-col{background:#fff;border:1px solid #808080;padding:0 0 6px}
+.e99-col h2,.e99-y2k h2{
+  font:700 12px Verdana,Tahoma,sans-serif;color:#fff;padding:4px 8px;
+  background:linear-gradient(90deg,#003399,#3366cc);
+}
+.e99-col a{display:block;padding:4px 8px;font:13px Verdana,Tahoma,sans-serif;color:#0000cc;text-decoration:underline}
+.e99-col a:visited{color:#551a8b}
+.e99-row{display:flex;gap:8px;margin:8px 0 0;align-items:stretch}
+.e99-y2k{flex:1 1 auto;background:#ffffe0;border:2px outset #fff;box-shadow:1px 1px 0 #404040}
+.e99-y2k p{margin:0;padding:4px 8px;font:13px Verdana,Tahoma,sans-serif;color:#000}
+.e99-clock b{font-family:"Courier New",monospace;font-size:17px;color:#cc0000}
+.e99-note{font-size:12px!important;color:#333!important}
+.e99-badge{
+  flex:none;margin:0;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:6px 10px;background:#000;color:#ffcc00;border:2px outset #888;
+  font:11px Verdana,Tahoma,sans-serif;text-align:center;line-height:1.3;
+}
+.e99-badge b{display:block;font:700 16px Arial,sans-serif;color:#fff}
+@media (max-width:640px){.e99-cols{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* ===========================================================
+   2004: dark profile page. Glitter heading, Top 8, song box.
+   =========================================================== */
+body.era-2004{
+  --bg:#0c0a18;--bg2:#17142b;--panel:#211d3b;--text:#f2f0ff;--dim:#c3bfe0;--line:#4a4385;--hot:#ff5cb8;--ink:#0c0a18;
+  --e-on-hot:#14001f;--e-font:Verdana,Tahoma,Geneva,sans-serif;--e-head:Arial,Helvetica,sans-serif;
+  --e-label:Verdana,Tahoma,sans-serif;--e-radius:0;--e-input:#07060f;--e-input-text:#fff;--e-size:14px;
+  --e-bgimg:
+    radial-gradient(1.5px 1.5px at 12% 18%,#ffd6f0,transparent),
+    radial-gradient(1px 1px at 64% 9%,#fff,transparent),
+    radial-gradient(1.5px 1.5px at 38% 62%,#b8a6ff,transparent),
+    radial-gradient(1px 1px at 82% 44%,#fff,transparent),
+    radial-gradient(1px 1px at 22% 88%,#ffd6f0,transparent),
+    radial-gradient(1.5px 1.5px at 90% 80%,#b8a6ff,transparent);
+}
+html body.era-2004::before{background-size:220px 220px}
+body.era-2004 h1{
+  font-weight:700;font-size:clamp(26px,6vw,44px);line-height:1.2;
+  background:linear-gradient(100deg,#ff5cb8 0%,#fff 18%,#c6a6ff 32%,#ff5cb8 46%,#fff 60%,#9fd8ff 74%,#ff5cb8 100%);
+  background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:e04glit 4s linear infinite;
+}
+html[data-theme] body.era-2004 h1{animation:e04glit 4s linear infinite}
+body.era-2004 h1::after{content:" \2726";color:#ffd6f0;-webkit-text-fill-color:#ffd6f0}
+@keyframes e04glit{to{background-position:-220% 0}}
+body.era-2004 .o1 .wordmark,body.era-2004 .wordmark{background:#5a7fd8;color:#fff;border:1px solid #9db3ff;font-weight:700}
+body.era-2004 .scores,body.era-2004 .npmerch,body.era-2004 .ptile,body.era-2004 .o1-group,body.era-2004 .npsub,
+body.era-2004 .ytbox,body.era-2004 .todaybar,body.era-2004 .vbox,body.era-2004 .xpost,body.era-2004 .pick,
+body.era-2004 .npstrip,body.era-2004 .dayhead,body.era-2004 .shelfbox,body.era-2004 .o1-group.o1-shopgrp{
+  background:var(--bg2);border:1px solid #6b62c9;
+}
+body.era-2004 .npmerch,body.era-2004 .ptile,body.era-2004 .npsub,body.era-2004 .todaybar{border-left:4px solid var(--hot)}
+body.era-2004 .o1-lbl,body.era-2004 .npmerch-k,body.era-2004 .ptile .pkick{color:#ff8fd0}
+body.era-2004 .btn,body.era-2004 .chip,body.era-2004 .shelflink,body.era-2004 .navbtn,body.era-2004 .toggle button,
+body.era-2004 .elsewhere a,body.era-2004 .todaybar a.more,body.era-2004 .vextra a,body.era-2004 #npEras button,
+body.era-2004 .shelflink.o1-pill{border-color:#6b62c9;color:#e6e2ff}
+body.era-2004 a{color:#9fd0ff}
+body.era-2004 .title a{color:var(--text)}
+body.era-2004 .shelfhead{border-radius:0}
+body.era-2004 ol.games li:nth-child(even){background:#1d1935}
+body.era-2004 #q{border:2px solid #6b62c9}
+/* profile block */
+.e04{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:12px;align-items:start;max-width:980px;margin-left:auto;margin-right:auto}
+.e04-card{
+  display:flex;gap:12px;align-items:flex-start;padding:12px;background:#17142b;border:1px solid #6b62c9;
+  grid-row:span 2;
+}
+.e04-card img{flex:none;width:96px;height:96px;border:2px solid #fff;background:#000}
+.e04-card h2{font:700 18px Arial,sans-serif;color:#fff}
+.e04-card p{margin:4px 0 0;font:13px Verdana,Tahoma,sans-serif;color:#c3bfe0}
+.e04-card .e04-on{display:inline-block;margin-top:8px;padding:2px 6px;background:#1f7a2e;color:#fff;font-weight:700;font-size:12px}
+.e04-box{background:#17142b;border:1px solid #6b62c9}
+.e04-box h2{padding:5px 10px;background:linear-gradient(#ff79c6,#d63f97);color:#14001f;font:700 14px Arial,sans-serif}
+.e04-why{margin:8px 10px 0;font:12px Verdana,sans-serif;color:#c3bfe0}
+.e04-grid{list-style:none;margin:0;padding:10px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 8px}
+@media (min-width:721px){.e04-grid{grid-template-columns:repeat(4,minmax(0,120px));justify-content:center;gap:12px 18px}}
+.e04-grid a{display:block;text-decoration:none;color:#9fd0ff;font:12px/1.25 Verdana,sans-serif;text-align:center}
+.e04-grid img{display:block;width:100%;aspect-ratio:3/4;height:auto;object-fit:cover;border:1px solid #6b62c9;background:#000;margin:0 0 4px}
+.e04-grid span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-decoration:underline}
+.e04-grid a:hover img,.e04-grid a:focus-visible img{border-color:#ff5cb8}
+.e04-album{display:flex;gap:12px;align-items:center;margin:0;padding:10px;font:13px Verdana,sans-serif;color:#f2f0ff}
+.e04-album b{display:block;font-size:14px}
+.e04-album em{display:block;font-style:normal;color:#c3bfe0;margin:2px 0 4px}
+.e04-album a{color:#9fd0ff;font-size:12px}
+.e04-disc{
+  flex:none;width:56px;height:56px;border-radius:50%;
+  background:radial-gradient(circle,#0c0a18 0 6px,#ff5cb8 7px 15px,#222 16px 17px,#111 18px 100%);
+  box-shadow:0 0 0 1px #6b62c9;
+}
+@media (max-width:720px){.e04{grid-template-columns:1fr}.e04-card{grid-row:auto}}
+
+/* ===========================================================
+   2007: web 2.0. Pastel stripes, glossy buttons, BETA badges,
+   big rounded type.
+   =========================================================== */
+body.era-2007{
+  --bg:#eef7fc;--bg2:#ffffff;--panel:#f4fafe;--text:#26323d;--dim:#4e5a66;--line:#bcd8ea;--hot:#1c74c4;--ink:#13202c;
+  --e-on-hot:#fff;--e-font:"Lucida Grande","Lucida Sans Unicode","Trebuchet MS",Verdana,sans-serif;
+  --e-head:"Arial Rounded MT Bold","Helvetica Rounded",ui-rounded,"Trebuchet MS",Arial,sans-serif;
+  --e-label:var(--e-head);--e-radius:12px;--e-btn-radius:999px;--e-input:#fff;--e-input-text:#26323d;
+  --e-h1:#1c5d99;--e-h1-shadow:0 1px 0 #fff;
+  --e-panel-shadow:0 2px 6px rgba(28,93,153,.12);
+  --e-bgimg:repeating-linear-gradient(90deg,#eef7fc 0 14px,#e3f1fa 14px 28px);
+}
+body.era-2007 h1{font-weight:700;font-size:clamp(30px,7vw,52px);line-height:1.15;letter-spacing:-.02em;
+  -webkit-box-reflect:below -6px linear-gradient(transparent 55%,rgba(255,255,255,.28))}
+body.era-2007 .o1 .wordmark,body.era-2007 .wordmark{background:#fff;color:#1c5d99;border:1px solid #bcd8ea;border-radius:999px;padding:6px 14px}
+body.era-2007 .wordmark::after{
+  content:"BETA";display:inline-block;margin-left:8px;padding:1px 6px;vertical-align:1px;border-radius:4px;
+  background:linear-gradient(#ff8a3d 0 50%,#f26a14 50%);color:#fff;font:700 10px/1.4 Arial,sans-serif;letter-spacing:.05em;
+  transform:rotate(-4deg);
+}
+body.era-2007 .scores,body.era-2007 .npmerch,body.era-2007 .ptile,body.era-2007 .o1-group,body.era-2007 .npsub,
+body.era-2007 .ytbox,body.era-2007 .todaybar,body.era-2007 .vbox,body.era-2007 .xpost,body.era-2007 .pick,
+body.era-2007 .npstrip,body.era-2007 .dayhead,body.era-2007 .shelfbox,body.era-2007 .o1-group.o1-shopgrp{
+  background:linear-gradient(#fff,#f2f9fe);border:1px solid #bcd8ea;
+}
+body.era-2007 .scores{overflow:hidden}
+body.era-2007 .score{background:transparent;border-right:1px solid #d6e8f3}
+body.era-2007 .score b{color:#1c5d99}
+body.era-2007 .npmerch,body.era-2007 .ptile,body.era-2007 .npsub,body.era-2007 .todaybar{border-left:1px solid #bcd8ea}
+body.era-2007 .o1-lbl,body.era-2007 .npmerch-k,body.era-2007 .ptile .pkick,body.era-2007 .npmerch-items .pr,
+body.era-2007 .todaybar .lbl{color:#c4511a}
+body.era-2007 .btn,body.era-2007 .chip,body.era-2007 .shelflink,body.era-2007 .navbtn,body.era-2007 .toggle button,
+body.era-2007 .elsewhere a,body.era-2007 .todaybar a.more,body.era-2007 .vextra a,body.era-2007 .vextra span,
+body.era-2007 #npEras button,body.era-2007 .shelflink.o1-pill,body.era-2007 .ptile .pgo,body.era-2007 #totop,
+body.era-2007 .pick .meta a,body.era-2007 .xpost .meta a{
+  background:linear-gradient(#ffffff 0%,#f1f7fb 50%,#e2edf5 50%,#eef5fa 100%);color:#1c4f80;
+  border:1px solid #9cc0da;box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(0,0,0,.08);font-weight:700;
+}
+body.era-2007 .o1 #lucky,body.era-2007 .npmerch-btn,body.era-2007 .npsub button,body.era-2007 .toggle button[aria-pressed="true"],
+body.era-2007 .navbtn.here,body.era-2007 #npEras button[aria-pressed="true"],body.era-2007 .o1-nav .shelflink.o1-pill.o1-shop,
+body.era-2007 .btn:hover,body.era-2007 .shelflink:hover,body.era-2007 .shelflink.o1-pill:hover,body.era-2007 #npEras button:hover,
+body.era-2007 .elsewhere a:hover,body.era-2007 .ptile:hover .pgo{
+  background:linear-gradient(#6fb6f2 0%,#3d95e0 50%,#1c74c4 50%,#2a86d4 100%);color:#fff;border:1px solid #1660a3;
+  text-shadow:0 -1px 0 rgba(0,0,0,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 2px 4px rgba(28,93,153,.3);
+}
+body.era-2007 .o1-nav .shelflink.o1-pill.o1-shop,body.era-2007 .npmerch-btn{
+  background:linear-gradient(#a6e06a 0%,#7cc73a 50%,#5aa91c 50%,#6bb82a 100%);border-color:#4a8c16;color:#fff;
+}
+body.era-2007 .chip[aria-pressed="true"]{background:#1c5d99;border-color:#1c5d99;color:#fff}
+body.era-2007 #q{border:2px solid #9cc0da;border-radius:999px;padding-left:22px;font-weight:400}
+body.era-2007 #q:focus{border-color:#1c74c4;box-shadow:0 0 0 4px rgba(28,116,196,.18)}
+body.era-2007 .npsub input{border-radius:999px}
+body.era-2007 .ytfacade{background:linear-gradient(#3a4652,#1e262e)}
+body.era-2007 .ytlbl{color:#fff}
+body.era-2007 .ytnote{color:#d6e2ec}
+body.era-2007 .shelfhead{border-radius:12px 12px 0 0;background-image:linear-gradient(rgba(255,255,255,.35) 0 50%,rgba(255,255,255,0) 50%)}
+body.era-2007 ol.games,body.era-2007 ol.items{border-radius:0 0 12px 12px;overflow:hidden;background:#fff}
+body.era-2007 ol.games li{background:#fff}
+body.era-2007 ol.games li:nth-child(even){background:#f4fafe}
+body.era-2007 ol.games li:hover{background:#fffbe0}
+body.era-2007 .title a{color:#1c4f80}
+body.era-2007 nav a{background:#fff;color:#1c4f80;border-radius:0 8px 8px 0}
+body.era-2007 nav a:hover{background:#eaf4fb;color:#13202c}
+body.era-2007 .sysflag{filter:brightness(.7)}
+body.era-2007 .tile .im{border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+body.era-2007 .pick h3 em{color:#1c5d99}
+body.era-2007 .sec{color:#1c5d99}
+body.era-2007 h1[style],body.era-2007 .wrap > header h1{color:#1c5d99}
+.e07-tagline{display:flex;align-items:center;justify-content:center;gap:10px;margin:0;font:700 18px "Arial Rounded MT Bold",ui-rounded,"Trebuchet MS",Arial,sans-serif;color:#1c5d99}
+.e07-beta{
+  display:inline-block;padding:3px 10px;border-radius:6px;transform:rotate(-6deg);
+  background:linear-gradient(#ff8a3d 0 50%,#f26a14 50%);color:#fff;font:700 13px/1.3 Arial,sans-serif;letter-spacing:.06em;
+  box-shadow:0 2px 4px rgba(0,0,0,.2);
+}
+.e07-tags{margin:12px auto 0;max-width:760px;padding:12px 16px;background:linear-gradient(#fff,#f2f9fe);border:1px solid #bcd8ea;border-radius:12px;box-shadow:0 2px 6px rgba(28,93,153,.12)}
+.e07-tags h2{font:700 15px "Arial Rounded MT Bold",ui-rounded,"Trebuchet MS",Arial,sans-serif;color:#c4511a}
+.e07-cloud{margin:6px 0 0;line-height:1.5;text-align:center}
+.e07-cloud span{display:inline-block;margin:0 5px;color:#1c74c4;font-family:"Arial Rounded MT Bold",ui-rounded,"Trebuchet MS",Arial,sans-serif;font-weight:700}
+.e07-cloud span:nth-child(3n){color:#5aa91c}
+.e07-cloud span:nth-child(4n){color:#c4511a}
+
+/* ===========================================================
+   2011: skeuomorphic. Linen, leather, stitching, wood shelves.
+   All of it gradients, no images.
+   =========================================================== */
+body.era-2011{
+  --bg:#e6e1d6;--bg2:#fbf8f2;--panel:#fffdf8;--text:#2b2620;--dim:#574e43;--line:#cbbfa9;--hot:#7a3f1d;--ink:#fff8ec;
+  --e-on-hot:#fff6e8;--e-font:"Helvetica Neue",Helvetica,Arial,sans-serif;--e-head:var(--e-font);--e-label:var(--e-font);
+  --e-radius:6px;--e-input:#fff;--e-input-text:#2b2620;--e-h1:#4a3f34;--e-h1-shadow:0 1px 0 rgba(255,255,255,.8);
+  --e-panel-shadow:0 1px 3px rgba(60,40,20,.25),inset 0 1px 0 #fff;
+  --e-bgimg:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.18) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(90deg,rgba(120,100,70,.08) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(45deg,rgba(255,255,255,.06) 0 2px,transparent 2px 5px);
+}
+body.era-2011 h1{font-weight:700;font-size:clamp(26px,6vw,42px);line-height:1.2;letter-spacing:-.01em}
+body.era-2011 .o1 .wordmark,body.era-2011 .wordmark{
+  position:relative;padding:8px 16px;border-radius:6px;color:#fbead2;font-weight:700;letter-spacing:.06em;
+  background:
+    radial-gradient(circle at 30% 30%,rgba(255,255,255,.08),transparent 60%),
+    repeating-radial-gradient(circle at 20% 40%,rgba(0,0,0,.06) 0 1px,transparent 1px 3px),
+    linear-gradient(#8a4a24,#5e2f14);
+  border:1px solid #3d1d0b;outline:1px dashed rgba(255,226,190,.6);outline-offset:-5px;
+  text-shadow:0 -1px 0 rgba(0,0,0,.6);box-shadow:0 2px 4px rgba(0,0,0,.35);
+}
+body.era-2011 .wordmark a{color:inherit}
+body.era-2011 .scores,body.era-2011 .npmerch,body.era-2011 .ptile,body.era-2011 .o1-group,body.era-2011 .npsub,
+body.era-2011 .ytbox,body.era-2011 .todaybar,body.era-2011 .vbox,body.era-2011 .xpost,body.era-2011 .pick,
+body.era-2011 .npstrip,body.era-2011 .dayhead,body.era-2011 .shelfbox,body.era-2011 .o1-group.o1-shopgrp{
+  background:linear-gradient(#fffdf8,#f5f0e6);border:1px solid #c2b59c;
+}
+body.era-2011 .npmerch,body.era-2011 .ptile,body.era-2011 .npsub,body.era-2011 .todaybar{border-left:1px solid #c2b59c}
+body.era-2011 .scores{
+  background:
+    repeating-radial-gradient(circle at 20% 40%,rgba(0,0,0,.06) 0 1px,transparent 1px 3px),
+    linear-gradient(#5a5f66,#3b3f45);
+  border:1px solid #2a2d31;outline:1px dashed rgba(255,255,255,.35);outline-offset:-5px;overflow:hidden;
+}
+body.era-2011 .score{background:transparent;border-right:1px solid rgba(0,0,0,.35)}
+body.era-2011 .score b{color:#fff;text-shadow:0 -1px 0 #000}
+body.era-2011 .score span{color:#e4e6ea}
+body.era-2011 .o1-lbl,body.era-2011 .npmerch-k,body.era-2011 .ptile .pkick,body.era-2011 .npmerch-items .pr,
+body.era-2011 .todaybar .lbl{color:#7a3f1d}
+body.era-2011 .btn,body.era-2011 .chip,body.era-2011 .shelflink,body.era-2011 .navbtn,body.era-2011 .toggle button,
+body.era-2011 .elsewhere a,body.era-2011 .todaybar a.more,body.era-2011 .vextra a,body.era-2011 .vextra span,
+body.era-2011 #npEras button,body.era-2011 .shelflink.o1-pill,body.era-2011 .ptile .pgo,body.era-2011 #totop,
+body.era-2011 .pick .meta a,body.era-2011 .xpost .meta a{
+  background:linear-gradient(#fdfcf9,#e4ded2);color:#3d342a;border:1px solid #a89a82;
+  box-shadow:inset 0 1px 0 #fff,0 1px 1px rgba(0,0,0,.12);text-shadow:0 1px 0 #fff;font-weight:700;
+}
+body.era-2011 .o1 #lucky,body.era-2011 .npmerch-btn,body.era-2011 .npsub button,body.era-2011 .toggle button[aria-pressed="true"],
+body.era-2011 .navbtn.here,body.era-2011 #npEras button[aria-pressed="true"],body.era-2011 .o1-nav .shelflink.o1-pill.o1-shop,
+body.era-2011 .btn:hover,body.era-2011 .shelflink:hover,body.era-2011 .shelflink.o1-pill:hover,body.era-2011 #npEras button:hover,
+body.era-2011 .elsewhere a:hover,body.era-2011 .ptile:hover .pgo{
+  background:linear-gradient(#8a4a24,#5e2f14);color:#fff6e8;border:1px solid #3d1d0b;
+  outline:1px dashed rgba(255,226,190,.55);outline-offset:-4px;text-shadow:0 -1px 0 rgba(0,0,0,.5);
+  box-shadow:0 1px 2px rgba(0,0,0,.3);
+}
+body.era-2011 .chip[aria-pressed="true"]{background:#5e2f14;border-color:#3d1d0b;color:#fff6e8;text-shadow:none}
+body.era-2011 #q{border:1px solid #a89a82;box-shadow:inset 0 2px 3px rgba(0,0,0,.15);font-weight:400}
+body.era-2011 #q:focus{border-color:#7a3f1d;box-shadow:inset 0 2px 3px rgba(0,0,0,.15),0 0 0 3px rgba(122,63,29,.2)}
+body.era-2011 .ytfacade{background:linear-gradient(#4a4f56,#25282c)}
+body.era-2011 .ytlbl{color:#fff}
+body.era-2011 .ytnote{color:#d6d8dc}
+/* shelf headers become wood planks */
+body.era-2011 .shelfhead{
+  border-radius:4px 4px 0 0;border-left:6px solid var(--c);
+  background:
+    repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 2px,transparent 2px 9px,rgba(255,255,255,.04) 9px 11px,transparent 11px 23px),
+    linear-gradient(#a8703f,#7c4b25);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 3px 4px rgba(0,0,0,.3);
+}
+body.era-2011 .shelfhead h2,body.era-2011 .shelfhead p{color:#fff3e0;opacity:1;text-shadow:0 -1px 0 rgba(0,0,0,.5)}
+body.era-2011 ol.games,body.era-2011 ol.items{border-color:#c2b59c;background:#fffdf8}
+body.era-2011 ol.games li{background:#fffdf8}
+body.era-2011 ol.games li:nth-child(even){background:#f7f2e8}
+body.era-2011 ol.games li:hover{background:#efe6d4}
+body.era-2011 nav a{background:#fbf8f2;color:#3d342a}
+body.era-2011 nav a:hover{background:#efe6d4;color:#000}
+body.era-2011 .sysflag{filter:brightness(.65)}
+body.era-2011 .pick h3 em,body.era-2011 .sec{color:#7a3f1d}
+/* console page cover grid sits on wooden shelves */
+body.era-2011 .shelfgrid{
+  gap:0 10px;padding:14px 14px 0;border-radius:6px;
+  background:
+    linear-gradient(#5e3a1c,#4a2c14);
+}
+body.era-2011 .shelfgrid .tile{padding:0 0 26px;position:relative}
+body.era-2011 .shelfgrid .tile::after{
+  content:"";position:absolute;left:-10px;right:-10px;bottom:6px;height:14px;
+  background:linear-gradient(#c08850,#8a5a2e 60%,#5e3a1c);box-shadow:0 4px 5px rgba(0,0,0,.45);
+}
+body.era-2011 .shelfgrid .tile span{color:#fbead2;text-shadow:0 1px 0 #000;font-size:12px;min-height:2.6em}
+body.era-2011 .shelfgrid .tile .im{border:none;box-shadow:2px 3px 5px rgba(0,0,0,.5)}
+/* the bookshelf block */
+.e11-plate{
+  display:table;margin:0 auto 10px;padding:4px 14px;border-radius:3px;
+  background:linear-gradient(#f3dc9a,#c9a24c 55%,#b08a35);color:#3d2a08;border:1px solid #7d5f1e;
+  font:700 13px "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;
+  text-shadow:0 1px 0 rgba(255,255,255,.5);box-shadow:0 1px 2px rgba(0,0,0,.4);
+}
+.e11-case{
+  padding:12px 12px 0;border-radius:6px;border:6px solid #6b4422;
+  background:
+    linear-gradient(rgba(0,0,0,.25),rgba(0,0,0,.05) 20%),
+    repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 3px,transparent 3px 14px),
+    linear-gradient(#5e3a1c,#4a2c14);
+  box-shadow:inset 0 0 18px rgba(0,0,0,.5),0 3px 6px rgba(0,0,0,.35);
+}
+.e11{max-width:900px;margin-left:auto;margin-right:auto}
+.e11-shelf{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0 10px}
+@media (min-width:721px){.e11-shelf a{width:110px;margin:0 auto}}
+.e11-shelf li{position:relative;padding:0 0 22px}
+.e11-shelf li::after{
+  content:"";position:absolute;left:-12px;right:-12px;bottom:4px;height:14px;
+  background:linear-gradient(#c08850,#8a5a2e 60%,#5e3a1c);box-shadow:0 4px 5px rgba(0,0,0,.45);
+}
+.e11-shelf a{display:block}
+.e11-shelf img{display:block;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover;box-shadow:2px 3px 5px rgba(0,0,0,.55);border-radius:2px}
+.e11-shelf a:focus-visible img{outline:3px solid #f3dc9a;outline-offset:2px}
+@media (max-width:560px){.e11-shelf{grid-template-columns:repeat(4,minmax(0,1fr))}.e11-shelf li:nth-child(n+9){display:none}}
+
+/* ---------- the picker inside each skin ---------- */
+body.npskin .npEras-lbl{color:var(--dim);font-family:var(--e-label);font-size:13px;letter-spacing:.04em}
+body.era-1984 .npEras-lbl{color:var(--hot)}
+
+/* ---------- reduced motion: everything holds still ---------- */
+@media (prefers-reduced-motion:reduce){
+  body.era-1984 h1::after,.e84-cur{animation:none}
+  body.era-2004 h1,html[data-theme] body.era-2004 h1{animation:none;background-position:0 0}
+  #npConnect .d2{animation:none;opacity:1}
+  body.y1996 .todaybar .items{animation:none;flex-wrap:wrap;white-space:normal}
+  body.npskin .o1-track{animation:none}
+}
