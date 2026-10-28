@@ -4,6 +4,7 @@
    counter, Top 8, shelves) are built here and removed again on "Now", so taking
    the class off puts the page back exactly as it was.
    Choice lives in localStorage "np-era". Old "np-1996"=1 starts you on 1996.
+   Any page with ?era=now (or ?era=<id>) sets and saves the era.
    No sound, no tracking, no requests beyond the site's own data files.
    Include it as the first thing inside <body> so the look applies before paint. */
 (function(){
@@ -28,6 +29,12 @@
 
   var cur = get(KEY);
   if (!valid(cur)) cur = get(OLD) === "1" ? "1996" : "now";   /* migrate the old 1996 switch */
+  /* escape hatch: ?era=now (or ?era=1984, 1996, 1999, 2004, 2007, 2011) sets the era and saves it */
+  var qe = /[?&]era=([^&#]*)/.exec(location.search);
+  if (qe) {
+    var want = decodeURIComponent(qe[1]).toLowerCase();
+    if (valid(want)) { cur = want; put(KEY, want); put(OLD, want === "1996" ? "1" : "0"); }
+  }
 
   /* ---------- tiny helpers ---------- */
   function el(tag, cls, html){

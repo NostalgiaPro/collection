@@ -10,6 +10,9 @@
 
 /* ---------- the picker (shows in every mode) ---------- */
 #npErasWrap{margin:18px auto 0;text-align:center;max-width:520px}
+/* the app's rate card (growth.js, position:fixed at the bottom) must not sit on top of the picker:
+   leave room under it so the page can scroll the picker clear of the card */
+body:has(#npRate:not(.out)) #npErasWrap{padding-bottom:190px}
 .npEras-lbl{margin:0 0 8px;font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 #npEras{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
 #npEras button{
