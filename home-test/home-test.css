@@ -230,3 +230,7 @@ body.y1996 .ht .score b{display:inline}
   .ht-a .scores::after{content:"";flex-basis:100%;height:0;order:1}
   .ht-a .score:nth-child(n+4){order:2}
 }
+
+/* A has four actions (Arcade, Play Nostalgia Pro, Search, Daily): two by two on desktop, stacked on phones */
+.ht-a .ht-acts{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:880px){.ht-a .ht-acts{grid-template-columns:1fr}}

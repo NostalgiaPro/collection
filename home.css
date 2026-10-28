@@ -1,0 +1,168 @@
+/* Homepage (Version A). Loaded by /index.html. Uses the site's own
+   colour variables so the Time Machine eras and seasonal themes carry over. */
+
+.ht .ht-head{position:relative}
+.ht .o1 .standfirst{max-width:44ch}
+.ht-px{display:block;width:100%;height:100%}
+
+/* ---------- section heading ---------- */
+.ht-sh{margin:0;font-family:"Silkscreen",monospace;font-weight:700;font-size:12px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--hot)}
+
+/* ---------- stats: one compact line ---------- */
+.ht .scores{display:flex;flex-wrap:nowrap;gap:0 14px;justify-content:center;margin:14px 0 0;padding:2px 0;
+  border:none;border-radius:0;background:none;overflow-x:auto;scrollbar-width:none;white-space:nowrap}
+.ht .scores::-webkit-scrollbar{display:none}
+.ht .score,.ht .o1 .score{flex:none;display:flex;align-items:baseline;gap:5px;padding:0;background:none;border:none}
+.ht .score b,.ht .o1 .score b{display:inline;font-size:11px;line-height:1.6;color:var(--text)}
+.ht .score span,.ht .o1 .score span{display:inline;margin:0;font-size:10px;letter-spacing:.06em;color:var(--dim)}
+.ht a.score::after{bottom:-2px;height:1px}
+.ht .score + .score::before{content:"";align-self:center;width:3px;height:3px;margin-right:9px;background:var(--line)}
+
+/* ---------- Time Machine button + mini picker ---------- */
+.ht-tm{position:relative;z-index:5}
+.ht-tmbtn{display:inline-flex;align-items:center;gap:7px;cursor:pointer;padding:6px 9px;border-radius:3px;
+  background:rgba(16,18,25,.86);border:1px solid var(--line);color:var(--text);
+  font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.ht-tmbtn .ht-px{width:14px;height:12px}
+.ht-tmbtn b{font-family:"Press Start 2P",monospace;font-weight:400;font-size:8px;color:var(--hot)}
+.ht-tmbtn:hover,.ht-tmbtn[aria-expanded="true"]{border-color:var(--hot)}
+.ht-tmbtn:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+.ht-tmpanel{position:absolute;right:0;top:calc(100% + 6px);width:236px;display:grid;grid-template-columns:1fr 1fr;gap:6px;
+  padding:8px;background:var(--bg2);border:1px solid var(--line);border-radius:4px;box-shadow:0 10px 28px rgba(0,0,0,.5)}
+.ht-tmpanel[hidden]{display:none}
+.ht-tmpanel button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;cursor:pointer;padding:7px 8px;
+  background:var(--panel);border:1px solid var(--line);border-radius:3px;color:var(--text);text-align:left}
+.ht-tmpanel button:last-child{grid-column:1 / -1}
+.ht-tmpanel button b{font-family:"Press Start 2P",monospace;font-weight:400;font-size:9px}
+.ht-tmpanel button span{font-family:"Silkscreen",monospace;font-size:9px;color:var(--dim);letter-spacing:.05em}
+.ht-tmpanel button:hover{border-color:var(--hot)}
+.ht-tmpanel button[aria-pressed="true"]{background:var(--hot);border-color:var(--hot)}
+.ht-tmpanel button[aria-pressed="true"] b,.ht-tmpanel button[aria-pressed="true"] span{color:var(--e-on-hot,#12070a)}
+
+/* ---------- "New this week" cards (shared) ---------- */
+.ht-new{margin:26px 0 0}
+.ht-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:10px 0 0}
+.ht-card{position:relative;display:flex;gap:12px;align-items:stretch;min-width:0;padding:10px;text-decoration:none;color:var(--text);
+  background:var(--bg2);border:1px solid var(--line);border-radius:4px;transition:border-color .12s ease,transform .12s ease}
+.ht-card:hover{border-color:var(--hot);transform:translateY(-2px)}
+.ht-card:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+.ht-cm{flex:none;display:block;width:66px;height:88px;overflow:hidden;border-radius:3px;background:var(--panel)}
+.ht-cm img{display:block;width:100%;height:100%;object-fit:cover}
+.ht-dailypix{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:2px;padding:6px}
+.ht-dailypix i{background:var(--c)}
+.ht-ctxt{display:flex;flex-direction:column;gap:4px;min-width:0}
+.ht-ck{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--hot)}
+.ht-ch{font-family:"Press Start 2P",monospace;font-weight:400;font-size:11px;line-height:1.5}
+.ht-cs{font-size:13.5px;line-height:1.4;color:var(--dim)}
+
+/* ---------- merch + donate ---------- */
+.ht-shop{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:14px;align-items:stretch;margin:22px 0 0}
+.ht-shop .npmerch{margin:0}
+.ht-donate{display:flex;flex-direction:column;align-items:flex-start;padding:18px;background:var(--bg2);border:1px solid var(--line);border-radius:4px}
+.ht-donate h2{margin:0;font-family:"Press Start 2P",monospace;font-weight:400;font-size:13px;line-height:1.6;color:var(--text)}
+.ht-donate p{margin:8px 0 0;font-size:14.5px;line-height:1.45;color:var(--dim)}
+.ht-donbtn{margin:auto 0 0;padding:11px 14px;transform:translateY(8px);font-family:"Press Start 2P",monospace;font-size:10px;
+  text-decoration:none;color:var(--text);border:2px solid var(--hot);border-radius:4px}
+.ht-donbtn:hover{background:var(--hot);color:var(--e-on-hot,#12070a)}
+html.np-twa .ht-shop{grid-template-columns:1fr}
+
+/* =================================================================
+   A: Front of the store. Three big tiles under the headline.
+   ================================================================= */
+.ht-a .ht-tm-a{position:absolute;top:10px;right:0}
+.ht-a .o1-hero h1{margin-bottom:0}
+.ht-acts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:900px;margin:22px auto 0}
+.ht-act{position:relative;display:flex;align-items:center;gap:14px;padding:16px;min-height:96px;text-decoration:none;color:var(--text);
+  background:var(--bg2);border:2px solid var(--line);border-bottom-width:4px;border-radius:5px;transition:border-color .12s ease,transform .12s ease}
+.ht-act:hover{border-color:var(--hot);transform:translateY(-2px)}
+.ht-act:active{transform:translateY(1px);border-bottom-width:2px}
+.ht-act:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+.ht-actico{flex:none;width:46px;height:46px;padding:7px;background:var(--panel);border:1px solid var(--line);border-radius:4px}
+.ht-acttxt{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ht-acttxt b{font-family:"Press Start 2P",monospace;font-weight:400;font-size:12px;line-height:1.5}
+.ht-acttxt span{font-size:13.5px;line-height:1.35;color:var(--dim)}
+.ht-actgo{margin-left:auto;flex:none;font-size:12px;color:var(--hot)}
+.ht-act-arcade{border-color:var(--hot);background:linear-gradient(180deg,rgba(255,75,62,.16),transparent 70%),var(--bg2)}
+.ht-act-arcade .ht-actico{border-color:var(--hot)}
+.ht-a .searchbar{margin-top:14px}
+.ht-a .ht-new .ht-sh{text-align:left}
+
+@media (max-width:880px){
+  .ht-acts{grid-template-columns:1fr;gap:8px}
+  .ht-act{min-height:0;padding:11px 12px}
+  .ht-row{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:78%;overflow-x:auto;scroll-snap-type:x mandatory;
+    margin-left:-22px;margin-right:-22px;padding:0 22px 4px;scroll-padding:0 22px;scrollbar-width:none}
+  .ht-row::-webkit-scrollbar{display:none}
+  .ht-card{scroll-snap-align:start}
+  .ht-shop{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .ht .scores{align-items:center;gap:0 6px;justify-content:safe center;margin-left:-12px;margin-right:-12px;padding:2px 12px}
+  .ht .score,.ht .o1 .score{gap:3px}
+  .ht .score b,.ht .o1 .score b{font-size:7px}
+  .ht .score span,.ht .o1 .score span{font-family:"IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;font-weight:500;font-size:11px;letter-spacing:0}
+  .ht .score + .score::before{display:none}
+  /* "232 beaten (37%)": the percent tucks in after beaten to keep it on one line */
+  .ht .score:last-child{margin-left:-5px}
+  .ht .score:last-child span{display:none}
+  .ht .score:last-child b::before{content:"("}
+  .ht .score:last-child b::after{content:")"}
+  .ht .o1-hero{margin-top:-30px}
+  .ht .o1 .wordmark{margin-bottom:12px}
+  .ht .o1 .standfirst{margin-top:10px;font-size:14.5px;line-height:1.45}
+  .ht-a .ht-tm-a{top:8px;right:-6px}
+  .ht-a .ht-acts{margin-top:16px}
+  .ht-actico{width:40px;height:40px;padding:6px}
+  .ht-acttxt b{font-size:11px}
+  .ht-acttxt span{font-size:13px}
+  .ht-a .searchbar{margin-top:10px}
+  .ht-new{margin-top:20px}
+}
+
+/* ---------- Time Machine eras ---------- */
+body.npskin .ht-card,body.npskin .ht-act,body.npskin .ht-donate,body.npskin .ht-tmpanel,body.npskin .ht-hero,body.npskin .ht-tmbtn{
+  border-radius:var(--e-radius,4px);box-shadow:var(--e-panel-shadow,none);background:var(--bg2)}
+body.npskin .ht-ch,body.npskin .ht-acttxt b,body.npskin .ht-donate h2{font-family:var(--e-head,inherit)}
+body.npskin .ht-ck,body.npskin .ht-sh,body.npskin .ht-qlbl,body.npskin .ht-tmbtn{font-family:var(--e-label,inherit)}
+body.npskin .ht-act-arcade{background:var(--bg2)}
+body.npskin .ht-acttxt b,body.npskin .ht-donate h2{font-size:16px;font-weight:700}
+body.npskin .ht-ch{font-size:15px;font-weight:700}
+body.npskin .ht-hero{border-color:var(--hot)}
+body.era-1984 .ht-card,body.era-1984 .ht-act,body.era-1984 .ht-donate,body.era-1984 .ht-hero{background:#000;border:3px double var(--text)}
+body.era-1984 .ht-cart{filter:grayscale(1) sepia(1) hue-rotate(70deg) saturate(3)}
+body.era-2011 .ht-cart-verb{background:#2b2620}
+body.y1996 .ht-card,body.y1996 .ht-act,body.y1996 .ht-donate,body.y1996 .ht-hero,body.y1996 .ht-tmpanel{
+  background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0;box-shadow:none}
+body.y1996 .ht-ch,body.y1996 .ht-acttxt b,body.y1996 .ht-donate h2{font-family:"Times New Roman",Times,serif;font-size:17px;color:#000080}
+body.y1996 .ht-cs,body.y1996 .ht-acttxt span,body.y1996 .ht-donate p,body.y1996 .ht-qlbl,body.y1996 .ht-qlbl b{color:#000}
+body.y1996 .ht-ck{color:#800000}
+body.y1996 .ht-sh{color:#ffff00}
+body.y1996 .ht-a .ht-tm-a{position:static;display:flex;justify-content:center;margin:0 0 10px}
+body.y1996 .ht .ht-tmbtn{background:#c0c0c0;color:#000}
+body.y1996 .ht .scores{background:none;border:none;box-shadow:none}
+body.y1996 .ht .score b{color:#ffff00}
+body.y1996 .ht .score span{color:#fff}
+body.y1996 .ht-tmbtn{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0}
+body.y1996 .ht-donbtn{color:#0000ee;border:none;text-decoration:underline;transform:none;padding:0}
+@media (prefers-reduced-motion:reduce){.ht-card,.ht-act,.ht-cart{transition:none}}
+.ht-px .w{fill:var(--text)}
+.ht-px .r{fill:var(--hot)}
+.ht-cart .ht-px .w{fill:#0b0d12}
+.ht-cart-arcade .ht-px .r{fill:#0b0d12}
+body.y1996 .ht .score{display:flex;align-items:baseline}
+body.y1996 .ht .score b{display:inline}
+@media (min-width:881px){.ht-carousel .ht-cm{aspect-ratio:2/1}}
+
+/* A on narrow phones (about 400px and under): the stats wrap to two even rows of three
+   instead of scrolling sideways. Row 1: games, systems, complete. Row 2: loose, beaten (%). */
+@media (max-width:400px){
+  .ht-a .scores{flex-wrap:wrap;overflow:visible;white-space:normal;justify-content:center;row-gap:3px;column-gap:10px;
+    margin-left:0;margin-right:0;padding:2px 0}
+  .ht-a .scores::after{content:"";flex-basis:100%;height:0;order:1}
+  .ht-a .score:nth-child(n+4){order:2}
+}
+
+/* A has four actions (Arcade, Play Nostalgia Pro, Search, Daily): two by two on desktop, stacked on phones */
+.ht-a .ht-acts{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:880px){.ht-a .ht-acts{grid-template-columns:1fr}}
