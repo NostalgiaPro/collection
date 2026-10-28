@@ -234,7 +234,7 @@ window.NP = NP;
     'nnnnnnnnnnnnnnnn',
     'nNnnnnnNnnnnnNnn',
     'NNNNNNNNNNNNNNNN'] };
-  I.msa = { bg: '#ff9e5e', px: [ // Mesa Mayhem: a car flying off a mesa
+  I.msa = { bg: '#ff9e5e', px: [ // Plateau Panic: a car flying off a plateau
     '.......yyyy.....',
     '......yyyyyy....',
     '......yyyyyy....',

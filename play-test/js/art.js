@@ -118,6 +118,8 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
     P(4, 6, 6, 6, '#7a7f8c'); P(20, 5, 7, 7, '#29adff'); P(11, 7, 5, 5, '#e4343e');
     return;
   }
+  // Round 3b: music, movies, and the odd things the new stores sell
+  if (kind === 'music' || kind === 'movie' || kind === 'gear' || kind === 'standee' || kind === 'bulk') { drawOther(ctx, it, ox, oy, k, P); return; }
   var pl = NP.PLATFORMS[it.p] || NP.PLATFORMS.k16;
   var cond = it.cond || 'loose';
   if (cond === 'loose' && pl.media === 'disc') {
@@ -158,6 +160,74 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
   }
   if (it.sticker) { P(21, 33, 8, 5, NP.COL.gold); P(22, 35, 6, 1, NP.COL.red); }
 };
+
+// colors for record sleeves and movie boxes, picked from the item id so the same item always looks the same
+var MEDIA_PAL = [['#e4343e', '#ffcc33'], ['#29adff', '#fff1d6'], ['#7e57c2', '#29d3e8'], ['#00b894', '#1d2b53'], ['#ff77a8', '#1d2b53'], ['#ff9f43', '#0b1022'], ['#1d2b53', '#ff77a8'], ['#2d6a2d', '#ffcc33']];
+function drawOther(ctx, it, ox, oy, k, P) {
+  var C = NP.COL, h = NP.hashStr(String(it.id || 'x')), pal = MEDIA_PAL[h % MEDIA_PAL.length];
+  var fmt = it.fmt || '';
+  var art = function (x, y, s, bg) { sprite(ctx, String(it.id), ox + x * k, oy + y * k, s * k, bg); };
+  if (it.kind === 'music' && fmt === 'vinyl') {
+    // the record peeking out of its sleeve
+    for (var yy = 0; yy < 26; yy++) for (var xx = 0; xx < 26; xx++) {
+      var dx = xx - 12.5, dy = yy - 12.5, d = Math.sqrt(dx * dx + dy * dy);
+      if (d < 13) P(5 + xx, 7 + yy, 1, 1, d < 2 ? C.cream : d < 4 ? pal[1] : ((xx + yy) % 5 === 0 ? '#3a3f4a' : '#15171d'));
+    }
+    P(0, 6, 26, 28, C.ink); P(1, 7, 24, 26, pal[0]);
+    art(5, 11, 2, pal[0]);
+    P(1, 29, 24, 4, pal[1]);
+    return;
+  }
+  if (it.kind === 'music' && fmt === 'cd') {
+    P(2, 7, 28, 27, C.ink); P(3, 8, 26, 25, '#c9d1dc'); P(3, 8, 4, 25, '#8a90a0');
+    P(8, 10, 19, 21, pal[0]); art(10, 13, 2, pal[0]);
+    P(8, 27, 19, 3, pal[1]);
+    return;
+  }
+  if (it.kind === 'music') { // cassette
+    P(1, 12, 30, 20, C.ink); P(2, 13, 28, 18, '#3a3f4a');
+    P(4, 14, 24, 9, pal[0]); P(4, 14, 24, 2, pal[1]);
+    P(8, 18, 5, 4, C.ink); P(19, 18, 5, 4, C.ink); P(9, 19, 3, 2, C.cream); P(20, 19, 3, 2, C.cream);
+    P(7, 25, 18, 5, '#59606e'); P(10, 27, 2, 2, C.ink); P(20, 27, 2, 2, C.ink);
+    return;
+  }
+  if (it.kind === 'movie' && fmt === 'vhs') {
+    P(4, 0, 24, 40, C.ink); P(5, 1, 22, 38, '#16181f');
+    P(5, 1, 22, 6, pal[0]);
+    art(8, 10, 2, '#16181f');
+    P(5, 28, 22, 2, pal[1]); P(7, 32, 12, 1, C.grey); P(7, 34, 8, 1, C.grey);
+    NP.pixelText(ctx, 'VHS', ox + 17 * k, oy + 33 * k, Math.max(1, Math.floor(k * 0.5)), C.cream);
+    if (it.flags && it.flags.rental) { P(19, 2, 7, 4, C.gold); }
+    return;
+  }
+  if (it.kind === 'movie') { // dvd
+    P(5, 1, 22, 38, C.ink); P(6, 2, 20, 36, '#1f4fa8');
+    P(8, 4, 16, 26, pal[0]); art(8, 9, 2, pal[0]);
+    P(8, 32, 16, 2, pal[1]);
+    NP.pixelText(ctx, 'DVD', ox + 10 * k, oy + 35 * k, Math.max(1, Math.floor(k * 0.5)), C.cream);
+    return;
+  }
+  if (it.kind === 'gear') { // binoculars
+    P(4, 14, 10, 16, C.ink); P(18, 14, 10, 16, C.ink);
+    P(5, 15, 8, 14, '#3a3f4a'); P(19, 15, 8, 14, '#3a3f4a');
+    P(13, 18, 6, 6, C.ink); P(14, 19, 4, 4, '#59606e');
+    P(6, 26, 6, 3, C.cyan); P(20, 26, 6, 3, '#9aa0ad');
+    P(7, 27, 2, 1, '#ffffff');
+    return;
+  }
+  if (it.kind === 'standee') { // a cardboard action star, pointing a dental drill at you
+    P(11, 1, 10, 10, '#8a5e36'); P(12, 2, 8, 8, '#f1c28e'); P(12, 2, 8, 3, '#4a2f1c');
+    P(13, 6, 2, 1, C.ink); P(17, 6, 2, 1, C.ink);
+    P(9, 11, 14, 16, '#8a5e36'); P(10, 12, 12, 14, '#e4343e');
+    P(22, 13, 8, 4, '#8a5e36'); P(23, 14, 6, 2, '#f1c28e'); P(28, 12, 3, 2, C.grey);
+    P(10, 27, 5, 12, '#8a5e36'); P(17, 27, 5, 12, '#8a5e36'); P(11, 27, 3, 11, '#1d2b53'); P(18, 27, 3, 11, '#1d2b53');
+    return;
+  }
+  // bulk: a printer paper box of sports games
+  P(1, 12, 30, 26, '#c9b48a'); P(2, 13, 28, 24, '#e6d4a8'); P(1, 10, 30, 4, '#b39c6e');
+  P(3, 6, 8, 6, '#2d6a2d'); P(12, 5, 8, 7, '#29adff'); P(21, 7, 8, 5, '#e4343e');
+  NP.pixelText(ctx, '40', ox + 10 * k, oy + 20 * k, k, NP.COL.navy);
+}
 
 NP.makeArt = function (it, scale) {
   var c = document.createElement('canvas');

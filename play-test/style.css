@@ -512,3 +512,106 @@ h3.anystop { margin-top: 18px; }
 .rc-final { background: var(--red); color: var(--cream); font-weight: bold; font-size: 13px; padding: 4px 8px; margin: 6px 0; }
 .bubble.hero { background: var(--gold); color: var(--ink); font-weight: bold; text-align: center; }
 button.offer.steve { width: 100%; }
+
+/* ---------- Round 3b: the new stores ---------- */
+.truetag { display: inline-block; background: var(--gold); color: var(--ink); font-size: 10px; font-weight: bold; letter-spacing: .06em; padding: 1px 6px; margin: 0 4px 4px 0; border: 1px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); transform: rotate(-1deg); vertical-align: middle; }
+.note.true { border-left-color: var(--gold); }
+.note.true .truetag { margin-bottom: 2px; }
+.story { background: rgba(0,0,0,.28); border: 2px solid #3a4d82; border-left: 4px solid var(--gold); padding: 8px 10px; margin: 10px 0; }
+.story-h { font-weight: bold; color: var(--gold); font-size: 16px; }
+.story-t { color: #e3e8f7; font-size: 14px; margin: 4px 0; }
+.story .btns { display: flex; flex-wrap: wrap; }
+.story.rec, .story.rent { border-left-color: var(--cyan); }
+.scenecv { display: block; width: 100%; max-width: 640px; height: auto; margin: 6px 0; border: 2px solid var(--ink); background: var(--ink); cursor: pointer; }
+.laughwrap { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.laughcv { width: 180px; height: 108px; border: 2px solid var(--ink); }
+.gc-row { display: flex; gap: 10px; align-items: flex-start; margin: 6px 0; }
+.gc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0; }
+.gc-price { background: var(--red); color: var(--cream); font-weight: bold; font-size: 18px; padding: 2px 8px; transform: rotate(-2deg); display: inline-block; }
+.gc-tag { background: var(--cream); color: var(--red); font-weight: bold; padding: 2px 8px; border: 2px dashed var(--red); display: inline-block; }
+.story.glasscase { background: linear-gradient(135deg, rgba(41,211,232,.12), rgba(0,0,0,.3) 40%, rgba(41,211,232,.08)); }
+.bubble.hero { background: var(--gold); }
+.sec-h { border-bottom: 2px dashed #3a4d82; padding-bottom: 3px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* the 16-bit corner you cannot read from the counter */
+.items.corner.blur .artbox canvas { filter: blur(3px) saturate(.6); }
+.blurtxt { filter: blur(4px); user-select: none; }
+.corner-it .stamp { font-size: 12px; }
+.redx { display: inline-block; width: 22px; height: 22px; position: relative; vertical-align: middle; margin-right: 6px; }
+.redx::before, .redx::after { content: ""; position: absolute; left: 9px; top: -2px; width: 5px; height: 26px; background: var(--red); transform: rotate(45deg); box-shadow: 0 0 0 1px var(--ink); }
+.redx::after { transform: rotate(-45deg); }
+.redx.big { position: absolute; right: 14px; top: 14px; width: 44px; height: 44px; margin: 0; }
+.redx.big::before, .redx.big::after { left: 19px; top: -4px; width: 7px; height: 52px; }
+.stopcard.xban { position: relative; background: #1a1220; border-color: var(--red); }
+.stopcard.xban { padding-right: 66px; }
+.stopcard.xban > .st-h { text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 2px; }
+.banlab, .banstamp { color: var(--red); font-weight: bold; }
+.banstamp { font-size: 18px; margin: 8px 0; display: flex; align-items: center; transform: rotate(-2deg); }
+.stars { color: var(--gold); font-size: 28px; line-height: 1; margin: 4px 0; }
+.bannedlist { max-width: 640px; margin: 10px auto; text-align: left; background: rgba(0,0,0,.3); border: 2px solid var(--red); padding: 6px 10px; }
+.bannedlist h3 { color: var(--red); margin-top: 4px; }
+.bl-row { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
+
+/* Lonnie: friendship meter and the punch card */
+.friend { margin: 6px 0; font-size: 13px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+.fm-k { font-weight: bold; color: var(--cyan); }
+.fm { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--cream); background: transparent; }
+.fm.on { background: var(--gold); }
+.punch { background: #f3e6c4; color: var(--ink); padding: 8px 10px; margin: 8px 0; max-width: 360px; border: 2px solid #b9a77f; transform: rotate(-0.6deg); box-shadow: 3px 3px 0 var(--ink); }
+.punch-h { font-weight: bold; letter-spacing: .2em; color: #8e1c23; }
+.punch-row { display: flex; gap: 6px; margin: 6px 0; flex-wrap: wrap; }
+.ph { width: 18px; height: 18px; border-radius: 50%; border: 2px dashed #8a5e36; }
+.ph.on { background: var(--navy); border-style: solid; border-color: var(--navy); box-shadow: inset 0 0 0 3px #f3e6c4; }
+.punch-k { font-size: 12px; }
+
+/* the phone call */
+.callov { position: fixed; inset: 0; background: rgba(5,8,18,.72); z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.callbox { background: var(--navy2); border: 3px solid var(--gold); padding: 14px; max-width: 420px; width: 100%; box-shadow: 6px 6px 0 var(--ink); }
+.call-h { color: var(--gold); font-weight: bold; font-size: 18px; margin: 4px 0; animation: ring 0.4s steps(2) 4; }
+@keyframes ring { 50% { transform: translateX(3px); } }
+.callbox .btns { display: flex; flex-direction: column; }
+@media (prefers-reduced-motion: reduce) { .call-h { animation: none; } }
+
+/* ---------- store signs: all made up. None of them looks like a real chain's sign. ---------- */
+.sign { margin: 6px 0 10px; text-align: center; user-select: none; }
+.sign small { display: block; }
+/* the record store: a loud 90s mall sign in green and orange, with the last two parts added later */
+.sign-rec { background: #101010; padding: 10px 8px 12px; border: 3px solid #2b2b2b; }
+.sr-main { font: 900 34px/1 Impact, "Arial Black", "Helvetica Neue", sans-serif; letter-spacing: .04em; }
+.sr-main .g { color: #3ddc5a; text-shadow: 3px 3px 0 #ff8a1f, 5px 5px 0 #000; }
+.sr-main .o { color: #ff8a1f; text-shadow: 3px 3px 0 #3ddc5a, 5px 5px 0 #000; }
+.sr-add { margin-top: 8px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.sr-add span { position: relative; display: inline-block; font: bold 15px/1.2 "Arial Narrow", Arial, sans-serif; padding: 3px 8px; }
+.sr-add .tape1 { color: #c7a8ff; background: #2a2440; transform: rotate(-3deg); }
+.sr-add .tape2 { color: #e8e07a; background: #3a2a14; transform: rotate(2.5deg); font-family: Georgia, serif; font-style: italic; }
+.sr-add span::before, .sr-add span::after { content: ""; position: absolute; top: -6px; width: 22px; height: 10px; background: rgba(240,230,190,.75); }
+.sr-add span::before { left: -8px; transform: rotate(-30deg); }
+.sr-add span::after { right: -8px; transform: rotate(25deg); }
+/* the rental stores: glowing box sign, slanted banner letters, purple and teal (the Other one is a cheaper version) */
+.sign-vid .sv-box { display: inline-block; background: linear-gradient(#45207a, #2b0f55); border: 3px solid #2ee6d6; padding: 10px 16px; box-shadow: 0 0 14px #2ee6d6, inset 0 0 12px rgba(46,230,214,.45); max-width: 100%; }
+.sign-vid .sv-t { display: inline-block; background: #2ee6d6; color: #45207a; font: italic 900 22px/1.1 "Arial Black", Impact, sans-serif; padding: 4px 14px; transform: skewX(-14deg); text-shadow: 1px 1px 0 #fff; }
+.sign-vid.b .sv-box { background: linear-gradient(#6a5788, #4f4166); border-color: #86b9ad; box-shadow: 0 0 5px #86b9ad; transform: rotate(-1deg); }
+.sign-vid.b .sv-t { background: #86b9ad; color: #4f4166; font-size: 19px; text-shadow: none; }
+.closing { display: inline-block; margin-top: -4px; background: #fff7e2; color: var(--red); font: 900 15px/1.2 "Arial Black", Arial, sans-serif; padding: 4px 12px; border: 2px dashed var(--red); transform: rotate(-3.5deg); box-shadow: 2px 3px 0 rgba(0,0,0,.5); position: relative; }
+.sign-vid.b .closing { transform: rotate(2.5deg); }
+/* the mall store: dark glass and thin letters */
+.sign-mall { background: linear-gradient(180deg, #0f1420, #1b2335); border: 1px solid #9aa0ad; padding: 8px; }
+.sign-mall small { color: #9aa0ad; font-size: 10px; letter-spacing: .2em; }
+.sign-mall span { color: #e8f6ff; font: 300 22px/1.2 "Helvetica Neue", Arial, sans-serif; letter-spacing: .35em; }
+/* Lonnie's: hand painted on a board */
+.sign-pal { background: #7a5230; border: 3px solid #4e321b; padding: 8px; transform: rotate(-1deg); }
+.sign-pal span { color: #fff1d6; font: bold 24px/1.2 "Trebuchet MS", Verdana, sans-serif; }
+.sign-pal small { color: #ffd88a; font-size: 12px; }
+/* Staff Only Games: plain and unwelcoming */
+.sign-ban { background: #c9ccd2; color: #2a2f3a; padding: 8px; border: 2px solid #8a90a0; }
+.sign-ban span { font: bold 20px/1.2 Arial, sans-serif; letter-spacing: .1em; }
+.sign-ban small { font-size: 11px; letter-spacing: .15em; }
+@media (max-width: 520px) {
+  .sr-main { font-size: 26px; }
+  .sign-vid .sv-t { font-size: 16px; }
+  .sign-mall span { font-size: 16px; letter-spacing: .2em; }
+  .closing { font-size: 12px; }
+  .gc-row { flex-direction: column; }
+}
+.reward { background: var(--gold); color: var(--ink); font-weight: bold; padding: 6px 10px; margin: 6px 0; }

@@ -34,6 +34,7 @@
     },
     set: function (k, v) {
       var s = JSON.stringify(v);
+      if (memStore[k] === s && canSave) { try { if (localStorage.getItem(PFX + k) === s) return; } catch (e) {} } // nothing changed: skip the write
       memStore[k] = s;
       try { if (canSave) localStorage.setItem(PFX + k, s); } catch (e) {}
     }
@@ -436,6 +437,7 @@
   // free: true for Free Play (a random Saturday that never counts as today's run)
   // season: true for a season Saturday (Home by sundown, SEASON.week, money and shelf carried over)
   function newRun(m, free, season) {
+    document.querySelectorAll('.callov').forEach(function (o) { if (o.parentNode) o.parentNode.removeChild(o); });
     season = !DEMO && !!season && !!SEASON;
     m = DEMO ? 'noon' : season ? 'sundown' : (m || (S && S.mode) || 'sundown');
     free = !DEMO && !season && !!free;
@@ -452,7 +454,6 @@
       SEASON.shelf.forEach(function (b) { if (b.kind === 'game') day.owned[b.id] = true; });
       day.shelfCount = (SEASON.baseCount || 300) + SEASON.shelf.length;
     }
-    if (!DEMO) assignRivals(day, seed, m);
     var cash = season ? SEASON.cash : budgetFor(m);
     S = {
       seed: seed, free: free, season: season, week: season ? SEASON.week : 0, date: date,
@@ -467,9 +468,11 @@
       said: {},   // catchphrases already used today
       history: [] // stop ids in the order you visited them (the route card and the funnel use this)
     };
+    // Round 3b: today's rotating stores and collector moments, then the rivals (Brayden can be at the mall store now)
+    if (!DEMO) { addStores(day, seed, m); assignRivals(day, seed, m); }
     S.rem = DEMO || free ? {} : applyMemory(day);
     // the one seller today who would never sell out, and the stop they are at (never the swap meet: that one has its own)
-    var colaStops = day.stops.filter(function (s) { return !s.locked && !s.gift && s.type !== 'flea' && s.seller && NP.SPONSOR && NP.SPONSOR.refuse && NP.SPONSOR.refuse[s.seller]; });
+    var colaStops = day.stops.filter(function (s) { return openStop(s) && s.type !== 'flea' && s.seller && NP.SPONSOR && NP.SPONSOR.refuse && NP.SPONSOR.refuse[s.seller]; });
     if (colaStops.length) colaStops[NP.hashStr(seed + '|cola') % colaStops.length].cola = true;
   }
 
@@ -479,7 +482,7 @@
   var RIVAL_IDS = ['brayden', 'phil', 'brody', 'gary', 'steve'];
   function assignRivals(day, seed, m) {
     var r = mulberry32(NP.hashStr('rivals|' + seed));
-    var stopsOf = function (types) { return day.stops.filter(function (s) { return !s.locked && !s.gift && types.indexOf(s.type) >= 0; }); };
+    var stopsOf = function (types) { return day.stops.filter(function (s) { return openStop(s) && types.indexOf(s.type) >= 0; }); };
     var n = m === 'noon' ? 1 : (r() < 0.4 ? 3 : 2);
     var pool = RIVAL_IDS.filter(function (id) { return stopsOf(NP.RIVALS[id].where).length; });
     var picked = [];
@@ -509,7 +512,10 @@
   function rivalHere(id) { return !!(S && S.stop && rivalsAt(S.stop).indexOf(id) >= 0); }
   function rivalName(id) { return NP.RIVALS[id] ? NP.RIVALS[id].name : id; }
   // An action at a stop. Brody's filming adds 5 minutes to everything at a menu stop (at the swap meet he locks a table instead).
-  function actCost(min) { spend(min + (S.screen === 'stop' && rivalHere('brody') ? 5 : 0)); }
+  function actCost(min) {
+    spend(min + (S.screen === 'stop' && rivalHere('brody') ? 5 : 0));
+    if (S.stop && S.stop.reseller) S.stop.acts = (S.stop.acts || 0) + 1; // the guy with the wagon is watching
+  }
   // Slab Steve has every sealed game at his stops on hold, unless you pay 20% more
   function steveHold(it) { return rivalHere('steve') && it.kind === 'game' && it.cond === 'sealed' && it.state === 'avail' && it.uid.indexOf('dx') !== 0; }
   // Brayden: look at something, move on to something else, and he buys the first one
@@ -520,7 +526,7 @@
     if (!it || it.state !== 'avail') return;
     it.state = 'gone'; it.goneBy = 'brayden'; it.line = '';
     rivalHit('brayden');
-    var B = NP.RIVALS.brayden, txt = B.texts[NP.hashStr(it.uid) % B.texts.length].replace('{t}', it.t).replace('{$}', money(it.ask));
+    var B = NP.RIVALS.brayden, txt = B.texts[NP.hashStr(it.uid) % B.texts.length].replace('{t}', it.t).replace('{$}', money(it.ask)).replace('{place}', s.type === 'mall' ? 'the mall' : 'a yard sale');
     S.toast = 'You moved on, so Brayden bought ' + it.t + ' with his mom\'s card. Brayden: "' + B.lines[NP.hashStr(it.uid + 'b') % B.lines.length] + '" A text pops up on his phone. ' + txt;
   }
   // "Blow on it. It helps." Once a Saturday, on a loose game you Inspect.
@@ -572,7 +578,7 @@
     SEASON = {
       id: id, start: iso(d), week: 1, cash: NP.SEASON.startSavings + NP.SEASON.paycheck, pay: false,
       shelf: [], owned: owned, baseCount: 270 + Math.floor(r() * 60), scores: [], rivals: {}, mem: {},
-      punch: 0, friend: {}, banned: [], endless: false, ending: null, endingPending: false
+      punch: 0, friend: {}, banned: [], gear: {}, endless: false, ending: null, endingPending: false
     };
     saveGame(null);
     track('new_game');
@@ -604,7 +610,11 @@
   }
   function saveGame(run) {
     if (DEMO || !SEASON) return;
-    try { store.set('save', { v: SAVE_V, season: SEASON, run: run === undefined ? packRun() : run }); } catch (e) {}
+    var r = run === undefined ? packRun() : run;
+    try { store.set('save', { v: SAVE_V, season: SEASON, run: r }); } catch (e) {}
+    // a small second copy, written between Saturdays only. If the main save ever goes missing,
+    // Continue picks the season back up from the start of that Saturday instead of losing it.
+    if (!r) { try { store.set('save_b', { v: SAVE_V, season: SEASON, run: null }); } catch (e) {} }
   }
   var saveT = null;
   function saveSoon() { if (S && S.season) { if (saveT) clearTimeout(saveT); saveT = setTimeout(function () { saveT = null; saveGame(); }, 250); } }
@@ -613,6 +623,7 @@
     if (DEMO) return null;
     var sv = null;
     try { sv = store.get('save', null); } catch (e) { sv = 'bad'; }
+    if (sv === null && store.raw('save') === null) { try { sv = store.get('save_b', null); } catch (e) { sv = null; } if (sv) sv.backup = true; }
     if (sv === null) { saveBad = store.raw('save') !== null; return null; }
     var ok = false;
     try {
@@ -687,7 +698,7 @@
     var w = S.week;
     R.lines.forEach(function (l) {
       var b = l.it; if (!b) return;
-      SEASON.shelf.push({ id: b.id, t: b.t, p: b.p, kind: b.kind, cond: b.cond === 'sealed' && b.decision === 'open' ? 'cib' : b.cond, base: b.base || 0,
+      SEASON.shelf.push({ id: b.id, t: b.t, p: b.p, kind: b.kind, fmt: b.fmt, cond: b.cond === 'sealed' && b.decision === 'open' ? 'cib' : b.cond, base: b.base || 0,
         flags: b.flags || {}, v: l.pts, dupe: l.pts < 0 && l.note.indexOf('shelf') >= 0, week: w, sticker: !!b.sticker });
     });
     SEASON.cash = S.cash;
@@ -742,7 +753,13 @@
   // and no drive takes longer than DRIVE_CAP minutes (a safety net: every base cost is set so even the hottest day stays at or under it).
   // Time spent at a stop still gets the full heat mult (see spend()).
   var DRIVE_CAP = 80;
-  function costOf(s) { var m = S.wx ? S.wx.mult : 1; return Math.min(DRIVE_CAP, Math.round(s.cost * (1 + (m - 1) * 0.5))); }
+  // fromId: where you are driving from (default: the stop you were at last). The two rental stores are across the street: 4 minutes on foot.
+  function lastStopId() { return S.history.length ? S.history[S.history.length - 1] : null; }
+  function costOf(s, fromId) {
+    var from = fromId !== undefined ? fromId : lastStopId();
+    if (s.across && from === s.across) return 4;
+    var m = S.wx ? S.wx.mult : 1; return Math.min(DRIVE_CAP, Math.round(s.cost * (1 + (m - 1) * 0.5)));
+  }
 
   function adLevel() { return S ? S.visited : 0; }
 
@@ -752,12 +769,12 @@
   // If it will not all fit before the mode ends, the stops after the swap meet go first, then the ones before it,
   // so the swap meet (the walkable one, with Dex) stays on the route as long as it can.
   // The gift shop is never on the route. It is always on the map, shouting.
-  var ROUTE_ORDER = ['yard', 'yard', 'yard', 'sports', 'thrift', 'flea', 'thrift', 'pawn'];
+  var ROUTE_ORDER = ['yard', 'yard', 'yard', 'sports', 'thrift', 'mall', 'pal', 'flea', 'record', 'rental', 'rental', 'banned', 'thrift', 'pawn'];
   var STAY_EST = 25; // minutes we guess you spend at a stop
   function planRoute() {
     if (!S) return [];
     // the order is worked out from every stop (visited or not), so it never reshuffles as you go
-    var all = S.day.stops.filter(function (s) { return !s.locked && !s.gift; });
+    var all = S.day.stops.filter(openStop);
     var order = [], used = {};
     ROUTE_ORDER.forEach(function (t) {
       var s = all.filter(function (o) { return o.type === t && !used[o.id]; })[0];
@@ -769,9 +786,9 @@
     if (DEMO) list.sort(function (a, b) { return (a.type === 'flea') - (b.type === 'flea'); });
     var end = endT();
     function fits(l) {
-      var t = S.time;
+      var t = S.time, from = lastStopId();
       // every stop on the route gets at least 20 minutes before the day ends
-      for (var i = 0; i < l.length; i++) { t += costOf(l[i]); if (t + 20 > end) return false; t += STAY_EST; }
+      for (var i = 0; i < l.length; i++) { t += costOf(l[i], from); from = l[i].id; if (t + 20 > end) return false; t += STAY_EST; }
       return true;
     }
     while (list.length && !fits(list)) {
@@ -795,6 +812,609 @@
     return min;
   }
 
+  // =====================================================================================================
+  // ---------- Round 3b: the new stores, the true stories and the collector moments ----------
+  // =====================================================================================================
+  // Full game only. The demo never gets here: its Saturday is built by curateDemo(), and addStores() is only called when !DEMO.
+
+  // Things that last from one Saturday to the next: the banned list, Lonnie's friendship, the punch card, the late fee
+  // and the binoculars. In a season they live in the season save. Outside a season (Back by noon, Free Play) in their own key.
+  var keepObj = null;
+  function K() {
+    var o;
+    if (S && S.season && SEASON) o = SEASON;
+    else {
+      if (!keepObj) { keepObj = store.get('keep', null); if (!keepObj || typeof keepObj !== 'object' || Array.isArray(keepObj)) keepObj = {}; }
+      o = keepObj;
+    }
+    if (!Array.isArray(o.banned)) o.banned = [];
+    if (!o.friend || typeof o.friend !== 'object') o.friend = {};
+    if (typeof o.punch !== 'number' || !isFinite(o.punch) || o.punch < 0) o.punch = 0;
+    if (!o.gear || typeof o.gear !== 'object') o.gear = {};
+    return o;
+  }
+  function saveK() { if (DEMO) return; if (S && S.season && SEASON) saveSoon(); else store.set('keep', K()); }
+  function satKey() { return S.season && SEASON ? SEASON.id + '|' + S.week : S.seed; }
+  function isBanned(id) { return K().banned.some(function (b) { return b && b.id === id; }); }
+  function hasBinoculars() { return !!K().gear.binoc || (S && S.bag.some(function (b) { return b.id === 'binoc'; })); }
+  function trueTag(D) { return D && D.trueStory ? '<span class="truetag">' + esc(NP.TRUE_TAG) + '</span>' : ''; }
+  function storyNote(id, text) { return '<div class="note true">' + trueTag(NP.STORIES[id]) + ' ' + esc(text) + '</div>'; }
+  function openStop(s) { return !s.locked && !s.gift && !s.xban; }
+
+  function rollGame(r, w) {
+    var x = r(), t = x < w[0] ? 1 : x < w[0] + w[1] ? 2 : 3;
+    return pick(r, NP.CATALOG.filter(function (g) { return g.tier === t; }));
+  }
+  var mediaUsed = {}; // what one store already has, so the same record is not in two bins
+  function rollMedia(r, kind, fmts, w) {
+    var x = r(), t = x < w[0] ? 1 : x < w[0] + w[1] ? 2 : 3;
+    var all = NP.MEDIA.filter(function (m) { return m.kind === kind && fmts.indexOf(m.fmt) >= 0; });
+    var list = all.filter(function (m) { return !mediaUsed[m.id]; });
+    if (!list.length) list = all;
+    var tl = list.filter(function (m) { return m.tier === t; });
+    var e = pick(r, tl.length ? tl : list);
+    mediaUsed[e.id] = true;
+    return e;
+  }
+  function makeMedia(r, e, opts) {
+    var it = makeItem(r, { id: e.id, t: e.t, p: 'k16', tier: e.tier, base: e.base }, { kind: e.kind, seller: opts.seller, ask: opts.ask });
+    it.fmt = e.fmt; it.by = e.by; it.cond = 'loose';
+    if (opts.sec) it.sec = opts.sec;
+    return it;
+  }
+
+  // ---------- which stores are open today ----------
+  // They rotate: two of the five on a Home by sundown day, one in Back by noon. The two rental stores count as one
+  // (they are across the street from each other). A store you banned is never open again, but it stays on the map with a red X.
+  var STORE_GROUPS = ['mall', 'banned', 'pal', 'record', 'rental'];
+  var STORE_COST = { mall: 64, banned: 62, pal: 58, record: 60, rental: 56 }; // same drive formula as every other stop
+  var PAL_MAX = 5;
+  var nStore = 0;
+  function baseStop(type, name, seller, cost) {
+    return { id: 'n' + (nStore++), type: type, name: name, seller: seller, cost: cost, items: [], dig: [], dug: false, visited: false, rivalAt: null, rumor: false, cleared: false };
+  }
+  function addStores(day, seed, m) {
+    var r = mulberry32(NP.hashStr('stores|' + seed));
+    nStore = 0;
+    var kp = K(), banned = isBanned('banned');
+    var pool = STORE_GROUPS.filter(function (g) { return !(g === 'banned' && banned); });
+    var picked = shuffle(r, pool).slice(0, m === 'noon' ? 1 : 2);
+    day.storeGroups = picked;
+    picked.forEach(function (g) {
+      var made = makeStore(r, g);
+      day.stops.splice.apply(day.stops, [1 + Math.floor(r() * day.stops.length), 0].concat(made));
+    });
+    // the store you banned stays on the map, with a red X on it
+    if (banned) day.stops.push({ id: 'xban', type: 'banned', name: NP.STOPNAMES.banned[0], xban: true, cost: 0, items: [], dig: [], visited: false, seller: null });
+    // binoculars, for reading far-away shelves: at a yard sale or the pawn shop, more likely on a day you could use them
+    if (!kp.gear.binoc && r() < (picked.indexOf('banned') >= 0 ? 0.75 : 0.2)) {
+      var hosts = day.stops.filter(function (s) { return (s.type === 'yard' || s.type === 'pawn') && openStop(s); });
+      if (hosts.length) {
+        var hs = pick(r, hosts), G = NP.GEAR.binoc;
+        var bi = makeItem(r, { id: G.id, t: G.t, p: 'k16', base: 0 }, { kind: 'gear', ask: G.ask, seller: hs.seller });
+        bi.minFrac = 0.66; hs.items.push(bi);
+      }
+    }
+    placeMoments(r, day, m);
+  }
+  // one service story for a game store, picked from the data. Stories with the same title count once (the three trivia questions).
+  function pickService(r, type) {
+    var byTitle = {};
+    Object.keys(NP.STORIES).forEach(function (k) {
+      var D = NP.STORIES[k];
+      if (D.pool === 'service' && D.where && D.where.indexOf(type) >= 0) (byTitle[D.title] = byTitle[D.title] || []).push(k);
+    });
+    var groups = Object.keys(byTitle).sort();
+    return groups.length ? pick(r, byTitle[pick(r, groups)]) : null;
+  }
+  function makeStore(r, g) {
+    var i, st;
+    mediaUsed = {};
+    if (g === 'mall') {
+      st = baseStop('mall', NP.STOPNAMES.mall[0], 'mall', STORE_COST.mall);
+      st.mallName = NP.MALL;
+      for (i = 0; i < 5; i++) st.items.push(makeItem(r, rollGame(r, [0.45, 0.4]), { seller: 'mall', sealedP: 0.2, cibP: 0.45 }));
+      st.scene = r() < 0.35 ? 'uturn' : 'case';
+      st.clerkLine = r() < 0.6;
+      if (st.scene === 'case') { st.caseStep = 0; st.caseLog = []; st.story = pickService(r, 'mall'); }
+      return [st];
+    }
+    if (g === 'banned') {
+      st = baseStop('banned', NP.STOPNAMES.banned[0], null, STORE_COST.banned);
+      shuffle(r, NP.CATALOG.filter(function (x) { return x.p === 'k16'; })).slice(0, 6).forEach(function (e) {
+        var it = makeItem(r, e, { seller: 'mall', tested: true, cibP: 0.5 }); it.corner = true; st.items.push(it);
+      });
+      st.waited = 0; st.wn = 0; st.en = 0;
+      return [st];
+    }
+    if (g === 'pal') {
+      st = baseStop('pal', NP.STOPNAMES.pal[0], 'pal', STORE_COST.pal);
+      for (i = 0; i < 6; i++) st.items.push(makeItem(r, rollGame(r, [0.5, 0.38]), { seller: 'pal', cibP: 0.4 }));
+      st.items.push(makeMedia(r, rollMedia(r, 'music', ['vinyl', 'cd', 'tape'], [0.6, 0.3]), { seller: 'pal', sec: 'crate' }));
+      st.items.push(makeMedia(r, rollMedia(r, 'music', ['vinyl', 'cd', 'tape'], [0.6, 0.3]), { seller: 'pal', sec: 'crate' }));
+      st.items.push(makeMedia(r, rollMedia(r, 'movie', ['vhs', 'dvd'], [0.6, 0.3]), { seller: 'pal', sec: 'crate' }));
+      st.secs = [['', 'Games'], ['crate', 'The music and movie crate']];
+      st.topics = shuffle(r, NP.PAL.topics).slice(0, 3).map(function (t) { return t.id; });
+      st.chats = {};
+      st.lostCard = r() < 0.2;
+      return [st];
+    }
+    if (g === 'record') {
+      st = baseStop('record', NP.STOPNAMES.record[0], r() < 0.5 ? 'snob' : 'chill', STORE_COST.record);
+      var sl = st.seller;
+      for (i = 0; i < 3; i++) st.items.push(makeMedia(r, rollMedia(r, 'music', ['vinyl'], [0.5, 0.35]), { seller: sl, sec: 'vinyl' }));
+      for (i = 0; i < 3; i++) st.items.push(makeMedia(r, rollMedia(r, 'music', ['cd', 'tape'], [0.55, 0.35]), { seller: sl, sec: 'cds' }));
+      for (i = 0; i < 3; i++) st.items.push(makeMedia(r, rollMedia(r, 'movie', ['vhs', 'dvd'], [0.55, 0.35]), { seller: sl, sec: 'movies' }));
+      for (i = 0; i < 2; i++) { var gm = makeItem(r, rollGame(r, [0.55, 0.35]), { seller: sl, cibP: 0.3 }); gm.sec = 'games'; st.items.push(gm); }
+      var picks = sl === 'snob' ? NP.RECORD.picksSnob : NP.RECORD.picksChill;
+      for (i = 0; i < 2; i++) {
+        var pk = makeMedia(r, rollMedia(r, i ? 'movie' : 'music', i ? ['vhs', 'dvd'] : ['vinyl', 'cd'], [0.2, 0.55]), { seller: sl, sec: 'picks' });
+        pk.pick = picks[(i + Math.floor(r() * picks.length)) % picks.length]; st.items.unshift(pk);
+      }
+      for (i = 0; i < 5; i++) {
+        var bin = makeMedia(r, rollMedia(r, r() < 0.6 ? 'music' : 'movie', ['vinyl', 'cd', 'tape', 'vhs', 'dvd'], [0.8, 0.18]), { seller: sl, ask: 1 });
+        bin.minFrac = 1; bin.bin = true; st.dig.push(bin);
+      }
+      st.secs = [['picks', 'Staff picks wall'], ['vinyl', 'Vinyl bins'], ['cds', 'Used CDs and cassettes'], ['movies', 'VHS and DVD rack'], ['games', 'Small retro game shelf']];
+      st.digLabel = 'Dig through the $1 bargain bin'; st.digTitle = NP.RECORD.bin;
+      st.listenN = 0;
+      if (sl === 'snob' && r() < 0.6) st.story = pickService(r, 'record');
+      return [st];
+    }
+    // the two video rental stores, across the street from each other, both closing
+    var a = baseStop('rental', NP.STOPNAMES.rental[0], 'rental', STORE_COST.rental);
+    var b = baseStop('rental', NP.STOPNAMES.rental[1], 'rental', STORE_COST.rental);
+    a.chain = 'a'; b.chain = 'b'; a.across = b.id; b.across = a.id;
+    [a, b].forEach(function (s) {
+      mediaUsed = {};
+      var cheap = s.chain === 'b' ? 0.9 : 1;
+      var add = function (it) { it.ask = Math.max(1, Math.round(it.ask * cheap)); s.items.push(it); };
+      for (i = 0; i < 2; i++) { var nr = makeMedia(r, rollMedia(r, 'movie', ['vhs', 'dvd'], [0.6, 0.3]), { seller: 'rental', sec: 'new' }); nr.year = 2009 + Math.floor(r() * 6); add(nr); }
+      for (i = 0; i < 3; i++) { var mv = makeMedia(r, rollMedia(r, 'movie', ['vhs', 'dvd'], [0.55, 0.35]), { seller: 'rental', sec: 'movies' }); mv.flags.rental = true; add(mv); }
+      for (i = 0; i < 3; i++) {
+        var gr = makeItem(r, rollGame(r, [0.6, 0.32]), { seller: 'rental', sealedP: 0, cibP: 0, damageP: s.chain === 'b' ? 0.45 : 0.3 });
+        gr.sec = 'games'; gr.flags.rental = true; add(gr);
+      }
+      s.secs = [['new', NP.RENTAL.newReleases], ['movies', 'Movies'], ['games', 'Games (giant clamshell cases)'], ['standee', 'By the door']];
+      s.candy = true;
+      if (r() < 0.25) s.story = pickService(r, 'rental');
+    });
+    var ch = r() < 0.5 ? a : b, SD = NP.RENTAL.standee;
+    var sd = makeItem(r, { id: SD.id, t: SD.t, p: 'k16', base: 0 }, { kind: 'standee', ask: SD.ask, seller: 'rental' });
+    sd.minFrac = 0.5; sd.sec = 'standee'; ch.items.push(sd);
+    if (!K().lateFeePaid) (r() < 0.5 ? a : b).lateFee = true;
+    return [a, b];
+  }
+
+  // ---------- real collector moments, mixed into the other stops ----------
+  function placeMoments(r, day, m) {
+    var ids = Object.keys(NP.STORIES).filter(function (k) { var D = NP.STORIES[k]; return D.pool === 'moment' && D.where; }).sort();
+    var n = m === 'noon' ? 2 : 3;
+    shuffle(r, ids).forEach(function (id) {
+      if (n <= 0) return;
+      var D = NP.STORIES[id];
+      var cand = day.stops.filter(function (s) { return openStop(s) && s.type !== 'flea' && D.where.indexOf(s.type) >= 0 && !s.moment && !s.story; });
+      if (cand.length && applyMoment(r, pick(r, cand), id)) n--;
+    });
+    day.partner = r() < 0.6; // the phone call, on your first big buy of the day
+  }
+  function momentItems(s) { return s.items.filter(function (it) { return it.state === 'avail' && !it.featured && (it.kind === 'game' || it.kind === 'music' || it.kind === 'movie'); }); }
+  function applyMoment(r, s, id) {
+    var D = NP.STORIES[id], av = momentItems(s);
+    if (!D.coded) { s.story = id; s.moment = id; return true; } // a plain story from the data (the ATM, or anything added later)
+    if (id === 'lookedup') {
+      if (!av.length) return false;
+      var top = av.slice().sort(function (x, y) { return y.ask - x.ask; })[0];
+      top.ask = Math.max(top.ask * 3, Math.round((top.base || 5) * 5)); top.minFrac = 0.92; top.lookedUp = true;
+    } else if (id === 'kids') {
+      if (av.length < 2) return false;
+      pick(r, av).state = 'kids';
+    } else if (id === 'box40') {
+      var bx = makeItem(r, { id: 'box40', t: D.item, p: 'k16', base: 40 }, { kind: 'bulk', ask: 60, seller: s.seller });
+      bx.minFrac = 0.7; s.items.push(bx);
+    } else if (id === 'bundle') {
+      if (av.length < 3) return false;
+      s.bundle = true;
+    } else if (id === 'comeback') {
+      var pr = av.filter(function (x) { return x.ask >= 12; });
+      if (!pr.length) return false;
+      pick(r, pr).comeback = true;
+    } else if (id === 'sticker') {
+      if (!av.length) return false;
+      shuffle(r, av).slice(0, 2).forEach(function (x) { x.flags.residue = true; });
+    } else if (id === 'reseller') {
+      if (av.length < 3) return false;
+      s.reseller = true; s.acts = 0;
+    } else return false;
+    s.moment = id;
+    return true;
+  }
+  // the guy with the folding wagon: after your second move at the stop, he buys the table out from under you
+  function doResell(s) {
+    s.resold = true;
+    var av = s.items.concat(s.dug ? s.dig : []).filter(function (it) { return it.state === 'avail' && !it.featured; });
+    if (av.length < 2) return;
+    var keep = av.filter(function (it) { return NP.SPORTS.some(function (x) { return x.id === it.id; }); })[0] || av.slice().sort(function (x, y) { return x.ask - y.ask; })[0];
+    av.forEach(function (it) { if (it !== keep) { it.state = 'gone'; it.goneBy = 'wagon'; it.line = ''; } });
+    S.toast = (S.toast ? S.toast + ' ' : '') + NP.STORIES.reseller.line;
+    track('moment_reseller_hit');
+  }
+
+  // ---------- plain stories (the data-driven ones) ----------
+  function storyOf(s) { return s && s.story ? NP.STORIES[s.story] || null : null; }
+  function storyState(s) { return s.ss || (s.ss = { n: {}, done: {}, open: false, line: '' }); }
+  function storyGate(s) { var D = storyOf(s); if (!D || D.coded || !D.gate) return null; return storyState(s).open ? null : D.gate; }
+  // why you cannot buy anything here right now ('' when you can)
+  function blockedHere(s) {
+    s = s || (S && S.stop); if (!s) return '';
+    if (storyGate(s) === 'block') return 'Nobody is selling you anything yet.';
+    if (s.lateFee) return 'Pay your late fee first. The system says so.';
+    if (s.type === 'banned') return 'Nobody is coming.';
+    return '';
+  }
+  function storyBox(s) {
+    var D = storyOf(s); if (!D) return '';
+    var h = '<div class="story">' + trueTag(D) + '<div class="story-h">' + esc(D.title) + '</div>';
+    if (D.coded) {
+      if (s.story === 'pricecheck' || s.story === 'tradein') h += '<div class="story-t">' + esc(D.text) + '</div>';
+      else return '';
+      return h + '</div>';
+    }
+    var st = storyState(s);
+    h += '<div class="story-t">' + esc(D.text) + '</div>';
+    if (st.line) h += '<div class="bubble">' + esc(st.line) + '</div>';
+    var b = '';
+    (D.choices || []).forEach(function (c, i) {
+      if (st.open && D.gate) return;
+      if (st.done[i] && !c.repeat) return;
+      b += '<button class="' + (c.unblock ? 'offer fair' : 'offer lowball') + '" data-act="story" data-i="' + i + '"' + (c.cash && c.cash > S.cash ? ' disabled' : '') + '>' + esc(c.label) + '</button>';
+    });
+    if (b) h += '<div class="btns">' + b + '</div>';
+    return h + '</div>';
+  }
+  function doStory(i) {
+    var s = S.stop, D = storyOf(s);
+    if (!D || D.coded) return;
+    var c = (D.choices || [])[i]; if (!c) return;
+    var st = storyState(s);
+    if ((st.open && D.gate) || (st.done[i] && !c.repeat)) return;
+    if (c.cash) { if (c.cash > S.cash) return; S.cash -= c.cash; }
+    braydenCheck(null);
+    actCost(c.min || 0);
+    var n = st.n[i] = (st.n[i] || 0) + 1;
+    st.done[i] = true;
+    st.line = c.lines ? c.lines[Math.min(n - 1, c.lines.length - 1)] : (c.line || '');
+    if (c.unblock) st.open = true;
+    if (c.priceMult) s.items.concat(s.dig).forEach(function (it) { if (it.state === 'avail') it.ask = Math.max(1, Math.round(it.ask * c.priceMult)); });
+    track('story_' + s.story + '_' + i);
+    if (!checkSundown()) render();
+  }
+
+  // ---------- the store signs (made up, and nothing like any real chain's sign) ----------
+  function signHTML(s) {
+    if (s.type === 'record') return '<div class="sign sign-rec" aria-label="' + esc(s.name) + '"><div class="sr-main"><span class="g">MUSIC</span> <span class="o">STORE</span></div>' +
+      '<div class="sr-add"><span class="tape1">(ALSO MOVIES)</span><span class="tape2">(ALSO GAMES)</span></div></div>';
+    if (s.type === 'rental') return '<div class="sign sign-vid ' + (s.chain || 'a') + '" aria-label="' + esc(s.name) + '"><div class="sv-box"><span class="sv-t">' + esc(s.name.toUpperCase()) + '</span></div>' +
+      '<div class="closing">STORE CLOSING · EVERYTHING MUST GO</div></div>';
+    if (s.type === 'mall') return '<div class="sign sign-mall"><small>' + esc(NP.MALL.toUpperCase()) + ' · UPPER LEVEL</small><span>' + esc(s.name.toUpperCase()) + '</span></div>';
+    if (s.type === 'pal') return '<div class="sign sign-pal"><span>' + esc(s.name) + '</span><small>Come on in. Mind the boxes.</small></div>';
+    if (s.type === 'banned') return '<div class="sign sign-ban"><span>' + esc(s.name.toUpperCase()) + '</span><small>PLEASE WAIT TO BE HELPED</small></div>';
+    return '';
+  }
+
+  // ---------- the mall game store: the glass case ----------
+  function caseBox(s) {
+    if (s.type !== 'mall' || s.scene !== 'case') return '';
+    var D = NP.STORIES.glasscase, st = s.caseStep || 0;
+    var h = '<div class="story glasscase">' + trueTag(D) + '<div class="story-h">The glass case</div>' +
+      '<div class="gc-row"><div class="artbox" data-gcart="1"></div><div class="info"><div class="it-t">' + esc(D.game) + '</div>' +
+      '<div class="gc-tags"><span class="gc-price">$' + D.price.toLocaleString('en-US') + '</span>' + D.tags.map(function (t) { return '<span class="gc-tag">' + esc(t) + '</span>'; }).join('') + '</div>' +
+      '<div class="story-t">' + esc(D.text) + '</div></div></div>';
+    (s.caseLog || []).forEach(function (l) { h += '<div class="bubble' + (l[0] === 'you' ? ' hero' : '') + '">' + esc(l[1]) + '</div>'; });
+    if (st === 2) h += '<div class="laughwrap"><canvas class="laughcv" width="120" height="72" aria-label="You, laughing a short little laugh."></canvas><div class="note">' + esc(D.laugh) + '</div></div>';
+    if (s.caseEnd) h += '<div class="note">' + esc(s.caseEnd) + '</div>';
+    var b = [];
+    if (st === 0) b.push(['caseask', 'Ask why (2 min)', '']);
+    if (st === 1) b.push(['casereply', 'Say: "' + D.reply + '" (2 min)', '']);
+    if (st === 2) b.push(['caselaugh', 'Laugh and walk away', 'full']);
+    if (st < 3) b.push(['casebuy', 'Try to buy it ($' + D.price.toLocaleString('en-US') + ')', 'lowball']);
+    if (st < 2) b.push(['casewalk', 'Walk away', '']);
+    if (b.length) h += '<div class="btns">' + b.map(function (x) { return '<button class="offer ' + (x[2] || 'fair') + '" data-act="' + x[0] + '">' + esc(x[1]) + '</button>'; }).join('') + '</div>';
+    return h + '</div>';
+  }
+  function doCase(act) {
+    var s = S.stop, D = NP.STORIES.glasscase;
+    if (!s || s.type !== 'mall') return;
+    s.caseLog = s.caseLog || [];
+    var who = NP.SELLERS.mall.name;
+    if (act === 'caseask' && s.caseStep === 0) { braydenCheck(null); actCost(2); s.caseLog.push(['you', 'You: "' + D.ask + '"'], ['clerk', who + ': "' + D.why + '"']); s.caseStep = 1; track('glasscase_ask'); }
+    else if (act === 'casereply' && s.caseStep === 1) { actCost(2); s.caseLog.push(['you', 'You: "' + D.reply + '"'], ['clerk', who + ': "' + D.why2 + '"']); s.caseStep = 2; s.laughNow = true; }
+    else if (act === 'caselaugh' && s.caseStep === 2) { actCost(1); s.caseStep = 3; s.caseEnd = D.walk; S.ev.laughed = true; track('glasscase_laugh'); }
+    else if (act === 'casebuy' && s.caseStep < 3) { actCost(2); s.caseLog.push(['you', D.buy.replace('{cash}', money(S.cash))]); S.ev.caseTry = true; track('glasscase_buy_try'); }
+    else if (act === 'casewalk' && s.caseStep < 2) { s.caseStep = 4; s.caseEnd = 'You walk away from the glass case. It hums at you.'; }
+    else return;
+    if (!checkSundown()) render();
+  }
+  // the trilogy U-turn: you walk in, see the wall, and walk right back out. 5 minutes for nothing.
+  function renderUturn() {
+    var s = S.stop, D = NP.STORIES.uturn;
+    var h = hud() + '<div class="screen stop uturnscr"><h2>' + stopIcon(s.type) + ' ' + esc(s.name) + '</h2>' + signHTML(s) +
+      '<div class="story uturn">' + trueTag(D) + '<div class="story-h">' + esc(D.title) + '</div>' +
+      '<canvas class="scenecv" id="uturncv" width="320" height="150" data-act="utskip" aria-label="You walk into the store, look at the wall of three loose discs, turn all the way around and walk back out."></canvas>' +
+      '<div class="story-t">' + esc(D.text) + '</div><div class="gc-tags"><span class="gc-tag">' + esc(D.tagLine) + '</span><span class="gc-price">$60 EACH</span></div>' +
+      '<div class="ut-after"' + (s.uturnSeen ? '' : ' hidden') + '><div class="bubble big hero">' + esc(D.after) + '</div>' +
+      (s.clerkLine ? '<div class="bubble">' + esc(NP.SELLERS.mall.name) + ', as the door closes: "' + esc(D.clerk) + '"</div>' : '') +
+      '<div class="note">That cost you 5 minutes and got you nothing. Worth it.</div></div></div>' +
+      '<div class="stop-actions ut-after"' + (s.uturnSeen ? '' : ' hidden') + '>' + leaveButtons() + '</div></div>';
+    app.innerHTML = h;
+    var seen = s.uturnSeen;
+    if (NP.Scene) NP.Scene.uturn($('#uturncv'), getLook(), utReveal, seen); else utReveal();
+  }
+  function utReveal() {
+    if (!S || !S.stop || S.stop.scene !== 'uturn') return;
+    S.stop.uturnSeen = true;
+    document.querySelectorAll('.ut-after').forEach(function (e) { e.hidden = false; });
+  }
+
+  // ---------- the Banned List store: Staff Only Games ----------
+  function renderBanned() {
+    var s = S.stop, D = NP.STORIES.banned, see = hasBinoculars();
+    var h = hud() + '<div class="screen stop bannedscr"><h2>' + stopIcon(s.type) + ' ' + esc(s.name) + '</h2>' + signHTML(s);
+    if (S.toast) { h += '<div class="toast">' + esc(S.toast) + '</div>'; S.toast = ''; }
+    h += '<div class="story">' + trueTag(D) + '<div class="story-h">' + esc(D.title) + '</div>' +
+      '<canvas class="scenecv" id="countercv" width="320" height="150" aria-label="Two employees walk back and forth behind the counter. Neither one looks at you. The clock on the wall keeps going."></canvas>' +
+      '<div class="story-t">' + esc(D.text) + '</div>';
+    if (s.bline) h += '<div class="bubble">' + esc(s.bline) + '</div>';
+    h += '<div class="note">You have been standing at the counter for ' + (s.waited || 0) + ' minutes.</div>';
+    if (!s.walked) h += '<div class="btns"><button class="offer fair" data-act="bwait">Keep waiting (5 min)</button><button class="offer fair" data-act="bexcuse">"Excuse me?" (5 min)</button><button class="offer lowball" data-act="bout">Walk out</button></div>';
+    h += '</div>';
+    h += '<h3 class="sec-h">The 16-bit corner (behind the counter)</h3><div class="note">' + esc(see ? D.sharp : D.corner + ' ' + D.blur) + '</div>' +
+      '<div class="items corner' + (see ? '' : ' blur') + '">';
+    s.items.forEach(function (it) {
+      h += '<div class="item corner-it" id="card-' + it.uid + '"><div class="artbox" data-art="' + it.uid + '"></div><div class="info">' +
+        (see ? '<div class="it-t">' + esc(it.t) + '</div>' + tagHTML(it) : '<div class="it-t blurtxt" aria-hidden="true">' + esc(it.t) + '</div><div class="sr-only">A game you cannot read from here.</div>') +
+        '<div class="it-a">' + (see ? 'Sticker says <b>' + money(it.ask) + '</b>' : 'Sticker says <b class="blurtxt">' + money(it.ask) + '</b>') + '</div><div class="stamp bad">BEHIND THE COUNTER</div></div></div>';
+    });
+    h += '</div>';
+    if (s.walked) {
+      h += '<div class="story review">' + trueTag(D) + '<div class="story-h">Leave a review</div>';
+      if (s.review) h += '<div class="stars">&#9733;</div><div class="bubble">Your review: "' + esc(s.review) + '"</div>';
+      else h += '<div class="story-t">How was your visit to ' + esc(s.name) + '? There is one star. Only one.</div><div class="stars">&#9733;</div><div class="btns">' +
+        D.reviews.map(function (l, i) { return '<button class="offer lowball" data-act="breview" data-i="' + i + '">&#9733; "' + esc(l) + '"</button>'; }).join('') + '</div>';
+      h += '<div class="banstamp"><span class="redx" aria-hidden="true"></span>' + esc(D.bannedLabel) + '</div><div class="bubble big hero">You: "' + esc(D.out) + '"</div></div>';
+      h += '<div class="stop-actions">' + leaveButtons() + '</div>';
+    } else h += '<div class="stop-actions"><div class="note">The only way out is to walk out.</div><button class="big" data-act="bout">Walk out</button></div>';
+    h += '</div>';
+    app.innerHTML = h;
+    drawArts();
+    if (NP.Scene) NP.Scene.counter($('#countercv'), { look: getLook(), time: function () { return S ? S.time : 600; }, sharp: hasBinoculars });
+  }
+  function doBanned(act, i) {
+    var s = S.stop, D = NP.STORIES.banned;
+    if (!s || s.type !== 'banned') return;
+    if (act === 'bwait' && !s.walked) { actCost(5); s.waited = (s.waited || 0) + 5; s.bline = D.waits[(s.wn++) % D.waits.length]; track('banned_wait'); }
+    else if (act === 'bexcuse' && !s.walked) { actCost(5); s.waited = (s.waited || 0) + 5; s.bline = D.excuse[Math.min(s.en++, D.excuse.length - 1)]; track('banned_excuse'); }
+    else if (act === 'bout' && !s.walked) {
+      s.walked = true; S.ev.banned = true;
+      var kp = K();
+      if (!isBanned('banned')) kp.banned.push({ id: 'banned', name: s.name, when: S.season ? 'Saturday ' + S.week : 'Saturday #' + S.runNo, review: '' });
+      saveK();
+      track('banned_store'); step('banned_store');
+    } else if (act === 'breview' && s.walked && !s.review) {
+      actCost(1); s.review = D.reviews[i] || D.reviews[0];
+      K().banned.forEach(function (b) { if (b.id === 'banned' && !b.review) b.review = s.review; });
+      saveK(); track('review_1star');
+    } else return;
+    if (!checkSundown()) { render(); window.scrollTo(0, act === 'bout' ? document.body.scrollHeight : window.scrollY); }
+  }
+
+  // ---------- the Friendly Store: Lonnie ----------
+  function palArrive(s) {
+    var kp = K(), f = kp.friend.pal = kp.friend.pal || { lvl: 0, last: '' };
+    var key = satKey();
+    if (f.last !== key) { f.lvl = Math.min(PAL_MAX, (f.lvl || 0) + 1); f.last = key; }
+    s.lvl = f.lvl;
+    kp.punch += 1; // one punch for the visit
+    if (s.lostCard && kp.punch > 3) { spend(5); s.lostLine = NP.PAL.lostCard; track('punch_lost_card'); }
+    if (f.lvl >= PAL_MAX) {
+      s.hello = NP.PAL.hiMax + ' Good to see you. I saved you the first look.';
+      s.items.forEach(function (it) { if (it.state === 'avail') it.ask = Math.max(1, Math.round(it.ask * 0.9)); });
+      var r = mulberry32(NP.hashStr(S.seed + '|' + s.id + '|new'));
+      var na = makeItem(r, rollGame(r, [0.1, 0.6]), { seller: 'pal', cibP: 0.5 });
+      na.uid = 'na' + s.id; na.newArr = true; s.items.unshift(na);
+      track('pal_max_friend');
+    }
+    saveK();
+  }
+  function palBox(s) {
+    if (s.type !== 'pal') return '';
+    var D = NP.STORIES.pal, lvl = s.lvl || 0, meter = '';
+    for (var i = 0; i < PAL_MAX; i++) meter += '<span class="fm' + (i < lvl ? ' on' : '') + '"></span>';
+    var h = '<div class="story pal">' + trueTag(D) + '<div class="story-h">Talk to ' + esc(NP.PAL.clerk) + '</div><div class="story-t">' + esc(D.text) + '</div>' +
+      '<div class="friend"><span class="fm-k">Friendship</span> ' + meter + ' ' + (lvl >= PAL_MAX ? '<b>Regular.</b> ' + esc(NP.PAL.perk) : 'Goes up each Saturday you stop by.') + '</div>';
+    if (s.lostLine) h += '<div class="note">' + esc(s.lostLine) + '</div>';
+    if (s.chatA) h += '<div class="bubble">' + esc(s.chatA) + '</div><div class="bubble">' + esc(s.chatMore) + ' (That one more thing took another 3 minutes.)</div>' + (s.chatReward ? '<div class="reward">' + esc(s.chatReward) + '</div>' : '');
+    var left = (s.topics || []).filter(function (id) { return !s.chats[id]; });
+    if (left.length) h += '<div class="btns">' + left.map(function (id) {
+      var T = NP.PAL.topics.filter(function (x) { return x.id === id; })[0];
+      return '<button class="offer fair" data-act="chat" data-id="' + id + '">Ask about: ' + esc(T.label) + ' (' + T.min + ' min)</button>';
+    }).join('') + '</div>';
+    else h += '<div class="note">You have heard all of his stories for today. He has more. He always has more.</div>';
+    return h + punchHTML() + '</div>';
+  }
+  function doChat(id) {
+    var s = S.stop;
+    var T = NP.PAL.topics.filter(function (x) { return x.id === id; })[0];
+    if (!s || s.type !== 'pal' || !T || s.chats[id]) return;
+    braydenCheck(null);
+    actCost(T.min + 3); // he always has one more thing
+    s.chats[id] = true; S.ev.chats = (S.ev.chats || 0) + 1;
+    s.chatA = T.a; s.chatMore = T.more; s.chatReward = palReward(s, T.reward, id);
+    track('pal_chat'); track('pal_chat_' + T.reward);
+    if (!checkSundown()) render();
+  }
+  function palReward(s, kind, id) {
+    var r = mulberry32(NP.hashStr(S.seed + '|' + s.id + '|' + id));
+    if (kind === 'disc') {
+      if (s.disc) return 'He already took a little off. He thinks about taking off more. He does not.';
+      s.disc = true;
+      s.items.forEach(function (it) { if (it.state === 'avail') it.ask = Math.max(1, Math.round(it.ask * 0.9)); });
+      return 'Everything here is 10% off for you today.';
+    }
+    if (kind === 'tip') {
+      var best = null, bs = null, bv = 0;
+      S.day.stops.forEach(function (st) {
+        if (!openStop(st) || st.visited || st === s || st.type === 'banned') return;
+        st.items.forEach(function (it) {
+          if (it.state !== 'avail' || it.kind !== 'game' || (it.flags && it.flags.repro)) return;
+          var v = (it.base || 0) * (COND_MULT[it.cond] || 1) - it.ask * 0.5;
+          if (v > bv) { bv = v; best = it; bs = st; }
+        });
+      });
+      if (!best) return 'He heard about a good one but cannot remember where. It will come to him. It will not.';
+      best.tipped = true; s.tipText = best.t + ' at ' + bs.name;
+      return 'Lonnie\'s tip: there is a ' + best.t + ' at ' + bs.name + ' today. "Do not tell Dex."';
+    }
+    // hold: something set aside behind the counter, at a friend's price
+    var hd = makeItem(r, rollGame(r, [0.15, 0.6]), { seller: 'pal', cibP: 0.5 });
+    hd.uid = 'hold' + s.id + id; hd.held = true; hd.ask = Math.max(1, Math.round(hd.base * (COND_MULT[hd.cond] || 1) * 0.7)); hd.minFrac = 0.85;
+    hd.flags.repro = false;
+    s.items.unshift(hd);
+    return 'He set aside ' + hd.t + ' for you. It is behind the counter, at a friend\'s price.';
+  }
+  // the punch card: a punch per visit and per purchase, at Lonnie's and at any friendly shop (the chill record store)
+  function punchHere() { var s = S && S.stop; return !!(s && (s.type === 'pal' || (s.type === 'record' && s.seller === 'chill'))); }
+  function punchHTML() {
+    var p = K().punch, holes = '';
+    for (var i = 0; i < 10; i++) holes += '<span class="ph' + (i < Math.min(p, 10) ? ' on' : '') + '"></span>';
+    var h = '<div class="punch"><div class="punch-h">PUNCH CARD</div><div class="punch-row" aria-label="' + Math.min(p, 10) + ' of 10 punches">' + holes + '</div>' +
+      '<div class="punch-k">' + Math.min(p, 10) + ' of 10. One punch per visit and per purchase. Good at any friendly shop.</div>';
+    if (p >= 10) h += '<div class="btns"><button class="offer full" data-act="punch" data-how="credit">Cash it in: $10 off here</button><button class="offer fair" data-act="punch" data-how="game">Cash it in: a free game</button></div>';
+    return h + '</div>';
+  }
+  function doPunch(how) {
+    var s = S.stop, kp = K();
+    if (!punchHere() || kp.punch < 10) return;
+    kp.punch -= 10;
+    if (how === 'credit') { S.credit[s.id] = (S.credit[s.id] || 0) + 10; S.toast = 'Card cashed in. You have $10 to spend here.'; }
+    else {
+      var r = mulberry32(NP.hashStr(S.seed + '|' + s.id + '|free|' + S.bag.length));
+      var it = makeItem(r, rollGame(r, [0.55, 0.4]), { seller: s.seller, cibP: 0.3 });
+      it.uid = 'pfree' + s.id + S.bag.length; it.flags.repro = false; it.state = 'sold'; it.paid = 0;
+      var b = JSON.parse(JSON.stringify(it)); b.stopType = s.type; b.boughtAt = s.id; S.bag.push(b);
+      S.toast = 'Card cashed in. ' + (s.type === 'pal' ? 'Lonnie' : 'The clerk') + ' hands you ' + it.t + '. Free.';
+    }
+    saveK(); track('punch_cashin_' + how); sfx('cash');
+    render();
+  }
+
+  // ---------- the record store ----------
+  function recordBox(s) {
+    if (s.type !== 'record') return '';
+    var h = '<div class="story rec">' + '<div class="story-h">The listening station</div><div class="story-t">' +
+      (s.seller === 'snob' ? 'The clerk today is the snobby one. He is watching what you pick up.' : 'The clerk today is the chill one. He takes punch cards from anywhere.') + '</div>';
+    if (s.listenLine) h += '<div class="bubble">' + esc(s.listenLine) + '</div>';
+    h += '<div class="btns"><button class="offer fair" data-act="listen">Listen to a record (10 min)</button></div>';
+    if (s.seller === 'chill') h += punchHTML();
+    return h + '</div>';
+  }
+  function doListen() {
+    var s = S.stop; if (!s || s.type !== 'record') return;
+    braydenCheck(null);
+    actCost(10);
+    var v = s.items.filter(function (it) { return it.fmt === 'vinyl' && !it.listened && it.state === 'avail'; })[0];
+    var n = s.listenN = (s.listenN || 0) + 1;
+    if (v) { v.listened = true; s.listenLine = NP.RECORD.listen[(n - 1) % NP.RECORD.listen.length] + ' (' + v.by + ', ' + v.t + '.)'; }
+    else s.listenLine = 'You have listened to every record in the bins. The clerk asks if you are going to buy something. It is a fair question.';
+    S.ev.listened = (S.ev.listened || 0) + 1;
+    track('listen');
+    if (!checkSundown()) render();
+  }
+
+  // ---------- the video rental stores ----------
+  function rentalBox(s) {
+    if (s.type !== 'rental') return '';
+    var other = S.day.stops.filter(function (x) { return x.id === s.across; })[0];
+    var h = '<div class="story rent"><div class="story-t">' + (other ? esc(other.name) + ' is right ' + esc(NP.RENTAL.across) + '. ' + (other.visited ? 'You were just there.' : 'A 4 minute walk. They are also closing.') : '') + '</div>';
+    if (s.lateFee) h += '<div class="bubble">' + esc(NP.RENTAL.lateFee) + '</div><div class="btns"><button class="offer full" data-act="latefee"' + (S.cash < 5 ? ' disabled' : '') + '>' + esc(NP.RENTAL.lateFeeBtn) + '</button></div>';
+    if (s.feeLine) h += '<div class="note">' + esc(s.feeLine) + '</div>';
+    if (s.candy && !s.ateCandy) h += '<div class="note">' + esc(NP.RENTAL.candy) + '</div><div class="btns"><button class="offer fair" data-act="candy"' + (S.cash < 1 ? ' disabled' : '') + '>' + esc(NP.RENTAL.candyBtn) + '</button></div>';
+    if (s.ateCandy) h += '<div class="note">' + esc(NP.RENTAL.candyLine) + '</div>';
+    return h + '</div>';
+  }
+  function doLateFee() {
+    var s = S.stop; if (!s || !s.lateFee || S.cash < 5) return;
+    S.cash -= 5; s.lateFee = false; s.feeLine = NP.RENTAL.lateFeePaid; S.ev.lateFee = true;
+    K().lateFeePaid = true; saveK();
+    actCost(2); track('late_fee_paid'); sfx('cash');
+    if (!checkSundown()) render();
+  }
+  function doCandy() {
+    var s = S.stop; if (!s || !s.candy || s.ateCandy || S.cash < 1) return;
+    S.cash -= 1; s.ateCandy = true; S.ev.candy = true;
+    actCost(1); track('candy');
+    if (!checkSundown()) render();
+  }
+
+  // ---------- make me an offer on the whole box ----------
+  function bundleList(s) { return s.items.concat(s.dug ? s.dig : []).filter(function (it) { return it.state === 'avail' && !it.featured && (it.kind === 'game' || it.kind === 'music' || it.kind === 'movie' || it.kind === 'bulk'); }); }
+  var BUNDLE = { lowball: 0.45, fair: 0.62, full: 0.85 };
+  function bundleBox(s) {
+    if (!s.bundle) return '';
+    var L = bundleList(s), D = NP.STORIES.bundle;
+    var h = '<div class="story">' + trueTag(D) + '<div class="story-h">' + esc(D.title) + '</div>';
+    if (s.bundleLine) h += '<div class="bubble">' + esc(s.bundleLine) + '</div>';
+    if (L.length < 2) return h + (s.bundleLine ? '' : '<div class="note">Not enough left for a box deal.</div>') + '</div>';
+    var sum = L.reduce(function (a, it) { return a + it.ask; }, 0);
+    h += '<div class="story-t">' + esc(D.line) + ' ' + L.length + ' things, ' + money(sum) + ' on the stickers.</div><div class="btns">';
+    [['lowball', 'Lowball'], ['fair', 'Fair'], ['full', 'Round it down']].forEach(function (o) {
+      var p = Math.max(1, Math.round(sum * BUNDLE[o[0]]));
+      h += '<button class="offer ' + o[0] + '" data-act="bundle" data-kind="' + o[0] + '"' + (p > S.cash + creditHere() || blockedHere(s) ? ' disabled' : '') + '>' + o[1] + ' ' + money(p) + ' for all of it</button>';
+    });
+    return h + '</div></div>';
+  }
+  function doBundle(kind) {
+    var s = S.stop, L = bundleList(s);
+    if (!s.bundle || L.length < 2 || !BUNDLE[kind] || blockedHere(s)) return;
+    var sum = L.reduce(function (a, it) { return a + it.ask; }, 0), price = Math.max(1, Math.round(sum * BUNDLE[kind]));
+    if (price > S.cash + creditHere()) return;
+    braydenCheck(null);
+    actCost(T_HAGGLE);
+    var need = L.reduce(function (a, it) { return a + it.minFrac * it.ask; }, 0) / sum * 0.8; // a box deal gets a break
+    if (kind === 'full' || BUNDLE[kind] >= need) {
+      payFor(price);
+      var left = price;
+      L.forEach(function (it, i) { var p = i === L.length - 1 ? left : Math.round(price * it.ask / sum); left -= p; takeItem(it, Math.max(0, p), kind); it.line = ''; });
+      s.bundleLine = 'Deal. "Take the box too. Take the table if you want it."';
+      sfx('cash'); sfx('accept'); track('bundle_bought');
+    } else { s.bundleLine = '"No. The whole box is worth more than that. Probably. I never counted it."'; sfx('reject'); track('bundle_no'); }
+    if (!checkSundown()) { render(); afterBuy(); }
+  }
+
+  // ---------- the phone call: "Where are you going to put it?" ----------
+  function partnerCall() {
+    var D = NP.STORIES.partner;
+    track('partner_call');
+    var ov = document.createElement('div');
+    ov.className = 'callov';
+    ov.innerHTML = '<div class="callbox" role="dialog" aria-modal="true" aria-label="Phone call">' + trueTag(D) + '<div class="call-h">&#128241; INCOMING CALL</div>' +
+      '<div class="story-t">' + esc(D.text) + '</div><div class="btns">' + D.answers.map(function (a, i) { return '<button class="offer fair" data-call="' + i + '">' + esc(a[0]) + '</button>'; }).join('') + '</div></div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('[data-call]'); if (!b) return;
+      var a = D.answers[+b.getAttribute('data-call')];
+      if (ov.parentNode) ov.parentNode.removeChild(ov);
+      spend(3);
+      S.toast = 'You: "' + a[0] + '" ' + a[1];
+      if (!checkSundown()) render();
+    });
+    var f = ov.querySelector('button'); if (f) { try { f.focus({ preventScroll: true }); } catch (e) { f.focus(); } }
+  }
+  function afterBuy() {
+    if (S.callNow) { S.callNow = false; partnerCall(); return; }
+    maybeBrokeTip(); if (!tipEl) maybeUnsponsored();
+  }
+
   // ---------- rendering ----------
   var app;
   function render() {
@@ -803,7 +1423,7 @@
     if (!S || S.screen === 'title') return renderTitle();
     if (S.screen === 'map') return renderMap();
     if (S.screen === 'walk') return NP.Walk ? NP.Walk.render(app, hud()) : renderStop();
-    if (S.screen === 'stop') return S.stop.gift ? renderGift() : renderStop();
+    if (S.screen === 'stop') return S.stop.gift ? renderGift() : S.stop.type === 'banned' ? renderBanned() : (S.stop.type === 'mall' && S.stop.scene === 'uturn') ? renderUturn() : renderStop();
     if (S.screen === 'home') return renderHome();
     if (S.screen === 'results') return renderResults();
     if (S.screen === 'title') return renderTitle();
@@ -963,7 +1583,8 @@
           '<li>Back by noon is today\'s quick run. Free Play is one random Saturday.</li><li>Each stop costs daylight. The big Drive button always takes you to the next one.</li>') +
       '<li>Make an offer: lowball, fair or full price. Sellers have opinions.</li>' +
       (DEMO ? '' : '<li>Sell or trade in games from your bag at thrift stores, the pawn shop and swap meet tables. Ask for more if you dare.</li>' +
-        '<li>Rivals: Dex every Saturday, plus two or three of Brayden, Phone Guy Phil, Brody, Gary and Slab Steve. Each one changes one rule. The morning forecast says who is out.</li>') +
+        '<li>Rivals: Dex every Saturday, plus two or three of Brayden, Phone Guy Phil, Brody, Gary and Slab Steve. Each one changes one rule. The morning forecast says who is out.</li>' +
+        '<li>Stores rotate in and out: a mall game store, Lonnie\'s, a record store, two video rental stores and one store you will only visit once. Some of what happens in them is based on a true story.</li>') +
       '<li>Is it on the shelf? Checking costs time. Buying a duplicate costs points.</li>' +
       '<li>Watch out for repros, disc rot and a guy named ' + NP.RIVAL.name + '.</li>' +
       (NP.Walk ? '<li>The swap meet is on foot. Walking the aisles uses daylight too.</li>' : '') +
@@ -991,7 +1612,7 @@
     R.lines.forEach(function (l) {
       var b = l.it; if (!b) return;
       var tag = b.kind === 'grail' ? 'GRAIL' : b.kind === 'merch' ? 'MERCH' : l.pts < 0 ? (l.note.indexOf('shelf') >= 0 ? 'DUPE' : 'REPRO') : '';
-      home.push({ d: S.season ? 'season|' + SEASON.id + '|' + S.week : S.seed, id: b.id, t: b.t, p: b.p, cond: b.cond === 'sealed' && b.decision === 'open' ? 'cib' : b.cond, kind: b.kind, tag: tag, sticker: !!b.sticker });
+      home.push({ d: S.season ? 'season|' + SEASON.id + '|' + S.week : S.seed, id: b.id, t: b.t, p: b.p, fmt: b.fmt, cond: b.cond === 'sealed' && b.decision === 'open' ? 'cib' : b.cond, kind: b.kind, tag: tag, sticker: !!b.sticker });
     });
     if (home.length > 600) home = home.slice(home.length - 600);
     store.set('home', home);
@@ -1023,7 +1644,7 @@
     app.innerHTML = h;
     document.querySelectorAll('[data-hs]').forEach(function (el) {
       var p = el.getAttribute('data-hs').split('|'), rec = byDay[p[0]][+p[1]];
-      if (rec) el.appendChild(NP.makeArt({ kind: rec.kind, id: rec.id, p: rec.p, cond: rec.cond, sticker: rec.sticker }, 2));
+      if (rec) el.appendChild(NP.makeArt({ kind: rec.kind, id: rec.id, p: rec.p, fmt: rec.fmt, cond: rec.cond, sticker: rec.sticker }, 2));
     });
     window.scrollTo(0, 0);
   }
@@ -1048,7 +1669,8 @@
   }
 
   function stopIcon(t) {
-    return { yard: '&#127968;', sports: '&#127944;', thrift: '&#128717;', flea: '&#9978;', pawn: '&#128176;', gift: '&#11088;' }[t] || '';
+    return { yard: '&#127968;', sports: '&#127944;', thrift: '&#128717;', flea: '&#9978;', pawn: '&#128176;', gift: '&#11088;',
+      mall: '&#128722;', banned: '&#128682;', pal: '&#129309;', record: '&#127926;', rental: '&#128252;' }[t] || '';
   }
   function stopBlurb(s) {
     return {
@@ -1057,7 +1679,12 @@
       thrift: 'Shelves, carts, and one locked case.',
       flea: 'Big. Lots of vendors. Lots of opinions.',
       pawn: 'Pricey, but everything is tested and works.',
-      gift: 'MUST SEE! Official merch! Nothing here helps your shelf!'
+      gift: 'MUST SEE! Official merch! Nothing here helps your shelf!',
+      mall: 'Inside ' + NP.MALL + '. Everything is behind glass. So are the prices.',
+      banned: 'Retro games, probably. Two employees. Nobody has ever been helped.',
+      pal: 'Lonnie talks. A lot. The clock does not stop for it.',
+      record: 'Vinyl, tapes, CDs, movies and a little game shelf. Mostly opinions.',
+      rental: 'STORE CLOSING. Everything must go. Even the late fees.'
     }[s.type];
   }
 
@@ -1084,9 +1711,9 @@
       var s = S.day.stops.filter(function (x) { return x.id === id; })[0];
       if (s) h += '<li class="rc-done">&#10003; ' + esc(s.name) + '</li>';
     });
-    var t = S.time;
+    var t = S.time, from = lastStopId();
     r.forEach(function (s, i) {
-      t += costOf(s);
+      t += costOf(s, from); from = s.id;
       h += '<li class="' + (i === 0 ? 'rc-next' : 'rc-later') + '">' + (i === 0 ? '&#9654; ' : '') + esc(s.name) + ' <small>' + (i === 0 ? 'arrive ' + fmtTime(t) : 'about ' + fmtTime(t)) +
         (DEMO && s.type === 'flea' ? ' &middot; the demo ends here' : '') + '</small></li>';
       t += STAY_EST;
@@ -1111,6 +1738,14 @@
     h += '<div class="shelfnote">Your shelf at home: about ' + S.day.shelfCount + ' games. You remember maybe half of them.</div><div class="stops">';
     var nx = nextStop();
     S.day.stops.forEach(function (s) {
+      if (s.xban) {
+        // a store you banned: still on the map, never again
+        var bn = K().banned.filter(function (b) { return b.id === 'banned'; })[0] || {};
+        h += '<div class="stopcard banned xban"><span class="redx big" aria-hidden="true"></span><div class="st-h"><span class="ico">' + stopIcon(s.type) + '</span> ' + esc(s.name) + '</div>' +
+          '<div class="st-b"><b class="banlab">' + esc(NP.STORIES.banned.bannedLabel) + '</b>' + (bn.when ? ' since ' + esc(bn.when) : '') + (bn.review ? '. Your review: &#9733; "' + esc(bn.review) + '"' : '') + '</div>' +
+          '<div class="st-done">"' + esc(NP.STORIES.banned.out) + '"</div></div>';
+        return;
+      }
       if (s.locked) {
         h += '<div class="stopcard locked ' + s.type + '"><div class="st-h"><span class="ico">' + stopIcon(s.type) + '</span> ' + esc(s.name) + '</div>' +
           '<div class="st-b">' + esc(stopBlurb(s)) + '</div><div class="sticker">FULL VERSION, SOLD SEPARATELY</div></div>';
@@ -1127,6 +1762,8 @@
       if (S.day.featured && S.day.featured.stopId === s.id && !s.visited) h += '<div class="featured">&#9733; Today\'s featured lot is here. ' + money(S.day.featured.ask) + '.</div>';
       var mc = !s.visited ? memCard(s) : '';
       if (mc) h += '<div class="mem">' + esc(mc) + '</div>';
+      if (!s.visited) s.items.forEach(function (it) { if (it.tipped && it.state === 'avail') h += '<div class="mem">Lonnie\'s tip: ' + esc(it.t) + ' is here today.</div>'; });
+      if (s.across && !s.visited) { var acr = S.day.stops.filter(function (x) { return x.id === s.across; })[0]; if (acr) h += '<div class="st-b">Right across the street from ' + esc(acr.name) + '.</div>'; }
       if (s.rumor && !s.visited) h += '<div class="rumor">' + NP.RIVAL.name + '\'s van was spotted heading here around ' + fmtTime(s.rivalAt) + '.</div>';
       var others = rivalsAt(s).filter(function (id) { return id !== 'dex'; });
       if (others.length && !s.visited) h += '<div class="rivchips">' + others.map(function (id) { return '<span class="rivchip">' + esc(rivalName(id)) + ' is here</span>'; }).join('') + '</div>';
@@ -1170,6 +1807,18 @@
     if (it.featured) n.push(DEMO ? 'The featured lot. In the full version, there is a new one every day.' : 'Today\'s featured lot. Everyone playing today sees this exact box.');
     if (it.planted && !it.inspected) n.push('Complete in box for that price? That seems very generous.');
     if (it.kind === 'merch') n.push('Official Nostalgia Pro merch. Worth nothing. Costs something.');
+    // Round 3b
+    if ((it.kind === 'music' || it.kind === 'movie') && NP.itemInfo) { var mb = NP.itemInfo(it).box; if (mb) n.push('Back of the ' + (it.kind === 'music' ? 'sleeve' : 'box') + ': "' + mb + '"'); }
+    if (it.pick) n.push(it.pick);
+    if (it.year) n.push(NP.RENTAL.newNote.replace('{y}', it.year));
+    if (it.flags && it.flags.rental) n.push(it.kind === 'game' ? NP.RENTAL.clam : 'Ex-rental. The rental sticker will never come off.');
+    if (it.bin) n.push('From the $1 bin. A dollar is a dollar.');
+    if (it.held) n.push('Lonnie held this one behind the counter for you.');
+    if (it.newArr) n.push('New arrival. Regulars get the first look.');
+    if (it.yours) n.push('This was yours a minute ago. He paid you $2 for it.');
+    if (it.listened) n.push('You listened to it at the station.');
+    if (it.tipped) n.push('Lonnie told you about this one.');
+    if (it.kind === 'gear') n.push('Not a game. Does not go on the shelf. Goes in the van.');
     if (it.tested) n.push('Tested. Works. Guaranteed.');
     if (it.special) n.push('"That\'s the \'97. The good one."');
     if (it.inspected) {
@@ -1191,6 +1840,10 @@
     if (it.kind === 'lot') return 'Blind lot';
     if (it.kind === 'merch') return 'Merch';
     if (it.kind === 'grail') return 'Complete in box';
+    if (it.kind === 'music' || it.kind === 'movie') return NP.FORMATS[it.fmt] || 'Used';
+    if (it.kind === 'gear') return 'Gear';
+    if (it.kind === 'standee') return 'Cardboard';
+    if (it.kind === 'bulk') return 'Box of 40';
     return { loose: 'Loose', cib: 'Complete in box', sealed: 'Sealed' }[it.cond];
   }
 
@@ -1217,11 +1870,19 @@
     var sellerName = NP.SELLERS[it.seller] ? NP.SELLERS[it.seller].name : '';
     var h = '<div class="item ' + it.state + '" id="card-' + it.uid + '"><div class="artbox" data-art="' + it.uid + '"></div><div class="info">' +
       '<div class="it-t">' + esc(it.t) + '</div>' + tagHTML(it, reproKnown(it)) +
-      '<div class="it-p">' + (it.kind === 'game' || it.kind === 'grail' ? esc(plat.name) + ' &middot; ' : '') + '<span class="pill ' + it.cond + '">' + condLabel(it) + '</span></div>' +
+      '<div class="it-p">' + (it.kind === 'game' || it.kind === 'grail' ? esc(plat.name) + ' &middot; ' : (it.kind === 'music' || it.kind === 'movie') ? esc(it.by) + ' &middot; ' : '') + '<span class="pill ' + it.cond + '">' + condLabel(it) + '</span></div>' +
       '<div class="it-a">Asking <b>' + money(it.ask) + '</b>' + (s.type === 'flea' && sellerName ? ' <span class="who">(' + esc(sellerName) + ')</span>' : '') + '</div>';
     itemNotes(it).forEach(function (n) { h += '<div class="note' + (/ALREADY/.test(n) ? ' warn' : '') + '">' + esc(n) + '</div>'; });
+    // true-story notes, with their tag
+    if (it.lookedUp && it.state === 'avail') h += storyNote('lookedup', NP.STORIES.lookedup.line.replace('{$}', money(it.ask)));
+    if (it.flags && it.flags.residue && !it.cleaned) h += storyNote('sticker', NP.STORIES.sticker.line);
+    if (it.kind === 'bulk') h += storyNote('box40', NP.STORIES.box40.line);
+    if (it.state === 'kids') h += storyNote('kids', NP.STORIES.kids.line);
     if (it.line) h += '<div class="bubble">' + esc(it.line) + '</div>';
-    if (it.state === 'avail') {
+    var blk = it.state === 'avail' ? blockedHere(s) : '';
+    if (it.state === 'avail' && blk) {
+      h += '<div class="note warn">' + esc(blk) + '</div>';
+    } else if (it.state === 'avail') {
       h += '<div class="btns">';
       if (steveHold(it)) {
         var sp = Math.round(it.ask * 1.2);
@@ -1233,10 +1894,13 @@
       h += '</div><div class="btns small">';
       if (it.kind === 'game' && !it.inspected && !it.tested) h += '<button data-act="inspect" data-uid="' + it.uid + '">Inspect (5 min)</button>';
       if (it.kind === 'game' && !it.checked) h += '<button data-act="check" data-uid="' + it.uid + '">Is it on the shelf? (10 min)</button>';
+      if (s.story === 'pricecheck') h += '<button data-act="pricecheck" data-uid="' + it.uid + '">' + esc(NP.STORIES.pricecheck.button) + '</button>';
+      if (it.comeback) h += '<button data-act="comeback" data-uid="' + it.uid + '">' + esc(NP.STORIES.comeback.button) + '</button>';
       h += '</div>';
     } else if (it.state === 'sold') h += '<div class="stamp">IN THE BAG ' + money(it.paid) + '</div>';
     else if (it.state === 'pulled') h += '<div class="stamp bad">OFF THE TABLE</div>';
-    else if (it.state === 'gone') h += '<div class="stamp bad">' + (it.goneBy === 'brayden' ? 'BRAYDEN GOT IT (MOM\'S CARD)' : esc(NP.RIVAL.name.toUpperCase()) + ' GOT IT') + '</div>';
+    else if (it.state === 'kids') h += '<div class="stamp bad">' + esc(NP.STORIES.kids.stamp) + '</div>';
+    else if (it.state === 'gone') h += '<div class="stamp bad">' + (it.goneBy === 'brayden' ? 'BRAYDEN GOT IT (MOM\'S CARD)' : it.goneBy === 'wagon' ? esc(NP.STORIES.reseller.stamp) : it.goneBy === 'vest' ? esc(NP.STORIES.comeback.stamp) : esc(NP.RIVAL.name.toUpperCase()) + ' GOT IT') + '</div>';
     h += '</div></div>';
     return h;
   }
@@ -1244,7 +1908,8 @@
   function renderStop() {
     var s = S.stop;
     var seller = NP.SELLERS[s.seller];
-    var h = hud() + '<div class="screen stop"><h2>' + stopIcon(s.type) + ' ' + esc(s.name) + '</h2>';
+    if (s.reseller && !s.resold && (s.acts || 0) >= 2) doResell(s);
+    var h = hud() + '<div class="screen stop st-' + s.type + '"><h2>' + stopIcon(s.type) + ' ' + esc(s.name) + '</h2>' + signHTML(s);
     if (s.cleared) h += '<div class="rival">' + NP.RIVAL.name + ' from ' + NP.RIVAL.shop + ' beat you here. He took the good stuff and set up a table out front.</div>';
     var refuse = s.cola && NP.SPONSOR && NP.SPONSOR.refuse ? NP.SPONSOR.refuse[s.seller] : null;
     if (seller && refuse) {
@@ -1254,26 +1919,43 @@
     } else if (seller && s.hello) h += '<div class="bubble big">' + esc(seller.name) + ': "' + esc(s.hello) + '"</div>';
     if (s.type === 'flea') h += '<div class="bubble big">Different vendor at every table. Some of them know what they got.</div>';
     h += rivalNotes(s);
+    // Round 3b: what is going on at this store today
+    h += storyBox(s) + caseBox(s) + palBox(s) + recordBox(s) + rentalBox(s) + bundleBox(s);
+    if (s.reseller && s.resold) h += '<div class="story">' + trueTag(NP.STORIES.reseller) + '<div class="story-h">' + esc(NP.STORIES.reseller.title) + '</div><div class="story-t">' + esc(NP.STORIES.reseller.line) + '</div></div>';
     if (adLevel() >= 2) h += '<div class="poster">' + (adFree ? 'POSTER: The Ad-Free Edition. No posters. (Except this one.)' : 'POSTER: Nostalgia Pro: The Shelf Dust. Now in Sealed. Gift Shop open till ' + endLabel() + '.') + '</div>';
     if (S.toast) { h += '<div class="toast">' + esc(S.toast) + '</div>'; S.toast = ''; }
-    var buys = buyerFor(s);
-    if (buys) h += '<div class="sellhint">This stop buys games too. <button class="linkish" data-act="jumpsell">Sell or trade in &#8595;</button></div>';
+    var buys = blockedHere(s) ? null : buyerFor(s);
+    if (buys) h += '<div class="sellhint">This stop buys ' + (NP.BUYERS[buys].media ? 'games, music and movies' : 'games') + ' too. <button class="linkish" data-act="jumpsell">Sell or trade in &#8595;</button></div>';
     else if (NP.NOBUY && NP.NOBUY[s.type] && S.bag.length) h += '<div class="sellhint">' + esc(NP.NOBUY[s.type]) + '</div>';
-    h += '<div class="items">';
-    s.items.forEach(function (it) { h += itemCard(it, s); });
-    if (s.dug) s.dig.forEach(function (it) { h += itemCard(it, s); });
-    h += '</div>';
+    if (storyGate(s) === 'hide') h += '<div class="note warn">The good stuff is in there somewhere. You would have to look.</div>';
+    else if (s.secs) {
+      // a store with sections (the record store, the rental stores, Lonnie's crate)
+      s.secs.forEach(function (sc) {
+        var list = s.items.filter(function (it) { return (it.sec || '') === sc[0]; });
+        if (list.length) h += '<h3 class="sec-h">' + esc(sc[1]) + '</h3><div class="items">' + list.map(function (it) { return itemCard(it, s); }).join('') + '</div>';
+      });
+      if (s.dug && s.dig.length) h += '<h3 class="sec-h">' + esc(s.digTitle || 'From the back') + '</h3><div class="items">' + s.dig.map(function (it) { return itemCard(it, s); }).join('') + '</div>';
+    } else {
+      h += '<div class="items">';
+      s.items.forEach(function (it) { h += itemCard(it, s); });
+      if (s.dug) s.dig.forEach(function (it) { h += itemCard(it, s); });
+      h += '</div>';
+    }
     if (s.rivalTable && s.rivalTable.length) {
       h += '<h3>' + NP.RIVAL.shop + ' table (flipped merch)</h3><div class="items">';
       s.rivalTable.forEach(function (it) { h += itemCard(it, s); });
       h += '</div>';
     }
-    h += sellHTML(s);
+    if (buys) h += sellHTML(s);
     h += '<div class="stop-actions">';
-    if (s.dig.length && !s.dug) h += '<button data-act="dig">' + (s.type === 'sports' ? 'Dig deeper into the football bin' : 'Dig through the back boxes') + ' (15 min)</button>';
+    if (s.dig.length && !s.dug && storyGate(s) !== 'hide') h += '<button data-act="dig">' + (s.type === 'sports' ? 'Dig deeper into the football bin' : s.digLabel || 'Dig through the back boxes') + ' (15 min)</button>';
     h += leaveButtons() + '</div></div>';
     app.innerHTML = h;
     drawArts();
+    var gc = document.querySelector('[data-gcart]');
+    if (gc && !gc.firstChild) gc.appendChild(NP.makeArt({ kind: 'game', id: 'llm2', p: 'k16', cond: 'sealed', sticker: true }, 3));
+    var lc = document.querySelector('.laughcv');
+    if (lc && NP.Scene) { if (s.laughNow) { s.laughNow = false; NP.Scene.laugh(lc, getLook()); } else NP.Scene.laugh(lc, getLook(), true); }
     if (refuse) drawGlamCan();
     if (buys) soonCheckTips();
   }
@@ -1401,6 +2083,12 @@
     if (DEMO && s.demoRaid) s.rivalAt = S.time + 12;
     track('stop_' + s.type + '_enter');
     if (s.type === 'flea') track('swapmeet_enter');
+    // Round 3b
+    if (s.type === 'mall' && s.scene === 'uturn') { spend(5); S.ev.uturn = true; track('mall_uturn'); }
+    if (s.type === 'pal') palArrive(s);
+    if (s.type === 'record' && s.seller === 'chill') { K().punch++; saveK(); }
+    if (s.story) track('story_' + s.story);
+    if (s.moment) track('moment_' + s.moment);
     // the swap meet is walkable
     if (s.type === 'flea' && NP.Walk && NP.Char) {
       S.screen = 'walk';
@@ -1430,7 +2118,38 @@
     return line;
   }
 
+  // paying: store credit from trade-ins here gets used first. Returns how much of it was credit.
+  function payFor(price) {
+    var cr = Math.min(creditHere(), price);
+    if (cr) { S.credit[S.stop.id] -= cr; track('credit_spent'); }
+    S.cash -= price - cr;
+    return cr;
+  }
+  // it goes in the bag (shared by offers, the whole-box deal and the punch card)
+  function takeItem(it, price, kind) {
+    it.paid = price; it.state = 'sold';
+    var b = JSON.parse(JSON.stringify(it)); b.paid = price; b.stopType = S.stop.type; b.boughtAt = S.stop.id;
+    if (S.day.owned[b.id] || boughtAlready(b.id)) S.ev.dupBuys++;
+    if (it.special || (NP.SPORTS.some(function (x) { return x.id === it.id; }) && price >= 20)) S.ev.sportsOverpay = Math.max(S.ev.sportsOverpay, price);
+    S.bag.push(b);
+    if (S.stop.bfocus === it.uid) S.stop.bfocus = null;
+    if (price < it.ask) track('haggle_win');
+    if (it.flags && it.flags.repro) track('repro_bought');
+    // they will remember this
+    if (it.uid.indexOf('dx') !== 0) {
+      if (it.seller === 'grandma' || it.seller === 'kid' || it.seller === 'firm') remember(it.seller, 'pal');
+      if (it.seller === 'ikwig' && kind === 'full' && S.rem.ikwig && S.rem.ikwig.mad) { remember('ikwig', 'square'); it.line = 'Full price. Fine. We\'re square now.'; }
+      if (S.ev.sportsOverpay >= 20) remember('sports', 'sucker');
+    }
+    // Round 3b
+    if (it.kind === 'gear' && it.id === 'binoc') { K().gear.binoc = true; saveK(); track('binoculars_bought'); }
+    if (it.kind === 'standee') { S.ev.standee = true; track('standee_bought'); }
+    if (punchHere()) { K().punch++; saveK(); }
+    if (!S.said.partner && (it.kind === 'standee' || (S.day.partner && price >= 30))) { S.said.partner = true; S.callNow = true; }
+  }
+
   function doOffer(it, kind) {
+    if (!it || it.state !== 'avail' || blockedHere()) return;
     braydenCheck(it.uid);
     if (kind === 'lowball' && rivalHere('gary')) return;
     var o = kind === 'steve' ? ['steve', 'Off hold', Math.round(it.ask * 1.2)] : offers(it).filter(function (x) { return x[0] === kind; })[0];
@@ -1442,24 +2161,10 @@
     var sl = NP.SELLERS[it.seller] || {};
     var frac = price / it.ask;
     if (frac + 1e-6 >= it.minFrac || kind === 'full') {
-      // store credit from trade-ins here gets used first
-      var cr = Math.min(creditHere(), price);
-      if (cr) { S.credit[S.stop.id] -= cr; track('credit_spent'); }
-      S.cash -= price - cr; it.paid = price; it.state = 'sold'; it.line = sellerLine(it, 'yes') + (cr ? ' (' + money(cr) + ' of that was your store credit.)' : '');
-      var b = JSON.parse(JSON.stringify(it)); b.paid = price; b.stopType = S.stop.type; b.boughtAt = S.stop.id;
-      if (S.day.owned[b.id] || boughtAlready(b.id)) S.ev.dupBuys++;
-      if (it.special || (NP.SPORTS.some(function (x) { return x.id === it.id; }) && price >= 20)) S.ev.sportsOverpay = Math.max(S.ev.sportsOverpay, price);
-      S.bag.push(b);
-      if (S.stop.bfocus === it.uid) S.stop.bfocus = null;
+      var cr = payFor(price);
+      it.line = sellerLine(it, 'yes') + (cr ? ' (' + money(cr) + ' of that was your store credit.)' : '');
+      takeItem(it, price, kind);
       sfx('cash'); sfx('accept');
-      if (price < it.ask) track('haggle_win');
-      if (it.flags && it.flags.repro) track('repro_bought');
-      // they will remember this
-      if (it.uid.indexOf('dx') !== 0) {
-        if (it.seller === 'grandma' || it.seller === 'kid' || it.seller === 'firm') remember(it.seller, 'pal');
-        if (it.seller === 'ikwig' && kind === 'full' && S.rem.ikwig && S.rem.ikwig.mad) { remember('ikwig', 'square'); it.line = 'Full price. Fine. We\'re square now.'; }
-        if (S.ev.sportsOverpay >= 20) remember('sports', 'sucker');
-      }
     } else if (kind === 'lowball' && sl.touchy) {
       it.state = 'pulled'; it.line = S.rem.ikwig && S.rem.ikwig.mad ? 'AGAIN? Unbelievable. Off the table. I will remember this too.' : sl.mad[0]; S.ev.offended++;
       remember('ikwig', 'mad');
@@ -1469,7 +2174,7 @@
       if (rivalHere('brayden')) S.stop.bfocus = it.uid; // you showed interest; Brayden noticed
       sfx('reject');
     }
-    if (!checkSundown()) { render(); maybeBrokeTip(); if (!tipEl) maybeUnsponsored(); }
+    if (!checkSundown()) { render(); afterBuy(); }
   }
 
   // ---------- selling and trading in ----------
@@ -1481,24 +2186,26 @@
   function creditHere() { return S && S.stop ? (S.credit[S.stop.id] || 0) : 0; }
   function buyerFor(s, sellerType) {
     if (!s || s.gift || s.locked) return null;
-    var t = sellerType || (s.type === 'pawn' ? 'pawn' : s.type === 'thrift' ? s.seller : null);
+    var t = sellerType || (s.type === 'pawn' ? 'pawn' : (s.type === 'thrift' || s.type === 'mall' || s.type === 'pal' || s.type === 'record') ? s.seller : null);
     return t && NP.BUYERS && NP.BUYERS[t] ? t : null;
   }
   function sellable(b, bt) {
-    if (b.kind === 'grail' || b.kind === 'lot') return false;
+    if (b.kind === 'grail' || b.kind === 'lot' || b.kind === 'gear' || b.kind === 'standee' || b.kind === 'bulk') return false;
     if (b.kind === 'merch') return !!NP.BUYERS[bt].all;
+    if (b.kind === 'music' || b.kind === 'movie') return !!(NP.BUYERS[bt].all || NP.BUYERS[bt].media);
     return true;
   }
   // what a game is really worth, as far as this owner can tell (a bootleg or a reseal they spot is worth almost nothing)
   function trueValue(b, sees) {
     if (b.kind === 'merch') return 3;
-    var f = b.flags || {};
+    var f = b.flags || {}, goo = f.residue && !b.cleaned ? 0.7 : 1;
+    if (b.kind === 'music' || b.kind === 'movie') return Math.max(1, (b.base || 1) * goo);
     if (f.repro && sees) return 1;
     var v = b.base || 1;
     if (b.cond === 'cib') v *= f.noManual ? 1.4 : 2;
     else if (b.cond === 'sealed') v *= (f.reseal && sees) ? 1 : 3.2;
     else if (f.damaged) v *= 0.15;
-    return Math.max(1, v);
+    return Math.max(1, v * goo);
   }
   function say(arr, amt, salt) { var l = arr[NP.hashStr(String(salt == null ? amt : salt)) % arr.length]; return l.replace('{$}', money(amt)); }
   function sellQ(b, bt) {
@@ -1513,6 +2220,8 @@
     var offer = B.firm ? max : Math.max(1, Math.round(max * lerp(0.65, 0.82, r())));
     q = S.sq[key] = { offer: offer, max: max, state: 'open', fooled: bootleg && !sees };
     q.line = bootleg && sees ? say(B.bootleg, offer) : dupe ? say(B.dupe, offer, key) : say(B.open, offer, key);
+    // the trade-in lowball (a true story): two dollars, and that is the final answer
+    if (S.stop.story === 'tradein' && bt === 'mall') { q.offer = 2; q.max = 2; q.state = 'capped'; q.line = NP.STORIES.tradein.offer; q.tradein = true; }
     return q;
   }
   // already on your shelf at home, or a second copy in the bag
@@ -1530,7 +2239,7 @@
     var list = S.bag.filter(function (b) { return sellable(b, bt); });
     var cr = creditHere();
     var h = '<div class="sellbox" id="sellbox"><h3>Sell or trade in</h3>' +
-      '<div class="sell-k">' + esc(who) + ' is buying ' + (B.all ? 'anything' : 'games') + '. Trade-in pays 30% more, as store credit you can only spend at this stop.' +
+      '<div class="sell-k">' + esc(who) + ' is buying ' + (B.all ? 'anything' : B.media ? 'games, music and movies' : 'games') + '. Trade-in pays 30% more, as store credit you can only spend at this stop.' +
       (cr ? ' <b class="credit">You have ' + money(cr) + ' in store credit here.</b>' : '') + '</div>';
     if (S.sellToast) { h += '<div class="toast">' + esc(S.sellToast) + '</div>'; S.sellToast = ''; }
     if (!list.length) h += '<div class="note">' + (S.bag.length ? 'Nothing in your bag they want.' : 'Your bag is empty. Buy something cheap somewhere, sell it here.') + '</div>';
@@ -1544,7 +2253,7 @@
         h += '<div class="bubble">' + esc(q.line) + '</div>';
         if (q.state === 'mad') h += '<div class="stamp bad">NOT BUYING IT</div>';
         else h += '<div class="btns sellbtns"><button class="offer full" data-act="sell" data-how="cash" data-uid="' + b.uid + '" data-bt="' + bt + '">Sell ' + money(q.offer) + '</button>' +
-          '<button class="offer fair" data-act="sell" data-how="trade" data-uid="' + b.uid + '" data-bt="' + bt + '">Trade in ' + money(tradeVal(q)) + '</button>' +
+          (q.tradein ? '' : '<button class="offer fair" data-act="sell" data-how="trade" data-uid="' + b.uid + '" data-bt="' + bt + '">Trade in ' + money(tradeVal(q)) + '</button>') +
           '<button class="offer lowball" data-act="askmore" data-uid="' + b.uid + '" data-bt="' + bt + '"' + (q.state === 'capped' ? ' disabled' : '') + '>' + (q.state === 'capped' ? 'That is their best' : 'Ask for more (5 min)') + '</button></div>';
       }
       h += '</div></div>';
@@ -1566,6 +2275,15 @@
     if (amt > (b.paid || 0)) S.ev.flipProfit += amt - (b.paid || 0);
     if (q.fooled) S.ev.soldRepro++;
     S.sellToast = (how === 'trade' ? say(B.trade, amt) : say(B.sold, amt, uid)) + ' (' + b.t + ', ' + (how === 'trade' ? money(amt) + ' credit' : money(amt)) + '.)';
+    if (q.tradein) {
+      // he puts it straight in the glass case, at $45, while you watch
+      var c = JSON.parse(JSON.stringify(b));
+      c.uid = b.uid + 'r'; c.state = 'avail'; c.ask = 45; c.minFrac = 1; c.seller = 'mall'; c.yours = true; c.line = ''; c.tested = true;
+      delete c.paid; delete c.boughtAt; delete c.stopType;
+      S.stop.items.unshift(c);
+      S.sellToast += ' ' + NP.STORIES.tradein.shelf;
+      track('tradein_lowball');
+    }
     sfx('cash');
     step('first_sale'); step('f09_sell_' + S.history.length + '_' + S.stop.type);
     track('sold_' + S.stop.type + '_' + how);
@@ -1694,7 +2412,7 @@
   // which shop tip fits what is on screen right now
   function checkTips() {
     if (tipsOff || tipEl || tipWait || !S || (S.screen !== 'stop' && S.screen !== 'walk') || !S.stop) return;
-    if (document.querySelector('.unsp, .crt-overlay, .loading-ov')) return;
+    if (document.querySelector('.unsp, .crt-overlay, .loading-ov, .callov')) return;
     var seen = tipsSeen();
     var cards = Array.prototype.slice.call(document.querySelectorAll('.item[id^="card-"]')).filter(function (c) { return !c.closest('[hidden]'); });
     var rules = [
@@ -1753,6 +2471,7 @@
     var wasDemoEnd = DEMO && S.stop && S.stop.type === 'flea';
     if (S.stop) step('f08_leave_' + S.history.length + '_' + S.stop.type + '_' + (via || 'map'));
     if (S.stop) { braydenCheck(null); if (S.toast) S.toast = S.toast.replace('You moved on, so', 'On your way out,'); }
+    if (S.stop && S.stop.type === 'pal') { S.toast = (S.toast ? S.toast + ' ' : '') + 'You, on the way out: "' + NP.PAL.leave + '" ' + NP.PAL.leaveReply; track('pal_leave_line'); }
     var left = creditHere();
     if (left) { S.ev.creditLeft += left; S.toast = (S.toast ? S.toast + ' ' : '') + 'You left ' + money(left) + ' of store credit at ' + S.stop.name + '. Store credit does not travel.'; track('credit_left'); }
     S.screen = 'map';
@@ -1846,6 +2565,9 @@
           h += '<div class="note">The eternal question.</div><div class="btns"><button data-act="seal" data-v="keep" data-uid="' + b.uid + '">Keep it sealed</button><button data-act="seal" data-v="open" data-uid="' + b.uid + '">Open it and play</button></div>';
         } else h += '<div class="note">' + (b.decision === 'keep' ? 'Staying sealed. Forever.' : 'Opened! You played it for an hour. Worth it.') + '</div>';
       }
+      if (b.flags && b.flags.residue && !b.cleaned) h += '<div class="note">Sticker goo all over it. Worth 30% less like this.</div><div class="btns"><button data-act="clean" data-uid="' + b.uid + '">Clean off the sticker goo</button></div>';
+      if (b.cleaned) h += '<div class="note">Clean. A little dish soap and a lot of patience.</div>';
+      if (b.kind === 'gear') h += '<div class="note">Not a game. It goes in the van, not on the shelf. It stays in the van for next time.</div>';
       h += '</div></div>';
     });
     h += '</div>';
@@ -1859,16 +2581,30 @@
   }
 
   // ---------- scoring ----------
+  var MEDIA_NOTE = {
+    vinyl: 'Vinyl. It crackles. That is the point.', cd: 'CD. Scratched, but only on the songs you skip.', tape: 'Cassette. A little stretched. It adds character.',
+    vhs: 'VHS. The tracking is a little off. So is the movie.', dvd: 'DVD. Plays fine. The menu music will be in your head for a week.'
+  };
   function appraise() {
     var lines = [], score = 0, haul = 0, spent = S.budget - S.cash + (S.ev.cashSales || 0);
     var seen = {}, titles = [];
     var items = [];
-    S.bag.forEach(function (b) { if (b.kind === 'lot') { (b.contents || []).forEach(function (c) { c.fromLot = true; c.paid = 0; items.push(c); }); } else items.push(b); });
+    S.bag.forEach(function (b) { if (b.kind === 'gear') return; if (b.kind === 'lot') { (b.contents || []).forEach(function (c) { c.fromLot = true; c.paid = 0; items.push(c); }); } else items.push(b); });
     var keptReseal = false, repro = false, dup = false, grail = false;
     items.forEach(function (b) {
       var v = 0, pts = 0, note = '';
       if (b.kind === 'merch') { pts = -10; note = 'Merch. Worth nothing. You knew that.'; }
       else if (b.kind === 'grail') { pts = 100; grail = true; note = 'GRAIL! You found the game in the game. Shelf label: currently playing.'; }
+      else if (b.kind === 'standee') { pts = 0; note = 'A life-size cardboard Chet Brickwall. Worth nothing. Guards the shelf.'; }
+      else if (b.kind === 'bulk') { v = 40; pts = 40; haul += v; note = 'Forty sports games. You paid ' + money(b.paid || 0) + ' for about $40 of football.'; }
+      else if (b.kind === 'music' || b.kind === 'movie') {
+        if (seen[b.id]) { pts = -5; note = 'Two of the same one. Bought on the same day. By you.'; }
+        else {
+          v = (b.base || 1) * (b.flags && b.flags.residue && !b.cleaned ? 0.7 : 1); pts = Math.round(v); haul += v;
+          note = MEDIA_NOTE[b.fmt] || 'Good pickup.';
+          if (b.flags && b.flags.residue && !b.cleaned) note += ' Sticker goo: worth 30% less.';
+        }
+      }
       else if (S.day.owned[b.id] || seen[b.id]) { pts = -15; dup = true; note = 'It was on the shelf. Now it is on the shelf twice.'; }
       else if (b.flags.repro) { pts = -10; repro = true; note = 'Repro. That label was way too shiny.'; }
       else {
@@ -1881,9 +2617,10 @@
           else { v = base * 3.2; note = 'Factory sealed and staying that way.'; }
         }
         if (!note) note = 'Good pickup.';
+        if (b.flags.residue && !b.cleaned) { v *= 0.7; note += ' Sticker goo: worth 30% less. You never cleaned it.'; }
         pts += Math.round(v); haul += v;
       }
-      if (b.kind === 'game' || b.kind === 'grail') seen[b.id] = true;
+      if (b.kind === 'game' || b.kind === 'grail' || b.kind === 'music' || b.kind === 'movie') seen[b.id] = true;
       if (b.fromLot) note = '(Lot box) ' + note;
       score += pts;
       lines.push({ t: b.t, note: note, pts: pts, it: b });
@@ -1894,11 +2631,18 @@
     var bonus = [];
     if (setFound && setDone) { score += 75; bonus.push(['Moon Ferret trilogy complete', 75]); }
     // cash left over counts at the end of a single day. In a season it carries over instead (it counts at the season's end).
+    if (S.ev.laughed) { score += 15; bonus.push(['Laughed at a $5,000 sealed copy and walked away', 15]); }
     var cashPts = S.season ? 0 : Math.floor(S.cash / 2);
     if (cashPts) { score += cashPts; bonus.push(['Cash left over (' + money(S.cash) + ')', cashPts]); }
 
     // run title, most embarrassing first
     if (grail) titles.push('Played Myself');
+    if (S.ev.banned) titles.push('Banned a Store (By You)');
+    if (S.ev.laughed) titles.push(NP.GLASSCASE_TITLE);
+    if (S.ev.standee) titles.push('Brought Home a Cardboard Action Star');
+    if (S.ev.uturn) titles.push('Did a Full 180 at the Mall');
+    if (S.ev.lateFee) titles.push('Paid a Late Fee From 2003');
+    if ((S.ev.chats || 0) >= 3) titles.push('Talked to Lonnie for an Hour');
     if (S.ev.sportsOverpay >= 20) titles.push('Paid ' + money(S.ev.sportsOverpay) + ' for a Football Game');
     if (repro) titles.push('Proud Owner of a Repro');
     if (dup) titles.push('It Was On The Shelf');
@@ -1929,11 +2673,11 @@
       '<div class="stats">Spent ' + money(R.spent) + ' of ' + money(S.budget) + ' &middot; Haul value ' + money(R.haul) + ' &middot; ' + R.items.length + ' items' +
       (S.ev.sold ? ' &middot; Sold or traded ' + S.ev.sold + ' for ' + money(S.ev.sales) : '') + '</div>' +
       '<div class="scores">' + esc(S.recordMsg || '') + '</div>' +
-      featuredReveal() +
+      featuredReveal() + bannedList() +
       '<canvas id="card" width="1200" height="675"></canvas>' +
       '<div class="btns center"><button class="big" data-act="download">Download your share card</button><button data-act="copy">Copy result text</button>' +
       (DEMO ? '<button data-act="demoend">Continue &#9654;</button>' : '') +
-      (S.season ? (SEASON.endingPending ? '<button data-act="ending">See how your season ended &#9654;</button>' : '<button data-act="nextsat">Next Saturday &#9654;</button>') : '') + '</div>' +
+      '' /* Grok Bot r3b fix: only one next-Saturday button on season results (the big one at the bottom) */ + '</div>' +
       '<div class="appraisal"><h3>Appraisal</h3>';
     R.lines.forEach(function (l, i) {
       var rp = !!(l.it && l.it.kind === 'game' && l.it.flags && l.it.flags.repro);
@@ -1962,9 +2706,19 @@
     drawCard($('#card'), R);
   }
 
+  // the Banned List page on the results screen (stores you walked out of, for good)
+  function bannedList() {
+    if (DEMO) return '';
+    var L = K().banned.filter(function (b) { return b && b.name; });
+    if (!L.length) return '';
+    return '<div class="bannedlist"><h3>Your banned list</h3>' + L.map(function (b) {
+      return '<div class="bl-row"><span class="redx" aria-hidden="true"></span><b>' + esc(b.name) + '</b> &middot; ' + esc(NP.STORIES.banned.bannedLabel) + (b.when ? ' &middot; since ' + esc(b.when) : '') +
+        ' &middot; &#9733;' + (b.review ? ' "' + esc(b.review) + '"' : '') + '</div>';
+    }).join('') + '<div class="note">' + esc(NP.STORIES.banned.out) + '</div></div>';
+  }
   function featuredStatus() {
     var F = S.day.featured; if (!F) return '';
-    return F.item.state === 'sold' ? 'bought it' : F.item.state === 'gone' ? NP.RIVAL.name + ' got it' : 'passed on it';
+    return F.item.state === 'sold' ? 'bought it' : F.item.state === 'gone' ? (F.item.goneBy === 'brayden' ? 'Brayden got it' : NP.RIVAL.name + ' got it') : 'passed on it';
   }
   function featuredReveal() {
     var F = S.day.featured; if (!F) return '';
@@ -2180,6 +2934,28 @@
       case 'dig': braydenCheck(null); actCost(T_DIG); S.stop.dug = true; if (!checkSundown()) render(); break;
       case 'leave': if (tipEl) closeTip(); leaveStop(el.getAttribute('data-via') || 'map'); window.scrollTo(0, 0); break;
       case 'buygift': buyGift(el.getAttribute('data-id')); break;
+      // Round 3b
+      case 'story': doStory(+el.getAttribute('data-i')); break;
+      case 'caseask': case 'casereply': case 'caselaugh': case 'casebuy': case 'casewalk': doCase(act); break;
+      case 'utskip': break; // the scene listens for this tap itself
+      case 'bwait': case 'bexcuse': case 'bout': case 'breview': doBanned(act, +el.getAttribute('data-i')); break;
+      case 'chat': doChat(el.getAttribute('data-id')); break;
+      case 'punch': doPunch(el.getAttribute('data-how')); break;
+      case 'listen': doListen(); break;
+      case 'latefee': doLateFee(); break;
+      case 'candy': doCandy(); break;
+      case 'bundle': doBundle(el.getAttribute('data-kind')); break;
+      case 'pricecheck':
+        var pc = findItem(uid); if (!pc || pc.state !== 'avail') break;
+        braydenCheck(uid); actCost(2);
+        pc.ask = Math.max(pc.ask + 1, Math.ceil(pc.ask * 1.1)); pc.line = NP.STORIES.pricecheck.line.replace('{$}', money(pc.ask));
+        track('price_check'); if (!checkSundown()) render(); break;
+      case 'comeback':
+        var cb = findItem(uid); if (!cb || cb.state !== 'avail') break;
+        braydenCheck(null); actCost(10);
+        cb.state = 'gone'; cb.goneBy = 'vest'; cb.line = ''; S.toast = NP.STORIES.comeback.gone;
+        track('moment_comeback_gone'); if (!checkSundown()) render(); break;
+      case 'clean': var cl = S.bag.filter(function (x) { return x.uid === uid; })[0]; if (cl) { cl.cleaned = true; track('sticker_cleaned'); render(); } break;
       case 'gohome': goHome('button'); break;
       case 'openlot':
         var lb = S.bag.filter(function (x) { return x.uid === uid; })[0]; lb.opened = true;
@@ -2313,6 +3089,6 @@
   };
 
   // test hooks (harmless in production)
-  window.__NP_TEST = { genDay: genDay, buildDay: buildDay, season: function () { return SEASON; }, render: function () { render(); }, readSave: readSave, state: function () { return S; }, phoenixDate: phoenixDate, weatherFor: weatherFor,
+  window.__NP_TEST = { keep: function () { return K(); }, runSeed: function (m, seed) { todaySeed = seed; SEASON = null; newRun(m); S.screen = 'map'; render(); }, goStop: function (id) { var st = S.day.stops.filter(function (x) { return x.id === id; })[0]; arrive(st); render(); }, genDay: genDay, buildDay: buildDay, season: function () { return SEASON; }, render: function () { render(); }, readSave: readSave, state: function () { return S; }, phoenixDate: phoenixDate, weatherFor: weatherFor,
     preview: function (seed) { var d = applyExtras(genDay(seed), seed); return { wx: d.wx.id, host: d.featured.stopName, hostType: d.stops.filter(function (s) { return s.id === d.featured.stopId; })[0].type }; } };
 })();
