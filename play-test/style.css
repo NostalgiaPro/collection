@@ -290,6 +290,7 @@ a.cart-item { display: block; text-decoration: none; }
   .adtoggle input { width: 22px; height: 22px; }
   .adtoggle.center { display: flex; justify-content: center; }
   details.howto summary { min-height: 44px; display: flex; align-items: center; gap: 6px; }
+  details.rc-more summary { min-height: 44px; line-height: 44px; } /* Grok Bot r2 fix: 44px tap target on touch */
   .scores a, .tlink { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; }
   .cart .cart-item { min-height: 48px; }
   .wp-x, .skip, .ibtn { min-height: 44px; }
@@ -453,3 +454,25 @@ h3.anystop { margin-top: 18px; }
   .hud-r { display: flex; align-items: center; gap: 6px; }
   .hud .fsbtn, .hud .adtoggle { min-height: 44px; }
 }
+
+/* ---------- full game round 2: selling and trading in, the folded route, billboards on the drive ---------- */
+.sellhint { background: rgba(41,211,232,.10); border-left: 4px solid var(--cyan); padding: 6px 10px; margin: 6px 0; font-size: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.sellbox { margin: 16px 0 6px; padding: 10px 12px; background: rgba(0,0,0,.25); border: 2px dashed var(--cyan); }
+.sellbox h3 { margin: 0 0 6px; }
+.sell-k { font-size: 13px; color: #d6dcf0; margin-bottom: 6px; }
+.sell-k .credit, .credit { color: var(--gold); }
+.sellrow { display: flex; gap: 10px; background: var(--navy2); border: 2px solid #3a4d82; padding: 8px; margin: 8px 0; }
+.artbox.sm { flex: 0 0 auto; }
+.sellrow .info { flex: 1 1 auto; min-width: 0; }
+.sellbtns { display: flex; flex-wrap: wrap; gap: 4px; }
+.sellbtns button { flex: 1 1 auto; margin: 2px 0; }
+.creditwarn { flex: 1 1 100%; background: rgba(255,204,51,.12); border-left: 4px solid var(--gold); color: var(--gold); font-size: 13px; padding: 6px 10px; margin: 6px 0; }
+.hud .cash small.credit { font-size: 12px; }
+.rc-theme { font-size: 13px; color: #d6dcf0; margin: 6px 0 4px; }
+.rc-theme b { color: var(--cyan); }
+.rc-more { margin: 8px 0 4px; }
+.rc-more summary { cursor: pointer; color: var(--cyan); font-size: 14px; min-height: 32px; line-height: 32px; }
+.rc-or { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 14px; font-size: 13px; color: #9aa3c0; margin-top: 6px; }
+.rc-or .homebtn { min-height: 44px; padding: 8px 16px; background: #3a4d82; color: var(--cream); border-bottom-color: #253461; font-size: 14px; }
+.dl-theme { margin-top: 6px; font-size: 13px; color: var(--cyan); }
+.ld-bb { background: #2a1d0e; color: var(--gold); border: 3px double var(--gold); padding: 8px 10px; margin: 0 auto 10px; font-weight: bold; font-size: 13px; text-align: center; transform: rotate(-.5deg); max-width: 360px; }

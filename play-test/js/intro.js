@@ -166,7 +166,7 @@ NP.Intro = (function () {
     { h: ['NOSTALGIA PRO:', 'THE GAME'], s: ['NOW WITH A GAME', 'IN IT.'], v: 'box', bg: NAVY },
     { h: ['ONE SATURDAY.', 'ONE DEX.'], s: ['HE GETS UP EARLIER', 'THAN YOU.'], v: 'dex', bg: '#3a1f1f' },
     { h: ['IS IT ON', 'THE SHELF?'], s: ['ONLY ONE WAY TO', 'FIND OUT.'], v: 'you', bg: '#123a2f' },
-    { h: ['"IT IS A GAME."'], s: ['- A GUY AT THE', 'SWAP MEET'], v: 'stars', bg: '#2a1d3e' },
+    { h: ['"IT IS A GAME."'], s: ['SAYS A GUY AT THE', 'SWAP MEET'], v: 'stars', bg: '#2a1d3e' },
     { h: ['COLLECT ALL', '1 OF IT.'], s: ['NOSTALGIA PRO.', 'SOLD SEPARATELY.'], v: 'box', bg: '#3a2a10' },
     { h: ['ASK YOUR', 'PARENTS'], s: ['TO DRIVE YOU TO', 'A YARD SALE.'], v: 'you', bg: '#16213e' }
   ];
@@ -466,7 +466,7 @@ NP.Intro = (function () {
     'Tip: Sellers remember you. Lowball accordingly.',
     'Tip: Nostalgia Pro: The Shelf Dust makes any shelf look collected.',
     "This drive is brought to you by Mesquite Mike's Beef Jerky. Mike is in the back seat. He wants you to know he is not a sponsor.",
-    'Radio: "You are listening to 104.7 The Dust, the station that will never sell out. This hour of never selling out is sponsored by Saguaro Splash Cola."',
+    'Radio: "You are listening to 104.8 The Dust, the station that will never sell out. This hour of never selling out is sponsored by Saguaro Splash Cola."',
     "Tip: It's a dry heat. That is not a tip. That is Haboob Antiperspirant's slogan.",
     'Tip: Gila Glow SPF 900 blocks the sun. All of it. Do not wear it while driving.'
   ];
@@ -484,19 +484,21 @@ NP.Intro = (function () {
     if (TIPS_WX[wxId] && tipN % 3 === 0) return TIPS_WX[wxId][(tipN / 3 | 0) % TIPS_WX[wxId].length];
     return TIPS[Math.floor(Math.random() * TIPS.length)];
   }
-  function loading(text, done) {
+  // billboard: a roadside sign to show above the car (it is satire, not a tip, so it shows even with tips off)
+  function loading(text, done, billboard) {
     var ov = document.createElement('div');
     ov.className = 'loading-ov';
     // text is null when the player turned tips off: just the car, briefly, then on to the stop
-    ov.innerHTML = '<div class="ld-box"><canvas width="160" height="40"></canvas><div class="ld-t">LOADING</div>' + (text === null ? '' :
+    ov.innerHTML = '<div class="ld-box">' + (billboard ? '<div class="ld-bb"></div>' : '') + '<canvas width="160" height="40"></canvas><div class="ld-t">LOADING</div>' + (text === null ? '' :
       '<div class="ld-tip"></div><div class="ld-skip">' + (coarseTap() ? 'Tap' : 'Click') + ' to continue</div>' +
       '<label class="tipoff"><input type="checkbox" class="tipoff-in"> Don\'t show tips</label>') + '</div>';
     if (text !== null) ov.querySelector('.ld-tip').textContent = text;
+    if (billboard) ov.querySelector('.ld-bb').textContent = billboard;
     document.body.appendChild(ov);
     var cv = ov.querySelector('canvas'), g = cv.getContext('2d'), t0 = performance.now(), fin = false;
     g.imageSmoothingEnabled = false;
     function finish() { if (fin) return; fin = true; if (ov.parentNode) ov.parentNode.removeChild(ov); done(); }
-    if (text === null) setTimeout(finish, 700);
+    if (text === null) setTimeout(finish, billboard ? 2400 : 700);
     function onBox(e) { return e.target && e.target.closest && e.target.closest('.tipoff'); }
     ov.addEventListener('click', function (e) { if (onBox(e)) return; if (performance.now() - t0 > 400) finish(); });
     function ldKey(e) { if (e.repeat || fin) return; if (performance.now() - t0 < 400) return; if (onBox(e) || e.key === 'Tab' || e.key === 'Shift') return; e.preventDefault(); window.removeEventListener('keydown', ldKey, true); finish(); }

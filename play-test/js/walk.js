@@ -377,8 +377,10 @@ NP.Walk = (function () {
     var s = W.stop, sd = NP.SELLERS[tb.seller], SP = NP.SPONSOR;
     var h = '<div class="bubble big">' + esc(sd.name) + ': "' + esc(tb.cola && SP ? SP.colaLine : tb.hello) + '"</div>';
     if (tb.cola && SP) h += '<div class="glam"><canvas class="glamcan" width="22" height="30" aria-label="A can of ' + esc(SP.name) + '"></canvas><div class="glam-t">' + esc(SP.colaAction) + '</div></div>';
-    if (G().adLevel() >= 2) h += '<div class="poster">' + (G().adFree() ? 'TAPED TO THE TABLE: The Ad-Free Edition. No posters. (Except this one.)' : 'TAPED TO THE TABLE: Nostalgia Pro: The Shelf Dust. Now in Sealed. Booth open till sundown.') + '</div>';
+    if (G().adLevel() >= 2) h += '<div class="poster">' + (G().adFree() ? 'TAPED TO THE TABLE: The Ad-Free Edition. No posters. (Except this one.)' : 'TAPED TO THE TABLE: Nostalgia Pro: The Shelf Dust. Now in Sealed. Booth open till ' + (G().endLabel ? G().endLabel() : '5:30 PM') + '.') + '</div>';
     h += '<div class="items">' + tb.items.map(function (it) { return G().itemCard(it, s); }).join('') + '</div>';
+    // every game vendor here buys too (selling and trading in, from game.js)
+    if (G().sellHTML) h += G().sellHTML(s, tb.seller);
     return { html: h, after: tb.cola ? drawGlamCan : null };
   }
   function drawGlamCan() {
@@ -458,7 +460,7 @@ NP.Walk = (function () {
     var st = S(), spec = W.panel.open();
     var keep = el.scrollTop;
     var h = '<div class="wp-top"><span class="wp-title">' + esc(W.panel.title || '') + '</span>' +
-      '<span class="wp-stat">' + G().fmtTime(Math.min(st.time, G().endT ? G().endT() : G().END)) + ' &middot; ' + G().money(st.cash) + ' &middot; Bag ' + st.bag.length + '</span>' +
+      '<span class="wp-stat">' + G().fmtTime(Math.min(st.time, G().endT ? G().endT() : G().END)) + ' &middot; ' + G().money(st.cash) + (G().creditHere && G().creditHere() ? ' + ' + G().money(G().creditHere()) + ' credit' : '') + ' &middot; Bag ' + st.bag.length + '</span>' +
       '<button data-w="close" class="wp-x">Walk away</button></div>';
     if (W.ptoast) { h += '<div class="toast">' + esc(W.ptoast) + '</div>'; W.ptoast = ''; }
     h += spec.html;

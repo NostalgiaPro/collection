@@ -9,7 +9,7 @@ NP.PLATFORMS = {
   fer: { name: 'Ferroset 8', media: 'cart', c1: '#7a7f8c', c2: '#2a2f3a' },
   lum: { name: 'Lumen Disc', media: 'disc', c1: '#29adff', c2: '#16213e' },
   hal: { name: 'Marigold 32', media: 'disc', c1: '#ffa300', c2: '#3a1f1f' },
-  pip: { name: 'Lunchbox Mini', media: 'hand', c1: '#00b894', c2: '#123a2f' }
+  pip: { name: 'Lunchbox LX', media: 'hand', c1: '#00b894', c2: '#123a2f' }
 };
 
 // tier: 1 common, 2 uncommon, 3 rare. base = loose value in dollars.
@@ -30,8 +30,8 @@ NP.CATALOG = [
     b: 'TURBO! TURBO! TURBO! (NOT A FEATURE.)' },
   { id: 'wiz', t: 'Wizard Accountant: Quest for the Lost Receipt', p: 'fer', tier: 2, base: 22, tag: 'gem',
     d: 'Turn-based tax battles. You cast Itemized Deduction for 40 damage. The final boss is an audit with three health bars, and the people who beat it will not stop talking about it.',
-    b: '"I CRIED AT THE AMORTIZATION SCENE." - A GUY' },
-  { id: 'skp', t: 'Skate Possum: Pro Dead Extreme', p: 'k16', tier: 1, base: 6, tag: 'common',
+    b: '"I CRIED AT THE AMORTIZATION SCENE." SAYS A GUY' },
+  { id: 'skp', t: 'Skate Possum: Plays Dead Extreme', p: 'k16', tier: 1, base: 6, tag: 'common',
     d: 'Every time you bail, the possum plays dead for 45 seconds and you cannot skip it. Roughly half of the game is watching a possum pretend to be dead.',
     b: 'RADICAL TO THE MAX. MAX SOLD SEPARATELY.' },
   { id: 'dln', t: 'Dungeon Lasagna: Forty Layers Deep', p: 'lum', tier: 2, base: 28, tag: 'gem',
@@ -49,7 +49,7 @@ NP.CATALOG = [
   { id: 'rob', t: 'Robo Barista: Extra Shot Edition', p: 'pip', tier: 2, base: 16, tag: 'uncommon',
     d: 'Make lattes for robots before the morning rush. Robots cannot drink coffee. They order it anyway and get furious when you misspell their serial numbers.',
     b: 'BREWED BY ROBOTS, FOR ROBOTS. HUMANS TOLERATED.' },
-  { id: 'sky', t: 'Sky Llama Squadron: Spit Happens', p: 'k16', tier: 2, base: 24, tag: 'uncommon',
+  { id: 'sky', t: 'Sky Llama Air Patrol: Spit Happens', p: 'k16', tier: 2, base: 24, tag: 'uncommon',
     d: 'A flight shooter starring llamas in goggles. Two players share one controller, which has ended at least four friendships. The llamas spit missiles. Nobody asked how.',
     b: 'TOTALLY AIRBORNE! LLAMAS NOT RESPONSIBLE FOR SPIT.' },
   { id: 'hmp', t: 'Haunted Mall Panic: Clearance of the Damned', p: 'lum', tier: 3, base: 70, tag: 'rare',
@@ -58,7 +58,7 @@ NP.CATALOG = [
   { id: 'vpk', t: 'Vapor Knight: Sunset Forever', p: 'hal', tier: 2, base: 20, tag: 'uncommon',
     d: 'A knight walks toward a sunset for six hours while a synth soundtrack plays. There is one sword fight, and it happens during the credits. The soundtrack slaps.',
     b: 'FEEL THE SYNTH. SEE THE SUNSET. DO NOTHING ELSE.' },
-  { id: 'ttt', t: 'Tiny Tank Tactics: Ultimate Total Warfare Supreme', p: 'fer', tier: 1, base: 6, tag: 'shovel',
+  { id: 'ttt', t: 'Three Tank Tactics: Ultimate Total Warfare Supreme', p: 'fer', tier: 1, base: 6, tag: 'shovel',
     d: 'A deep strategy game with three tanks and exactly one map. Two of the tanks are decorative. The box promises thousands of battles, which is true if you play it thousands of times.',
     b: 'THOUSANDS OF BATTLES!*' },
   { id: 'msa', t: 'Mesa Mayhem: No Brakes Edition', p: 'k16', tier: 1, base: 8, tag: 'common',
@@ -67,7 +67,7 @@ NP.CATALOG = [
   { id: 'gpn', t: 'Ghost Pepper Ninja: Mild Mode Not Found', p: 'hal', tier: 2, base: 26, tag: 'cult',
     d: 'A spicy ninja who breathes fire and has three hit points. Brutally hard on purpose. Its fans call it a masterpiece and will tell you so at a party you did not invite them to.',
     b: 'TOO HOT FOR TV. ALSO TOO HOT FOR YOU.' },
-  { id: 'stm', t: 'Star Mopper: Galactic Janitor Saga', p: 'fer', tier: 1, base: 5, tag: 'shovel',
+  { id: 'stm', t: 'Orbit Mopper: Galactic Janitor Saga', p: 'fer', tier: 1, base: 5, tag: 'shovel',
     d: 'You mop the floors of a space station. That is the whole game. The giant space battle on the box happens outside a window you are not allowed to look out of.',
     b: 'AN EPIC SPACE ADVENTURE. FLOORS ONLY.' },
   { id: 'lll', t: 'Blob Lamp Legends: The Warm-Up', p: 'lum', tier: 1, base: 9, tag: 'common',
@@ -84,8 +84,8 @@ NP.CATALOG = [
     b: 'EXTREME BOWLING ACTION! THE BADGERS DISAGREE.' },
   { id: 'pxp', t: 'Pixel Prairie: Just One More Day', p: 'fer', tier: 2, base: 17, tag: 'gem',
     d: 'A one-screen farming game that eats whole weekends. You grow one turnip. Then a slightly better turnip. Then it is Monday and you have not showered.',
-    b: '"JUST ONE MORE DAY." - EVERYONE, AT 4 AM' },
-  { id: 'tnk', t: 'Turnip Kingdom: Royal Root Edition', p: 'k16', tier: 3, base: 60, tag: 'rare',
+    b: '"JUST ONE MORE DAY." SAID EVERYONE, AT 4 AM' },
+  { id: 'tnk', t: 'Turnip Monarchy: Royal Root Edition', p: 'k16', tier: 3, base: 60, tag: 'rare',
     d: 'A turnip becomes king and immediately raises taxes. Pulled from shelves after a lawsuit from a vegetable company nobody can find any record of. The judge called it "a lot of turnip."',
     b: 'LONG LIVE THE TURNIP!' },
   { id: 'esc', t: 'Escalator Escape: 99 Floors the Wrong Way', p: 'pip', tier: 1, base: 6, tag: 'common',
@@ -94,11 +94,11 @@ NP.CATALOG = [
   { id: 'bgd', t: 'Sasquatch Derby: Blurry Edition', p: 'hal', tier: 1, base: 7, tag: 'common',
     d: 'Racing as a sasquatch. Every screenshot on the box is slightly out of focus. It is in every bargain bin in the state, and two of them are in your garage right now.',
     b: 'NOW IN BLURRY-VISION!' },
-  { id: 'hyo', t: 'Hyper Origami: Paper Cuts', p: 'lum', tier: 2, base: 23, tag: 'gem',
+  { id: 'hyo', t: 'Crease Fighters: Paper Cuts', p: 'lum', tier: 2, base: 23, tag: 'gem',
     d: 'A fighting game where you fold paper into fighters. Everybody rented it and nobody bought it. Every single special move is a paper cut.',
     b: 'FOLD. FIGHT. FOLD AGAIN. (DO NOT FOLD THE DISC.)' },
   { id: 'cmc', t: "Comet Cabbie: The Meter's Running", p: 'fer', tier: 1, base: 8, tag: 'common',
-    d: 'A space taxi game where every passenger wants the same planet and none of them tip. The meter keeps running on the pause screen.',
+    d: 'A taxi game in space where every passenger wants the same planet and none of them tip. The meter keeps running on the pause screen.',
     b: "THE GALAXY'S NUMBER ONE CAB GAME. (ONLY CAB GAME.)" },
   { id: 'thd', t: 'Thunder Tortoise: Slow, Then Fast', p: 'k16', tier: 2, base: 21, tag: 'uncommon',
     d: 'A tortoise with lightning powers. The first hour is very slow. Then it is very fast for nine seconds. Then it is slow again. Somehow it works.',
@@ -118,8 +118,8 @@ NP.SPORTS = [
   { id: 'gb96', t: "Gridiron Grind '96: The Roster Update", p: 'hal', base: 1 },
   { id: 'gb97', t: "Gridiron Grind '97: The Good One", p: 'hal', base: 2 },
   { id: 'gb98', t: "Gridiron Grind '98: Same as '97", p: 'lum', base: 1 },
-  { id: 'chh', t: "Courtside Heat '96: Everybody Dunks", p: 'lum', base: 1 },
-  { id: 'chh2', t: "Courtside Heat '97: Still Dunking", p: 'hal', base: 1 },
+  { id: 'chh', t: "Courtside Hustle '96: Everybody Dunks", p: 'lum', base: 1 },
+  { id: 'chh2', t: "Courtside Hustle '97: Still Dunking", p: 'hal', base: 1 },
   { id: 'pkp', t: "Puck Punchers '95: Mostly Fights", p: 'k16', base: 1 },
   { id: 'dmd', t: "Diamond Dingers '98: Extra Innings Edition", p: 'lum', base: 1 },
   { id: 'gfp', t: "Fairway Fever '99: Golf for Golf People", p: 'hal', base: 1 }
@@ -222,6 +222,49 @@ NP.SELLERS = {
     no: ["That's a collector's piece, pal.", "You don't haggle on a '97. Nobody haggles on a '97."] }
 };
 
+// ---------- shop owners buying from you (selling and trading in) ----------
+// lo/hi = the most they will pay, as a share of what the game is really worth. The first offer is lower than that.
+// firm: the offer never moves. touchy: ask once too often and they stop buying that game. detect: always spots a bootleg.
+// all: buys anything (merch and sports games too). {$} is the amount.
+NP.BUYERS = {
+  pawn: { lo: 0.45, hi: 0.58, all: true, detect: true,
+    open: ["I'll give you {$} for it. Cash. Today. Right now.", '{$}. I have to test it, clean it and mark it up. Mostly mark it up.', '{$}. That is the pawn price. The pawn price is a feeling.'],
+    // the pawn counter can smell a game you already own, and pays a little extra for it
+    dupe: ['You already own this one, huh? Duplicates are our whole business. {$}.', 'Second copy? We love a second copy. {$}.'],
+    up: ["Fine. {$}. Don't tell the boss.", "{$}, and I'm being generous. I am never generous."],
+    best: ['{$} is my best. The boss checks the receipts.', "That's the number. {$}. The number does not move."],
+    sold: ['Done. It is ours now.', "Pleasure. It'll be in the glass case by lunch at triple the price."],
+    trade: ['{$} in store credit. Spend it here. Only here. Forever here.'],
+    bootleg: ["That's a bootleg, pal. {$} for the plastic."] },
+  friendly: { lo: 0.5, hi: 0.7,
+    open: ['I could do {$} for that.', 'Ooh, that one sells. {$}?', '{$}, and I will throw in a handshake.'],
+    up: ['Alright, alright. {$}.', 'You drive a hard bargain. {$}.'],
+    best: ["{$}. That's everything in the cash box, friend."],
+    sold: ['Pleasure doing business.', 'Deal. Back on the table it goes. With a new sticker.'],
+    trade: ['{$} toward anything I have. Shake on it.'],
+    bootleg: ['Hmm, the label looks a little shiny. {$}, and I am being nice.'] },
+  firm: { lo: 0.55, hi: 0.55, firm: true,
+    open: ['{$}. Firm.', 'I buy at {$}. The buying price is also firm.'],
+    up: ['The offer is firm.'],
+    best: ['The offer is firm.', 'I laminated the offer. It is firm.'],
+    sold: ['Correct transaction. Thank you.'],
+    trade: ['{$} in credit. The credit is also firm.'],
+    bootleg: ['That is a bootleg. {$}. Firmly.'] },
+  ikwig: { lo: 0.55, hi: 0.75, touchy: true, detect: true,
+    open: ['I know what YOU got too. {$}.', 'I looked it up. It is worth {$} to me. I know what you got.'],
+    up: ['Hmm. {$}. But only because I know what you got.'],
+    best: ["{$}. That's the number. I know what you got."],
+    mad: ["Ask me again? Off the table. I know what you got, and I don't want it."],
+    sold: ['Smart seller. Now I got what you got.'],
+    trade: ['{$} in credit. I know what you will get.'],
+    bootleg: ['A bootleg? To ME? {$}. For the box.'] }
+};
+NP.NOBUY = {
+  yard: 'Yard sales do not buy. They are trying to get rid of stuff, not get more.',
+  sports: 'The football guy does not buy. He has enough football. He has all of it.',
+  gift: 'The Gift Shop does not buy anything. It only sells. That is the whole business model.'
+};
+
 NP.RIVAL = { name: 'Dex', shop: 'Flipside Resale' };
 
 // CRT commercials. Still frames, skippable.
@@ -243,7 +286,7 @@ NP.ADFREE_ADS = [
 NP.TICKER = [
   'Try Nostalgia Pro: The Shelf Dust',
   'Ask about Nostalgia Pro: The Manual (sold separately)',
-  'Nostalgia Pro: The Gift Shop is open till sundown',
+  'Nostalgia Pro: The Gift Shop is open till {end}',
   'Now with 40% more Nostalgia Pro',
   'This stop sponsored by Nostalgia Pro',
   'Saguaro Splash Cola: the official cola of not being sponsored',
@@ -315,6 +358,16 @@ NP.SPONSOR = {
   appraisal: 'This appraisal is 100% unsponsored. (A long, refreshing sip.)'
 };
 
+// ---------- varied Saturdays: one twist for the whole town (full game only). w = how often it comes up ----------
+NP.THEMES = [
+  { id: 'none', w: 3 },
+  { id: 'cleanout', w: 2, name: 'Garage cleanout day', line: 'Half the town is cleaning out the garage. Every dig pile is twice as deep.' },
+  { id: 'sealed', w: 2, name: 'Sealed Saturday', line: 'Somebody\'s uncle never opened anything. More sealed games around town.' },
+  { id: 'football', w: 1, name: 'Game day', line: 'It is game day. Football games are everywhere, and the football guy is in a great mood.' },
+  { id: 'buyers', w: 2, name: 'Buyers are hungry', line: 'Shops are low on stock. Owners pay more when you sell or trade in today.' },
+  { id: 'moving', w: 2, name: 'Moving weekend', line: 'Half the town is moving. Yard sale sellers just want it gone.' }
+];
+
 // ---------- the two ways to play ----------
 NP.MODES = {
   noon: { id: 'noon', name: 'Back by noon', short: 'Short run', blurb: 'A few stops. Home by 12:00 PM.', endLabel: '12:00 PM' },
@@ -327,7 +380,7 @@ NP.MODES = {
 NP.GOALS = function (m) {
   var noon = m === true || m === 'noon';
   return [
-    '$100 budget.',
+    noon ? '$100 budget.' : '$250 budget.',
     noon ? 'Back by noon.' : 'Home by sundown (5:30).',
     "Buy what's worth it.",
     "Don't buy what you already own.",
@@ -345,6 +398,8 @@ NP.TIPS = {
     short: '"Is it on the shelf?" (10 min) checks your collection. Buying a game twice costs points.' },
   dex: { h: 'That is Dex', b: 'Dex from Flipside Resale. He is after the same stuff you are, and he does not stop to read tips. Get to the good tables first.',
     short: 'Dex from Flipside Resale is after the same stuff you are. He does not wait.' },
-  broke: { h: 'Out of money?', b: 'That is fine. Nobody leaves a swap meet with money. Cash you did not spend is worth points at the end. Keep looking around, or head home and shelve what you got.',
-    short: 'Ran out of cash? Keep browsing or head home. Money you did not spend counts as points.' }
+  broke: { h: 'Out of money?', b: 'It happens. Sell or trade in something from your bag at a thrift store, the pawn shop or a swap meet table, and you are back in. Cash you do not spend is worth points at the end.',
+    short: 'Out of cash? Sell or trade in games from your bag at thrift stores, the pawn shop and swap meet tables.' },
+  sell: { h: 'Selling and trading in', b: 'This owner buys games. Sell for cash, or trade it in for 30% more as store credit you can only spend here. Ask for more if you dare. Some owners take it personally.',
+    short: 'Thrift stores, the pawn shop and swap meet tables buy games. Trade-in pays 30% more, as credit at that stop. Asking for more can backfire.' }
 };

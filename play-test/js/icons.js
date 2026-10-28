@@ -166,7 +166,7 @@ window.NP = NP;
     '...sSSSSSSSs.www',
     '...ss.....ss.ww.',
     'NNNNNNNNNNNNNNNN'] };
-  I.sky = { bg: '#4aa3df', px: [ // Sky Llama Squadron: a llama in flight goggles
+  I.sky = { bg: '#4aa3df', px: [ // Sky Llama Air Patrol: a llama in flight goggles
     '...w.w..........',
     '...www..........',
     '..wwwww.....W...',
@@ -217,7 +217,7 @@ window.NP = NP;
     'c...c....c....c.',
     'cccccccccccccccc',
     'c....c.....c....'] };
-  I.ttt = { bg: '#8fae6a', px: [ // Tiny Tank Tactics: one small tank
+  I.ttt = { bg: '#8fae6a', px: [ // Three Tank Tactics: one small tank
     '................',
     '................',
     '................',
@@ -268,7 +268,7 @@ window.NP = NP;
     '......rrr..oyo..',
     '......rr....o...',
     '.......r........'] };
-  I.stm = { bg: '#101830', px: [ // Star Mopper: a mop under a star
+  I.stm = { bg: '#101830', px: [ // Orbit Mopper: a mop under a star
     '.W.........y....',
     '...........y....',
     '.........yyyyy..',
@@ -370,7 +370,7 @@ window.NP = NP;
     'llllllllllllllll',
     'GGGGGGGGGGGGGGGG',
     'nnnnnnnnnnnnnnnn'] };
-  I.tnk = { bg: '#3a1f3a', px: [ // Turnip Kingdom: a turnip wearing a crown
+  I.tnk = { bg: '#3a1f3a', px: [ // Turnip Monarchy: a turnip wearing a crown
     '...y..y..y......',
     '...yyyyyyy......',
     '...yryyyry......',
@@ -421,7 +421,7 @@ window.NP = NP;
     '.Nnnn.nnnN......',
     'tttttttttttttttt',
     'tntttttnttttttnt'] };
-  I.hyo = { bg: '#c8323c', px: [ // Hyper Origami: a paper crane
+  I.hyo = { bg: '#c8323c', px: [ // Crease Fighters: a paper crane
     '................',
     '.......W........',
     '......WW........',
