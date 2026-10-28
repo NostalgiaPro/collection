@@ -143,6 +143,7 @@
     } else {
       floatText(label, swish ? "#9bff3f" : "#eceae2");
     }
+    if (window.NPRewards && (S.streak === 2 || (S.streak >= 5 && S.streak % 5 === 0))) NPRewards.streak(S.streak, S.streak === 2 ? "" : S.streak + " STRAIGHT!");
     var lvl = Math.min(LEVELS.length - 1, Math.floor(S.makes / 10));
     if (lvl > S.level) {
       S.level = lvl;

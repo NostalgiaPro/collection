@@ -211,7 +211,7 @@
             '<p class="np-kicker">Score</p>' +
             '<p class="np-score" id="np-over-score">0</p>' +
             '<p class="np-best">BEST <b id="np-over-best">---</b></p>' +
-            '<div class="np-newbest" id="np-newbest" role="status"><strong>NEW BEST!</strong><span>May your shelf never be full.</span></div>' +
+            '<div class="np-newbest" id="np-newbest" role="status"><strong>NEW PERSONAL BEST</strong><span id="np-oldbest"></span></div>' +
             '<p class="np-extra" id="np-over-tro" hidden></p>' +
             '<div class="np-extra" id="np-over-extra"></div>' +
             '<div class="np-actions">' +
@@ -426,13 +426,18 @@
     document.getElementById("np-over-title").textContent = opts.title || "GAME OVER";
     document.getElementById("np-over-score").textContent = fmt(score);
     document.getElementById("np-over-best").textContent = fmt(isNew ? score : prev);
-    document.getElementById("np-newbest").classList.toggle("on", isNew);
+    // Personal best banner: only when a saved best was beaten (a first game has nothing to beat).
+    var beat = isNew && prev != null;
+    document.getElementById("np-newbest").classList.toggle("on", beat);
+    document.getElementById("np-oldbest").textContent = beat ? "Old best: " + fmt(prev) : "";
     document.getElementById("np-over-extra").innerHTML = opts.html || "";
     trophyRunEnd(score, isNew, opts.stats);
     document.getElementById("np-title-best").textContent = fmt(isNew ? score : prev);
     hideFlash(true);
-    setTimeout(function () { if (state === "over") { if (isNew) SFX.best(); else SFX.over(); } }, 60);
+    setTimeout(function () { if (state === "over") { if (beat) SFX.best(); else SFX.over(); } }, 60);
     show("over");
+    // Rewards (shared/rewards.js, optional): so-close line, score count-up, PB confetti + sting.
+    if (window.NPRewards) { try { window.NPRewards.over({ slug: G.slug, score: score, prev: prev, isNew: beat, fmt: fmt, stats: opts.stats || {} }); } catch (e) { console.error(e); } }
     if (CFG.trackEvent) CFG.trackEvent("arcade/" + G.slug + "/game-over", G.title + " game over");
   }
 

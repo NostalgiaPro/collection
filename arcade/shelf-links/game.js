@@ -260,6 +260,8 @@
     var h = HOLES[S.hole];
     S.card[S.hole] = S.strokes;
     var d = S.strokes - h.par;
+    S.parRow = sunk && d <= 0 ? (S.parRow || 0) + 1 : 0;
+    if (window.NPRewards && S.parRow >= 2) NPRewards.streak(S.parRow, S.parRow === 2 ? "2 PARS IN A ROW!" : "");
     if (bests[S.hole] == null || S.strokes < bests[S.hole]) {
       bests[S.hole] = S.strokes;
       Shell.save("holes", JSON.stringify(bests));

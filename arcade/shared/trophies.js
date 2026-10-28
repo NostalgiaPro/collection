@@ -101,7 +101,9 @@
   }
   function toast(t) { queue.push(t); if (!showing) next(); }
   function blip() {
-    var Sh = window.Shell;
+    var Sh = window.Shell, R = window.NPRewards;
+    // shared/rewards.js (optional): richer sting + a short confetti burst from the toast.
+    if (R) { R.sting("trophy"); setTimeout(function () { R.burstAt(wrap && wrap.firstChild, 36); }, 60); return; }
     if (Sh && Sh.tone) { Sh.tone(988, 0.06, "triangle", 0.18); Sh.tone(1319, 0.12, "triangle", 0.18, 0, 0.07); }
   }
   function next() {

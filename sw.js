@@ -1,5 +1,5 @@
 /* Bump this string whenever you upload new files, or phones keep the old ones. */
-const CACHE = "nostalgiapro-v30";
+const CACHE = "nostalgiapro-v31";
 
 const PAGES = [
   "/", "/index.html", "/anniversaries.html", "/consoles.html", "/reviews.html",
@@ -12,7 +12,7 @@ const PAGES = [
   "/retro.css", "/eras.css", "/eras.js", "/data/music-albums.json", "/growth.js", "/growth.css", "/home.css", "/home.js", "/images/google-play-badge-en.png", "/icon-192.png", "/icon-512.png",
   "/images/merch-is-it-on-the-shelf-tee.webp", "/images/merch-physical-media-enjoyer-tee.webp", "/images/merch-daily-shelf-tee.webp",
   "/arcade/trophies/", "/arcade/trophies/shelf.css", "/arcade/trophies/shelf.js", "/arcade/trophies/game-list.js",
-  "/arcade/shared/trophy-list.js", "/arcade/shared/trophies.js"
+  "/arcade/shared/trophy-list.js", "/arcade/shared/trophies.js", "/arcade/shared/rewards.js"
 ];
 
 /* Grab the pages up front so the whole site works with no signal. */

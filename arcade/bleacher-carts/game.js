@@ -125,6 +125,7 @@
       }
       Shell.sfx("crowd"); Shell.sfx("score");
       if (h.perfect) burstAt(W / 2, 140, 40);
+      if (window.NPRewards && S.streak >= 2) NPRewards.streak(S.streak);
     } else {
       S.streak = 0;
       if (h.foul) { title = "FOUL BALL"; sub = h.d > 200 ? "Long strike, wrong side of the pole." : "Into the seats behind the dugout."; }
