@@ -194,11 +194,17 @@ a { color: inherit; }
 
 @keyframes chase { 50% { background-position: 9px 0; } }
 
-@media (max-width: 640px) {
+/* Header fit (arcade-test): tablets drop the brand text (the NP badge still links home) so the nav never runs off the right edge. */
+@media (max-width: 780px) {
   .brand { display: none; }
+  .nav { margin-left: auto; gap: 4px; }
+  .nav a { padding: 0 10px; }
+}
+@media (max-width: 640px) {
   .top .wrap { gap: 6px; padding: 0 12px; }
-  .nav { margin-left: auto; gap: 2px; min-width: 0; }
-  .nav a { padding: 0 8px; font-size: 12px; }
+  .nav { margin-left: auto; gap: 2px; min-width: 0; flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; }
+  .nav a { padding: 0 6px; font-size: 12px; white-space: nowrap; }
+  .nav .nav-fb { display: none; }
   .hero { padding-top: 22px; }
   .marquee { padding: 18px 12px; }
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -219,7 +225,11 @@ a { color: inherit; }
   .cab.is-soon .cab-screen::before { font-size: 7px; }
   .support-strip { padding: 18px; }
 }
-@media (max-width: 360px) {
+/* Phones: Collection is the same link as the NP badge, so it goes first; Merch goes on the narrowest phones. Trophy Shelf and Support always stay. */
+@media (max-width: 520px) {
+  .nav .nav-home { display: none; }
+}
+@media (max-width: 380px) {
   .nav a:not(.support):not(.tro-link) { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
