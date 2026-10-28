@@ -206,7 +206,9 @@ body.y1996 .ht-ch,body.y1996 .ht-acttxt b,body.y1996 .ht-donate h2{font-family:"
 body.y1996 .ht-cs,body.y1996 .ht-acttxt span,body.y1996 .ht-donate p,body.y1996 .ht-qlbl,body.y1996 .ht-qlbl b{color:#000}
 body.y1996 .ht-ck{color:#800000}
 body.y1996 .ht-sh{color:#ffff00}
-body.y1996 .ht-a .ht-tm-a{position:static;display:flex;justify-content:center;margin:0 0 10px}
+body.y1996 .ht-a .ht-tm-a{position:relative;top:auto;right:auto;display:flex;justify-content:center;margin:0 0 10px}
+/* the panel must hang off the button, not the whole header (position:static here sent it ~3700px down the page in 1996) */
+body.y1996 .ht-a .ht-tmpanel{left:50%;right:auto;transform:translateX(-50%)}
 body.y1996 .ht .ht-tmbtn{background:#c0c0c0;color:#000}
 body.y1996 .ht .scores{background:none;border:none;box-shadow:none}
 body.y1996 .ht .score b{color:#ffff00}
