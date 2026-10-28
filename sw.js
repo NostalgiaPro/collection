@@ -1,5 +1,5 @@
 /* Bump this string whenever you upload new files, or phones keep the old ones. */
-const CACHE = "nostalgiapro-v25";
+const CACHE = "nostalgiapro-v26";
 
 const PAGES = [
   "/", "/index.html", "/anniversaries.html", "/consoles.html", "/reviews.html",
@@ -9,7 +9,7 @@ const PAGES = [
   "/daily.html", "/match.html", "/first.html", "/data/daily.json", "/data/shelf-games.json",
   "/streaks.html", "/spines.html", "/tonight.html", "/np-progress.js", "/theme.js", "/themes.css", "/data/themes.json",
   "/console/game-boy-color.html", "/console/game-boy.html", "/console/gamecube.html", "/console/nes.html", "/console/nintendo-3ds.html", "/console/nintendo-64.html", "/console/nintendo-ds.html", "/console/nintendo-switch.html", "/console/pc.html", "/console/playstation-1.html", "/console/playstation-2.html", "/console/playstation-3.html", "/console/playstation-4.html", "/console/psp.html", "/console/sega-dreamcast.html", "/console/sega-genesis.html", "/console/sega-saturn.html", "/console/snes.html", "/console/wii.html", "/console/xbox-360.html", "/console/xbox-one.html", "/console/xbox-series-x-s.html", "/console/xbox.html",
-  "/retro.css", "/eras.css", "/eras.js", "/data/music-albums.json", "/icon-192.png", "/icon-512.png",
+  "/retro.css", "/eras.css", "/eras.js", "/data/music-albums.json", "/growth.js", "/growth.css", "/images/google-play-badge-en.png", "/icon-192.png", "/icon-512.png",
   "/images/merch-is-it-on-the-shelf-tee.webp", "/images/merch-physical-media-enjoyer-tee.webp", "/images/merch-daily-shelf-tee.webp"
 ];
 

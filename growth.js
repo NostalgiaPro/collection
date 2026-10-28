@@ -82,9 +82,11 @@
       slots[i].appendChild(badge(w));
     }
     if (!hasFoot) {
-      var f = document.querySelector("footer");
-      if (f) {
-        var host = f.querySelector(".wrap") || f, picker = document.getElementById("npErasWrap");
+      /* in the footer, above the Time Machine picker; pages with no <footer>
+         get it next to the picker (or at the end of .wrap) */
+      var f = document.querySelector("footer"), picker = document.getElementById("npErasWrap");
+      var host = f ? (f.querySelector(".wrap") || f) : (picker ? picker.parentNode : document.querySelector(".wrap"));
+      if (host) {
         var b = badge("foot");
         if (picker && picker.parentNode === host) host.insertBefore(b, picker); else host.appendChild(b);
       }
@@ -98,8 +100,9 @@
     if (s.last !== TODAY) { s.days = (s.days || 0) + 1; s.last = TODAY; save(s); }
   }
   function eligible(){
+    if (!rateMode) return false;                              /* only pages that opt in */
     if (force) return true;
-    if (!inApp || !rateMode) return false;
+    if (!inApp) return false;
     if (s.done || (s.dismiss || 0) >= 2) return false;
     if ((s.days || 0) < 3) return false;
     if (s.shown === TODAY) return false;                       /* at most once a day */

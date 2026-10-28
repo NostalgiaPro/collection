@@ -1,6 +1,7 @@
 """The bits every generated page shares: <head> with share tags, the nav
 row, the Time Machine include (BODY_JS, right after <body>), and the footer
-scripts (service worker, back to top).
+scripts (service worker, back to top, growth.js: Google Play badge for web
+visitors).
 Copied from the hand-made pages so generated pages look the same."""
 from sitedata import esc
 import site_config as cfg
@@ -98,6 +99,7 @@ def head(title, desc, path, image=None, width="900px", css="", image_alt=None):
 <link rel="stylesheet" href="/retro.css">
 <link rel="stylesheet" href="/themes.css">
 <link rel="stylesheet" href="/eras.css">
+<link rel="stylesheet" href="/growth.css">
 <script src="/theme.js"></script>
 <style>
 {BASE_CSS.replace("WIDTH", width)}{css}</style>
@@ -141,6 +143,7 @@ if ("serviceWorker" in navigator)
   check();
 })();
 </script>
+<script src="/growth.js"></script>
 </body>
 </html>
 """

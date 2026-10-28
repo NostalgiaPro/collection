@@ -8,6 +8,7 @@
 <title>Nostalgia Pro Arcade | Free retro sports and arcade games</title>
 <meta name="description" content="Free retro sports and arcade games from Nostalgia Pro. Mini golf, arcade basketball, home run derby and more. No ads, no login, high scores stay on your device.">
 <link rel="stylesheet" href="hub.css">
+<link rel="stylesheet" href="/growth.css">
 <script>
 /* GoatCounter page view, same counter as /play/ (code "nostalgiapro"): one small image request, no cookies, no third-party script. */
 (function(){try{if(!/^https?:$/.test(location.protocol))return;var i=new Image();i.referrerPolicy="no-referrer";i.src="https://nostalgiapro.goatcounter.com/count?p="+encodeURIComponent(location.pathname)+"&t="+encodeURIComponent(document.title)+"&r="+encodeURIComponent(document.referrer||"")+"&rnd="+Math.random().toString(36).slice(2);}catch(e){}})();
@@ -34,6 +35,8 @@
     <div class="marquee"><h1 id="title">NOSTALGIA PRO <span>ARCADE</span></h1></div>
     <p class="tagline"><b>Free games. No ads. No login. No quarters required.</b></p>
   </section>
+
+  <div data-np-gp="arcade"></div>
 
   <ul class="chips" role="group" aria-label="Filter games">
     <li><button class="chip" type="button" data-filter="all" aria-pressed="true">All</button></li>
@@ -366,5 +369,6 @@
   for (i = 0; i < chips.length; i++) chips[i].addEventListener("click", function () { apply(this.getAttribute("data-filter")); });
 })();
 </script>
+<script src="/growth.js" data-rate="game-return"></script>
 </body>
 </html>
