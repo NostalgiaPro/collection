@@ -221,3 +221,12 @@ body.y1996 .ht-donbtn{color:#0000ee;border:none;text-decoration:underline;transf
 body.y1996 .ht .score{display:flex;align-items:baseline}
 body.y1996 .ht .score b{display:inline}
 @media (min-width:881px){.ht-carousel .ht-cm{aspect-ratio:2/1}}
+
+/* A on narrow phones (about 400px and under): the stats wrap to two even rows of three
+   instead of scrolling sideways. Row 1: games, systems, complete. Row 2: loose, beaten (%). */
+@media (max-width:400px){
+  .ht-a .scores{flex-wrap:wrap;overflow:visible;white-space:normal;justify-content:center;row-gap:3px;column-gap:10px;
+    margin-left:0;margin-right:0;padding:2px 0}
+  .ht-a .scores::after{content:"";flex-basis:100%;height:0;order:1}
+  .ht-a .score:nth-child(n+4){order:2}
+}
