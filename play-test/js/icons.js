@@ -132,7 +132,7 @@ window.NP = NP;
     '.sssskNNNNkssss.',
     'GGGGGGGGGGGGGGGG',
     'GlGGGlGGGGlGGGlG'] };
-  I.pgg = { bg: '#6cc4ff', px: [ // Pocket Gecko Golf: a gecko next to a golf flag
+  I.pgg = { bg: '#6cc4ff', px: [ // Gecko Golf: a gecko next to a golf flag
     '..........r.....',
     '..........rrr...',
     '..........rrrr..',
@@ -285,7 +285,7 @@ window.NP = NP;
     '....wwwwwww.....',
     '...ww.w.w.ww....',
     'bbbbbbbbbbbbbbbb'] };
-  I.lll = { bg: '#2a1d3e', px: [ // Lava Lamp Legends: a lava lamp
+  I.lll = { bg: '#2a1d3e', px: [ // Blob Lamp Legends: a blob lamp
     '......SSSS......',
     '.....sSSSSs.....',
     '.....bbbbbb.....',
@@ -319,7 +319,7 @@ window.NP = NP;
     '.SSSSSSSSSSSSSSS',
     '..sssssssssssss.',
     '................'] };
-  I.cyr = { bg: '#0a1a2a', px: [ // Cyber Raccoon 2099: a raccoon with a visor
+  I.cyr = { bg: '#0a1a2a', px: [ // Cyber Raccoon: a raccoon with a visor
     '..s..........s..',
     '.sSs........sSs.',
     '.sSSssssssssSSs.',
@@ -336,7 +336,7 @@ window.NP = NP;
     '..g.gg.g..g.gg..',
     '.g..g..gg.g..g..',
     'gggggggggggggggg'] };
-  I.bfb = { bg: '#5a2a1e', px: [ // Bowling for Badgers: a badger next to a bowling pin
+  I.bfb = { bg: '#5a2a1e', px: [ // Badger Bowl Extreme: a badger next to a bowling pin
     '...........WW...',
     '..........WWWW..',
     '..........WrrW..',
@@ -404,7 +404,7 @@ window.NP = NP;
     '..Sddddddddddddd',
     'SSSddddddddddddd',
     'kkkkkkkkkkkkkkkk'] };
-  I.bgd = { bg: '#2d5a2d', px: [ // Bigfoot Derby: Bigfoot holding the checkered flag
+  I.bgd = { bg: '#2d5a2d', px: [ // Sasquatch Derby: a sasquatch holding the checkered flag
     '..........kWkWkW',
     '...nnnnn..WkWkWk',
     '..nnnnnnn.kWkWkW',

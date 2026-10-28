@@ -8,7 +8,7 @@ var NP = window.NP || {};
 window.NP = NP;
 
 NP.CONFIG = {
-  DEMO: true,
+  DEMO: false,
 
   // The full game is not out yet. While this is true, every "get the full game" spot says
   // "Full game coming soon" and points to FOLLOW_URL instead of FULL_GAME_URL.

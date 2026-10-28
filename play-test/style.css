@@ -415,3 +415,41 @@ body::before { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 
   .howto-tips { margin: 0; } .howto-tips li { font-size: 12px; margin: 3px 0; line-height: 1.35; }
   .howto-scr .btns { margin: 6px 0 0; }
 }
+
+/* ---------- full game round 1: the route, the next-stop button, the two modes ---------- */
+.nextbar { background: var(--navy2); color: #d6dcf0; font-size: 13px; padding: 4px 10px; border-bottom: 2px solid #3a4d82; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nextbar b { color: var(--gold); }
+.routecard { background: var(--navy2); border: 3px solid var(--gold); padding: 10px 12px 12px; margin: 8px 0 10px; box-shadow: 4px 4px 0 var(--ink); }
+.rc-h { color: var(--gold); font-weight: bold; font-size: 17px; margin-bottom: 4px; }
+.rc-mode { display: inline-block; font-size: 12px; color: var(--ink); background: var(--cyan); padding: 1px 6px; margin-left: 6px; vertical-align: middle; }
+.rc-list { list-style: none; margin: 4px 0 10px; padding: 0; }
+.rc-list li { padding: 3px 0 3px 8px; border-left: 3px solid #3a4d82; margin: 2px 0; font-size: 14px; }
+.rc-list li small { color: #9aa3c0; margin-left: 4px; }
+.rc-list .rc-done { color: #8a90a0; border-color: #2b3d6e; }
+.rc-list .rc-next { color: var(--cream); font-weight: bold; border-color: var(--gold); background: rgba(255,204,51,.08); }
+.rc-list .rc-next small { color: var(--gold); }
+.rc-list .rc-home { color: var(--cyan); border-color: var(--cyan); }
+button.big.drive { display: block; width: 100%; margin: 4px 0 2px; font-size: 19px; padding: 14px 12px; text-align: center; white-space: normal; }
+.rc-sub { color: var(--cyan); font-size: 13px; text-align: center; margin: 2px 0 6px; }
+.rc-or { text-align: center; font-size: 13px; color: #9aa3c0; }
+.rc-broke { background: rgba(41,211,232,.12); border-left: 4px solid var(--cyan); padding: 6px 10px; margin: 6px 0 8px; font-size: 13px; }
+.rc-none { color: var(--cream); margin: 4px 0 8px; font-weight: bold; }
+button.linkish { background: transparent; color: var(--gold); border: 0; padding: 4px 2px; margin: 0; text-decoration: underline; font-size: 13px; }
+h3.anystop { margin-top: 18px; }
+.stopcard.next { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold) inset; }
+.nextflag { align-self: flex-start; background: var(--gold); color: var(--ink); font-weight: bold; font-size: 11px; padding: 1px 6px; letter-spacing: 1px; }
+.billboard { background: #2a1d0e; color: var(--gold); border: 3px double var(--gold); padding: 8px 10px; margin: 8px 0; font-weight: bold; font-size: 13px; text-align: center; transform: rotate(-.5deg); }
+.stop-actions button.big.drive { flex: 1 1 100%; }
+.stop-actions .giftnote { flex: 1 1 100%; }
+.exitbtns button.big.drive { margin-bottom: 6px; }
+.spons-n { font-style: italic; color: #9aa3c0; margin-top: 10px; }
+#walkcv { touch-action: none; cursor: pointer; }
+@media (max-width: 520px) { .nextbar { font-size: 12px; padding: 3px 8px; } button.big.drive { font-size: 17px; } .rc-list li { font-size: 13px; } }
+/* phones: the top bar is sticky, so keep it to two short rows (Full screen stays on the start menu) */
+@media (max-width: 520px) {
+  .hud .fsbtn:not(.sndbtn):not(.tipsbtn) { display: none; }
+  .hud .ad-long { display: none; }
+  .hud { padding: 6px 8px; gap: 2px 6px; }
+  .hud-r { display: flex; align-items: center; gap: 6px; }
+  .hud .fsbtn, .hud .adtoggle { min-height: 44px; }
+}

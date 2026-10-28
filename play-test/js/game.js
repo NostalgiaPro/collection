@@ -3,13 +3,14 @@
   'use strict';
   var C = NP.COL;
   var START = 7 * 60, END = 17 * 60 + 30; // 7:00 AM to 5:30 PM sundown
+  var NOON = 12 * 60;                      // "Back by noon" ends here
   var BUDGET = 100;
   var COND_MULT = { loose: 1, cib: 2, sealed: 3.2 };
   var T_HAGGLE = 5, T_INSPECT = 5, T_SHELF = 10, T_DIG = 15;
   var EPOCH = Date.UTC(2026, 0, 3); // a Saturday. Run numbers count from here.
   var CFG = NP.CONFIG || {};
   // build.js replaces the marked part with true (demo) or false (full), so the demo cannot be unlocked from config.js
-  var DEMO = true;
+  var DEMO = false;
 
   // ---------- storage ----------
   // Works on itch.io, inside an iframe on thenostalgiapro.com, and opened straight from a folder (file://).
@@ -43,6 +44,8 @@
   function sfx(n) { if (NP.Sound) NP.Sound.sfx(n); }
   function music(n) { if (NP.Sound) NP.Sound.music(n); }
   function track(n, once) { if (NP.track) NP.track(n, once); }
+  // one step of the funnel: counted once per page load, so the counts line up as "how many got this far"
+  function step(n) { track(n, true); }
   function toggleFullscreen() {
     var d = document, el = d.documentElement;
     try {
@@ -221,7 +224,7 @@
     var month = +ds.slice(5, 7) - 1, base = AVG_HIGH[month] || 90, monsoon = month >= 6 && month <= 8;
     var x = r();
     if (x < (monsoon ? 0.2 : 0.08)) {
-      return { id: 'rain', temp: base - 9 - Math.floor(r() * 5), name: monsoon ? 'Monsoon storm' : 'Rain', mult: 1, icon: '&#127783;',
+      return { id: 'rain', temp: base - 9 - Math.floor(r() * 5), name: monsoon ? 'Monsoon storm' : 'Rain', mult: 1, icon: '&#127783;', sponsored: true,
         blurb: 'A rare rain day. Half the town stayed home, sellers want to deal, and Dex is running late.' };
     }
     if (base >= 85 && x < 0.5) {
@@ -229,7 +232,7 @@
       return { id: 'hot', temp: hot, name: hot >= 110 ? 'Excessive heat warning' : 'Heat advisory', mult: 1.2, icon: '&#127777;', sponsored: true,
         blurb: 'Hot one today. Everything takes a little longer out there.' };
     }
-    return { id: 'sunny', temp: base - 2 + Math.floor(r() * 5), name: 'Sunny', mult: 1, icon: '&#9728;', blurb: 'Clear skies. A normal Phoenix Saturday.' };
+    return { id: 'sunny', temp: base - 2 + Math.floor(r() * 5), name: 'Sunny', mult: 1, icon: '&#9728;', sponsored: true, blurb: 'Clear skies. A normal Phoenix Saturday.' };
   }
   var FEATURED_NAMES = ['Box Labeled "MISC (GAMES?)"', "Grandpa's Garage Tote", 'Estate Sale Bin #4', 'Moving Day Box (Fragile, Maybe)',
     'Storage Unit Mystery Crate', 'Box That Smells Like 1994', 'Tote Labeled "KIDS STUFF DO NOT SELL"'];
@@ -320,6 +323,14 @@
   var todaySeed = DEMO ? (CFG.DEMO_SEED || 'demo-saturday-1') : (params.get('seed') || phoenixDate());
   function dayLabel() { return DEMO ? 'Demo Saturday' : 'Saturday #' + runNumber(/^\d{4}-\d{2}-\d{2}$/.test(todaySeed) ? todaySeed : phoenixDate()); }
 
+  // ---------- the two modes: "Back by noon" (short) and "Home by sundown" (long) ----------
+  // The demo is always "Back by noon". Everything that used to read END goes through endT() now.
+  function modeOf() { return DEMO ? 'noon' : (S && S.mode) || 'sundown'; }
+  function endT() { return modeOf() === 'noon' ? NOON : END; }
+  function endLabel() { return fmtTime(endT()); }
+  // first run of the day, kept separately for each mode (the sundown key is the same one older saves used)
+  function dayKey(seed, m) { return 'day_' + seed + ((m || modeOf()) === 'noon' ? '_noon' : ''); }
+
   // ---------- the demo's one curated Saturday ----------
   function buildDay() {
     var day = applyExtras(genDay(todaySeed), todaySeed);
@@ -364,15 +375,20 @@
     day.stops = [yard, flea, gift].concat(day.stops.filter(function (s) { return s.locked; }));
   }
 
-  function newRun() {
+  function newRun(m) {
     var day = buildDay();
+    m = DEMO ? 'noon' : (m || (S && S.mode) || 'sundown');
     S = {
-      seed: todaySeed, runNo: runNumber(/^\d{4}-\d{2}-\d{2}$/.test(todaySeed) ? todaySeed : phoenixDate()), day: day,
+      seed: todaySeed, runNo: runNumber(/^\d{4}-\d{2}-\d{2}$/.test(todaySeed) ? todaySeed : phoenixDate()), day: day, mode: m,
       time: START, cash: BUDGET, bag: [], visited: 0, screen: 'map', stop: null, wx: day.wx, tfrac: 0,
-      official: !DEMO && !store.get('day_' + todaySeed, null),
-      ev: { rivalHits: 0, offended: 0, giftSpent: 0, sportsOverpay: 0, checks: 0, dupBuys: 0 }, adsShown: 0, pitchN: 0, toast: ''
+      official: !DEMO && !store.get(dayKey(todaySeed, m), null),
+      ev: { rivalHits: 0, offended: 0, giftSpent: 0, sportsOverpay: 0, checks: 0, dupBuys: 0 }, adsShown: 0, pitchN: 0, toast: '',
+      history: [] // stop ids in the order you visited them (the route card and the funnel use this)
     };
     S.rem = DEMO ? {} : applyMemory(day);
+    // the one seller today who would never sell out, and the stop they are at (never the swap meet: that one has its own)
+    var colaStops = day.stops.filter(function (s) { return !s.locked && !s.gift && s.type !== 'flea' && s.seller && NP.SPONSOR && NP.SPONSOR.refuse && NP.SPONSOR.refuse[s.seller]; });
+    if (colaStops.length) colaStops[NP.hashStr(todaySeed + '|cola') % colaStops.length].cola = true;
   }
   // Drive time to a stop. Heat only adds half its usual slowdown to the drive (the van has AC),
   // and no drive takes longer than DRIVE_CAP minutes (a safety net: every base cost is set so even the hottest day stays at or under it).
@@ -381,6 +397,55 @@
   function costOf(s) { var m = S.wx ? S.wx.mult : 1; return Math.min(DRIVE_CAP, Math.round(s.cost * (1 + (m - 1) * 0.5))); }
 
   function adLevel() { return S ? S.visited : 0; }
+
+  // ---------- today's route ----------
+  // A suggested order for the stops that are left, so the big button always knows where to go next.
+  // Plain rules: cheap stops in the morning, the swap meet in the middle of the day, the pawn shop last.
+  // If it will not all fit before the mode ends, the stops after the swap meet go first, then the ones before it,
+  // so the swap meet (the walkable one, with Dex) stays on the route as long as it can.
+  // The gift shop is never on the route. It is always on the map, shouting.
+  var ROUTE_ORDER = ['yard', 'yard', 'sports', 'thrift', 'flea', 'thrift', 'pawn'];
+  var STAY_EST = 25; // minutes we guess you spend at a stop
+  function planRoute() {
+    if (!S) return [];
+    // the order is worked out from every stop (visited or not), so it never reshuffles as you go
+    var all = S.day.stops.filter(function (s) { return !s.locked && !s.gift; });
+    var order = [], used = {};
+    ROUTE_ORDER.forEach(function (t) {
+      var s = all.filter(function (o) { return o.type === t && !used[o.id]; })[0];
+      if (s) { order.push(s); used[s.id] = true; }
+    });
+    all.forEach(function (o) { if (!used[o.id]) order.push(o); });
+    var list = order.filter(function (s) { return !s.visited; });
+    // in the demo, leaving the swap meet ends the day, so it always goes last
+    if (DEMO) list.sort(function (a, b) { return (a.type === 'flea') - (b.type === 'flea'); });
+    var end = endT();
+    function fits(l) {
+      var t = S.time;
+      // every stop on the route gets at least 20 minutes before the day ends
+      for (var i = 0; i < l.length; i++) { t += costOf(l[i]); if (t + 20 > end) return false; t += STAY_EST; }
+      return true;
+    }
+    while (list.length && !fits(list)) {
+      var fi = -1;
+      for (var i = 0; i < list.length; i++) if (list[i].type === 'flea') fi = i;
+      var cut = -1;
+      for (var j = list.length - 1; j >= 0; j--) if (j > fi && list[j].type !== 'flea') { cut = j; break; }
+      if (cut < 0 && fi > 0) cut = fi - 1;   // then the stop just before the swap meet
+      if (cut < 0) cut = list.length - 1;    // only the swap meet is left, and even it does not fit
+      list.splice(cut, 1);
+    }
+    return list;
+  }
+  function nextStop() { return planRoute()[0] || null; }
+  function cheapestHere() {
+    if (!S || !S.stop) return Infinity;
+    var s = S.stop, min = Infinity;
+    (s.items || []).concat(s.dug ? s.dig : [], s.rivalTable || []).forEach(function (it) {
+      if (it.state === 'avail') min = Math.min(min, Math.max(1, Math.round(it.ask * 0.5)));
+    });
+    return min;
+  }
 
   // ---------- rendering ----------
   var app;
@@ -395,24 +460,36 @@
     if (S.screen === 'title') return renderTitle();
   }
 
-  var NOON = 12 * 60;
-  function sunPct() { var e = DEMO ? NOON : END; return Math.max(0, Math.min(100, (S.time - START) / (e - START) * 100)); }
+  function sunPct() { return Math.max(0, Math.min(100, (S.time - START) / (endT() - START) * 100)); }
   function sunText() {
-    if (DEMO) { var l = NOON - S.time; if (l < 0) return 'Past noon by ' + (-l) + 'm. Wrap it up.'; return 'Back by noon. ' + Math.floor(l / 60) + 'h ' + (l % 60) + 'm left'; }
-    var left = END - S.time; return 'Sundown 5:30 PM. ' + Math.max(0, Math.floor(left / 60)) + 'h ' + Math.max(0, left % 60) + 'm left'; }
+    var left = Math.max(0, endT() - S.time), lt = Math.floor(left / 60) + 'h ' + (left % 60) + 'm left';
+    return (modeOf() === 'noon' ? 'Back by noon. ' : 'Home by sundown (5:30 PM). ') + lt;
+  }
   // light refresh for the clock while walking (no full re-render, so the ticker keeps scrolling)
   function updateHud() {
-    var c = document.querySelector('.hud .clock'); if (c) c.textContent = fmtTime(Math.min(S.time, END));
+    var c = document.querySelector('.hud .clock'); if (c) c.textContent = fmtTime(Math.min(S.time, endT()));
     var bar = document.querySelector('.sunbar div'); if (bar) bar.style.width = sunPct() + '%';
     var sp = document.querySelector('.sunbar span'); if (sp) sp.textContent = sunText();
   }
 
+  // the line under the daylight bar: where you are going next, so nobody has to work it out from the map
+  function nextLine() {
+    if (!S) return '';
+    if (S.screen === 'walk' && S.stop) return 'You are at <b>' + esc(S.stop.name) + '</b>. The exit is the gate at the bottom.';
+    var r = planRoute(), n = r[0];
+    if (S.screen === 'stop' && S.stop) {
+      return n ? 'Next stop: <b>' + esc(n.name) + '</b> &middot; ' + costOf(n) + ' min drive' : 'No time for another stop after this one. Head home after.';
+    }
+    return n ? 'Next stop: <b>' + esc(n.name) + '</b> &middot; ' + costOf(n) + ' min &middot; home by ' + endLabel() : 'No time for another stop. Head home and shelve it.';
+  }
+
   function hud() {
-    var h = '<div class="hud"><div class="hud-l"><span class="clock">' + fmtTime(S.time) + '</span>' +
+    var h = '<div class="hud"><div class="hud-l"><span class="clock">' + fmtTime(Math.min(S.time, endT())) + '</span>' +
       (S.wx ? '<span class="wx wx-' + S.wx.id + '" title="' + esc(S.wx.name) + '">' + S.wx.icon + ' ' + S.wx.temp + '&deg;F</span>' : '') +
       '<span class="cash">' + money(S.cash) + '</span><span class="bagc">Bag: ' + S.bag.length + '</span></div>' +
-      '<div class="hud-r">' + soundButton() + fsButton() + tipsButton() + '<label class="adtoggle"><input type="checkbox" data-act="adfree"' + (adFree ? ' checked' : '') + '> Ad-Free Edition</label></div></div>' +
-      '<div class="sunbar" title="Daylight left"><div style="width:' + sunPct() + '%"></div><span>' + sunText() + '</span></div>';
+      '<div class="hud-r">' + soundButton() + fsButton() + tipsButton() + '<label class="adtoggle"><input type="checkbox" data-act="adfree"' + (adFree ? ' checked' : '') + '> Ad-Free<span class="ad-long"> Edition</span></label></div></div>' +
+      '<div class="sunbar" title="Daylight left"><div style="width:' + sunPct() + '%"></div><span>' + sunText() + '</span></div>' +
+      '<div class="nextbar">' + nextLine() + '</div>';
     var lvl = adLevel();
     if (lvl >= 1) {
       var pool = adFree ? NP.TICKER_ADFREE : NP.TICKER;
@@ -426,7 +503,9 @@
   var cartOpen = false;
   function cartHTML() {
     return '<div class="cart-label"><div class="cart-brand">NOSTALGIA PRO</div><div class="cart-sub">' + (DEMO ? 'THE DEMO' : 'THE GAME') + ' &middot; SELECT A MODE</div>' +
-      '<button class="cart-item" data-act="start">1 COLLECTOR</button>' +
+      '<button class="cart-item mode" data-act="start" data-mode="noon">BACK BY NOON <small>' + (DEMO ? 'the demo' : 'short run') + '</small></button>' +
+      (DEMO ? '<button class="cart-item mode" disabled aria-disabled="true">HOME BY SUNDOWN <small>full version</small></button>'
+        : '<button class="cart-item mode" data-act="start" data-mode="sundown">HOME BY SUNDOWN <small>the whole day</small></button>') +
       '<button class="cart-item" disabled aria-disabled="true">2 COLLECTORS <small>sold separately</small></button>' +
       (DEMO ? '<button class="cart-item" disabled aria-disabled="true">HOME SHELF <small>full version</small></button>'
         : '<button class="cart-item" data-act="shelf">HOME SHELF</button>') +
@@ -441,9 +520,11 @@
     cartOpen = true;
     var c = $('#cart'), hint = $('#tvhint');
     if (!c) return;
-    if (!wasOpen) { sfx('vcr'); track('start_pressed'); }
+    if (!wasOpen) { sfx('vcr'); track('start_pressed'); step('f02_menu'); }
     c.hidden = false; if (hint) hint.hidden = true;
-    var first = c.querySelector('.cart-item');
+    // the mode you played last time gets the focus
+    var last = DEMO ? null : c.querySelector('[data-mode="' + store.get('mode', 'noon') + '"]');
+    var first = last || c.querySelector('.cart-item');
     if (first) { try { first.focus({ preventScroll: true }); } catch (e) { first.focus(); } }
     try { c.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {}
   }
@@ -452,7 +533,7 @@
   function sponsorLine(wx, react) {
     var SP = NP.SPONSOR;
     if (!wx || !wx.sponsored || !SP) return '';
-    return '<span class="spons">' + esc(SP.weather) + '</span>' + (react ? '<span class="react">You: "' + esc(SP.react) + '"</span>' : '');
+    return '<span class="spons">' + esc((SP.weatherBy && SP.weatherBy[wx.id]) || SP.weather) + '</span>' + (react ? '<span class="react">You: "' + esc(SP.react) + '"</span>' : '');
   }
 
   // the "get the full game" line on the start screen
@@ -466,7 +547,8 @@
 
   function renderTitle() {
     music('title');
-    var best = store.get('best', null), today = store.get('day_' + todaySeed, null);
+    step('f01_title');
+    var best = store.get('best', null), today = store.get(dayKey(todaySeed, 'sundown'), null), todayN = store.get(dayKey(todaySeed, 'noon'), null);
     var pv = previewDay(), wx = pv.wx, home = store.get('home', []);
     var tv = !!NP.Intro;
     app.innerHTML =
@@ -481,7 +563,8 @@
       (DEMO ? '<small>This is the free demo: one Saturday, three stops, and it ends after the swap meet. The full version gets a new Saturday every day.</small></div>'
         : '<small>Same run for everyone today. Resets at midnight, Phoenix time.</small></div>') +
       '<details class="howto"><summary><b>How it works</b></summary><ul>' +
-      (DEMO ? '<li>Pick your stops. Each one costs time. Try to be back by noon.</li>' : '<li>Pick your stops. Each one costs daylight. Sundown is 5:30 PM.</li>') +
+      (DEMO ? '<li>Back by noon. Each stop costs time. The big Drive button always takes you to the next one.</li>'
+        : '<li>Pick a mode. Back by noon is a short run. Home by sundown is the whole day, till 5:30 PM.</li><li>Each stop costs daylight. The big Drive button always takes you to the next one.</li>') +
       '<li>Make an offer: lowball, fair or full price. Sellers have opinions.</li>' +
       '<li>Is it on the shelf? Checking costs time. Buying a duplicate costs points.</li>' +
       '<li>Watch out for repros, disc rot and a guy named ' + NP.RIVAL.name + '.</li>' +
@@ -491,7 +574,8 @@
         '<li>Go home, shelve your haul, share The Screenshot.</li></ul></details>'
         : '<li>Sellers remember you. So does the guy you lowballed.</li>' +
         '<li>Go home, shelve your haul, share The Screenshot. Your first run each day stays on your home shelf.</li></ul></details>') +
-      (today ? '<div class="scores">Today\'s first run: <b>' + today.score + '</b> (' + esc(today.title) + ')</div>' : '') +
+      (todayN ? '<div class="scores">Today, back by noon: <b>' + todayN.score + '</b> (' + esc(todayN.title) + ')</div>' : '') +
+      (today ? '<div class="scores">Today, home by sundown: <b>' + today.score + '</b> (' + esc(today.title) + ')</div>' : '') +
       (best ? '<div class="scores">Best ever: <b>' + best.score + '</b></div>' : '') +
       (home.length && !DEMO ? '<div class="scores">Home shelf: ' + home.length + ' finds</div>' : '') +
       (DEMO ? fullGameLine() : '') +
@@ -526,7 +610,7 @@
       '<div class="shelfnote">' + home.length + ' finds from ' + days.length + ' Saturday' + (days.length === 1 ? '' : 's') + '. Only your first run each day goes on the shelf. Replays are just for fun.</div>';
     if (!home.length) h += '<div class="bubble big">The shelf is empty. Somewhere out there, a yard sale is starting without you.</div>';
     days.slice(0, 40).forEach(function (d) {
-      var sum = store.get('day_' + d, null);
+      var sum = store.get(dayKey(d, 'sundown'), null) || store.get(dayKey(d, 'noon'), null);
       h += '<div class="hs-day"><div class="hs-lab">Saturday #' + (/^\d{4}-\d{2}-\d{2}$/.test(d) ? runNumber(d) : '?') + ' &middot; ' + esc(d) +
         (sum ? ' &middot; ' + sum.score + ' pts &middot; "' + esc(sum.title) + '"' : '') + '</div><div class="hs-row">';
       byDay[d].forEach(function (rec, k) {
@@ -551,10 +635,11 @@
     var touch = coarse();
     var h = '<div class="screen howto-scr"><h2>How to play</h2>' +
       '<div class="howto-grid"><div class="todo"><div class="todo-h">Saturday to-do</div><ul>' +
-      (NP.GOALS ? NP.GOALS(DEMO) : []).map(function (g, i, a) { return '<li' + (i === a.length - 1 ? ' class="dex"' : '') + '>' + esc(g) + '</li>'; }).join('') + '</ul></div>' +
+      (NP.GOALS ? NP.GOALS(DEMO ? 'noon' : store.get('mode', 'noon')) : []).map(function (g, i, a) { return '<li' + (i === a.length - 1 ? ' class="dex"' : '') + '>' + esc(g) + '</li>'; }).join('') + '</ul></div>' +
       '<ul class="howto-tips">' +
-      '<li><b>Getting around.</b> Pick a stop on the map. Driving costs daylight. ' + (touch ? 'At the swap meet, drag the pad to walk and tap A at a table.' : 'At the swap meet, walk with the arrow keys or WASD and press Space at a table.') + '</li>';
-    ['offers', 'pricey', 'dupe', 'dex'].forEach(function (k) {
+      (DEMO ? '' : '<li><b>Two ways to play.</b> Back by noon is a short run that ends at 12:00 PM. Home by sundown is the whole Saturday, till 5:30 PM.</li>') +
+      '<li><b>Getting around.</b> The big Drive button takes you to the next stop on today\'s route. Driving costs daylight. ' + (touch ? 'At the swap meet, tap where you want to go (tap a table to shop it), or use the pad.' : 'At the swap meet, click where you want to go (click a table to shop it), or walk with the arrow keys or WASD and press Space at a table.') + '</li>';
+    ['offers', 'pricey', 'dupe', 'dex', 'broke'].forEach(function (k) {
       var T = NP.TIPS && NP.TIPS[k]; if (!T) return;
       h += '<li><b>' + esc(T.h) + (/[.?!]$/.test(T.h) ? '' : '.') + '</b> ' + esc(T.short) + '</li>';
     });
@@ -577,13 +662,47 @@
     }[s.type];
   }
 
+  // the card at the top of the map: today's route, and one big button to the next stop
+  function routeCard() {
+    var r = planRoute(), n = r[0], broke = S.cash < 2;
+    var h = '<div class="routecard"><div class="rc-h">Today\'s route <span class="rc-mode">' + esc(NP.MODES[modeOf()].name) + ' &middot; home by ' + endLabel() + '</span></div><ul class="rc-list">';
+    S.history.forEach(function (id) {
+      var s = S.day.stops.filter(function (x) { return x.id === id; })[0];
+      if (s) h += '<li class="rc-done">&#10003; ' + esc(s.name) + '</li>';
+    });
+    var t = S.time;
+    r.forEach(function (s, i) {
+      t += costOf(s);
+      h += '<li class="' + (i === 0 ? 'rc-next' : 'rc-later') + '">' + (i === 0 ? '&#9654; ' : '') + esc(s.name) + ' <small>' + (i === 0 ? 'arrive ' + fmtTime(t) : 'about ' + fmtTime(t)) +
+        (DEMO && s.type === 'flea' ? ' &middot; the demo ends here' : '') + '</small></li>';
+      t += STAY_EST;
+    });
+    h += '<li class="rc-home">&#127968; Home by ' + endLabel() + '</li></ul>';
+    if (broke) h += '<div class="rc-broke">You are out of cash. That is allowed. Cash you did not spend is worth points, and you can still look around.</div>';
+    if (n) {
+      h += '<button class="big drive" data-act="go" data-id="' + n.id + '" data-via="next">Drive to: ' + esc(n.name) + ' &#9654;</button>' +
+        '<div class="rc-sub">' + costOf(n) + ' min drive' + (costOf(n) > Math.min(DRIVE_CAP, n.cost) ? ' (heat)' : '') + ' &middot; arrive ' + fmtTime(S.time + costOf(n)) + '</div>';
+      h += '<div class="rc-or">' + (S.history.length ? '<button class="linkish" data-act="gohome">Or head home now</button> &middot; ' : '') + 'Or pick any stop below</div>';
+    } else {
+      h += '<div class="rc-none">No time for another stop. Time to go home and shelve it.</div><button class="big drive" data-act="gohome">Head home and shelve it &#9654;</button>';
+    }
+    return h + '</div>';
+  }
+
   function renderMap() {
-    if (!S.mapTracked) { S.mapTracked = true; track('map_open'); }
+    if (!S.mapTracked) { S.mapTracked = true; track('map_open'); step('f05_map'); }
+    step('map_' + S.history.length + '_shown');
+    mapIdle();
     var h = hud() + '<div class="screen map"><h2>Where to next?</h2>';
     if (S.toast) { h += '<div class="toast">' + esc(S.toast) + '</div>'; S.toast = ''; }
     if (S.wx && S.wx.id !== 'sunny' && S.time === START) h += '<div class="wxnote wx-' + S.wx.id + '">' + S.wx.icon + ' ' + S.wx.temp + '&deg;F. ' + esc(S.wx.blurb) + sponsorLine(S.wx, true) + '</div>';
-    if (DEMO) h += '<div class="demonote">DEMO SATURDAY: three stops are open. The demo ends when you leave the Saguaro Swap Meet, so hit the others first if you want them.</div>';
+    h += routeCard();
+    if (DEMO) h += '<div class="demonote">DEMO SATURDAY: three stops are open. The demo ends when you leave the Saguaro Swap Meet.</div>';
+    var bb = billboard();
+    if (bb) h += '<div class="billboard">' + esc(bb) + '</div>';
+    h += '<h3 class="anystop">Or pick any stop</h3>';
     h += '<div class="shelfnote">Your shelf at home: about ' + S.day.shelfCount + ' games. You remember maybe half of them.</div><div class="stops">';
+    var nx = nextStop();
     S.day.stops.forEach(function (s) {
       if (s.locked) {
         h += '<div class="stopcard locked ' + s.type + '"><div class="st-h"><span class="ico">' + stopIcon(s.type) + '</span> ' + esc(s.name) + '</div>' +
@@ -591,10 +710,11 @@
         return;
       }
       var c = costOf(s), arrive = S.time + c;
-      var tooLate = arrive > END;
-      var cls = 'stopcard ' + s.type + (s.visited ? ' done' : '') + (tooLate && !s.visited ? ' late' : '');
+      var tooLate = arrive > endT();
+      var isNext = nx && nx.id === s.id;
+      var cls = 'stopcard ' + s.type + (s.visited ? ' done' : '') + (tooLate && !s.visited ? ' late' : '') + (isNext ? ' next' : '');
       var gp = s.gift ? Math.round(10 + adLevel() * 15) : 0;
-      h += '<div class="' + cls + '"><div class="st-h"><span class="ico">' + stopIcon(s.type) + '</span> ' + esc(s.name) + '</div>' +
+      h += '<div class="' + cls + '">' + (isNext ? '<div class="nextflag">NEXT ON YOUR ROUTE</div>' : '') + '<div class="st-h"><span class="ico">' + stopIcon(s.type) + '</span> ' + esc(s.name) + '</div>' +
         '<div class="st-b">' + esc(stopBlurb(s)) + (s.gift && adLevel() >= 2 ? ' Prices up ' + gp + '% since this morning!' : '') + '</div>' +
         '<div class="st-m">' + c + ' min' + (c > Math.min(DRIVE_CAP, s.cost) ? ' (heat)' : '') + ' &middot; arrive ' + fmtTime(arrive) + '</div>';
       if (S.day.featured && S.day.featured.stopId === s.id && !s.visited) h += '<div class="featured">&#9733; Today\'s featured lot is here. ' + money(S.day.featured.ask) + '.</div>';
@@ -604,15 +724,37 @@
       if (s.demoRaid && !s.visited) h += '<div class="rumor">' + NP.RIVAL.name + '\'s van is headed here too. He will show up right after you do.</div>';
       if (s.visited) h += '<div class="st-done">Visited</div>';
       else if (tooLate) h += '<div class="st-done">Not enough daylight</div>';
-      else h += '<button data-act="go" data-id="' + s.id + '"' + (s.gift ? ' class="giftbtn"' : '') + '>' + (s.gift ? 'Visit the Gift Shop!' : 'Drive there') + '</button>';
+      else h += '<button data-act="go" data-id="' + s.id + '" data-via="map"' + (s.gift ? ' class="giftbtn"' : '') + '>' + (s.gift ? 'Visit the Gift Shop!' : 'Drive there') + '</button>';
       h += '</div>';
     });
     h += '</div><button class="big home" data-act="gohome">Head home and shelve it</button></div>';
     app.innerHTML = h;
   }
 
+  // a billboard on the drive, now and then (never in the walkable swap meet, never on top of a haggle)
+  function billboard() {
+    var SP = NP.SPONSOR; if (!SP || !SP.billboards) return '';
+    var n = S.history.length;
+    if (n === 0 || n % 2) return ''; // after your 2nd, 4th, ... stop
+    var pool = adFree ? SP.billboardsAdFree : SP.billboards;
+    return pool[(NP.hashStr(S.seed + '|bb') + n) % pool.length];
+  }
+
+  // nobody has touched anything on the map for 30 seconds: they might be stuck. Counted once.
+  var idleT = null;
+  function mapIdle() {
+    if (idleT) clearTimeout(idleT);
+    var at = S.history.length;
+    idleT = setTimeout(function () { idleT = null; if (S && S.screen === 'map' && S.history.length === at) step('map_' + at + '_idle30'); }, 30000);
+  }
+
   function itemNotes(it) {
     var n = [];
+    // the back of the box: you only get to read it once you pick it up and Inspect it
+    if ((it.inspected || it.tested) && NP.itemInfo) {
+      var bx = NP.itemInfo(it).box;
+      if (bx) n.push('Back of the ' + (it.cond === 'loose' ? 'label' : 'box') + ': "' + bx + '"');
+    }
     if (it.featured) n.push(DEMO ? 'The featured lot. In the full version, there is a new one every day.' : 'Today\'s featured lot. Everyone playing today sees this exact box.');
     if (it.planted && !it.inspected) n.push('Complete in box for that price? That seems very generous.');
     if (it.kind === 'merch') n.push('Official Nostalgia Pro merch. Worth nothing. Costs something.');
@@ -688,7 +830,12 @@
     var seller = NP.SELLERS[s.seller];
     var h = hud() + '<div class="screen stop"><h2>' + stopIcon(s.type) + ' ' + esc(s.name) + '</h2>';
     if (s.cleared) h += '<div class="rival">' + NP.RIVAL.name + ' from ' + NP.RIVAL.shop + ' beat you here. He took the good stuff and set up a table out front.</div>';
-    if (seller && s.hello) h += '<div class="bubble big">' + esc(seller.name) + ': "' + esc(s.hello) + '"</div>';
+    var refuse = s.cola && NP.SPONSOR && NP.SPONSOR.refuse ? NP.SPONSOR.refuse[s.seller] : null;
+    if (seller && refuse) {
+      // loudly refuses to sell out, while selling out
+      h += '<div class="bubble big">' + esc(seller.name) + ': "' + esc(refuse[0]) + '"</div>' +
+        '<div class="glam"><canvas class="glamcan" width="22" height="30" aria-label="A can of ' + esc(NP.SPONSOR.name) + '"></canvas><div class="glam-t">' + esc(refuse[1]) + '</div></div>';
+    } else if (seller && s.hello) h += '<div class="bubble big">' + esc(seller.name) + ': "' + esc(s.hello) + '"</div>';
     if (s.type === 'flea') h += '<div class="bubble big">Different vendor at every table. Some of them know what they got.</div>';
     if (adLevel() >= 2) h += '<div class="poster">' + (adFree ? 'POSTER: The Ad-Free Edition. No posters. (Except this one.)' : 'POSTER: Nostalgia Pro: The Shelf Dust. Now in Sealed. Gift Shop open till sundown.') + '</div>';
     if (S.toast) { h += '<div class="toast">' + esc(S.toast) + '</div>'; S.toast = ''; }
@@ -703,9 +850,35 @@
     }
     h += '<div class="stop-actions">';
     if (s.dig.length && !s.dug) h += '<button data-act="dig">' + (s.type === 'sports' ? 'Dig deeper into the football bin' : 'Dig through the back boxes') + ' (15 min)</button>';
-    h += '<button class="big" data-act="leave">Back in the car</button></div></div>';
+    h += leaveButtons() + '</div></div>';
     app.innerHTML = h;
     drawArts();
+    if (refuse) drawGlamCan();
+  }
+
+  // the way out of a stop: straight to the next stop on the route, or back to the map
+  function leaveButtons() {
+    if (DEMO && S.stop && S.stop.type === 'flea') return '<button class="big" data-act="leave" data-via="map">Back in the car (ends the demo)</button>';
+    var after = planRoute(), n = after[0];
+    if (!n) return '<button class="big" data-act="leavehome">Head home and shelve it &#9654;</button><button data-act="leave" data-via="map">Back to the map</button>';
+    return '<button class="big drive" data-act="gonext" data-id="' + n.id + '">Next stop: ' + esc(n.name) + ' &#9654;</button>' +
+      '<button data-act="leave" data-via="map">Back to the map</button>';
+  }
+  function drawGlamCan() {
+    var c = document.querySelector('.screen .glamcan, .wpanel .glamcan');
+    if (!c || !NP.drawCan) return;
+    var g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+    g.clearRect(0, 0, 22, 30);
+    NP.drawCan(g, 6, 8, 1, 1);
+    NP.drawSparkle(g, 17, 6, 1, 0.3);
+  }
+  // out of money: say it once, kindly, and do not end anything
+  function maybeBrokeTip() {
+    if (!S || !S.stop) return;
+    var c = cheapestHere();
+    if (S.cash >= 2 && (c === Infinity || S.cash >= c)) return;
+    if (!S.brokeTracked) { S.brokeTracked = true; step('broke_' + S.history.length); }
+    showTip('broke', null);
   }
 
   function giftPrice(m) { return Math.round(m.price * (1 + 0.15 * adLevel()) * (1 + (S.time - START) / 600)); }
@@ -735,7 +908,7 @@
     var h = hud() + '<div class="screen gift"><h2>&#11088; ' + esc(S.stop.name) + ' &#11088;</h2>';
     if (S.toast) { h += '<div class="toast">' + esc(S.toast) + '</div>'; S.toast = ''; }
     h += giftHTML(false);
-    h += '<div class="stop-actions"><button class="big" data-act="leave">Leave the Gift Shop (it wants you to stay)</button></div></div>';
+    h += '<div class="stop-actions"><div class="giftnote">The Gift Shop wants you to stay. The doors are heavier than they need to be.</div>' + leaveButtons() + '</div></div>';
     app.innerHTML = h;
     drawGiftArts();
   }
@@ -761,13 +934,13 @@
     S.tfrac = t - whole;
     S.time += whole;
   }
-  function outOfTime() { return S.time >= END; }
+  function outOfTime() { return S.time >= endT(); }
 
   function checkSundown() {
     if (outOfTime()) {
-      S.time = Math.min(S.time, END);
-      S.toast = 'The sun is going down. Time to head home.';
-      goHome();
+      S.time = Math.min(S.time, endT());
+      S.toast = modeOf() === 'noon' ? 'It\'s noon. You said you would be back by noon. Time to head home.' : 'The sun is going down. Time to head home.';
+      goHome('time');
       return true;
     }
     return false;
@@ -776,8 +949,10 @@
   function arrive(s) {
     S.time += costOf(s); // the drive, same minutes the map card showed
     s.visited = true;
+    S.history.push(s.id);
     S.stop = s;
     S.screen = 'stop';
+    step('f07_arrive_' + S.history.length + '_' + s.type);
     if (s.seller && NP.SELLERS[s.seller]) s.hello = helloFor(s.seller) || NP.SELLERS[s.seller].hi[s.id.charCodeAt(1) % NP.SELLERS[s.seller].hi.length];
     if (s.rivalAt && S.time >= s.rivalAt) {
       // rival cleared the best stuff
@@ -849,7 +1024,7 @@
       it.line = sellerLine(it, 'no');
       sfx('reject');
     }
-    if (!checkSundown()) { render(); maybeUnsponsored(); }
+    if (!checkSundown()) { render(); maybeBrokeTip(); if (!tipEl) maybeUnsponsored(); }
   }
 
   // Every so often, haggling is interrupted by a completely unsponsored moment.
@@ -1007,28 +1182,46 @@
     S.toast = 'Thank you for your purchase! It is worth nothing!';
     sfx('cash');
     render();
+    maybeBrokeTip();
   }
 
-  function leaveStop() {
+  // via: 'next' (the big Next stop button), 'map' (back to the map), 'home' (straight home)
+  function leaveStop(via, nextId) {
     var wasDemoEnd = DEMO && S.stop && S.stop.type === 'flea';
+    if (S.stop) step('f08_leave_' + S.history.length + '_' + S.stop.type + '_' + (via || 'map'));
     S.screen = 'map';
     S.stop = null;
     S.visited++;
     if (wasDemoEnd) {
       // demo sundown: the demo Saturday ends when you leave the swap meet
-      var wasMorning = S.time <= 12 * 60;
-      if (wasMorning) S.time = 12 * 60;
+      var wasMorning = S.time <= NOON;
+      if (wasMorning) S.time = NOON;
       S.toast = (wasMorning ? 'It\'s noon. ' : '') + 'That\'s the demo! The demo Saturday ends at the swap meet. In the full version you can stay out till sundown (5:30 PM).';
       track('demo_end');
-      goHome();
+      goHome('demo_end');
       return;
     }
     if (checkSundown()) return;
-    if (S.visited === 2 || S.visited === 4) return showCommercial(render);
-    render();
+    if (via === 'home') return goHome('button');
+    var then = nextId ? function () { driveTo(nextId, 'next'); } : function () { render(); window.scrollTo(0, 0); };
+    if (S.visited === 2 || S.visited === 4) return showCommercial(then);
+    then();
   }
 
-  function goHome() {
+  // the drive: a loading screen with a tip (that is also an ad), then you are there
+  function driveTo(id, via) {
+    var s = S.day.stops.filter(function (x) { return x.id === id; })[0];
+    if (!s || s.visited) { render(); return; }
+    step('f06_drive_' + (S.history.length + 1) + '_' + s.type + '_' + (via || 'map'));
+    if (tipEl) closeTip();
+    var drive = function () { arrive(s); render(); window.scrollTo(0, 0); if (S.screen === 'stop' && S.stop && S.stop.cleared) showTip('dex', null); };
+    if (NP.Intro) NP.Intro.loading(tipsOff ? null : NP.Intro.tip(adFree, S.wx && S.wx.id), drive); else drive();
+  }
+
+  function goHome(why) {
+    step('f20_home_' + (why || 'button') + '_after_' + S.history.length);
+    if (idleT) { clearTimeout(idleT); idleT = null; }
+    if (tipEl) closeTip();
     S.screen = 'home';
     S.bag.forEach(function (b) { if (b.cond === 'sealed' && !b.decision) b.decision = null; });
     showCommercial(render, true);
@@ -1070,7 +1263,8 @@
   function renderHome() {
     var h = '<div class="screen homescr"><h2>&#127968; Home. Time to shelve it.</h2>';
     if (S.toast) { h += '<div class="toast">' + esc(S.toast) + '</div>'; S.toast = ''; }
-    h += '<div class="shelfnote">Home at ' + fmtTime(Math.min(S.time, END)) + ' with ' + money(S.cash) + ' left and ' + S.bag.length + ' things in the bag.</div>';
+    h += '<div class="shelfnote">Home at ' + fmtTime(Math.min(S.time, endT())) + ' with ' + money(S.cash) + ' left and ' + S.bag.length + ' things in the bag.</div>';
+    if (NP.SPONSOR && NP.SPONSOR.home && !adFree) h += '<div class="glam"><canvas class="glamcan" width="22" height="30" aria-hidden="true"></canvas><div class="glam-t">' + esc(NP.SPONSOR.home) + '</div></div>';
     if (!S.bag.length) h += '<div class="bubble big">The bag is empty. Bold strategy.</div>';
     var pending = 0;
     h += '<div class="items">';
@@ -1095,6 +1289,7 @@
       var b = S.bag.filter(function (x) { return x.uid === el.getAttribute('data-hart'); })[0];
       el.appendChild(NP.makeArt(b, 3));
     });
+    drawGlamCan();
   }
 
   // ---------- scoring ----------
@@ -1154,6 +1349,7 @@
 
   function renderResults() {
     var R = S.result;
+    step('f22_results');
     var h = '<div class="screen results"><h2>The Shelf</h2>' +
       '<div class="runtitle">"' + esc(R.title) + '"</div>' +
       (R.also.length ? '<div class="also">Also earned: ' + R.also.map(esc).join(' &middot; ') + '</div>' : '') +
@@ -1172,9 +1368,11 @@
     });
     R.bonus.forEach(function (b) { h += '<div class="al bonus"><span class="al-t">' + esc(b[0]) + '</span><span class="al-p">+' + b[1] + '</span></div>'; });
     if (!R.lines.length) h += '<div class="al-n">Nothing to appraise. The shelf respects your restraint.</div>';
+    if (NP.SPONSOR && NP.SPONSOR.appraisal && !adFree) h += '<div class="al-n spons-n">' + esc(NP.SPONSOR.appraisal) + '</div>';
     h += '</div>' +
-      (linksOk() ? '<div class="shirt"><div class="shirt-k">The only item in this game that actually exists:</div>' +
-      '<a href="https://nostalgiapro-shop.fourthwall.com/" target="_blank" rel="noopener" data-track="shirt_link">Nostalgia Pro: The Actual Shirt &#8599;</a></div>' : '') +
+      // the one real ad in the game: RC's actual merch store. A plain link, after the results, never during play.
+      (linksOk() && CFG.MERCH_URL ? '<div class="shirt"><div class="shirt-k">The only item in this game that actually exists:</div>' +
+      '<a href="' + esc(CFG.MERCH_URL) + '" target="_blank" rel="noopener" data-track="shirt_link">Nostalgia Pro: The Actual Shirt &#8599;</a></div>' : '') +
       (DEMO ? '<div class="btns center"><button class="big" data-act="demoend">Continue &#9654;</button></div>' +
         '<div class="foot">That was the demo Saturday. Continue for what comes next.</div></div>'
         : '<div class="btns center"><button data-act="again">Replay today (just for fun)</button><button data-act="shelf">Home shelf</button><button data-act="totitle">Title screen</button></div>' +
@@ -1222,7 +1420,8 @@
     NP.pixelText(ctx, String(R.score), W - 165, 140, String(R.score).length > 4 ? 6 : 8, C.cream, 'center');
     // best find
     var best = R.lines.filter(function (l) { return l.pts > 0 && l.it && l.it.kind !== 'merch'; }).sort(function (a, b) { return b.pts - a.pts; })[0];
-    if (best) NP.pixelText(ctx, 'BEST FIND: ' + best.t.slice(0, 30), 40, sy + 36, 3, C.cream);
+    // long titles drop their subtitle first, so the name never gets cut mid-word
+    if (best) NP.pixelText(ctx, 'BEST FIND: ' + (best.t.length > 30 ? best.t.split(':')[0] : best.t).slice(0, 30), 40, sy + 36, 3, C.cream);
     if (S.day.featured) NP.pixelText(ctx, 'FEATURED LOT: ' + featuredStatus() + '    ' + S.wx.temp + (NP.FONT['°'] ? '°F' : 'F'), 40, sy + 66, 3, C.gold);
     // "No product placement was used in this run", printed right over a giant Nostalgia Pro logo
     var ly = sy + (S.day.featured ? 92 : best ? 62 : 32);
@@ -1300,7 +1499,7 @@
     }
     // footer
     ctx.fillStyle = C.navy2; ctx.fillRect(0, H - 70, W, 70);
-    NP.pixelText(ctx, DEMO ? 'THE FREE DEMO' : 'DAILY RUN ' + S.seed, 40, H - 46, 3, C.cream);
+    NP.pixelText(ctx, DEMO ? 'THE FREE DEMO' : 'DAILY RUN ' + S.seed + ' - ' + NP.MODES[modeOf()].name, 40, H - 46, 3, C.cream);
     NP.pixelText(ctx, 'THENOSTALGIAPRO.COM', W - 40, H - 46, 3, C.cyan, 'right');
     if (items.length > show.length) NP.pixelText(ctx, '+' + (items.length - show.length) + ' MORE', W / 2 - 40, H - 42, 2, C.gold, 'center');
     // scanlines
@@ -1309,17 +1508,18 @@
 
   function shareText() {
     var R = S.result;
-    return 'Nostalgia Pro, ' + (DEMO ? 'the free demo' : 'Saturday #' + S.runNo) + ' (' + S.wx.temp + 'F)\n"' + R.title + '"\nScore ' + R.score + ' | Spent ' + money(R.spent) + ' | ' + R.items.length + ' finds\nFeatured lot: ' + featuredStatus() + '\nIs it on the shelf? Play: thenostalgiapro.com';
+    return 'Nostalgia Pro, ' + (DEMO ? 'the free demo' : 'Saturday #' + S.runNo + ', ' + NP.MODES[modeOf()].name) + ' (' + S.wx.temp + 'F)\n"' + R.title + '"\nScore ' + R.score + ' | Spent ' + money(R.spent) + ' | ' + R.items.length + ' finds\nFeatured lot: ' + featuredStatus() + '\nIs it on the shelf? Play: thenostalgiapro.com';
   }
 
   function shelve() {
     S.result = appraise();
     var R = S.result;
-    var dayKey = 'day_' + S.seed, prev = store.get(dayKey, null), best = store.get('best', null);
-    var msg = '';
+    var dk = dayKey(S.seed), prev = store.get(dk, null), best = store.get('best', null);
+    var msg = '', mname = NP.MODES[modeOf()].name;
+    step('f21_shelved_' + modeOf());
     if (DEMO) msg = 'Demo run complete. In the full version, this haul would go on your home shelf.';
-    else if (!prev) { store.set(dayKey, { score: R.score, title: R.title }); saveHomeShelf(R); msg = 'Official run for today saved to your home shelf.'; }
-    else msg = 'Replay. Today\'s official run was ' + prev.score + '.';
+    else if (!prev) { store.set(dk, { score: R.score, title: R.title }); saveHomeShelf(R); msg = 'Official ' + mname + ' run for today saved to your home shelf.'; }
+    else msg = 'Replay. Today\'s official ' + mname + ' run was ' + prev.score + '.';
     if (!best || R.score > best.score) { store.set('best', { score: R.score, seed: S.seed }); msg += ' New personal best!'; }
     else msg += ' Best ever: ' + best.score + '.';
     S.recordMsg = msg;
@@ -1342,8 +1542,12 @@
       case 'howback': S = null; cartOpen = true; renderTitle(); window.scrollTo(0, 0); break;
       case 'start':
         cartOpen = false;
-        if (NP.Creator && !hasLook()) showCreator(beginSaturday, 'Looks good. Start Saturday');
-        else beginSaturday();
+        var md = DEMO ? 'noon' : (el.getAttribute('data-mode') === 'noon' ? 'noon' : 'sundown');
+        if (!DEMO) store.set('mode', md);
+        step('f03_mode_' + md);
+        var begin = function () { beginSaturday(md); };
+        if (NP.Creator && !hasLook()) showCreator(begin, 'Looks good. Start Saturday');
+        else begin();
         break;
       case 'look': showCreator(function () { S = null; cartOpen = true; renderTitle(); window.scrollTo(0, 0); }, 'Save my look'); break;
       case 'shelf': shelfBack = S && S.screen === 'results' ? 'results' : 'title'; renderHomeShelf(); break;
@@ -1351,11 +1555,9 @@
         if (shelfBack === 'results' && S) { S.screen = 'results'; render(); }
         else { S = null; cartOpen = true; renderTitle(); }
         window.scrollTo(0, 0); break;
-      case 'go':
-        var s = S.day.stops.filter(function (x) { return x.id === el.getAttribute('data-id'); })[0];
-        var drive = function () { arrive(s); render(); window.scrollTo(0, 0); if (S.screen === 'stop' && S.stop && S.stop.cleared) showTip('dex', null); };
-        if (NP.Intro) NP.Intro.loading(tipsOff ? null : NP.Intro.tip(adFree, S.wx && S.wx.id), drive); else drive();
-        break;
+      case 'go': driveTo(el.getAttribute('data-id'), el.getAttribute('data-via') || 'map'); break;
+      case 'gonext': if (tipEl) closeTip(); leaveStop('next', el.getAttribute('data-id')); break;
+      case 'leavehome': if (tipEl) closeTip(); leaveStop('home'); break;
       case 'offer': doOffer(findItem(uid), el.getAttribute('data-kind')); break;
       case 'inspect':
         var it = findItem(uid); spend(T_INSPECT); it.inspected = true;
@@ -1363,9 +1565,9 @@
         if (!checkSundown()) render(); break;
       case 'check': var it2 = findItem(uid); spend(T_SHELF); it2.checked = true; S.ev.checks++; if (!checkSundown()) render(); break;
       case 'dig': spend(T_DIG); S.stop.dug = true; if (!checkSundown()) render(); break;
-      case 'leave': leaveStop(); window.scrollTo(0, 0); break;
+      case 'leave': if (tipEl) closeTip(); leaveStop(el.getAttribute('data-via') || 'map'); window.scrollTo(0, 0); break;
       case 'buygift': buyGift(el.getAttribute('data-id')); break;
-      case 'gohome': goHome(); break;
+      case 'gohome': goHome('button'); break;
       case 'openlot':
         var lb = S.bag.filter(function (x) { return x.uid === uid; })[0]; lb.opened = true;
         S.toast = 'Inside: ' + lb.contents.map(function (c) { return c.t; }).join(', ') + '.';
@@ -1383,8 +1585,9 @@
         if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, function () { window.prompt('Copy this:', t); });
         else window.prompt('Copy this:', t);
         break;
-      case 'again': track('replay'); newRun(); S.screen = 'map'; render(); window.scrollTo(0, 0); break;
+      case 'again': track('replay'); newRun(S.mode); S.screen = 'map'; render(); window.scrollTo(0, 0); break;
       case 'demoend':
+        step('f23_demo_infomercial');
         if (NP.Intro && NP.Intro.infomercial) {
           music(null);
           NP.Intro.infomercial(app, {
@@ -1395,8 +1598,8 @@
         window.scrollTo(0, 0); break;
       case 'demoagain': track('replay'); newRun(); S.screen = 'map'; render(); window.scrollTo(0, 0); break;
       case 'fullscreen': toggleFullscreen(); break;
-      case 'mute': if (NP.Sound) NP.Sound.toggle(); break;
       case 'tips': setTipsOff(!tipsOff); break;
+      case 'mute': if (NP.Sound) NP.Sound.toggle(); break;
       case 'hsname': var cap = $('#hscap'); if (cap) cap.textContent = el.getAttribute('data-name'); break;
       case 'totitle': S.screen = 'title'; cartOpen = true; render(); window.scrollTo(0, 0); break;
     }
@@ -1420,6 +1623,27 @@
     // That first tap turns the sound on and the title music starts right away.
     if (NP.Sound && NP.Sound.supported && !NP.Sound.isReady()) renderGate(); else renderTitle();
   });
+
+  // ---------- where people stop playing ----------
+  // When the page is hidden or closed, count which screen it was on (once per visit).
+  // Switching tabs counts too, so read these as "last screen seen", not "quit for good".
+  function whereNow() {
+    if (gateOn) return 'gate';
+    if (!S) return document.querySelector('.howto-scr') ? 'howto' : document.querySelector('.shelfscr') ? 'shelf' : document.querySelector('.screen.morning') ? 'intro' : document.querySelector('.screen.infomercial') ? 'infomercial' : document.querySelector('#crcv') ? 'creator' : 'title';
+    if (document.querySelector('.screen.morning')) return 'intro';
+    if (document.querySelector('.loading-ov')) return 'driving_' + S.history.length;
+    if (S.screen === 'stop' || S.screen === 'walk') return 'stop_' + S.history.length + '_' + (S.stop ? S.stop.type : 'x');
+    if (S.screen === 'map') return 'map_' + S.history.length;
+    return S.screen;
+  }
+  var hidSent = false;
+  function onHide() {
+    if (hidSent) return;
+    hidSent = true;
+    try { if (NP.track) NP.track('hidden_on_' + whereNow(), true, true); } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') onHide(); else hidSent = false; });
+  window.addEventListener('pagehide', onHide);
 
   // ---------- tap to start ----------
   var gateOn = false;
@@ -1446,11 +1670,11 @@
   });
 
   // 1 COLLECTOR: Saturday morning, then the map
-  function beginSaturday() {
-    newRun();
-    var go = function () { track('intro_done'); S.screen = 'map'; render(); window.scrollTo(0, 0); };
+  function beginSaturday(md) {
+    newRun(md);
+    var go = function () { track('intro_done'); step('f04_intro_done'); S.screen = 'map'; render(); window.scrollTo(0, 0); };
     music(null);
-    if (NP.Intro) NP.Intro.morning(app, { look: getLook(), runNo: S.runNo, label: DEMO ? 'DEMO SATURDAY' : 'SATURDAY #' + S.runNo, wx: S.wx, featured: S.day.featured, adFree: adFree, demo: DEMO }, go);
+    if (NP.Intro) NP.Intro.morning(app, { look: getLook(), runNo: S.runNo, label: DEMO ? 'DEMO SATURDAY' : 'SATURDAY #' + S.runNo, wx: S.wx, featured: S.day.featured, adFree: adFree, demo: DEMO, mode: S.mode }, go);
     else go();
   }
 
@@ -1464,8 +1688,8 @@
 
   // what walk.js is allowed to touch
   NP.G = {
-    state: function () { return S; }, END: END,
-    spend: spend, checkSundown: checkSundown, updateHud: updateHud,
+    state: function () { return S; }, END: END, endT: endT,
+    spend: spend, checkSundown: checkSundown, updateHud: updateHud, leaveButtons: leaveButtons, step: step,
     itemCard: itemCard, drawArts: drawArts, giftHTML: giftHTML, drawGiftArts: drawGiftArts, dexSetup: dexSetup,
     adLevel: adLevel, adFree: function () { return adFree; }, look: getLook, helloFor: helloFor,
     fmtTime: fmtTime, money: money, esc: esc, sfx: sfx, track: track, demo: DEMO,

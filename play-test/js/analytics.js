@@ -9,7 +9,8 @@ window.NP = NP;
   'use strict';
   var sent = {};
 
-  NP.track = function (name, once) {
+  // beacon: true for events sent while the page is closing (sendBeacon survives that; an image request may not)
+  NP.track = function (name, once, beacon) {
     try {
       var c = NP.CONFIG || {};
       var code = String(c.ANALYTICS_CODE || '').trim();
@@ -21,6 +22,7 @@ window.NP = NP;
         '?p=' + encodeURIComponent('/event/' + name) +
         '&t=' + encodeURIComponent(NP.platform || 'other') +
         '&e=true&rnd=' + Math.random().toString(36).slice(2);
+      if (beacon && navigator.sendBeacon) { try { if (navigator.sendBeacon(url)) return; } catch (x) {} }
       var img = new Image();
       img.onerror = img.onload = function () { img = null; };
       img.referrerPolicy = 'no-referrer';

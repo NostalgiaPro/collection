@@ -109,7 +109,8 @@ NP.Walk = (function () {
     W = {
       stop: stop, x: 15 * T, y: 20 * T + 14, dir: 'up', step: 0, anim: 0, dist: 0,
       look: G().look(), panel: null, objs: [], solid: new Uint8Array(MW * MH), occ: new Array(MW * MH),
-      toast: '', toastT: 0, ptoast: '', tables: [], spots: [], hint: 8, rivalCounted: !!stop.cleared, started: false, enterAt: performance.now(), lastStep: 0
+      toast: '', toastT: 0, ptoast: '', tables: [], spots: [], hint: 8, rivalCounted: !!stop.cleared, started: false, enterAt: performance.now(), lastStep: 0,
+      path: [], goal: null, face: null, marker: null, stuck: 0
     };
     // fence
     for (var x = 0; x < MW; x++) { setSolid(x, 0); if (x < GATE_X0 || x > GATE_X1) setSolid(x, MH - 1); }
@@ -225,7 +226,7 @@ NP.Walk = (function () {
 
   function buildProps() {
     addObj({ kind: 'crates', fx: 9, fy: 15, fw: 2, fh: 1, base: 16 * T, label: 'MILK CRATES OF TAPES', title: 'Milk crates',
-      open: function () { return flavor('Two milk crates of workout tapes. Every single one is "Buns of Something." Nobody has ever bought one. Nobody ever will.'); },
+      open: function () { return flavor('Two milk crates of workout tapes. Every single one is "Aerobics for Dads, Volume 6." There was never a Volume 1. Nobody has ever bought one. Nobody ever will.'); },
       draw: drawCrates });
     addObj({ kind: 'churro', fx: 22, fy: 16, fw: 2, fh: 1, base: 17 * T, label: 'CHURRO CART', title: 'Churro cart',
       open: function () { return flavor('Churros, $2. You cannot put a churro on a shelf. People have tried. The churro guy has stories.'); },
@@ -416,8 +417,9 @@ NP.Walk = (function () {
       s.rivalTable.map(function (it) { return G().itemCard(it, s); }).join('') + '</div>' };
   }
   function exitPanel() {
+    var lb = G().leaveButtons ? G().leaveButtons() : '<button class="big" data-act="leave">Back in the car</button>';
     return { small: true, html: '<div class="bubble big">Head back to the car? Once you leave, the swap meet is done for today.</div>' +
-      '<div class="btns"><button class="big" data-act="leave">Back in the car</button><button data-w="close">Keep shopping</button></div>' };
+      '<div class="btns exitbtns">' + lb + '<button data-w="close">Keep shopping</button></div>' };
   }
   function dexPanel() {
     var d = W.dex, s = W.stop;
@@ -456,7 +458,7 @@ NP.Walk = (function () {
     var st = S(), spec = W.panel.open();
     var keep = el.scrollTop;
     var h = '<div class="wp-top"><span class="wp-title">' + esc(W.panel.title || '') + '</span>' +
-      '<span class="wp-stat">' + G().fmtTime(Math.min(st.time, G().END)) + ' &middot; ' + G().money(st.cash) + ' &middot; Bag ' + st.bag.length + '</span>' +
+      '<span class="wp-stat">' + G().fmtTime(Math.min(st.time, G().endT ? G().endT() : G().END)) + ' &middot; ' + G().money(st.cash) + ' &middot; Bag ' + st.bag.length + '</span>' +
       '<button data-w="close" class="wp-x">Walk away</button></div>';
     if (W.ptoast) { h += '<div class="toast">' + esc(W.ptoast) + '</div>'; W.ptoast = ''; }
     h += spec.html;
@@ -504,6 +506,14 @@ NP.Walk = (function () {
     if (touchVec.x || touchVec.y) { ix = touchVec.x; iy = touchVec.y; }
     var moving = !!(ix || iy), moved = 0;
     if (moving) {
+      cancelTap();
+      if (!W.usedPad && (touchVec.x || touchVec.y)) { W.usedPad = true; if (G().step) G().step('walk_input_pad'); }
+      if (!W.usedKeys && !(touchVec.x || touchVec.y)) { W.usedKeys = true; if (G().step) G().step('walk_input_keys'); }
+    }
+    if (!moving && W.path && W.path.length) {
+      moved += followPath(dt);
+      if (W.panel) return true; // you got there and it opened
+    } else if (moving) {
       var len = Math.sqrt(ix * ix + iy * iy); ix /= len; iy /= len;
       if (Math.abs(ix) > Math.abs(iy) + 0.01) W.dir = ix < 0 ? 'left' : 'right';
       else if (Math.abs(iy) > Math.abs(ix) + 0.01) W.dir = iy < 0 ? 'up' : 'down';
@@ -560,6 +570,128 @@ NP.Walk = (function () {
     if (!W || W.panel) return;
     var t = findTarget();
     if (t) openPanel(t);
+  }
+
+  // ---------- tap to walk ----------
+  // Tap (or click) anywhere: you walk there. Tap a table, a box or a booth: you walk up to it and it opens.
+  // Tap the gate: you walk out to it. The d-pad and the keys still work, and using them cancels the walk.
+  // Paths go tile by tile (no diagonals) through open ground, found with a plain breadth-first search.
+  function walkable(tx, ty) { return tx >= 0 && ty >= 0 && tx < MW && ty < MH && !W.solid[ty * MW + tx]; }
+  function myTile() { return { x: Math.floor(W.x / T), y: Math.floor((W.y - 3) / T) }; }
+  function tileFeet(tx, ty) { return { x: tx * T + 8, y: ty * T + 11 }; }
+  function gridBFS(sx, sy) {
+    var dist = new Int16Array(MW * MH), prev = new Int32Array(MW * MH), q = [sy * MW + sx], h = 0;
+    for (var i = 0; i < dist.length; i++) { dist[i] = -1; prev[i] = -1; }
+    dist[sy * MW + sx] = 0;
+    while (h < q.length) {
+      var c = q[h++], cx = c % MW, cy = (c - cx) / MW;
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (d) {
+        var nx = cx + d[0], ny = cy + d[1];
+        if (!walkable(nx, ny)) return;
+        var n = ny * MW + nx;
+        if (dist[n] >= 0) return;
+        dist[n] = dist[c] + 1; prev[n] = c; q.push(n);
+      });
+    }
+    return { dist: dist, prev: prev };
+  }
+  function pathTo(g, tx, ty) {
+    var out = [], c = ty * MW + tx;
+    if (g.dist[c] < 0) return null;
+    while (c >= 0 && g.dist[c] > 0) { var x = c % MW; out.unshift(tileFeet(x, (c - x) / MW)); c = g.prev[c]; }
+    return out;
+  }
+  // which thing did the tap land on? Signs and vendors stand above a table, so the tap area reaches two tiles up.
+  function objAtPoint(px, py) {
+    var best = null;
+    W.objs.forEach(function (o) {
+      if (o.fx == null || !o.open) return;
+      var x0 = o.fx * T, x1 = (o.fx + o.fw) * T, y0 = (o.fy - 2) * T, y1 = (o.fy + o.fh) * T;
+      if (px >= x0 && px < x1 && py >= y0 && py < y1 && (!best || o.base > best.base)) best = o;
+    });
+    return best;
+  }
+  function tapTo(px, py) {
+    if (!W || W.panel || (G().tipOpen && G().tipOpen())) return;
+    var me = myTile(), g = gridBFS(me.x, me.y);
+    var goal = null, dest = null, face = null;
+    var d = W.dex;
+    var o = objAtPoint(px, py);
+    if (d && d.present && Math.abs(d.x - px) < 10 && py > d.y - 26 && py < d.y + 3) {
+      goal = 'dex'; dest = { x: Math.floor(d.x / T), y: Math.floor((d.y - 3) / T) };
+      if (!walkable(dest.x, dest.y) || g.dist[dest.y * MW + dest.x] < 0) dest = null;
+    } else if (o) {
+      // the open tile next to it that is quickest to reach, and which way to face once you get there
+      var bestD = 1e9;
+      for (var j = o.fy - 1; j <= o.fy + o.fh; j++) for (var i = o.fx - 1; i <= o.fx + o.fw; i++) {
+        var inX = i >= o.fx && i < o.fx + o.fw, inY = j >= o.fy && j < o.fy + o.fh;
+        if (inX === inY) continue; // inside it, or a corner
+        if (!walkable(i, j)) continue;
+        var dd = g.dist[j * MW + i];
+        if (dd < 0) continue;
+        if (j === o.fy + o.fh) dd -= 0.5; // a little preference for standing in front of it
+        if (dd < bestD) { bestD = dd; dest = { x: i, y: j }; face = !inY ? (j < o.fy ? 'down' : 'up') : (i < o.fx ? 'right' : 'left'); }
+      }
+      goal = o;
+    } else {
+      var tx = Math.floor(px / T), ty = Math.floor((py + 3) / T);
+      if (ty >= MH - 1) {
+        // the gate (or near it): walk out
+        if (tx >= GATE_X0 - 1 && tx <= GATE_X1 + 1) { goal = 'exit'; dest = { x: Math.max(GATE_X0, Math.min(GATE_X1, tx)), y: MH - 1 }; }
+      } else if (walkable(tx, ty) && g.dist[ty * MW + tx] >= 0) dest = { x: tx, y: ty };
+      else {
+        // tapped a fence or a cactus: the nearest open tile you can reach
+        var bd = 1e9;
+        for (var y = ty - 2; y <= ty + 2; y++) for (var x = tx - 2; x <= tx + 2; x++) {
+          if (!walkable(x, y) || g.dist[y * MW + x] < 0) continue;
+          var e = (x - tx) * (x - tx) + (y - ty) * (y - ty);
+          if (e < bd) { bd = e; dest = { x: x, y: y }; }
+        }
+      }
+    }
+    if (!dest) return;
+    var p = pathTo(g, dest.x, dest.y);
+    if (!p) return;
+    // already standing there: just do it
+    W.path = p; W.goal = goal; W.face = face; W.stuck = 0;
+    W.marker = { x: dest.x * T + 8, y: dest.y * T + 10, t: performance.now() };
+    if (!W.usedTap) { W.usedTap = true; if (G().step) G().step('walk_input_tap'); }
+    if (!p.length) arrived();
+  }
+  function arrived() {
+    var goal = W.goal, face = W.face;
+    W.path = []; W.goal = null; W.face = null; W.marker = null;
+    if (face) W.dir = face;
+    if (goal === 'exit') { W.dir = 'down'; openPanel(EXIT_OBJ); return; }
+    if (goal === 'dex') { var d = W.dex; if (d && d.present && Math.abs(d.x - W.x) < 26 && Math.abs(d.y - W.y) < 22) openPanel(DEX_OBJ); return; }
+    if (goal && goal.open) openPanel(goal);
+  }
+  function cancelTap() { if (W && W.path && W.path.length) { W.path = []; W.goal = null; W.marker = null; } }
+  // one frame of following the path. Returns how far you moved.
+  function followPath(dt) {
+    var wp = W.path[0], dx = wp.x - W.x, dy = wp.y - W.y, st = SPEED * dt, moved = 0;
+    if (Math.abs(dx) <= 0.5 && Math.abs(dy) <= 0.5) {
+      W.path.shift();
+      if (!W.path.length) arrived();
+      return 0;
+    }
+    if (Math.abs(dx) > 0.5) { W.dir = dx < 0 ? 'left' : 'right'; moved = moveAxis(Math.sign(dx) * Math.min(st, Math.abs(dx)), 0); }
+    else { W.dir = dy < 0 ? 'up' : 'down'; moved = moveAxis(0, Math.sign(dy) * Math.min(st, Math.abs(dy))); }
+    // something walked in the way (the van, usually): stop rather than push into it forever
+    if (moved < 0.01) { W.stuck += dt; if (W.stuck > 0.35) cancelTap(); } else W.stuck = 0;
+    return moved;
+  }
+  function bindTap(cv) {
+    cv.addEventListener('pointerdown', function (e) {
+      if (!active() || W.panel) return;
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      var r = cv.getBoundingClientRect(), w = cv.clientWidth || r.width, h = cv.clientHeight || r.height;
+      var px = (e.clientX - r.left - (cv.clientLeft || 0)) / w * VW + CX;
+      var py = (e.clientY - r.top - (cv.clientTop || 0)) / h * VH + CY;
+      e.preventDefault();
+      try { cv.focus({ preventScroll: true }); } catch (x) {}
+      tapTo(px, py);
+    });
   }
 
   // ---------- drawing ----------
@@ -800,6 +932,12 @@ NP.Walk = (function () {
       for (var hy = 0; hy < VH; hy += 6) ctx.fillRect(Math.round(Math.sin(hy / 9 + now * 3) * 2), hy, VW, 1);
     }
 
+    // where a tap is taking you
+    if (W.marker && W.path && W.path.length) {
+      var mk = Math.floor(now * 4) % 2, mx = W.marker.x, my = W.marker.y;
+      R(mx - 3 - mk, my - 1, 7 + mk * 2, 1, GOLD); R(mx - 1, my - 3 - mk, 1, 7 + mk * 2, GOLD);
+      R(mx - 5 - mk, my + 2, 2, 1, INK); R(mx + 4 + mk, my + 2, 2, 1, INK);
+    }
     // Dex name tag when he is close
     if (d && d.present && Math.abs(d.x - W.x) < 64 && Math.abs(d.y - W.y) < 48) sign(d.x, d.y - 38, 'DEX', '#ff9e57', INK);
 
@@ -807,7 +945,7 @@ NP.Walk = (function () {
     var t = findTarget();
     var bar = null;
     if (t) bar = (isTouch() ? 'A' : 'SPACE') + ': ' + (t.label || t.title || 'LOOK');
-    else if (W.hint > 0) bar = isTouch() ? 'WALK UP TO A TABLE AND TAP A' : 'WALK UP TO A TABLE AND PRESS SPACE';
+    else if (W.hint > 0) bar = isTouch() ? 'TAP A TABLE TO WALK OVER AND SHOP' : 'CLICK A TABLE, OR WALK UP AND PRESS SPACE';
     if (bar) {
       ctx.fillStyle = 'rgba(11,16,34,.88)'; ctx.fillRect(0, VH - 12, VW, 12);
       ctx.fillStyle = RED; ctx.fillRect(0, VH - 13, VW, 1);
@@ -847,11 +985,12 @@ NP.Walk = (function () {
       '<div class="wtoast" hidden></div><div class="wpanel" hidden tabindex="-1"></div></div>' +
       '<div class="tpad"><div class="dpad" id="dpad"><i class="u"></i><i class="l"></i><i class="c"></i><i class="r"></i><i class="d"></i></div>' +
       '<button class="abtn" data-w="act" aria-label="Look">A</button></div></div>' +
-      '<div class="walk-help">' + (touch ? 'Drag the pad to walk. Tap A to look at a table.' : 'Arrow keys or WASD to walk. Space or E to look. Esc to step back.') +
+      '<div class="walk-help">' + (touch ? 'Tap anywhere to walk there. Tap a table to shop it. The pad and A button work too.' : 'Click anywhere to walk there, or use the arrow keys or WASD. Click a table (or press Space) to shop it. Esc to step back.') +
       ' Walking uses daylight too, about a minute for every six steps.' + '</div></div>';
     W.floor = W.floor || buildFloor();
     bindPad();
     var cv = document.getElementById('walkcv');
+    bindTap(cv);
     try { cv.focus({ preventScroll: true }); } catch (e) { cv.focus(); }
     cv.addEventListener('mousedown', function () { try { cv.focus({ preventScroll: true }); } catch (e) {} });
     if (!raf) { lastT = performance.now(); raf = requestAnimationFrame(loop); }

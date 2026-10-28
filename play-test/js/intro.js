@@ -13,7 +13,7 @@ NP.Intro = (function () {
   var SCR = { x: 84, y: 14, w: 152, h: 116 };
   var seen = false;
   // build.js hard-codes this to true in the demo build
-  function isDemo() { return true; }
+  function isDemo() { return false; }
   function comingSoon() { return !!(NP.CONFIG && NP.CONFIG.COMING_SOON); }
   function sfx(n) { if (NP.Sound) NP.Sound.sfx(n); }
   function once(o, key, fn) { if (!o[key]) { o[key] = true; fn(); } }
@@ -295,7 +295,7 @@ NP.Intro = (function () {
   var morningRun = 0;
   function morning(app, info, done) {
     morningRun++;
-    var goals = NP.GOALS ? NP.GOALS(!!info.demo) : [];
+    var goals = NP.GOALS ? NP.GOALS(info.mode || (info.demo ? 'noon' : 'sundown')) : [];
     app.innerHTML = '<div class="screen morning"><canvas id="mcv" width="320" height="200" aria-label="Saturday morning. The alarm goes off at 6:58 AM. Then the to-do list on the fridge: ' + goals.join(' ').replace(/"/g, '') + '"></canvas>' +
       '<div class="btns center"><button data-intro="skip">Skip</button></div></div>';
     var cv = document.getElementById('mcv'), g = cv.getContext('2d'), t0 = performance.now(), fin = false;
@@ -377,6 +377,8 @@ NP.Intro = (function () {
     var grabbed = t > 1.2;
     if (grabbed) once(kitchen, 'keys' + morningRun, function () { sfx('keys'); });
     if (!grabbed) { P(g, 220, 80, 6, 4, GOLD); P(g, 222, 84, 2, 8, GOLD); P(g, 224, 88, 3, 2, GOLD); P(g, 218, 84, 2, 6, '#c8cbd6'); }
+    // a can of Saguaro Splash Cola on the counter, label out, lit like a museum piece. Nobody put it there on purpose.
+    if (NP.drawCan) { P(g, 160, 128, 30, 3, '#5a3b22'); NP.drawCan(g, 168, 104, 2, 1); if (Math.floor(t * 3) % 2 === 0) NP.drawSparkle(g, 188, 104, 1, t); }
     // you
     NP.Char.draw(g, look, 'left', 0, 236, 104, 3);
     if (grabbed) {
@@ -412,7 +414,7 @@ NP.Intro = (function () {
       P(g, 13, 115, 294, 15, INK); P(g, 14, 116, 292, 13, RED); P(g, 14, 127, 292, 1, CYAN);
       NP.drawCan(g, 20, 113, 1, 1);
       if (Math.floor(t * 3) % 2 === 0) NP.drawSparkle(g, 30, 113, 1, t);
-      T(g, SP.weather, 170, 119, 1, GOLD, 'center');
+      T(g, (SP.weatherBy && SP.weatherBy[wx.id]) || SP.weather, 170, 119, 1, GOLD, 'center');
       by = 135;
     }
     var lines = NP.wrapPixel(wx.blurb, 1, 280);
@@ -462,7 +464,11 @@ NP.Intro = (function () {
     'Tip: This tip is brought to you by Nostalgia Pro: The Tip.',
     'Tip: Lot boxes are a mystery. That is the whole point of lot boxes.',
     'Tip: Sellers remember you. Lowball accordingly.',
-    'Tip: Nostalgia Pro: The Shelf Dust makes any shelf look collected.'
+    'Tip: Nostalgia Pro: The Shelf Dust makes any shelf look collected.',
+    "This drive is brought to you by Mesquite Mike's Beef Jerky. Mike is in the back seat. He wants you to know he is not a sponsor.",
+    'Radio: "You are listening to 104.7 The Dust, the station that will never sell out. This hour of never selling out is sponsored by Saguaro Splash Cola."',
+    "Tip: It's a dry heat. That is not a tip. That is Haboob Antiperspirant's slogan.",
+    'Tip: Gila Glow SPF 900 blocks the sun. All of it. Do not wear it while driving.'
   ];
   var TIPS_FREE = ['Tip: You have the Ad-Free Edition. This tip is ad-free.', 'Tip: Tell a friend about the Ad-Free Edition. It is free of ads.'];
   var TIPS_WX = {

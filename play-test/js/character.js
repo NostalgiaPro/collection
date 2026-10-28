@@ -247,7 +247,7 @@ NP.Creator = (function () {
   function isLocked(key, id) {
     var c = NP.CONFIG;
     // build.js hard-codes this to true in the demo build
-    var demo = true;
+    var demo = false;
     return !!(demo && c && c.LOCKED_LOOK && c.LOCKED_LOOK[key] && c.LOCKED_LOOK[key].indexOf(id) >= 0);
   }
   function lockedPick() {
