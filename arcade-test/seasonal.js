@@ -13,7 +13,12 @@ window.NP_SEASONS = {
       kicker: "SEASONAL SPECIAL: HALLOWEEN", genre: "Halloween boss rush", fmt: "pts",
       hook: "The late show ran long and the monsters climbed out of the tapes. Seven boss fights, one collector, a pocket full of candy corn. Slide to dodge, stand under to hit.",
       art: "halloween" },
-    { id: "thanksgiving", label: "Thanksgiving", start: "11-20", end: "11-30", status: "soon", name: "", href: "", accent: "#e0662a" },
+    // testOnly: built and playable, but only shows with ?season=thanksgiving until RC approves it.
+    { id: "thanksgiving", label: "Thanksgiving", start: "11-20", end: "11-30", status: "live", testOnly: true,
+      slug: "gravy-or-bust", name: "Gravy or Bust!", href: "gravy-or-bust/index.html", accent: "#e0662a",
+      kicker: "SEASONAL SPECIAL: THANKSGIVING", genre: "Thanksgiving travel dash", fmt: "pts",
+      hook: "Three rides, one card-table seat, three pies on your lap. Tap to the beat in the air, hold steady on the rails, hop lanes on the road. Make it home before the gravy.",
+      art: "thanksgiving" },
     { id: "winter", label: "Winter holidays", start: "12-08", end: "12-28", status: "soon", name: "", href: "", accent: "#3ff0ff" },
     { id: "new-year", label: "New Year", start: "12-29", end: "01-04", status: "soon", name: "", href: "", accent: "#ffd23f" },
     { id: "valentines", label: "Valentine's Day", start: "02-07", end: "02-15", status: "soon", name: "", href: "", accent: "#ff3fa4" },
@@ -66,6 +71,7 @@ window.NP_SEASONS = {
   for (i = 0; i < C.events.length; i++) {
     var e = C.events[i];
     if (e.status !== "live" || !e.href) continue;
+    if (e.testOnly && !(force && force[1] === e.id)) continue; // hidden until approved
     if (force ? force[1] === e.id : inWin(e)) { active = e; break; }
   }
   window.NP_SEASON_ACTIVE = active ? active.id : null;
@@ -85,6 +91,16 @@ window.NP_SEASONS = {
       '<rect x="65" y="58" width="16" height="9" fill="#f1c28e"/><rect x="68" y="61" width="2" height="2" fill="#1b1b28"/><rect x="76" y="61" width="2" height="2" fill="#1b1b28"/>' +
       '<rect x="64" y="67" width="18" height="11" fill="#1b1b22"/><rect x="69" y="69" width="8" height="3" fill="#fff1d6"/><rect x="69" y="72" width="8" height="1" fill="#29d3e8"/><rect x="82" y="56" width="3" height="12" fill="#f1c28e"/><rect x="66" y="78" width="6" height="6" fill="#3b5a96"/><rect x="74" y="78" width="6" height="6" fill="#3b5a96"/>' +
       '<rect x="128" y="60" width="26" height="18" fill="#2a2d38"/><rect x="130" y="62" width="18" height="14" fill="#3ff0ff" opacity=".55"/><rect x="4" y="72" width="18" height="3" fill="#ff4b3e"/><rect x="5" y="75" width="16" height="3" fill="#ffd23f"/>' +
+      '</svg>',
+    thanksgiving: '<svg viewBox="0 0 160 90" shape-rendering="crispEdges" aria-hidden="true">' +
+      '<rect width="160" height="90" fill="#3a1d3a"/><rect y="18" width="160" height="14" fill="#7a2f3a"/><rect y="32" width="160" height="12" fill="#c24a2c"/><rect y="44" width="160" height="8" fill="#f08a2c"/>' +
+      '<circle cx="118" cy="50" r="12" fill="#ffd23f"/><rect y="50" width="160" height="40" fill="#2a2430"/>' +
+      '<rect x="0" y="46" width="30" height="6" fill="#1d1a24"/><rect x="34" y="44" width="22" height="8" fill="#1d1a24"/><rect x="132" y="45" width="28" height="7" fill="#1d1a24"/>' +
+      '<path d="M70 52 L90 52 L150 90 L10 90Z" fill="#3a3640"/><rect x="79" y="56" width="2" height="4" fill="#ffd23f"/><rect x="79" y="64" width="2" height="6" fill="#ffd23f"/><rect x="78" y="76" width="4" height="9" fill="#ffd23f"/>' +
+      '<rect x="56" y="64" width="44" height="14" fill="#9bd23f"/><rect x="64" y="56" width="26" height="9" fill="#9bd23f"/><rect x="67" y="58" width="9" height="6" fill="#3ff0ff" opacity=".7"/><rect x="78" y="58" width="9" height="6" fill="#3ff0ff" opacity=".7"/>' +
+      '<rect x="58" y="76" width="10" height="7" fill="#141218"/><rect x="88" y="76" width="10" height="7" fill="#141218"/><rect x="56" y="68" width="5" height="3" fill="#fff1d6"/><rect x="95" y="68" width="5" height="3" fill="#ff4b3e"/>' +
+      '<rect x="66" y="48" width="22" height="4" fill="#f6f4ee"/><rect x="68" y="44" width="18" height="4" fill="#f6f4ee"/><rect x="70" y="40" width="14" height="4" fill="#f6f4ee"/><rect x="66" y="51" width="22" height="1" fill="#e0662a"/><rect x="68" y="47" width="18" height="1" fill="#e0662a"/><rect x="70" y="43" width="14" height="1" fill="#e0662a"/>' +
+      '<rect x="64" y="52" width="2" height="5" fill="#a8aab4"/><rect x="88" y="52" width="2" height="5" fill="#a8aab4"/>' +
       '</svg>'
   };
   function best(slug, fmtName) {
@@ -134,6 +150,7 @@ window.NP_SEASONS = {
     for (i = 0; i < C.events.length; i++) {
       var v = C.events[i];
       if (v.status !== "live" || !v.href) continue;
+      if (v.testOnly && !(active && active.id === v.id)) continue;
       n++;
       var on = active && active.id === v.id;
       html += '<li data-genre="seasonal" data-ready><article class="cab" style="--c:' + esc(v.accent) + '" aria-labelledby="g-' + esc(v.slug) + '">' +
