@@ -137,7 +137,15 @@ NP.Walk = (function () {
     setupRivals(r);
     if (G().demo) setupCrowd(r);
     var ct = W.tables.filter(function (t) { return t.cameo; })[0];
-    if (ct) { ct.title = ct.title; setTimeout(function () { if (W && W.stop === stop && G().cameoAnnounce) G().cameoAnnounce(ct.cameo, NP.CAMEO_TEXT.walkSub); }, 1200); }
+    if (ct) {
+      // wait until any tip card is closed, so the banner is never hidden under it
+      var tries = 0, ann = function () {
+        if (!W || W.stop !== stop) return;
+        if (document.querySelector('.tipbox, .reveal-ov') && tries++ < 30) { setTimeout(ann, 700); return; }
+        if (G().cameoAnnounce) G().cameoAnnounce(ct.cameo, NP.CAMEO_TEXT.walkSub);
+      };
+      setTimeout(ann, 1200);
+    }
   }
 
   // ---------- Demo round 5: a few shoppers wander the aisles (just for looks; they never take anything) ----------
