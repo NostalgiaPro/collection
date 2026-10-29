@@ -213,7 +213,9 @@
     }
     var mv = { x: (keys.ArrowLeft ? -1 : 0) + (keys.ArrowRight ? 1 : 0), y: (keys.ArrowUp ? -1 : 0) + (keys.ArrowDown ? 1 : 0) };
     if (mv.x || mv.y) { S.p.tx = S.p.x + mv.x * 40; S.p.ty = S.p.y + mv.y * 40; }
-    var o = opp(), n = 3, sdt = dt / n;
+    // Fast pointer or touch moves get more physics substeps (about 10 units of mallet travel each) so the puck can't slip through
+    var pMax = (mv.x || mv.y) ? 380 : P_FAST, pTravel = Math.min(Math.hypot(S.p.tx - S.p.x, S.p.ty - S.p.y), pMax * dt);
+    var o = opp(), n = clamp(Math.ceil(pTravel / 10), 3, 16), sdt = dt / n;
     if (S.phase === "face") { if (S.pt > 0.7) { S.phase = "play"; S.pt = 0; } }
     else {
       S.matchT += dt;
@@ -224,7 +226,7 @@
     }
     cpuThink(dt);
     for (i = 0; i < n; i++) {
-      movePaddle(S.p, sdt, (mv.x || mv.y) ? 380 : 1500, MID + PR, Y1 - PR);
+      movePaddle(S.p, sdt, pMax, MID + PR, Y1 - PR);
       movePaddle(S.c, sdt, o.speed * (1 + S.boost), Y0 + PR, MID - PR);
       if (S.phase === "play") { stepPuck(sdt); hit(S.p, "me"); hit(S.c, "cpu"); unstick(sdt); }
       if (S.phase !== "play") break;
@@ -232,8 +234,55 @@
   }
 
   /* ---------------- Input ---------------- */
-  function pointer(type, x, y) {
-    if (type === "down" || type === "move") { S.p.tx = x; S.p.ty = y - 20; }
+  /* Controls. Mouse and pen: the mallet goes straight to the pointer, no offset.
+     Touch: relative drag. The mallet moves by the finger's movement from wherever the touch starts (x1.2),
+     so the finger can rest low on the screen, below the rink, and never covers the mallet. */
+  var P_FAST = 7000, TOUCH_GAIN = 1.2, drag = null;
+  function clampHalfX(x) { return clamp(x, X0 + PR, X1 - PR); }
+  function clampHalfY(y) { return clamp(y, MID + PR, Y1 - PR); }
+  function pointer(type, x, y, e) {
+    var touch = e && e.pointerType === "touch";
+    if (!touch) {
+      drag = null;
+      if (type === "down" || type === "move") { S.p.tx = clampHalfX(x); S.p.ty = clampHalfY(y); }
+      return;
+    }
+    if (type === "down") { drag = { fx: x, fy: y, mx: S.p.x, my: S.p.y }; return; }
+    if (type === "move" && drag) {
+      var tx = drag.mx + (x - drag.fx) * TOUCH_GAIN, ty = drag.my + (y - drag.fy) * TOUCH_GAIN;
+      var cx = clampHalfX(tx), cy = clampHalfY(ty);
+      // re-anchor at the rails so turning back responds at once instead of after the "dead" distance
+      if (cx !== tx) drag.mx += cx - tx;
+      if (cy !== ty) drag.my += cy - ty;
+      S.p.tx = cx; S.p.ty = cy;
+      return;
+    }
+    if (type === "up" || type === "cancel") drag = null;
+  }
+  /* Rink sits at the top of the stage; the empty space under it is a touch pad that drives the mallet too. */
+  function bindTouchPad() {
+    var cv = document.querySelector(".np-stage canvas"), stage = cv && cv.parentElement;
+    if (!stage) return;
+    stage.style.alignItems = "flex-start";
+    stage.style.paddingTop = "4px";
+    stage.style.touchAction = "none";
+    var pid = null;
+    function local(ev) { var r = cv.getBoundingClientRect(); return { x: (ev.clientX - r.left) / (r.width / W), y: (ev.clientY - r.top) / (r.height / H) }; }
+    function mine(ev) { return ev.target === stage || (ev.target && ev.target.classList && ev.target.classList.contains("np-crt")); }
+    stage.addEventListener("pointerdown", function (ev) {
+      if (!mine(ev) || ev.pointerType !== "touch" || pid !== null || Shell.state() !== "playing") return;
+      ev.preventDefault(); pid = ev.pointerId;
+      try { stage.setPointerCapture(ev.pointerId); } catch (er) { }
+      var q = local(ev); pointer("down", q.x, q.y, ev);
+    });
+    stage.addEventListener("pointermove", function (ev) {
+      if (ev.pointerId !== pid) return;
+      if (Shell.state() !== "playing") { pid = null; drag = null; return; }
+      var q = local(ev); pointer("move", q.x, q.y, ev);
+    });
+    function end(ev) { if (ev.pointerId !== pid) return; pid = null; pointer("up", 0, 0, ev); }
+    stage.addEventListener("pointerup", end);
+    stage.addEventListener("pointercancel", end);
   }
   function key(type, code) { keys[code] = type === "down"; }
 
@@ -288,7 +337,7 @@
     accent: "#ff3fa4",
     width: W, height: H,
     format: function (n) { var w = Math.floor(n / 10), m = n % 10; return w + "W" + (m ? " +" + m : ""); },
-    howTo: "First to 7 on the rec room table. Your paddle follows your finger in your half. Beat one collector and the next one sits down.",
+    howTo: "First to 7 on the rec room table. Drag anywhere, even below the table, and your paddle moves with your finger. Beat one collector and the next one sits down.",
     keys: "Keys: arrows move the paddle. Mouse: just move it. P pause, M mute, R restart.",
     tip: "Best score is your win streak, plus your biggest winning margin.",
     reset: reset,
@@ -297,6 +346,7 @@
     pointer: pointer,
     key: key,
     idle: function (dt) { idleT += dt; },
-    onPause: function () { for (var k in keys) keys[k] = false; }
+    onPause: function () { for (var k in keys) keys[k] = false; drag = null; }
   });
+  bindTouchPad();
 })();
