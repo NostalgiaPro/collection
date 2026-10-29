@@ -1,7 +1,0 @@
-/* Scrooge's Haunt page styles: the ending card text on the results screen. */
-.sh-end { margin: 0 0 10px; padding: 8px 10px; border: 2px dashed var(--sc, #3fd07a); border-radius: 6px;
-  font: 700 13px/1.45 var(--ui); color: #fff1d6; text-align: left; }
-.sh-end b { display: block; margin-bottom: 4px; font: 400 10px/1.5 var(--display); color: var(--sc, #3fd07a); }
-.sh-close { margin: 0 0 8px; font: 700 13px/1.45 var(--ui); color: #ffd23f; }
-.sh-rows { margin: 0 auto 6px; font: 400 12px/1.5 var(--ui); color: var(--dim); }
-.sh-rows b { color: var(--gold); font-weight: 400; }

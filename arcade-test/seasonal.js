@@ -21,9 +21,9 @@ window.NP_SEASONS = {
       art: "thanksgiving" },
     // testOnly: built and playable, but only shows with ?season=christmas until RC approves it.
     { id: "christmas", label: "Christmas", start: "12-08", end: "12-28", status: "live", testOnly: true,
-      slug: "scrooges-haunt", name: "Scrooge's Haunt", href: "scrooges-haunt/index.html", accent: "#3fd07a",
-      kicker: "SEASONAL SPECIAL: CHRISTMAS", genre: "Christmas boss rush, 1843", fmt: "pts",
-      hook: "Christmas Eve in Dickens' London. Four spirits, one collector, and the clock is running down to midnight. Slide to dodge, stand still to throw.",
+      slug: "mall-santa-dash", name: "Mall Santa Dash '94", href: "mall-santa-dash/index.html", accent: "#3fd07a",
+      kicker: "SEASONAL SPECIAL: CHRISTMAS", genre: "Christmas mall runner, 1994", fmt: "pts",
+      hook: "Christmas Eve, 5:58 PM. The gates come down at 6. Hop lanes through the food court, jump the wet floor signs, and reach the toy store for the last Ultra-Bot.",
       art: "christmas" },
     { id: "new-year", label: "New Year", start: "12-29", end: "01-04", status: "soon", name: "", href: "", accent: "#ffd23f" },
     { id: "valentines", label: "Valentine's Day", start: "02-07", end: "02-15", status: "soon", name: "", href: "", accent: "#ff3fa4" },
@@ -108,16 +108,19 @@ window.NP_SEASONS = {
       '<rect x="64" y="52" width="2" height="5" fill="#a8aab4"/><rect x="88" y="52" width="2" height="5" fill="#a8aab4"/>' +
       '</svg>',
     christmas: '<svg viewBox="0 0 160 90" shape-rendering="crispEdges" aria-hidden="true">' +
-      '<rect width="160" height="90" fill="#0a0e22"/><rect y="40" width="160" height="38" fill="#141a33"/><circle cx="22" cy="16" r="7" fill="#e8e4cf"/>' +
-      '<rect x="0" y="44" width="22" height="34" fill="#0d1124"/><rect x="22" y="36" width="20" height="42" fill="#0d1124"/><rect x="28" y="30" width="5" height="7" fill="#0d1124"/><rect x="100" y="42" width="24" height="36" fill="#0d1124"/><rect x="146" y="46" width="14" height="32" fill="#0d1124"/>' +
-      '<rect x="6" y="50" width="3" height="4" fill="#ffd27a"/><rect x="28" y="44" width="3" height="4" fill="#ffd27a"/><rect x="108" y="50" width="3" height="4" fill="#ffd27a"/>' +
-      '<rect x="128" y="20" width="16" height="58" fill="#141a2e"/><path d="M126 20 L146 20 L136 6Z" fill="#10152a"/><circle cx="136" cy="30" r="6" fill="#e8dca8"/><rect x="135.5" y="24" width="1" height="6" fill="#1b1b28"/><rect x="135.5" y="25" width="1" height="5" fill="#1b1b28"/>' +
-      '<rect y="78" width="160" height="12" fill="#2e3040"/><rect y="78" width="160" height="2" fill="#eef2f8"/>' +
-      '<rect x="12" y="10" width="1" height="1" fill="#dfe6f2"/><rect x="40" y="18" width="1" height="1" fill="#dfe6f2"/><rect x="62" y="6" width="1" height="1" fill="#dfe6f2"/><rect x="90" y="14" width="1" height="1" fill="#dfe6f2"/><rect x="116" y="8" width="1" height="1" fill="#dfe6f2"/><rect x="152" y="12" width="1" height="1" fill="#dfe6f2"/><rect x="76" y="34" width="1" height="1" fill="#dfe6f2"/>' +
-      '<path d="M84 8 L96 16 L100 52 L96 50 L92 54 L88 50 L84 54 L80 50 L76 52 L74 16Z" fill="#eef0f6" opacity=".9"/><rect x="80" y="14" width="10" height="10" fill="#fbe8d4"/><rect x="82" y="17" width="2" height="2" fill="#3a6fd0"/><rect x="86" y="17" width="2" height="2" fill="#3a6fd0"/><path d="M81 13 L89 13 L85 2Z" fill="#ffd23f"/><rect x="76" y="30" width="20" height="2" fill="#ffd23f"/>' +
-      '<rect x="50" y="56" width="16" height="9" fill="#f1c28e"/><rect x="53" y="59" width="2" height="2" fill="#1b1b28"/><rect x="61" y="59" width="2" height="2" fill="#1b1b28"/><rect x="49" y="50" width="18" height="5" fill="#1d2b53"/><rect x="47" y="54" width="22" height="2" fill="#141e3a"/><rect x="53" y="51" width="2" height="2" fill="#e4343e"/><rect x="55" y="51" width="4" height="2" fill="#fff1d6"/>' +
-      '<rect x="49" y="65" width="18" height="2" fill="#2f9e5a"/><rect x="52" y="65" width="2" height="2" fill="#e4343e"/><rect x="58" y="65" width="2" height="2" fill="#e4343e"/><rect x="49" y="67" width="18" height="8" fill="#1b1b22"/><rect x="54" y="69" width="8" height="2" fill="#fff1d6"/><rect x="67" y="58" width="3" height="10" fill="#f1c28e"/><rect x="51" y="75" width="6" height="4" fill="#3b5a96"/><rect x="59" y="75" width="6" height="4" fill="#3b5a96"/>' +
-      '<path d="M68 52 L71 49 L74 52 L71 55Z" fill="#e9fdff"/><rect x="70" y="40" width="2" height="2" fill="#e9fdff"/><rect x="77" y="58" width="2" height="2" fill="#e9fdff"/>' +
+      '<rect width="160" height="90" fill="#141026"/><rect y="0" width="160" height="10" fill="#1d1838"/><rect y="10" width="160" height="2" fill="#3fd07a"/>' +
+      '<rect x="4" y="6" width="4" height="4" fill="#ff4b3e"/><rect x="24" y="6" width="4" height="4" fill="#ffd23f"/><rect x="44" y="6" width="4" height="4" fill="#3ff0ff"/><rect x="64" y="6" width="4" height="4" fill="#ff3fa4"/><rect x="92" y="6" width="4" height="4" fill="#ff4b3e"/><rect x="112" y="6" width="4" height="4" fill="#ffd23f"/><rect x="132" y="6" width="4" height="4" fill="#3ff0ff"/><rect x="152" y="6" width="4" height="4" fill="#ff3fa4"/>' +
+      '<rect x="0" y="16" width="46" height="34" fill="#22284a"/><rect x="4" y="18" width="38" height="6" fill="#ff3fa4"/><rect x="4" y="28" width="38" height="20" fill="#3ff0ff" opacity=".45"/>' +
+      '<rect x="114" y="16" width="46" height="34" fill="#22284a"/><rect x="118" y="18" width="38" height="6" fill="#ffd23f"/><rect x="118" y="28" width="38" height="20" fill="#ff8a1f" opacity=".4"/>' +
+      '<rect x="56" y="14" width="48" height="26" fill="#2a1418"/><rect x="58" y="16" width="44" height="6" fill="#ff4b3e"/><rect x="58" y="24" width="44" height="16" fill="#8e93a2"/><rect x="58" y="27" width="44" height="1" fill="#5a5e6c"/><rect x="58" y="31" width="44" height="1" fill="#5a5e6c"/><rect x="58" y="35" width="44" height="1" fill="#5a5e6c"/>' +
+      '<rect x="74" y="28" width="2" height="10" fill="#2f9e5a"/><path d="M68 36 L75 22 L82 36Z" fill="#2f9e5a"/><rect x="74" y="20" width="2" height="2" fill="#ffd23f"/>' +
+      '<rect y="50" width="160" height="40" fill="#2a2d38"/><path d="M70 50 L90 50 L160 90 L0 90Z" fill="#3a3e4c"/><rect x="62" y="54" width="1" height="36" fill="#8e93a2" opacity=".4"/><rect x="97" y="54" width="1" height="36" fill="#8e93a2" opacity=".4"/>' +
+      '<rect x="36" y="60" width="6" height="8" fill="#ffd23f"/><rect x="35" y="59" width="8" height="2" fill="#1b1b22"/><rect x="118" y="64" width="10" height="8" fill="#ff4b3e"/><rect x="122" y="64" width="2" height="8" fill="#ffd23f"/>' +
+      '<circle cx="100" cy="58" r="2" fill="#ffd23f"/><circle cx="58" cy="74" r="2" fill="#ffd23f"/>' +
+      '<rect x="72" y="56" width="16" height="4" fill="#f6f4ee"/><rect x="74" y="52" width="12" height="4" fill="#e4343e"/><rect x="84" y="50" width="3" height="3" fill="#f6f4ee"/>' +
+      '<rect x="73" y="60" width="14" height="8" fill="#f1c28e"/><rect x="76" y="62" width="2" height="2" fill="#1b1b28"/><rect x="82" y="62" width="2" height="2" fill="#1b1b28"/><rect x="74" y="66" width="12" height="4" fill="#f6f4ee"/>' +
+      '<rect x="71" y="70" width="18" height="10" fill="#e4343e"/><rect x="71" y="75" width="18" height="2" fill="#1b1b22"/><rect x="79" y="75" width="2" height="2" fill="#ffd23f"/><rect x="67" y="70" width="4" height="8" fill="#e4343e"/><rect x="89" y="68" width="4" height="8" fill="#e4343e"/>' +
+      '<rect x="72" y="80" width="6" height="6" fill="#1b1b22"/><rect x="82" y="78" width="6" height="6" fill="#1b1b22"/><rect x="72" y="85" width="6" height="2" fill="#eceae2"/><rect x="82" y="83" width="6" height="2" fill="#eceae2"/>' +
       '</svg>'
   };
   function best(slug, fmtName) {
