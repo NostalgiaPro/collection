@@ -133,7 +133,8 @@
     Shell.gameOver(score, { title: "TABLE CLOSED", html:
       row("Matches won in a row", S.wins) + row("Best winning margin", S.bestMargin ? "+" + S.bestMargin : "None") +
       row("Lost to", opp().name) + row("Goals for / against", S.goals + " / " + S.conceded),
-      stats: { wins: S.wins, bestMargin: S.bestMargin, goals: S.goals, conceded: S.conceded, fastest: Math.round(S.fastest), lastOpponent: S.match } });
+      stats: { wins: S.wins, bestMargin: S.bestMargin, goals: S.goals, conceded: S.conceded, fastest: S.fastest ? Math.round(S.fastest) : undefined,   // undefined until a win, so rewards.js skips it (0 would look like a record)
+      lastOpponent: S.match } });
   }
   function row(a, b) { return '<div class="np-row"><span>' + a + '</span><b>' + b + '</b></div>'; }
   function burst(x, y, n, col) {

@@ -139,9 +139,9 @@
       T(48, "psp-combo", "Two for One Special", "Sink 2 or more balls with one shot.", "boxed"),
       T(97, "psp-three", "Bulk Lot Deal", "Sink 3 or more balls with one shot.", "boxed"),
       T(96, "psp-session", "Closing Time", "Clear all 3 racks before the shop closes.", "boxed", end(function (s) { return !!s.cleared; })),
-      T(49, "psp-close", "Out Before Closing", "Clear all 3 racks in 4:00 or less (penalties included).", "sealed", end(function (s) { return !!s.cleared && s.time <= 240; })),
+      T(49, "psp-close", "Out Before Closing", "Clear all 3 racks in 4:00 or less (penalties included).", "sealed", { goal: { stat: "time", at: 240, low: true, unit: "seconds", one: "second", fromBest: true }, end: function (s) { return !!s.cleared && s.time <= 240; } }),
       T(98, "psp-clean", "No Returns Accepted", "Clear all 3 racks without a scratch.", "sealed", end(function (s) { return !!s.cleared && s.scratches === 0; })),
-      T(99, "psp-fast", "Lunch Break Special", "Clear all 3 racks in 3:00 or less (penalties included).", "slabbed", end(function (s) { return !!s.cleared && s.time <= 180; }))
+      T(99, "psp-fast", "Lunch Break Special", "Clear all 3 racks in 3:00 or less (penalties included).", "slabbed", { goal: { stat: "time", at: 180, low: true, unit: "seconds", one: "second", fromBest: true }, end: function (s) { return !!s.cleared && s.time <= 180; } })
     ] },
     { slug: "rink-rat-shootout", name: "Rink Rat Shootout", status: "live", trophies: [
       T(100, "rrs-goal", "Past the Counter", "Score a goal.", "loose"),
@@ -150,9 +150,9 @@
       T(51, "rrs-top", "Top Shelf Item", "Score a top-corner goal.", "boxed"),
       T(102, "rrs-hat", "Hat Trick Bundle", "Score 3 goals in one period.", "boxed"),
       T(103, "rrs-late", "Closing Shift Corner", "Score a top-corner goal in period 3.", "boxed"),
-      T(52, "rrs-ten", "Past the Shelf Guardian", "Score 10 goals in one game (top corners count once each).", "sealed", end(function (s) { return s.goals >= 10; })),
+      T(52, "rrs-ten", "Past the Shelf Guardian", "Score 10 goals in one game (top corners count once each).", "sealed", { goal: { stat: "goals", at: 10, unit: "goals", one: "goal" }, end: function (s) { return s.goals >= 10; } }),
       T(104, "rrs-streak", "Five in a Row, No Returns", "Score on 5 shots in a row.", "sealed"),
-      T(105, "rrs-30", "Guardian Cleared Out", "Score 30 points in one game.", "slabbed", end(function (s) { return s.points >= 30; }))
+      T(105, "rrs-30", "Guardian Cleared Out", "Score 30 points in one game.", "slabbed", { goal: { stat: "points", at: 30, unit: "PTS", fromBest: true }, end: function (s) { return s.points >= 30; } })
     ] },
     { slug: "powder-day-haul", name: "Powder Day Haul", status: "live", trophies: [
       T(53, "pdh-guide", "Should've Bought the Strategy Guide", "Crash into anything.", "loose"),
@@ -160,10 +160,10 @@
       T(54, "pdh-bottom", "Bottom of Mount Backlog", "Reach the finish line.", "boxed"),
       T(107, "pdh-360", "Full Rotation", "Land a 360 or more.", "boxed"),
       T(108, "pdh-gates", "Every Gate, Every Time", "Pass every gate and reach the bottom.", "boxed"),
-      T(55, "pdh-discs", "Loose Disc Avalanche", "Collect 115 discs in one run.", "sealed", end(function (s) { return s.discs >= 115; })),
+      T(55, "pdh-discs", "Loose Disc Avalanche", "Collect 115 discs in one run.", "sealed", { goal: { stat: "discs", at: 115, unit: "discs", one: "disc" }, end: function (s) { return s.discs >= 115; } }),
       T(109, "pdh-clean", "No Dents in the Box", "Reach the bottom without a wipeout.", "sealed"),
       T(110, "pdh-720", "Double Rewind", "Land a 720 or more.", "sealed"),
-      T(111, "pdh-14k", "Avalanche of Loot", "Score 14,000 points in one run.", "slabbed", end(function (s) { return s.score >= 14000; }))
+      T(111, "pdh-14k", "Avalanche of Loot", "Score 14,000 points in one run.", "slabbed", { goal: { stat: "score", at: 14000, unit: "PTS", fromBest: true }, end: function (s) { return s.score >= 14000; } })
     ] },
     { slug: "table-rink-rumble", name: "Table Rink Rumble", status: "live", trophies: [
       T(112, "trr-goal", "Bagged and Tagged", "Score a goal.", "loose"),
@@ -172,9 +172,9 @@
       T(114, "trr-reseller", "Outbid the Reseller", "Beat The Reseller.", "boxed"),
       T(57, "trr-shutout", "Clearance Shutout", "Win a match 7 to 0.", "boxed"),
       T(58, "trr-purist", "Opened the Mint Sealed Purist", "Beat The Mint Sealed Purist.", "sealed"),
-      T(115, "trr-fast", "Quick Flip", "Win a match in 60 seconds or less.", "sealed"),
+      T(115, "trr-fast", "Quick Flip", "Win a match in 60 seconds or less.", "sealed", { goal: { stat: "fastest", at: 60, low: true, margin: 15, unit: "seconds", one: "second" } }),
       T(116, "trr-comeback", "Buyer's Remorse, Reversed", "Win a match after trailing by 3 or more.", "sealed"),
-      T(117, "trr-streak5", "Five Booth Run", "Win 5 matches in a row.", "slabbed")
+      T(117, "trr-streak5", "Five Booth Run", "Win 5 matches in a row.", "slabbed", { goal: { stat: "wins", at: 5, margin: 2, unit: "wins", one: "win" } })
     ] }
   ];
 

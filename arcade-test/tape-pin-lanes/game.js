@@ -380,7 +380,12 @@
     var sc = scores(S.frames), h = '<table class="np-card10" aria-label="Scorecard"><tr>', i;
     for (i = 0; i < 10; i++) h += "<th>" + (i + 1) + "</th>";
     h += "</tr><tr>";
-    for (i = 0; i < 10; i++) h += '<td class="np-nw">' + (S.frames[i] ? marks(S.frames[i], i).join("\u2009") : "") + "</td>";
+    // Each roll is its own box with a gap, so a 1 then a 7 never reads as "17" in the pixel font.
+    for (i = 0; i < 10; i++) {
+      var mk = S.frames[i] ? marks(S.frames[i], i) : [];
+      h += '<td class="np-nw"' + (mk.length ? ' aria-label="Frame ' + (i + 1) + ': ' + mk.join(", ") + '"' : "") + ">" +
+        mk.map(function (m) { return '<span class="np-roll">' + m + "</span>"; }).join("") + "</td>";
+    }
     h += "</tr><tr>";
     for (i = 0; i < 10; i++) h += "<td>" + (sc[i] == null ? "" : sc[i]) + "</td>";
     return h + "</tr></table>";
