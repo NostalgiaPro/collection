@@ -87,9 +87,13 @@ NP.CAMEOS = [
     inv: ['a CB radio handset', 'a pair of fuzzy dice', 'a thermos of very old coffee'] }
 ];
 NP.CAMEO_TEXT = {
-  tag: 'ODD SELLER!',
-  spotted: 'Odd sellers spotted: {n} of {all}',
-  first: 'An odd seller! There are more of these out there. Spot them all.',
+  tag: 'RARE SELLER!',
+  banner: 'RARE SELLER!',
+  bannerEgg: 'ODD SELLER SPOTTED!',
+  spotted: 'Rare seller found: {n} of {all}',
+  first: 'A rare seller! There are 19 of them out there. Spot them all.',
+  walkSub: 'Has a stall here today. Look for the sparkly table, or the star on the MAP.',
+  walkTag: 'RARE SELLER!',
   again: 'You have seen this one before.',
   trophy: 'HIDDEN TROPHY|Seen Them All|You spotted all 19 odd sellers',
   inv: 'Also on the blanket, just for show: {list}.',

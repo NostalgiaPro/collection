@@ -136,6 +136,8 @@ NP.Walk = (function () {
     setupDex(r);
     setupRivals(r);
     if (G().demo) setupCrowd(r);
+    var ct = W.tables.filter(function (t) { return t.cameo; })[0];
+    if (ct) { ct.title = ct.title; setTimeout(function () { if (W && W.stop === stop && G().cameoAnnounce) G().cameoAnnounce(ct.cameo, NP.CAMEO_TEXT.walkSub); }, 1200); }
   }
 
   // ---------- Demo round 5: a few shoppers wander the aisles (just for looks; they never take anything) ----------
@@ -172,7 +174,7 @@ NP.Walk = (function () {
     var h = '<div class="wmap"><div class="wmap-h"><b>' + (W.expo ? 'MAP OF THE HALL' : 'MAP OF THE SWAP MEET') + '</b><button class="wmap-x" data-wm="close" aria-label="Close the map">&#10005;</button></div>' +
       '<canvas class="wmap-cv" width="' + (MW * 6) + '" height="' + (MH * 6) + '"></canvas><div class="wmap-list">';
     places.forEach(function (o, i) {
-      h += '<button data-wm="' + i + '"><span class="wm-n">' + (i + 1) + '</span> ' + esc(o.title || o.label) + (seen[o.label] ? ' <span class="wm-seen">&#10003; seen</span>' : '') + '</button>';
+      h += '<button data-wm="' + i + '"' + (o.cameo ? ' class="wm-rare"' : '') + '><span class="wm-n">' + (o.cameo ? '&#9733;' : i + 1) + '</span> ' + esc(o.title || o.label) + (seen[o.label] ? ' <span class="wm-seen">&#10003; seen</span>' : '') + '</button>';
     });
     h += '</div><div class="wmap-f">Tap a place and you walk there. Walking uses a little daylight.</div></div>';
     ov.innerHTML = h;
@@ -185,6 +187,7 @@ NP.Walk = (function () {
     places.forEach(function (o, i) {
       g.fillStyle = seen[o.label] ? '#56B4E9' : '#E69F00'; g.fillRect(o.fx * 6, o.fy * 6, o.fw * 6, o.fh * 6);
       g.fillStyle = '#0b1022'; g.font = 'bold 9px monospace'; g.textAlign = 'center'; g.fillText(String(i + 1), (o.fx + o.fw / 2) * 6, (o.fy + o.fh / 2) * 6 + 3);
+      if (o.cameo) mapStar(g, (o.fx + o.fw / 2) * 6, o.fy * 6 - 9);
     });
     g.fillStyle = '#fff1d6'; g.fillRect(W.x * k - 3, W.y * k - 6, 6, 6); g.fillStyle = '#e4343e'; g.fillRect(W.x * k - 2, W.y * k - 5, 4, 4);
     g.fillStyle = '#fff1d6'; g.fillRect(GATE_X0 * 6, (MH - 1) * 6, (GATE_X1 - GATE_X0 + 1) * 6, 6);
@@ -199,6 +202,12 @@ NP.Walk = (function () {
       tapTo((o.fx + o.fw / 2) * T, (o.fy + o.fh / 2) * T);
     });
     if (G().track) G().track('stallmap_open');
+  }
+  function mapStar(g, cx, cy) {
+    // a five point star over the rare seller's stall
+    g.beginPath();
+    for (var i = 0; i < 10; i++) { var a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 4 : 9; g[i ? 'lineTo' : 'moveTo'](cx + Math.cos(a) * r, cy + Math.sin(a) * r); }
+    g.closePath(); g.fillStyle = '#ffcc33'; g.fill(); g.lineWidth = 2; g.strokeStyle = '#0b1022'; g.stroke();
   }
   function closeStallMap() { var o = document.querySelector('.wmap-ov'); if (o) o.parentNode.removeChild(o); }
 
@@ -217,6 +226,8 @@ NP.Walk = (function () {
     var s = W.stop;
     var lots = s.items.filter(function (it) { return it.kind === 'lot'; });
     var vis = s.items.filter(function (it) { return it.kind !== 'lot' && !it.crate; });
+    // r5 fix: the rare seller's games go first so they always get a stall of their own
+    if (s.cameo) vis = vis.filter(function (it) { return it.seller === s.cameo; }).concat(vis.filter(function (it) { return it.seller !== s.cameo; }));
     var groups = [], open = {};
     vis.forEach(function (it) {
       var g = open[it.seller];
@@ -253,6 +264,7 @@ NP.Walk = (function () {
         tb.hello = (G().helloFor && G().helloFor(g.seller)) || dflt;
         tb.label = sd.name.toUpperCase() + "'S TABLE";
         tb.title = sd.name + "'s table";
+        if (sd.cameo) { tb.cameo = g.seller; tb.title = '\u2605 RARE SELLER: ' + sd.name; tb.hello = sd.hi[0]; }
         tb.open = function () { return tablePanel(tb); };
         // vendor stands behind the table
         setSolid(sl[0] + 1, sl[1] - 1, tb);
@@ -760,13 +772,18 @@ NP.Walk = (function () {
       return { small: true, html: '<div class="bubble big">Brody from BrodyBox is filming at this table. "Can you walk around? You\'re in my shot. This video is NOT sponsored."</div>' +
         '<div class="note">The table opens back up at ' + G().fmtTime(tb.brodyUntil) + '. Come back then, or shop somewhere else.</div>' };
     }
-    var h = '<div class="bubble big">' + esc(sd.name) + ': "' + esc(tb.cola && SP ? SP.colaLine : tb.hello) + '"</div>';
+    var h = '';
+    if (tb.cameo) {
+      var cm = (NP.CAMEOS || []).filter(function (x) { return x.id === tb.cameo; })[0];
+      if (cm) h += '<div class="cameo rare"><span class="cameo-star" aria-hidden="true">&#9733;</span><canvas class="cameo-cv" width="48" height="64" data-cameo="' + cm.id + '" aria-hidden="true"></canvas><div><b class="cameo-tag">' + esc(NP.CAMEO_TEXT.tag) + '</b> <b>' + esc(cm.name) + '</b><div class="cameo-t">' + esc(cm.tag) + '.</div></div></div>';
+    }
+    h += '<div class="bubble big">' + esc(sd.name) + ': "' + esc(tb.cola && SP ? SP.colaLine : tb.hello) + '"</div>';
     if (tb.cola && SP) h += '<div class="glam"><canvas class="glamcan" width="22" height="30" aria-label="A can of ' + esc(SP.name) + '"></canvas><div class="glam-t">' + esc(SP.colaAction) + '</div></div>';
     if (G().adLevel() >= 2) h += '<div class="poster">' + (G().adFree() ? 'TAPED TO THE TABLE: The Ad-Free Edition. No posters. (Except this one.)' : 'TAPED TO THE TABLE: Nostalgia Pro: The Shelf Dust. Now in Sealed. Booth open till ' + (G().endLabel ? G().endLabel() : '5:30 PM') + '.') + '</div>';
     h += '<div class="items">' + tb.items.map(function (it) { return G().itemCard(it, s); }).join('') + '</div>';
     // every game vendor here buys too (selling and trading in, from game.js)
     if (G().sellHTML) h += G().sellHTML(s, tb.seller);
-    return { html: h, after: tb.cola ? drawGlamCan : null };
+    return { html: h, after: tb.cola ? drawGlamCan : tb.cameo ? function () { if (G().drawCameos) G().drawCameos(); if (G().cameoMeet) G().cameoMeet(tb.cameo); } : null };
   }
   function drawGlamCan() {
     var c = document.querySelector('.wpanel .glamcan');
@@ -830,6 +847,7 @@ NP.Walk = (function () {
     var el = panelEl();
     if (!el) return;
     el.hidden = false;
+    document.body.classList.add('wp-open');
     panelRender();
     try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
     el.scrollTop = 0;
@@ -839,6 +857,7 @@ NP.Walk = (function () {
     W.panel = null;
     var el = panelEl();
     if (el) { el.hidden = true; el.innerHTML = ''; }
+    document.body.classList.remove('wp-open');
     var cv = document.getElementById('walkcv');
     if (cv) { try { cv.focus({ preventScroll: true }); } catch (e) { cv.focus(); } }
   }
@@ -1174,7 +1193,13 @@ NP.Walk = (function () {
   var BANNERS = { friendly: ['MAKE AN OFFER', '#fff1d6', '#3a7d44'], firm: ['PRICE IS FIRM', '#fff1d6', '#e4343e'], ikwig: ['I KNOW WHAT I GOT', '#fff1d6', '#7a3d8f'] };
   function drawTable(tb) {
     var X = tb.fx * T, Y = tb.fy * T;
-    var bn = tb.flavorSign ? [tb.flavorSign, CREAM, INK] : BANNERS[tb.seller];
+    var bn = tb.flavorSign ? [tb.flavorSign, CREAM, INK] : tb.cameo ? ['RARE SELLER!', INK, '#ffcc33'] : BANNERS[tb.seller];
+    if (tb.cameo) {
+      // a pulsing gold glow and a few sparkles so the stall stands out from across the lot
+      var tt = performance.now() / 1000, pu = 0.35 + 0.25 * Math.sin(tt * 4);
+      ctx.fillStyle = 'rgba(255,204,51,' + pu.toFixed(2) + ')'; ctx.fillRect(X - 5 - CX, Y - 44 - CY, 58, 60);
+      NP.drawSparkle(ctx, X - 4 - CX, Y - 34 - CY, 1, tt); NP.drawSparkle(ctx, X + 50 - CX, Y - 20 - CY, 1, tt + 0.5); NP.drawSparkle(ctx, X + 24 - CX, Y + 13 - CY, 1, tt + 0.25);
+    }
     if (bn) {
       var bw = Math.max(48, NP.textWidth(bn[0], 1) + 8);
       R(X + 1, Y - 30, 2, 24, '#5d6370'); R(X + 45, Y - 30, 2, 24, '#5d6370');

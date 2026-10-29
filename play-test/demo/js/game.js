@@ -1954,7 +1954,7 @@
 
   // ---------- Demo round 5: undo the last buy or sale (8 seconds) ----------
   var undoSnap = null, undoT = null;
-  var UNDO_SKIP = { day: 1, stop: 1, screen: 1, seed: 1, history: 1, miniAt: 1, miniN: 1, miniLast: 1, cameoN: 1 };
+  var UNDO_SKIP = { day: 1, stop: 1, screen: 1, seed: 1, history: 1, miniAt: 1, miniN: 1, miniLast: 1, cameoN: 1, cameoUsed: 1 };
   function snapForUndo(kind, label) {
     if (!DEMO || !S || !S.stop) return;
     var top = {}, s = S.stop;
@@ -2012,9 +2012,13 @@
   function placeNextStep() {
     var old = document.querySelector('.nsbar'); if (old) old.parentNode.removeChild(old);
     document.body.classList.remove('has-ns');
+    if (!document.querySelector('.wpanel:not([hidden])')) document.body.classList.remove('wp-open');
     var h = nextStepHTML(); if (!h) return;
-    var d = document.createElement('div'); d.innerHTML = h; document.body.appendChild(d.firstChild);
+    var d = document.createElement('div'); d.innerHTML = h; var bar = d.firstChild; document.body.appendChild(bar);
     document.body.classList.add('has-ns');
+    // r5 fix: reserve exactly the bar's height (plus room) at the bottom, so it can never sit on top of the offer buttons
+    var fit = function () { if (bar.parentNode) document.documentElement.style.setProperty('--nsh', Math.ceil(bar.getBoundingClientRect().height) + 'px'); };
+    fit(); setTimeout(fit, 300);
   }
   function nextStepGo() {
     var n = nextStep(); if (!n) return;
@@ -2025,13 +2029,25 @@
   }
 
   // ---------- Demo round 5: TV commercials (optional, never cost daylight) ----------
-  function playTV(where) {
-    if (!NP.TVAds) return;
+  // r5 fix: the spots now also play on their own at natural breaks (the first drive, then about every 2 minutes at a drive or a stop change).
+  // They are pure overlays: the game clock never moves while one plays, and Skip is there from the first frame.
+  var tvSess = 0, tvLastAt = 0, TV_GAP = 120000;
+  function autoTV(where, then) {
+    if (!DEMO || !NP.TVAds || NP.TVAds.isOn()) return false;
+    if (tvSess > 0 && Date.now() - tvLastAt < TV_GAP) return false;
+    playTV(where, then);
+    return true;
+  }
+  function playTV(where, then) {
+    if (!NP.TVAds) { if (then) then(); return; }
+    tvSess++; tvLastAt = Date.now();
     var n = store.get('tvN', 0) || 0; store.set('tvN', n + 1);
     music(null); if (NP.Sound && NP.Sound.ambience) NP.Sound.ambience(null);
     track('tv_' + where);
-    NP.TVAds.play({ idx: n, label: where === 'map' ? 'A QUICK BREAK BETWEEN DRIVES' : where === 'yard' ? 'THE TV ON THE CARD TABLE' : 'ON THE NEXT TABLE', onDone: function (skipped) {
+    NP.TVAds.play({ idx: n, label: where === 'map' || where === 'drive' ? 'A QUICK BREAK BETWEEN DRIVES' : where === 'yard' ? 'THE TV ON THE CARD TABLE' : where === 'break' || where === 'home' ? 'WE\'LL BE RIGHT BACK' : 'ON THE NEXT TABLE', onDone: function (skipped) {
+      tvLastAt = Date.now();
       track(skipped ? 'tv_skipped' : 'tv_watched');
+      if (then) { then(); return; }
       var sc = applyScene();
       music(sc ? SCENES[sc].music : 'title', true);
       if (NP.Sound && NP.Sound.ambience) NP.Sound.ambience(S && S.screen === 'walk' && S.stop && S.stop.type === 'flea' ? 'crowd' : null);
@@ -2040,21 +2056,51 @@
 
   // ---------- Demo round 5: the odd sellers (rare, random, all original). Spot all nineteen for a hidden trophy ----------
   function cameosSeen() { var c = store.get('cameos', {}); return c && typeof c === 'object' ? c : {}; }
-  function pickCameo() {
-    var seen = cameosSeen(), all = NP.CAMEOS || [], fresh = all.filter(function (c) { return !seen[c.id]; });
+  function pickCameo(egg) {
+    var seen = cameosSeen(), all = NP.CAMEOS || [], used = (S && S.cameoUsed) || {};
+    all = all.filter(function (c) { return !used[c.id]; });
+    if (egg) { var eg = all.filter(function (c) { return c.egg; }); if (eg.length) all = eg; }
+    var fresh = all.filter(function (c) { return !seen[c.id]; });
     var pool = fresh.length && Math.random() < 0.75 ? fresh : all;
     return pool[Math.floor(Math.random() * pool.length)] || null;
   }
   function maybeCameo(s) {
     if (!DEMO || !NP.CAMEOS || !s || s.cameo !== undefined) return; // demo round 5 only for now
     s.cameo = null;
-    if (s.type === 'flea' || s.type === 'expo' || s.gift || s.type === 'banned' || s.type === 'mall') return; // the walkable places get theirs as a mini event
-    if ((S.cameoN || 0) >= 2 || Math.random() > (window.__NP_TEST && window.__NP_TEST.cameoOdds != null ? window.__NP_TEST.cameoOdds : 0.25)) return;
-    var c = pickCameo(); if (!c) return;
-    var it = s.items.filter(function (x) { return x.state === 'avail' && x.kind === 'game' && !x.early && !x.mistag; })[0];
-    if (!it) return;
-    it.seller = c.id; it.ask = Math.max(1, Math.round(it.ask * 0.85)); it.minFrac = Math.min(it.minFrac, 0.6);
-    s.cameo = c.id; S.cameoN = (S.cameoN || 0) + 1;
+    if (s.type === 'expo' || s.gift || s.type === 'banned' || s.type === 'mall') return;
+    S.cameoUsed = S.cameoUsed || {};
+    var c, its;
+    if (s.type === 'flea') {
+      // r5 fix: the swap meet always has one rare seller with their own stall (an easter egg seller first)
+      c = pickCameo(true); if (!c) return;
+      its = s.items.filter(function (x) { return x.state === 'avail' && x.kind === 'game' && !x.crate && !x.mistag; }).slice(0, 3);
+    } else {
+      // r5 fix: the first stop that can host one always gets one (an easter egg seller), then better odds after that
+      var first = !(S.cameoN || 0);
+      if (!first && ((S.cameoN || 0) >= 3 || Math.random() > 0.45)) return;
+      c = pickCameo(first); if (!c) return;
+      its = s.items.filter(function (x) { return x.state === 'avail' && x.kind === 'game' && !x.early && !x.mistag; }).slice(0, 1);
+      if (!its.length) its = s.items.filter(function (x) { return x.state === 'avail' && x.kind !== 'lot' && !x.early && !x.mistag; }).slice(0, 1);
+    }
+    if (!its.length) return;
+    its.forEach(function (it) { it.seller = c.id; it.ask = Math.max(1, Math.round(it.ask * 0.85)); it.minFrac = Math.min(it.minFrac, 0.6); });
+    s.cameo = c.id; S.cameoN = (S.cameoN || 0) + 1; S.cameoUsed[c.id] = 1;
+  }
+  function cameoById(id) { return (NP.CAMEOS || []).filter(function (x) { return x.id === id; })[0] || null; }
+  // the big "RARE SELLER!" banner: portrait, name, one-liner, a sparkle and a sound
+  function announceCameo(id, sub) {
+    var c = cameoById(id); if (!c) return;
+    var old = document.querySelector('.rareban'); if (old) old.parentNode.removeChild(old);
+    var el = document.createElement('div'); el.className = 'rareban'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
+    el.innerHTML = '<div class="rb-spark" aria-hidden="true">&#10022; &#10023; &#10022;</div><div class="rb-in"><canvas class="cameo-cv" width="48" height="64" data-cameo="' + c.id + '" aria-hidden="true"></canvas><div>' +
+      '<b class="rb-h">&#9733; ' + esc(c.egg ? NP.CAMEO_TEXT.bannerEgg : NP.CAMEO_TEXT.banner) + '</b><div class="rb-n">' + esc(c.name) + '</div>' +
+      '<div class="rb-l">"' + esc(c.hi[0]) + '"</div>' + (sub ? '<div class="rb-s">' + esc(sub) + '</div>' : '') + '</div></div><button class="rb-x" type="button">OK</button>';
+    document.body.appendChild(el);
+    drawCameos();
+    sfx('fanfare'); setTimeout(function () { sfx('sparkle'); }, 380);
+    var t = setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 5200);
+    el.querySelector('.rb-x').addEventListener('click', function () { clearTimeout(t); if (el.parentNode) el.parentNode.removeChild(el); });
+    track('cameo_banner');
   }
   function spotCameo(id) {
     var seen = cameosSeen(), first = !Object.keys(seen).length, was = seen[id];
@@ -2071,8 +2117,8 @@
   function cameoBox(s) {
     if (!s.cameo) return '';
     var c = (NP.CAMEOS || []).filter(function (x) { return x.id === s.cameo; })[0]; if (!c) return '';
-    if (!s.cameoSpotted) { s.cameoSpotted = true; setTimeout(function () { spotCameo(c.id); }, 600); }
-    return '<div class="cameo"><canvas class="cameo-cv" width="48" height="64" data-cameo="' + c.id + '" aria-hidden="true"></canvas><div><b class="cameo-tag">' + esc(NP.CAMEO_TEXT.tag) + '</b> <b>' + esc(c.name) + '</b>' +
+    if (!s.cameoSpotted) { s.cameoSpotted = true; setTimeout(function () { announceCameo(c.id); spotCameo(c.id); }, 600); }
+    return '<div class="cameo rare"><span class="cameo-star" aria-hidden="true">&#9733;</span><canvas class="cameo-cv" width="48" height="64" data-cameo="' + c.id + '" aria-hidden="true"></canvas><div><b class="cameo-tag">' + esc(NP.CAMEO_TEXT.tag) + '</b> <b>' + esc(c.name) + '</b>' +
       '<div class="cameo-t">' + esc(c.tag) + '.</div><div class="cameo-l">"' + esc(c.hi[0]) + '"</div>' +
       (c.inv && c.inv.length && NP.CAMEO_TEXT.inv ? '<div class="cameo-inv">' + esc(NP.CAMEO_TEXT.inv.replace('{list}', c.inv.slice(0, -1).join(', ') + (c.inv.length > 1 ? ' and ' : '') + c.inv[c.inv.length - 1])) + '</div>' : '') + '</div></div>';
   }
@@ -2104,8 +2150,8 @@
       if (g) { g.ask = 1; g.minFrac = 1; g.mistag = true; line = line.replace('{t}', g.t); } else { id = 'cash'; line = E.cash; }
     } else if (id === 'tv') act = 'tv';
     else if (id === 'cameo') {
-      var cm = S.cameoN >= 2 ? null : pickCameo();
-      if (cm) { S.cameoN = (S.cameoN || 0) + 1; act = 'cameo:' + cm.id; line = NP.CAMEO_TEXT.mini.replace('{name}', cm.name).replace('{tag}', cm.tag) + ' "' + cm.hi[0] + '"'; }
+      var cm = S.cameoN >= 4 ? null : pickCameo();
+      if (cm) { S.cameoN = (S.cameoN || 0) + 1; (S.cameoUsed = S.cameoUsed || {})[cm.id] = 1; act = 'cameo:' + cm.id; line = NP.CAMEO_TEXT.mini.replace('{name}', cm.name).replace('{tag}', cm.tag) + ' "' + cm.hi[0] + '"'; }
       else { id = 'cash'; line = E.cash; }
     }
     if (id === 'cameo' && S.stop.type !== 'flea') { id = 'cash'; line = E.cash; act = null; }
@@ -4058,7 +4104,7 @@
   function driveTo(id, via) {
     var s = S.day.stops.filter(function (x) { return x.id === id; })[0];
     if (!s || s.visited) { render(); return; }
-    if (DEMO) { step('f06_drive_' + (S.history.length + 1) + '_' + s.type + '_' + (via || 'map')); if (tipEl) closeTip(); return townDrive(s, via); }
+    if (DEMO) { step('f06_drive_' + (S.history.length + 1) + '_' + s.type + '_' + (via || 'map')); if (tipEl) closeTip(); if (autoTV('drive', function () { townDrive(s, via); })) return; return townDrive(s, via); }
     step('f06_drive_' + (S.history.length + 1) + '_' + s.type + '_' + (via || 'map'));
     if (tipEl) closeTip();
     var drive = function () { arrive(s); render(); window.scrollTo(0, 0); if (S.screen === 'stop' && S.stop && S.stop.cleared) showTip('dex', null); };
@@ -4077,6 +4123,8 @@
   // ---------- commercials ----------
   var adTimer = null;
   function showCommercial(next, last) {
+    // demo: the breaks show the six animated TV spots instead of the old still card (and only if one did not just play)
+    if (DEMO && NP.TVAds) { if (!autoTV(last ? 'home' : 'break', next)) next(); return; }
     var pool = adFree ? NP.ADFREE_ADS : NP.ADS;
     var ad = adFree ? pool[S.adsShown % pool.length] : pool[S.day.adOrder[S.adsShown % pool.length]];
     S.adsShown++;
@@ -4739,6 +4787,10 @@
 
   // what walk.js is allowed to touch
   NP.G = {
+    cameoHere: function () { return S && S.stop && S.stop.cameo ? cameoById(S.stop.cameo) : null; },
+    cameoMeet: function (id) { if (!S || !S.stop || S.stop.cameo !== id || S.stop.cameoMet) return false; S.stop.cameoMet = true; return spotCameo(id); },
+    cameoAnnounce: function (id, sub) { if (S && S.stop && S.stop.cameo === id) announceCameo(id, sub); },
+    drawCameos: function () { drawCameos(); },
     state: function () { return S; }, END: END, rivalNotes: rivalNotes, rivalHit: rivalHit, rivalsAt: rivalsAt, endT: endT, endLabel: endLabel, sellHTML: sellHTML, creditHere: creditHere,
     spend: spend, checkSundown: checkSundown, updateHud: updateHud, leaveButtons: leaveButtons, step: step,
     itemCard: itemCard, drawArts: drawArts, giftHTML: giftHTML, gradeHTML: function () { return gradeHTML(); }, autographHTML: function () { return autographHTML(); }, drawGiftArts: drawGiftArts, dexSetup: dexSetup,
@@ -4749,8 +4801,9 @@
     tip: function (k) { return showTip(k, k === 'dex' ? dexAnchor() : null); }, tipOpen: tipOpen
   };
 
-  // test hooks (harmless in production)
-  window.__NP_TEST = { keep: function () { return K(); }, spotCameo: function (id) { return spotCameo(id); }, playTV: function (w) { playTV(w || 'map'); },
+  // test hooks: only on a local test server, never on the live site. Nothing here can unlock the hidden trophy.
+  if (!/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return;
+  window.__NP_TEST = { keep: function () { return K(); }, playTV: function (w) { playTV(w || 'map'); },
     // the season simulator used for the balance pass (test only; nothing in the game calls these)
     sim: {
       route: function () { return planRoute().map(function (x) { return x.id; }); },

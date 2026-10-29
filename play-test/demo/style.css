@@ -925,3 +925,47 @@ details.more { display: inline; }
 details.more summary { display: inline-flex; align-items: center; cursor: pointer; color: var(--cyan); text-decoration: underline; min-height: 44px; min-width: 44px; padding: 0 8px; list-style: none; }
 details.more summary::-webkit-details-marker { display: none; }
 details.more[open] summary { display: none; }
+
+/* ---- r5 fix: the pinned NEXT bar never covers the offer buttons on phones ---- */
+body.has-ns { padding-bottom: calc(var(--nsh, 84px) + 16px); }
+body.has-ns .minicard { bottom: calc(var(--nsh, 84px) + 6px); }
+body.wp-open .nsbar { display: none; }
+@supports selector(:has(a)) { body:has(.wpanel:not([hidden])) .nsbar { display: none; } }
+@media (max-width: 640px), (max-height: 500px) {
+  body.has-ns .wpanel, body.has-ns .wpanel.small { padding-bottom: calc(var(--nsh, 84px) + 24px); }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  body.has-ns { padding-bottom: calc(var(--nsh, 60px) + 12px); }
+}
+
+/* ---- r5 fix: rare sellers (easter eggs) are impossible to miss ---- */
+.cameo.rare { position: relative; border-color: #ffcc33; background: linear-gradient(135deg, #2a1d4a, #3a2a10); box-shadow: 0 0 0 2px #0b1022, 0 0 18px 4px rgba(255,204,51,.55); animation: mcIn2 .4s ease-out both, rareGlow 1.6s ease-in-out infinite; }
+.cameo.rare .cameo-tag { color: #ffcc33; }
+.cameo-star { position: absolute; top: -12px; right: -8px; font-size: 26px; color: #ffcc33; text-shadow: 0 0 6px #fff, 2px 2px 0 #0b1022; animation: rareSpin 2.4s linear infinite; }
+@keyframes rareGlow { 0%, 100% { box-shadow: 0 0 0 2px #0b1022, 0 0 10px 2px rgba(255,204,51,.4); } 50% { box-shadow: 0 0 0 2px #0b1022, 0 0 24px 8px rgba(255,204,51,.8); } }
+@keyframes rareSpin { 0% { transform: scale(1) rotate(0); } 50% { transform: scale(1.25) rotate(20deg); } 100% { transform: scale(1) rotate(0); } }
+.rareban { position: fixed; left: 50%; top: max(12px, env(safe-area-inset-top)); transform: translateX(-50%); z-index: 115; width: min(440px, calc(100vw - 20px)); background: linear-gradient(135deg, #1d2b53, #4a2a6a);
+  border: 3px solid #ffcc33; color: #fff1d6; padding: 10px 12px 8px; box-shadow: 0 0 0 3px #0b1022, 0 0 30px 6px rgba(255,204,51,.6); animation: rareIn .45s cubic-bezier(.2,1.4,.4,1) both; cursor: pointer; }
+.rareban .rb-spark { position: absolute; top: -14px; left: 0; right: 0; text-align: center; color: #ffcc33; font-size: 20px; letter-spacing: 14px; text-shadow: 0 0 6px #fff; animation: rareSpin 1.6s linear infinite; }
+.rareban .rb-in { display: flex; gap: 10px; align-items: flex-start; }
+.rareban .rb-h { display: block; color: #ffcc33; font-size: 20px; letter-spacing: 1px; text-shadow: 2px 2px 0 #0b1022; }
+.rareban .rb-n { font-weight: bold; font-size: 17px; margin-top: 2px; }
+.rareban .rb-l { font-style: italic; margin-top: 4px; }
+.rareban .rb-s { font-size: 14px; opacity: .9; margin-top: 4px; }
+.rareban .rb-x { display: block; margin: 8px 0 0 auto; min-height: 44px; min-width: 88px; background: #ffcc33; color: #0b1022; border: 2px solid #fff1d6; font-weight: bold; }
+@keyframes rareIn { from { transform: translate(-50%, -40px) scale(.8); opacity: 0; } to { transform: translate(-50%, 0) scale(1); opacity: 1; } }
+.wmap-list button.wm-rare { border-color: #ffcc33; color: #ffcc33; box-shadow: 0 0 10px rgba(255,204,51,.6); }
+.wmap-list button.wm-rare .wm-n { background: #ffcc33; color: #0b1022; }
+body.calmfx .cameo.rare, body.calmfx .cameo-star, body.calmfx .rareban, body.calmfx .rareban .rb-spark { animation: none; }
+/* the TV spot's Skip button is visible and tappable from the very first frame */
+.tvad-skip { opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+/* the rare seller banner never blocks play: only its OK button takes taps */
+.rareban { pointer-events: none; cursor: default; }
+.rareban .rb-x { pointer-events: auto; }
+@media (orientation: landscape) and (max-height: 500px) {
+  .rareban { width: min(420px, calc(100vw - 20px)); padding: 6px 10px; }
+  .rareban .cameo-cv { width: 36px; height: 48px; }
+  .rareban .rb-h { font-size: 16px; } .rareban .rb-x { min-height: 40px; margin-top: 4px; }
+}
+/* scrolling to a button (keyboard focus, scrollIntoView) keeps it clear of the pinned NEXT bar */
+html:has(body.has-ns) { scroll-padding-bottom: calc(var(--nsh, 84px) + 16px); }
