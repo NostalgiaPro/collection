@@ -12,7 +12,7 @@ window.NP_SEASONS = {
       slug: "creature-feature-ko", name: "Creature Feature KO", href: "creature-feature-ko/", accent: "#ff8a1f",
       kicker: "SEASONAL SPECIAL: HALLOWEEN", genre: "Halloween boss rush", fmt: "pts",
       hook: "The late show ran long and the monsters climbed out of the tapes. Seven boss fights, one collector, a pocket full of candy corn. Slide to dodge, stand under to hit.",
-      art: "halloween" },
+      art: "halloween", cover: "covers/11-creature-feature-ko" },
     { id: "thanksgiving", label: "Thanksgiving", start: "11-20", end: "11-30", status: "soon", name: "", href: "", accent: "#e0662a" },
     { id: "winter", label: "Winter holidays", start: "12-08", end: "12-28", status: "soon", name: "", href: "", accent: "#3ff0ff" },
     { id: "new-year", label: "New Year", start: "12-29", end: "01-04", status: "soon", name: "", href: "", accent: "#ffd23f" },
@@ -94,6 +94,10 @@ window.NP_SEASONS = {
   }
 
   // Hero slot
+  function coverPic(c, cls, lazy) {
+    return c ? '<picture' + (cls ? ' class="' + cls + '"' : '') + '><source srcset="' + esc(c) + '.webp" type="image/webp"><img src="' + esc(c) + '.jpg" width="360" height="480" alt=""' + (lazy ? ' loading="lazy"' : '') + ' decoding="async"></picture>' : "";
+  }
+  function pixelArt(key, withCover) { var a = ART[key] || ""; return withCover ? a.replace("<svg ", '<svg class="cab-fallback" ') : a; }
   var slot = document.getElementById("featured");
   if (slot) {
     var g, kicker, until = "", art;
@@ -101,11 +105,11 @@ window.NP_SEASONS = {
       g = active; kicker = active.kicker || ("SEASONAL SPECIAL: " + active.label.toUpperCase());
       var mo = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][Number(active.end.slice(0, 2)) - 1];
       until = "Featured through " + mo + " " + Number(active.end.slice(3)) + ". Free, like everything here.";
-      art = ART[active.art] || "";
+      art = coverPic(active.cover) + pixelArt(active.art, !!active.cover);
     } else {
       var F = C.FEATURED, day = Math.floor((Date.now() - 7 * 3600e3) / 86400e3);
       g = F[day % F.length]; kicker = "FEATURED GAME"; until = "A new featured cabinet every day.";
-      art = g.cover ? '<picture><source srcset="' + esc(g.cover) + '.webp" type="image/webp"><img src="' + esc(g.cover) + '.jpg" width="360" height="480" alt="" decoding="async"></picture>' : "";
+      art = coverPic(g.cover);
     }
     slot.className = "feat" + (active ? " feat-season feat-" + esc(active.id) : "");
     slot.style.setProperty("--c", g.accent || "#3ff0ff");
@@ -139,7 +143,7 @@ window.NP_SEASONS = {
       var on = active && active.id === v.id;
       html += '<li data-genre="seasonal" data-ready><article class="cab" style="--c:' + esc(v.accent) + '" aria-labelledby="g-' + esc(v.slug) + '">' +
         '<div class="cab-marquee"><h2 id="g-' + esc(v.slug) + '">' + esc(v.name.toUpperCase()) + '</h2><span class="vault-tag">' + (on ? "IN SEASON" : "FROM THE VAULT") + '</span></div>' +
-        '<div class="cab-bezel"><div class="cab-screen">' + (ART[v.art] || "") + '</div></div>' +
+        '<div class="cab-bezel"><div class="cab-screen">' + coverPic(v.cover, "cab-cover", true) + pixelArt(v.art, !!v.cover) + '</div></div>' +
         '<p class="cab-genre">' + esc(v.label) + ' special</p>' +
         '<p class="cab-hook">' + esc(v.hook) + '</p>' +
         '<div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>' +
