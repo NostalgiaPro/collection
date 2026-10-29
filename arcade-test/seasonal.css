@@ -41,6 +41,8 @@
 .feat-until { margin: 0; font-size: 13px; color: var(--dim); }
 .feat-season.feat-halloween { background: linear-gradient(135deg, #2a1236, #12141c 55%, #2a170a); }
 .feat-season.feat-halloween .feat-title { color: #ff8a1f; }
+.feat-season.feat-christmas { background: linear-gradient(135deg, #0e2a1c, #12141c 55%, #2a0e14); }
+.feat-season.feat-christmas .feat-title { color: #3fd07a; }
 @keyframes featpulse { 50% { box-shadow: 0 5px 0 color-mix(in srgb, var(--c) 45%, #000), 0 0 22px color-mix(in srgb, var(--c) 70%, transparent); } }
 
 /* Vault */

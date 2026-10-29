@@ -114,6 +114,22 @@
       T(92, "gob-saint", "Saintly Patience", "Finish the flight without missing a beat.", "sealed", end(function (s) { return s.skyDone && s.skyMisses === 0; })),
       T(93, "gob-gravy", "Before the Gravy", "Arrive 30+ minutes early with all 3 pies and zero road hits.", "slabbed", end(function (s) { return s.spare >= 30 && s.pies === 3 && s.roadHits === 0; }))
     ] },
+    // Seasonal (Christmas 2026), test path only for now. Slots 118-129 (94-117 are batch 3); never reuse them.
+    // Full-run trophies ignore ?stage= practice runs.
+    { slug: "scrooges-haunt", name: "Scrooge's Haunt", status: "live", seasonal: "christmas", trophies: [
+      T(118, "sh-past", "First Spirit", "Defeat the Ghost of Christmas Past.", "loose", end(function (s) { return s.kPast; })),
+      T(119, "sh-present", "Plenty for All", "Defeat the Ghost of Christmas Present.", "loose", end(function (s) { return s.kPresent; })),
+      T(120, "sh-future", "Future Averted", "Defeat the Ghost of Christmas Yet to Come.", "loose", end(function (s) { return s.kFuture; })),
+      T(121, "sh-marley", "Humbug Banisher", "Complete the entire run and defeat Marley's Specter.", "boxed", end(function (s) { return s.cleared && !s.practice; })),
+      T(122, "sh-swift", "Swift Redemption", "Defeat the Ghost of Christmas Past in under 25 seconds.", "boxed", { goal: { stat: "pastTime", at: 25, low: true, margin: 8, unit: "seconds", one: "second" }, end: function (s) { return s.kPast && s.pastTime < 25; } }),
+      T(123, "sh-feast", "Feast Dodger", "Clear the Ghost of Christmas Present without getting hit by a roasted chestnut.", "boxed"),
+      T(124, "sh-slate", "Cold Slate", "Stand directly beneath the Ghost of Christmas Yet to Come for 10 seconds in a row.", "boxed", { goal: { stat: "underBest", at: 10, margin: 4, unit: "seconds", one: "second" }, end: function (s) { return s.underBest >= 10; } }),
+      T(125, "sh-ledgers", "Heavy Metal", "Destroy 10 falling ledgers with your standing counter-attack in one run.", "boxed", { goal: { stat: "ledgers", at: 10, margin: 4, unit: "ledgers", one: "ledger" }, end: function (s) { return s.ledgers >= 10; } }),
+      T(126, "sh-clock", "Clock Watcher", "Finish the whole 4-spirit gauntlet with more than 45 seconds to midnight.", "sealed", end(function (s) { return s.cleared && !s.practice && s.timeLeft > 45; })),
+      T(127, "sh-untouch", "Untouchable Soul", "Reach Marley's Specter without taking any damage.", "sealed", end(function (s) { return s.cleanToMarley; })),
+      T(128, "sh-chain", "Chain Breaker", "K.O. Marley while his safe door is mid-spin during Coin Burst.", "sealed"),
+      T(129, "sh-master", "Master of the Carol", "Beat the full game with 0 damage taken on a single credit.", "slabbed", end(function (s) { return s.cleared && !s.practice && s.hitsTaken === 0 && s.credits === 1; }))
+    ] },
     // Batch 3 (test path only for now). Claude's build used slots 72-95, which collide with Creature Feature KO (71-82)
     // and Gravy or Bust! (83-93), so the new batch 3 trophies were moved up by 22 to slots 94-117. 47-58 are unchanged.
     { slug: "pawn-shop-pool", name: "Pawn Shop Pool", status: "live", trophies: [
