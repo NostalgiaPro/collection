@@ -30,9 +30,11 @@ window.NP_CONFIG = {
     if (/^android-app:\/\//.test(document.referrer || "")) hit = true;   // Trusted Web Activity
     if (/Android/.test(ua) && /; wv\)/.test(ua)) hit = true;              // Android WebView
     if (C.APP_UA_TOKEN && ua.indexOf(C.APP_UA_TOKEN) >= 0) hit = true;
-    if (hit) { try { sessionStorage.setItem("npInApp", "1"); } catch (e) { /* storage blocked */ } }
+    // Also set the site-wide "np-twa" flag so the hub (seasonal.js), shell.js and the Trophy Shelf hide donate links too.
+    if (hit) { try { sessionStorage.setItem("npInApp", "1"); sessionStorage.setItem("np-twa", "1"); } catch (e) { /* storage blocked */ } }
     return hit;
   };
+  C.inApp();   // run once on load so the flag is set before the hub and shell read it
   C.donateHref = function () {
     var u = C.DONATE_URL;
     if (!u || u === "DONATE_URL" || C.inApp()) return "";
