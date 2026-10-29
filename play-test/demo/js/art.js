@@ -110,7 +110,7 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
     if (isG) { P(22, 31, 4, 4, NP.COL.gold); P(23, 32, 2, 2, '#fff'); }
     return;
   }
-  if (kind === 'lot') {
+  if (kind === 'lot' || kind === 'mbox') {
     P(1, 12, 30, 26, '#6b4a2b'); P(2, 13, 28, 24, '#a87443'); P(1, 10, 30, 4, '#8a5e36');
     P(14, 10, 4, 28, '#d8b07a');
     NP.pixelText(ctx, '?', ox + 8 * k, oy + 20 * k, k, NP.COL.cream);
@@ -309,4 +309,45 @@ NP.drawSparkle = function (ctx, cx, cy, k, t) {
   ctx.fillRect(Math.round(cx - len * k), Math.round(cy - k / 2), len * 2 * k + k, Math.max(1, k));
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(Math.round(cx - k / 2), Math.round(cy - k / 2), Math.max(1, k), Math.max(1, k));
+};
+
+// Demo round 5: a pixel-art banner for a yard sale stop (240x64). The house, the garage, the tables, the sign.
+// sky: 'dawn' | 'day' | 'dusk' | 'sunset'. seed picks the house colors so every yard sale looks a little different.
+NP.drawYardBanner = function (cv, seed, sky, t) {
+  var g = cv.getContext('2d'), W = cv.width, H = cv.height;
+  var P = function (x, y, w, h, c) { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), w, h); };
+  var h = NP.hashStr(String(seed || 'yard')), t2 = t || 0;
+  var SK = { dawn: ['#f7a072', '#f9c58d', '#fde2b3'], day: ['#6ec6f0', '#9ad8f5', '#c8ecfa'], dusk: ['#e98a6b', '#f0b27a', '#f6d6a0'], sunset: ['#7a4b8c', '#d0647a', '#f29e6a'] }[sky] || ['#6ec6f0', '#9ad8f5', '#c8ecfa'];
+  for (var i = 0; i < 3; i++) P(0, i * 12, W, 12, SK[i]);
+  // far hills and a big sun
+  g.fillStyle = sky === 'day' ? '#fff3b0' : '#ffe08a'; g.beginPath(); g.arc(200, 20, 9, 0, Math.PI * 2); g.fill();
+  for (var x = 0; x < W; x += 2) { var hy = 30 + Math.sin(x / 23 + h % 7) * 3 + Math.sin(x / 9) * 1.2; P(x, hy, 2, 40, '#c99a6b'); }
+  P(0, 44, W, 20, '#d9b37a'); for (x = 0; x < W; x += 7) P(x + (h % 5), 50 + (x * 3) % 9, 2, 1, '#c79c63');
+  // the driveway
+  g.fillStyle = '#b8b2a6'; g.beginPath(); g.moveTo(96, 44); g.lineTo(136, 44); g.lineTo(150, 64); g.lineTo(82, 64); g.closePath(); g.fill();
+  // the house, colors from the seed
+  var walls = ['#e9d8b8', '#cfe3d3', '#f1c9a8', '#d6d2ea', '#f3e1a0'][h % 5], roof = ['#a14a3a', '#5a6b7a', '#7a5a3a', '#3f6b5a'][(h >> 3) % 4];
+  P(30, 24, 110, 20, walls); P(26, 18, 118, 7, roof); P(30, 16, 110, 3, roof);
+  P(40, 30, 12, 9, '#7fb6d6'); P(45, 30, 1, 9, walls); P(40, 34, 12, 1, walls);
+  P(60, 30, 9, 14, '#6b4a2e'); P(67, 37, 1, 1, '#ffcc33');
+  // the garage, door rolled up, full of boxes
+  P(96, 26, 40, 18, '#3b3530'); P(96, 26, 40, 3, '#cfc8bd');
+  P(100, 34, 9, 10, '#b88a52'); P(110, 37, 8, 7, '#a8794a'); P(121, 33, 11, 11, '#c69a5e'); P(103, 30, 6, 4, '#c69a5e');
+  // two card tables with stuff on them
+  [[78, 47], [140, 49]].forEach(function (tb, k) {
+    P(tb[0], tb[1], 30, 3, '#4d5a6b'); P(tb[0] + 2, tb[1] + 3, 1, 8, '#2b2f38'); P(tb[0] + 27, tb[1] + 3, 1, 8, '#2b2f38');
+    var cols = ['#e4343e', '#29d3e8', '#ffcc33', '#3ddc84', '#CC79A7', '#E69F00'];
+    for (var j = 0; j < 5; j++) P(tb[0] + 2 + j * 6, tb[1] - 5 - (j % 2), 4, 5 + (j % 2), cols[(h + j + k * 2) % cols.length]);
+  });
+  // the cardboard sign, with balloons that bob
+  P(172, 34, 34, 14, '#c99a5e'); P(172, 34, 34, 1, '#a87a44'); P(188, 48, 2, 12, '#7a5a3a');
+  NP.pixelText(g, 'YARD', 189, 36, 1, '#1d2b53', 'center'); NP.pixelText(g, 'SALE!', 189, 42 - 1, 1, '#e4343e', 'center');
+  [['#e4343e', 170, 0], ['#29d3e8', 178, 1.3], ['#ffcc33', 207, 2.1]].forEach(function (b) {
+    var by = 20 + Math.sin(t2 * 2 + b[2]) * 2;
+    P(b[1] - 3, by - 4, 6, 7, b[0]); P(b[1] - 2, by - 5, 4, 1, b[0]); P(b[1] - 1, by - 3, 1, 2, 'rgba(255,255,255,.7)');
+    g.strokeStyle = '#6b5a4a'; g.beginPath(); g.moveTo(b[1] + 0.5, by + 3); g.lineTo(189.5, 34); g.stroke();
+  });
+  // a saguaro and a mailbox
+  P(14, 26, 5, 22, '#2f8f4e'); P(9, 32, 5, 3, '#2f8f4e'); P(9, 28, 3, 6, '#2f8f4e'); P(19, 35, 4, 3, '#2f8f4e'); P(21, 30, 3, 7, '#2f8f4e'); P(15, 27, 1, 20, '#4fbf6e');
+  P(222, 44, 2, 12, '#5a4a3a'); P(218, 40, 10, 5, '#3f5f9a'); P(226, 38, 1, 4, '#e4343e');
 };

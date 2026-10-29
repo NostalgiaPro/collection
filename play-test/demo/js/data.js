@@ -172,6 +172,7 @@ NP.itemInfo = function (it, opts) {
     var md = null; for (i = 0; i < NP.MEDIA.length; i++) if (NP.MEDIA[i].id === it.id) md = NP.MEDIA[i];
     tag = md ? md.tag : 'common'; d = md ? md.d : ''; b = md ? md.b : '';
   }
+  else if (it.kind === 'mbox') { tag = 'lot'; d = NP.MBOX ? NP.MBOX.d : 'A mystery box.'; }
   else if (it.kind === 'gear') { tag = 'gear'; d = (NP.GEAR[it.id] || {}).d || 'Not a game.'; }
   else if (it.kind === 'standee') { tag = 'standee'; d = NP.RENTAL.standee.d; }
   else if (it.kind === 'bulk') { tag = 'bulk'; d = NP.BULK.d; }
@@ -398,14 +399,14 @@ NP.FINALE_NOTE = 'Saturday 12. The last Saturday of the season. Make it count.';
 // ---------- endings. Checked top to bottom; the first one that fits is yours. ----------
 // Round 3c: score = the season shelf (every different thing once, at its best copy; convention finds count double)
 // + 5 points for every different find + 1 point for every $10 left over. items/dupes/merch count what is on the season shelf.
-// Thresholds were set from simulated seasons (see the 3c CHANGELOG): with the replay pack and music and movies, a careful player lands around 2,900 to 3,500.
+// Thresholds were set from simulated seasons (see the CHANGELOG): with Round 5's streak payouts, mystery boxes and daily tips, a careful player lands around 3,700 to 3,950.
 // Doubles Trouble is checked before Legend, so a shelf that is mostly second copies can't buy its way to Legend.
 NP.ENDINGS = [
   { id: 'browsing', name: 'Just Browsing, All Season', test: function (e) { return e.items < 5; },
     text: 'Twelve Saturdays. You drove to every yard sale in Sundown Flats and bought almost nothing. The sellers think you are a ghost. You might be.' },
   { id: 'doubles', name: 'Doubles Trouble', test: function (e) { return e.dupes >= 15 && e.dupes >= e.items * 0.45; },
     text: 'You own most of these twice. A few of them three times. The note on the fridge said DO NOT BUY ANOTHER COPY. The note was right.' },
-  { id: 'legend', name: 'Legend of the Swap Meet', test: function (e) { return e.score >= 3000; },
+  { id: 'legend', name: 'Legend of the Swap Meet', test: function (e) { return e.score >= 3900; },
     text: 'People nod when you walk into the swap meet. Dex has your picture taped up in his van, with a circle around it. The shelf is not full. It never will be. May your shelf never be full.' },
   { id: 'savings', name: 'The Savings Account Collection', test: function (e) { return e.cash >= 700 && e.items < 20; },
     text: 'You saved almost every paycheck. Your bank sent you a card. Your shelf did not send you anything. It is mostly empty.' },
@@ -415,7 +416,7 @@ NP.ENDINGS = [
     text: 'Your shelf is mostly Nostalgia Pro merch. The gift shop sent you a fruit basket. The fruit basket was also merch.' },
   { id: 'ramen', name: 'Ramen Season', test: function (e) { return e.cash < 15; },
     text: 'You spent every paycheck down to the coins. The shelf looks great. The fridge has one ramen in it and a note that says DO NOT BUY ANOTHER COPY.' },
-  { id: 'respectable', name: 'A Respectable Shelf', test: function (e) { return e.score >= 1800; },
+  { id: 'respectable', name: 'A Respectable Shelf', test: function (e) { return e.score >= 2200; },
     text: 'Not legendary. Not embarrassing. The kind of shelf a guest looks at and says "oh, nice." You will hear "oh, nice" in your sleep. It is enough. It is never enough.' },
   { id: 'decent', name: 'A Decent Little Shelf', test: function () { return true; },
     text: 'A decent little shelf. Some gems, some football, one thing you cannot explain. Next season, maybe. The shelf can wait. The shelf cannot wait.' }
@@ -558,6 +559,9 @@ NP.GOALS = function (m, budget) {
 };
 // One-time tips. Each shows once, ever, and costs no daylight. "short" is the How to play version.
 NP.TIPS = {
+  // Demo round 5 first-use tips (short on purpose)
+  counter: { h: 'They met you partway', b: 'A seller who says no will often name a price. Tap Deal to take it. It always works.' },
+  stallmap: { h: 'The stall map', b: 'Tap MAP to see every table. Tap one and you walk straight there.' },
   offers: { h: 'Making an offer', b: 'Lowball is half the sticker. Some sellers take it. Some take it personally. Fair is three quarters. Full price always works, which is how they get you.',
     short: 'Lowball, Fair or Full price. Lowball can offend people. Full price always works, which is how they get you.' },
   pricey: { h: 'That is a lot of money', b: 'Inspect takes 5 minutes and catches fakes, disc rot and suspicious shrink wrap. You also get to read the back of the box. A repro costs you points. And a little dignity.',
@@ -1256,7 +1260,10 @@ NP.MAGNETS.forEach(function (m) {
 // Two easy entries that can always be finished in the demo. They share their rewards with the full game's tackle box.
 NP.DEMO_WANT = [
   { id: 'w01', at: 'yard', name: 'Cardboard Dream', label: 'Find a complete in box game', type: 'buy', f: { kind: 'game', cond: 'cib' }, n: 1, d: 'easy', reward: 'Clear Box Protector', banner: 'HAUL SECURED!' },
-  { id: 'w15', at: 'flea', name: 'Convention Dash', label: 'Stop at 3 different tables or stalls at the swap meet', type: 'tables', n: 3, d: 'easy', reward: 'VIP Floor Pass', banner: 'WISHLIST CHECKED!' }
+  { id: 'w07', at: 'yard', name: 'Haggler', label: 'Get 20% or more off one thing', type: 'buy', f: { haggle: true }, n: 1, d: 'easy', reward: 'Silver Tongue Badge', banner: 'SMOOTH TALKER!' },
+  { id: 'w08', at: 'yard', name: 'Label Checker', label: 'Inspect 2 games that check out clean', type: 'inspect', f: { kind: 'game' }, out: 'clean', n: 2, d: 'easy', reward: 'Contact Cleaner Kit', banner: 'SHARP EYE!' },
+  { id: 'w15', at: 'flea', name: 'Convention Dash', label: 'Stop at 3 different tables or stalls at the swap meet', type: 'tables', n: 3, d: 'easy', reward: 'VIP Floor Pass', banner: 'WISHLIST CHECKED!' },
+  { id: 'w10', at: 'flea', name: 'Bargain Bin Sweep', label: 'Buy a loose game for $5 or less', type: 'buy', f: { kind: 'game', cond: 'loose', max: 5 }, n: 1, d: 'easy', reward: 'Plastic Milk Crate', banner: 'BIN DIVER!' }
 ];
 NP.DEMO_WANT_TEXT = {
   early: 'Early bird find. The seller thinks it is a coaster. Any offer works.',
@@ -1267,4 +1274,84 @@ NP.DEMO_WANT_TEXT = {
   box: 'Your tackle box',
   boxLine: '{have} of {all} want list rewards. The full game has the rest.',
   welcome: 'Welcome back. Your demo Saturday is right where you left it.'
+};
+
+// =====================================================================================================
+// ---------- Round 5: bigger dopamine hits (full game only; the demo stays as it is) ----------
+// =====================================================================================================
+// Streaks: back-to-back good haggles and finds. Each tier pays a share of the find's value on top, capped per find.
+NP.STREAK = { tiers: [[2, 1.25], [4, 1.5], [6, 2]], cap: 25, good: 1.5 };
+NP.FEVER.text = 'FEVER! For 20 minutes, fair offers always land and your streak cannot break.';
+// loot colors for the find reveal
+NP.RARITY = {
+  // colorblind-safe (Okabe-Ito), and every color always comes with its word
+  common: { label: 'COMMON', color: '#c9d1dc' }, uncommon: { label: 'UNCOMMON', color: '#56B4E9' },
+  rare: { label: 'RARE', color: '#CC79A7' }, grail: { label: 'GRAIL', color: '#E69F00' }
+};
+// near mint, one tiny flaw (worth 15% less). At most two a day.
+NP.FLAWS = ['One tiny crease on the box corner.', 'A small tear in the price sticker.', 'A one-inch split in the shrink wrap.', 'The manual has one dog-eared page.',
+  'A faint ring where somebody set a cup on it once.', 'One corner of the label is lifting.'];
+NP.FLAW = { mult: 0.85, tag: 'NEAR MINT', note: 'So close to mint. {f} Worth 15% less.' };
+// a rival grabs something great right in front of you. At most once a day.
+NP.NEAR_MISS = {
+  lines: ['{r} reaches right past you and grabs it. He paid {p}. It is worth about {v}.', '{r} picks it up a second before you do. {p}, cash. It is worth about {v}.'],
+  stamp: 'SO CLOSE', chip: 'So close. {r} got {t}.'
+};
+// the $5 mystery box at some yard sales. The odds on the box are the real odds.
+NP.MBOX = {
+  t: '$5 Mystery Box', ask: 5,
+  d: 'A taped-up shoebox. The seller swears there is something good in it. The seller has said that about everything.',
+  odds: [['junk', 0.8, 'junk'], ['good', 0.18, 'something good'], ['treasure', 0.02, 'sealed treasure']],
+  btn: 'Buy the box ($5)', open: 'You rip the tape off.',
+  junk: ['Mostly packing peanuts and one game.', 'A game, a dead battery and a coupon from 1998.'],
+  good: ['Under the packing peanuts: something actually good.'],
+  treasure: ['Wrapped in a beach towel, still sealed: the real thing.']
+};
+// the daily tip on the map, with made-up cross streets
+NP.DAILY_STREETS = ['Saguaro Bloom Ct', 'Dry Wash Loop', 'Jackrabbit Bend', 'Brittlebush Hollow', 'Chuckwalla Crossing', 'Two Cactus Way', 'Monsoon Gulch Rd', 'Creosote Flats Dr', 'Gila Shade Ln', 'Tumbleweed Turn'];
+NP.DAILY_TIP = {
+  h: 'DAILY TIP',
+  line: 'Word around town: there is a rare one at {stop} today, near {a} and {b}.',
+  paid: 'The daily tip paid off!'
+};
+// the visit streak: come back on a new day, a little more cash for that day's Saturday. Miss a day and it starts over.
+NP.LOGIN = { max: 7, per: 1, line: 'Visit streak: day {n}. +${c} for today\'s Saturday.', next: 'Come back tomorrow for +${c}.', reset: 'A day was missed, so the visit streak started over.' };
+NP.MAGNETS.push(
+  { id: 'jackpot', name: 'Jackpot', how: 'Open sealed treasure from a $5 mystery box.' },
+  { id: 'tip', name: 'Insider', how: 'Buy the rare one from the daily tip.' },
+  { id: 'streakx2', name: 'Double Down', how: 'Reach a x2 streak.' },
+  { id: 'visit7', name: 'Regular', how: 'Keep a 7 day visit streak.' }
+);
+
+// =====================================================================================================
+// ---------- Demo round 5 ----------
+// =====================================================================================================
+NP.DEMO5 = {
+  start: 'Demo Saturday. $100. Back by noon. Tap the yard sale on the map, or the big Drive button.',
+  mapNote: 'Tap a stop on the map to drive there. Gray ones are in the full version.',
+  lockedNote: 'That one opens in the full version.',
+  visitedNote: 'You already hit that one today.',
+  undo: 'Undo: {what}',
+  undone: 'Undone. Everything is back the way it was.',
+  set: { title: 'Settings', sound: 'Sound', volume: 'Volume', text: 'Text size', speed: 'Game speed', speedNote: 'Fast makes drives and reveals quicker.',
+    fx: 'Effects', fxNote: 'Calm turns off shake, flashes and confetti.', tips: 'Tips', done: 'Done',
+    colors: 'Colors are picked so colorblind players can tell them apart, and every color comes with a word.' },
+  next: { tag: 'NEXT:', map: 'Drive to the {name}.', drive: 'Drive', home: 'Head home and shelve it.', homeBtn: 'Head home',
+    early: 'There is a cheap find on this table. Tap any offer on it.', goal: '{goal}.', shop: 'Make an offer on anything. Or move on.',
+    done: 'Nothing left here. Time to move on.', next: 'Next stop', walk: 'Tap a table to shop it. The gate at the bottom is the way out.' },
+  counter: 'Meet me at {$}?',
+  counterBtn: 'Deal at {$}',
+  miniTag: 'HEADS UP!',
+  tvBtn: 'Watch it',
+  tvBreak: 'Watch a TV commercial (optional, costs no time)',
+  yardTV: 'An old TV on the card table is playing commercials from way back.',
+  mini: {
+    flash: '{who} yells "Everything on my table, 30% off for the next few minutes!"',
+    cash: 'You find a $5 bill folded in a box lid. Finders keepers. +$5.',
+    gun: 'A price gun slipped. {t} is marked $1. Grab it before somebody else sees.',
+    radio: '104.8 The Dust is giving $10 to the first caller who knows the jingle. You know it. +$10.',
+    tv: 'The TV on the next table is showing ads from the good old days. Want to watch one?',
+    cameo: ''
+  },
+  short: { yard: 'YARD SALE', flea: 'SWAP MEET', gift: 'GIFT SHOP', thrift: 'THRIFT', pawn: 'PAWN', sports: 'SPORTS BIN', mall: 'MALL', banned: 'STAFF ONLY', pal: 'LONNIE', record: 'RECORDS', rental: 'VIDEO' }
 };
