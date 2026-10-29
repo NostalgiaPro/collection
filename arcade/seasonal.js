@@ -30,11 +30,11 @@ window.NP_SEASONS = {
     { slug: "shelf-links", name: "Shelf Links", href: "shelf-links/", accent: "#9bff3f", genre: "Mini golf", fmt: "golf",
       hook: "Nine holes of mini golf built out of game boxes, shelves and tape decks. Drag to putt.", cover: "covers/01-shelf-links" },
     { slug: "tape-pin-lanes", name: "Tape Pin Lanes", href: "tape-pin-lanes/", accent: "#a77bff", genre: "Ten-pin bowling", fmt: "num",
-      hook: "Ten fast frames where the pins are stacked VHS tapes. Curve it, strike it." },
+      hook: "Ten fast frames where the pins are stacked VHS tapes. Curve it, strike it.", cover: "covers/04-tape-pin-lanes" },
     { slug: "ticket-roll-alley", name: "Ticket Roll Alley", href: "ticket-roll-alley/", accent: "#3ff0ff", genre: "Boardwalk ball roll", fmt: "pts",
-      hook: "Nine balls, one ramp, and the 100-point cup in the corner." },
+      hook: "Nine balls, one ramp, and the 100-point cup in the corner.", cover: "covers/05-ticket-roll-alley" },
     { slug: "fourth-and-collect", name: "Fourth and Collect", href: "fourth-and-collect/", accent: "#9bff3f", genre: "Field goal kicking", fmt: "yds",
-      hook: "Split the uprights from farther and farther back. Watch the wind flag." }
+      hook: "Split the uprights from farther and farther back. Watch the wind flag.", cover: "covers/08-fourth-and-collect" }
   ]
 };
 
