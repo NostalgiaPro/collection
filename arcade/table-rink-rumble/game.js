@@ -23,13 +23,14 @@
   function reset() {
     S = { t: 0, pt: 0, match: 0, wins: 0, bestMargin: 0, me: 0, cpu: 0, phase: "face", serveTo: 1, matchT: 0, maxBehind: 0,
           p: { x: 180, y: Y1 - 70, vx: 0, vy: 0, tx: 180, ty: Y1 - 70 }, c: { x: 180, y: Y0 + 60, vx: 0, vy: 0, tx: 180, ty: Y0 + 60, nt: 0 },
-          k: { x: 180, y: MID + 60, vx: 0, vy: 0 }, last: null, boost: 0, goals: 0, conceded: 0, fastest: 0 };
+          k: { x: 180, y: MID + 60, vx: 0, vy: 0 }, last: null, pinT: 0, pinGap: 0, ghost: null, back: 0, snd: { me: 0, cpu: 0 }, boost: 0, goals: 0, conceded: 0, fastest: 0 };
     parts.length = 0;
     faceoff(1);
   }
   function faceoff(side) {   // side 1: puck on your half, -1: on the CPU's half
     S.phase = "face"; S.pt = 0; S.last = null;
     S.k.x = 180; S.k.y = MID + side * 70; S.k.vx = S.k.vy = 0;
+    S.pinT = 0; S.pinGap = 0; S.ghost = null; S.back = 0;
   }
   function maxPuck() { return 640 + Math.min(260, (S.me + S.cpu) * 18 + S.match * 25); }
 
@@ -42,6 +43,7 @@
     pd.vx = (pd.x - ox) / dt; pd.vy = (pd.y - oy) / dt;
   }
   function hit(pd, who) {
+    if (S.ghost && S.ghost.who === who) return;          // just nudged loose from this mallet: let it slide away
     var k = S.k, dx = k.x - pd.x, dy = k.y - pd.y, d = Math.hypot(dx, dy), rr = PR + KR;
     if (d >= rr || d < 1e-4) return;
     var nx = dx / d, ny = dy / d;
@@ -60,7 +62,8 @@
       var sp = Math.hypot(k.vx, k.vy), mx = maxPuck();
       if (sp > mx) { k.vx *= mx / sp; k.vy *= mx / sp; }
       S.last = who;
-      if (-vn > 60) { Shell.tone(who === "me" ? 520 : 400, 0.05, "square", Math.min(0.3, 0.1 - vn / 3000)); Shell.noise(0.04, 0.3, 2000, 1); }
+      // one click per real hit: nothing while the puck is pinned, and at most one per mallet every 0.15 s
+      if (-vn > 60 && S.pinT <= 0 && S.t - S.snd[who] > 0.15) { S.snd[who] = S.t; Shell.tone(who === "me" ? 520 : 400, 0.05, "square", Math.min(0.3, 0.1 - vn / 3000)); Shell.noise(0.04, 0.3, 2000, 1); }
     }
   }
   function stepPuck(dt) {
@@ -76,8 +79,37 @@
     if (k.y < Y0 - KR) goal("me");
     else if (k.y > Y1 + KR) goal("cpu");
   }
+  /* Pinned or stuck puck: a mallet pressing it into a rail or corner, or a dead puck in a corner.
+     After 0.25 s it gets a nudge toward the middle of the table and the pinning mallet is ignored for a moment. */
+  function unstick(dt) {
+    var k = S.k, rr = PR + KR, e = 1.5;
+    if (S.ghost) { S.ghost.t -= dt; if (S.ghost.t <= 0) S.ghost = null; }
+    var inMouth = Math.abs(k.x - 180) < GOAL - 4;
+    var sideRail = k.x <= X0 + KR + e || k.x >= X1 - KR - e;
+    var endRail = !inMouth && (k.y <= Y0 + KR + e || k.y >= Y1 - KR - e);
+    var dP = Math.hypot(k.x - S.p.x, k.y - S.p.y), dC = Math.hypot(k.x - S.c.x, k.y - S.c.y);
+    var byP = dP < rr + 2, byC = dC < rr + 2;
+    var corner = (k.x < X0 + KR + 26 || k.x > X1 - KR - 26) && (k.y < Y0 + KR + 26 || k.y > Y1 - KR - 26);
+    var slow = Math.hypot(k.vx, k.vy) < 40;
+    var pinned = (sideRail || endRail) && (byP || byC);
+    if (pinned || (corner && slow)) {
+      S.pinT += dt; S.pinGap = 0;
+      if (byC && k.y < MID) S.back = Math.max(S.back, 0.6);     // the CPU backs off a puck it is pinning
+    } else if (S.pinT > 0) {
+      S.pinGap += dt;
+      if (S.pinGap > 0.12) { S.pinT = 0; S.pinGap = 0; }
+    }
+    if (S.pinT >= 0.25) {
+      var dx = 180 - k.x, dy = (MID - k.y) * 0.6, L = Math.hypot(dx, dy) || 1, v = 240;
+      k.vx = dx / L * v; k.vy = dy / L * v;
+      k.x = clamp(k.x + dx / L * 3, X0 + KR, X1 - KR);
+      S.ghost = { who: byC && !byP ? "cpu" : byP && !byC ? "me" : "both", t: 0.3 };
+      if (S.ghost.who === "both") { S.ghost = { who: "me", t: 0.3 }; S.back = Math.max(S.back, 0.6); }
+      S.pinT = 0; S.pinGap = 0; S.anchor = null;
+    }
+  }
   var lastWall = 0;
-  function wall() { if (S.t - lastWall > 0.05) { lastWall = S.t; Shell.tone(220, 0.04, "triangle", 0.12); } }
+  function wall() { if (S.pinT <= 0 && S.t - lastWall > 0.05) { lastWall = S.t; Shell.tone(220, 0.04, "triangle", 0.12); } }
 
   function goal(who) {
     var o = opp();
@@ -145,6 +177,13 @@
   /* ---------------- CPU ---------------- */
   function cpuThink(dt) {
     var c = S.c, k = S.k, o = opp();
+    if (S.back > 0) {                                     // backing off: head for the goal crease, away from the puck
+      S.back -= dt;
+      c.tx = 180 + clamp(180 - k.x, -60, 60) * 0.5; c.ty = Y0 + PR + 4; c.nt = 0;
+      return;
+    }
+    var topCorner = k.y < Y0 + KR + 34 && (k.x < X0 + KR + 34 || k.x > X1 - KR - 34) && Math.hypot(k.vx, k.vy) < 160;
+    if (topCorner) { c.tx = 180 + (k.x < 180 ? -50 : 50); c.ty = Y0 + 58; c.nt = 0; return; }   // don't dig in a corner; the nudge frees it
     c.nt -= dt;
     if (c.nt > 0) return;
     c.nt = o.think;
@@ -174,7 +213,9 @@
     }
     var mv = { x: (keys.ArrowLeft ? -1 : 0) + (keys.ArrowRight ? 1 : 0), y: (keys.ArrowUp ? -1 : 0) + (keys.ArrowDown ? 1 : 0) };
     if (mv.x || mv.y) { S.p.tx = S.p.x + mv.x * 40; S.p.ty = S.p.y + mv.y * 40; }
-    var o = opp(), n = 3, sdt = dt / n;
+    // Fast pointer or touch moves get more physics substeps (about 10 units of mallet travel each) so the puck can't slip through
+    var pMax = (mv.x || mv.y) ? 380 : P_FAST, pTravel = Math.min(Math.hypot(S.p.tx - S.p.x, S.p.ty - S.p.y), pMax * dt);
+    var o = opp(), n = clamp(Math.ceil(pTravel / 10), 3, 16), sdt = dt / n;
     if (S.phase === "face") { if (S.pt > 0.7) { S.phase = "play"; S.pt = 0; } }
     else {
       S.matchT += dt;
@@ -185,16 +226,63 @@
     }
     cpuThink(dt);
     for (i = 0; i < n; i++) {
-      movePaddle(S.p, sdt, (mv.x || mv.y) ? 380 : 1500, MID + PR, Y1 - PR);
+      movePaddle(S.p, sdt, pMax, MID + PR, Y1 - PR);
       movePaddle(S.c, sdt, o.speed * (1 + S.boost), Y0 + PR, MID - PR);
-      if (S.phase === "play") { stepPuck(sdt); hit(S.p, "me"); hit(S.c, "cpu"); }
+      if (S.phase === "play") { stepPuck(sdt); hit(S.p, "me"); hit(S.c, "cpu"); unstick(sdt); }
       if (S.phase !== "play") break;
     }
   }
 
   /* ---------------- Input ---------------- */
-  function pointer(type, x, y) {
-    if (type === "down" || type === "move") { S.p.tx = x; S.p.ty = y - 20; }
+  /* Controls. Mouse and pen: the mallet goes straight to the pointer, no offset.
+     Touch: relative drag. The mallet moves by the finger's movement from wherever the touch starts (x1.2),
+     so the finger can rest low on the screen, below the rink, and never covers the mallet. */
+  var P_FAST = 7000, TOUCH_GAIN = 1.2, drag = null;
+  function clampHalfX(x) { return clamp(x, X0 + PR, X1 - PR); }
+  function clampHalfY(y) { return clamp(y, MID + PR, Y1 - PR); }
+  function pointer(type, x, y, e) {
+    var touch = e && e.pointerType === "touch";
+    if (!touch) {
+      drag = null;
+      if (type === "down" || type === "move") { S.p.tx = clampHalfX(x); S.p.ty = clampHalfY(y); }
+      return;
+    }
+    if (type === "down") { drag = { fx: x, fy: y, mx: S.p.x, my: S.p.y }; return; }
+    if (type === "move" && drag) {
+      var tx = drag.mx + (x - drag.fx) * TOUCH_GAIN, ty = drag.my + (y - drag.fy) * TOUCH_GAIN;
+      var cx = clampHalfX(tx), cy = clampHalfY(ty);
+      // re-anchor at the rails so turning back responds at once instead of after the "dead" distance
+      if (cx !== tx) drag.mx += cx - tx;
+      if (cy !== ty) drag.my += cy - ty;
+      S.p.tx = cx; S.p.ty = cy;
+      return;
+    }
+    if (type === "up" || type === "cancel") drag = null;
+  }
+  /* Rink sits at the top of the stage; the empty space under it is a touch pad that drives the mallet too. */
+  function bindTouchPad() {
+    var cv = document.querySelector(".np-stage canvas"), stage = cv && cv.parentElement;
+    if (!stage) return;
+    stage.style.alignItems = "flex-start";
+    stage.style.paddingTop = "4px";
+    stage.style.touchAction = "none";
+    var pid = null;
+    function local(ev) { var r = cv.getBoundingClientRect(); return { x: (ev.clientX - r.left) / (r.width / W), y: (ev.clientY - r.top) / (r.height / H) }; }
+    function mine(ev) { return ev.target === stage || (ev.target && ev.target.classList && ev.target.classList.contains("np-crt")); }
+    stage.addEventListener("pointerdown", function (ev) {
+      if (!mine(ev) || ev.pointerType !== "touch" || pid !== null || Shell.state() !== "playing") return;
+      ev.preventDefault(); pid = ev.pointerId;
+      try { stage.setPointerCapture(ev.pointerId); } catch (er) { }
+      var q = local(ev); pointer("down", q.x, q.y, ev);
+    });
+    stage.addEventListener("pointermove", function (ev) {
+      if (ev.pointerId !== pid) return;
+      if (Shell.state() !== "playing") { pid = null; drag = null; return; }
+      var q = local(ev); pointer("move", q.x, q.y, ev);
+    });
+    function end(ev) { if (ev.pointerId !== pid) return; pid = null; pointer("up", 0, 0, ev); }
+    stage.addEventListener("pointerup", end);
+    stage.addEventListener("pointercancel", end);
   }
   function key(type, code) { keys[code] = type === "down"; }
 
@@ -249,7 +337,7 @@
     accent: "#ff3fa4",
     width: W, height: H,
     format: function (n) { var w = Math.floor(n / 10), m = n % 10; return w + "W" + (m ? " +" + m : ""); },
-    howTo: "First to 7 on the rec room table. Your paddle follows your finger in your half. Beat one collector and the next one sits down.",
+    howTo: "First to 7 on the rec room table. Drag anywhere, even below the table, and your paddle moves with your finger. Beat one collector and the next one sits down.",
     keys: "Keys: arrows move the paddle. Mouse: just move it. P pause, M mute, R restart.",
     tip: "Best score is your win streak, plus your biggest winning margin.",
     reset: reset,
@@ -258,6 +346,7 @@
     pointer: pointer,
     key: key,
     idle: function (dt) { idleT += dt; },
-    onPause: function () { for (var k in keys) keys[k] = false; }
+    onPause: function () { for (var k in keys) keys[k] = false; drag = null; }
   });
+  bindTouchPad();
 })();
