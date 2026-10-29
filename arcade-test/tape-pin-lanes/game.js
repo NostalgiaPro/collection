@@ -5,13 +5,13 @@
   var W = 360, H = 540, TAU = Math.PI * 2;
   var LW = 20.75, GUT = 9.25, KICK = LW + GUT;           // half lane, gutter, kickback walls
   var HEAD_Y = 720, DECK_END = 756, PIT_Y = 772;
-  var BALL_R = 4.3, PIN_R = 2.4, PIN_H = 11, PIN_W = 5.2;
-  var BALL_M = 16, PIN_M = 3.5;
+  var BALL_R = 4.3, PIN_R = 2.25, PIN_H = 11, PIN_W = 5.2;   // a slightly smaller pocket than batch 2
+  var BALL_M = 13, PIN_M = 3.5;                            // lighter ball: more deflection on off-center hits
   var V_MIN = 420, V_MAX = 660, HOOK = 135, OIL_GRIP = 0.12;
   var FALL_V = 28;                                         // a pin pushed faster than this goes down
   var START_Y = -14, POS_MAX = LW - BALL_R - 1;
   var F = 1000, CAMH = 40, HZ = 130, CAM0 = -150, CAM_MAX = 468;
-  var BUMPER_FRAMES = 5;
+  var BUMPER_FRAMES = 3;
   // Oil length per frame (inches). Shorter oil = earlier, bigger hook.
   var OIL = [470, 380, 560, 330, 500, 420, 300, 540, 360, 450];
   var SPOTS = [[0, 0], [-6, 10.39], [6, 10.39], [-12, 20.78], [0, 20.78], [12, 20.78], [-18, 31.18], [-6, 31.18], [6, 31.18], [18, 31.18]];
@@ -135,7 +135,7 @@
     return -rv;
   }
 
-  function pinR(p) { return p.st === "up" ? PIN_R : PIN_R + 1.6; } // a toppled tape covers more deck
+  function pinR(p) { return p.st === "up" ? PIN_R : PIN_R + 1.2; } // a toppled tape covers more deck
 
   function step(dt) {
     var b = S.b, i, j, p, q, imp;
@@ -305,7 +305,7 @@
       }
       else if (down === 0 && b.gutter) {
         title = "LATE FEE."; sub = "Gutter ball."; col = "#ff3fa4"; Shell.sfx("miss");
-        if (window.Trophies && f >= 5) Trophies.unlock("tpl-latefee");
+        if (window.Trophies && f >= BUMPER_FRAMES) Trophies.unlock("tpl-latefee");
       }
       else if (down === 0) { title = "MISS"; sub = "Not a scratch on them."; col = "#8e93a2"; Shell.sfx("miss"); }
       else {
@@ -377,10 +377,10 @@
       stats: { total: t, strikes: S.strikes, spares: S.spares, frames: JSON.parse(JSON.stringify(S.frames)) } });
   }
   function cardHTML() {
-    var sc = scores(S.frames), h = '<table aria-label="Scorecard"><tr>', i;
+    var sc = scores(S.frames), h = '<table class="np-card10" aria-label="Scorecard"><tr>', i;
     for (i = 0; i < 10; i++) h += "<th>" + (i + 1) + "</th>";
     h += "</tr><tr>";
-    for (i = 0; i < 10; i++) h += "<td>" + (S.frames[i] ? marks(S.frames[i], i).join(" ") : "") + "</td>";
+    for (i = 0; i < 10; i++) h += '<td class="np-nw">' + (S.frames[i] ? marks(S.frames[i], i).join("\u2009") : "") + "</td>";
     h += "</tr><tr>";
     for (i = 0; i < 10; i++) h += "<td>" + (sc[i] == null ? "" : sc[i]) + "</td>";
     return h + "</tr></table>";

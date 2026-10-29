@@ -174,8 +174,8 @@
     </li>
 
     <!-- 6. PAWN SHOP POOL -->
-    <li data-genre="table">
-      <article class="cab is-soon" style="--c:#ff4b3e" aria-labelledby="g-pool">
+    <li data-ready data-genre="table">
+      <article class="cab" style="--c:#ff4b3e" aria-labelledby="g-pool">
         <div class="cab-marquee"><h2 id="g-pool">PAWN SHOP POOL</h2></div>
         <div class="cab-bezel"><div class="cab-screen">
           <svg viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
@@ -190,14 +190,14 @@
         <p class="cab-genre">Billiards speed rack</p>
         <p class="cab-hook">Clear the back-room pool table before the shop closes.</p>
         <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b>---</b></span></div>
-        <span class="soon" aria-label="Pawn Shop Pool is coming soon">COMING SOON</span>
+          <span class="best">BEST<b data-best="pawn-shop-pool" data-fmt="time">---</b></span></div>
+        <a class="play" href="pawn-shop-pool/index.html" aria-label="Play Pawn Shop Pool">PLAY</a>
       </article>
     </li>
 
     <!-- 7. RINK RAT SHOOTOUT -->
-    <li data-genre="ice">
-      <article class="cab is-soon" style="--c:#3ff0ff" aria-labelledby="g-rink">
+    <li data-ready data-genre="ice">
+      <article class="cab" style="--c:#3ff0ff" aria-labelledby="g-rink">
         <div class="cab-marquee"><h2 id="g-rink">RINK RAT SHOOTOUT</h2></div>
         <div class="cab-bezel"><div class="cab-screen">
           <svg viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
@@ -214,8 +214,8 @@
         <p class="cab-genre">Hockey shootout</p>
         <p class="cab-hook">You vs a goalie who has seen every trick. Three 30-second periods.</p>
         <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b>---</b></span></div>
-        <span class="soon" aria-label="Rink Rat Shootout is coming soon">COMING SOON</span>
+          <span class="best">BEST<b data-best="rink-rat-shootout" data-fmt="pts">---</b></span></div>
+        <a class="play" href="rink-rat-shootout/index.html" aria-label="Play Rink Rat Shootout">PLAY</a>
       </article>
     </li>
 
@@ -242,8 +242,8 @@
     </li>
 
     <!-- 9. POWDER DAY HAUL -->
-    <li data-genre="ice">
-      <article class="cab is-soon" style="--c:#a77bff" aria-labelledby="g-powder">
+    <li data-ready data-genre="ice">
+      <article class="cab" style="--c:#a77bff" aria-labelledby="g-powder">
         <div class="cab-marquee"><h2 id="g-powder">POWDER DAY HAUL</h2></div>
         <div class="cab-bezel"><div class="cab-screen">
           <svg viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
@@ -261,14 +261,14 @@
         <p class="cab-genre">Downhill snowboarding</p>
         <p class="cab-hook">Carve down Mount Backlog and grab the loose discs before the bottom.</p>
         <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b>---</b></span></div>
-        <span class="soon" aria-label="Powder Day Haul is coming soon">COMING SOON</span>
+          <span class="best">BEST<b data-best="powder-day-haul" data-fmt="pts">---</b></span></div>
+        <a class="play" href="powder-day-haul/index.html" aria-label="Play Powder Day Haul">PLAY</a>
       </article>
     </li>
 
     <!-- 10. TABLE RINK RUMBLE -->
-    <li data-genre="table">
-      <article class="cab is-soon" style="--c:#ff3fa4" aria-labelledby="g-table">
+    <li data-ready data-genre="table">
+      <article class="cab" style="--c:#ff3fa4" aria-labelledby="g-table">
         <div class="cab-marquee"><h2 id="g-table">TABLE RINK RUMBLE</h2></div>
         <div class="cab-bezel"><div class="cab-screen">
           <svg viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
@@ -284,8 +284,8 @@
         <p class="cab-genre">Air hockey vs CPU</p>
         <p class="cab-hook">First to 7 on the rec room table. The CPU plays dirty.</p>
         <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b>---</b></span></div>
-        <span class="soon" aria-label="Table Rink Rumble is coming soon">COMING SOON</span>
+          <span class="best">BEST<b data-best="table-rink-rumble" data-fmt="streak">---</b></span></div>
+        <a class="play" href="table-rink-rumble/index.html" aria-label="Play Table Rink Rumble">PLAY</a>
       </article>
     </li>
   </ul>
@@ -340,7 +340,9 @@
     pts: function (n) { return n + " PTS"; },
     ft: function (n) { return n + " FT"; },
     num: function (n) { return String(n); },
-    yds: function (n) { return n + " YDS"; }
+    yds: function (n) { return n + " YDS"; },
+    time: function (n) { return Math.floor(n / 60) + ":" + ("0" + (n % 60)).slice(-2); },
+    streak: function (n) { var w = Math.floor(n / 10), m = n % 10; return w + "W" + (m ? " +" + m : ""); }
   };
   var bests = document.querySelectorAll("[data-best]");
   for (i = 0; i < bests.length; i++) {

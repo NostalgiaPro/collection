@@ -104,6 +104,9 @@ body.np-game {
 .np-extra table { margin: 0 auto; border-collapse: collapse; font: 400 13px/1.4 var(--ui); }
 .np-extra td, .np-extra th { padding: 3px 5px; border: 1px solid var(--line); text-align: center; min-width: 24px; }
 .np-extra th { color: var(--dim); font-weight: 400; }
+.np-extra .np-card10 { font-size: 11px; }
+.np-extra .np-card10 td, .np-extra .np-card10 th { padding: 3px 2px; min-width: 0; }
+.np-extra .np-nw { white-space: nowrap; }
 .np-extra .np-row { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; border-bottom: 1px dashed var(--line); }
 .np-extra .np-row:last-child { border-bottom: 0; }
 .np-extra .np-row b { color: var(--gold); font-weight: 400; }

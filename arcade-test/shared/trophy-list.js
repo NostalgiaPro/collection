@@ -52,7 +52,7 @@
     { slug: "tape-pin-lanes", name: "Tape Pin Lanes", status: "live", trophies: [
       T(24, "tpl-strike", "Rewound", "Roll a strike.", "loose"),
       T(25, "tpl-spare", "Picked It Clean", "Pick up a spare.", "loose"),
-      T(26, "tpl-latefee", "Paid the Late Fee", "Roll a gutter ball after the bumpers come down (frame 6 or later).", "loose"),
+      T(26, "tpl-latefee", "Paid the Late Fee", "Roll a gutter ball after the bumpers come down (frame 4 or later).", "loose"),
       T(27, "tpl-turkey", "Turkey, Ex-Rental", "Roll 3 strikes in a row (TURKEY!).", "boxed"),
       T(28, "tpl-split", "Split, Then Fixed", "Turn a SPLIT into a spare.", "boxed"),
       T(29, "tpl-150", "Weekend Rental", "Score 150 or more in one game.", "sealed", { goal: { stat: "total", at: 150, unit: "pins", one: "pin", fromBest: true }, end: function (s) { return s.total >= 150; } }),
@@ -114,25 +114,51 @@
       T(92, "gob-saint", "Saintly Patience", "Finish the flight without missing a beat.", "sealed", end(function (s) { return s.skyDone && s.skyMisses === 0; })),
       T(93, "gob-gravy", "Before the Gravy", "Arrive 30+ minutes early with all 3 pies and zero road hits.", "slabbed", end(function (s) { return s.spare >= 30 && s.pies === 3 && s.roadHits === 0; }))
     ] },
-    { slug: "pawn-shop-pool", name: "Pawn Shop Pool", status: "soon", trophies: [
+    // Batch 3 (test path only for now). Claude's build used slots 72-95, which collide with Creature Feature KO (71-82)
+    // and Gravy or Bust! (83-93), so the new batch 3 trophies were moved up by 22 to slots 94-117. 47-58 are unchanged.
+    { slug: "pawn-shop-pool", name: "Pawn Shop Pool", status: "live", trophies: [
       T(47, "psp-scratch", "That Cue Ball Was Not for Sale", "Scratch the cue ball.", "loose"),
+      T(94, "psp-break", "Opening Bid", "Sink a ball on the break.", "loose"),
+      T(95, "psp-rack", "Cleared the Back Room", "Clear the first rack.", "loose"),
       T(48, "psp-combo", "Two for One Special", "Sink 2 or more balls with one shot.", "boxed"),
-      T(49, "psp-close", "Out Before Closing", "Clear all 3 racks in 3:00 or less (penalties included).", "sealed")
+      T(97, "psp-three", "Bulk Lot Deal", "Sink 3 or more balls with one shot.", "boxed"),
+      T(96, "psp-session", "Closing Time", "Clear all 3 racks before the shop closes.", "boxed", end(function (s) { return !!s.cleared; })),
+      T(49, "psp-close", "Out Before Closing", "Clear all 3 racks in 4:00 or less (penalties included).", "sealed", end(function (s) { return !!s.cleared && s.time <= 240; })),
+      T(98, "psp-clean", "No Returns Accepted", "Clear all 3 racks without a scratch.", "sealed", end(function (s) { return !!s.cleared && s.scratches === 0; })),
+      T(99, "psp-fast", "Lunch Break Special", "Clear all 3 racks in 3:00 or less (penalties included).", "slabbed", end(function (s) { return !!s.cleared && s.time <= 180; }))
     ] },
-    { slug: "rink-rat-shootout", name: "Rink Rat Shootout", status: "soon", trophies: [
+    { slug: "rink-rat-shootout", name: "Rink Rat Shootout", status: "live", trophies: [
+      T(100, "rrs-goal", "Past the Counter", "Score a goal.", "loose"),
       T(50, "rrs-ding", "Ding!", "Hit the post.", "loose"),
+      T(101, "rrs-poke", "Hands Off the Merchandise", "Get poke checked in period 3.", "loose", { secret: true }),
       T(51, "rrs-top", "Top Shelf Item", "Score a top-corner goal.", "boxed"),
-      T(52, "rrs-ten", "Past the Shelf Guardian", "Score 10 goals in one game (top corners count once each).", "sealed")
+      T(102, "rrs-hat", "Hat Trick Bundle", "Score 3 goals in one period.", "boxed"),
+      T(103, "rrs-late", "Closing Shift Corner", "Score a top-corner goal in period 3.", "boxed"),
+      T(52, "rrs-ten", "Past the Shelf Guardian", "Score 10 goals in one game (top corners count once each).", "sealed", end(function (s) { return s.goals >= 10; })),
+      T(104, "rrs-streak", "Five in a Row, No Returns", "Score on 5 shots in a row.", "sealed"),
+      T(105, "rrs-30", "Guardian Cleared Out", "Score 30 points in one game.", "slabbed", end(function (s) { return s.points >= 30; }))
     ] },
-    { slug: "powder-day-haul", name: "Powder Day Haul", status: "soon", trophies: [
+    { slug: "powder-day-haul", name: "Powder Day Haul", status: "live", trophies: [
       T(53, "pdh-guide", "Should've Bought the Strategy Guide", "Crash into anything.", "loose"),
+      T(106, "pdh-air", "Catching Air", "Land a jump.", "loose"),
       T(54, "pdh-bottom", "Bottom of Mount Backlog", "Reach the finish line.", "boxed"),
-      T(55, "pdh-discs", "Loose Disc Avalanche", "Collect 30 discs in one run.", "sealed")
+      T(107, "pdh-360", "Full Rotation", "Land a 360 or more.", "boxed"),
+      T(108, "pdh-gates", "Every Gate, Every Time", "Pass every gate and reach the bottom.", "boxed"),
+      T(55, "pdh-discs", "Loose Disc Avalanche", "Collect 115 discs in one run.", "sealed", end(function (s) { return s.discs >= 115; })),
+      T(109, "pdh-clean", "No Dents in the Box", "Reach the bottom without a wipeout.", "sealed"),
+      T(110, "pdh-720", "Double Rewind", "Land a 720 or more.", "sealed"),
+      T(111, "pdh-14k", "Avalanche of Loot", "Score 14,000 points in one run.", "slabbed", end(function (s) { return s.score >= 14000; }))
     ] },
-    { slug: "table-rink-rumble", name: "Table Rink Rumble", status: "soon", trophies: [
+    { slug: "table-rink-rumble", name: "Table Rink Rumble", status: "live", trophies: [
+      T(112, "trr-goal", "Bagged and Tagged", "Score a goal.", "loose"),
+      T(113, "trr-own", "Restocking Fee", "Knock the puck into your own goal.", "loose", { secret: true }),
       T(56, "trr-boxlot", "Beat the Box Lot Guy", "Win a match against The Box Lot Guy.", "loose"),
+      T(114, "trr-reseller", "Outbid the Reseller", "Beat The Reseller.", "boxed"),
       T(57, "trr-shutout", "Clearance Shutout", "Win a match 7 to 0.", "boxed"),
-      T(58, "trr-purist", "Opened the Mint Sealed Purist", "Beat The Mint Sealed Purist.", "sealed")
+      T(58, "trr-purist", "Opened the Mint Sealed Purist", "Beat The Mint Sealed Purist.", "sealed"),
+      T(115, "trr-fast", "Quick Flip", "Win a match in 60 seconds or less.", "sealed"),
+      T(116, "trr-comeback", "Buyer's Remorse, Reversed", "Win a match after trailing by 3 or more.", "sealed"),
+      T(117, "trr-streak5", "Five Booth Run", "Win 5 matches in a row.", "slabbed")
     ] }
   ];
 
