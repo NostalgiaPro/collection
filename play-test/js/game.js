@@ -48,7 +48,8 @@
   function linksOk() { return CFG.ALLOW_LINKS !== false; }
   function feedbackOk() { return linksOk() && !!CFG.FEEDBACK_URL; }
   function sfx(n) { if (NP.Sound) NP.Sound.sfx(n); }
-  function music(n) { if (NP.Sound) NP.Sound.music(n); }
+  function music(n, keepPace) { if (NP.Sound) NP.Sound.music(n); if (!keepPace) tempo(1); }
+  function tempo(m) { if (NP.Sound && NP.Sound.tempo) NP.Sound.tempo(m); }
   function track(n, once) { if (NP.track) NP.track(n, once); }
   // one step of the funnel: counted once per page load, so the counts line up as "how many got this far"
   function step(n) { track(n, true); }
@@ -102,7 +103,7 @@
     opts = opts || {};
     var seller = NP.SELLERS[opts.seller];
     var it = {
-      uid: 'i' + (uidN++), id: entry.id, t: entry.t, p: entry.p, tier: entry.tier || 0, base: entry.base,
+      uid: 'i' + (uidN++), id: entry.id, t: entry.t, p: entry.p, tier: entry.tier || 0, base: entry.base, g: entry.g || (opts.sports ? 'sports' : ''),
       set: entry.set, kind: opts.kind || 'game', seller: opts.seller, sticker: r() < 0.5,
       cond: 'loose', flags: {}, inspected: false, checked: false, state: 'avail', line: ''
     };
@@ -438,6 +439,7 @@
   // season: true for a season Saturday (Home by sundown, SEASON.week, money and shelf carried over)
   function newRun(m, free, season) {
     document.querySelectorAll('.callov').forEach(function (o) { if (o.parentNode) o.parentNode.removeChild(o); });
+    hudCash = null;
     season = !DEMO && !!season && !!SEASON;
     m = DEMO ? 'noon' : season ? 'sundown' : (m || (S && S.mode) || 'sundown');
     free = !DEMO && !season && !!free;
@@ -451,7 +453,7 @@
       // what is at home is the season's own shelf: the games you started with, plus everything you bought
       day.owned = {};
       Object.keys(SEASON.owned || {}).forEach(function (k) { day.owned[k] = true; });
-      SEASON.shelf.forEach(function (b) { if (b.kind === 'game') day.owned[b.id] = true; });
+      SEASON.shelf.forEach(function (b) { if (b.kind === 'game' || b.kind === 'music' || b.kind === 'movie') day.owned[b.id] = true; });
       day.shelfCount = (SEASON.baseCount || 300) + SEASON.shelf.length;
     }
     var cash = season ? SEASON.cash : budgetFor(m);
@@ -469,7 +471,11 @@
       history: [] // stop ids in the order you visited them (the route card and the funnel use this)
     };
     // Round 3b: today's rotating stores and collector moments, then the rivals (Brayden can be at the mall store now)
-    if (!DEMO) { addStores(day, seed, m); assignRivals(day, seed, m); }
+    if (!DEMO) { addStores(day, seed, m); assignRivals(day, seed, m); placeMedia(day, seed); placeVariants(day, seed); }
+    // Round 3c: the Desert Pixel Expo, last stop of Saturday 12 (and now and then in Endless)
+    if (season && expoWeek(SEASON.week)) addExpo(day, seed);
+    if (season) freshStock(day, seed);
+    if (!DEMO) placeUltra(day, seed, m);
     S.rem = DEMO || free ? {} : applyMemory(day);
     // the one seller today who would never sell out, and the stop they are at (never the swap meet: that one has its own)
     var colaStops = day.stops.filter(function (s) { return openStop(s) && s.type !== 'flea' && s.seller && NP.SPONSOR && NP.SPONSOR.refuse && NP.SPONSOR.refuse[s.seller]; });
@@ -538,13 +544,14 @@
     S.said.blow = true;
     it.blow = disc ? NP.BLOW_DISC : NP.BLOW[NP.hashStr(it.uid) % NP.BLOW.length];
     track('blow_on_it');
+    magnet('blow');
   }
   // one box per rival at this stop (Dex has his own warnings), with the one rule they change
   function rivalNotes(s) {
     var h = '';
     rivalsAt(s).forEach(function (id) {
       if (id === 'dex') return;
-      var R = NP.RIVALS[id], rule = s.type === 'flea' && R.ruleWalk ? R.ruleWalk : R.rule;
+      var R = NP.RIVALS[id], rule = s.type === 'expo' && NP.EXPO.rules[id] ? NP.EXPO.rules[id] : s.type === 'flea' && R.ruleWalk ? R.ruleWalk : R.rule;
       h += '<div class="rivalnote r-' + id + '"><b>' + esc(R.name) + '</b> <small>(' + esc(R.tag) + ')</small> ' + esc(rule) +
         ' <i>"' + esc(R.lines[NP.hashStr(s.id + id) % R.lines.length]) + '"</i></div>';
     });
@@ -660,17 +667,25 @@
   function renderWeekdays() {
     S = null;
     music('title');
-    if (SEASON.pay) { SEASON.cash += NP.SEASON.paycheck; SEASON.pay = false; saveGame(null); }
+    if (SEASON.pay) {
+      SEASON.cash += NP.SEASON.paycheck; SEASON.pay = false; SEASON.clubMsg = '';
+      if (SEASON.clubBills > 0) {
+        SEASON.cash -= NP.CLUB.billAmt; SEASON.clubBills--;
+        SEASON.clubMsg = NP.CLUB.bill.replace('{n}', NP.CLUB.billAmt) + (SEASON.clubBills ? '' : ' ' + NP.CLUB.billDone);
+      }
+      saveGame(null);
+    }
     var w = SEASON.week, lines = NP.WEEKDAYS[(w + SEASON.id.charCodeAt(0)) % NP.WEEKDAYS.length];
     var rep = rivalReport();
     var h = '<div class="screen weekdays"><div class="wk-card">' +
       '<div class="wk-h">MONDAY TO FRIDAY</div>' +
       lines.map(function (l) { return '<p>' + esc(l) + '</p>'; }).join('') +
       '<div class="wk-pay">FRIDAY: PAYDAY. <b>+' + money(NP.SEASON.paycheck) + '</b></div>' +
+      (SEASON.clubMsg ? '<div class="wk-club">' + esc(SEASON.clubMsg) + '</div>' : '') +
       '<div class="wk-cash">You have <b>' + money(SEASON.cash) + '</b> for ' + esc(seasonLabelLc(w)) + '.</div>' +
       (w === NP.SEASON.weeks ? '<div class="wk-final">' + esc(NP.FINALE_NOTE) + '</div>' : '') +
       (rep ? '<div class="wk-riv"><b>Rival report.</b> ' + esc(rep) + '</div>' : '') +
-      '<div class="wk-shelf">On the shelf this season: ' + SEASON.shelf.length + '. ' + esc(NP.CATCH.question) + '</div>' +
+      '<div class="wk-shelf">On the shelf this season: ' + SEASON.shelf.length + (SEASON.shelf.length ? ' (' + countsText(mediaCounts(SEASON.shelf)) + ')' : '') + '. ' + esc(NP.CATCH.question) + '</div>' +
       '</div><div class="btns center"><button class="big" data-act="startsat">' + esc(seasonLabelLc(w)) + ' &#9654;</button></div>' +
       '<div class="btns center"><button data-act="totitle">Title screen</button></div></div>';
     app.innerHTML = h;
@@ -702,7 +717,7 @@
         flags: b.flags || {}, v: l.pts, dupe: l.pts < 0 && l.note.indexOf('shelf') >= 0, week: w, sticker: !!b.sticker });
     });
     SEASON.cash = S.cash;
-    SEASON.scores.push({ week: w, score: R.score, title: R.title });
+    SEASON.scores.push({ week: w, score: R.score, title: R.title, bonus: R.extra || 0 });
     // only the rivals you actually ran into today count: one point to them if they cost you something, one to you if not
     (S.day.rivals || []).forEach(function (id) {
       var hits = (S.rlog[id] || 0) + (id === 'dex' ? S.ev.rivalHits : 0);
@@ -718,13 +733,40 @@
     track('saturday_end'); step('saturday_end_' + w);
     saveGame(null);
   }
+  // Round 3c: the season score is the shelf, not the bank account. Every different thing on the season shelf counts
+  // once (its best copy; convention finds already count double), plus a few points for every different find,
+  // plus 1 point for every $10 left over. Hoarding cash cannot beat building a shelf any more.
+  var SEASON_FIND = NP.SEASON.findPts, SEASON_CASH = NP.SEASON.cashPer, SEASON_NEG = -10;
   function seasonTotals(se) {
     se = se || SEASON;
-    var e = { score: 0, items: 0, dupes: 0, merch: 0, cash: se.cash };
-    se.scores.forEach(function (x) { e.score += x.score; });
-    e.score += Math.floor(se.cash / 2);
-    se.shelf.forEach(function (b) { e.items++; if (b.dupe) e.dupes++; if (b.kind === 'merch') e.merch++; });
+    var e = { score: 0, value: 0, finds: 0, items: 0, dupes: 0, merch: 0, media: 0, games: 0, cash: se.cash, cashPts: Math.floor(Math.max(0, se.cash) / SEASON_CASH) };
+    var best = {};
+    se.shelf.forEach(function (b) {
+      e.items++; if (b.dupe) e.dupes++; if (b.kind === 'merch') e.merch++; if (b.kind === 'music' || b.kind === 'movie') e.media = (e.media || 0) + 1; else if (b.kind === 'game' || b.kind === 'grail') e.games = (e.games || 0) + 1;
+      var key = b.kind + '|' + b.id, v = b.v || 0;
+      if (!(key in best) || v > best[key]) best[key] = v;
+    });
+    Object.keys(best).forEach(function (k) { var v = best[k]; if (v > 0) { e.value += v; e.finds++; } else e.value += Math.max(SEASON_NEG, v); });
+    // mini-goals, quick finds and surprises count too, at half weight (so playing well matters, but the shelf still leads)
+    e.bonus = Math.round(se.scores.reduce(function (a, x) { return a + (x.bonus || 0); }, 0) * NP.SEASON.bonusWeight);
+    e.score = e.value + e.finds * SEASON_FIND + e.cashPts + e.bonus;
     return e;
+  }
+  // a season Saturday: half of the games you already own get swapped for ones you do not, so the season keeps
+  // turning up new things (you will still run into plenty you own. Is it on the shelf?)
+  function freshStock(day, seed) {
+    var r = mulberry32(NP.hashStr('fresh|' + seed));
+    day.stops.forEach(function (st) {
+      if (st.type === 'expo' || st.locked || st.gift) return;
+      (st.items || []).concat(st.dig || []).forEach(function (it) {
+        if (it.kind !== 'game' || !it.tier || !day.owned[it.id] || it.featured || it.state !== 'avail' || r() < NP.SEASON.fresh) return;
+        var pool = NP.CATALOG.filter(function (g) { return g.tier === it.tier && !day.owned[g.id]; });
+        if (!pool.length) return;
+        var e = pick(r, pool), old = Math.max(1, it.base || 1);
+        it.id = e.id; it.t = e.t; it.p = e.p; it.base = e.base; it.set = e.set; it.g = e.g;
+        it.ask = Math.max(1, Math.round(it.ask * e.base / old));
+      });
+    });
   }
   function renderEnding() {
     S = null;
@@ -734,13 +776,14 @@
       var E = NP.ENDINGS.filter(function (x) { return x.test(e); })[0];
       end = SEASON.ending = { id: E.id, name: E.name, text: E.text, score: e.score };
       track('season_end'); track('season_end_' + E.id);
+      magnet('season');
       saveGame(null);
     }
     var best = SEASON.scores.slice().sort(function (a, b) { return b.score - a.score; })[0];
     var h = '<div class="screen ending"><div class="end-k">THE SEASON IS OVER</div>' +
       '<h2 class="end-h">' + esc(end.name) + '</h2>' +
       '<div class="end-t">' + esc(end.text) + '</div>' +
-      '<div class="end-stats">Season score <b>' + e.score + '</b> &middot; ' + e.items + ' on the shelf &middot; ' + money(e.cash) + ' in the bank' +
+      '<div class="end-stats">Season score <b>' + e.score + '</b> (shelf value ' + e.value + ' &middot; ' + e.finds + ' different find' + (e.finds === 1 ? '' : 's') + ' &middot; ' + (e.bonus ? e.bonus + ' from goals and surprises &middot; ' : '') + e.cashPts + ' for cash) &middot; ' + e.items + ' on the shelf' + (e.media ? ' (' + (e.games || 0) + ' games, ' + e.media + ' music and movies)' : '') + ' &middot; ' + money(e.cash) + ' in the bank' +
       (best ? ' &middot; best Saturday: ' + best.score + ' (Saturday ' + best.week + ')' : '') + '</div>' +
       (rivalReport() ? '<div class="end-riv"><b>Rivals.</b> ' + esc(rivalReport()) + '</div>' : '') +
       '<div class="end-q">' + esc(NP.CATCH.question) + ' Every bit of it.</div>' +
@@ -769,7 +812,9 @@
   // If it will not all fit before the mode ends, the stops after the swap meet go first, then the ones before it,
   // so the swap meet (the walkable one, with Dex) stays on the route as long as it can.
   // The gift shop is never on the route. It is always on the map, shouting.
-  var ROUTE_ORDER = ['yard', 'yard', 'yard', 'sports', 'thrift', 'mall', 'pal', 'flea', 'record', 'rental', 'rental', 'banned', 'thrift', 'pawn'];
+  var ROUTE_ORDER = ['yard', 'yard', 'yard', 'sports', 'thrift', 'mall', 'pal', 'flea', 'record', 'rental', 'rental', 'banned', 'thrift', 'pawn', 'expo'];
+  var STORE_TYPES = ['mall', 'banned', 'pal', 'record', 'rental'];
+  var EXPO_DOORS = 15 * 60; // the Desert Pixel Expo opens at 3 PM
   var STAY_EST = 25; // minutes we guess you spend at a stop
   function planRoute() {
     if (!S) return [];
@@ -784,22 +829,31 @@
     var list = order.filter(function (s) { return !s.visited; });
     // in the demo, leaving the swap meet ends the day, so it always goes last
     if (DEMO) list.sort(function (a, b) { return (a.type === 'flea') - (b.type === 'flea'); });
-    var end = endT();
+    // the Desert Pixel Expo is always the last stop, and the rest of the route has to leave time to get there by the doors (3 PM)
+    var expo = list.filter(function (s) { return s.type === 'expo'; })[0] || null;
+    if (expo) list = list.filter(function (s) { return s !== expo; });
+    var end = expo ? Math.min(endT(), EXPO_DOORS + 10 - costOf(expo, null)) : endT();
     function fits(l) {
       var t = S.time, from = lastStopId();
       // every stop on the route gets at least 20 minutes before the day ends
       for (var i = 0; i < l.length; i++) { t += costOf(l[i], from); from = l[i].id; if (t + 20 > end) return false; t += STAY_EST; }
       return true;
     }
+    // Round 3c: keep at least one of today's rotating stores on the route, so players who follow the big button still see them
+    function isStore(x) { return STORE_TYPES.indexOf(x.type) >= 0; }
+    function storesIn(l) { return l.filter(isStore).length; }
+    function keep(l, k) { return l[k].type === 'flea' || (isStore(l[k]) && storesIn(l) <= 1); }
     while (list.length && !fits(list)) {
       var fi = -1;
       for (var i = 0; i < list.length; i++) if (list[i].type === 'flea') fi = i;
-      var cut = -1;
-      for (var j = list.length - 1; j >= 0; j--) if (j > fi && list[j].type !== 'flea') { cut = j; break; }
-      if (cut < 0 && fi > 0) cut = fi - 1;   // then the stop just before the swap meet
+      var cut = -1, j;
+      for (j = list.length - 1; j > fi; j--) if (!keep(list, j)) { cut = j; break; }   // after the swap meet first
+      if (cut < 0) for (j = fi - 1; j >= 0; j--) if (!keep(list, j)) { cut = j; break; } // then before it
+      if (cut < 0) for (j = list.length - 1; j >= 0; j--) if (list[j].type !== 'flea') { cut = j; break; } // then the last store
       if (cut < 0) cut = list.length - 1;    // only the swap meet is left, and even it does not fit
       list.splice(cut, 1);
     }
+    if (expo && S.time + costOf(expo) < endT() - 20) list.push(expo);
     return list;
   }
   function nextStop() { return planRoute()[0] || null; }
@@ -859,6 +913,7 @@
   function makeMedia(r, e, opts) {
     var it = makeItem(r, { id: e.id, t: e.t, p: 'k16', tier: e.tier, base: e.base }, { kind: e.kind, seller: opts.seller, ask: opts.ask });
     it.fmt = e.fmt; it.by = e.by; it.cond = 'loose';
+    if (!DEMO) it.lab = mediaLab(it);
     if (opts.sec) it.sec = opts.sec;
     return it;
   }
@@ -1129,7 +1184,7 @@
     var who = NP.SELLERS.mall.name;
     if (act === 'caseask' && s.caseStep === 0) { braydenCheck(null); actCost(2); s.caseLog.push(['you', 'You: "' + D.ask + '"'], ['clerk', who + ': "' + D.why + '"']); s.caseStep = 1; track('glasscase_ask'); }
     else if (act === 'casereply' && s.caseStep === 1) { actCost(2); s.caseLog.push(['you', 'You: "' + D.reply + '"'], ['clerk', who + ': "' + D.why2 + '"']); s.caseStep = 2; s.laughNow = true; }
-    else if (act === 'caselaugh' && s.caseStep === 2) { actCost(1); s.caseStep = 3; s.caseEnd = D.walk; S.ev.laughed = true; track('glasscase_laugh'); }
+    else if (act === 'caselaugh' && s.caseStep === 2) { actCost(1); s.caseStep = 3; s.caseEnd = D.walk; S.ev.laughed = true; track('glasscase_laugh'); magnet('laugh'); }
     else if (act === 'casebuy' && s.caseStep < 3) { actCost(2); s.caseLog.push(['you', D.buy.replace('{cash}', money(S.cash))]); S.ev.caseTry = true; track('glasscase_buy_try'); }
     else if (act === 'casewalk' && s.caseStep < 2) { s.caseStep = 4; s.caseEnd = 'You walk away from the glass case. It hums at you.'; }
     else return;
@@ -1199,7 +1254,7 @@
       var kp = K();
       if (!isBanned('banned')) kp.banned.push({ id: 'banned', name: s.name, when: S.season ? 'Saturday ' + S.week : 'Saturday #' + S.runNo, review: '' });
       saveK();
-      track('banned_store'); step('banned_store');
+      track('banned_store'); step('banned_store'); magnet('banned');
     } else if (act === 'breview' && s.walked && !s.review) {
       actCost(1); s.review = D.reviews[i] || D.reviews[0];
       K().banned.forEach(function (b) { if (b.id === 'banned' && !b.review) b.review = s.review; });
@@ -1223,6 +1278,7 @@
       var na = makeItem(r, rollGame(r, [0.1, 0.6]), { seller: 'pal', cibP: 0.5 });
       na.uid = 'na' + s.id; na.newArr = true; s.items.unshift(na);
       track('pal_max_friend');
+      magnet('regular');
     }
     saveK();
   }
@@ -1304,7 +1360,7 @@
       var b = JSON.parse(JSON.stringify(it)); b.stopType = s.type; b.boughtAt = s.id; S.bag.push(b);
       S.toast = 'Card cashed in. ' + (s.type === 'pal' ? 'Lonnie' : 'The clerk') + ' hands you ' + it.t + '. Free.';
     }
-    saveK(); track('punch_cashin_' + how); sfx('cash');
+    saveK(); track('punch_cashin_' + how); sfx('cash'); magnet('punch');
     render();
   }
 
@@ -1346,7 +1402,7 @@
     var s = S.stop; if (!s || !s.lateFee || S.cash < 5) return;
     S.cash -= 5; s.lateFee = false; s.feeLine = NP.RENTAL.lateFeePaid; S.ev.lateFee = true;
     K().lateFeePaid = true; saveK();
-    actCost(2); track('late_fee_paid'); sfx('cash');
+    actCost(2); track('late_fee_paid'); sfx('cash'); magnet('latefee');
     if (!checkSundown()) render();
   }
   function doCandy() {
@@ -1384,9 +1440,10 @@
     if (kind === 'full' || BUNDLE[kind] >= need) {
       payFor(price);
       var left = price;
-      L.forEach(function (it, i) { var p = i === L.length - 1 ? left : Math.round(price * it.ask / sum); left -= p; takeItem(it, Math.max(0, p), kind); it.line = ''; });
+      L.forEach(function (it, i) { var p = i === L.length - 1 ? left : Math.round(price * it.ask / sum); left -= p; takeItem(it, Math.max(0, p), kind); it.line = ''; if (!DEMO) goalTick('buy', it, { price: Math.max(0, p), offer: kind, bundle: true }); });
       s.bundleLine = 'Deal. "Take the box too. Take the table if you want it."';
       sfx('cash'); sfx('accept'); track('bundle_bought');
+      celebrate('good', 'Box deal! ' + L.length + ' things for ' + money(price) + '.');
     } else { s.bundleLine = '"No. The whole box is worth more than that. Probably. I never counted it."'; sfx('reject'); track('bundle_no'); }
     if (!checkSundown()) { render(); afterBuy(); }
   }
@@ -1406,6 +1463,7 @@
       if (ov.parentNode) ov.parentNode.removeChild(ov);
       spend(3);
       S.toast = 'You: "' + a[0] + '" ' + a[1];
+      magnet('room');
       if (!checkSundown()) render();
     });
     var f = ov.querySelector('button'); if (f) { try { f.focus({ preventScroll: true }); } catch (e) { f.focus(); } }
@@ -1415,10 +1473,790 @@
     maybeBrokeTip(); if (!tipEl) maybeUnsponsored();
   }
 
+  // =====================================================================================================
+  // ---------- Round 3c: the Desert Pixel Expo ----------
+  // =====================================================================================================
+  // Saturday 12 of a season (Home by sundown), and every fourth Saturday in Endless. The last stop of the day.
+  // The walking, nerds and booths are in walk.js. The shop, grading and autographs run through here.
+  function expoWeek(w) { return w === NP.SEASON.weeks || (w > NP.SEASON.weeks && w % 4 === 0); }
+  function addExpo(day, seed) {
+    var r = mulberry32(NP.hashStr('expo|' + seed)), X = NP.EXPO, i;
+    var st = { id: 'expo', type: 'expo', name: X.name, seller: null, cost: X.cost, items: [], dig: [], dug: false, visited: false, rivalAt: null, rumor: false, cleared: false, stamps: {} };
+    for (i = 0; i < 6; i++) { var a = makeItem(r, rollGame(r, [0.25, 0.45]), { seller: 'expoA', sealedP: 0.25, cibP: 0.45 }); a.booth = 'dealerA'; a.uid = 'xa' + i; st.items.push(a); }
+    for (i = 0; i < 6; i++) {
+      var b = i < 4 ? makeItem(r, rollGame(r, [0.45, 0.4]), { seller: 'expoB', cibP: 0.3 })
+        : makeMedia(r, rollMedia(r, i === 4 ? 'music' : 'movie', i === 4 ? ['vinyl', 'cd', 'tape'] : ['vhs', 'dvd'], [0.4, 0.45]), { seller: 'expoB' });
+      b.booth = 'dealerB'; b.uid = 'xb' + i; st.items.push(b);
+    }
+    X.exclusives.forEach(function (e) {
+      var sl = e.where === 'homebrew' ? 'expoHb' : e.where === 'dealerA' ? 'expoA' : e.where === 'dealerB' ? 'expoB' : 'expoEx';
+      st.items.push({ uid: 'ex' + e.id, id: e.id, t: e.t, p: e.p || 'k16', tier: e.tier, base: e.base, kind: e.kind, art: e.art, fmt: e.fmt, by: e.by,
+        cond: e.cond || 'loose', flags: {}, inspected: false, checked: false, state: 'avail', line: '', seller: sl, ask: e.ask,
+        minFrac: sl === 'expoHb' ? 0.85 : sl === 'expoEx' ? 1 : 0.9, ex: true, tested: true, booth: e.where, sticker: false });
+    });
+    // the prototype, under somebody's table
+    st.grailBooth = pick(r, ['dealerA', 'dealerB', 'homebrew', 'autograph']);
+    st.items.push({ uid: 'exgrail', id: X.grail.id, t: X.grail.t, p: 'pip', kind: 'grail', base: 0, cond: 'cib', flags: {}, state: 'avail', line: '', seller: 'expoB',
+      ask: X.grail.ask, minFrac: 0.8, hidden: true, booth: st.grailBooth, sticker: false });
+    st.rivals = ['dex', 'brayden', 'phil', 'brody', 'gary', 'steve'];
+    day.stops.push(st);
+    day.rivals = st.rivals.slice();
+    day.expo = true;
+  }
+  function expoArrive(s) {
+    var X = NP.EXPO, lines = [];
+    if (S.time < X.doors) { S.time = X.doors; lines.push(X.line); }
+    else lines.push(X.lineLate);
+    if (!s.paid) {
+      s.paid = true;
+      if (S.cash >= X.fee) { S.cash -= X.fee; lines.push('($' + X.fee + ' paid.)'); } else lines.push(X.broke);
+    }
+    s.entryLine = lines.join(' ');
+    track('expo_enter'); step('expo_enter');
+    magnet('expo');
+  }
+  var GRADE_MULT = [0.8, 1.1, 1.5, 2];
+  function gradeHTML() {
+    var X = NP.EXPO.grade, list = S.bag.filter(function (b) { return (b.kind === 'game' || b.kind === 'music' || b.kind === 'movie') && !b.grade; });
+    var h = '<div class="sellbox"><h3>Get something graded</h3><div class="sell-k">$' + X.cost + ' and ' + X.min + ' minutes each. A high grade makes it worth more on the shelf. A low grade makes it worth less. No refunds.</div>';
+    if (S.gradeToast) { h += '<div class="toast">' + esc(S.gradeToast) + '</div>'; S.gradeToast = ''; }
+    if (!list.length) h += '<div class="note">' + (S.bag.length ? 'Nothing in your bag they can grade.' : 'Your bag is empty. Buy something, then come back.') + '</div>';
+    list.forEach(function (b) {
+      h += '<div class="sellrow"><div class="artbox sm" data-bart="' + b.uid + '"></div><div class="info"><div class="it-t">' + esc(b.t) + '</div>' +
+        '<div class="btns"><button class="offer fair" data-act="grade" data-uid="' + b.uid + '"' + (S.cash < X.cost ? ' disabled' : '') + '>Grade it ($' + X.cost + ', ' + X.min + ' min)</button></div></div></div>';
+    });
+    S.bag.filter(function (b) { return b.grade; }).forEach(function (b) { h += '<div class="note">' + esc(b.t) + ': graded ' + esc(b.grade) + '.</div>'; });
+    return h + '</div>';
+  }
+  function doGrade(uid) {
+    var b = bagItem(uid), X = NP.EXPO.grade;
+    if (!b || b.grade || S.cash < X.cost) return;
+    S.cash -= X.cost;
+    actCost(X.min);
+    var x = mulberry32(NP.hashStr(S.seed + '|grade|' + uid))();
+    var k = (b.flags && (b.flags.damaged || b.flags.repro)) ? 0 : x < 0.2 ? 0 : x < 0.65 ? 1 : x < 0.95 ? 2 : 3;
+    b.grade = ['4', '7', '9', '9.8'][k]; b.gradeMult = GRADE_MULT[k];
+    S.gradeToast = b.t + ': ' + X.results[k];
+    track('expo_grade_' + k);
+    if (k >= 2) celebrate(k === 3 ? 'big' : 'good', 'Graded ' + b.grade + '!');
+    if (k === 3) magnet('nine8');
+    if (!checkSundown()) render();
+  }
+  function autographHTML() {
+    var s = S.stop, X = NP.EXPO;
+    if (!s.inLine) return '<div class="btns"><button class="big" data-act="autoline">Wait in the autograph line (' + X.sign.min + ' min)</button></div>';
+    var h = '<div class="bubble">' + esc(X.sign.line) + '</div>';
+    var here = s.items.filter(function (it) { return it.booth === 'autograph' && (!it.hidden || s.grailOpen); });
+    if (here.length) h += '<div class="items">' + here.map(function (it) { return itemCard(it, s); }).join('') + '</div>';
+    var chet = S.bag.filter(function (b) { return !b.signed && (b.by === 'Chet Brickwall' || b.kind === 'standee'); });
+    if (chet.length) h += '<h3>Get it signed (free, he is right there)</h3>' + chet.map(function (b) {
+      return '<div class="sellrow"><div class="artbox sm" data-bart="' + b.uid + '"></div><div class="info"><div class="it-t">' + esc(b.t) + '</div><div class="btns"><button class="offer full" data-act="sign" data-uid="' + b.uid + '">Get it signed</button></div></div></div>';
+    }).join('');
+    else h += '<div class="note">Chet will sign anything from one of his movies (or a cardboard version of himself). Nothing in your bag qualifies.</div>';
+    S.bag.filter(function (b) { return b.signed; }).forEach(function (b) { h += '<div class="note">' + esc(b.t) + ': signed. Worth three times as much on the shelf.</div>'; });
+    return h;
+  }
+  function doSign(uid) {
+    var b = bagItem(uid);
+    if (!b || b.signed || !(b.by === 'Chet Brickwall' || b.kind === 'standee')) return;
+    b.signed = true; actCost(1);
+    track('expo_signed');
+    celebrate('good', 'Signed by Chet Brickwall!');
+    magnet('signed');
+    if (!checkSundown()) render();
+  }
+
+  // =====================================================================================================
+  // ---------- Round 3c: the dopamine pack ----------
+  // =====================================================================================================
+  // Small reward hits that never change the balance: count-ups with ticks, chimes for good moments, streaks,
+  // personal bests, fridge magnets and collector ranks. Full game only (the demo stays exactly as it was).
+  // Reduced motion: no animation, the numbers just appear. Sound follows the Sound button. Nothing here blocks a tap.
+  function calm() { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
+  function chipStack() {
+    var st = document.getElementById('yaystack');
+    if (!st) { st = document.createElement('div'); st.id = 'yaystack'; st.setAttribute('aria-live', 'polite'); document.body.appendChild(st); }
+    return st;
+  }
+  function celebrate(level, text) {
+    if (DEMO || !text) return;
+    var st = chipStack();
+    while (st.children.length >= 3) st.removeChild(st.firstChild);
+    var el = document.createElement('div');
+    el.className = 'yay ' + (level || 'good') + (calm() ? ' calm' : '');
+    el.setAttribute('role', 'status');
+    if (level === 'goaldone') {
+      var parts = String(text).split('|');
+      el.innerHTML = '<b class="yay-h"><span class="yay-sp" aria-hidden="true">&#10022;</span> ' + esc(parts[0]) + ' <span class="yay-sp" aria-hidden="true">&#10022;</span></b><span class="yay-b">' + esc(parts.slice(1).join(' · ')) + '</span>';
+    } else el.innerHTML = '<span class="yay-sp" aria-hidden="true">&#10022;</span> ' + esc(text);
+    st.appendChild(el);
+    sfx(level === 'big' || level === 'goaldone' ? 'sting' : level === 'streak' ? 'streak' : level === 'unlock' || level === 'goal' ? 'unlock' : 'sparkle');
+    setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, level === 'goaldone' ? 3000 : 2600);
+  }
+  function magnets() { var m = store.get('magnets', {}); return m && typeof m === 'object' ? m : {}; }
+  function magnet(id) {
+    if (DEMO) return;
+    var m = magnets(); if (m[id]) return;
+    var M = NP.MAGNETS.filter(function (x) { return x.id === id; })[0]; if (!M) return;
+    m[id] = S && S.season ? 'Saturday ' + S.week : 'yes';
+    store.set('magnets', m);
+    if (S) (S.newMagnets = S.newMagnets || []).push(id);
+    track('magnet_' + id);
+    celebrate('unlock', 'New fridge magnet: ' + M.name);
+  }
+  function rankOf(n) { var k = 0; for (var i = 0; i < NP.RANKS.length; i++) if (n >= NP.RANKS[i][0]) k = i; return k; }
+  function rankLine() {
+    var n = store.get('finds', 0) || 0, k = rankOf(n), nx = NP.RANKS[k + 1];
+    return 'Collector rank: <b>' + esc(NP.RANKS[k][1]) + '</b>' + (nx ? ' &middot; ' + (nx[0] - n) + ' more finds to ' + esc(nx[1]) : ' &middot; the top. The shelf is never full.') +
+      ' &middot; Fridge magnets: ' + Object.keys(magnets()).length + ' of ' + NP.MAGNETS.length;
+  }
+  // the money in the top bar counts up or down to the new amount, with a few quiet ticks
+  var hudCash = null;
+  function animCash() {
+    if (!S) { hudCash = null; return; }
+    var el = document.querySelector('.hud .cashn'), to = Math.round(S.cash), from = hudCash;
+    hudCash = to;
+    if (DEMO || !el || from == null || from === to || calm()) return;
+    var t0 = performance.now(), dur = 450, ticks = 0;
+    el.textContent = money(from); el.classList.remove('up', 'down'); el.classList.add(to > from ? 'up' : 'down');
+    (function f(now) {
+      var p = Math.min(1, (now - t0) / dur);
+      el.textContent = money(from + (to - from) * p);
+      if (p >= ticks * 0.25 && ticks < 4) { ticks++; sfx('tick'); }
+      if (p < 1 && document.body.contains(el)) requestAnimationFrame(f); else el.textContent = money(to);
+    })(t0);
+  }
+  // a number on the page counts up from zero
+  function countUp(el, to, dur) {
+    if (!el) return;
+    if (DEMO || calm() || to <= 0) { el.textContent = to; return; }
+    var t0 = performance.now(), ticks = 0;
+    el.textContent = '0';
+    (function f(now) {
+      var p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(to * e);
+      if (p >= ticks / 6 && ticks < 6) { ticks++; sfx('tick'); }
+      if (p < 1 && document.body.contains(el)) requestAnimationFrame(f); else el.textContent = to;
+    })(t0);
+  }
+  // a good buy: a haggle win, a streak, a rare one
+  function cheerBuy(it, price) {
+    if (DEMO) return;
+    if (price < it.ask) {
+      S.streak = (S.streak || 0) + 1;
+      magnet('haggle');
+      if (S.streak === 3) { celebrate('streak', 'Haggle streak: 3 in a row!'); magnet('streak3'); }
+      else if (S.streak === 5) { celebrate('streak', 'Haggle streak: 5. The sellers are talking about you.'); magnet('streak5'); }
+      else celebrate('good', 'Haggle win! Saved ' + money(it.ask - price) + '.');
+    } else S.streak = 0;
+    if (it.ultra) celebrate('big', 'ULTRA RARE! ' + it.t);
+    else if (it.kind === 'grail') celebrate('big', 'THE GRAIL.');
+    else if ((it.tier || 0) >= 3) celebrate('big', 'Rare find. Allegedly.');
+  }
+  // personal bests and "so close" lines, worked out when you shelve
+  function personalBests(R) {
+    if (DEMO) return [];
+    var pb = store.get('pb', null) || {}, out = [];
+    pb.sat = pb.sat || {};
+    var key = S.season ? 'season' : modeOf();
+    var prev = pb.sat[key];
+    if (prev != null) {
+      if (R.score > prev) out.push(['best', 'NEW PERSONAL BEST: best Saturday ever (' + R.score + ', up from ' + prev + ')']);
+      else if (prev - R.score <= Math.max(10, Math.round(prev * 0.15))) out.push(['close', 'So close: ' + (prev - R.score) + ' points short of your best Saturday (' + prev + ').']);
+    }
+    pb.sat[key] = Math.max(prev || 0, R.score);
+    var top = R.lines.slice().sort(function (a, b) { return b.pts - a.pts; })[0];
+    if (top && top.pts > 0) {
+      if (pb.find && top.pts > pb.find.pts) out.push(['best', 'NEW PERSONAL BEST: best find ever. ' + top.t + ' (+' + top.pts + ')']);
+      if (!pb.find || top.pts > pb.find.pts) pb.find = { pts: top.pts, t: top.t };
+    }
+    if (S.season && SEASON) {
+      var val = SEASON.shelf.reduce(function (a, b) { return a + Math.max(0, b.v || 0); }, 0);
+      if (pb.shelf != null && val > pb.shelf) out.push(['best', 'NEW PERSONAL BEST: shelf value (' + val + ' points)']);
+      pb.shelf = Math.max(pb.shelf || 0, val);
+    }
+    store.set('pb', pb);
+    return out;
+  }
+  // the magnets you can only earn by how the day went
+  function dayMagnets(R) {
+    if (DEMO) return;
+    if (R.lines.some(function (l) { return l.it && l.it.kind === 'grail'; })) magnet('grail');
+    if (R.lines.some(function (l) { return l.it && l.it.id === 'npx'; })) magnet('proto');
+    if (R.bonus.some(function (b) { return /trilogy/.test(b[0]); })) magnet('trilogy');
+    if (R.lines.some(function (l) { return l.pts < 0 && l.note.indexOf('shelf') >= 0; })) magnet('dupe');
+    if (R.lines.filter(function (l) { return l.it && l.it.kind === 'merch'; }).length >= 3) magnet('merch');
+    if (S.bag.some(function (b) { return b.decision === 'open'; })) magnet('opened');
+    if (!S.bag.length && !S.ev.sold) magnet('browse');
+    if (S.cash < 2) magnet('coins');
+    if (R.score >= 300) magnet('big');
+  }
+  // collector rank: every find you shelve (any mode but the demo) counts toward the next rank
+  function addFinds(n) {
+    if (DEMO) return;
+    var before = store.get('finds', 0) || 0, after = before + n;
+    store.set('finds', after);
+    var a = rankOf(before), b = rankOf(after);
+    if (b > a) { S.rankUp = NP.RANKS[b][1]; track('rank_' + b); celebrate('unlock', 'Collector rank up: ' + NP.RANKS[b][1]); }
+  }
+  function fridgeHTML() {
+    var m = magnets();
+    return '<div class="fridge"><h3>The fridge</h3><div class="shelfnote">' + rankLine() + '</div><div class="magnets">' + NP.MAGNETS.map(function (x) {
+      var got = !!m[x.id];
+      return '<div class="mag' + (got ? ' got' : '') + '"><b>' + (got ? esc(x.name) : '?') + '</b><small>' + esc(x.how) + '</small></div>';
+    }).join('') + '</div>' + tackleHTML() + '</div>';
+  }
+  // the tackle box: want list rewards
+  function tackleHTML() {
+    var tb = tackle(), W = NP.WANT_TEXT, have = NP.GOALS_POOL.filter(function (d) { return tb[d.id]; }).length;
+    return '<h3>' + esc(W.box) + ' <small class="tb-n">' + have + ' of ' + NP.GOALS_POOL.length + '</small></h3><div class="shelfnote">' + esc(W.boxNote) + '</div><div class="tackle">' +
+      NP.GOALS_POOL.map(function (d) {
+        var n = tb[d.id] || 0;
+        return '<div class="tb-it' + (n ? ' got' : '') + '"><b>' + (n ? esc(d.reward) + (n > 1 ? ' <span class="tb-x">x' + n + '</span>' : '') : '?') + '</b><small>' + esc(d.name) + ': ' + esc(d.label) + '</small></div>';
+      }).join('') + '</div>';
+  }
+
+  // =====================================================================================================
+  // ---------- Round 3c: the replay pack (mini-goals, surprises, combo and fever, ultra rares, scenery) ----------
+  // =====================================================================================================
+  // From playtesting: the long version got repetitive. Full game only; the demo never sees any of this.
+  function feverOn() { return !!(S && S.fever && S.time < S.fever); }
+  function comboMult() { return 1 + 0.25 * Math.min(S.combo || 0, 8); }
+  // rising stakes you can feel: the music and your walking speed pick up with the combo, more in a fever
+  function paceMult() { return DEMO || !S ? 1 : 1 + 0.03 * Math.min(S.combo || 0, 8) + (feverOn() ? 0.06 : 0); }
+  function walkBoost() { return DEMO || !S ? 1 : 1 + 0.05 * Math.min(S.combo || 0, 8) + (feverOn() ? 0.2 : 0); }
+  // bonus points: they go on the Saturday's score (and, at half weight, the season score)
+  function bonus(cat, pts) {
+    pts = Math.max(1, Math.round(pts * (feverOn() ? 2 : 1)));
+    S.bonusLog = S.bonusLog || [];
+    S.bonusLog.push([cat, pts]);
+    return pts;
+  }
+  function comboUp(n) {
+    if (DEMO || !S) return;
+    var before = S.combo || 0;
+    S.combo = before + (n || 1);
+    if (!feverOn() && before < NP.FEVER.at && S.combo >= NP.FEVER.at) {
+      S.fever = S.time + NP.FEVER.mins;
+      track('fever'); magnet('fever');
+      celebrate('big', NP.FEVER.text);
+    } else if (S.combo >= 3 && S.combo % 2 === 1) celebrate('streak', 'Combo x' + comboMult().toFixed(2).replace(/0$/, '').replace(/\.0$/, '') + '!');
+    tempo(paceMult());
+  }
+  function comboBreak() {
+    if (!S || feverOn()) return; // fever protects your combo until it runs out
+    if ((S.combo || 0) >= 3) S.toast = (S.toast ? S.toast + ' ' : '') + 'Combo broken. Start a new one.';
+    S.combo = 0;
+    tempo(paceMult());
+  }
+  function feverCheck() {
+    if (S && S.fever && S.time >= S.fever) { S.fever = 0; S.combo = 0; S.toast = (S.toast ? S.toast + ' ' : '') + 'Fever is over. Back to normal haggling.'; track('fever_end'); }
+  }
+
+  // ---------- the want list (mini-goals, Round 3c.1) ----------
+  function goalDef(id) { return NP.GOALS_POOL.filter(function (g) { return g.id === id; })[0] || null; }
+  function wantDiff(def) { return NP.WANT_DIFF[def.d] || NP.WANT_DIFF.mid; }
+  function isCart(it) { var pl = NP.PLATFORMS[it.p]; return !!pl && pl.media !== 'disc'; }
+  // does this item fit a want list entry? ctx is the purchase ({ price, offer, bundle }); without it, "could it?"
+  function wantMatch(f, it, ctx, st) {
+    if (!it || !f) return false;
+    var k = f.kind;
+    if (k === 'media') { if (!isMedia(it)) return false; }
+    else if (k === 'box') { if (!(it.kind === 'lot' || it.kind === 'bulk' || it.kind === 'club' || (ctx && ctx.bundle))) return false; }
+    else if (k) { if (it.kind !== k) return false; }
+    else if (it.kind === 'merch' || it.kind === 'gear') return false;
+    if (f.cond && it.cond !== f.cond) return false;
+    if (f.p && [].concat(f.p).indexOf(it.p) < 0) return false;
+    if (f.g && [].concat(f.g).indexOf(it.g) < 0) return false;
+    if (f.tier && (it.tier || 0) < f.tier) return false;
+    if (f.cart && !isCart(it)) return false;
+    if (f.fmt && it.fmt !== f.fmt) return false;
+    if (f.variant && String(it.variant || '').indexOf(f.variant) !== 0) return false;
+    if (f.gag && it.gag !== f.gag) return false;
+    if (f.rental && !(it.flags && it.flags.rental)) return false;
+    if (f.set && it.set !== f.set) return false;
+    if (f.notOwned && (S.day.owned[it.id] || S.bag.filter(function (b) { return b.id === it.id; }).length > (ctx ? 1 : 0))) return false;
+    if (f.tested && !it.tested) return false;
+    if (f.manual && (it.cond !== 'cib' || (it.flags && it.flags.noManual))) return false;
+    if (f.noManual && !(it.flags && it.flags.noManual)) return false;
+    if (f.stop && !(st && st.type === f.stop)) return false;
+    if (f.dig && !(st && (st.dig || []).indexOf(it) >= 0)) return false;
+    if (ctx) {
+      if (f.max && ctx.price > f.max) return false;
+      if (f.haggle && !(ctx.price <= it.ask * 0.8)) return false;
+      if (f.haggled && !(ctx.price < it.ask)) return false;
+      if (f.offer && ctx.offer !== f.offer) return false;
+    } else {
+      if (f.max && Math.round(it.ask * 0.5) > f.max) return false;
+      if ((f.haggle || f.haggled || f.offer) && it.minFrac >= 1) return false;
+      if (f.offer === 'lowball' && it.minFrac > 0.5) return false;
+    }
+    return true;
+  }
+  // what Inspect shows you: nothing wrong ("clean"), or the manual in the box
+  function inspectOut(def, it) {
+    var f = it.flags || {};
+    if (def.out === 'manual') return it.cond === 'cib' && !f.noManual;
+    return !(it.tell && (f.repro || f.damaged || f.reseal));
+  }
+  // the stops you can actually get to before an entry runs out: this one, plus the next ones on the route (a drive and a look is about 80 minutes)
+  var reachK = 99;
+  function stopsAhead() {
+    var list = [];
+    if (S.stop && openStop(S.stop)) list.push(S.stop);
+    planRoute().slice(0, reachK).forEach(function (st) { if (list.indexOf(st) < 0) list.push(st); });
+    return list.filter(function (st) { return st.type !== 'banned' && st.type !== 'gift'; });
+  }
+  function goalMins(def) {
+    var D = wantDiff(def), left = endT() - S.time;
+    var mins = def.late ? left - 5 : Math.min(def.mins || D.mins || left - 10, left - 10);
+    if (def.before) mins = Math.min(mins, def.before - S.time);
+    return Math.max(20, mins);
+  }
+  function itemsAhead(fn) {
+    var n = 0;
+    stopsAhead().forEach(function (st) { (st.items || []).concat(st.dig || []).forEach(function (it) { if (it.state === 'avail' && !it.hidden && fn(it, st)) n++; }); });
+    return n;
+  }
+  function yardsToday() { return S.history.filter(function (id) { var st = S.day.stops.filter(function (x) { return x.id === id; })[0]; return st && st.type === 'yard'; }).length; }
+  function overpricedStop(st) {
+    return (st.items || []).some(function (it) { return it.state === 'avail' && (it.kind === 'game' || isMedia(it)) && it.ask >= 1.5 * Math.max(1, (it.base || 0) * (COND_MULT[it.cond] || 1)); });
+  }
+  // only offer an entry the day can actually deliver
+  function goalFeasible(def) {
+    reachK = Math.max(1, Math.floor(goalMins(def) / 75));
+    try { return goalFeasible2(def); } finally { reachK = 99; }
+  }
+  function goalFeasible2(def) {
+    if (def.at && !(S.stop && def.at.indexOf(S.stop.type) >= 0)) return false;
+    if (!def.at && def.type === 'tables') return false;
+    var left = endT() - S.time;
+    if (def.late ? (left > 120 || left < 30) : left < 45) return false;
+    if (def.before && S.time > def.before - 60) return false;
+    var t = def.type;
+    if (t === 'buy') {
+      var rare = def.f.variant || def.f.kind === 'grail' || def.f.set || def.f.kind === 'lot' || def.f.kind === 'box' || def.f.rental || def.f.gag || def.f.stop;
+      return itemsAhead(function (it, st) { return wantMatch(def.f, it, null, st); }) >= def.n + (rare ? 0 : 1);
+    }
+    if (t === 'groups') return def.groups.every(function (gf) { return itemsAhead(function (it, st) { return wantMatch(gf, it, null, st); }) >= (def.distinct ? 2 : 1); }) && (!def.distinct || stopsAhead().length >= 4);
+    if (t === 'inspect') return itemsAhead(function (it, st) { return !it.inspected && !it.tested && wantMatch(def.f, it, null, st) && inspectOut(def, it); }) >= def.n + 1;
+    if (t === 'twins') return stopsAhead().some(function (st) { var c = {}; return st.items.some(function (it) { if (it.state !== 'avail' || it.kind !== 'game' || it.tested) return false; c[it.id] = (c[it.id] || 0) + 1; return c[it.id] >= 2; }); });
+    if (t === 'dig') return stopsAhead().filter(function (st) { return st.dig && st.dig.length && !st.dug && st.type !== 'flea'; }).length >= def.n + 1;
+    if (t === 'yards') { var seen = yardsToday(), ahead = stopsAhead().filter(function (st) { return st.type === 'yard' && st !== S.stop; }).length; return seen < def.n && seen + ahead >= def.n; }
+    if (t === 'walkaway') return stopsAhead().filter(overpricedStop).length >= def.n;
+    if (t === 'trade') return S.bag.filter(function (b) { return b.kind === 'game' || isMedia(b); }).length >= def.n + 1 && stopsAhead().some(function (st) { return !!buyerFor(st); });
+    if (t === 'club') return stopsAhead().some(function (st) { return st.club === 'open'; });
+    if (t === 'check') return itemsAhead(function (it) { return it.kind === 'game' && !it.checked; }) >= def.n + 2;
+    return true;
+  }
+  function maybeGoal() {
+    if (DEMO || !S || S.goal) return;
+    if (S.goalNext && S.time < S.goalNext) return;
+    if (endT() - S.time < 30) return;
+    var r = mulberry32(NP.hashStr(S.seed + '|goal|' + S.history.length + '|' + (S.goalsDone || []).length + '|' + (S.goalHist || []).length));
+    var recent = (S.goalHist || []).slice(-6);
+    var lastType = (goalDef((S.goalHist || []).slice(-1)[0]) || {}).type;
+    var pool = shuffle(r, NP.GOALS_POOL).filter(function (d) { return recent.indexOf(d.id) < 0 && (d.type === 'buy' || d.type !== lastType); }).filter(goalFeasible);
+    // walking into the swap meet, the Expo or a yard sale: the entries made for that place come first, most of the time
+    var here = pool.filter(function (d) { return d.at; });
+    var def = here.length && r() < (here[0].type === 'tables' ? 0.6 : 0.2) ? here[0] : pool.filter(function (d) { return !d.at; })[0] || pool[0];
+    if (!def) return;
+    var mins = goalMins(def);
+    S.goal = { id: def.id, end: S.time + mins, prog: def.type === 'yards' ? yardsToday() : 0, quickStops: {} };
+    S.goalHist = (S.goalHist || []).concat([def.id]);
+    track('goal_start_' + def.id);
+    celebrate('goal', NP.WANT_TEXT.tag + ': ' + def.name + '. ' + def.label + ' (' + mins + ' min). Reward: ' + def.reward + '.');
+  }
+  function goalTick(kind, it, ctx) {
+    if (DEMO || !S || !S.goal) return;
+    var def = goalDef(S.goal.id); if (!def) { S.goal = null; return; }
+    var g = S.goal, before = g.prog, t = def.type, st = S.stop;
+    if (kind === 'buy' && t === 'buy' && wantMatch(def.f, it, ctx || { price: it.ask }, st)) g.prog++;
+    if (kind === 'buy' && t === 'groups') {
+      g.got = g.got || {}; g.from = g.from || {};
+      var used = false;
+      def.groups.forEach(function (gf, i) {
+        if (used || g.got[i] || !wantMatch(gf, it, ctx || { price: it.ask }, st)) return;
+        if (def.distinct && st && g.from[st.id]) return;
+        g.got[i] = 1; if (st) g.from[st.id] = 1; used = true; g.prog++;
+      });
+    }
+    if (kind === 'inspect' && t === 'inspect' && wantMatch(def.f, it, null, st) && inspectOut(def, it)) { g.seen = g.seen || {}; if (!g.seen[it.uid]) { g.seen[it.uid] = 1; g.prog++; } }
+    if (kind === 'inspect' && t === 'twins' && it.kind === 'game' && st) {
+      g.ins = g.ins || {}; var key = st.id + '|' + it.id; g.ins[key] = g.ins[key] || {}; g.ins[key][it.uid] = 1;
+      g.prog = Math.max(g.prog, Object.keys(g.ins[key]).length);
+    }
+    if (kind === 'land' && t === 'nomiss') g.prog++;
+    if (kind === 'miss' && t === 'nomiss') g.prog = 0;
+    if (kind === 'land' && t === 'clean') g.landed = (g.landed || 0) + 1;
+    if (kind === 'miss' && t === 'clean') { goalLost(); return; }
+    if (kind === 'dig' && t === 'dig') g.prog++;
+    if (kind === 'table' && t === 'tables') { g.tabs = g.tabs || {}; if (!g.tabs[ctx]) { g.tabs[ctx] = 1; g.prog++; } }
+    if (kind === 'stop' && t === 'yards' && st && st.type === 'yard') g.prog++;
+    if (kind === 'quick' && t === 'quick' && st && def.at.indexOf(st.type) >= 0) g.prog++;
+    if (kind === 'leave' && t === 'walkaway' && ctx && overpricedStop(ctx)) g.prog++;
+    if (kind === 'trade' && t === 'trade') g.prog++;
+    if (kind === 'club' && t === 'club') g.prog++;
+    if (kind === 'check' && t === 'check') g.prog++;
+    if (g.prog > before) {
+      if (g.prog >= def.n) completeGoal(def);
+      else { celebrate('goal', NP.WANT_TEXT.tag + ': ' + g.prog + ' of ' + def.n + ' · ' + def.name); comboUp(1); }
+    }
+  }
+  // the tackle box: one reward for every want list entry, kept forever (a count if you earn one again)
+  function tackle() { var t = store.get('tackle', {}); return t && typeof t === 'object' ? t : {}; }
+  function completeGoal(def) {
+    var D = wantDiff(def);
+    var pts = bonus('Want list', D.pts * comboMult());
+    S.goalsDone = (S.goalsDone || []).concat([def.id]);
+    S.goal = null; S.goalNext = S.time + 20;
+    if (D.tip) S.cash += D.tip;
+    comboUp(2);
+    var W = NP.WANT_TEXT, bn = W.bannerFor[def.id];
+    if (!bn) { var pickB = W.banners.filter(function (b) { return b !== S.lastBanner && b !== 'GRAIL IN HAND!' && b !== 'SET COMPLETE!'; }); bn = pickB[NP.hashStr(S.seed + '|' + S.goalsDone.length) % pickB.length]; }
+    S.lastBanner = bn;
+    celebrate('goaldone', bn + '|' + def.name + '|+' + pts + ' points' + (D.tip ? ', +$' + D.tip : '') + '|Reward: ' + def.reward);
+    var tb = tackle(), had = tb[def.id] || 0;
+    tb[def.id] = had + 1; store.set('tackle', tb);
+    if (!had) celebrate('unlock', W.newReward + ': ' + def.reward);
+    track('goal_done_' + def.id);
+    magnet('goal1'); if (S.goalsDone.length >= 5) magnet('goal5');
+  }
+  function soClose() {
+    var L = NP.WANT_TEXT.soClose, i = (S.soCloseN = (S.soCloseN || 0) + 1);
+    return L[(NP.hashStr(S.seed) + i) % L.length] + ' ' + NP.WANT_TEXT.next;
+  }
+  function goalLost() {
+    track('goal_fail_' + S.goal.id);
+    S.goal = null; S.goalNext = S.time + 15;
+    // in the walkable places (the swap meet, the Expo) the toast sits over the floor, so a miss there is a small chip instead
+    var walkHere = S.screen === 'walk' || (S.stop && (S.stop.type === 'expo' || S.stop.type === 'flea'));
+    if (walkHere) celebrate('streak', soClose()); else S.toast = (S.toast ? S.toast + ' ' : '') + soClose();
+  }
+  function goalTime() {
+    if (!S || !S.goal) return;
+    if (S.time >= endT()) { S.goal = null; return; } // the day is over; no want list news on the way home
+    var cd = goalDef(S.goal.id);
+    if (cd && cd.type === 'clean' && S.time >= S.goal.end) {
+      if (S.goal.landed) completeGoal(cd); else goalLost();
+      return;
+    }
+    if (S.time > S.goal.end) { comboBreak(); goalLost(); }
+  }
+  // the strip under the top bar: the want list entry, your combo, fever
+  function goalBar() {
+    if (DEMO || !S || S.screen === 'results' || S.screen === 'home') return '';
+    var h = '', def = S.goal && goalDef(S.goal.id);
+    if (def) {
+      var left = Math.max(0, S.goal.end - S.time);
+      var prog = def.type === 'clean' ? (S.goal.landed ? 'clean so far, ' + S.goal.landed + ' landed' : 'clean so far') : S.goal.prog + ' of ' + def.n;
+      h += '<span class="gb-goal" title="' + esc(def.name + ': ' + def.label) + '"><b>' + esc(NP.WANT_TEXT.tag) + '</b> <span class="gb-lab"><span class="gb-name">' + esc(def.name) + '</span><span class="gb-task">: ' + esc(def.label) + '</span></span> <span class="gb-prog">' + prog + '</span> <span class="gb-time">' + left + ' min left</span></span>';
+    }
+    if ((S.combo || 0) >= 1) h += '<span class="gb-combo">Combo x' + comboMult().toFixed(2).replace(/0$/, '').replace(/\.0$/, '') + '</span>';
+    if (feverOn()) h += '<span class="gb-fever">FEVER ' + (S.fever - S.time) + ' min</span>';
+    return h ? '<div class="goalbar' + (feverOn() ? ' fever' : '') + '" aria-live="polite">' + h + '</div>' : '';
+  }
+  // the want list variants: colored shells, imports, store demo carts, first prints (full game only)
+  function placeVariants(day, seed) {
+    var r = mulberry32(NP.hashStr('variant|' + seed)), V = NP.VARIANTS, keys = Object.keys(V);
+    day.stops.forEach(function (st) {
+      if (!openStop(st) || st.type === 'expo') return;
+      (st.items || []).concat(st.dig || []).forEach(function (it) {
+        if (it.kind !== 'game' || it.variant || it.ultra || it.ex || (it.flags && it.flags.repro)) return;
+        var x = r(), acc = 0;
+        for (var i = 0; i < keys.length; i++) {
+          var v = V[keys[i]];
+          if (v.loose && !(it.cond === 'loose' && isCart(it))) continue;
+          if (v.boxed && it.cond === 'loose') continue;
+          acc += v.p;
+          if (x < acc) { it.variant = keys[i]; return; }
+        }
+      });
+    });
+  }
+  function variantNote(it) { var v = it.variant && NP.VARIANTS[it.variant]; return v && (!v.hidden || it.inspected) ? v.note : ''; }
+  function wantTable(o) { if (!o) return; goalTick('table', null, String(o.label || o.title || o.kind) + '|' + (o.fx || 0) + ',' + (o.fy || 0)); }
+
+  // quick finds: something bought within 10 minutes of walking into a stop
+  function quickFind() {
+    if (DEMO || !S.stop || S.stopArrive == null || S.time - S.stopArrive > 10 || S.quickAt === S.stop.id) return;
+    S.quickAt = S.stop.id;
+    var pts = bonus('Quick finds', 5 * comboMult());
+    comboUp(1);
+    goalTick('quick');
+    celebrate('good', 'Quick find! +' + pts + ' points');
+  }
+
+  // ---------- surprise events ----------
+  function maybeEvent(s) {
+    if (DEMO || s.event || s.gift || s.locked || s.type === 'banned' || s.type === 'flea' || s.type === 'expo' || (s.type === 'mall' && s.scene === 'uturn')) return;
+    var r = mulberry32(NP.hashStr(S.seed + '|event|' + s.id));
+    if (r() > 0.45) return;
+    S.evUsed = S.evUsed || [];
+    var looseCart = s.items.filter(function (it) { return it.state === 'avail' && it.kind === 'game' && it.cond === 'loose' && (NP.PLATFORMS[it.p] || {}).media !== 'disc'; });
+    var pool = shuffle(r, NP.EVENTS).filter(function (e) {
+      if (S.evUsed.indexOf(e.id) >= 0) return false;
+      if (e.id === 'blow') return looseCart.length && !S.said.blow;
+      if (e.id === 'flicker') return s.dig && s.dig.length && !s.dug;
+      if (e.id === 'mistag') return s.items.some(function (it) { return it.state === 'avail' && it.kind === 'game' && it.tier >= 2; });
+      if (e.id === 'channel') return (s.type === 'yard' || s.type === 'thrift') && s.items.filter(function (it) { return it.state === 'avail' && isMedia(it); }).length >= 2;
+      return true;
+    });
+    var e = pool[0]; if (!e) return;
+    S.evUsed.push(e.id);
+    s.event = { id: e.id, done: false };
+    if (e.id === 'blow') s.event.uid = looseCart[Math.floor(r() * looseCart.length)].uid;
+    track('event_' + e.id);
+  }
+  function eventBox(s) {
+    if (!s.event) return '';
+    var E = NP.EVENTS.filter(function (x) { return x.id === s.event.id; })[0]; if (!E) return '';
+    var h = '<div class="story event"><span class="truetag surp">' + esc(NP.EVENT_TAG) + '</span><div class="story-h">' + esc(E.label) + '</div>';
+    if (!s.event.done) {
+      var t = s.event.uid ? findItem(s.event.uid) : null;
+      h += '<div class="story-t">' + esc(E.text) + (t ? ' (' + esc(t.t) + ')' : '') + '</div><div class="btns"><button class="offer full" data-act="event">' + esc(E.btn) + '</button></div>';
+    } else h += '<div class="story-t">' + esc(E.done) + '</div>';
+    return h + '</div>';
+  }
+  function doEvent() {
+    var s = S.stop; if (!s || !s.event || s.event.done) return;
+    var id = s.event.id, r = mulberry32(NP.hashStr(S.seed + '|eventdo|' + s.id));
+    s.event.done = true;
+    if (id === 'blow') {
+      var it = findItem(s.event.uid);
+      if (it && it.state === 'avail') { it.ask = Math.max(1, Math.round(it.ask * 0.75)); it.blow = NP.CATCH.blow + ' The title screen pops up.'; it.inspected = true; }
+      S.said.blow = true; magnet('blow');
+    } else if (id === 'flicker') {
+      s.dug = true;
+    } else if (id === 'surprise') {
+      var ux = !S.day.ultra && r() < 0.12 ? makeUltra(r, s) : null;
+      var nw = ux || makeItem(r, rollGame(r, [0, 0.35]), { seller: s.seller || 'friendly', cibP: 0.4 });
+      if (!ux) { nw.uid = 'sp' + s.id; nw.flags.repro = false; nw.ask = Math.max(2, Math.round(nw.base * (COND_MULT[nw.cond] || 1) * 0.45)); }
+      s.items.unshift(nw);
+    } else if (id === 'happy') {
+      s.items.concat(s.dig || []).forEach(function (x) { if (x.state === 'avail') x.ask = Math.max(1, Math.round(x.ask * 0.8)); });
+    } else if (id === 'channel') {
+      actCost(4);
+      s.items.forEach(function (x) { if (x.state === 'avail' && isMedia(x)) x.ask = Math.max(1, x.ask - 2); });
+    } else if (id === 'twenty' || id === 'radio') {
+      S.cash += 10;
+    } else if (id === 'mistag') {
+      var cand = s.items.filter(function (x) { return x.state === 'avail' && x.kind === 'game' && x.tier >= 2; });
+      var m = cand[Math.floor(r() * cand.length)];
+      if (m) { m.ask = 1; m.minFrac = 1; m.mistag = true; }
+    }
+    actCost(id === 'flicker' ? 0 : 1);
+    var pts = bonus('Surprises', 10 * comboMult());
+    comboUp(1); magnet('surprise');
+    celebrate('good', 'Surprise! +' + pts + ' points');
+    track('event_done_' + id);
+    if (!checkSundown()) render();
+  }
+
+  // ---------- ultra-rare drops ----------
+  function makeUltra(r, s) {
+    var u = pick(r, NP.ULTRA);
+    var it = makeItem(r, { id: u.id, t: u.t, p: u.p, tier: 4, base: u.base, g: u.g }, { seller: s.seller || 'friendly', sealedP: 0.15, cibP: 0.5 });
+    it.uid = 'ul' + s.id; it.ultra = true; it.art = u.art; it.flags = {}; it.tell = true; it.sticker = true;
+    var full = u.base * (COND_MULT[it.cond] || 1);
+    it.ask = Math.max(5, Math.round(full * (s.type === 'pawn' ? 0.8 : 0.2 + r() * 0.3)));
+    it.minFrac = 0.8;
+    S.day.ultra = true;
+    return it;
+  }
+  function placeUltra(day, seed, m) {
+    var r = mulberry32(NP.hashStr('ultra|' + seed));
+    if (r() > (m === 'noon' ? 0.25 : 0.4)) return;
+    var hosts = day.stops.filter(function (s) { return openStop(s) && ['yard', 'thrift', 'flea', 'pawn', 'pal', 'record', 'rental', 'sports'].indexOf(s.type) >= 0; });
+    if (!hosts.length) return;
+    var s = pick(r, hosts), it = makeUltra(r, s);
+    day.ultra = true;
+    if (s.dig && s.dig.length && r() < 0.5) s.dig.push(it); else s.items.push(it);
+  }
+
+  // =====================================================================================================
+  // ---------- Round 3c part 3: music and movies at every stop (full game only) ----------
+  // =====================================================================================================
+  function mediaEntry(id) { return NP.MEDIA.filter(function (m) { return m.id === id; })[0] || null; }
+  function isMedia(it) { return !!it && (it.kind === 'music' || it.kind === 'movie'); }
+  function mediaLab(it) { var e = mediaEntry(it.id), k = e && e.lab; return k ? (NP.LABELS[k] || NP.STUDIOS[k] || '') : ''; }
+  // one gag at most per record, tape, CD or movie
+  function giveGag(r, it, p) {
+    if (!isMedia(it) || it.gag || it.ex) return;
+    if (r() > (p == null ? 0.3 : p)) return;
+    var keys = Object.keys(NP.MEDIA_GAGS).filter(function (k) { return NP.MEDIA_GAGS[k].fmts.indexOf(it.fmt) >= 0; });
+    if (it.flags && it.flags.rental) keys = keys.filter(function (k) { return k === 'rewind' || k === 'clam'; });
+    if (!keys.length) return;
+    var k = pick(r, keys), G = NP.MEDIA_GAGS[k];
+    if (k === 'sleeve' || k === 'wrong') {
+      var pool = NP.MEDIA.filter(function (m) { return m.kind === it.kind && m.fmt === it.fmt && m.id !== it.id; });
+      if (!pool.length) return;
+      it.wrongTo = pick(r, pool).id;
+    }
+    it.gag = k;
+    if (G.price) it.ask = Math.max(1, Math.round(it.ask * G.price));
+    if (G.fee) it.ask += G.fee;
+  }
+  function addMediaTo(r, st, kind, fmts, w, sec, seller) {
+    var it = makeMedia(r, rollMedia(r, kind, fmts, w), { seller: seller || st.seller || 'friendly', sec: sec });
+    it.lab = mediaLab(it);
+    st.items.push(it);
+    return it;
+  }
+  function placeMedia(day, seed) {
+    var r = mulberry32(NP.hashStr('media|' + seed)), MS = NP.MEDIA_SECS, clubDone = false;
+    day.stops.forEach(function (st) {
+      if (!openStop(st)) return;
+      mediaUsed = {};
+      (st.items || []).forEach(function (it) { if (isMedia(it)) mediaUsed[it.id] = true; });
+      if (st.type === 'yard') {
+        if (r() > 0.65) return;
+        var n = 2 + (r() < 0.4 ? 1 : 0);
+        for (var i = 0; i < n; i++) {
+          if (i === n - 1 && r() < 0.45) addMediaTo(r, st, 'movie', ['vhs'], [0.7, 0.25], 'media');
+          else addMediaTo(r, st, 'music', ['tape', 'vinyl', 'cd'], [0.72, 0.22], 'media');
+        }
+        st.secs = [['', MS.games], ['media', pick(r, MS.yard)]];
+      } else if (st.type === 'thrift') {
+        for (var a = 0; a < 3; a++) addMediaTo(r, st, 'music', ['vinyl', 'cd', 'tape'], [0.62, 0.3], 'music');
+        for (var b = 0; b < 2; b++) addMediaTo(r, st, 'movie', ['vhs', 'dvd'], [0.62, 0.3], 'movies');
+        st.secs = [['', MS.games], ['music', MS.music], ['movies', MS.movies]];
+        if (!clubDone && !(SEASON && S && S.season && SEASON.clubBills) && r() < 0.5) { st.club = 'open'; clubDone = true; }
+      } else if (st.type === 'pawn') {
+        for (var c = 0; c < 2; c++) addMediaTo(r, st, 'music', ['cd', 'vinyl'], [0.45, 0.4], 'music');
+        for (var d = 0; d < 2; d++) addMediaTo(r, st, 'movie', ['dvd', 'vhs'], [0.5, 0.38], 'movies');
+        st.secs = [['', MS.games], ['music', MS.pawnMusic], ['movies', MS.pawnMovies]];
+      } else if (st.type === 'flea') {
+        for (var e = 0; e < 3; e++) addMediaTo(r, st, 'music', ['vinyl', 'tape', 'cd'], [0.5, 0.38], 'crate', 'crate').crate = true;
+        for (var f = 0; f < 2; f++) addMediaTo(r, st, 'movie', ['vhs', 'dvd'], [0.55, 0.35], 'crate', 'crate').crate = true;
+        st.secs = [['', 'Tables'], ['crate', MS.crate]];
+      } else if (st.type === 'pal') {
+        addMediaTo(r, st, 'movie', ['vhs', 'dvd'], [0.5, 0.38], 'crate');
+      } else if (st.type === 'record') {
+        addMediaTo(r, st, 'music', ['vinyl'], [0.45, 0.4], 'vinyl');
+        addMediaTo(r, st, 'movie', ['vhs', 'dvd'], [0.45, 0.4], 'movies');
+      }
+    });
+    // the gags, on every record, tape, CD and movie in town (not the convention exclusives)
+    day.stops.forEach(function (st) {
+      (st.items || []).concat(st.dig || []).forEach(function (it) { if (isMedia(it)) { if (!it.lab) it.lab = mediaLab(it); giveGag(r, it, st.type === 'record' ? 0.2 : 0.3); } });
+    });
+  }
+  function gagNotes(it) {
+    var n = [], G = it.gag && NP.MEDIA_GAGS[it.gag];
+    if (!G) return n;
+    if (G.hidden) { if (it.revealed) n.push(it.gagNote || G.note); return n; }
+    if (G.fix && it.fixed) n.push(G.fixed); else n.push(G.note);
+    return n;
+  }
+  // a hidden gag shows up when you Inspect it, or at checkout if you did not
+  function revealGag(it, how) {
+    var G = it.gag && NP.MEDIA_GAGS[it.gag];
+    if (!G || !G.hidden || it.revealed) return;
+    it.revealed = true;
+    if (it.wrongTo) {
+      var e = mediaEntry(it.wrongTo);
+      if (e) {
+        var was = it.base || 0;
+        it.caseT = it.t; it.id = e.id; it.t = e.t; it.by = e.by; it.base = e.base; it.tier = e.tier; it.lab = mediaLab(it);
+        it.gagNote = G.note.replace('{t}', e.t) + ' (The ' + (it.fmt === 'vinyl' ? 'sleeve' : 'case') + ' says ' + it.caseT + '.)';
+        magnet('wrongdisc'); track('wrong_disc');
+        celebrate(e.base > was ? 'big' : 'good', 'Wrong ' + (it.fmt === 'vinyl' ? 'record' : 'disc') + '! It is actually ' + e.t + (e.base > was ? '. That is a better one.' : '.'));
+      }
+    } else it.gagNote = G.note;
+    if (how === 'buy') { var b = S.bag[S.bag.length - 1]; if (b && b.uid === it.uid) ['revealed', 'caseT', 'id', 't', 'by', 'base', 'tier', 'lab', 'gagNote'].forEach(function (k) { if (k in it) b[k] = it[k]; }); }
+  }
+  function doMediaFix(uid) {
+    var it = findItem(uid), G = it && it.gag && NP.MEDIA_GAGS[it.gag];
+    if (!G || !G.fix || it.fixed || it.state !== 'avail') return;
+    braydenCheck(uid);
+    actCost(5);
+    it.fixed = true;
+    if (G.fee) it.ask = Math.max(1, it.ask - G.fee);
+    if (it.gag === 'eaten') { magnet('pencil'); track('pencil_fix'); celebrate('good', 'Pencil fix! Good as new.'); }
+    if (!checkSundown()) render();
+  }
+  function mediaMult(b) {
+    var G = b.gag && NP.MEDIA_GAGS[b.gag];
+    if (!G || !G.mult) return 1;
+    if (G.fix && b.fixed) return 1;
+    return G.mult;
+  }
+  // the CD club flyer
+  function clubBox(s) {
+    if (DEMO || !s.club) return '';
+    var C = NP.CLUB, h = '<div class="story club"><div class="story-h">' + esc(C.name) + '</div>';
+    if (s.club === 'open') h += '<div class="story-t">' + esc(C.flyer) + '</div><div class="btns"><button class="offer full" data-act="club" data-v="join">' + esc(C.btn) + '</button><button data-act="club" data-v="skip">' + esc(C.skip) + '</button></div>';
+    else if (s.club === 'joined') h += '<div class="story-t">' + esc(C.joined) + '</div>';
+    else return '';
+    return h + '</div>';
+  }
+  function doClub(v) {
+    var s = S.stop; if (!s || s.club !== 'open') return;
+    if (v !== 'join') { s.club = 'skipped'; render(); return; }
+    s.club = 'joined';
+    var C = NP.CLUB, r = mulberry32(NP.hashStr(S.seed + '|club'));
+    var box = makeItem(r, { id: C.box.id, t: C.box.t, p: 'k16', base: 20 }, { kind: 'club', ask: 0, seller: s.seller });
+    box.paid = 0; box.state = 'sold'; box.stopType = s.type; box.boughtAt = s.id;
+    S.bag.push(box);
+    if (S.season && SEASON) SEASON.clubBills = C.bills;
+    actCost(2);
+    magnet('club'); track('cd_club'); goalTick('club');
+    celebrate('good', '12 CDs for a penny!');
+    if (!checkSundown()) render();
+  }
+  function mediaCounts(list) {
+    var c = { games: 0, music: 0, movies: 0 };
+    list.forEach(function (b) { if (b.kind === 'music') c.music++; else if (b.kind === 'movie') c.movies++; else if (b.kind === 'game' || b.kind === 'grail') c.games++; });
+    return c;
+  }
+  function countsText(c) {
+    return c.games + ' game' + (c.games === 1 ? '' : 's') + ', ' + c.music + ' music, ' + c.movies + ' movie' + (c.movies === 1 ? '' : 's');
+  }
+
+  // ---------- scenery: the look and the music change as the day goes on ----------
+  var SCENES = {
+    morning: { label: 'DRIVEWAYS AND CARD TABLES', music: 'morning' },
+    swap: { label: 'THE SWAP MEET', music: 'swap' },
+    store: { label: 'STRIP MALLS AND STORE CLOSINGS', music: 'store' },
+    expo: { label: 'THE CONVENTION FLOOR', music: 'expo' },
+    fever: { label: 'FEVER', music: 'fever' }
+  };
+  function sceneOf() {
+    if (DEMO || !S) return null;
+    if (S.screen === 'results' || S.screen === 'home' || S.screen === 'title') return null;
+    if (feverOn()) return 'fever';
+    var st = S.stop;
+    if (st && st.type === 'expo') return 'expo';
+    if (st && st.type === 'flea') return 'swap';
+    if (st && ['mall', 'banned', 'pal', 'record', 'rental', 'pawn'].indexOf(st.type) >= 0) return 'store';
+    if (st) return 'morning';
+    return S.time < 11 * 60 ? 'morning' : S.time < 14 * 60 ? 'swap' : 'store';
+  }
+  function skyOf() { if (!S) return ''; var t = S.time; return t < 9 * 60 ? 'dawn' : t < 15 * 60 ? 'day' : t < 17 * 60 ? 'dusk' : 'sunset'; }
+  function applyScene() {
+    var sc = sceneOf();
+    var b = document.body;
+    if (sc) { b.setAttribute('data-scene', sc); b.setAttribute('data-sky', skyOf()); }
+    else { b.removeAttribute('data-scene'); b.removeAttribute('data-sky'); }
+    return sc;
+  }
+  function sceneStrip() {
+    var sc = sceneOf(); if (!sc || !S.stop) return '';
+    var t = S.time, when = t < 12 * 60 ? 'MORNING' : t < 15 * 60 ? 'AFTERNOON' : t < 17 * 60 ? 'LATE AFTERNOON' : 'SUNDOWN';
+    return '<div class="scenestrip">' + (sc === 'expo' || sc === 'fever' ? '' : when + ' · ') + esc(sc === 'morning' && S.stop.type === 'thrift' ? 'THRIFT STORE AISLES' : SCENES[sc].label) + (sc === 'fever' ? ' · EVERYTHING IS GOING YOUR WAY' : '') + '</div>';
+  }
+
   // ---------- rendering ----------
   var app;
   function render() {
-    music(!S || S.screen === 'title' ? 'title' : S.screen === 'walk' ? 'swap' : 'title');
+    if (S && !DEMO) { feverCheck(); goalTime(); }
+    renderScreen(); animCash();
+  }
+  function renderScreen() {
+    var sc = applyScene();
+    music(sc ? SCENES[sc].music : !S || S.screen === 'title' ? 'title' : S.screen === 'walk' ? 'swap' : 'title', true);
+    tempo(sc ? paceMult() : 1);
     if (S && S.season && (S.screen === 'map' || S.screen === 'stop' || S.screen === 'walk' || S.screen === 'home')) saveSoon();
     if (!S || S.screen === 'title') return renderTitle();
     if (S.screen === 'map') return renderMap();
@@ -1444,7 +2282,7 @@
   // the line under the daylight bar: where you are going next, so nobody has to work it out from the map
   function nextLine() {
     if (!S) return '';
-    if (S.screen === 'walk' && S.stop) return 'You are at <b>' + esc(S.stop.name) + '</b>. The exit is the gate at the bottom.';
+    if (S.screen === 'walk' && S.stop) return 'You are at <b>' + esc(S.stop.name) + '</b>. ' + (S.stop.type === 'expo' ? 'The doors out are at the bottom. Closes at 5:30 PM.' : 'The exit is the gate at the bottom.');
     var r = planRoute(), n = r[0];
     if (S.screen === 'stop' && S.stop) {
       return n ? 'Next stop: <b>' + esc(n.name) + '</b> &middot; ' + costOf(n) + ' min drive' : 'No time for another stop after this one. Head home after.';
@@ -1455,10 +2293,10 @@
   function hud() {
     var h = '<div class="hud"><div class="hud-l"><span class="clock">' + fmtTime(Math.min(S.time, endT())) + '</span>' +
       (S.wx ? '<span class="wx wx-' + S.wx.id + '" title="' + esc(S.wx.name) + '">' + S.wx.icon + ' ' + S.wx.temp + '&deg;F</span>' : '') +
-      '<span class="cash">' + money(S.cash) + (creditHere() ? ' <small class="credit">+' + money(creditHere()) + ' credit</small>' : '') + '</span><span class="bagc">Bag: ' + S.bag.length + '</span></div>' +
+      '<span class="cash"><span class="cashn">' + money(S.cash) + '</span>' + (creditHere() ? ' <small class="credit">+' + money(creditHere()) + ' credit</small>' : '') + '</span><span class="bagc">Bag: ' + S.bag.length + '</span></div>' +
       '<div class="hud-r">' + soundButton() + fsButton() + tipsButton() + '<label class="adtoggle"><input type="checkbox" data-act="adfree"' + (adFree ? ' checked' : '') + '> Ad-Free<span class="ad-long"> Edition</span></label></div></div>' +
       '<div class="sunbar" title="Daylight left"><div style="width:' + sunPct() + '%"></div><span>' + sunText() + '</span></div>' +
-      '<div class="nextbar">' + nextLine() + '</div>';
+      '<div class="nextbar">' + nextLine() + '</div>' + goalBar();
     var lvl = adLevel();
     if (lvl >= 1) {
       var pool = adFree ? NP.TICKER_ADFREE : NP.TICKER;
@@ -1597,6 +2435,7 @@
       (best ? '<div class="scores">Best ever' + (DEMO ? '' : ', home by sundown') + ': <b>' + best.score + '</b></div>' : '') +
       (bestN ? '<div class="scores">Best ever, back by noon: <b>' + bestN.score + '</b></div>' : '') +
       (home.length && !DEMO ? '<div class="scores">Home shelf: ' + home.length + ' finds</div>' : '') +
+      (!DEMO && (store.get('finds', 0) || Object.keys(magnets()).length) ? '<div class="scores rankline">' + rankLine() + '</div>' : '') +
       (DEMO ? fullGameLine() : '') +
       (!store.ok ? '<div class="savewarn">This browser is not letting the game save. Everything still plays, but your progress will be gone when you close the page.</div>' : '') +
       '<div class="foot">A parody. Every game, console, store and company in here is made up.</div>' +
@@ -1617,8 +2456,11 @@
     if (home.length > 600) home = home.slice(home.length - 600);
     store.set('home', home);
   }
+  var homeFilter = 'all';
+  function hsGroup(rec) { return rec.kind === 'music' ? 'music' : rec.kind === 'movie' ? 'movies' : 'games'; }
   function renderHomeShelf() {
-    var home = store.get('home', []) || [];
+    var homeAll = store.get('home', []) || [];
+    var home = DEMO || homeFilter === 'all' ? homeAll : homeAll.filter(function (rec) { return hsGroup(rec) === homeFilter; });
     var days = [], byDay = {};
     for (var i = home.length - 1; i >= 0; i--) {
       var r = home[i];
@@ -1627,7 +2469,14 @@
     }
     var h = '<div class="screen shelfscr"><h2>&#127968; Your Home Shelf</h2>' +
       '<div class="shelfnote">' + home.length + ' finds from ' + days.length + ' Saturday' + (days.length === 1 ? '' : 's') + '. Only your first run each day goes on the shelf. Replays are just for fun.</div>';
-    if (!home.length) h += '<div class="bubble big">The shelf is empty. Somewhere out there, a yard sale is starting without you.</div>';
+    if (!DEMO && homeAll.length) {
+      var cnt = { all: homeAll.length, games: 0, music: 0, movies: 0 };
+      homeAll.forEach(function (rec) { cnt[hsGroup(rec)]++; });
+      h += '<div class="hs-tabs" role="group" aria-label="Shelf sections">' + [['all', 'All'], ['games', 'Games'], ['music', 'Music'], ['movies', 'Movies']].map(function (t) {
+        return '<button class="hs-tab' + (homeFilter === t[0] ? ' on' : '') + '" data-act="hsfilter" data-v="' + t[0] + '" aria-pressed="' + (homeFilter === t[0]) + '">' + t[1] + ' <b>' + cnt[t[0]] + '</b></button>';
+      }).join('') + '</div>';
+    }
+    if (!home.length) h += '<div class="bubble big">' + (homeAll.length ? 'Nothing in this section yet. The record bins are out there.' : 'The shelf is empty. Somewhere out there, a yard sale is starting without you.') + '</div>';
     days.slice(0, 40).forEach(function (d) {
       var sum = store.get(dayKey(d, 'sundown'), null) || store.get(dayKey(d, 'noon'), null);
       var sp = d.split('|');
@@ -1640,6 +2489,7 @@
     });
     if (days.length > 40) h += '<div class="shelfnote">Plus ' + (days.length - 40) + ' older Saturdays. They are in the garage.</div>';
     if (home.length) h += '<div class="hs-cap" id="hscap">Tap any game to see what it is.</div>';
+    if (!DEMO) h += fridgeHTML();
     h += '<div class="btns center"><button class="big" data-act="shelfback">Back</button></div></div>';
     app.innerHTML = h;
     document.querySelectorAll('[data-hs]').forEach(function (el) {
@@ -1670,7 +2520,7 @@
 
   function stopIcon(t) {
     return { yard: '&#127968;', sports: '&#127944;', thrift: '&#128717;', flea: '&#9978;', pawn: '&#128176;', gift: '&#11088;',
-      mall: '&#128722;', banned: '&#128682;', pal: '&#129309;', record: '&#127926;', rental: '&#128252;' }[t] || '';
+      mall: '&#128722;', banned: '&#128682;', pal: '&#129309;', record: '&#127926;', rental: '&#128252;', expo: '&#127918;' }[t] || '';
   }
   function stopBlurb(s) {
     return {
@@ -1684,7 +2534,8 @@
       banned: 'Retro games, probably. Two employees. Nobody has ever been helped.',
       pal: 'Lonnie talks. A lot. The clock does not stop for it.',
       record: 'Vinyl, tapes, CDs, movies and a little game shelf. Mostly opinions.',
-      rental: 'STORE CLOSING. Everything must go. Even the late fees.'
+      rental: 'STORE CLOSING. Everything must go. Even the late fees.',
+      expo: NP.EXPO.blurb
     }[s.type];
   }
 
@@ -1705,6 +2556,9 @@
     if (S.day.theme && S.history.length === 0) h += '<div class="rc-theme"><b>' + esc(S.day.theme.name) + '.</b> ' + esc(S.day.theme.line) + '</div>';
     if (S.day.rivals && S.day.rivals.length) h += '<div class="rc-spotted"><b>Spotted today:</b> ' + esc(spottedText()) + '</div>';
     if (S.season && S.week === NP.SEASON.weeks && S.history.length === 0) h += '<div class="rc-final">' + esc(NP.FINALE_NOTE) + '</div>';
+    if (S.day.ultra && !S.history.length && !DEMO) h += '<div class="rc-ultra">' + esc(NP.ULTRA_RUMOR) + '</div>';
+    var xs = S.day.stops.filter(function (x) { return x.type === 'expo' && !x.visited; })[0];
+    if (xs) h += '<div class="rc-final">' + esc(NP.EXPO.name + ' tonight: doors at 3 PM, $' + NP.EXPO.fee + ' to get in. It is the last stop of the day, and anything you buy there counts double.') + '</div>';
     var later = r.slice(1), done = S.history.length;
     h += '<details class="rc-more"><summary>' + (later.length ? 'Then ' + later.length + ' more stop' + (later.length === 1 ? '' : 's') : 'Then home') + (done ? ' &middot; ' + done + ' done' : '') + ' &middot; see the route</summary><ul class="rc-list">';
     S.history.forEach(function (id) {
@@ -1770,7 +2624,7 @@
       if (s.demoRaid && !s.visited) h += '<div class="rumor">' + NP.RIVAL.name + '\'s van is headed here too. He will show up right after you do.</div>';
       if (s.visited) h += '<div class="st-done">Visited</div>';
       else if (tooLate) h += '<div class="st-done">Not enough daylight</div>';
-      else h += '<button data-act="go" data-id="' + s.id + '" data-via="map"' + (s.gift ? ' class="giftbtn"' : '') + '>' + (s.gift ? 'Visit the Gift Shop!' : 'Drive there') + '</button>';
+      else h += '<button data-act="go" data-id="' + s.id + '" data-via="map"' + (s.gift ? ' class="giftbtn"' : '') + '>' + (s.gift ? 'Visit the Gift Shop!' : s.type === 'expo' && arrive < EXPO_DOORS ? 'Drive there (wait for the doors)' : 'Drive there') + '</button>';
       h += '</div>';
     });
     h += '</div><button class="big home" data-act="gohome">Head home and shelve it</button></div>';
@@ -1800,7 +2654,7 @@
     // the back of the box: you only get to read it once you pick it up and Inspect it
     if (it.blow) n.push(it.blow);
     if (steveHold(it)) n.push('On hold for Slab Steve. "I don\'t open things." Pay 20% more and it is yours.');
-    if ((it.inspected || it.tested) && NP.itemInfo) {
+    if ((it.inspected || it.tested) && NP.itemInfo && !isMedia(it)) {
       var bx = NP.itemInfo(it).box;
       if (bx) n.push('Back of the ' + (it.cond === 'loose' ? 'label' : 'box') + ': "' + bx + '"');
     }
@@ -1809,6 +2663,8 @@
     if (it.kind === 'merch') n.push('Official Nostalgia Pro merch. Worth nothing. Costs something.');
     // Round 3b
     if ((it.kind === 'music' || it.kind === 'movie') && NP.itemInfo) { var mb = NP.itemInfo(it).box; if (mb) n.push('Back of the ' + (it.kind === 'music' ? 'sleeve' : 'box') + ': "' + mb + '"'); }
+    gagNotes(it).forEach(function (x) { n.push(x); });
+    if (!DEMO && variantNote(it)) n.push(variantNote(it));
     if (it.pick) n.push(it.pick);
     if (it.year) n.push(NP.RENTAL.newNote.replace('{y}', it.year));
     if (it.flags && it.flags.rental) n.push(it.kind === 'game' ? NP.RENTAL.clam : 'Ex-rental. The rental sticker will never come off.');
@@ -1819,9 +2675,14 @@
     if (it.listened) n.push('You listened to it at the station.');
     if (it.tipped) n.push('Lonnie told you about this one.');
     if (it.kind === 'gear') n.push('Not a game. Does not go on the shelf. Goes in the van.');
-    if (it.tested) n.push('Tested. Works. Guaranteed.');
+    if (it.tested && !it.ex) n.push('Tested. Works. Guaranteed.');
+    if (it.ex) n.push('Convention exclusive. Buying it here counts double.');
+    if (it.ultra) n.push('ULTRA RARE. The seller has no idea what this is.');
+    if (it.mistag && it.state === 'avail') n.push('The price gun slipped. It says $1.');
+    if (it.kind === 'grail' && it.id === 'npx') n.push('The Expo prototype. Counts double, like everything here.');
     if (it.special) n.push('"That\'s the \'97. The good one."');
-    if (it.inspected) {
+    if (it.inspected && isMedia(it) && !(it.gag && NP.MEDIA_GAGS[it.gag].hidden)) n.push(it.gag === 'eaten' && !it.fixed ? 'It will not play like this. Somebody needs a pencil.' : it.kind === 'music' ? 'Plays fine. Sleeve and all.' : 'Plays fine. The tracking is close enough.');
+    if (it.inspected && !isMedia(it)) {
       var f = it.flags, said = false;
       if (it.tell) {
         if (f.repro) { n.push('The label is suspiciously shiny. Font looks off.'); said = true; }
@@ -1830,6 +2691,7 @@
       }
       if (f.noManual) { n.push('No manual inside.'); said = true; }
       if (!said) n.push(it.cond === 'sealed' ? 'Wrap looks factory. Probably.' : 'Looks legit to you.');
+      if (!DEMO && !said && it.cond === 'loose' && it.p === 'k16') n.push(NP.SAVE_NOTE);
     }
     if (it.checked) n.push(S.day.owned[it.id] || boughtAlready(it.id) ? 'ON THE SHELF ALREADY.' : 'Not on your shelf.');
     return n;
@@ -1844,6 +2706,7 @@
     if (it.kind === 'gear') return 'Gear';
     if (it.kind === 'standee') return 'Cardboard';
     if (it.kind === 'bulk') return 'Box of 40';
+    if (it.kind === 'photo') return 'Signed 8x10';
     return { loose: 'Loose', cib: 'Complete in box', sealed: 'Sealed' }[it.cond];
   }
 
@@ -1868,9 +2731,9 @@
   function itemCard(it, s) {
     var plat = NP.PLATFORMS[it.p];
     var sellerName = NP.SELLERS[it.seller] ? NP.SELLERS[it.seller].name : '';
-    var h = '<div class="item ' + it.state + '" id="card-' + it.uid + '"><div class="artbox" data-art="' + it.uid + '"></div><div class="info">' +
+    var h = '<div class="item ' + it.state + (it.ultra ? ' ultra' : '') + '" id="card-' + it.uid + '"><div class="artbox" data-art="' + it.uid + '"></div><div class="info">' +
       '<div class="it-t">' + esc(it.t) + '</div>' + tagHTML(it, reproKnown(it)) +
-      '<div class="it-p">' + (it.kind === 'game' || it.kind === 'grail' ? esc(plat.name) + ' &middot; ' : (it.kind === 'music' || it.kind === 'movie') ? esc(it.by) + ' &middot; ' : '') + '<span class="pill ' + it.cond + '">' + condLabel(it) + '</span></div>' +
+      '<div class="it-p">' + (it.kind === 'game' || it.kind === 'grail' ? esc(plat.name) + ' &middot; ' : (it.kind === 'music' || it.kind === 'movie') ? esc(it.by) + ' &middot; ' + (it.lab ? esc(it.lab) + ' &middot; ' : '') : '') + '<span class="pill ' + it.cond + '">' + condLabel(it) + '</span></div>' +
       '<div class="it-a">Asking <b>' + money(it.ask) + '</b>' + (s.type === 'flea' && sellerName ? ' <span class="who">(' + esc(sellerName) + ')</span>' : '') + '</div>';
     itemNotes(it).forEach(function (n) { h += '<div class="note' + (/ALREADY/.test(n) ? ' warn' : '') + '">' + esc(n) + '</div>'; });
     // true-story notes, with their tag
@@ -1892,15 +2755,16 @@
         h += '<button class="offer ' + o[0] + '" data-act="offer" data-kind="' + o[0] + '" data-uid="' + it.uid + '"' + (o[2] > S.cash + creditHere() ? ' disabled' : '') + '>' + o[1] + ' ' + money(o[2]) + '</button>';
       });
       h += '</div><div class="btns small">';
-      if (it.kind === 'game' && !it.inspected && !it.tested) h += '<button data-act="inspect" data-uid="' + it.uid + '">Inspect (5 min)</button>';
-      if (it.kind === 'game' && !it.checked) h += '<button data-act="check" data-uid="' + it.uid + '">Is it on the shelf? (10 min)</button>';
+      if ((it.kind === 'game' || (!DEMO && isMedia(it) && !it.ex)) && !it.inspected && !it.tested) h += '<button data-act="inspect" data-uid="' + it.uid + '">Inspect (5 min)</button>';
+      if (!DEMO && it.gag && NP.MEDIA_GAGS[it.gag].fix && !it.fixed) h += '<button data-act="mfix" data-uid="' + it.uid + '">' + esc(NP.MEDIA_GAGS[it.gag].fix) + '</button>';
+      if ((it.kind === 'game' || (S.season && isMedia(it))) && !it.checked && !it.ex) h += '<button data-act="check" data-uid="' + it.uid + '">Is it on the shelf? (10 min)</button>';
       if (s.story === 'pricecheck') h += '<button data-act="pricecheck" data-uid="' + it.uid + '">' + esc(NP.STORIES.pricecheck.button) + '</button>';
       if (it.comeback) h += '<button data-act="comeback" data-uid="' + it.uid + '">' + esc(NP.STORIES.comeback.button) + '</button>';
       h += '</div>';
     } else if (it.state === 'sold') h += '<div class="stamp">IN THE BAG ' + money(it.paid) + '</div>';
     else if (it.state === 'pulled') h += '<div class="stamp bad">OFF THE TABLE</div>';
     else if (it.state === 'kids') h += '<div class="stamp bad">' + esc(NP.STORIES.kids.stamp) + '</div>';
-    else if (it.state === 'gone') h += '<div class="stamp bad">' + (it.goneBy === 'brayden' ? 'BRAYDEN GOT IT (MOM\'S CARD)' : it.goneBy === 'wagon' ? esc(NP.STORIES.reseller.stamp) : it.goneBy === 'vest' ? esc(NP.STORIES.comeback.stamp) : esc(NP.RIVAL.name.toUpperCase()) + ' GOT IT') + '</div>';
+    else if (it.state === 'gone') h += '<div class="stamp bad">' + (it.goneBy === 'brayden' ? 'BRAYDEN GOT IT (MOM\'S CARD)' : it.goneBy === 'wagon' ? esc(NP.STORIES.reseller.stamp) : it.goneBy === 'nerd' ? 'A NERD GOT IT' : it.goneBy === 'steve' ? 'SLAB STEVE GOT IT' : it.goneBy === 'vest' ? esc(NP.STORIES.comeback.stamp) : esc(NP.RIVAL.name.toUpperCase()) + ' GOT IT') + '</div>';
     h += '</div></div>';
     return h;
   }
@@ -1909,7 +2773,7 @@
     var s = S.stop;
     var seller = NP.SELLERS[s.seller];
     if (s.reseller && !s.resold && (s.acts || 0) >= 2) doResell(s);
-    var h = hud() + '<div class="screen stop st-' + s.type + '"><h2>' + stopIcon(s.type) + ' ' + esc(s.name) + '</h2>' + signHTML(s);
+    var h = hud() + '<div class="screen stop st-' + s.type + '">' + sceneStrip() + '<h2>' + stopIcon(s.type) + ' ' + esc(s.name) + '</h2>' + signHTML(s);
     if (s.cleared) h += '<div class="rival">' + NP.RIVAL.name + ' from ' + NP.RIVAL.shop + ' beat you here. He took the good stuff and set up a table out front.</div>';
     var refuse = s.cola && NP.SPONSOR && NP.SPONSOR.refuse ? NP.SPONSOR.refuse[s.seller] : null;
     if (seller && refuse) {
@@ -1920,7 +2784,7 @@
     if (s.type === 'flea') h += '<div class="bubble big">Different vendor at every table. Some of them know what they got.</div>';
     h += rivalNotes(s);
     // Round 3b: what is going on at this store today
-    h += storyBox(s) + caseBox(s) + palBox(s) + recordBox(s) + rentalBox(s) + bundleBox(s);
+    h += eventBox(s) + storyBox(s) + caseBox(s) + palBox(s) + recordBox(s) + rentalBox(s) + bundleBox(s) + clubBox(s);
     if (s.reseller && s.resold) h += '<div class="story">' + trueTag(NP.STORIES.reseller) + '<div class="story-h">' + esc(NP.STORIES.reseller.title) + '</div><div class="story-t">' + esc(NP.STORIES.reseller.line) + '</div></div>';
     if (adLevel() >= 2) h += '<div class="poster">' + (adFree ? 'POSTER: The Ad-Free Edition. No posters. (Except this one.)' : 'POSTER: Nostalgia Pro: The Shelf Dust. Now in Sealed. Gift Shop open till ' + endLabel() + '.') + '</div>';
     if (S.toast) { h += '<div class="toast">' + esc(S.toast) + '</div>'; S.toast = ''; }
@@ -2085,14 +2949,20 @@
     if (s.type === 'flea') track('swapmeet_enter');
     // Round 3b
     if (s.type === 'mall' && s.scene === 'uturn') { spend(5); S.ev.uturn = true; track('mall_uturn'); }
+    // Round 3c replay pack: the clock for quick finds, goal progress, a surprise now and then, a new goal now and then
+    // Grok Bot r3c1 fix: wait for the Expo doors (and pay) before a want list entry starts, so its clock does not run in the line
+    if (s.type === 'expo') expoArrive(s);
+    S.stopArrive = S.time;
+    if (!DEMO) { goalTick('stop'); maybeEvent(s); maybeGoal(); }
     if (s.type === 'pal') palArrive(s);
     if (s.type === 'record' && s.seller === 'chill') { K().punch++; saveK(); }
     if (s.story) track('story_' + s.story);
     if (s.moment) track('moment_' + s.moment);
     // the swap meet is walkable
-    if (s.type === 'flea' && NP.Walk && NP.Char) {
+    if ((s.type === 'flea' || s.type === 'expo') && NP.Walk && NP.Char) {
       S.screen = 'walk';
       NP.Walk.enter(s);
+      if (s.type === 'expo') { S.toast = s.entryLine || ''; return; }
       S.toast = s.cleared ? NP.RIVAL.name + ' from ' + NP.RIVAL.shop + ' beat you here. He took the good stuff and set up a table by the fence.'
         : s.demoRaid ? NP.RIVAL.name + '\'s van is a few minutes behind you. Grab the good stuff first.' : '';
     }
@@ -2128,6 +2998,7 @@
   // it goes in the bag (shared by offers, the whole-box deal and the punch card)
   function takeItem(it, price, kind) {
     it.paid = price; it.state = 'sold';
+    if (S.stop && S.stop.type === 'expo') it.expoBuy = true; // convention buys count double
     var b = JSON.parse(JSON.stringify(it)); b.paid = price; b.stopType = S.stop.type; b.boughtAt = S.stop.id;
     if (S.day.owned[b.id] || boughtAlready(b.id)) S.ev.dupBuys++;
     if (it.special || (NP.SPORTS.some(function (x) { return x.id === it.id; }) && price >= 20)) S.ev.sportsOverpay = Math.max(S.ev.sportsOverpay, price);
@@ -2143,7 +3014,8 @@
     }
     // Round 3b
     if (it.kind === 'gear' && it.id === 'binoc') { K().gear.binoc = true; saveK(); track('binoculars_bought'); }
-    if (it.kind === 'standee') { S.ev.standee = true; track('standee_bought'); }
+    if (it.kind === 'standee') { S.ev.standee = true; track('standee_bought'); magnet('standee'); }
+    if (it.ex && S.stop.type === 'expo') { magnet('nerds'); track('expo_exclusive_bought'); }
     if (punchHere()) { K().punch++; saveK(); }
     if (!S.said.partner && (it.kind === 'standee' || (S.day.partner && price >= 30))) { S.said.partner = true; S.callNow = true; }
   }
@@ -2160,16 +3032,29 @@
     if (kind === 'steve') { kind = 'full'; rivalHit('steve'); }
     var sl = NP.SELLERS[it.seller] || {};
     var frac = price / it.ask;
-    if (frac + 1e-6 >= it.minFrac || kind === 'full') {
+    if (frac + 1e-6 >= it.minFrac || kind === 'full' || (kind === 'fair' && feverOn())) {
       var cr = payFor(price);
       it.line = sellerLine(it, 'yes') + (cr ? ' (' + money(cr) + ' of that was your store credit.)' : '');
       takeItem(it, price, kind);
       sfx('cash'); sfx('accept');
+      cheerBuy(it, price);
+      if (!DEMO) {
+        goalTick('land');
+        if (price < it.ask) { goalTick('haggle'); comboUp(1); }
+        goalTick('buy', it, { price: price, offer: kind });
+        quickFind();
+        if (it.ultra) { comboUp(2); magnet('ultra'); track('ultra_bought'); }
+        if (isMedia(it)) { revealGag(it, 'buy'); S.mediaN = (S.mediaN || 0) + 1; if (S.mediaN >= 5) magnet('crate'); }
+      }
     } else if (kind === 'lowball' && sl.touchy) {
+      S.streak = 0;
       it.state = 'pulled'; it.line = S.rem.ikwig && S.rem.ikwig.mad ? 'AGAIN? Unbelievable. Off the table. I will remember this too.' : sl.mad[0]; S.ev.offended++;
       remember('ikwig', 'mad');
+      if (!DEMO) { goalTick('miss'); comboBreak(); }
       sfx('reject');
     } else {
+      S.streak = 0;
+      if (!DEMO) { goalTick('miss'); comboBreak(); }
       it.line = sellerLine(it, 'no');
       if (rivalHere('brayden')) S.stop.bfocus = it.uid; // you showed interest; Brayden noticed
       sfx('reject');
@@ -2190,7 +3075,7 @@
     return t && NP.BUYERS && NP.BUYERS[t] ? t : null;
   }
   function sellable(b, bt) {
-    if (b.kind === 'grail' || b.kind === 'lot' || b.kind === 'gear' || b.kind === 'standee' || b.kind === 'bulk') return false;
+    if (b.kind === 'grail' || b.kind === 'lot' || b.kind === 'gear' || b.kind === 'standee' || b.kind === 'bulk' || b.kind === 'photo') return false;
     if (b.kind === 'merch') return !!NP.BUYERS[bt].all;
     if (b.kind === 'music' || b.kind === 'movie') return !!(NP.BUYERS[bt].all || NP.BUYERS[bt].media);
     return true;
@@ -2269,7 +3154,7 @@
     actCost(T_SELL);
     var amt = how === 'trade' ? tradeVal(q) : q.offer;
     S.bag = S.bag.filter(function (x) { return x !== b; });
-    if (how === 'trade') { S.credit[S.stop.id] = (S.credit[S.stop.id] || 0) + amt; S.ev.traded++; }
+    if (how === 'trade') { S.credit[S.stop.id] = (S.credit[S.stop.id] || 0) + amt; S.ev.traded++; goalTick('trade'); }
     else { S.cash += amt; S.ev.cashSales = (S.ev.cashSales || 0) + amt; }
     S.ev.sold++; S.ev.sales += amt;
     if (amt > (b.paid || 0)) S.ev.flipProfit += amt - (b.paid || 0);
@@ -2285,6 +3170,11 @@
       track('tradein_lowball');
     }
     sfx('cash');
+    magnet('sale');
+    var profit = amt - (b.paid || 0);
+    if (profit >= 15) magnet('flip');
+    if (profit > 0) goalTick('sell');
+    if (profit >= 5) celebrate('good', 'Sold for ' + money(profit) + ' more than you paid.');
     step('first_sale'); step('f09_sell_' + S.history.length + '_' + S.stop.type);
     track('sold_' + S.stop.type + '_' + how);
     if (!checkSundown()) render();
@@ -2470,7 +3360,7 @@
   function leaveStop(via, nextId) {
     var wasDemoEnd = DEMO && S.stop && S.stop.type === 'flea';
     if (S.stop) step('f08_leave_' + S.history.length + '_' + S.stop.type + '_' + (via || 'map'));
-    if (S.stop) { braydenCheck(null); if (S.toast) S.toast = S.toast.replace('You moved on, so', 'On your way out,'); }
+    if (S.stop) { braydenCheck(null); if (S.toast) S.toast = S.toast.replace('You moved on, so', 'On your way out,'); if (!DEMO) goalTick('leave', null, S.stop); }
     if (S.stop && S.stop.type === 'pal') { S.toast = (S.toast ? S.toast + ' ' : '') + 'You, on the way out: "' + NP.PAL.leave + '" ' + NP.PAL.leaveReply; track('pal_leave_line'); }
     var left = creditHere();
     if (left) { S.ev.creditLeft += left; S.toast = (S.toast ? S.toast + ' ' : '') + 'You left ' + money(left) + ' of store credit at ' + S.stop.name + '. Store credit does not travel.'; track('credit_left'); }
@@ -2595,17 +3485,24 @@
       var v = 0, pts = 0, note = '';
       if (b.kind === 'merch') { pts = -10; note = 'Merch. Worth nothing. You knew that.'; }
       else if (b.kind === 'grail') { pts = 100; grail = true; note = 'GRAIL! You found the game in the game. Shelf label: currently playing.'; }
-      else if (b.kind === 'standee') { pts = 0; note = 'A life-size cardboard Chet Brickwall. Worth nothing. Guards the shelf.'; }
+      else if (b.kind === 'standee') { pts = b.signed ? 40 : 0; note = b.signed ? 'A life-size cardboard Chet Brickwall, signed by the actual Chet Brickwall. Now it is worth something.' : 'A life-size cardboard Chet Brickwall. Worth nothing. Guards the shelf.'; }
+      else if (b.kind === 'photo') { v = b.base || 20; pts = Math.round(v); haul += v; note = 'A signed 8x10. It goes on the wall next to the shelf.'; }
       else if (b.kind === 'bulk') { v = 40; pts = 40; haul += v; note = 'Forty sports games. You paid ' + money(b.paid || 0) + ' for about $40 of football.'; }
+      else if (b.kind === 'club') { v = b.base || 20; pts = Math.round(v); haul += v; note = NP.CLUB.box.d; }
       else if (b.kind === 'music' || b.kind === 'movie') {
         if (seen[b.id]) { pts = -5; note = 'Two of the same one. Bought on the same day. By you.'; }
+        else if (S.season && S.day.owned[b.id]) { pts = -5; dup = true; note = 'It was on the shelf. Now it is on the shelf twice.'; }
         else {
-          v = (b.base || 1) * (b.flags && b.flags.residue && !b.cleaned ? 0.7 : 1); pts = Math.round(v); haul += v;
-          note = MEDIA_NOTE[b.fmt] || 'Good pickup.';
+          if (b.gag && !b.revealed && NP.MEDIA_GAGS[b.gag].hidden) b.revealed = true;
+          v = (b.base || 1) * (b.flags && b.flags.residue && !b.cleaned ? 0.7 : 1) * (b.gradeMult || 1) * (b.signed ? 3 : 1) * mediaMult(b); pts = Math.max(1, Math.round(v)); haul += v;
+          var GG = b.gag && NP.MEDIA_GAGS[b.gag];
+          note = GG && GG.home && !(GG.fix && b.fixed) ? GG.home : b.caseT ? 'Wrong ' + (b.fmt === 'vinyl' ? 'sleeve' : 'case') + ': it says ' + b.caseT + ' on the outside.' : MEDIA_NOTE[b.fmt] || 'Good pickup.';
           if (b.flags && b.flags.residue && !b.cleaned) note += ' Sticker goo: worth 30% less.';
+          if (b.grade) note += ' Graded ' + b.grade + '.';
+          if (b.signed) note += ' Signed by Chet Brickwall: worth three times as much.';
         }
       }
-      else if (S.day.owned[b.id] || seen[b.id]) { pts = -15; dup = true; note = 'It was on the shelf. Now it is on the shelf twice.'; }
+      else if (S.day.owned[b.id] || seen[b.id]) { pts = S.season ? -5 : -15; dup = true; note = 'It was on the shelf. Now it is on the shelf twice.'; }
       else if (b.flags.repro) { pts = -10; repro = true; note = 'Repro. That label was way too shiny.'; }
       else {
         var base = b.base;
@@ -2618,10 +3515,14 @@
         }
         if (!note) note = 'Good pickup.';
         if (b.flags.residue && !b.cleaned) { v *= 0.7; note += ' Sticker goo: worth 30% less. You never cleaned it.'; }
+        if (b.variant && NP.VARIANTS[b.variant] && !(b.flags.damaged && b.cond === 'loose')) { v *= NP.VARIANTS[b.variant].mult; note += ' ' + NP.VARIANTS[b.variant].note; }
+        if (b.gradeMult) { v *= b.gradeMult; note += ' Graded ' + b.grade + '.'; }
         pts += Math.round(v); haul += v;
       }
       if (b.kind === 'game' || b.kind === 'grail' || b.kind === 'music' || b.kind === 'movie') seen[b.id] = true;
       if (b.fromLot) note = '(Lot box) ' + note;
+      // the Desert Pixel Expo: convention buys count double
+      if (b.expoBuy && pts > 0) { pts *= 2; note += ' ' + NP.EXPO.double; }
       score += pts;
       lines.push({ t: b.t, note: note, pts: pts, it: b });
     });
@@ -2632,11 +3533,18 @@
     if (setFound && setDone) { score += 75; bonus.push(['Moon Ferret trilogy complete', 75]); }
     // cash left over counts at the end of a single day. In a season it carries over instead (it counts at the season's end).
     if (S.ev.laughed) { score += 15; bonus.push(['Laughed at a $5,000 sealed copy and walked away', 15]); }
+    // Round 3c replay pack: mini-goals, quick finds and surprises (combo and fever already counted in)
+    var cats = {}, order = [];
+    (S.bonusLog || []).forEach(function (b) { if (!(b[0] in cats)) { cats[b[0]] = [0, 0]; order.push(b[0]); } cats[b[0]][0] += b[1]; cats[b[0]][1]++; });
+    var extra = 0;
+    order.forEach(function (c) { score += cats[c][0]; extra += cats[c][0]; bonus.push([c + ' (' + cats[c][1] + ')', cats[c][0]]); });
     var cashPts = S.season ? 0 : Math.floor(S.cash / 2);
     if (cashPts) { score += cashPts; bonus.push(['Cash left over (' + money(S.cash) + ')', cashPts]); }
 
     // run title, most embarrassing first
+    if (items.some(function (b) { return b.ultra; })) titles.push('Found an Ultra Rare (For Real)');
     if (grail) titles.push('Played Myself');
+    if ((S.goalsDone || []).length >= 4) titles.push('Goal Getter');
     if (S.ev.banned) titles.push('Banned a Store (By You)');
     if (S.ev.laughed) titles.push(NP.GLASSCASE_TITLE);
     if (S.ev.standee) titles.push('Brought Home a Cardboard Action Star');
@@ -2660,28 +3568,43 @@
     if (score >= 250) titles.push('Swap Meet Wizard');
     if (S.cash >= S.budget * 0.7 && S.bag.length) titles.push('Tightwad of the Flea Market');
     if (!titles.length) titles.push(score >= 150 ? 'A Very Solid Saturday' : 'Mostly Football Games');
-    return { lines: lines, bonus: bonus, score: score, haul: Math.round(haul), spent: spent, title: titles[0], also: titles.slice(1, 3), items: items };
+    return { lines: lines, bonus: bonus, score: score, haul: Math.round(haul), spent: spent, title: titles[0], also: titles.slice(1, 3), items: items, extra: extra };
   }
 
   function renderResults() {
     var R = S.result;
     step('f22_results');
+    // the first time this screen shows: the score counts up and the appraisal comes in one find at a time
+    var reveal = !DEMO && !S.revealDone && !calm();
     var h = '<div class="screen results"><h2>' + (S.season ? esc(seasonLabelLc(S.week)) + ' is on the shelf' : 'The Shelf') + '</h2>' +
       '<div class="runtitle">"' + esc(R.title) + '"</div>' + (S.shelfLine ? '<div class="bubble big hero">You: "' + esc(S.shelfLine) + '"</div>' : '') +
       (R.also.length ? '<div class="also">Also earned: ' + R.also.map(esc).join(' &middot; ') + '</div>' : '') +
-      '<div class="bigscore">' + R.score + ' <small>points</small></div>' +
+      '<div class="bigscore"><span class="bsn">' + R.score + '</span> <small>points</small></div>' +
       '<div class="stats">Spent ' + money(R.spent) + ' of ' + money(S.budget) + ' &middot; Haul value ' + money(R.haul) + ' &middot; ' + R.items.length + ' items' +
       (S.ev.sold ? ' &middot; Sold or traded ' + S.ev.sold + ' for ' + money(S.ev.sales) : '') + '</div>' +
       '<div class="scores">' + esc(S.recordMsg || '') + '</div>' +
+      rewardsHTML() +
       featuredReveal() + bannedList() +
       '<canvas id="card" width="1200" height="675"></canvas>' +
       '<div class="btns center"><button class="big" data-act="download">Download your share card</button><button data-act="copy">Copy result text</button>' +
       (DEMO ? '<button data-act="demoend">Continue &#9654;</button>' : '') +
       '' /* Grok Bot r3b fix: only one next-Saturday button on season results (the big one at the bottom) */ + '</div>' +
-      '<div class="appraisal"><h3>Appraisal</h3>';
-    R.lines.forEach(function (l, i) {
+      '<div class="appraisal' + (reveal ? ' reveal' : '') + '"><h3>Appraisal</h3>';
+    // full game: the haul in shelf sections (games, music, movies) when there is more than one kind
+    var grpOf = function (l) { var k = l.it && l.it.kind; return k === 'music' ? 1 : k === 'movie' ? 2 : 0; };
+    var GRP = ['Games', 'Music', 'Movies'], used = [0, 0, 0];
+    R.lines.forEach(function (l) { used[grpOf(l)] = 1; });
+    var split = !DEMO && used[0] + used[1] + used[2] > 1;
+    var shown = [], nShown = 0;
+    if (split) [0, 1, 2].forEach(function (g) { R.lines.forEach(function (l, i) { if (grpOf(l) === g) shown.push(i); }); });
+    else R.lines.forEach(function (l, i) { shown.push(i); });
+    var lastG = -1;
+    shown.forEach(function (i) {
+      var l = R.lines[i];
+      if (split && grpOf(l) !== lastG) { lastG = grpOf(l); h += '<div class="al-sec">' + GRP[lastG] + '</div>'; }
       var rp = !!(l.it && l.it.kind === 'game' && l.it.flags && l.it.flags.repro);
-      h += '<div class="al has-art"><span class="al-art" data-rart="' + i + '"></span><div class="al-body"><div class="al-row"><span class="al-t">' + esc(l.t) + '</span><span class="al-p ' + (l.pts < 0 ? 'neg' : '') + '">' + (l.pts > 0 ? '+' : '') + l.pts + '</span></div>' +
+      var great = l.pts >= 40 || (l.it && l.it.kind === 'grail');
+      h += '<div class="al has-art' + (great ? ' great' : '') + '" style="--d:' + (0.35 + Math.min(nShown++, 14) * 0.28).toFixed(2) + 's"><span class="al-art" data-rart="' + i + '"></span><div class="al-body"><div class="al-row"><span class="al-t">' + esc(l.t) + '</span><span class="al-p ' + (l.pts < 0 ? 'neg' : '') + '">' + (l.pts > 0 ? '+' : '') + l.pts + '</span></div>' +
         (l.it ? '<div class="al-tag">' + tagPill(l.it, rp) + '</div>' : '') + '<div class="al-n">' + esc(l.note) + '</div></div></div>';
     });
     R.bonus.forEach(function (b) { h += '<div class="al bonus"><span class="al-t">' + esc(b[0]) + '</span><span class="al-p">+' + b[1] + '</span></div>'; });
@@ -2704,6 +3627,26 @@
       if (l && l.it) el.appendChild(NP.makeArt(l.it, 2));
     });
     drawCard($('#card'), R);
+    if (reveal) {
+      S.revealDone = true;
+      countUp(document.querySelector('.bsn'), R.score, 1100);
+      // a chime for each great find as it comes in (a few at most)
+      R.lines.map(function (l, i) { return [l, i]; }).filter(function (x) { return x[0].pts >= 40 || (x[0].it && x[0].it.kind === 'grail'); }).slice(0, 4).forEach(function (x) {
+        setTimeout(function () { if (S && S.screen === 'results') sfx('sparkle'); }, (0.35 + Math.min(x[1], 14) * 0.28) * 1000 + 150);
+      });
+      if ((S.pbLines || []).some(function (p) { return p[0] === 'best'; })) setTimeout(function () { if (S && S.screen === 'results') sfx('sting'); }, 1250);
+    }
+  }
+  // personal bests, "so close", new fridge magnets and your collector rank, under the score
+  function rewardsHTML() {
+    if (DEMO) return '';
+    var h = '';
+    (S.pbLines || []).forEach(function (p) { h += '<div class="pb pb-' + p[0] + '">' + (p[0] === 'best' ? '&#9733; ' : '') + esc(p[1]) + '</div>'; });
+    var nm = (S.newMagnets || []).map(function (id) { var M = NP.MAGNETS.filter(function (x) { return x.id === id; })[0]; return M ? M.name : ''; }).filter(Boolean);
+    if (nm.length) h += '<div class="magnew">New fridge magnet' + (nm.length > 1 ? 's' : '') + ': <b>' + nm.map(esc).join(' &middot; ') + '</b></div>';
+    if (S.rankUp) h += '<div class="pb pb-best">&#9733; Collector rank up: ' + esc(S.rankUp) + '</div>';
+    h += '<div class="rankline">' + rankLine() + '</div>';
+    return h;
   }
 
   // the Banned List page on the results screen (stores you walked out of, for good)
@@ -2735,7 +3678,7 @@
     ctx.fillStyle = C.red; ctx.fillRect(0, 0, W, 70);
     ctx.fillStyle = C.cyan; ctx.fillRect(0, 70, W, 6);
     NP.pixelText(ctx, 'NOSTALGIA PRO', 40, 17, 5, C.cream);
-    NP.pixelText(ctx, DEMO ? 'DEMO' : S.free ? 'FREE PLAY' : 'SATURDAY #' + S.runNo, W - 40, 26, 3, C.cream, 'right');
+    NP.pixelText(ctx, DEMO ? 'DEMO' : S.free ? 'FREE PLAY' : S.season ? seasonLabel(S.week) : 'SATURDAY #' + S.runNo, W - 40, 26, 3, C.cream, 'right');
     // you, standing next to your score
     if (NP.Char) NP.Char.draw(ctx, getLook(), 'down', 0, W - 374, 100, 4);
     // title
@@ -2830,7 +3773,8 @@
     }
     // footer
     ctx.fillStyle = C.navy2; ctx.fillRect(0, H - 70, W, 70);
-    NP.pixelText(ctx, DEMO ? 'THE FREE DEMO' : (S.free ? 'FREE PLAY' : 'DAILY RUN ' + S.seed) + ' · ' + NP.MODES[modeOf()].name, 40, H - 46, 3, C.cream);
+    // a season's seed is long, so the footer names the season instead (it used to run into the web address)
+    NP.pixelText(ctx, DEMO ? 'THE FREE DEMO' : (S.free ? 'FREE PLAY' : S.season ? 'SEASON' + (S.day.expo ? ' · THE EXPO' : '') : 'DAILY RUN ' + S.seed) + ' · ' + NP.MODES[modeOf()].name, 40, H - 46, 3, C.cream);
     NP.pixelText(ctx, 'THENOSTALGIAPRO.COM', W - 40, H - 46, 3, C.cyan, 'right');
     if (items.length > show.length) NP.pixelText(ctx, '+' + (items.length - show.length) + ' MORE', W / 2 - 40, H - 42, 2, C.gold, 'center');
     // scanlines
@@ -2839,7 +3783,7 @@
 
   function shareText() {
     var R = S.result;
-    return 'Nostalgia Pro, ' + (DEMO ? 'the free demo' : (S.free ? 'Free Play' : 'Saturday #' + S.runNo) + ', ' + NP.MODES[modeOf()].name) + ' (' + S.wx.temp + 'F)\n"' + R.title + '"\nScore ' + R.score + ' | Spent ' + money(R.spent) + ' | ' + R.items.length + ' finds\nFeatured lot: ' + featuredStatus() + '\nIs it on the shelf? Play: thenostalgiapro.com';
+    return 'Nostalgia Pro, ' + (DEMO ? 'the free demo' : (S.free ? 'Free Play' : S.season ? 'season, ' + seasonLabelLc(S.week) : 'Saturday #' + S.runNo) + ', ' + NP.MODES[modeOf()].name) + ' (' + S.wx.temp + 'F)\n"' + R.title + '"\nScore ' + R.score + ' | Spent ' + money(R.spent) + ' | ' + R.items.length + ' finds\nFeatured lot: ' + featuredStatus() + '\nIs it on the shelf? Play: thenostalgiapro.com';
   }
 
   function shelve() {
@@ -2851,11 +3795,14 @@
     var msg = '', mname = NP.MODES[modeOf()].name;
     step('f21_shelved_' + modeOf() + (S.free ? '_free' : S.season ? '_season' : ''));
     S.shelfLine = bigMoment(R) ? NP.CATCH.shelf : '';
+    S.newMagnets = S.newMagnets || [];
+    if (!DEMO) { dayMagnets(R); addFinds(R.items.length); }
     if (S.season) {
       finishSeasonSaturday(R);
+      S.pbLines = personalBests(R);
       saveHomeShelf(R);
       var tot = seasonTotals();
-      S.recordMsg = 'On the season shelf: ' + SEASON.shelf.length + '. Season score so far: ' + (tot.score - Math.floor(SEASON.cash / 2)) + '. ' + money(SEASON.cash) + ' carries over to next Saturday, plus payday.';
+      S.recordMsg = 'On the season shelf: ' + SEASON.shelf.length + ' (' + countsText(mediaCounts(SEASON.shelf)) + '). Season score so far: ' + tot.score + ' (shelf value ' + tot.value + ', ' + tot.finds + ' different find' + (tot.finds === 1 ? '' : 's') + ', ' + (tot.bonus ? tot.bonus + ' from goals and surprises, ' : '') + tot.cashPts + ' for cash). ' + money(SEASON.cash) + ' carries over to next Saturday, plus payday.';
       S.screen = 'results';
       sfx('fanfare');
       render();
@@ -2869,6 +3816,7 @@
     if (!best || R.score > best.score) { store.set(bk, { score: R.score, seed: S.seed }); msg += ' New personal best (' + mname + ')!'; }
     else msg += ' Best ever (' + mname + '): ' + best.score + '.';
     S.recordMsg = msg;
+    S.pbLines = personalBests(R);
     S.screen = 'results';
     sfx('fanfare');
     render();
@@ -2926,12 +3874,14 @@
       case 'jumpsell': var sb = document.getElementById('sellbox'); if (sb) sb.scrollIntoView({ behavior: 'smooth', block: 'start' }); break;
       case 'inspect':
         var it = findItem(uid); braydenCheck(uid); actCost(T_INSPECT); it.inspected = true;
-        if (it.flags && it.flags.repro && it.tell) { sfx('uhoh'); track('repro_inspected'); }
+        if (it.flags && it.flags.repro && it.tell) { sfx('uhoh'); track('repro_inspected'); magnet('eagle'); }
+        goalTick('inspect', it);
+        if (isMedia(it)) revealGag(it, 'inspect');
         blowOnIt(it);
         if (rivalHere('brayden') && it.state === 'avail') S.stop.bfocus = it.uid;
         if (!checkSundown()) render(); break;
-      case 'check': var it2 = findItem(uid); braydenCheck(uid); actCost(T_SHELF); it2.checked = true; S.ev.checks++; if (rivalHere('brayden') && it2.state === 'avail') S.stop.bfocus = it2.uid; if (!checkSundown()) render(); break;
-      case 'dig': braydenCheck(null); actCost(T_DIG); S.stop.dug = true; if (!checkSundown()) render(); break;
+      case 'check': var it2 = findItem(uid); braydenCheck(uid); actCost(T_SHELF); it2.checked = true; S.ev.checks++; goalTick('check'); if (rivalHere('brayden') && it2.state === 'avail') S.stop.bfocus = it2.uid; if (!checkSundown()) render(); break;
+      case 'dig': braydenCheck(null); actCost(T_DIG); S.stop.dug = true; goalTick('dig'); if (!checkSundown()) render(); break;
       case 'leave': if (tipEl) closeTip(); leaveStop(el.getAttribute('data-via') || 'map'); window.scrollTo(0, 0); break;
       case 'buygift': buyGift(el.getAttribute('data-id')); break;
       // Round 3b
@@ -2945,6 +3895,12 @@
       case 'latefee': doLateFee(); break;
       case 'candy': doCandy(); break;
       case 'bundle': doBundle(el.getAttribute('data-kind')); break;
+      case 'grade': doGrade(uid); break;
+      case 'event': doEvent(); break;
+      case 'mfix': doMediaFix(uid); break;
+      case 'club': doClub(el.getAttribute('data-v')); break;
+      case 'autoline': if (S.stop && S.stop.type === 'expo' && !S.stop.inLine) { actCost(NP.EXPO.sign.min); S.stop.inLine = true; track('expo_autograph_line'); if (!checkSundown()) render(); } break;
+      case 'sign': doSign(uid); break;
       case 'pricecheck':
         var pc = findItem(uid); if (!pc || pc.state !== 'avail') break;
         braydenCheck(uid); actCost(2);
@@ -2990,6 +3946,7 @@
       case 'tips': setTipsOff(!tipsOff); break;
       case 'mute': if (NP.Sound) NP.Sound.toggle(); break;
       case 'hsname': var cap = $('#hscap'); if (cap) cap.textContent = el.getAttribute('data-name'); break;
+      case 'hsfilter': homeFilter = el.getAttribute('data-v') || 'all'; renderHomeShelf(); break;
       case 'totitle': S = null; cartOpen = true; renderTitle(); window.scrollTo(0, 0); break;
     }
   }
@@ -3081,7 +4038,8 @@
   NP.G = {
     state: function () { return S; }, END: END, rivalNotes: rivalNotes, rivalHit: rivalHit, rivalsAt: rivalsAt, endT: endT, endLabel: endLabel, sellHTML: sellHTML, creditHere: creditHere,
     spend: spend, checkSundown: checkSundown, updateHud: updateHud, leaveButtons: leaveButtons, step: step,
-    itemCard: itemCard, drawArts: drawArts, giftHTML: giftHTML, drawGiftArts: drawGiftArts, dexSetup: dexSetup,
+    itemCard: itemCard, drawArts: drawArts, giftHTML: giftHTML, gradeHTML: function () { return gradeHTML(); }, autographHTML: function () { return autographHTML(); }, drawGiftArts: drawGiftArts, dexSetup: dexSetup,
+    walkBoost: function () { return walkBoost(); }, wantTable: function (o) { if (!DEMO) wantTable(o); },
     adLevel: adLevel, adFree: function () { return adFree; }, look: getLook, helloFor: helloFor,
     fmtTime: fmtTime, money: money, esc: esc, sfx: sfx, track: track, demo: DEMO,
     takeToast: function () { var t = S.toast; S.toast = ''; return t; },
@@ -3089,6 +4047,31 @@
   };
 
   // test hooks (harmless in production)
-  window.__NP_TEST = { keep: function () { return K(); }, runSeed: function (m, seed) { todaySeed = seed; SEASON = null; newRun(m); S.screen = 'map'; render(); }, goStop: function (id) { var st = S.day.stops.filter(function (x) { return x.id === id; })[0]; arrive(st); render(); }, genDay: genDay, buildDay: buildDay, season: function () { return SEASON; }, render: function () { render(); }, readSave: readSave, state: function () { return S; }, phoenixDate: phoenixDate, weatherFor: weatherFor,
+  window.__NP_TEST = { keep: function () { return K(); },
+    // the season simulator used for the balance pass (test only; nothing in the game calls these)
+    sim: {
+      route: function () { return planRoute().map(function (x) { return x.id; }); },
+      go: function (id) { var st = S.day.stops.filter(function (x) { return x.id === id; })[0]; arrive(st); S.stop = st; },
+      leave: function () { S.stop = null; S.screen = 'map'; S.visited++; },
+      wants: function (uid) { var it = findItem(uid), def = S.goal && goalDef(S.goal.id); if (!it || !def) return false;
+        if (def.type === 'buy') return wantMatch(def.f, it, null, S.stop);
+        if (def.type === 'groups') return def.groups.some(function (gf, i) { return !(S.goal.got || {})[i] && wantMatch(gf, it, null, S.stop); });
+        if (def.type === 'inspect') return !it.inspected && wantMatch(def.f, it, null, S.stop);
+        return false; },
+      goalType: function () { var def = S.goal && goalDef(S.goal.id); return def ? def.type : null; },
+      leaveReal: function () { leaveStop('map'); },
+      offer: function (uid, kind) { var it = findItem(uid); if (it) doOffer(it, kind); return it ? it.state : null; },
+      inspect: function (uid) { var it = findItem(uid); if (!it) return; actCost(T_INSPECT); it.inspected = true; },
+      check: function (uid) { var it = findItem(uid); if (!it) return; actCost(T_SHELF); it.checked = true; },
+      dig: function () { actCost(T_DIG); S.stop.dug = true; },
+      unblock: function () { var D = storyOf(S.stop); if (D && !D.coded && D.choices) D.choices.forEach(function (c, i) { if (c.unblock && !storyState(S.stop).open) doStory(i); }); if (S.stop.lateFee) doLateFee(); },
+      shelve: function () { S.screen = 'home'; S.stop = null; shelve(); return { score: S.result.score, items: S.result.items.length }; },
+      weekdays: function () { renderWeekdays(); },
+      totals: function () { return seasonTotals(); },
+      season: function () { return SEASON; },
+      fresh: function () { SEASON = null; newSeason(); },
+      ending: function () { var e = seasonTotals(); return NP.ENDINGS.filter(function (x) { return x.test(e); })[0].id; },
+      owned: function (id) { return !!(S.day.owned[id] || boughtAlready(id)); }
+    }, seasonSat: function (week) { if (!SEASON) newSeason(); SEASON.week = week; newRun('sundown', false, true); S.screen = 'map'; render(); }, runSeed: function (m, seed) { todaySeed = seed; SEASON = null; newRun(m); S.screen = 'map'; render(); }, goStop: function (id) { var st = S.day.stops.filter(function (x) { return x.id === id; })[0]; arrive(st); render(); }, genDay: genDay, buildDay: buildDay, season: function () { return SEASON; }, render: function () { render(); }, readSave: readSave, state: function () { return S; }, phoenixDate: phoenixDate, weatherFor: weatherFor,
     preview: function (seed) { var d = applyExtras(genDay(seed), seed); return { wx: d.wx.id, host: d.featured.stopName, hostType: d.stops.filter(function (s) { return s.id === d.featured.stopId; })[0].type }; } };
 })();

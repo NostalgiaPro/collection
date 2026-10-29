@@ -16,97 +16,97 @@ NP.PLATFORMS = {
 // t = title, d = what it is (shown on the card), b = the back of the box (shown after you Inspect it).
 // Every title keeps the subject its picture in icons.js shows.
 NP.CATALOG = [
-  { id: 'mf1', t: 'Moon Ferret: Cheese Is a Moon Thing Now', p: 'k16', tier: 1, base: 9, set: 'mf', tag: 'common',
+  { id: 'mf1', g: 'platformer', t: 'Moon Ferret: Cheese Is a Moon Thing Now', p: 'k16', tier: 1, base: 9, set: 'mf', tag: 'common',
     d: 'A ferret on the moon collects cheese, because a guy in marketing said the moon is cheese and nobody checked. 72 levels. Every one of them is gray.',
     b: 'WARNING: CONTAINS MOON.' },
-  { id: 'mf2', t: 'Moon Ferret 2: Even More Moon', p: 'k16', tier: 2, base: 18, set: 'mf', tag: 'uncommon',
+  { id: 'mf2', g: 'platformer', t: 'Moon Ferret 2: Even More Moon', p: 'k16', tier: 2, base: 18, set: 'mf', tag: 'uncommon',
     d: 'Same ferret, same moon, but now the moon has tunnels and the ferret has a tragic backstory told entirely in grunts. One magazine called it "more moon." That was the whole review.',
     b: 'NOW WITH 40% MORE MOON THAN THE FIRST MOON.' },
-  { id: 'mf3', t: 'Moon Ferret 3: The Party Hat Years', p: 'k16', tier: 3, base: 45, set: 'mf', tag: 'rare',
+  { id: 'mf3', g: 'platformer', t: 'Moon Ferret 3: The Party Hat Years', p: 'k16', tier: 3, base: 45, set: 'mf', tag: 'rare',
     d: 'The ferret gets a party hat and a midlife crisis. The studio closed the week it shipped, so every copy is rare, and every copy has the bug where the moon falls off.',
     b: 'THE FINAL CHAPTER. UNTIL THE NEXT ONE.' },
-  { id: 'tcr', t: 'Turbo Cactus Rally Turbo', p: 'k16', tier: 1, base: 7, tag: 'common',
+  { id: 'tcr', g: 'racing', t: 'Turbo Cactus Rally Turbo', p: 'k16', tier: 1, base: 7, tag: 'common',
     d: 'Kart racing where every racer is a cactus, so bumping into anyone hurts you both. The word TURBO is on the box four times. There is no turbo button.',
     b: 'TURBO! TURBO! TURBO! (NOT A FEATURE.)' },
-  { id: 'wiz', t: 'Wizard Accountant: Quest for the Lost Receipt', p: 'fer', tier: 2, base: 22, tag: 'gem',
+  { id: 'wiz', g: 'rpg', t: 'Wizard Accountant: Quest for the Lost Receipt', p: 'fer', tier: 2, base: 22, tag: 'gem',
     d: 'Turn-based tax battles. You cast Itemized Deduction for 40 damage. The final boss is an audit with three health bars, and the people who beat it will not stop talking about it.',
     b: '"I CRIED AT THE AMORTIZATION SCENE." SAYS A GUY' },
-  { id: 'skp', t: 'Skate Possum: Plays Dead Extreme', p: 'k16', tier: 1, base: 6, tag: 'common',
+  { id: 'skp', g: 'sports', t: 'Skate Possum: Plays Dead Extreme', p: 'k16', tier: 1, base: 6, tag: 'common',
     d: 'Every time you bail, the possum plays dead for 45 seconds and you cannot skip it. Roughly half of the game is watching a possum pretend to be dead.',
     b: 'RADICAL TO THE MAX. MAX SOLD SEPARATELY.' },
-  { id: 'dln', t: 'Dungeon Lasagna: Forty Layers Deep', p: 'lum', tier: 2, base: 28, tag: 'gem',
+  { id: 'dln', g: 'rpg', t: 'Dungeon Lasagna: Forty Layers Deep', p: 'lum', tier: 2, base: 28, tag: 'gem',
     d: 'A dungeon crawler where every floor is a layer of lasagna and the final boss is a fork. It takes 90 hours to beat. The memory card holds 40 of them.',
     b: 'BAKED AT 350 FOR YOUR ENJOYMENT.' },
-  { id: 'nej', t: 'Neon Jellyfish Deluxe Platinum Gold Edition', p: 'hal', tier: 1, base: 8, tag: 'shovel',
+  { id: 'nej', g: 'puzzle', t: 'Neon Jellyfish Deluxe Platinum Gold Edition', p: 'hal', tier: 1, base: 8, tag: 'shovel',
     d: 'A glowing jellyfish screensaver with a score counter bolted on. The score goes up whether you touch the controller or not. The Platinum Gold Edition is the same disc in a shinier case.',
     b: 'THE ULTIMATE JELLYFISH EXPERIENCE.* *EXPERIENCE NOT INCLUDED.' },
-  { id: 'cgr', t: 'Castle Grumble: Siege of Complaints', p: 'fer', tier: 1, base: 10, tag: 'common',
+  { id: 'cgr', g: 'strategy', t: 'Castle Grumble: Siege of Complaints', p: 'fer', tier: 1, base: 10, tag: 'common',
     d: 'Castle defense, but the castle complains the entire time. It hates the catapults, the weather and you. The voice actor was clearly double parked.',
     b: 'THE CASTLE THAT TALKS BACK!' },
-  { id: 'pgg', t: "Gecko Golf '97: Deluxe Edition", p: 'pip', tier: 1, base: 5, tag: 'shovel',
+  { id: 'pgg', g: 'sports', t: "Gecko Golf '97: Deluxe Edition", p: 'pip', tier: 1, base: 5, tag: 'shovel',
     d: "Nine holes of mini golf where the gecko is the ball. The gecko did not agree to this. It is the same nine holes as the '96 one, but deluxe.",
     b: 'EIGHTEEN HOLES OF FUN! (NINE HOLES.)' },
-  { id: 'rob', t: 'Robo Barista: Extra Shot Edition', p: 'pip', tier: 2, base: 16, tag: 'uncommon',
+  { id: 'rob', g: 'puzzle', t: 'Robo Barista: Extra Shot Edition', p: 'pip', tier: 2, base: 16, tag: 'uncommon',
     d: 'Make lattes for robots before the morning rush. Robots cannot drink coffee. They order it anyway and get furious when you misspell their serial numbers.',
     b: 'BREWED BY ROBOTS, FOR ROBOTS. HUMANS TOLERATED.' },
-  { id: 'sky', t: 'Sky Llama Air Patrol: Spit Happens', p: 'k16', tier: 2, base: 24, tag: 'uncommon',
+  { id: 'sky', g: 'shooter', t: 'Sky Llama Air Patrol: Spit Happens', p: 'k16', tier: 2, base: 24, tag: 'uncommon',
     d: 'A flight shooter starring llamas in goggles. Two players share one controller, which has ended at least four friendships. The llamas spit missiles. Nobody asked how.',
     b: 'TOTALLY AIRBORNE! LLAMAS NOT RESPONSIBLE FOR SPIT.' },
-  { id: 'hmp', t: 'Haunted Mall Panic: Clearance of the Damned', p: 'lum', tier: 3, base: 70, tag: 'rare',
+  { id: 'hmp', g: 'action', t: 'Haunted Mall Panic: Clearance of the Damned', p: 'lum', tier: 3, base: 70, tag: 'rare',
     d: 'Survive one night in a haunted mall with the ghost of a guy who still has a coupon. Pulled from stores after it scared an entire food court. The surviving copies still smell like a pretzel stand.',
     b: 'SO SCARY IT WAS RECALLED. (IT WAS RECALLED FOR A DIFFERENT REASON.)' },
-  { id: 'vpk', t: 'Vapor Knight: Sunset Forever', p: 'hal', tier: 2, base: 20, tag: 'uncommon',
+  { id: 'vpk', g: 'rpg', t: 'Vapor Knight: Sunset Forever', p: 'hal', tier: 2, base: 20, tag: 'uncommon',
     d: 'A knight walks toward a sunset for six hours while a synth soundtrack plays. There is one sword fight, and it happens during the credits. The soundtrack slaps.',
     b: 'FEEL THE SYNTH. SEE THE SUNSET. DO NOTHING ELSE.' },
-  { id: 'ttt', t: 'Three Tank Tactics: Ultimate Total Warfare Supreme', p: 'fer', tier: 1, base: 6, tag: 'shovel',
+  { id: 'ttt', g: 'strategy', t: 'Three Tank Tactics: Ultimate Total Warfare Supreme', p: 'fer', tier: 1, base: 6, tag: 'shovel',
     d: 'A deep strategy game with three tanks and exactly one map. Two of the tanks are decorative. The box promises thousands of battles, which is true if you play it thousands of times.',
     b: 'THOUSANDS OF BATTLES!*' },
-  { id: 'msa', t: 'Plateau Panic: No Brakes Edition', p: 'k16', tier: 1, base: 8, tag: 'common',
+  { id: 'msa', g: 'racing', t: 'Plateau Panic: No Brakes Edition', p: 'k16', tier: 1, base: 8, tag: 'common',
     d: 'Demolition derby on top of a plateau with no guard rails. The tutorial is driving off the edge. So is the rest of the game.',
     b: 'BRAKES NOT INCLUDED. NEITHER IS THE PLATEAU.' },
-  { id: 'gpn', t: 'Ghost Pepper Ninja: Mild Mode Not Found', p: 'hal', tier: 2, base: 26, tag: 'cult',
+  { id: 'gpn', g: 'action', t: 'Ghost Pepper Ninja: Mild Mode Not Found', p: 'hal', tier: 2, base: 26, tag: 'cult',
     d: 'A spicy ninja who breathes fire and has three hit points. Brutally hard on purpose. Its fans call it a masterpiece and will tell you so at a party you did not invite them to.',
     b: 'TOO HOT FOR TV. ALSO TOO HOT FOR YOU.' },
-  { id: 'stm', t: 'Orbit Mopper: Galactic Janitor Saga', p: 'fer', tier: 1, base: 5, tag: 'shovel',
+  { id: 'stm', g: 'puzzle', t: 'Orbit Mopper: Galactic Janitor Saga', p: 'fer', tier: 1, base: 5, tag: 'shovel',
     d: 'You mop the floors of a space station. That is the whole game. The giant space battle on the box happens outside a window you are not allowed to look out of.',
     b: 'AN EPIC SPACE ADVENTURE. FLOORS ONLY.' },
-  { id: 'lll', t: 'Blob Lamp Legends: The Warm-Up', p: 'lum', tier: 1, base: 9, tag: 'common',
+  { id: 'lll', g: 'puzzle', t: 'Blob Lamp Legends: The Warm-Up', p: 'lum', tier: 1, base: 9, tag: 'common',
     d: 'A puzzle game about those lamps with the slow blobs in them. The first level takes twenty minutes to warm up. So does every level after that.',
     b: 'GROOVY! PLEASE WAIT.' },
-  { id: 'bro', t: 'Brunch Crusade: The Syrup Wars', p: 'hal', tier: 3, base: 85, tag: 'rare',
+  { id: 'bro', g: 'rpg', t: 'Brunch Crusade: The Syrup Wars', p: 'hal', tier: 3, base: 85, tag: 'rare',
     d: 'An epic quest across eleven kingdoms for the perfect pancake. Fewer than 5,000 copies were made because each disc cost more than the pancakes. Every copy is a little sticky.',
     b: 'THE LEGENDARY BREAKFAST ADVENTURE. BEST SERVED WARM.' },
-  { id: 'cyr', t: 'Cyber Raccoon: Hack the Trash', p: 'lum', tier: 2, base: 19, tag: 'cult',
+  { id: 'cyr', g: 'action', t: 'Cyber Raccoon: Hack the Trash', p: 'lum', tier: 2, base: 19, tag: 'cult',
     d: 'A raccoon hacker in the distant future of next Tuesday. He raids the mainframe, then the dumpster behind the mainframe. Everyone who owns it wears sunglasses indoors.',
     b: 'THE FUTURE IS NOW. (IT WAS LAST TUESDAY.)' },
-  { id: 'bfb', t: 'Badger Bowl Extreme', p: 'pip', tier: 1, base: 4, tag: 'shovel',
+  { id: 'bfb', g: 'sports', t: 'Badger Bowl Extreme', p: 'pip', tier: 1, base: 4, tag: 'shovel',
     d: 'Bowling, with badgers as the pins. The badgers are not happy about it and file a complaint after every strike. "Extreme" refers to how the badgers feel.',
     b: 'EXTREME BOWLING ACTION! THE BADGERS DISAGREE.' },
-  { id: 'pxp', t: 'Pixel Prairie: Just One More Day', p: 'fer', tier: 2, base: 17, tag: 'gem',
+  { id: 'pxp', g: 'strategy', t: 'Pixel Prairie: Just One More Day', p: 'fer', tier: 2, base: 17, tag: 'gem',
     d: 'A one-screen farming game that eats whole weekends. You grow one turnip. Then a slightly better turnip. Then it is Monday and you have not showered.',
     b: '"JUST ONE MORE DAY." SAID EVERYONE, AT 4 AM' },
-  { id: 'tnk', t: 'Turnip Monarchy: Royal Root Edition', p: 'k16', tier: 3, base: 60, tag: 'rare',
+  { id: 'tnk', g: 'strategy', t: 'Turnip Monarchy: Royal Root Edition', p: 'k16', tier: 3, base: 60, tag: 'rare',
     d: 'A turnip becomes king and immediately raises taxes. Pulled from shelves after a lawsuit from a vegetable company nobody can find any record of. The judge called it "a lot of turnip."',
     b: 'LONG LIVE THE TURNIP!' },
-  { id: 'esc', t: 'Escalator Escape: 99 Floors the Wrong Way', p: 'pip', tier: 1, base: 6, tag: 'common',
+  { id: 'esc', g: 'platformer', t: 'Escalator Escape: 99 Floors the Wrong Way', p: 'pip', tier: 1, base: 6, tag: 'common',
     d: 'Walk up the down escalator. 99 levels of it. Level 100 is the stairs, and the stairs are out of order.',
     b: 'THE THRILLING SEQUEL TO WALKING.' },
-  { id: 'bgd', t: 'Sasquatch Derby: Blurry Edition', p: 'hal', tier: 1, base: 7, tag: 'common',
+  { id: 'bgd', g: 'racing', t: 'Sasquatch Derby: Blurry Edition', p: 'hal', tier: 1, base: 7, tag: 'common',
     d: 'Racing as a sasquatch. Every screenshot on the box is slightly out of focus. It is in every bargain bin in the state, and two of them are in your garage right now.',
     b: 'NOW IN BLURRY-VISION!' },
-  { id: 'hyo', t: 'Crease Fighters: Paper Cuts', p: 'lum', tier: 2, base: 23, tag: 'gem',
+  { id: 'hyo', g: 'action', t: 'Crease Fighters: Paper Cuts', p: 'lum', tier: 2, base: 23, tag: 'gem',
     d: 'A fighting game where you fold paper into fighters. Everybody rented it and nobody bought it. Every single special move is a paper cut.',
     b: 'FOLD. FIGHT. FOLD AGAIN. (DO NOT FOLD THE DISC.)' },
-  { id: 'cmc', t: "Comet Cabbie: The Meter's Running", p: 'fer', tier: 1, base: 8, tag: 'common',
+  { id: 'cmc', g: 'racing', t: "Comet Cabbie: The Meter's Running", p: 'fer', tier: 1, base: 8, tag: 'common',
     d: 'A taxi game in space where every passenger wants the same planet and none of them tip. The meter keeps running on the pause screen.',
     b: "THE GALAXY'S NUMBER ONE CAB GAME. (ONLY CAB GAME.)" },
-  { id: 'thd', t: 'Thunder Tortoise: Slow, Then Fast', p: 'k16', tier: 2, base: 21, tag: 'uncommon',
+  { id: 'thd', g: 'platformer', t: 'Thunder Tortoise: Slow, Then Fast', p: 'k16', tier: 2, base: 21, tag: 'uncommon',
     d: 'A tortoise with lightning powers. The first hour is very slow. Then it is very fast for nine seconds. Then it is slow again. Somehow it works.',
     b: 'SPEED! (EVENTUALLY.)' },
-  { id: 'csf', t: 'Canal Surfer: Radical Irrigation', p: 'pip', tier: 3, base: 55, tag: 'rare',
+  { id: 'csf', g: 'sports', t: 'Canal Surfer: Radical Irrigation', p: 'pip', tier: 3, base: 55, tag: 'rare',
     d: 'Surfing the irrigation canals of a desert city. Only ever sold by mail order out of the back of a magazine. The wave is a guy with a hose.',
     b: "SURF'S UP! (THE CANAL IS LOW TODAY.)" },
-  { id: 'gtc', t: 'Shrine of the Golden Taco: Extra Guac Edition', p: 'fer', tier: 3, base: 120, tag: 'rare',
+  { id: 'gtc', g: 'rpg', t: 'Shrine of the Golden Taco: Extra Guac Edition', p: 'fer', tier: 3, base: 120, tag: 'rare',
     d: 'A quest for the legendary golden taco. Every collector wants one and nobody plays it, because the one guy who did will not shut up about it.',
     b: 'THE ULTIMATE QUEST. HOT SAUCE SOLD SEPARATELY.' }
 ];
@@ -155,7 +155,15 @@ NP.itemInfo = function (it, opts) {
   for (i = 0; i < NP.CATALOG.length; i++) if (NP.CATALOG[i].id === it.id) { cat = NP.CATALOG[i]; break; }
   var tag, d, b = '';
   if (it.kind === 'lot') { tag = 'lot'; d = 'Taped shut. A marker on the side says GAMES AND STUFF. It is mostly stuff. The stuff is mostly football.'; }
-  else if (it.kind === 'grail') { tag = 'grail'; d = 'Never heard of it. The weird little label says "you are here."'; b = 'YOU ARE HOLDING THE GAME YOU ARE PLAYING. PLEASE DO NOT THINK ABOUT IT.'; }
+  else if (it.kind === 'grail') { tag = 'grail'; d = it.id === 'npx' && NP.EXPO ? NP.EXPO.grail.d : 'Never heard of it. The weird little label says "you are here."'; b = 'YOU ARE HOLDING THE GAME YOU ARE PLAYING. PLEASE DO NOT THINK ABOUT IT.'; }
+  else if (it.ultra && NP.ULTRA) {
+    var ux = null; for (i = 0; i < NP.ULTRA.length; i++) if (NP.ULTRA[i].id === it.id) ux = NP.ULTRA[i];
+    tag = 'ultra'; d = ux ? ux.d : 'Ultra rare.'; b = 'ONLY A HANDFUL EXIST. THIS IS ONE OF THEM.';
+  }
+  else if (it.ex && NP.EXPO) {
+    var ex = null; for (i = 0; i < NP.EXPO.exclusives.length; i++) if (NP.EXPO.exclusives[i].id === it.id) ex = NP.EXPO.exclusives[i];
+    tag = ex ? ex.tag : 'rare'; d = ex ? ex.d : 'A convention exclusive.'; b = 'CONVENTION EXCLUSIVE. NUMBERED. ALLEGEDLY.';
+  }
   else if (it.kind === 'merch') {
     var m = null; for (i = 0; i < NP.MERCH.length; i++) if (NP.MERCH[i].id === it.id) m = NP.MERCH[i];
     tag = 'merch'; d = m ? m.blurb : 'Official Nostalgia Pro merch. Worth nothing.';
@@ -365,7 +373,12 @@ NP.RIVALS = {
 NP.SEASON = {
   weeks: 12,
   startSavings: 130,   // plus the first paycheck = $250 on Saturday 1, same as one Home by sundown day
-  paycheck: 120        // what is left of each Friday paycheck after rent, gas and ramen
+  paycheck: 120,       // what is left of each Friday paycheck after rent, gas and ramen
+  // Round 3c balance pass: the season score (see seasonTotals in game.js)
+  findPts: 5,          // points for every different find on the season shelf
+  cashPer: 10,         // 1 point for every $10 left at the end (it used to be half your cash)
+  fresh: 0.5,          // chance a game you already own gets swapped for one you do not, each season Saturday
+  bonusWeight: 0.5     // share of mini-goal, quick find and surprise points that count toward the season score
 };
 NP.WEEKDAYS = [
   ['You went to work. You thought about the shelf.', 'A coworker asked what you did this weekend. You said "errands."'],
@@ -383,21 +396,26 @@ NP.WEEKDAYS = [
 NP.FINALE_NOTE = 'Saturday 12. The last Saturday of the season. Make it count.';
 
 // ---------- endings. Checked top to bottom; the first one that fits is yours. ----------
-// score = all 12 Saturdays added up, plus half your leftover cash. items/dupes/merch count what is on the season shelf.
+// Round 3c: score = the season shelf (every different thing once, at its best copy; convention finds count double)
+// + 5 points for every different find + 1 point for every $10 left over. items/dupes/merch count what is on the season shelf.
+// Thresholds were set from simulated seasons (see the 3c CHANGELOG): with the replay pack and music and movies, a careful player lands around 2,900 to 3,500.
+// Doubles Trouble is checked before Legend, so a shelf that is mostly second copies can't buy its way to Legend.
 NP.ENDINGS = [
   { id: 'browsing', name: 'Just Browsing, All Season', test: function (e) { return e.items < 5; },
     text: 'Twelve Saturdays. You drove to every yard sale in Sundown Flats and bought almost nothing. The sellers think you are a ghost. You might be.' },
-  { id: 'legend', name: 'Legend of the Swap Meet', test: function (e) { return e.score >= 5200; },
+  { id: 'doubles', name: 'Doubles Trouble', test: function (e) { return e.dupes >= 15 && e.dupes >= e.items * 0.45; },
+    text: 'You own most of these twice. A few of them three times. The note on the fridge said DO NOT BUY ANOTHER COPY. The note was right.' },
+  { id: 'legend', name: 'Legend of the Swap Meet', test: function (e) { return e.score >= 3000; },
     text: 'People nod when you walk into the swap meet. Dex has your picture taped up in his van, with a circle around it. The shelf is not full. It never will be. May your shelf never be full.' },
   { id: 'savings', name: 'The Savings Account Collection', test: function (e) { return e.cash >= 700 && e.items < 20; },
     text: 'You saved almost every paycheck. Your bank sent you a card. Your shelf did not send you anything. It is mostly empty.' },
-  { id: 'doubles', name: 'Doubles Trouble', test: function (e) { return e.dupes >= 6; },
-    text: 'You own most of these twice. A few of them three times. The note on the fridge said DO NOT BUY ANOTHER COPY. The note was right.' },
+  { id: 'media', name: 'The Shelf Is a Record Store Now', test: function (e) { return e.media >= 30 && e.media > e.games * 1.25; },
+    text: 'Somewhere along the way the game shelf turned into a record store. There are crates on the floor and a listening station in the hallway. Your partner calls it "the shop" now. Not in a nice way.' },
   { id: 'merch', name: 'Fully Merchandised', test: function (e) { return e.merch >= 6; },
     text: 'Your shelf is mostly Nostalgia Pro merch. The gift shop sent you a fruit basket. The fruit basket was also merch.' },
   { id: 'ramen', name: 'Ramen Season', test: function (e) { return e.cash < 15; },
     text: 'You spent every paycheck down to the coins. The shelf looks great. The fridge has one ramen in it and a note that says DO NOT BUY ANOTHER COPY.' },
-  { id: 'respectable', name: 'A Respectable Shelf', test: function (e) { return e.score >= 2600; },
+  { id: 'respectable', name: 'A Respectable Shelf', test: function (e) { return e.score >= 1800; },
     text: 'Not legendary. Not embarrassing. The kind of shelf a guest looks at and says "oh, nice." You will hear "oh, nice" in your sleep. It is enough. It is never enough.' },
   { id: 'decent', name: 'A Decent Little Shelf', test: function () { return true; },
     text: 'A decent little shelf. Some gems, some football, one thing you cannot explain. Next season, maybe. The shelf can wait. The shelf cannot wait.' }
@@ -804,3 +822,430 @@ NP.GLASSCASE_TITLE = 'Laughed at the Glass Case';
 NP.TAGS.music = 'Music'; NP.TAGS.movie = 'Movie'; NP.TAGS.gear = 'Not a Game'; NP.TAGS.standee = 'Cardboard Legend'; NP.TAGS.bulk = 'Worth $40';
 NP.TAG_COLORS.gear = ['#5d6370', '#fff1d6']; NP.TAG_COLORS.standee = ['#ff9f43', '#0b1022']; NP.TAG_COLORS.bulk = ['#2d6a2d', '#fff1d6'];
 NP.TAG_SHORT.gear = 'Gear'; NP.TAG_SHORT.standee = 'Chet'; NP.TAG_SHORT.bulk = '$40';
+
+// =====================================================================================================
+// Round 3c: the Desert Pixel Expo (Saturday 12 of a season, Home by sundown only; now and then in Endless)
+// =====================================================================================================
+// Doors at 3 PM, closes at 5:30 PM, $15 to get in. Six booths, about ten nerds racing you to the exclusives,
+// every rival in town, and a prototype hidden somewhere in the hall. Anything you buy here counts double.
+// art: which game picture an exclusive borrows (icons.js). kind: game, music, movie or photo.
+NP.EXPO = {
+  name: 'Desert Pixel Expo',
+  hall: 'Sundown Flats Convention Hall B',
+  fee: 15, doors: 15 * 60, cost: 62,
+  blurb: 'The last stop of the season. Doors at 3 PM, $15 to get in. Anything you buy here counts double.',
+  line: 'You wait outside with four hundred people in lanyards. 3 PM. The doors open. Everyone runs.',
+  lineLate: 'You walk in late. The nerds are already running.',
+  broke: 'You do not have the $15. The guy at the door looks at you, looks at your shirt, and waves you in. "Go. Just go."',
+  double: 'Convention find: counts double.',
+  booths: {
+    dealerA: { name: 'Booth 14: Mint-ish Collectibles', short: 'MINT-ISH', seller: 'expoA',
+      text: 'Everything is in a little plastic case. Some of the cases have games in them.' },
+    dealerB: { name: 'Booth 22: A Guy and Seven Bins', short: 'SEVEN BINS', seller: 'expoB',
+      text: 'Seven milk crates of loose games and one folding chair. The guy is eating a sandwich. He is in no hurry.' },
+    exclusive: { name: 'Expo Exclusives (Line Starts Here)', short: 'EXCLUSIVES', seller: 'expoEx',
+      text: 'Official convention exclusives. Numbered, limited, and priced like it. Prices are printed on the tags. No haggling.' },
+    grading: { name: 'Slab-O-Matic Grading', short: 'GRADING',
+      text: 'Hand them a game from your bag and $10. They look at it under a lamp for fifteen minutes and put a number on it.' },
+    homebrew: { name: 'Basement Byte Homebrew', short: 'HOMEBREW', seller: 'expoHb',
+      text: 'Brand new games for old consoles, made by people in their basements. The guy running it made all of them. He will tell you about every one.' },
+    autograph: { name: 'Autograph Line: Chet Brickwall', short: 'AUTOGRAPHS',
+      text: 'Chet Brickwall, star of Asteroid Dentist, is signing. The line goes around a pillar twice. He is wearing sunglasses indoors.' }
+  },
+  // the convention exclusives (12). where: which booth sells it.
+  exclusives: [
+    { id: 'x1', where: 'exclusive', art: 'mf1', p: 'k16', kind: 'game', cond: 'cib', t: 'Moon Ferret: Glow-in-the-Dark Expo Cart', base: 30, ask: 75, tier: 3, tag: 'rare',
+      d: 'The original Moon Ferret on a cartridge that glows in the dark. The glow is the only new feature. It is a very good glow.' },
+    { id: 'x2', where: 'exclusive', art: 'sky', p: 'k16', kind: 'game', cond: 'sealed', t: 'Sky Llama Air Patrol: Chrome Cart (1 of 500)', base: 30, ask: 95, tier: 3, tag: 'rare',
+      d: 'Numbered chrome cartridge, sealed in a box that is also chrome. Number 1 went to the llama.' },
+    { id: 'x3', where: 'exclusive', art: 'tcr', p: 'k16', kind: 'game', cond: 'cib', t: 'Turbo Cactus Rally Turbo: Expo Misprint', base: 25, ask: 45, tier: 2, tag: 'cult',
+      d: 'The box says TURBO five times instead of four. Collectors call it the Turbo Turbo. They pay extra for the fifth turbo.' },
+    { id: 'x4', where: 'exclusive', art: 'wiz', p: 'fer', kind: 'game', cond: 'sealed', t: 'Wizard Accountant: Tax Season Collector\'s Box', base: 22, ask: 70, tier: 3, tag: 'gem',
+      d: 'Comes with a cloth map of the tax code, a pewter calculator and a receipt that is somehow also sealed.' },
+    { id: 'x5', where: 'exclusive', art: 'vpk', p: 'hal', kind: 'game', cond: 'sealed', t: 'Vapor Knight: Sunset Variant Cover', base: 22, ask: 55, tier: 2, tag: 'uncommon',
+      d: 'Same disc, same six hours of walking, but the cover sunset is a little more orange. Limited to however many they printed.' },
+    { id: 'x6', where: 'exclusive', art: 'mu7', kind: 'music', fmt: 'vinyl', by: 'Synth Lord Kevin', t: 'Laser Feelings: Expo Picture Disc', base: 45, ask: 60, tier: 3, tag: 'rare',
+      d: 'The whole album on a see-through record with a picture of Kevin on it. Kevin is pointing at you. Kevin signed it with a laser.' },
+    { id: 'x7', where: 'homebrew', p: 'k16', kind: 'game', cond: 'cib', t: 'Cul-de-Sac Grand Prix 2: Built in a Basement', base: 20, ask: 30, tier: 2, tag: 'gem',
+      d: 'Racing around one cul-de-sac. Made by one guy over eleven years. It is honestly great. He will not stop smiling.' },
+    { id: 'x8', where: 'homebrew', p: 'fer', kind: 'game', cond: 'cib', t: 'The Last Cartridge: A Homebrew Story', base: 22, ask: 35, tier: 2, tag: 'gem',
+      d: 'A brand new game for a 30 year old console about a guy who makes a brand new game for a 30 year old console. It gets very personal.' },
+    { id: 'x9', where: 'homebrew', p: 'k16', kind: 'game', cond: 'cib', t: "Sundown Flats Simulator '26", base: 16, ask: 25, tier: 2, tag: 'cult',
+      d: 'Drive around a small desert town buying old games before noon. It seems a little familiar. You do not want to think about it.' },
+    { id: 'x10', where: 'dealerA', art: 'hmp', p: 'lum', kind: 'game', cond: 'loose', t: 'Haunted Mall Panic: Unlabeled Prototype Disc', base: 120, ask: 160, tier: 3, tag: 'rare',
+      d: 'A burned test disc with HMP FINAL FINAL v3 written on it in marker. The food court level has a different ghost.' },
+    { id: 'x11', where: 'dealerB', art: 'mv1', kind: 'movie', fmt: 'vhs', by: 'Chet Brickwall', t: "Asteroid Dentist: Director's Cut (Expo VHS)", base: 18, ask: 22, tier: 2, tag: 'cult',
+      d: 'Four extra minutes of drilling. The director says this is the version he always wanted. The director is also Chet Brickwall.' },
+    { id: 'x12', where: 'autograph', kind: 'photo', t: 'Signed Chet Brickwall 8x10 (Expo Exclusive)', base: 25, ask: 20, tier: 2, tag: 'photo',
+      d: 'Signed "To my biggest fan, keep flossing. Chet." He did not ask your name. He wrote it before you got to the front.' }
+  ],
+  grail: { id: 'npx', t: 'Nostalgia Pro: The Game (Expo Prototype)', ask: 25,
+    d: 'A prototype of the game you are playing, on a cartridge with a handwritten label. You probably should not think about this one either.' },
+  // the Expo passport: a stamp at every booth you open. Three stamps and somebody tells you where the prototype is.
+  passport: 'EXPO PASSPORT',
+  clues: [
+    'A man in a cape leans over: "I heard there is a prototype here. Somebody has it under their table."',
+    'A kid with a lanyard full of pins: "The prototype is at {booth}. Do not tell anyone. I told everyone."'
+  ],
+  dexGrail: 'Dex walks out of {booth} holding something with a handwritten label. He waves it at you on his way to the door.',
+  // the nerds who race you. Each one walks straight to the booth with the thing they want and buys it if they get there first.
+  nerds: ['A man in a full knight costume', 'A dad with a lanyard full of pins', 'A guy carrying two slab cases like a briefcase', 'A teenager in a homemade Moon Ferret hoodie',
+    'A woman with a rolling cart and a plan', 'A man in cargo shorts with eleven pockets', 'A kid who has clearly been here since 6 AM', 'A guy livestreaming his own walking',
+    'A couple in matching llama shirts', 'A man who brought his own price guide (printed)'],
+  nerdGot: '{who} got {t}.',
+  nerdMiss: '{who} gets to the booth, sees it is gone, and stares at the empty spot for a long time.',
+  grade: { cost: 10, min: 15,
+    results: ['A 4. "Played. A lot. By a dog, maybe."', 'A 7. "Solid. Some shelf wear. The good kind."', 'A 9. "Beautiful. Somebody loved this and never touched it."', 'A 9.8. "We do not give these out. We gave you one. Tell no one."'] },
+  sign: { min: 20, line: 'You wait in line for twenty minutes. Chet Brickwall signs it without looking up, and then looks up. "Great movie, right? Floss."' },
+  steve: 'Slab Steve walks into the hall at 4 PM, straight to the exclusives booth, and buys every sealed thing on the table without opening his mouth.',
+  rivals: 'Everybody is here for the finale: Dex, Brayden, Phone Guy Phil, Brody, Gary and Slab Steve.',
+  // what each rival does at the Expo (shown under the hall, like at the swap meet)
+  rules: {
+    brayden: 'Look at something, then move on to something else, and Brayden buys the first one. Same as always. Bigger budget today.',
+    phil: 'Wanders the hall. If he is within two steps of you when you open a booth, that booth goes up 25%.',
+    brody: 'Filming the autograph line for 30 minutes. Nobody gets an autograph until he wraps.',
+    gary: 'Gary already lowballed every dealer in the hall. Nobody is taking a lowball today.',
+    steve: 'Every sealed game here is on hold for him. At 4 PM he walks in and buys every sealed exclusive still on the table.'
+  }
+};
+NP.TAGS.photo = 'Signed'; NP.TAG_COLORS.photo = ['#ff77a8', '#0b1022']; NP.TAG_SHORT.photo = 'Signed';
+// the Expo dealers (they sell and buy like anyone else)
+NP.SELLERS.expoA = { name: 'Mint-ish Guy', ask: 1.5, minLo: 0.85, minHi: 1,
+  hi: ['Everything here is mint. Ish. Mint-ish. It is on the sign.', 'Convention prices. You understand. You are at a convention.'],
+  yes: ['Great buy. I will miss it. I will not miss it.', 'Sold. Want a bag? It is also mint-ish.'],
+  no: ['Convention prices are convention prices.', 'I paid for this booth. You are paying for this booth too.'] };
+NP.SELLERS.expoB = { name: 'Bin Guy', ask: 0.8, minLo: 0.55, minHi: 0.8,
+  hi: ['Everything in the bins is priced. Some of it is priced correctly.', 'Dig in. Mind the sandwich.'],
+  yes: ['Done. Good find. I did not know that was in there.', 'Sold. You want the sandwich too? Kidding. Unless.'],
+  no: ['Little higher. Bins do not pay for themselves.'] };
+NP.SELLERS.expoEx = { name: 'Exclusives Booth', ask: 1, minLo: 1, minHi: 1,
+  hi: ['Exclusives are first come, first served. Mostly first come.'],
+  yes: ['Here is your numbered receipt. It is also numbered.'],
+  no: ['Prices are printed on the tag. The tag is also exclusive.'] };
+NP.SELLERS.expoHb = { name: 'Homebrew Guy', ask: 1, minLo: 0.8, minHi: 0.95,
+  hi: ['I made all of these. Every single one. Do you want to hear about the sound engine?', 'Eleven years. This one took eleven years. Ask me anything.'],
+  yes: ['You just made my whole year. Not my day. My year.', 'Thank you. Play it on a real TV. Please.'],
+  no: ['I could go a little lower. My mom says I should charge more, though.'] };
+NP.BUYERS.expoA = { lo: 0.4, hi: 0.55, detect: true,
+  open: ['{$}. Convention buying prices. You understand.'], up: ['{$}. Final. Ish.'], best: ['{$}. Mint-ish final.'],
+  sold: ['Into a plastic case it goes.'], trade: ['{$} in booth credit. Spend it here before 5:30.'], bootleg: ['A bootleg. At a convention. {$}.'] };
+NP.BUYERS.expoB = { lo: 0.55, hi: 0.7, media: true,
+  open: ['{$}? Goes in bin four.', 'I can do {$}.'], up: ['Fine. {$}.'], best: ['{$}. That is the sandwich money.'],
+  sold: ['Into the bins.'], trade: ['{$} in credit. Bins only.'], bootleg: ['Bootleg. {$} for the plastic.'] };
+
+// =====================================================================================================
+// Round 3c: small rewards. Fridge magnets (unlocked once, kept forever) and collector ranks (by finds shelved).
+// =====================================================================================================
+NP.MAGNETS = [
+  { id: 'haggle', name: 'Haggler', how: 'Win a haggle.' },
+  { id: 'streak3', name: 'Silver Tongue', how: 'Win three haggles in a row.' },
+  { id: 'streak5', name: 'Sellers Talk About You', how: 'Win five haggles in a row.' },
+  { id: 'sale', name: 'Side Hustle', how: 'Sell something from your bag.' },
+  { id: 'flip', name: 'Flipper', how: 'Sell something for $15 more than you paid.' },
+  { id: 'eagle', name: 'Eagle Eye', how: 'Spot a repro before you buy it.' },
+  { id: 'blow', name: 'It Helps', how: 'Blow on a cartridge.' },
+  { id: 'grail', name: 'Played Myself', how: 'Find the grail.' },
+  { id: 'trilogy', name: 'Moon Ferret Completionist', how: 'Finish the Moon Ferret trilogy.' },
+  { id: 'dupe', name: 'It Was On The Shelf', how: 'Bring home a game you already own.' },
+  { id: 'merch', name: 'Fully Merchandised', how: 'Bring home three pieces of merch in one Saturday.' },
+  { id: 'opened', name: 'Opened It', how: 'Open a sealed game and play it.' },
+  { id: 'browse', name: 'Just Browsing', how: 'Come home with an empty bag.' },
+  { id: 'coins', name: 'Down to Coins', how: 'Come home with less than $2.' },
+  { id: 'big', name: 'Big Saturday', how: 'Score 300 or more in one Saturday.' },
+  { id: 'laugh', name: 'Laughed at the Glass Case', how: 'Laugh at the $5,000 sealed copy.' },
+  { id: 'banned', name: 'Banned (By You)', how: 'Walk out of Staff Only Games.' },
+  { id: 'regular', name: "Lonnie's Regular", how: 'Max out your friendship with Lonnie.' },
+  { id: 'punch', name: 'Punch Drunk', how: 'Cash in a full punch card.' },
+  { id: 'latefee', name: 'Paid in Full', how: 'Pay a late fee from 2003.' },
+  { id: 'standee', name: 'Cardboard Roommate', how: 'Bring home Chet Brickwall.' },
+  { id: 'room', name: "There's Room", how: 'Answer the phone call.' },
+  { id: 'expo', name: 'Con Survivor', how: 'Make it into the Desert Pixel Expo.' },
+  { id: 'nerds', name: 'Beat the Nerds', how: 'Buy a convention exclusive at the Expo.' },
+  { id: 'proto', name: 'Prototype', how: 'Find the Expo prototype.' },
+  { id: 'nine8', name: 'Nine Point Eight', how: 'Get a 9.8 at the grading booth.' },
+  { id: 'signed', name: 'Got It Signed', how: 'Get something signed by Chet Brickwall.' },
+  { id: 'season', name: 'Twelve Saturdays', how: 'Finish a season.' }
+];
+NP.RANKS = [
+  [0, 'Weekend Browser'], [10, 'Bin Diver'], [25, 'Shelf Starter'], [50, 'Swap Meet Regular'], [80, 'Certified Collector'],
+  [120, 'Shelf Architect'], [175, 'Garage Legend'], [250, 'Legend of Sundown Flats']
+];
+
+// =====================================================================================================
+// Round 3c: the replay pack (from playtesting: the long version got repetitive)
+// Mini-goals, surprise events, combos and fever, and ultra-rare drops. Full game only, never the demo.
+// =====================================================================================================
+NP.GENRES = { platformer: 'platformer', racing: 'racing game', rpg: 'RPG', sports: 'sports game', puzzle: 'puzzle game', strategy: 'strategy game', shooter: 'shooter', action: 'action game' };
+
+// Surprise events: short, quick, rewarding. One at most per stop, and not every stop.
+NP.EVENTS = [
+  { id: 'blow', label: 'It will not start', text: 'The seller plugs a cartridge into a little TV to show you it works. Black screen. Everybody looks at you.',
+    btn: 'Blow on it', done: 'Blow on it. It helps. The title screen pops up. The seller is so impressed he knocks 25% off it.' },
+  { id: 'flicker', label: 'Power flicker', text: 'The lights flicker and go dim for a second. When they come back up, a box that was behind the counter is sitting right in front of you.',
+    btn: 'Look in the box', done: 'Somebody was holding these back. "Oh. I guess those are out now." Three more things to look at.' },
+  { id: 'surprise', label: 'Forgot one in the truck', text: 'The seller snaps his fingers. "Hang on. I forgot a box in the truck." He comes back with one game and sets it down like it is nothing.',
+    btn: 'Take a look', done: 'He has no idea what it is. The price on it says so.' },
+  { id: 'happy', label: 'Happy hour', text: 'The seller claps once. "Okay. Everything on this table is 20% off. Right now. Before I change my mind."',
+    btn: 'Shop the sale', done: 'Everything here just got 20% cheaper.' },
+  { id: 'twenty', label: 'Under the table', text: 'Something is stuck under the table leg. It is a folded up ten dollar bill.',
+    btn: 'Pick it up', done: 'The seller shrugs. "Finders keepers. It has been there since spring." +$10.' },
+  { id: 'mistag', label: 'The price gun slipped', text: 'One of the stickers says $1. You are pretty sure it is supposed to say something else.',
+    btn: 'Find it', done: 'There it is. One dollar. The seller has not noticed. Yet.' },
+  { id: 'radio', label: 'Caller nine', text: 'A radio on the table: "Caller nine wins ten dollars from 104.8 The Dust!" You are already dialing.',
+    btn: 'Call in', done: 'You are caller nine. You win $10 and a bumper sticker that says I CALLED THE DUST.' }
+];
+NP.EVENT_TAG = 'SURPRISE!';
+
+// Ultra-rare drops: maybe one out there on any Saturday. Sellers have no idea.
+NP.ULTRA = [
+  { id: 'u1', art: 'mf3', g: 'platformer', p: 'k16', t: 'Moon Ferret 4: The Lost Prototype', base: 220,
+    d: 'The fourth Moon Ferret was cancelled before anyone saw it. Somebody saw it. It is in your hands. The moon is a slightly different gray.' },
+  { id: 'u2', art: 'bro', g: 'rpg', p: 'hal', t: 'Brunch Crusade: Golden Syrup Edition', base: 260,
+    d: 'A gold disc in a box that smells like real maple. Made for the people who worked on the game. One of them sold it at a yard sale.' },
+  { id: 'u3', art: 'gtc', g: 'rpg', p: 'fer', t: 'Shrine of the Golden Taco: Store Display Copy', base: 300,
+    d: 'The copy that sat in a store window in 1993, with the display sticker still on it. Collectors have been looking for it for years.' },
+  { id: 'u4', art: 'tnk', g: 'strategy', p: 'k16', t: 'Turnip Monarchy: Royal Decree Edition', base: 240,
+    d: 'The version printed before the lawsuit, with the turnip wearing the original crown. There are maybe forty of these.' },
+  { id: 'u5', art: 'hmp', g: 'action', p: 'lum', t: 'Haunted Mall Panic: Recalled Copy #1', base: 250,
+    d: 'Serial number one, pulled from the very first store shelf. It still has the recall notice taped to the front.' },
+  { id: 'u6', art: 'csf', g: 'sports', p: 'pip', t: 'Canal Surfer: Call-In Contest Prize', base: 230,
+    d: 'The prize from a 104.8 The Dust call-in contest. Only nine callers got one. It comes with a letter that says CONGRATULATIONS, CALLER.' }
+];
+NP.TAGS.ultra = 'Ultra Rare (For Real)'; NP.TAG_COLORS.ultra = ['#ffcc33', '#7e1d8f']; NP.TAG_SHORT.ultra = 'ULTRA';
+NP.ULTRA_RUMOR = 'Rumor going around town: there is something ultra rare out there today. Nobody knows where.';
+
+// Combo and fever: good moves in a row raise your combo, and a big streak sets off fever.
+NP.FEVER = { at: 6, mins: 20, text: 'FEVER! Fair offers always land. Bonus points x2.' };
+NP.MAGNETS.push(
+  { id: 'goal1', name: 'Goal Getter', how: 'Finish a mini-goal.' },
+  { id: 'goal5', name: 'Overachiever', how: 'Finish 5 mini-goals in one Saturday.' },
+  { id: 'surprise', name: 'Lucky Break', how: 'Get a surprise at a stop.' },
+  { id: 'fever', name: 'Fever Pitch', how: 'Set off fever mode.' },
+  { id: 'ultra', name: 'Ultra Rare (For Real)', how: 'Bring home an ultra-rare.' }
+);
+
+// =====================================================================================================
+// ---------- Round 3c part 3: music and movies everywhere (full game only; the demo never sees any of this) ----------
+// =====================================================================================================
+// Record labels and movie studios (all made up). lab on a NP.MEDIA entry points into one of these.
+NP.LABELS = {
+  pull: 'Pull Chain Records', garage: 'Two Garages Records', hiss: 'Hiss & Pop Tapes', monsoon: 'Monsoon Season Music',
+  mild: 'Mild Hits Inc.', pending: 'Forever Pending Records', strip: 'Strip Mall Sound'
+};
+NP.STUDIOS = {
+  lobby: 'Big Lobby Pictures', dry: 'Dry Heat Pictures', tape: 'Straight to Tape Films', matinee: 'Sunday Matinee Entertainment',
+  popcorn: 'Popcorn Ceiling Pictures', camcorder: 'Two Guys and a Camcorder Productions', brickwall: 'Brickwall Family Films',
+  latefee: 'Late Fee Home Video', home: 'Recorded at Home'
+};
+// the first 22 (Round 3b) get their labels and studios here, so the list above them stays as it was
+(function () {
+  var L = { mu1: 'garage', mu2: 'garage', mu3: 'pull', mu4: 'pending', mu5: 'mild', mu6: 'garage', mu7: 'pull', mu8: 'mild', mu9: 'monsoon', mu10: 'hiss', mu11: 'mild', mu12: 'pending',
+    mv1: 'lobby', mv2: 'lobby', mv3: 'lobby', mv4: 'dry', mv5: 'matinee', mv6: 'matinee', mv7: 'popcorn', mv8: 'tape', mv9: 'lobby', mv10: 'brickwall' };
+  NP.MEDIA.forEach(function (m) { if (L[m.id]) m.lab = L[m.id]; });
+})();
+NP.MEDIA.push(
+  { id: 'mu13', kind: 'music', fmt: 'cd', t: 'Rumble Strip Love', by: 'Earl Pothole & the Flat Tires', lab: 'mild', tier: 1, base: 4, tag: 'common',
+    d: 'Country songs about road work. Every chorus has a lane closure. The love song is about a flagger.', b: 'NOW WITH 20% MORE PEDAL STEEL.' },
+  { id: 'mu14', kind: 'music', fmt: 'tape', t: 'Nine Horns, One Van', by: 'Mall Security Ska Unit', lab: 'strip', tier: 2, base: 12, tag: 'cult',
+    d: 'Ska from a band with more horn players than fans. All nine of them fit in one van. Barely. The trombone rides on the roof.', b: 'CHECKERED SHOES REQUIRED.' },
+  { id: 'mu15', kind: 'music', fmt: 'vinyl', t: 'Neon Lagoon', by: 'Fountain Pennies', lab: 'pending', tier: 2, base: 16, tag: 'gem',
+    d: 'Dreamy keyboard songs made to be played in an empty mall at 9 PM. Side B is just the sound of a fountain. It is the better side.', b: 'STAY UNTIL THE GATES COME DOWN.' },
+  { id: 'mu16', kind: 'music', fmt: 'cd', t: 'Sorry About the Hair', by: 'Lipgloss Avalanche', lab: 'mild', tier: 1, base: 5, tag: 'common',
+    d: 'Four guys, one can of hairspray each, per song. The power ballad is about a motorcycle that broke up with them.', b: 'WARNING: HIGHLY FLAMMABLE.' },
+  { id: 'mu17', kind: 'music', fmt: 'tape', t: 'Tardy Again', by: 'MC Hall Pass', lab: 'hiss', tier: 2, base: 10, tag: 'uncommon',
+    d: 'Rhymes about being late to third period. The beat is a locker slamming. It goes harder than it has any right to.', b: 'CERTIFIED LATE.' },
+  { id: 'mu18', kind: 'music', fmt: 'cd', t: 'Forty Minutes of Rain (Relaxing)', by: 'Crystal Aura Collective', lab: 'monsoon', tier: 1, base: 2, tag: 'shovel',
+    d: 'Forty minutes of rain sounds, sold in a desert town where it rains four days a year. People buy it to remember what rain is.', b: 'BREATHE IN. BREATHE OUT. BUY A CANDLE.' },
+  { id: 'mu19', kind: 'music', fmt: 'vinyl', t: 'A Very Cactus Christmas', by: 'The Sundown Flats Community Choir', lab: 'monsoon', tier: 1, base: 3, tag: 'common',
+    d: 'Christmas songs from a desert town. Every single song mentions that it is 74 degrees outside.', b: 'DECK THE SAGUAROS.' },
+  { id: 'mu20', kind: 'music', fmt: 'tape', t: 'Sweatband Anthems Vol. 3', by: 'Coach Denise & the Leg Warmers', lab: 'hiss', tier: 1, base: 3, tag: 'common',
+    d: 'Workout songs with a lady yelling "and REACH" over all of them. Volumes 1 and 2 were also this.', b: 'AND REACH. AND REACH.' },
+  { id: 'mu21', kind: 'music', fmt: 'tape', t: 'Mom Says Turn It Down', by: 'The Curfew Breakers', lab: 'garage', tier: 2, base: 13, tag: 'cult',
+    d: 'Three chords, two minutes a song, one very angry opinion about bedtime. Recorded in a garage. The garage was also angry.', b: 'TOO LOUD FOR THE GARAGE.' },
+  { id: 'mu22', kind: 'music', fmt: 'cd', t: 'Rave in a Parking Garage', by: 'DJ Glowstick Dad', lab: 'pull', tier: 2, base: 11, tag: 'uncommon',
+    d: 'Dance music made by a dad who found glowsticks in the junk drawer. The bass drops. So does his back.', b: 'BRING YOUR OWN GLOWSTICK.' },
+  { id: 'mu23', kind: 'music', fmt: 'cd', t: 'Greatest Hit', by: 'One Hit Wanda', lab: 'mild', tier: 1, base: 3, tag: 'common',
+    d: 'A greatest hits album with one hit on it. The other eleven songs are the hit, live, in different parking lots.', b: 'YOU KNOW THE ONE.' },
+  { id: 'mu24', kind: 'music', fmt: 'vinyl', t: 'Karaoke Night at the Bowling Alley', by: 'The Lane 7 Singers', lab: 'strip', tier: 1, base: 2, tag: 'shovel',
+    d: 'Instrumental versions of songs you almost know. The lyric sheet inside is for a different album.', b: 'SING IT LIKE NOBODY IS BOWLING.' },
+  { id: 'mu25', kind: 'music', fmt: 'vinyl', t: 'Heat Advisory', by: 'The Evaporative Coolers', lab: 'monsoon', tier: 2, base: 15, tag: 'gem',
+    d: 'Surf rock from a town with no ocean. Every song is about a canal. They feel very strongly about the canal.', b: 'SURF THE CANAL. (DO NOT SURF THE CANAL.)' },
+  { id: 'mu26', kind: 'music', fmt: 'cd', t: 'Live from the Food Court Stage', by: 'Kassidee Sparkle', lab: 'strip', tier: 1, base: 4, tag: 'common',
+    d: 'A pop singer on tour through every mall in the state. You can hear the pretzel stand in the background of every song.', b: 'NOW APPEARING NEAR THE ESCALATOR.' },
+  { id: 'mu27', kind: 'music', fmt: 'vinyl', t: 'Moon Ferret: The Soundtrack', by: 'The Moon Ferret Sound Team', lab: 'pending', tier: 3, base: 45, tag: 'rare',
+    d: 'The music from Moon Ferret, on vinyl, pressed for a fan club that had nine members. The title theme has been stuck in your head since 1994.', b: 'PRESS START TO LISTEN.' },
+  { id: 'mu28', kind: 'music', fmt: 'tape', t: 'Clearance Rack Blues', by: 'Markdown Marvin', lab: 'garage', tier: 2, base: 9, tag: 'gem',
+    d: 'Slow blues about things that did not sell. Every song ends with the price going down.', b: 'EVERYTHING MUST GO. ESPECIALLY THIS.' },
+  { id: 'mu29', kind: 'music', fmt: 'cd', t: 'Live at the Laundromat', by: 'Gravel Choir', lab: 'garage', tier: 2, base: 16, tag: 'cult',
+    d: 'The moody parking lot band, live, at a laundromat, during the spin cycle. The dryer solo goes on for six minutes.', b: 'BRING QUARTERS.' },
+  { id: 'mu30', kind: 'music', fmt: 'vinyl', t: 'Laser Feelings II: More Feelings', by: 'Synth Lord Kevin', lab: 'pull', tier: 3, base: 32, tag: 'cult',
+    d: 'The sequel. Ten keyboards this time. He pressed 300 again. His mom got 280.', b: 'THE FUTURE IS STILL NOW.' },
+  { id: 'mv11', kind: 'movie', fmt: 'vhs', t: 'Shark Canal', by: 'A Rubber Shark', lab: 'dry', tier: 2, base: 12, tag: 'cult',
+    d: 'A shark gets into the irrigation canal. The canal is two feet deep. You can see the whole shark the entire time.', b: 'THE WATER IS SHALLOW. THE TERROR IS NOT.' },
+  { id: 'mv12', kind: 'movie', fmt: 'vhs', t: 'Badge and Badger', by: 'Chet Brickwall', lab: 'brickwall', tier: 1, base: 4, tag: 'common',
+    d: 'Chet Brickwall plays a cop. His new partner is a badger. The badger gets the better speech at the end.', b: 'ONE PLAYS BY THE RULES. ONE IS A BADGER.' },
+  { id: 'mv13', kind: 'movie', fmt: 'dvd', t: 'The Underdogs of Lane 9', by: 'A Cast of Bowlers', lab: 'matinee', tier: 1, base: 3, tag: 'common',
+    d: 'A last place bowling team has one season to save the alley. The big game comes down to one spare. Everyone cries, including the spare.', b: 'THEY ROLLED WITH IT.' },
+  { id: 'mv14', kind: 'movie', fmt: 'vhs', t: 'The Cactus Who Wanted to Be a Pine Tree', by: 'Clay, Mostly', lab: 'popcorn', tier: 2, base: 11, tag: 'gem',
+    d: 'A stop motion Christmas special. It aired once on local TV in 1989. Somebody taped it. This is that tape.', b: 'HE WAS PRICKLY. HE WAS LOVED.' },
+  { id: 'mv15', kind: 'movie', fmt: 'vhs', t: 'Aerobics for Dads, Volume 6', by: 'Coach Denise', lab: 'latefee', tier: 1, base: 1, tag: 'shovel',
+    d: 'The workout tape from the milk crates at the swap meet. There was never a Volume 1. Somebody actually sold one.', b: 'AND REACH. FOR THE REMOTE.' },
+  { id: 'mv16', kind: 'movie', fmt: 'vhs', t: 'Request Line 47: Taped Off TV', by: "Somebody's VCR", lab: 'home', tier: 2, base: 14, tag: 'cult',
+    d: 'Four hours of the late night music video show, taped in 1996, commercials and all. The commercials are the best part. The label says DO NOT TAPE OVER. Somebody taped over the last ten minutes.', b: 'CALL IN. REQUEST IT. WAIT ALL NIGHT.' },
+  { id: 'mv17', kind: 'movie', fmt: 'dvd', t: 'Asteroid Dentist 3: Final Rinse', by: 'Chet Brickwall', lab: 'tape', tier: 1, base: 2, tag: 'shovel',
+    d: 'Straight to video. The asteroid is played by a different asteroid. Chet Brickwall is in it for nine minutes.', b: 'SPIT.' },
+  { id: 'mv18', kind: 'movie', fmt: 'vhs', t: 'Kung Fu Crossing Guard', by: 'A Very Serious Crossing Guard', lab: 'camcorder', tier: 2, base: 9, tag: 'uncommon',
+    d: 'A crossing guard who knows kung fu. Nobody crosses against the light in this town. Nobody.', b: 'WALK. WAIT. FIGHT.' },
+  { id: 'mv19', kind: 'movie', fmt: 'vhs', t: 'Something in the Swamp Cooler', by: 'A Guy in a Vent', lab: 'dry', tier: 2, base: 13, tag: 'cult',
+    d: 'Something is living in the swamp cooler. It only comes out when it is over 110. That is every day.', b: 'IT IS NOT THE HEAT. IT IS THE SOMETHING.' },
+  { id: 'mv20', kind: 'movie', fmt: 'dvd', t: 'Prom Night at the Planetarium', by: 'A Cast of Thirty-Somethings', lab: 'matinee', tier: 1, base: 3, tag: 'common',
+    d: 'Teen comedy. The prom is at the planetarium. The lights go out, everybody sees the stars and has feelings. Everyone in it is 34.', b: 'THIS PROM IS OUT OF THIS WORLD.' },
+  { id: 'mv21', kind: 'movie', fmt: 'vhs', t: 'Volcano Plus Tornado', by: 'A Lot of Stock Footage', lab: 'tape', tier: 1, base: 2, tag: 'shovel',
+    d: 'A volcano and a tornado, at the same time, in the same town. The town is a model train set. You can see the train.', b: 'TWICE THE DISASTER. HALF THE BUDGET.' },
+  { id: 'mv22', kind: 'movie', fmt: 'vhs', t: 'Mailman from the Future', by: 'A Man in Foil', lab: 'popcorn', tier: 2, base: 9, tag: 'uncommon',
+    d: 'A mailman from the year 3000 comes back in time to deliver one letter. It is a coupon. It is expired.', b: 'SPECIAL DELIVERY. FROM THE FUTURE.' },
+  { id: 'mv23', kind: 'movie', fmt: 'dvd', t: 'Love in Aisle 9', by: 'Two Very Nice Actors', lab: 'lobby', tier: 1, base: 3, tag: 'common',
+    d: 'Two people reach for the last can of soup. Ninety minutes later, they share it. The soup is the best actor in it.', b: 'SOME LOVE IS ON SALE.' },
+  { id: 'mv24', kind: 'movie', fmt: 'vhs', t: "Chet Brickwall's Home Workout", by: 'Chet Brickwall', lab: 'brickwall', tier: 2, base: 10, tag: 'gem',
+    d: 'Forty minutes of Chet Brickwall doing push-ups in a living room and talking about flossing. It is weirdly calming.', b: 'FLOSS. THEN LIFT.' }
+);
+
+// The Crate Lady: the swap meet's music and movie stall (in the milk crates by the fence)
+NP.SELLERS.crate = { name: 'The Crate Lady', ask: 0.75, minLo: 0.55, minHi: 0.85,
+  hi: ['Records in the red crate, CDs in the blue one, movies on the rack. Do not mix them up. People mix them up.'],
+  yes: ['Good pick. That one has been waiting for you.', 'Sold. I had a feeling about you.', 'Take it. Play it loud.'],
+  no: ['That one is worth more than that to me. It is sentimental. I bought it on Tuesday.', 'Nope. Make it a little more.'] };
+
+// What each stop calls its music and movie shelves
+NP.MEDIA_SECS = {
+  games: 'Games',
+  yard: ['A box of records and tapes', "Dad's old tapes and records", 'A shoebox of cassettes', 'A laundry basket of records and movies'],
+  music: 'Record and CD bins', movies: 'Movie rack', crate: "The Crate Lady's crates", pawnMusic: 'CDs and records behind the counter', pawnMovies: 'Movies, two for something'
+};
+NP.CRATE_FLAVOR = 'Two milk crates of workout tapes. Every single one is "Aerobics for Dads, Volume 6." There was never a Volume 1.';
+
+// The media gags. Each item gets one at most. hidden ones only show once you Inspect it (or find out at checkout).
+NP.MEDIA_GAGS = {
+  scratch: { fmts: ['vinyl'], hidden: true, mult: 0.5, note: 'Deep scratch across side B. It skips on the best song. Of course it does.', home: 'Scratched. It skips on the best song.' },
+  sleeve: { fmts: ['vinyl'], hidden: true, note: 'You slide the record out. Wrong record. Somebody put it back in the wrong sleeve. It is actually {t}.' },
+  wrong: { fmts: ['cd', 'dvd'], hidden: true, note: 'You pop the case open. Wrong disc. The case says one thing. The disc is {t}.' },
+  cracked: { fmts: ['cd'], price: 0.7, mult: 0.9, note: 'The jewel case is cracked. Every jewel case is cracked. It is the law.', home: 'Cracked case. You could buy a new case. You will not.' },
+  eaten: { fmts: ['tape'], price: 0.5, mult: 0.4, note: 'The tape got eaten. A loop of it is hanging out the bottom.', fix: 'Fix it with a pencil (5 min)',
+    fixed: 'You stick a pencil in the hole and wind it back in. Classic. Good as new. Mostly.', home: 'Eaten tape. You never fixed it. Worth less than half.' },
+  rewind: { fmts: ['vhs'], fee: 1, note: 'The sticker on it says PLEASE REWIND. Nobody did. Rewind fee: $1.', fix: 'Rewind it yourself (5 min)',
+    fixed: 'You rewind it on the little TV at the table. It takes forever. The fee is gone.' },
+  clam: { fmts: ['vhs'], mult: 1.2, note: 'Ex-rental, in a giant clamshell case. Collectors love a giant clamshell. Worth a little more.', home: 'Giant clamshell case. Collectors love those. Worth a little more.' },
+  advisory: { fmts: ['vinyl', 'cd', 'tape'], mult: 1.3, sticker: 'WARNING TO PARENTS: CONTAINS ONE BAD WORD',
+    note: 'Warning sticker on the front: "WARNING TO PARENTS: CONTAINS ONE BAD WORD." It is in track 9. The word is "heck." Collectors want the sticker version. Worth more.', home: 'The warning sticker version. The bad word is "heck." Collectors want the sticker. Worth more.' }
+};
+// the CD club flyer, stuck in a thrift store's CD bin some Saturdays
+NP.CLUB = {
+  name: 'Disc of the Month Club',
+  flyer: 'A flyer is wedged in the CD bin: "12 CDS FOR A PENNY! Join the Disc of the Month Club today." There is a lot of small print.',
+  btn: 'Mail it in (one penny)', skip: 'Leave it',
+  joined: 'You tape a penny to the card. A box shows up so fast it is a little scary: 12 CDs. You did not pick any of them. The small print says you also agreed to buy more CDs, at full club price, for a while.',
+  box: { id: 'club12', t: 'Disc of the Month Club Welcome Box (12 CDs)',
+    d: 'Twelve CDs you did not pick, for a penny. Three of them are the same rain sounds album. One of them is good. You will find out which one.' },
+  bill: 'The Disc of the Month Club took ${n} out of your paycheck. You did not pick this CD either.', billAmt: 10, bills: 3,
+  billDone: 'That was the last Disc of the Month Club bill. You are free. They will send a letter asking you to come back. Do not open the letter.'
+};
+// the late night music video show
+NP.CHANNEL = { name: 'Request Line 47', tag: 'the late night music video show' };
+NP.EVENTS.push(
+  { id: 'channel', label: 'Request Line 47', text: 'A little TV on the table is playing Request Line 47, the late night music video show, at 10 in the morning. It is a tape. The commercials are still in.',
+    btn: 'Watch one video (5 min)', done: 'A band in five matching jackets does one key change. The seller sings along to the whole thing. Now she likes you: $2 off every record, tape and movie here.' }
+);
+NP.MAGNETS.push(
+  { id: 'pencil', name: 'Pencil Technician', how: 'Fix an eaten tape with a pencil.' },
+  { id: 'wrongdisc', name: 'Not What It Says', how: 'Find the wrong disc (or record) in a case.' },
+  { id: 'club', name: 'Member for Life', how: 'Join the Disc of the Month Club.' },
+  { id: 'crate', name: 'Crate Digger', how: 'Bring home 5 records, tapes, CDs or movies in one Saturday.' }
+);
+
+// =====================================================================================================
+// ---------- Round 3c.1: the want list (mini-goals based on a real collector's want list) ----------
+// =====================================================================================================
+// Every mini-goal is a want list entry: a name, what to do, a difficulty and a reward for the tackle box.
+// d: easy / mid / hard / vhard (sets the points, the tip and the default time). mins: a timed one (game minutes).
+// type: buy (f = what to buy, n = how many), groups (one of each group), inspect (f, out: clean or manual), twins, dig,
+//   tables (stalls opened at the swap meet or the Expo), yards, quick, walkaway, trade, club, check, nomiss, clean.
+// f fields: kind, cond, p, g, tier, max, cart, variant, gag, rental, set, notOwned, dig, stop, tested, manual, noManual,
+//   haggle (20% off or more), haggled (any discount), offer, fmt.
+// at: only offered when you walk into that kind of stop. late: only offered near the end of the day. before: a deadline.
+NP.WANT_DIFF = { easy: { pts: 20, tip: 0, mins: 120, label: 'Easy' }, mid: { pts: 30, tip: 0, mins: 150, label: 'Mid' },
+  hard: { pts: 40, tip: 5, mins: 180, label: 'Hard' }, vhard: { pts: 60, tip: 10, mins: 0, label: 'Very hard' } };
+NP.GOALS_POOL = [
+  { id: 'w01', name: 'Cardboard Dream', label: 'Find a complete in box Kestrel 16 game', type: 'buy', f: { kind: 'game', cond: 'cib', p: 'k16' }, n: 1, mins: 60, d: 'easy', reward: 'Clear Box Protector' },
+  { id: 'w02', name: 'Factory Fresh', label: 'Find a factory sealed game', type: 'buy', f: { kind: 'game', cond: 'sealed' }, n: 1, d: 'hard', reward: 'Collector XP Card (500 XP)' },
+  { id: 'w03', name: 'Role-Player', label: 'Buy 3 RPGs before noon', type: 'buy', f: { kind: 'game', g: 'rpg' }, n: 3, before: 720, d: 'mid', reward: 'Velvet Dice Bag' },
+  { id: 'w04', name: 'Lost Papers', label: 'Inspect a complete in box game and find the manual inside', type: 'inspect', f: { kind: 'game', cond: 'cib' }, out: 'manual', n: 1, d: 'easy', reward: 'Mint Condition Stamp' },
+  { id: 'w05', name: 'Box Only', label: 'Haggle down a boxed game with no manual', type: 'buy', f: { kind: 'game', cond: 'cib', noManual: true, haggled: true }, n: 1, d: 'mid', reward: 'Extra Shelf Bracket' },
+  { id: 'w06', name: 'Flea Market Gold', label: 'Find a good one buried in a dig pile (uncommon or better)', type: 'buy', f: { kind: 'game', tier: 2, dig: true }, n: 1, d: 'hard', reward: 'Magnifying Glass' },
+  { id: 'w07', name: 'Haggler', label: 'Get 20% or more off 4 things', type: 'buy', f: { haggle: true }, n: 4, d: 'mid', reward: 'Silver Tongue Badge' },
+  { id: 'w08', name: 'Label Checker', label: 'Inspect 5 games that check out clean', type: 'inspect', f: { kind: 'game' }, out: 'clean', n: 5, d: 'easy', reward: 'Contact Cleaner Kit' },
+  { id: 'w09', name: 'Opening Bell', label: 'Buy something in your first 10 minutes at this yard sale', type: 'quick', at: ['yard'], n: 1, mins: 30, d: 'easy', reward: 'Early Bird Sneakers' },
+  { id: 'w10', name: 'Bargain Bin Sweep', label: 'Buy 5 loose games for $5 or less each', type: 'buy', f: { kind: 'game', cond: 'loose', max: 5 }, n: 5, d: 'easy', reward: 'Plastic Milk Crate' },
+  { id: 'w11', name: 'Color Variant', label: 'Find a cartridge in a colored shell (gold, red or clear)', type: 'buy', f: { kind: 'game', variant: 'shell' }, n: 1, d: 'mid', reward: 'Neon Shell Case' },
+  { id: 'w12', name: 'Seeing Double', label: 'Inspect two copies of the same game at one stop', type: 'twins', n: 2, d: 'mid', reward: 'Trade Bait Token' },
+  { id: 'w13', name: 'Tested and Working', label: 'Buy a game somebody already tested (the pawn counter tests everything)', type: 'buy', f: { kind: 'game', tested: true }, n: 1, d: 'mid', reward: 'CRT Glow Screen Border' },
+  { id: 'w14', name: 'Dusty Attic', label: 'Dig through the back boxes at 2 stops', type: 'dig', n: 2, mins: 180, d: 'mid', reward: 'Feather Duster' },
+  { id: 'w15', name: 'Convention Dash', label: 'Stop at 4 different tables or booths', type: 'tables', at: ['flea', 'expo'], n: 4, mins: 60, d: 'easy', reward: 'VIP Floor Pass' },
+  { id: 'w16', name: 'Battery Tester', label: 'Inspect 2 loose Kestrel 16 carts whose save batteries still work', type: 'inspect', f: { kind: 'game', cond: 'loose', p: 'k16' }, out: 'clean', n: 2, d: 'hard', reward: 'Multimeter Charm' },
+  { id: 'w17', name: 'Full Run', label: 'Find a Moon Ferret game you do not have yet', type: 'buy', f: { kind: 'game', set: 'mf', notOwned: true }, n: 1, d: 'hard', reward: 'Complete Set Trophy' },
+  { id: 'w18', name: 'Still Taped Shut', label: 'Buy a lot box without opening it', type: 'buy', f: { kind: 'lot' }, n: 1, d: 'mid', reward: 'Twist Tie Flair' },
+  { id: 'w19', name: 'Yard Sale Scout', label: 'Hit 3 yard sales today', type: 'yards', n: 3, mins: 240, d: 'mid', reward: 'Local Paper Map' },
+  { id: 'w20', name: 'Map Included', label: 'Find a complete in box RPG or action game with everything inside', type: 'buy', f: { kind: 'game', cond: 'cib', g: ['rpg', 'action'], manual: true }, n: 1, d: 'hard', reward: 'Cartographer Pin' },
+  { id: 'w21', name: 'No Bit Left Behind', label: 'One of each: a Ferroset 8, a Kestrel 16 and a Marigold 32 game', type: 'groups', groups: [{ kind: 'game', p: 'fer' }, { kind: 'game', p: 'k16' }, { kind: 'game', p: 'hal' }], n: 3, d: 'mid', reward: 'Era Hopper Title' },
+  { id: 'w22', name: 'Clean Contact', label: 'Inspect a loose cartridge and find clean contacts', type: 'inspect', f: { kind: 'game', cond: 'loose', cart: true }, out: 'clean', n: 1, d: 'easy', reward: 'Pink Pencil Eraser' },
+  { id: 'w23', name: 'The Holy Grail', label: 'Find the grail: the game in the game', type: 'buy', f: { kind: 'grail' }, n: 1, d: 'vhard', reward: 'Gold Display Stand' },
+  { id: 'w24', name: 'Sticker Shock', label: 'Walk away from 2 stops that have something way overpriced', type: 'walkaway', n: 2, mins: 180, d: 'easy', reward: 'Smart Buyer Badge' },
+  { id: 'w25', name: 'Foam Insert', label: 'Find a complete in box cartridge game with everything inside', type: 'buy', f: { kind: 'game', cond: 'cib', cart: true, manual: true }, n: 1, d: 'mid', reward: 'Pure White Foam Block' },
+  { id: 'w26', name: 'Import Run', label: 'Find an import copy (the label is in another language)', type: 'buy', f: { kind: 'game', variant: 'import' }, n: 1, d: 'mid', reward: 'Passport Stamp' },
+  { id: 'w27', name: 'Flea Stroll', label: 'Stop at 8 different stalls at the swap meet', type: 'tables', at: ['flea'], n: 8, mins: 90, d: 'hard', reward: 'Vinyl Tarp' },
+  { id: 'w28', name: 'Bulk Buy', label: 'Buy a whole box at once (a box deal, a lot box or a box of 40)', type: 'buy', f: { kind: 'box' }, n: 1, d: 'mid', reward: 'Wholesale Handshake Pin' },
+  { id: 'w29', name: 'Check the Guide', label: 'Check 3 games against your shelf list', type: 'check', n: 3, d: 'easy', reward: 'Walkthrough Page Wallpaper' },
+  { id: 'w30', name: 'Poster Child', label: 'Buy an ex-rental movie (the rental sticker never comes off)', type: 'buy', f: { kind: 'movie', rental: true }, n: 1, d: 'mid', reward: 'Wall Art Poster' },
+  { id: 'w31', name: 'Early Release', label: 'Find a first print of a boxed game (Inspect tells you)', type: 'buy', f: { kind: 'game', variant: 'first' }, n: 1, d: 'mid', reward: 'Launch Era Banner' },
+  { id: 'w32', name: 'Handheld Haul', label: 'Find 2 Lunchbox LX games', type: 'buy', f: { kind: 'game', p: 'pip' }, n: 2, d: 'easy', reward: 'Clamshell Pocket' },
+  { id: 'w33', name: 'Traders Club', label: 'Trade in 2 things for store credit', type: 'trade', n: 2, d: 'hard', reward: 'Master Swapper Medal' },
+  { id: 'w34', name: 'Promo Demo', label: 'Find a NOT FOR RESALE store demo cartridge', type: 'buy', f: { kind: 'game', variant: 'promo' }, n: 1, d: 'hard', reward: 'Kiosk Attendant Title' },
+  { id: 'w35', name: 'Oddball Port', label: 'Find a game for the Lumen Disc', type: 'buy', f: { kind: 'game', p: 'lum' }, n: 1, d: 'mid', reward: 'Floppy Disk Pin' },
+  { id: 'w36', name: 'Closing Time Deal', label: 'Land a lowball (half price) before the day is over', type: 'buy', f: { offer: 'lowball' }, n: 1, late: true, d: 'hard', reward: 'Pack-Up Partner Badge' },
+  { id: 'w37', name: 'Clean Clamshell', label: 'Find a VHS in a giant clamshell case', type: 'buy', f: { kind: 'movie', gag: 'clam' }, n: 1, d: 'easy', reward: 'Heavy Duty Case' },
+  { id: 'w38', name: 'Mail-In Proof', label: 'Mail in the Disc of the Month Club card', type: 'club', n: 1, d: 'mid', reward: 'Postmark Stamp' },
+  { id: 'w39', name: 'Arcade Port', label: 'Find an action game at a yard sale', type: 'buy', f: { kind: 'game', g: 'action', stop: 'yard' }, n: 1, d: 'mid', reward: 'Arcade Knob Avatar' },
+  { id: 'w40', name: 'Shelf Ready', label: 'A complete in box, a loose and a sealed game, each from a different stop', type: 'groups', groups: [{ kind: 'game', cond: 'cib' }, { kind: 'game', cond: 'loose' }, { kind: 'game', cond: 'sealed' }], distinct: true, n: 3, d: 'vhard', reward: 'Preservationist Crown' },
+  // kept from 3c: no misses, and music and movies
+  { id: 'w41', name: 'Steady Hands', label: 'No misses: land 3 offers in a row', type: 'nomiss', n: 3, mins: 120, d: 'mid', reward: 'Lucky Price Gun' },
+  { id: 'w42', name: 'Clean Hour', label: 'No misses for 60 minutes (land at least one offer)', type: 'clean', n: 1, mins: 60, d: 'mid', reward: 'Pocket Calculator' },
+  { id: 'w43', name: 'Crate Digger', label: 'Find a record, tape, CD or movie', type: 'buy', f: { kind: 'media' }, n: 1, d: 'easy', reward: 'Record Brush' },
+  { id: 'w44', name: 'Needle Drop', label: 'Find a vinyl record', type: 'buy', f: { kind: 'music', fmt: 'vinyl' }, n: 1, d: 'mid', reward: 'Inner Sleeve Pack' },
+  { id: 'w45', name: 'Tape Deck', label: 'Find a movie on VHS', type: 'buy', f: { kind: 'movie', fmt: 'vhs' }, n: 1, d: 'easy', reward: 'Tracking Knob' },
+  { id: 'w46', name: 'Full Shelf', label: 'One of each: a game, some music and a movie', type: 'groups', groups: [{ kind: 'game' }, { kind: 'music' }, { kind: 'movie' }], n: 3, d: 'mid', reward: 'Shelf Divider Set' }
+];
+NP.WANT_TEXT = {
+  tag: 'WANT LIST',
+  banners: ['HAUL SECURED!', 'WISHLIST CHECKED!', 'MINT FIND!', 'DEAL OF THE DAY!', 'SHELF WORTHY!', 'BOUGHT FOR PEANUTS!', 'SET COMPLETE!', 'ATTIC GOLD FOUND!', 'GRAIL IN HAND!', 'SCORE OF THE CENTURY!'],
+  // a banner that fits the goal, when there is one
+  bannerFor: { w17: 'SET COMPLETE!', w21: 'SET COMPLETE!', w46: 'SET COMPLETE!', w23: 'GRAIL IN HAND!', w14: 'ATTIC GOLD FOUND!', w06: 'ATTIC GOLD FOUND!', w10: 'BOUGHT FOR PEANUTS!', w07: 'DEAL OF THE DAY!', w36: 'DEAL OF THE DAY!' },
+  soClose: ['Beaten to the trunk by 5 seconds!', 'Missing the manual by one page!', "Vendor wouldn't budge on the price!", 'The box was empty inside!', 'Sold right off the table!',
+    'Flea market gates closed!', 'Permanent marker on the label!', 'Someone else snatched the bundle!', 'ATM ran out of cash!', 'Just pennies short of the deal!'],
+  next: 'That one is off the want list. Another one is coming.',
+  newReward: 'New in the tackle box',
+  box: 'The tackle box', boxNote: 'Want list rewards. One for every entry on the want list. They stay in the box forever.',
+  waiting: 'Starts when you walk in'
+};
+// variants a want list hunts for (full game only): colored shells, imports, store demo carts, first prints
+NP.VARIANTS = {
+  'shell-gold': { p: 0.015, loose: true, cart: true, mult: 1.5, color: '#d9a514', note: 'Gold shell variant. The whole cartridge is gold. Worth 50% more.' },
+  'shell-red': { p: 0.015, loose: true, cart: true, mult: 1.4, color: '#c8323c', note: 'Red shell variant. Not the usual gray. Worth 40% more.' },
+  'shell-clear': { p: 0.015, loose: true, cart: true, mult: 1.4, color: '#b9e3ef', note: 'Clear shell variant. You can see the board inside. Worth 40% more.' },
+  import: { p: 0.03, loose: true, cart: true, mult: 1.3, note: 'Import copy. The label is in another language. The game is the same. Collectors pay more for it.' },
+  promo: { p: 0.012, loose: true, cart: true, mult: 2, note: 'NOT FOR RESALE. A store demo cartridge, pulled out of a kiosk. Worth double.' },
+  first: { p: 0.1, boxed: true, hidden: true, mult: 1.2, note: 'First print. The early label with the misspelled credit. Worth 20% more.' }
+};
+NP.SAVE_NOTE = 'Save battery still holds a file. Somebody\'s 1994 save is still on it.';
+NP.MAGNETS.forEach(function (m) {
+  if (m.id === 'goal1') { m.name = 'Want List Starter'; m.how = 'Check off your first want list entry.'; }
+  if (m.id === 'goal5') { m.name = 'Overachiever'; m.how = 'Check off 5 want list entries in one Saturday.'; }
+});

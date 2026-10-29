@@ -160,7 +160,15 @@ NP.Sound = (function () {
       [60, 67].forEach(function (n, i) { tone(midi(n), t + i * 0.27, 0.25, 'square', 0.06); });
       for (var i = 0; i < 8; i++) tone(3000 + i * 260, t + 0.45 + i * 0.03, 0.05, 'sine', 0.05);
     },
-    sparkle: function (t) { for (var i = 0; i < 5; i++) tone(2600 + i * 400, t + i * 0.04, 0.06, 'sine', 0.06); }
+    sparkle: function (t) { for (var i = 0; i < 5; i++) tone(2600 + i * 400, t + i * 0.04, 0.06, 'sine', 0.06); },
+    // Round 3c: little reward sounds (count-ups, great finds, streaks, unlocks). Quiet on purpose.
+    tick: function (t) { tone(1760, t, 0.025, 'square', 0.04); },
+    sting: function (t) {
+      [67, 72, 76, 79, 84].forEach(function (n, i) { tone(midi(n), t + i * 0.07, i === 4 ? 0.35 : 0.07, 'square', 0.1); });
+      for (var i = 0; i < 6; i++) tone(2800 + i * 320, t + 0.35 + i * 0.035, 0.05, 'sine', 0.05);
+    },
+    streak: function (t) { [74, 79, 83].forEach(function (n, i) { tone(midi(n), t + i * 0.05, 0.07, 'triangle', 0.12); }); },
+    unlock: function (t) { [72, 79, 84, 88].forEach(function (n, i) { tone(midi(n), t + i * 0.08, i === 3 ? 0.3 : 0.07, 'triangle', 0.12); }); }
   };
   function sfx(name) {
     if (muted || !ready() || !FX[name]) return;
@@ -180,6 +188,31 @@ NP.Sound = (function () {
       bpm: 132, chords: [[45, [57, 60, 64]], [41, [53, 57, 60]], [48, [55, 60, 64]], [43, [55, 59, 62]]],
       lead: { 0: 69, 2: 72, 4: 76, 6: 74, 8: 72, 12: 69, 16: 65, 18: 69, 20: 72, 22: 74, 24: 72, 26: 69,
         32: 67, 34: 72, 36: 76, 38: 79, 40: 76, 44: 72, 48: 71, 50: 74, 52: 79, 54: 77, 56: 74, 58: 71, 60: 67 },
+      leadType: 'square', style: 'bounce'
+    },
+    // Round 3c scenery: each part of the day sounds a little different
+    // early morning, driveways and card tables: bright and easy
+    morning: {
+      bpm: 104, chords: [[48, [60, 64, 67, 71]], [53, [57, 60, 65, 69]], [50, [57, 62, 65, 69]], [55, [59, 62, 67, 71]]],
+      lead: { 0: 72, 2: 74, 4: 76, 8: 79, 12: 76, 16: 77, 20: 76, 24: 74, 28: 72, 32: 74, 36: 76, 40: 77, 44: 79, 48: 81, 52: 79, 56: 76, 60: 74 },
+      leadType: 'triangle', style: 'soft'
+    },
+    // the afternoon: strip malls and store closings, a little moodier
+    store: {
+      bpm: 116, chords: [[45, [57, 60, 64]], [43, [55, 59, 62]], [41, [53, 57, 60]], [40, [52, 56, 59]]],
+      lead: { 0: 76, 3: 74, 6: 72, 8: 69, 12: 71, 16: 72, 19: 71, 22: 69, 24: 67, 28: 64, 32: 69, 36: 72, 40: 76, 44: 74, 48: 71, 52: 68, 56: 71, 60: 76 },
+      leadType: 'square', style: 'soft'
+    },
+    // the convention floor: big and busy
+    expo: {
+      bpm: 144, chords: [[50, [62, 66, 69]], [47, [59, 62, 66]], [43, [55, 59, 62]], [45, [57, 61, 64]]],
+      lead: { 0: 74, 2: 78, 4: 81, 6: 78, 8: 74, 10: 78, 12: 81, 14: 86, 16: 83, 20: 79, 24: 78, 28: 74, 32: 76, 34: 79, 36: 83, 38: 79, 40: 76, 44: 73, 48: 74, 52: 78, 56: 81, 60: 86 },
+      leadType: 'square', style: 'bounce'
+    },
+    // fever: faster, higher
+    fever: {
+      bpm: 160, chords: [[52, [64, 68, 71]], [49, [61, 64, 68]], [45, [57, 61, 64]], [47, [59, 63, 66]]],
+      lead: { 0: 76, 1: 80, 2: 83, 4: 88, 6: 83, 8: 80, 10: 83, 12: 88, 16: 85, 18: 88, 20: 92, 24: 88, 28: 85, 32: 81, 34: 85, 36: 88, 40: 93, 44: 88, 48: 87, 50: 83, 52: 87, 56: 90, 60: 95 },
       leadType: 'square', style: 'bounce'
     }
   };
@@ -217,8 +250,16 @@ NP.Sound = (function () {
     stopSeq(); playing = wanted;
     if (!wanted || !TRACKS[wanted]) { playing = null; return; }
     var tr = TRACKS[wanted];
-    seq = { tr: tr, step: 0, next: ctx.currentTime + 0.08, dur: 60 / tr.bpm / 4, id: setInterval(pump, 30) };
+    seq = { tr: tr, step: 0, next: ctx.currentTime + 0.08, dur: 60 / (tr.bpm * tempoMult) / 4, id: setInterval(pump, 30) };
     pump();
+  }
+  // the full game speeds the music up a little as your combo climbs (1 = normal)
+  var tempoMult = 1;
+  function tempo(m) {
+    m = Math.max(0.8, Math.min(1.4, +m || 1));
+    if (Math.abs(m - tempoMult) < 0.001) return;
+    tempoMult = m;
+    if (seq) seq.dur = 60 / (seq.tr.bpm * tempoMult) / 4;
   }
   function music(name) {
     wanted = name || null;
@@ -244,7 +285,7 @@ NP.Sound = (function () {
   }, true);
 
   return {
-    sfx: sfx, music: music, toggle: toggle, setMuted: setMuted,
+    sfx: sfx, music: music, tempo: tempo, toggle: toggle, setMuted: setMuted,
     isMuted: function () { return muted; }, isReady: ready, supported: !!AC, unlock: onGesture,
     nowPlaying: function () { return seq ? playing : null; },
     label: function () { return muted ? 'Sound: off' : 'Sound: on'; }

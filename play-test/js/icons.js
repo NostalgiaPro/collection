@@ -757,7 +757,7 @@ window.NP = NP;
     if (it.kind === 'grail') return 'np';
     if (it.kind === 'merch') return I[it.id] ? it.id : null;
     if (it.kind === 'lot') return null;
-    var id = it.id || '';
+    var id = it.art || it.id || '';
     if (id === 'mf1' || id === 'mf2' || id === 'mf3') return 'mf';
     if (I[id]) return id;
     var sp = SPORTS_ICON[id.slice(0, 2)];

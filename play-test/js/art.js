@@ -119,7 +119,7 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
     return;
   }
   // Round 3b: music, movies, and the odd things the new stores sell
-  if (kind === 'music' || kind === 'movie' || kind === 'gear' || kind === 'standee' || kind === 'bulk') { drawOther(ctx, it, ox, oy, k, P); return; }
+  if (kind === 'music' || kind === 'movie' || kind === 'gear' || kind === 'standee' || kind === 'bulk' || kind === 'photo' || kind === 'club') { drawOther(ctx, it, ox, oy, k, P); return; }
   var pl = NP.PLATFORMS[it.p] || NP.PLATFORMS.k16;
   var cond = it.cond || 'loose';
   if (cond === 'loose' && pl.media === 'disc') {
@@ -139,11 +139,14 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
     // cartridge
     var w = pl.media === 'hand' ? 22 : 28, x0 = (32 - w) / 2, top = pl.media === 'hand' ? 10 : 6;
     P(x0, top, w, 38 - top, NP.COL.ink);
-    P(x0 + 1, top + 1, w - 2, 36 - top, pl.media === 'hand' ? '#59606e' : '#9aa0ad');
+    var VV = it.variant && NP.VARIANTS && NP.VARIANTS[it.variant];
+    P(x0 + 1, top + 1, w - 2, 36 - top, VV && VV.color ? VV.color : pl.media === 'hand' ? '#59606e' : '#9aa0ad');
     P(x0 + 3, top + 3, w - 6, 21, pl.c2);
     P(x0 + 3, top + 3, w - 6, 2, pl.c1);
     if (!icon(8, top + 6)) sprite(ctx, it.id, ox + (x0 + w / 2 - 4) * k, oy + (top + 8) * k, k, pl.c2);
     for (var g = 0; g < (w - 8) / 3; g++) P(x0 + 4 + g * 3, 35, 2, 2, '#5d6370');
+    if (it.variant === 'promo') { P(x0 + 3, top + 25, w - 6, 4, NP.COL.red); P(x0 + 5, top + 26, w - 10, 2, NP.COL.cream); }
+    if (it.variant === 'import') { P(x0 + 3, top + 25, w - 6, 3, NP.COL.cyan); for (var q = 0; q < (w - 8) / 2; q++) P(x0 + 4 + q * 2, top + 26, 1, 1, NP.COL.ink); }
     return;
   }
   // box (cib / sealed)
@@ -163,10 +166,39 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
 
 // colors for record sleeves and movie boxes, picked from the item id so the same item always looks the same
 var MEDIA_PAL = [['#e4343e', '#ffcc33'], ['#29adff', '#fff1d6'], ['#7e57c2', '#29d3e8'], ['#00b894', '#1d2b53'], ['#ff77a8', '#1d2b53'], ['#ff9f43', '#0b1022'], ['#1d2b53', '#ff77a8'], ['#2d6a2d', '#ffcc33']];
+// Round 3c: the media gags you can see from across the room
+function drawGag(it, P) {
+  var C = NP.COL, g = it.gag;
+  if (g === 'advisory') { P(19, 30, 11, 6, '#14141a'); P(20, 31, 9, 1, '#ffffff'); P(20, 33, 9, 2, '#ffffff'); P(21, 33, 7, 1, '#14141a'); }
+  if (g === 'eaten' && !it.fixed) { for (var i = 0; i < 6; i++) { P(11 + i, 32 + (i % 3), 1, 2, '#6b3f1e'); P(13 + i, 34 + ((i + 1) % 3), 1, 2, '#4a2a12'); } P(12, 37, 8, 1, '#6b3f1e'); }
+  if (g === 'cracked') { P(10, 9, 1, 2, '#ffffff'); P(11, 11, 1, 2, '#ffffff'); P(12, 13, 1, 3, '#ffffff'); P(13, 16, 1, 2, '#ffffff'); P(12, 18, 1, 2, '#ffffff'); }
+  if (g === 'rewind' && !it.fixed) { P(6, 21, 20, 5, C.cream); P(7, 22, 2, 3, C.red); P(10, 22, 2, 3, C.red); P(14, 23, 10, 1, C.ink); }
+  if (g === 'clam') { P(2, 0, 2, 40, '#e8e8f0'); P(28, 0, 2, 40, '#e8e8f0'); }
+}
 function drawOther(ctx, it, ox, oy, k, P) {
-  var C = NP.COL, h = NP.hashStr(String(it.id || 'x')), pal = MEDIA_PAL[h % MEDIA_PAL.length];
+  var C = NP.COL, aid = String(it.art || it.id || 'x'), h = NP.hashStr(aid), pal = MEDIA_PAL[h % MEDIA_PAL.length];
   var fmt = it.fmt || '';
-  var art = function (x, y, s, bg) { sprite(ctx, String(it.id), ox + x * k, oy + y * k, s * k, bg); };
+  var art = function (x, y, s, bg) { sprite(ctx, aid, ox + x * k, oy + y * k, s * k, bg); };
+  if ((it.kind === 'music' || it.kind === 'movie') && it.gag && !it._gagPass) {
+    it._gagPass = true;
+    try { drawOther(ctx, it, ox, oy, k, P); } finally { delete it._gagPass; }
+    drawGag(it, P);
+    return;
+  }
+  if (it.kind === 'club') { // a stack of CDs in a mailer box
+    P(1, 14, 30, 22, C.ink); P(2, 15, 28, 20, '#c9a46a'); P(2, 15, 28, 3, '#a8834e');
+    for (var q = 0; q < 4; q++) { P(5 + q * 6, 8 + (q % 2) * 2, 6, 9, C.ink); P(6 + q * 6, 9 + (q % 2) * 2, 4, 7, ['#29adff', '#ff77a8', '#ffcc33', '#00b894'][q]); }
+    P(6, 26, 20, 4, C.cream); P(8, 27, 16, 2, C.red);
+    return;
+  }
+  if (it.kind === 'photo') { // a signed 8x10
+    P(2, 4, 28, 34, C.ink); P(3, 5, 26, 32, C.cream);
+    P(6, 8, 20, 20, '#8a90a0'); P(11, 11, 10, 9, '#d6a06a'); P(11, 11, 10, 3, '#1c1410'); P(12, 15, 3, 1, C.ink); P(17, 15, 3, 1, C.ink);
+    P(8, 20, 16, 8, C.red);
+    P(6, 31, 4, 1, C.navy); P(10, 30, 5, 1, C.navy); P(15, 31, 6, 1, C.navy); P(21, 30, 4, 1, C.navy);
+    if (it.signed !== false) { P(24, 6, 3, 3, C.gold); }
+    return;
+  }
   if (it.kind === 'music' && fmt === 'vinyl') {
     // the record peeking out of its sleeve
     for (var yy = 0; yy < 26; yy++) for (var xx = 0; xx < 26; xx++) {

@@ -19,14 +19,21 @@ NP.Walk = (function () {
   var raf = null, lastT = 0, bannerCache = {};
 
   // ---------- Dex's map of the aisles ----------
-  var NODES = [[3, 6], [7, 6], [10, 6], [14, 6], [17, 6], [20, 6], [24, 6],
+  var SWAP_NODES = [[3, 6], [7, 6], [10, 6], [14, 6], [17, 6], [20, 6], [24, 6],
     [3, 12], [7, 12], [10, 12], [14, 12], [17, 12], [20, 12], [24, 12], [27, 12],
     [4, 19], [7, 19], [14, 19], [20, 19]];
-  var EDGES = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [13, 14],
+  var SWAP_EDGES = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [13, 14],
     [15, 16], [16, 17], [17, 18], [1, 8], [8, 16], [3, 10], [10, 17], [5, 12], [12, 18], [6, 13]];
-  var ADJ = NODES.map(function () { return []; });
-  EDGES.forEach(function (e) { ADJ[e[0]].push(e[1]); ADJ[e[1]].push(e[0]); });
-  var N_GATE = 17, N_FLIP = 15;
+  // Round 3c: the aisles of the Desert Pixel Expo (two rows of booths, the doors at the bottom)
+  var EXPO_NODES = [[5, 7], [10, 7], [15, 7], [20, 7], [25, 7], [5, 14], [10, 14], [15, 14], [20, 14], [25, 14], [15, 20], [5, 19], [25, 19]];
+  var EXPO_EDGES = [[0, 1], [1, 2], [2, 3], [3, 4], [5, 6], [6, 7], [7, 8], [8, 9], [1, 6], [3, 8], [7, 10], [5, 11], [11, 10], [9, 12], [12, 10]];
+  var NODES, ADJ, N_GATE, N_FLIP;
+  function useGraph(nodes, edges, gate, flip) {
+    NODES = nodes; N_GATE = gate; N_FLIP = flip;
+    ADJ = NODES.map(function () { return []; });
+    edges.forEach(function (e) { ADJ[e[0]].push(e[1]); ADJ[e[1]].push(e[0]); });
+  }
+  useGraph(SWAP_NODES, SWAP_EDGES, 17, 15);
   function nodePx(n) { return { x: NODES[n][0] * T + 8, y: NODES[n][1] * T + 14 }; }
 
   // table slots: [tile x, tile y, Dex's node in front]
@@ -51,6 +58,7 @@ NP.Walk = (function () {
 
   // ---------- small helpers ----------
   function G() { return NP.G; }
+  function boost() { var g = NP.G; return g && g.walkBoost ? g.walkBoost() : 1; }
   function S() { return NP.G.state(); }
   function wxId() { var s = S(); return s && s.wx ? s.wx.id : 'sunny'; }
   function esc(s) { return NP.G.esc(s); }
@@ -86,6 +94,9 @@ NP.Walk = (function () {
 
   // a tiny version of an item, about 10x11, for tables and boxes
   function mini(it, x, y) {
+    if (it.kind === 'music') { OB(x, y + 1, 10, 9, '#15171d'); R(x + 3, y + 4, 4, 3, GOLD); R(x, y + 1, 4, 9, it.fmt === 'vinyl' ? RED : '#c9d1dc'); return; }
+    if (it.kind === 'movie') { OB(x + 1, y, 8, 10, '#16181f'); R(x + 1, y, 8, 3, it.fmt === 'dvd' ? '#1f4fa8' : RED); R(x + 3, y + 5, 4, 3, CREAM); return; }
+    if (it.kind === 'photo') { OB(x, y + 1, 10, 9, CREAM); R(x + 3, y + 3, 4, 4, '#f1c28e'); R(x + 2, y + 7, 6, 2, RED); return; }
     if (it.kind === 'lot') { OB(x, y + 3, 10, 7, '#a87443'); R(x, y + 3, 10, 2, '#8a5e36'); R(x + 4, y + 3, 2, 7, '#d8b07a'); return; }
     if (it.kind === 'merch' || it.kind === 'grail') {
       OB(x + 1, y, 8, 10, it.kind === 'grail' ? NAVY : CREAM); R(x + 1, y, 8, 3, RED); R(x + 1, y + 3, 8, 1, CYAN);
@@ -116,6 +127,9 @@ NP.Walk = (function () {
     for (var x = 0; x < MW; x++) { setSolid(x, 0); if (x < GATE_X0 || x > GATE_X1) setSolid(x, MH - 1); }
     for (var y = 0; y < MH; y++) { setSolid(0, y); setSolid(MW - 1, y); }
 
+    // Round 3c: the Desert Pixel Expo is its own hall with its own layout
+    if (stop.type === 'expo') { W.expo = true; useGraph(EXPO_NODES, EXPO_EDGES, 10, 10); buildExpo(r); return; }
+    useGraph(SWAP_NODES, SWAP_EDGES, 17, 15);
     buildTables(r);
     buildProps(r);
     pickCola();
@@ -137,7 +151,7 @@ NP.Walk = (function () {
   function buildTables(r) {
     var s = W.stop;
     var lots = s.items.filter(function (it) { return it.kind === 'lot'; });
-    var vis = s.items.filter(function (it) { return it.kind !== 'lot'; });
+    var vis = s.items.filter(function (it) { return it.kind !== 'lot' && !it.crate; });
     var groups = [], open = {};
     vis.forEach(function (it) {
       var g = open[it.seller];
@@ -226,8 +240,10 @@ NP.Walk = (function () {
   }
 
   function buildProps() {
-    addObj({ kind: 'crates', fx: 9, fy: 15, fw: 2, fh: 1, base: 16 * T, label: 'MILK CRATES OF TAPES', title: 'Milk crates',
-      open: function () { return flavor('Two milk crates of workout tapes. Every single one is "Aerobics for Dads, Volume 6." There was never a Volume 1. Nobody has ever bought one. Nobody ever will.'); },
+    // full game: the Crate Lady sells records, tapes, CDs and movies out of the milk crates (the demo keeps the workout tapes)
+    var crateItems = W.stop.items.filter(function (it) { return it.crate; });
+    addObj({ kind: 'crates', fx: 9, fy: 15, fw: 2, fh: 1, base: 16 * T, label: crateItems.length ? "THE CRATE LADY'S CRATES" : 'MILK CRATES OF TAPES', title: crateItems.length ? NP.SELLERS.crate.name : 'Milk crates',
+      open: function () { return crateItems.length ? cratePanel(crateItems) : flavor('Two milk crates of workout tapes. Every single one is "Aerobics for Dads, Volume 6." There was never a Volume 1. Nobody has ever bought one. Nobody ever will.'); },
       draw: drawCrates });
     addObj({ kind: 'churro', fx: 22, fy: 16, fw: 2, fh: 1, base: 17 * T, label: 'CHURRO CART', title: 'Churro cart',
       open: function () { return flavor('Churros, $2. You cannot put a churro on a shelf. People have tried. The churro guy has stories.'); },
@@ -240,6 +256,226 @@ NP.Walk = (function () {
     });
     // gate posts and exit sign
     W.objs.push({ kind: 'gate', base: MH * T + 1, draw: drawGate });
+  }
+
+
+  // =====================================================================================================
+  // ---------- Round 3c: the Desert Pixel Expo ----------
+  // =====================================================================================================
+  // Same walking, tapping and panels as the swap meet. Six booths, about ten nerds who walk straight to the
+  // thing they want (it floats over their heads), every rival in town, and a prototype hidden in the hall.
+  // booth layout: [key, tile x, tile y, width, node in front]
+  var BOOTHS = [['dealerA', 2, 4, 6, 0], ['exclusive', 12, 4, 6, 2], ['dealerB', 22, 4, 6, 4],
+    ['grading', 2, 11, 5, 5], ['homebrew', 12, 11, 6, 7], ['autograph', 22, 11, 6, 9]];
+  var BOOTH_COL = { dealerA: ['#7a3d8f', '#9a58b0', '#5a2c6a'], exclusive: ['#a8202a', '#e4343e', '#6e1018'], dealerB: ['#3a7d44', '#57a061', '#2a5c32'],
+    grading: ['#3a4d82', '#5a6fa8', '#253461'], homebrew: ['#2d6a6a', '#3f8f8f', '#1d4a4a'], autograph: ['#b8860b', '#ffcc33', '#7a5a08'] };
+  var STEVE_LOOK = { skin: 0, hair: 'bald', hairCol: 5, shirt: 'cream', hat: 'none', glasses: 'specs' };
+  var CHET_LOOK = { skin: 2, hair: 'spiky', hairCol: 0, shirt: 'red', hat: 'none', glasses: 'shades' };
+  function E() { return NP.EXPO; }
+  function boothItems(key) {
+    var s = W.stop;
+    return s.items.filter(function (it) { return it.booth === key && (!it.hidden || s.grailOpen); });
+  }
+  function boothByKey(key) { return W.booths.filter(function (b) { return b.key === key; })[0]; }
+  function buildExpo(r) {
+    var s = W.stop, st = S();
+    W.booths = []; W.tables = []; W.spots = []; W.npcs = []; W.nerds = [];
+    s.stamps = s.stamps || {};
+    BOOTHS.forEach(function (bd) {
+      var key = bd[0], D = E().booths[key];
+      var b = {
+        kind: 'booth', key: key, fx: bd[1], fy: bd[2], fw: bd[3], fh: 2, node: bd[4], base: (bd[2] + 2) * T,
+        label: D.short, title: D.name, seller: D.seller || null, cloth: BOOTH_COL[key],
+        vendor: key === 'autograph' ? NP.Char.normalize(CHET_LOOK) : NP.Char.normalize(NP.Char.random(r, { noBrand: true, natural: true }))
+      };
+      b.items = boothItems(key);
+      b.hello = D.seller && NP.SELLERS[D.seller] ? NP.SELLERS[D.seller].hi[Math.floor(r() * NP.SELLERS[D.seller].hi.length)] : '';
+      b.open = function () { return boothPanel(b); };
+      b.draw = function () { drawBooth(b); };
+      for (var i = 0; i < b.fw; i++) setSolid(b.fx + i, b.fy - 1, b); // the people behind the counter
+      W.booths.push(b);
+      if (b.seller) W.tables.push(b);
+      addObj(b);
+    });
+    // a few things that are not booths
+    addObj({ kind: 'pillar', fx: 9, fy: 17, fw: 1, fh: 1, base: 18 * T, label: 'PILLAR', title: 'A pillar',
+      open: function () { return flavor('A pillar covered in flyers. LOOKING FOR: SKY LLAMA CHROME CART. LOOKING FOR: A RIDE HOME. LOOKING FOR: MY SON, HE IS IN A KNIGHT COSTUME.'); },
+      draw: function () { var X = 9 * T, Y = 17 * T; OB(X + 2, Y - 28, 12, 44, '#8a90a0'); for (var k = 0; k < 4; k++) R(X + 3 + (k % 2) * 5, Y - 24 + k * 9, 5, 6, [CREAM, GOLD, CYAN, '#ff77a8'][k]); } });
+    addObj({ kind: 'pillar', fx: 20, fy: 17, fw: 1, fh: 1, base: 18 * T, label: 'PILLAR', title: 'A pillar',
+      open: function () { return flavor('Another pillar. Somebody taped a sign to it: THE BATHROOM LINE IS ALSO THE AUTOGRAPH LINE. IT IS NOT.'); },
+      draw: function () { var X = 20 * T, Y = 17 * T; OB(X + 2, Y - 28, 12, 44, '#8a90a0'); R(X + 4, Y - 18, 8, 7, CREAM); } });
+    addObj({ kind: 'cosplay', fx: 26, fy: 17, fw: 2, fh: 1, base: 18 * T, label: 'PHOTO SPOT', title: 'The photo spot',
+      open: function () { return flavor('A cardboard cutout of the Moon Ferret with the face cut out. A line of grown adults is waiting to put their face in it. You get in line. You do not remember deciding to.'); },
+      draw: function () { var X = 26 * T, Y = 17 * T; OB(X + 2, Y - 30, 28, 40, '#c9d1dc'); R(X + 4, Y - 28, 24, 18, '#8a90a0'); OB(X + 12, Y - 24, 8, 8, INK); } });
+    W.objs.push({ kind: 'gate', base: MH * T + 1, draw: drawGate });
+    // Dex: here for the finale, browsing like everybody else (and he has heard about the prototype)
+    var d = { look: NP.Char.normalize(DEX_LOOK), present: true, mode: 'wander', node: [1, 3, 6, 8][Math.floor(r() * 4)], x: 0, y: 0, path: [], wait: 1, paused: false, steals: 0, goal: null, dir: 'down', step: 0, anim: 0, browsing: true };
+    var dp = nodePx(d.node); d.x = dp.x; d.y = dp.y;
+    W.dex = d; W.dexPending = false;
+    // Phone Guy Phil wanders, Brody films the autograph line, Slab Steve shows up at 4 PM
+    var pn = [5, 6, 7, 8][Math.floor(r() * 4)], pp = nodePx(pn);
+    W.npcs.push({ id: 'phil', look: NP.Char.normalize(PHIL_LOOK), node: pn, x: pp.x, y: pp.y, path: [], wait: 1, dir: 'down', step: 0, anim: 0, present: true, speed: 38 });
+    var ag = boothByKey('autograph'), bq = nodePx(ag.node);
+    if (!s.brodyUntil) s.brodyUntil = st.time + 30;
+    ag.brodyUntil = s.brodyUntil;
+    W.npcs.push({ id: 'brody', look: NP.Char.normalize(BRODY_LOOK), node: ag.node, x: bq.x, y: bq.y, path: [], wait: 0, dir: 'up', step: 0, anim: 0, present: st.time < s.brodyUntil, speed: 44, table: ag, filming: st.time < s.brodyUntil });
+    var gp = nodePx(N_GATE);
+    W.npcs.push({ id: 'steve', look: NP.Char.normalize(STEVE_LOOK), node: N_GATE, x: gp.x, y: gp.y + 10, path: [], wait: 0, dir: 'up', step: 0, anim: 0, present: !!s.steveDone, speed: 56, pending: !s.steveDone });
+    // the nerds: each one wants one exclusive, and walks straight to it
+    var wants = shuffle(r, s.items.filter(function (it) { return it.ex && it.booth !== 'autograph'; }));
+    var who = shuffle(r, E().nerds);
+    for (var i = 0; i < Math.min(10, wants.length); i++) {
+      var tb = boothByKey(wants[i].booth);
+      W.nerds.push({ look: NP.Char.normalize(NP.Char.random(r, { noBrand: true })), who: who[i % who.length], want: wants[i], booth: tb,
+        node: N_GATE, x: gp.x, y: gp.y + 6, path: [], dir: 'up', step: 0, anim: 0, speed: 30 + Math.floor(r() * 12),
+        spawnIn: 1.5 + i * 3.2 + r() * 1.5, state: s.nerdsDone ? 'done' : 'wait', present: false });
+    }
+    if (s.nerdsDone) W.nerds.forEach(function (n) { n.present = false; });
+    W.passEl = true;
+  }
+
+  function stampBooth(b) {
+    var s = W.stop;
+    if (s.stamps[b.key]) return;
+    s.stamps[b.key] = true;
+    var n = Object.keys(s.stamps).length;
+    G().track('expo_stamp_' + n);
+    if (n === 2) W.ptoast = E().clues[0];
+    if (n >= 3 && !s.grailOpen) {
+      s.grailOpen = true;
+      var gb = boothByKey(s.grailBooth);
+      W.ptoast = E().clues[1].replace('{booth}', gb ? gb.title : 'a booth');
+      G().track('expo_grail_revealed');
+      if (G().sfx) G().sfx('sparkle');
+    }
+    updatePass();
+  }
+  function passHTML() {
+    var s = W.stop, n = Object.keys(s.stamps || {}).length, h = '';
+    for (var i = 0; i < 6; i++) h += '<span class="ps' + (i < n ? ' on' : '') + '"></span>';
+    var g = s.items.filter(function (it) { return it.kind === 'grail'; })[0];
+    var gb = boothByKey(s.grailBooth);
+    var msg = g && g.state === 'sold' ? 'You got the prototype.' : g && g.state === 'gone' ? 'Dex got the prototype.' :
+      s.grailOpen ? 'The prototype is at ' + (gb ? gb.title : 'a booth') + '. Dex heads for it at 4:45 PM.' : 'Open three booths and somebody will tell you where the prototype is.';
+    return '<div class="expopass"><b>' + esc(E().passport) + '</b> <span class="ps-row" aria-label="' + n + ' of 6 stamps">' + h + '</span> ' + esc(msg) + '</div>';
+  }
+  function updatePass() { var el = document.querySelector('.expopass'); if (el) el.outerHTML = passHTML(); }
+
+  function boothPanel(b) {
+    var s = W.stop, st = S(), D = E().booths[b.key];
+    stampBooth(b);
+    if (b.key === 'autograph' && b.brodyUntil && st.time < b.brodyUntil) {
+      if (!W.brodyHit) { W.brodyHit = true; if (G().rivalHit) G().rivalHit('brody'); }
+      return { small: true, html: '<div class="bubble big">Brody from BrodyBox is filming the autograph line for his channel. "Can you get out of the line? You are in my shot."</div>' +
+        '<div class="note">He wraps at ' + G().fmtTime(b.brodyUntil) + '. Come back then.</div>' };
+    }
+    var h = '<div class="note">' + esc(D.text) + '</div>';
+    if (b.hello) h += '<div class="bubble big">' + esc(NP.SELLERS[b.seller].name) + ': "' + esc(b.hello) + '"</div>';
+    if (b.key === 'grading') return { html: h + G().gradeHTML() };
+    if (b.key === 'autograph') return { html: h + G().autographHTML(), after: function () { G().drawArts(); } };
+    var items = boothItems(b.key);
+    b.items = items;
+    if (s.grailOpen && s.grailBooth === b.key) h += '<div class="toast">The prototype is here, under the table. The dealer has no idea what it is.</div>';
+    h += '<div class="items">' + items.map(function (it) { return G().itemCard(it, s); }).join('') + '</div>';
+    if (G().sellHTML && b.seller && NP.BUYERS[b.seller]) h += G().sellHTML(s, b.seller);
+    return { html: h };
+  }
+
+  function nerdMove(n, dt) {
+    var p = nodePx(n.path[0]);
+    var dx = p.x - n.x, dy = p.y - n.y, sp = n.speed * dt;
+    if (Math.abs(dx) > 0.5) { n.x += Math.sign(dx) * Math.min(sp, Math.abs(dx)); n.dir = dx < 0 ? 'left' : 'right'; }
+    else if (Math.abs(dy) > 0.5) { n.x = p.x; n.y += Math.sign(dy) * Math.min(sp, Math.abs(dy)); n.dir = dy < 0 ? 'up' : 'down'; }
+    else { n.x = p.x; n.y = p.y; n.node = n.path.shift(); n.step = 0; return; }
+    n.anim += dt; n.step = [1, 0, 2, 0][Math.floor(n.anim / 0.15) % 4];
+  }
+  function updateExpo(dt) {
+    var s = W.stop, st = S(), since = (performance.now() - W.enterAt) / 1000;
+    var going = 0;
+    W.nerds.forEach(function (n) {
+      if (n.state === 'wait') {
+        if (since >= n.spawnIn) { n.state = 'go'; n.present = true; n.path = bfs(N_GATE, n.booth.node); }
+        else return;
+      }
+      if (n.state === 'go') going++;
+      if (n.wait > 0) { n.wait -= dt; n.step = 0; return; }
+      if (n.path.length) { nerdMove(n, dt); return; }
+      if (n.state === 'go') {
+        n.state = 'done'; n.dir = 'up'; n.wait = 1.5;
+        var it = n.want;
+        if (it.state === 'avail') {
+          it.state = 'gone'; it.goneBy = 'nerd'; it.line = '';
+          showToast(E().nerdGot.replace('{who}', n.who).replace('{t}', it.t));
+          G().track('expo_nerd_got');
+        } else if (it.state === 'sold') showToast(E().nerdMiss.replace('{who}', n.who));
+        return;
+      }
+      // after: wander the hall
+      if (Math.random() < 0.5) { n.wait = 1 + Math.random() * 3; return; }
+      var nb = ADJ[n.node].filter(function (m) { return m !== N_GATE; });
+      if (nb.length) n.path = [nb[Math.floor(Math.random() * nb.length)]];
+    });
+    if (!going && W.nerds.every(function (n) { return n.state === 'done'; })) s.nerdsDone = true;
+    // Slab Steve, 4 PM, straight to the exclusives
+    var steve = npcById('steve');
+    if (steve && steve.pending && st.time >= 16 * 60) {
+      steve.pending = false; steve.present = true; steve.goExclusive = true;
+      steve.path = bfs(N_GATE, boothByKey('exclusive').node);
+      showToast('Slab Steve just walked in. He is not looking at anything but the exclusives booth.');
+    }
+    if (steve && steve.goExclusive && !steve.path.length && steve.present) {
+      steve.goExclusive = false; s.steveDone = true;
+      var took = 0;
+      s.items.forEach(function (it) { if (it.booth === 'exclusive' && it.state === 'avail' && it.cond === 'sealed') { it.state = 'gone'; it.goneBy = 'steve'; it.line = ''; took++; } });
+      if (took) { showToast(E().steve); if (G().rivalHit) G().rivalHit('steve'); }
+      else showToast('Slab Steve gets to the exclusives booth. Everything sealed is already gone. He stands there for a long time. Then he leaves.');
+    }
+    // Dex heads for the prototype at 4:45 PM, if nobody has it yet
+    var d = W.dex, g = s.items.filter(function (it) { return it.kind === 'grail'; })[0];
+    if (d && g && g.state === 'avail' && st.time >= 16 * 60 + 45 && d.mode !== 'grail' && !W.dexGrail) {
+      W.dexGrail = true; d.mode = 'grail'; d.wait = 0; d.path = bfs(d.node, boothByKey(s.grailBooth).node);
+      showToast('Dex is walking very fast toward ' + boothByKey(s.grailBooth).title + '.');
+    }
+  }
+  function dexGrail() {
+    var s = W.stop, g = s.items.filter(function (it) { return it.kind === 'grail'; })[0];
+    if (!g || g.state !== 'avail') return;
+    g.state = 'gone'; g.goneBy = 'dex'; g.line = '';
+    S().ev.rivalHits++;
+    showToast(E().dexGrail.replace('{booth}', boothByKey(s.grailBooth).title));
+    G().track('expo_dex_grail');
+    updatePass();
+  }
+
+  function drawBooth(b) {
+    var X = b.fx * T, Y = b.fy * T, Wd = b.fw * T, c = b.cloth;
+    // back wall panel and the sign
+    R(X, Y - 34, Wd, 22, c[2]); R(X, Y - 34, Wd, 3, c[1]);
+    sign(X + Wd / 2, Y - 46, b.label, b.key === 'exclusive' ? GOLD : CREAM, INK);
+    if (b.vendor) sprite(b.vendor, 'down', 0, X + Wd / 2, Y + 2);
+    // the counter
+    OB(X, Y + 2, Wd, 14, c[0]); R(X, Y + 2, Wd, 2, c[1]);
+    R(X - 1, Y + 16, Wd + 2, 8, INK); R(X, Y + 16, Wd, 7, c[2]);
+    var its = boothItems(b.key).filter(avail);
+    its.slice(0, Math.floor((Wd - 4) / 11)).forEach(function (it, k) { mini(it, X + 3 + k * 11, Y - 6); });
+    if (b.key === 'grading') { R(X + Wd - 14, Y - 14, 2, 14, '#c8cbd6'); OB(X + Wd - 20, Y - 18, 12, 5, GOLD); }
+    if (b.key === 'exclusive') { R(X - 6, Y + 26, Wd + 12, 2, '#a8202a'); R(X - 7, Y + 20, 2, 10, GOLD); R(X + Wd + 5, Y + 20, 2, 10, GOLD); }
+    if (b.key === 'homebrew') { OB(X + Wd - 22, Y - 12, 16, 12, '#2a2f3a'); R(X + Wd - 20, Y - 10, 12, 8, CYAN); }
+    var st = S();
+    if (b.key === 'autograph' && b.brodyUntil && st.time < b.brodyUntil) sign(X + Wd / 2, Y + 26, 'FILMING', RED, CREAM);
+    if (W.stop.grailOpen && W.stop.grailBooth === b.key) {
+      var g = W.stop.items.filter(function (it) { return it.kind === 'grail'; })[0];
+      if (g && g.state === 'avail') { var t = performance.now() / 1000; NP.drawSparkle(ctx, X + Wd - 6 - CX, Y - 2 - CY, 1, t); }
+    }
+    if (W.stop.stamps && W.stop.stamps[b.key]) { OB(X + 2, Y - 31, 7, 7, GOLD); R(X + 4, Y - 29, 3, 3, RED); }
+  }
+  function drawWant(n) {
+    var it = n.want;
+    // a little thought bubble with the thing they are after
+    OB(n.x - 7, n.y - 41, 14, 14, CREAM);
+    R(n.x - 1, n.y - 27, 2, 2, CREAM);
+    if (it.state === 'avail') mini(it, n.x - 5, n.y - 40);
+    else TXT('?', n.x - 2, n.y - 37, RED);
   }
 
   // ---------- product placement (that is definitely not product placement) ----------
@@ -355,6 +591,7 @@ NP.Walk = (function () {
     if (!d.present) return;
     if (d.wait > 0) { d.wait -= dt; d.step = 0; return; }
     if (d.path.length) { moveDex(dt); return; }
+    if (d.mode === 'grail') { dexGrail(); d.mode = 'wander'; d.wait = 2; return; }
     if (d.mode === 'hunt') {
       if (d.goal != null && d.node === d.goal) { stealAt(d.goal); d.goal = null; d.wait = 1.1; d.dir = 'up'; return; }
       var t = d.steals < MAX_STEALS ? pickHuntTarget() : null;
@@ -403,12 +640,13 @@ NP.Walk = (function () {
         n.dir = 'up'; n.step = 0;
         if (S().time >= n.table.brodyUntil) {
           n.filming = false; n.wait = 0.5;
-          showToast('Brody wrapped his video. "Smash that subscribe button." Nobody does. The table is open.');
+          showToast(W.expo ? 'Brody wrapped his video. The autograph line is open.' : 'Brody wrapped his video. "Smash that subscribe button." Nobody does. The table is open.');
         }
         return;
       }
       if (n.wait > 0) { n.wait -= dt; n.step = 0; return; }
       if (n.path.length) { moveNpc(n, dt); return; }
+      if (n.goExclusive) return;
       if (Math.random() < 0.4) { n.wait = 0.8 + Math.random() * 2.5; return; }
       var nb = ADJ[n.node].filter(function (m) { return m !== N_GATE; });
       if (nb.length) n.path = [nb[Math.floor(Math.random() * nb.length)]];
@@ -441,6 +679,15 @@ NP.Walk = (function () {
   function head(title) { return '<div class="wp-head">' + esc(title) + '</div>'; }
   function flavor(text) { return { small: true, html: '<div class="bubble big">' + esc(text) + '</div>' }; }
 
+  function cratePanel(list) {
+    var s = W.stop, sd = NP.SELLERS.crate;
+    var music = list.filter(function (it) { return it.kind === 'music'; }), movies = list.filter(function (it) { return it.kind === 'movie'; });
+    var h = '<div class="bubble big">' + esc(sd.name) + ': "' + esc(sd.hi[0]) + '"</div>';
+    if (music.length) h += '<h3 class="sec-h">Records, tapes and CDs</h3><div class="items">' + music.map(function (it) { return G().itemCard(it, s); }).join('') + '</div>';
+    if (movies.length) h += '<h3 class="sec-h">The movie rack</h3><div class="items">' + movies.map(function (it) { return G().itemCard(it, s); }).join('') + '</div>';
+    h += '<div class="note">' + esc(NP.CRATE_FLAVOR) + '</div>';
+    return { html: h };
+  }
   function tablePanel(tb) {
     var s = W.stop, sd = NP.SELLERS[tb.seller], SP = NP.SPONSOR;
     if (tb.brodyUntil && S().time < tb.brodyUntil) {
@@ -493,7 +740,7 @@ NP.Walk = (function () {
   }
   function exitPanel() {
     var lb = G().leaveButtons ? G().leaveButtons() : '<button class="big" data-act="leave">Back in the car</button>';
-    return { small: true, html: '<div class="bubble big">Head back to the car? Once you leave, the swap meet is done for today.</div>' +
+    return { small: true, html: '<div class="bubble big">' + (W.expo ? 'Leave the Expo? Once you walk out, the Expo is over for the year.' : 'Head back to the car? Once you leave, the swap meet is done for today.') + '</div>' +
       '<div class="btns exitbtns">' + lb + '<button data-w="close">Keep shopping</button></div>' };
   }
   function dexPanel() {
@@ -510,8 +757,9 @@ NP.Walk = (function () {
   function panelEl() { return document.querySelector('.wpanel'); }
 
   function openPanel(o) {
-    if (o && o.kind === 'table') philCheck(o);
+    if (o && (o.kind === 'table' || o.kind === 'booth')) philCheck(o);
     W.panel = o; keys = {}; touchVec.x = touchVec.y = 0;
+    if (o && o.open && G().wantTable) G().wantTable(o);
     if (o && o.cola) G().sfx('sparkle');
     var el = panelEl();
     if (!el) return;
@@ -594,7 +842,7 @@ NP.Walk = (function () {
       if (Math.abs(ix) > Math.abs(iy) + 0.01) W.dir = ix < 0 ? 'left' : 'right';
       else if (Math.abs(iy) > Math.abs(ix) + 0.01) W.dir = iy < 0 ? 'up' : 'down';
       else if (!((W.dir === 'left' && ix < 0) || (W.dir === 'right' && ix > 0) || (W.dir === 'up' && iy < 0) || (W.dir === 'down' && iy > 0))) W.dir = iy < 0 ? 'up' : 'down';
-      var sp = SPEED * dt;
+      var sp = SPEED * boost() * dt;
       moved += moveAxis(ix * sp, 0);
       moved += moveAxis(0, iy * sp);
     }
@@ -616,6 +864,7 @@ NP.Walk = (function () {
 
     updateDex(dt);
     updateRivals(dt);
+    if (W.expo) updateExpo(dt);
     if (W.toastT > 0) {
       W.toastT -= dt;
       if (W.toastT <= 0) { var te = document.querySelector('.wtoast'); if (te) te.hidden = true; }
@@ -642,7 +891,7 @@ NP.Walk = (function () {
     var tx = Math.floor(fx / T), ty = Math.floor(fy / T);
     var near = [[0, -1], [-1, 0], [1, 0], [0, 1]];
     for (var i = 0; i < near.length; i++) { o = objAt(tx + near[i][0], ty + near[i][1]); if (o) return o; }
-    if (W.y > (MH - 1) * T - 2 && W.x >= GATE_X0 * T && W.x <= (GATE_X1 + 1) * T) return { title: 'Parking lot', label: 'LEAVE THE SWAP MEET', open: exitPanel };
+    if (W.y > (MH - 1) * T - 2 && W.x >= GATE_X0 * T && W.x <= (GATE_X1 + 1) * T) return { title: 'Parking lot', label: W.expo ? 'LEAVE THE EXPO' : 'LEAVE THE SWAP MEET', open: exitPanel };
     return null;
   }
   function interact() {
@@ -753,7 +1002,7 @@ NP.Walk = (function () {
   function cancelTap() { if (W && W.path && W.path.length) { W.path = []; W.goal = null; W.marker = null; } }
   // one frame of following the path. Returns how far you moved.
   function followPath(dt) {
-    var wp = W.path[0], dx = wp.x - W.x, dy = wp.y - W.y, st = SPEED * dt, moved = 0;
+    var wp = W.path[0], dx = wp.x - W.x, dy = wp.y - W.y, st = SPEED * boost() * dt, moved = 0;
     if (Math.abs(dx) <= 0.5 && Math.abs(dy) <= 0.5) {
       W.path.shift();
       if (!W.path.length) arrived();
@@ -784,6 +1033,7 @@ NP.Walk = (function () {
     c.width = MW * T; c.height = MH * T;
     var g = c.getContext('2d');
     var r = mulberry32(NP.hashStr('floor|' + S().seed));
+    if (W.expo) return expoFloor(c, g, r);
     for (var ty = 0; ty < MH; ty++) for (var tx = 0; tx < MW; tx++) {
       var X = tx * T, Y = ty * T;
       g.fillStyle = (tx + ty * 3) % 7 === 0 ? '#c39a63' : '#c9a06a';
@@ -820,10 +1070,27 @@ NP.Walk = (function () {
     return c;
   }
 
+  // the convention hall: loud carpet, walls, a loading dock door at the bottom
+  function expoFloor(c, g, r) {
+    var cols = ['#2b2f6b', '#30357a'], dots = ['#e4343e', '#29d3e8', '#ffcc33', '#7e57c2'];
+    for (var ty = 0; ty < MH; ty++) for (var tx = 0; tx < MW; tx++) {
+      var X = tx * T, Y = ty * T;
+      g.fillStyle = cols[(tx + ty) % 2]; g.fillRect(X, Y, T, T);
+      g.fillStyle = dots[(tx * 3 + ty * 5) % 4]; g.fillRect(X + ((tx * 7) % 12) + 1, Y + ((ty * 5) % 12) + 1, 2, 2);
+      if (r() < 0.3) { g.fillStyle = dots[Math.floor(r() * 4)]; g.fillRect(X + Math.floor(r() * 14), Y + Math.floor(r() * 14), 3, 1); }
+    }
+    function wall(tx, ty) { var X = tx * T, Y = ty * T; g.fillStyle = '#4a4f5c'; g.fillRect(X, Y, T, T); g.fillStyle = '#5d6370'; g.fillRect(X, Y, T, 3); }
+    for (var x = 0; x < MW; x++) { wall(x, 0); if (x < GATE_X0 || x > GATE_X1) wall(x, MH - 1); }
+    for (var y = 1; y < MH - 1; y++) { wall(0, y); wall(MW - 1, y); }
+    g.fillStyle = '#8a90a0'; g.fillRect(GATE_X0 * T, (MH - 1) * T, (GATE_X1 - GATE_X0 + 1) * T, T);
+    g.fillStyle = CREAM; for (var gx = GATE_X0 * T + 4; gx < (GATE_X1 + 1) * T; gx += 10) g.fillRect(gx, (MH - 1) * T + 7, 5, 2);
+    return c;
+  }
   function banner() {
     var af = G().adFree();
-    if (bannerCache[af]) return bannerCache[af];
-    var a = 'SAGUARO SWAP MEET!  ', b = af ? 'AN AD-FREE ZONE (SPONSORED)' : 'SPONSORED BY NOSTALGIA PRO';
+    var key = (W && W.expo ? 'x' : '') + af;
+    if (bannerCache[key]) return bannerCache[key];
+    var a = W && W.expo ? 'DESERT PIXEL EXPO!  ' : 'SAGUARO SWAP MEET!  ', b = W && W.expo ? 'CONVENTION HALL B · NO REFUNDS' : af ? 'AN AD-FREE ZONE (SPONSORED)' : 'SPONSORED BY NOSTALGIA PRO';
     var w = NP.textWidth(a + b, 1) + 16;
     var c = document.createElement('canvas'); c.width = w; c.height = 14;
     var g = c.getContext('2d');
@@ -832,7 +1099,7 @@ NP.Walk = (function () {
     g.fillStyle = CYAN; g.fillRect(1, 11, w - 2, 1);
     NP.pixelText(g, a, 8, 3, 1, CREAM);
     NP.pixelText(g, b, 8 + a.length * 6, 3, 1, GOLD);
-    bannerCache[af] = c;
+    bannerCache[key] = c;
     return c;
   }
 
@@ -984,7 +1251,7 @@ NP.Walk = (function () {
 
   function draw() {
     var cv = document.getElementById('walkcv');
-    if (!cv) return;
+    if (!cv || !W.floor) return; // Grok Bot r3c2 fix: never draw a walk whose floor is not built yet
     ctx = cv.getContext('2d');
     ctx.imageSmoothingEnabled = false;
     CX = Math.round(Math.max(0, Math.min(MW * T - VW, W.x - VW / 2)));
@@ -999,6 +1266,7 @@ NP.Walk = (function () {
     var d = W.dex;
     if (d && d.present) list.push({ base: d.y, draw: function () { shadow(d.x, d.y); sprite(d.look, d.dir, d.step, d.x, d.y); } });
     (W.npcs || []).forEach(function (n) { if (n.present) list.push({ base: n.y, draw: function () { shadow(n.x, n.y); sprite(n.look, n.dir, n.step, n.x, n.y); } }); });
+    (W.nerds || []).forEach(function (n) { if (n.present) list.push({ base: n.y, draw: function () { shadow(n.x, n.y); sprite(n.look, n.dir, n.step, n.x, n.y); if (n.state === 'go') drawWant(n); } }); });
     list.sort(function (a, b) { return a.base - b.base; });
     list.forEach(function (o) { o.draw(); });
 
@@ -1028,14 +1296,14 @@ NP.Walk = (function () {
     (W.npcs || []).forEach(function (n) {
       if (!n.present) return;
       if (n.filming) { sign(n.x, n.y - 38, 'REC', Math.floor(now * 2) % 2 ? RED : CREAM, Math.floor(now * 2) % 2 ? CREAM : RED); return; }
-      if (Math.abs(n.x - W.x) < 64 && Math.abs(n.y - W.y) < 48) sign(n.x, n.y - 38, n.id === 'phil' ? 'PHIL' : 'BRODY', n.id === 'phil' ? CYAN : GOLD, INK);
+      if (Math.abs(n.x - W.x) < 64 && Math.abs(n.y - W.y) < 48) sign(n.x, n.y - 38, { phil: 'PHIL', brody: 'BRODY', steve: 'STEVE' }[n.id] || 'RIVAL', n.id === 'phil' ? CYAN : n.id === 'steve' ? CREAM : GOLD, INK);
     });
 
     // prompt bar
     var t = findTarget();
     var bar = null;
     if (t) bar = (isTouch() ? 'A' : 'SPACE') + ': ' + (t.label || t.title || 'LOOK');
-    else if (W.hint > 0) bar = isTouch() ? 'TAP A TABLE TO WALK OVER AND SHOP' : 'CLICK A TABLE, OR WALK UP AND PRESS SPACE';
+    else if (W.hint > 0) bar = W.expo ? (isTouch() ? 'TAP A BOOTH. THE NERDS ARE ALREADY RUNNING.' : 'CLICK A BOOTH. THE NERDS ARE ALREADY RUNNING.') : isTouch() ? 'TAP A TABLE TO WALK OVER AND SHOP' : 'CLICK A TABLE, OR WALK UP AND PRESS SPACE';
     if (bar) {
       ctx.fillStyle = 'rgba(11,16,34,.88)'; ctx.fillRect(0, VH - 12, VW, 12);
       ctx.fillStyle = RED; ctx.fillRect(0, VH - 13, VW, 1);
@@ -1068,16 +1336,17 @@ NP.Walk = (function () {
     var ratio = (VW / VH).toFixed(3);
     var touch = isTouch();
     app.innerHTML = '<div id="walkhud">' + hudHTML + '</div>' +
-      '<div class="screen walk"><h2>&#9978; ' + esc(W.stop.name) + '</h2>' +
+      '<div class="screen walk' + (W.expo ? ' expo' : '') + '"><h2>' + (W.expo ? '&#127918;' : '&#9978;') + ' ' + esc(W.stop.name) + '</h2>' +
       '<div class="walkwrap' + (touch ? ' touch' : '') + '">' +
       '<div class="cvbox" style="--ratio:' + ratio + '">' +
-      '<canvas id="walkcv" tabindex="0" width="' + VW + '" height="' + VH + '" aria-label="The Saguaro Swap Meet. Use arrow keys to walk and space to look."></canvas>' +
+      '<canvas id="walkcv" tabindex="0" width="' + VW + '" height="' + VH + '" aria-label="' + (W.expo ? 'The Desert Pixel Expo convention hall' : 'The Saguaro Swap Meet') + '. Use arrow keys to walk and space to look."></canvas>' +
       '<div class="wtoast" hidden></div><div class="wpanel" hidden tabindex="-1"></div></div>' +
       '<div class="tpad"><div class="dpad" id="dpad"><i class="u"></i><i class="l"></i><i class="c"></i><i class="r"></i><i class="d"></i></div>' +
       '<button class="abtn" data-w="act" aria-label="Look">A</button></div></div>' +
-      '<div class="walk-help">' + (touch ? 'Tap anywhere to walk there. Tap a table to shop it. The pad and A button work too.' : 'Click anywhere to walk there, or use the arrow keys or WASD. Click a table (or press Space) to shop it. Esc to step back.') +
+      '<div class="walk-help">' + (W.expo ? (touch ? 'Tap a booth to walk over. The thing floating over a nerd is what they are running for.' : 'Click a booth to walk over, or use the arrow keys. The thing floating over a nerd is what they are running for.')
+        : touch ? 'Tap anywhere to walk there. Tap a table to shop it. The pad and A button work too.' : 'Click anywhere to walk there, or use the arrow keys or WASD. Click a table (or press Space) to shop it. Esc to step back.') +
       ' Walking uses daylight too, about a minute for every six steps.' + '</div>' +
-      (G().rivalNotes ? '<div class="walk-rivals">' + G().rivalNotes(W.stop) + '</div>' : '') + '</div>';
+      (G().rivalNotes ? '<div class="walk-rivals">' + (W.expo ? passHTML() + '<div class="note">' + esc(NP.EXPO.rivals) + '</div>' : '') + G().rivalNotes(W.stop) + '</div>' : '') + '</div>';
     W.floor = W.floor || buildFloor();
     bindPad();
     var cv = document.getElementById('walkcv');
@@ -1115,7 +1384,10 @@ NP.Walk = (function () {
 
   function render(app, hudHTML) {
     if (!W) return;
-    if (!document.getElementById('walkcv')) build(app, hudHTML);
+    // Grok Bot r3c2 fix: going straight from the swap meet to the Expo ("Next stop" in the parking lot panel) left the
+    // swap meet canvas in the page, so the Expo never got built (no floor, swap meet heading, the walk loop crashed).
+    // Build again whenever this is a new walk (enter() makes a new W).
+    if (!document.getElementById('walkcv') || !W.built) { build(app, hudHTML); W.built = true; }
     else {
       var hh = document.getElementById('walkhud');
       if (hh) hh.innerHTML = hudHTML;

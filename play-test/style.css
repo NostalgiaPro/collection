@@ -615,3 +615,109 @@ button.offer.steve { width: 100%; }
   .gc-row { flex-direction: column; }
 }
 .reward { background: var(--gold); color: var(--ink); font-weight: bold; padding: 6px 10px; margin: 6px 0; }
+
+/* ---------- Round 3c: small rewards (never block a tap, never flash) ---------- */
+#yaystack { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 70; pointer-events: none; width: min(92vw, 420px);
+  display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.yay { pointer-events: none; max-width: 100%;
+  background: var(--navy2); color: var(--cream); border: 2px solid var(--cyan); box-shadow: 3px 3px 0 var(--ink); padding: 6px 12px; font-weight: bold; font-size: 14px; text-align: center;
+  animation: yayIn 2.6s ease-out forwards; }
+.yay.big { border-color: var(--gold); color: var(--gold); font-size: 16px; }
+.yay.streak { border-color: #ff77a8; }
+.yay.unlock { border-color: var(--gold); background: #2a1d3e; }
+.yay-sp { color: var(--gold); display: inline-block; animation: yaySpin 1.2s ease-out; }
+.yay.calm, .yay.calm .yay-sp { animation: yayFade 2.6s linear forwards; }
+@keyframes yayIn { 0% { opacity: 0; transform: translateY(8px) scale(.96); } 10% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-6px); } }
+@keyframes yaySpin { from { transform: rotate(-90deg) scale(.6); } to { transform: rotate(0) scale(1); } }
+@keyframes yayFade { 0%, 85% { opacity: 1; } 100% { opacity: 0; } }
+.hud .cashn.up { text-shadow: 0 0 6px rgba(255,204,51,.6); }
+.appraisal.reveal .al { opacity: 0; animation: alIn .38s ease-out forwards; animation-delay: var(--d, 0s); }
+.appraisal.reveal .al.bonus { animation-delay: 4.2s; }
+@keyframes alIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.al.great { background: linear-gradient(90deg, rgba(255,204,51,.16), transparent 70%); border-left: 3px solid var(--gold); }
+.pb { margin: 6px auto; max-width: 640px; padding: 6px 10px; font-weight: bold; border: 2px solid var(--gold); color: var(--gold); background: rgba(255,204,51,.08); }
+.pb.pb-close { border-color: var(--cyan); color: var(--cyan); background: rgba(41,211,232,.07); font-weight: normal; }
+.magnew { margin: 6px auto; max-width: 640px; color: var(--cream); }
+.magnew b { color: var(--gold); }
+.rankline { font-size: 13px; color: #c9d3f0; margin: 6px auto; }
+.rankline b { color: var(--gold); }
+.fridge { margin-top: 18px; }
+.magnets { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.mag { background: #1a2140; border: 2px dashed #3a4d82; padding: 6px 8px; font-size: 12px; color: #8fa0c8; }
+.mag b { display: block; font-size: 13px; color: #8fa0c8; }
+.mag.got { border: 2px solid var(--gold); background: #2a2340; color: #d6dcf0; box-shadow: 2px 2px 0 var(--ink); transform: rotate(-0.8deg); }
+.mag.got:nth-child(2n) { transform: rotate(0.8deg); }
+.mag.got b { color: var(--gold); }
+@media (prefers-reduced-motion: reduce) { .appraisal.reveal .al { opacity: 1; animation: none; } .yay-sp { animation: none; } }
+
+/* ---------- Round 3c: the Desert Pixel Expo ---------- */
+.screen.walk.expo h2 { color: var(--cyan); }
+.expopass { background: #2a1d3e; border: 2px solid var(--gold); padding: 6px 10px; margin: 6px 0; font-size: 13px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.expopass b { color: var(--gold); letter-spacing: .1em; }
+.ps-row { display: inline-flex; gap: 4px; }
+.ps { width: 14px; height: 14px; border-radius: 50%; border: 2px dashed var(--gold); display: inline-block; }
+.ps.on { background: var(--red); border-style: solid; }
+
+/* ---------- Round 3c: the replay pack ---------- */
+/* the goal strip under the top bar */
+.goalbar { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; background: #1a1430; border: 2px solid var(--gold); border-top: 0; padding: 5px 10px; font-size: 13px; }
+.goalbar b { color: var(--gold); letter-spacing: .1em; margin-right: 4px; }
+.gb-prog { color: var(--cyan); font-weight: bold; }
+.gb-time { color: #c9d3f0; }
+.gb-combo { color: #ff77a8; font-weight: bold; }
+.gb-fever { background: var(--red); color: var(--cream); font-weight: bold; padding: 1px 8px; }
+.goalbar.fever { border-color: var(--red); box-shadow: 0 0 10px rgba(228,52,62,.55) inset; }
+/* Grok Bot r3c1 fix: at the swap meet and the Expo the want list strip stays on one line, so it does not shrink the play area on small phones */
+#walkhud .goalbar { flex-wrap: nowrap; white-space: nowrap; overflow: hidden; font-size: 12px; padding: 3px 8px; gap: 8px; }
+#walkhud .gb-goal { display: flex; gap: 6px; align-items: baseline; min-width: 0; flex: 1 1 auto; }
+#walkhud .gb-goal > b, #walkhud .gb-prog, #walkhud .gb-time, #walkhud .gb-combo, #walkhud .gb-fever { flex: 0 0 auto; }
+#walkhud .gb-lab { overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+@media (max-width: 600px) { #walkhud .gb-task { display: none; } #walkhud .goalbar { font-size: 11px; gap: 5px; padding: 3px 6px; } #walkhud .goalbar b { letter-spacing: 0; margin-right: 0; } #walkhud .gb-goal { gap: 5px; } }
+.yay.goal { border-color: var(--gold); background: #1a1430; }
+.rc-ultra { margin: 6px 0; padding: 5px 8px; border: 2px solid #ffcc33; background: linear-gradient(90deg, rgba(126,29,143,.45), rgba(255,204,51,.15)); color: var(--cream); font-size: 13px; font-weight: bold; }
+.truetag.surp { background: var(--cyan); }
+.story.event { border-left-color: var(--cyan); }
+/* ultra-rare cards: a steady gold frame (no flashing) */
+.item.ultra { border: 3px solid var(--gold); background: linear-gradient(135deg, #2a1640, #111a33 55%, #2a2310); box-shadow: 0 0 0 2px #7e1d8f inset, 0 0 14px rgba(255,204,51,.35); }
+.item.ultra .it-t { color: var(--gold); }
+/* scenery: the background, accents and sky change as the day goes on */
+.scenestrip { font-size: 11px; letter-spacing: .25em; color: var(--sc-accent, var(--cyan)); margin: 8px 0 -4px; font-weight: bold; }
+body[data-scene] .crt-frame { transition: background 1.2s ease; }
+body[data-scene="morning"] { --sc-accent: #ffb347; }
+body[data-scene="morning"] .crt-frame { background: radial-gradient(ellipse at top, #4a3a5e 0%, #2b2f5c 45%, #151b38 100%); }
+body[data-scene="swap"] { --sc-accent: #ffcc33; }
+body[data-scene="swap"] .crt-frame { background: radial-gradient(ellipse at top, #5c4a2e 0%, #2f2a3f 45%, #161a30 100%); }
+body[data-scene="store"] { --sc-accent: #c58bff; }
+body[data-scene="store"] .crt-frame { background: radial-gradient(ellipse at top, #3d2266 0%, #241a4a 45%, #110f2a 100%); }
+body[data-scene="expo"] { --sc-accent: #29d3e8; }
+body[data-scene="expo"] .crt-frame { background: radial-gradient(ellipse at top, #0f4a5c 0%, #172a5a 45%, #0d1230 100%); }
+body[data-scene="fever"] { --sc-accent: #ff6b6b; }
+body[data-scene="fever"] .crt-frame { background: radial-gradient(ellipse at top, #6a1a2a 0%, #3a1636 45%, #160c22 100%); }
+body[data-scene] h2 { color: var(--sc-accent, var(--gold)); }
+body[data-scene][data-sky="dusk"] .crt-frame, body[data-scene][data-sky="sunset"] .crt-frame { box-shadow: inset 0 120px 160px -80px rgba(255,120,60,.25); }
+body[data-scene][data-sky="dawn"] .crt-frame { box-shadow: inset 0 120px 160px -80px rgba(255,200,120,.18); }
+@media (prefers-reduced-motion: reduce) { body[data-scene] .crt-frame { transition: none; } }
+
+.yay.goaldone { border: 3px solid var(--gold); background: #2a1d3e; color: var(--cream); padding: 8px 14px; font-size: 15px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 0 0 3px var(--ink), 0 0 18px rgba(255, 204, 0, .45); animation: yayBig 3s ease-out forwards; }
+.yay.goaldone .yay-h { color: var(--gold); font-size: 20px; letter-spacing: 1px; }
+.yay.goaldone .yay-b { font-size: 14px; }
+@keyframes yayBig { 0% { opacity: 0; transform: scale(.7); } 8% { opacity: 1; transform: scale(1.08); } 14% { transform: scale(1); } 85% { opacity: 1; } 100% { opacity: 0; transform: translateY(-6px); } }
+.yay.goaldone.calm { animation: yayFade 3s linear forwards; }
+
+/* ---------- Round 3c part 3: music and movies ---------- */
+.hs-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
+.hs-tab { min-height: 44px; padding: 6px 12px; font-size: 14px; background: var(--navy2); border: 2px solid #3a4d82; color: var(--cream); }
+.hs-tab b { color: var(--gold); margin-left: 4px; }
+.hs-tab.on { border-color: var(--gold); background: #2a1d3e; }
+.al-sec { margin: 12px 0 4px; color: var(--cyan); font-weight: bold; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid #3a4d82; padding-bottom: 2px; }
+.wk-club { margin-top: 8px; font-size: 14px; color: #ff9ec4; }
+.story.club { border-left-color: #ff77a8; }
+
+/* ---------- Round 3c.1: the want list and the tackle box ---------- */
+.tackle { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+.tb-it { background: #141a33; border: 2px dashed #3a4d82; padding: 6px 8px; font-size: 12px; color: #8fa0c8; }
+.tb-it b { display: block; font-size: 13px; color: #8fa0c8; }
+.tb-it.got { border: 2px solid var(--cyan); background: #18263f; color: #d6dcf0; box-shadow: 2px 2px 0 var(--ink); }
+.tb-it.got b { color: var(--cyan); }
+.tb-x, .tb-n { color: var(--gold); font-size: 12px; }
+.yay.goaldone .yay-h { font-size: clamp(16px, 4.6vw, 20px); }
