@@ -166,7 +166,7 @@ NP.Intro = (function () {
     { h: ['NOSTALGIA PRO:', 'THE GAME'], s: ['NOW WITH A GAME', 'IN IT.'], v: 'box', bg: NAVY },
     { h: ['ONE SATURDAY.', 'ONE DEX.'], s: ['HE GETS UP EARLIER', 'THAN YOU.'], v: 'dex', bg: '#3a1f1f' },
     { h: ['IS IT ON', 'THE SHELF?'], s: ['ONLY ONE WAY TO', 'FIND OUT.'], v: 'you', bg: '#123a2f' },
-    { h: ['"IT IS A GAME."'], s: ['- A GUY AT THE', 'SWAP MEET'], v: 'stars', bg: '#2a1d3e' },
+    { h: ['"IT IS A GAME."'], s: ['SAYS A GUY AT THE', 'SWAP MEET'], v: 'stars', bg: '#2a1d3e' },
     { h: ['COLLECT ALL', '1 OF IT.'], s: ['NOSTALGIA PRO.', 'SOLD SEPARATELY.'], v: 'box', bg: '#3a2a10' },
     { h: ['ASK YOUR', 'PARENTS'], s: ['TO DRIVE YOU TO', 'A YARD SALE.'], v: 'you', bg: '#16213e' }
   ];
@@ -295,7 +295,7 @@ NP.Intro = (function () {
   var morningRun = 0;
   function morning(app, info, done) {
     morningRun++;
-    var goals = NP.GOALS ? NP.GOALS(!!info.demo) : [];
+    var goals = NP.GOALS ? NP.GOALS(info.mode || (info.demo ? 'noon' : 'sundown'), info.budget) : [];
     app.innerHTML = '<div class="screen morning"><canvas id="mcv" width="320" height="200" aria-label="Saturday morning. The alarm goes off at 6:58 AM. Then the to-do list on the fridge: ' + goals.join(' ').replace(/"/g, '') + '"></canvas>' +
       '<div class="btns center"><button data-intro="skip">Skip</button></div></div>';
     var cv = document.getElementById('mcv'), g = cv.getContext('2d'), t0 = performance.now(), fin = false;
@@ -307,7 +307,8 @@ NP.Intro = (function () {
       done();
     }
     // Each scene stays up until the player taps, clicks or presses a key, so there is time to read it.
-    var scene = 0, s0 = t0, SCENES = 4;
+    // from: start partway in (a season skips the alarm and the kitchen after the first Saturday)
+    var scene = info.from || 0, s0 = t0, SCENES = 4;
     function next() {
       if (performance.now() - s0 < 400) return;
       scene++; s0 = performance.now();
@@ -325,7 +326,9 @@ NP.Intro = (function () {
       else if (scene === 2) forecast(g, t, info);
       else fridge(g, t, goals);
       // the last scene says it in its caption instead
-      if (scene < SCENES - 1 && t > 1 && Math.floor(t * 2) % 2 === 0) TS(g, (coarseTap() ? 'TAP' : 'CLICK') + ' TO CONTINUE', 314, 176, 1, GOLD, INK, 'right');
+      // the forecast is full of text (and the rivals line sits where the prompt used to), so its prompt goes in the caption bar
+      if (scene === 2) { if (t > 2.7 && Math.floor(t * 2) % 2 === 0) TS(g, (coarseTap() ? 'TAP' : 'CLICK') + ' TO GO ON', 314, 190, 1, GOLD, INK, 'right'); }
+      else if (scene < SCENES - 1 && t > 1 && Math.floor(t * 2) % 2 === 0) TS(g, (coarseTap() ? 'TAP' : 'CLICK') + ' TO CONTINUE', 314, 176, 1, GOLD, INK, 'right');
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
@@ -377,6 +380,8 @@ NP.Intro = (function () {
     var grabbed = t > 1.2;
     if (grabbed) once(kitchen, 'keys' + morningRun, function () { sfx('keys'); });
     if (!grabbed) { P(g, 220, 80, 6, 4, GOLD); P(g, 222, 84, 2, 8, GOLD); P(g, 224, 88, 3, 2, GOLD); P(g, 218, 84, 2, 6, '#c8cbd6'); }
+    // a can of Saguaro Splash Cola on the counter, label out, lit like a museum piece. Nobody put it there on purpose.
+    if (NP.drawCan) { P(g, 160, 128, 30, 3, '#5a3b22'); NP.drawCan(g, 168, 104, 2, 1); if (Math.floor(t * 3) % 2 === 0) NP.drawSparkle(g, 188, 104, 1, t); }
     // you
     NP.Char.draw(g, look, 'left', 0, 236, 104, 3);
     if (grabbed) {
@@ -388,7 +393,8 @@ NP.Intro = (function () {
   function forecast(g, t, info) {
     P(g, 0, 0, 320, 200, NAVY);
     P(g, 0, 0, 320, 22, RED); P(g, 0, 22, 320, 2, CYAN);
-    TS(g, (info.label || 'SATURDAY #' + info.runNo) + ' FORECAST', 160, 5, 2, CREAM, INK, 'center');
+    var lab = (info.label || 'SATURDAY #' + info.runNo) + ' FORECAST', lk = NP.textWidth(lab, 2) <= 312 ? 2 : 1;
+    TS(g, lab, 160, lk === 2 ? 5 : 8, lk, CREAM, INK, 'center');
     var wx = info.wx;
     var ix = 70, iy = 74;
     if (wx.id === 'rain') {
@@ -412,7 +418,7 @@ NP.Intro = (function () {
       P(g, 13, 115, 294, 15, INK); P(g, 14, 116, 292, 13, RED); P(g, 14, 127, 292, 1, CYAN);
       NP.drawCan(g, 20, 113, 1, 1);
       if (Math.floor(t * 3) % 2 === 0) NP.drawSparkle(g, 30, 113, 1, t);
-      T(g, SP.weather, 170, 119, 1, GOLD, 'center');
+      T(g, (SP.weatherBy && SP.weatherBy[wx.id]) || SP.weather, 170, 119, 1, GOLD, 'center');
       by = 135;
     }
     var lines = NP.wrapPixel(wx.blurb, 1, 280);
@@ -422,8 +428,16 @@ NP.Intro = (function () {
       var fy = spons ? 157 : 150;
       fl.forEach(function (l, i) { T(g, l, 160, fy + i * 9, 1, GOLD, 'center'); });
     }
+    // the rivals who are out today
+    if (info.spotted) {
+      var sy = (info.featured ? (spons ? 157 : 150) + fl.length * 9 : by + lines.length * 9) + 1;
+      var st = ('SPOTTED TODAY: ' + info.spotted).toUpperCase();
+      if (NP.textWidth(st, 1) > 300) st = st.replace('PHONE GUY PHIL', 'PHIL').replace('SLAB STEVE', 'STEVE');
+      if (NP.textWidth(st, 1) > 300) st = st.replace('SPOTTED TODAY:', 'SPOTTED:');
+      if (sy <= 178) T(g, st, 160, sy, 1, CYAN, 'center');
+    }
     if (spons && t > 0.9 && t < 2.6) caption(g, 'YOU: ' + SP.react);
-    else caption(g, 'PHOENIX, ARIZONA');
+    else caption(g, 'SUNDOWN FLATS');
   }
   // the goal of the game, on a to-do list stuck to the fridge
   function fridge(g, t, goals) {
@@ -462,7 +476,11 @@ NP.Intro = (function () {
     'Tip: This tip is brought to you by Nostalgia Pro: The Tip.',
     'Tip: Lot boxes are a mystery. That is the whole point of lot boxes.',
     'Tip: Sellers remember you. Lowball accordingly.',
-    'Tip: Nostalgia Pro: The Shelf Dust makes any shelf look collected.'
+    'Tip: Nostalgia Pro: The Shelf Dust makes any shelf look collected.',
+    "This drive is brought to you by Mesquite Mike's Beef Jerky. Mike is in the back seat. He wants you to know he is not a sponsor.",
+    'Radio: "You are listening to 104.8 The Dust, the station that will never sell out. This hour of never selling out is sponsored by Saguaro Splash Cola."',
+    "Tip: It's a dry heat. That is not a tip. That is Haboob Antiperspirant's slogan.",
+    'Tip: Gila Glow SPF 900 blocks the sun. All of it. Do not wear it while driving.'
   ];
   var TIPS_FREE = ['Tip: You have the Ad-Free Edition. This tip is ad-free.', 'Tip: Tell a friend about the Ad-Free Edition. It is free of ads.'];
   var TIPS_WX = {
@@ -478,19 +496,22 @@ NP.Intro = (function () {
     if (TIPS_WX[wxId] && tipN % 3 === 0) return TIPS_WX[wxId][(tipN / 3 | 0) % TIPS_WX[wxId].length];
     return TIPS[Math.floor(Math.random() * TIPS.length)];
   }
-  function loading(text, done) {
+  // billboard: a roadside sign to show above the car (it is satire, not a tip, so it shows even with tips off)
+  function loading(text, done, billboard) {
     var ov = document.createElement('div');
     ov.className = 'loading-ov';
     // text is null when the player turned tips off: just the car, briefly, then on to the stop
-    ov.innerHTML = '<div class="ld-box"><canvas width="160" height="40"></canvas><div class="ld-t">LOADING</div>' + (text === null ? '' :
+    ov.innerHTML = '<div class="ld-box">' + (billboard ? '<div class="ld-bb"></div>' : '') + '<canvas width="160" height="40"></canvas><div class="ld-t">LOADING</div>' + (text === null ? '' :
       '<div class="ld-tip"></div><div class="ld-skip">' + (coarseTap() ? 'Tap' : 'Click') + ' to continue</div>' +
       '<label class="tipoff"><input type="checkbox" class="tipoff-in"> Don\'t show tips</label>') + '</div>';
     if (text !== null) ov.querySelector('.ld-tip').textContent = text;
+    if (billboard) ov.querySelector('.ld-bb').textContent = billboard;
     document.body.appendChild(ov);
     var cv = ov.querySelector('canvas'), g = cv.getContext('2d'), t0 = performance.now(), fin = false;
     g.imageSmoothingEnabled = false;
     function finish() { if (fin) return; fin = true; if (ov.parentNode) ov.parentNode.removeChild(ov); done(); }
-    if (text === null) setTimeout(finish, 700);
+    if (text === null) setTimeout(finish, billboard ? 2400 : 700);
+    else if (isDemo()) setTimeout(finish, 3500); // the demo drives on by itself after a few seconds (a tap still skips)
     function onBox(e) { return e.target && e.target.closest && e.target.closest('.tipoff'); }
     ov.addEventListener('click', function (e) { if (onBox(e)) return; if (performance.now() - t0 > 400) finish(); });
     function ldKey(e) { if (e.repeat || fin) return; if (performance.now() - t0 < 400) return; if (onBox(e) || e.key === 'Tab' || e.key === 'Shift') return; e.preventDefault(); window.removeEventListener('keydown', ldKey, true); finish(); }

@@ -20,7 +20,7 @@ NP.FONT = (function () {
     '.':[0,0,0,0,0,12,12],',':[0,0,0,0,12,4,8],'!':[4,4,4,4,4,0,4],'?':[14,17,1,2,4,0,4],'-':[0,0,0,31,0,0,0],
     "'":[4,4,8,0,0,0,0],'$':[4,15,20,14,5,30,4],'#':[10,10,31,10,31,10,10],'/':[1,1,2,4,8,16,16],
     '(':[2,4,8,8,8,4,2],')':[8,4,2,2,2,4,8],'&':[12,18,20,8,21,18,13],'+':[0,4,4,31,4,4,0],
-    '%':[24,25,2,4,8,19,3],'"':[10,10,0,0,0,0,0],'@':[14,17,23,21,23,16,14]
+    '%':[24,25,2,4,8,19,3],'·':[0,0,0,12,12,0,0],'"':[10,10,0,0,0,0,0],'@':[14,17,23,21,23,16,14]
   };
   return g;
 })();
@@ -110,7 +110,7 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
     if (isG) { P(22, 31, 4, 4, NP.COL.gold); P(23, 32, 2, 2, '#fff'); }
     return;
   }
-  if (kind === 'lot') {
+  if (kind === 'lot' || kind === 'mbox') {
     P(1, 12, 30, 26, '#6b4a2b'); P(2, 13, 28, 24, '#a87443'); P(1, 10, 30, 4, '#8a5e36');
     P(14, 10, 4, 28, '#d8b07a');
     NP.pixelText(ctx, '?', ox + 8 * k, oy + 20 * k, k, NP.COL.cream);
@@ -118,6 +118,8 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
     P(4, 6, 6, 6, '#7a7f8c'); P(20, 5, 7, 7, '#29adff'); P(11, 7, 5, 5, '#e4343e');
     return;
   }
+  // Round 3b: music, movies, and the odd things the new stores sell
+  if (kind === 'music' || kind === 'movie' || kind === 'gear' || kind === 'standee' || kind === 'bulk' || kind === 'photo' || kind === 'club') { drawOther(ctx, it, ox, oy, k, P); return; }
   var pl = NP.PLATFORMS[it.p] || NP.PLATFORMS.k16;
   var cond = it.cond || 'loose';
   if (cond === 'loose' && pl.media === 'disc') {
@@ -137,11 +139,14 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
     // cartridge
     var w = pl.media === 'hand' ? 22 : 28, x0 = (32 - w) / 2, top = pl.media === 'hand' ? 10 : 6;
     P(x0, top, w, 38 - top, NP.COL.ink);
-    P(x0 + 1, top + 1, w - 2, 36 - top, pl.media === 'hand' ? '#59606e' : '#9aa0ad');
+    var VV = it.variant && NP.VARIANTS && NP.VARIANTS[it.variant];
+    P(x0 + 1, top + 1, w - 2, 36 - top, VV && VV.color ? VV.color : pl.media === 'hand' ? '#59606e' : '#9aa0ad');
     P(x0 + 3, top + 3, w - 6, 21, pl.c2);
     P(x0 + 3, top + 3, w - 6, 2, pl.c1);
     if (!icon(8, top + 6)) sprite(ctx, it.id, ox + (x0 + w / 2 - 4) * k, oy + (top + 8) * k, k, pl.c2);
     for (var g = 0; g < (w - 8) / 3; g++) P(x0 + 4 + g * 3, 35, 2, 2, '#5d6370');
+    if (it.variant === 'promo') { P(x0 + 3, top + 25, w - 6, 4, NP.COL.red); P(x0 + 5, top + 26, w - 10, 2, NP.COL.cream); }
+    if (it.variant === 'import') { P(x0 + 3, top + 25, w - 6, 3, NP.COL.cyan); for (var q = 0; q < (w - 8) / 2; q++) P(x0 + 4 + q * 2, top + 26, 1, 1, NP.COL.ink); }
     return;
   }
   // box (cib / sealed)
@@ -158,6 +163,103 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
   }
   if (it.sticker) { P(21, 33, 8, 5, NP.COL.gold); P(22, 35, 6, 1, NP.COL.red); }
 };
+
+// colors for record sleeves and movie boxes, picked from the item id so the same item always looks the same
+var MEDIA_PAL = [['#e4343e', '#ffcc33'], ['#29adff', '#fff1d6'], ['#7e57c2', '#29d3e8'], ['#00b894', '#1d2b53'], ['#ff77a8', '#1d2b53'], ['#ff9f43', '#0b1022'], ['#1d2b53', '#ff77a8'], ['#2d6a2d', '#ffcc33']];
+// Round 3c: the media gags you can see from across the room
+function drawGag(it, P) {
+  var C = NP.COL, g = it.gag;
+  if (g === 'advisory') { P(19, 30, 11, 6, '#14141a'); P(20, 31, 9, 1, '#ffffff'); P(20, 33, 9, 2, '#ffffff'); P(21, 33, 7, 1, '#14141a'); }
+  if (g === 'eaten' && !it.fixed) { for (var i = 0; i < 6; i++) { P(11 + i, 32 + (i % 3), 1, 2, '#6b3f1e'); P(13 + i, 34 + ((i + 1) % 3), 1, 2, '#4a2a12'); } P(12, 37, 8, 1, '#6b3f1e'); }
+  if (g === 'cracked') { P(10, 9, 1, 2, '#ffffff'); P(11, 11, 1, 2, '#ffffff'); P(12, 13, 1, 3, '#ffffff'); P(13, 16, 1, 2, '#ffffff'); P(12, 18, 1, 2, '#ffffff'); }
+  if (g === 'rewind' && !it.fixed) { P(6, 21, 20, 5, C.cream); P(7, 22, 2, 3, C.red); P(10, 22, 2, 3, C.red); P(14, 23, 10, 1, C.ink); }
+  if (g === 'clam') { P(2, 0, 2, 40, '#e8e8f0'); P(28, 0, 2, 40, '#e8e8f0'); }
+}
+function drawOther(ctx, it, ox, oy, k, P) {
+  var C = NP.COL, aid = String(it.art || it.id || 'x'), h = NP.hashStr(aid), pal = MEDIA_PAL[h % MEDIA_PAL.length];
+  var fmt = it.fmt || '';
+  var art = function (x, y, s, bg) { sprite(ctx, aid, ox + x * k, oy + y * k, s * k, bg); };
+  if ((it.kind === 'music' || it.kind === 'movie') && it.gag && !it._gagPass) {
+    it._gagPass = true;
+    try { drawOther(ctx, it, ox, oy, k, P); } finally { delete it._gagPass; }
+    drawGag(it, P);
+    return;
+  }
+  if (it.kind === 'club') { // a stack of CDs in a mailer box
+    P(1, 14, 30, 22, C.ink); P(2, 15, 28, 20, '#c9a46a'); P(2, 15, 28, 3, '#a8834e');
+    for (var q = 0; q < 4; q++) { P(5 + q * 6, 8 + (q % 2) * 2, 6, 9, C.ink); P(6 + q * 6, 9 + (q % 2) * 2, 4, 7, ['#29adff', '#ff77a8', '#ffcc33', '#00b894'][q]); }
+    P(6, 26, 20, 4, C.cream); P(8, 27, 16, 2, C.red);
+    return;
+  }
+  if (it.kind === 'photo') { // a signed 8x10
+    P(2, 4, 28, 34, C.ink); P(3, 5, 26, 32, C.cream);
+    P(6, 8, 20, 20, '#8a90a0'); P(11, 11, 10, 9, '#d6a06a'); P(11, 11, 10, 3, '#1c1410'); P(12, 15, 3, 1, C.ink); P(17, 15, 3, 1, C.ink);
+    P(8, 20, 16, 8, C.red);
+    P(6, 31, 4, 1, C.navy); P(10, 30, 5, 1, C.navy); P(15, 31, 6, 1, C.navy); P(21, 30, 4, 1, C.navy);
+    if (it.signed !== false) { P(24, 6, 3, 3, C.gold); }
+    return;
+  }
+  if (it.kind === 'music' && fmt === 'vinyl') {
+    // the record peeking out of its sleeve
+    for (var yy = 0; yy < 26; yy++) for (var xx = 0; xx < 26; xx++) {
+      var dx = xx - 12.5, dy = yy - 12.5, d = Math.sqrt(dx * dx + dy * dy);
+      if (d < 13) P(5 + xx, 7 + yy, 1, 1, d < 2 ? C.cream : d < 4 ? pal[1] : ((xx + yy) % 5 === 0 ? '#3a3f4a' : '#15171d'));
+    }
+    P(0, 6, 26, 28, C.ink); P(1, 7, 24, 26, pal[0]);
+    art(5, 11, 2, pal[0]);
+    P(1, 29, 24, 4, pal[1]);
+    return;
+  }
+  if (it.kind === 'music' && fmt === 'cd') {
+    P(2, 7, 28, 27, C.ink); P(3, 8, 26, 25, '#c9d1dc'); P(3, 8, 4, 25, '#8a90a0');
+    P(8, 10, 19, 21, pal[0]); art(10, 13, 2, pal[0]);
+    P(8, 27, 19, 3, pal[1]);
+    return;
+  }
+  if (it.kind === 'music') { // cassette
+    P(1, 12, 30, 20, C.ink); P(2, 13, 28, 18, '#3a3f4a');
+    P(4, 14, 24, 9, pal[0]); P(4, 14, 24, 2, pal[1]);
+    P(8, 18, 5, 4, C.ink); P(19, 18, 5, 4, C.ink); P(9, 19, 3, 2, C.cream); P(20, 19, 3, 2, C.cream);
+    P(7, 25, 18, 5, '#59606e'); P(10, 27, 2, 2, C.ink); P(20, 27, 2, 2, C.ink);
+    return;
+  }
+  if (it.kind === 'movie' && fmt === 'vhs') {
+    P(4, 0, 24, 40, C.ink); P(5, 1, 22, 38, '#16181f');
+    P(5, 1, 22, 6, pal[0]);
+    art(8, 10, 2, '#16181f');
+    P(5, 28, 22, 2, pal[1]); P(7, 32, 12, 1, C.grey); P(7, 34, 8, 1, C.grey);
+    NP.pixelText(ctx, 'VHS', ox + 17 * k, oy + 33 * k, Math.max(1, Math.floor(k * 0.5)), C.cream);
+    if (it.flags && it.flags.rental) { P(19, 2, 7, 4, C.gold); }
+    return;
+  }
+  if (it.kind === 'movie') { // dvd
+    P(5, 1, 22, 38, C.ink); P(6, 2, 20, 36, '#1f4fa8');
+    P(8, 4, 16, 26, pal[0]); art(8, 9, 2, pal[0]);
+    P(8, 32, 16, 2, pal[1]);
+    NP.pixelText(ctx, 'DVD', ox + 10 * k, oy + 35 * k, Math.max(1, Math.floor(k * 0.5)), C.cream);
+    return;
+  }
+  if (it.kind === 'gear') { // binoculars
+    P(4, 14, 10, 16, C.ink); P(18, 14, 10, 16, C.ink);
+    P(5, 15, 8, 14, '#3a3f4a'); P(19, 15, 8, 14, '#3a3f4a');
+    P(13, 18, 6, 6, C.ink); P(14, 19, 4, 4, '#59606e');
+    P(6, 26, 6, 3, C.cyan); P(20, 26, 6, 3, '#9aa0ad');
+    P(7, 27, 2, 1, '#ffffff');
+    return;
+  }
+  if (it.kind === 'standee') { // a cardboard action star, pointing a dental drill at you
+    P(11, 1, 10, 10, '#8a5e36'); P(12, 2, 8, 8, '#f1c28e'); P(12, 2, 8, 3, '#4a2f1c');
+    P(13, 6, 2, 1, C.ink); P(17, 6, 2, 1, C.ink);
+    P(9, 11, 14, 16, '#8a5e36'); P(10, 12, 12, 14, '#e4343e');
+    P(22, 13, 8, 4, '#8a5e36'); P(23, 14, 6, 2, '#f1c28e'); P(28, 12, 3, 2, C.grey);
+    P(10, 27, 5, 12, '#8a5e36'); P(17, 27, 5, 12, '#8a5e36'); P(11, 27, 3, 11, '#1d2b53'); P(18, 27, 3, 11, '#1d2b53');
+    return;
+  }
+  // bulk: a printer paper box of sports games
+  P(1, 12, 30, 26, '#c9b48a'); P(2, 13, 28, 24, '#e6d4a8'); P(1, 10, 30, 4, '#b39c6e');
+  P(3, 6, 8, 6, '#2d6a2d'); P(12, 5, 8, 7, '#29adff'); P(21, 7, 8, 5, '#e4343e');
+  NP.pixelText(ctx, '40', ox + 10 * k, oy + 20 * k, k, NP.COL.navy);
+}
 
 NP.makeArt = function (it, scale) {
   var c = document.createElement('canvas');
@@ -207,4 +309,45 @@ NP.drawSparkle = function (ctx, cx, cy, k, t) {
   ctx.fillRect(Math.round(cx - len * k), Math.round(cy - k / 2), len * 2 * k + k, Math.max(1, k));
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(Math.round(cx - k / 2), Math.round(cy - k / 2), Math.max(1, k), Math.max(1, k));
+};
+
+// Demo round 5: a pixel-art banner for a yard sale stop (240x64). The house, the garage, the tables, the sign.
+// sky: 'dawn' | 'day' | 'dusk' | 'sunset'. seed picks the house colors so every yard sale looks a little different.
+NP.drawYardBanner = function (cv, seed, sky, t) {
+  var g = cv.getContext('2d'), W = cv.width, H = cv.height;
+  var P = function (x, y, w, h, c) { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), w, h); };
+  var h = NP.hashStr(String(seed || 'yard')), t2 = t || 0;
+  var SK = { dawn: ['#f7a072', '#f9c58d', '#fde2b3'], day: ['#6ec6f0', '#9ad8f5', '#c8ecfa'], dusk: ['#e98a6b', '#f0b27a', '#f6d6a0'], sunset: ['#7a4b8c', '#d0647a', '#f29e6a'] }[sky] || ['#6ec6f0', '#9ad8f5', '#c8ecfa'];
+  for (var i = 0; i < 3; i++) P(0, i * 12, W, 12, SK[i]);
+  // far hills and a big sun
+  g.fillStyle = sky === 'day' ? '#fff3b0' : '#ffe08a'; g.beginPath(); g.arc(200, 20, 9, 0, Math.PI * 2); g.fill();
+  for (var x = 0; x < W; x += 2) { var hy = 30 + Math.sin(x / 23 + h % 7) * 3 + Math.sin(x / 9) * 1.2; P(x, hy, 2, 40, '#c99a6b'); }
+  P(0, 44, W, 20, '#d9b37a'); for (x = 0; x < W; x += 7) P(x + (h % 5), 50 + (x * 3) % 9, 2, 1, '#c79c63');
+  // the driveway
+  g.fillStyle = '#b8b2a6'; g.beginPath(); g.moveTo(96, 44); g.lineTo(136, 44); g.lineTo(150, 64); g.lineTo(82, 64); g.closePath(); g.fill();
+  // the house, colors from the seed
+  var walls = ['#e9d8b8', '#cfe3d3', '#f1c9a8', '#d6d2ea', '#f3e1a0'][h % 5], roof = ['#a14a3a', '#5a6b7a', '#7a5a3a', '#3f6b5a'][(h >> 3) % 4];
+  P(30, 24, 110, 20, walls); P(26, 18, 118, 7, roof); P(30, 16, 110, 3, roof);
+  P(40, 30, 12, 9, '#7fb6d6'); P(45, 30, 1, 9, walls); P(40, 34, 12, 1, walls);
+  P(60, 30, 9, 14, '#6b4a2e'); P(67, 37, 1, 1, '#ffcc33');
+  // the garage, door rolled up, full of boxes
+  P(96, 26, 40, 18, '#3b3530'); P(96, 26, 40, 3, '#cfc8bd');
+  P(100, 34, 9, 10, '#b88a52'); P(110, 37, 8, 7, '#a8794a'); P(121, 33, 11, 11, '#c69a5e'); P(103, 30, 6, 4, '#c69a5e');
+  // two card tables with stuff on them
+  [[78, 47], [140, 49]].forEach(function (tb, k) {
+    P(tb[0], tb[1], 30, 3, '#4d5a6b'); P(tb[0] + 2, tb[1] + 3, 1, 8, '#2b2f38'); P(tb[0] + 27, tb[1] + 3, 1, 8, '#2b2f38');
+    var cols = ['#e4343e', '#29d3e8', '#ffcc33', '#3ddc84', '#CC79A7', '#E69F00'];
+    for (var j = 0; j < 5; j++) P(tb[0] + 2 + j * 6, tb[1] - 5 - (j % 2), 4, 5 + (j % 2), cols[(h + j + k * 2) % cols.length]);
+  });
+  // the cardboard sign, with balloons that bob
+  P(172, 34, 34, 14, '#c99a5e'); P(172, 34, 34, 1, '#a87a44'); P(188, 48, 2, 12, '#7a5a3a');
+  NP.pixelText(g, 'YARD', 189, 36, 1, '#1d2b53', 'center'); NP.pixelText(g, 'SALE!', 189, 42 - 1, 1, '#e4343e', 'center');
+  [['#e4343e', 170, 0], ['#29d3e8', 178, 1.3], ['#ffcc33', 207, 2.1]].forEach(function (b) {
+    var by = 20 + Math.sin(t2 * 2 + b[2]) * 2;
+    P(b[1] - 3, by - 4, 6, 7, b[0]); P(b[1] - 2, by - 5, 4, 1, b[0]); P(b[1] - 1, by - 3, 1, 2, 'rgba(255,255,255,.7)');
+    g.strokeStyle = '#6b5a4a'; g.beginPath(); g.moveTo(b[1] + 0.5, by + 3); g.lineTo(189.5, 34); g.stroke();
+  });
+  // a saguaro and a mailbox
+  P(14, 26, 5, 22, '#2f8f4e'); P(9, 32, 5, 3, '#2f8f4e'); P(9, 28, 3, 6, '#2f8f4e'); P(19, 35, 4, 3, '#2f8f4e'); P(21, 30, 3, 7, '#2f8f4e'); P(15, 27, 1, 20, '#4fbf6e');
+  P(222, 44, 2, 12, '#5a4a3a'); P(218, 40, 10, 5, '#3f5f9a'); P(226, 38, 1, 4, '#e4343e');
 };

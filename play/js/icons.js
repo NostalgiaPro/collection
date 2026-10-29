@@ -132,7 +132,7 @@ window.NP = NP;
     '.sssskNNNNkssss.',
     'GGGGGGGGGGGGGGGG',
     'GlGGGlGGGGlGGGlG'] };
-  I.pgg = { bg: '#6cc4ff', px: [ // Pocket Gecko Golf: a gecko next to a golf flag
+  I.pgg = { bg: '#6cc4ff', px: [ // Gecko Golf: a gecko next to a golf flag
     '..........r.....',
     '..........rrr...',
     '..........rrrr..',
@@ -166,7 +166,7 @@ window.NP = NP;
     '...sSSSSSSSs.www',
     '...ss.....ss.ww.',
     'NNNNNNNNNNNNNNNN'] };
-  I.sky = { bg: '#4aa3df', px: [ // Sky Llama Squadron: a llama in flight goggles
+  I.sky = { bg: '#4aa3df', px: [ // Sky Llama Air Patrol: a llama in flight goggles
     '...w.w..........',
     '...www..........',
     '..wwwww.....W...',
@@ -217,7 +217,7 @@ window.NP = NP;
     'c...c....c....c.',
     'cccccccccccccccc',
     'c....c.....c....'] };
-  I.ttt = { bg: '#8fae6a', px: [ // Tiny Tank Tactics: one small tank
+  I.ttt = { bg: '#8fae6a', px: [ // Three Tank Tactics: one small tank
     '................',
     '................',
     '................',
@@ -234,7 +234,7 @@ window.NP = NP;
     'nnnnnnnnnnnnnnnn',
     'nNnnnnnNnnnnnNnn',
     'NNNNNNNNNNNNNNNN'] };
-  I.msa = { bg: '#ff9e5e', px: [ // Mesa Mayhem: a car flying off a mesa
+  I.msa = { bg: '#ff9e5e', px: [ // Plateau Panic: a car flying off a plateau
     '.......yyyy.....',
     '......yyyyyy....',
     '......yyyyyy....',
@@ -268,7 +268,7 @@ window.NP = NP;
     '......rrr..oyo..',
     '......rr....o...',
     '.......r........'] };
-  I.stm = { bg: '#101830', px: [ // Star Mopper: a mop under a star
+  I.stm = { bg: '#101830', px: [ // Orbit Mopper: a mop under a star
     '.W.........y....',
     '...........y....',
     '.........yyyyy..',
@@ -285,7 +285,7 @@ window.NP = NP;
     '....wwwwwww.....',
     '...ww.w.w.ww....',
     'bbbbbbbbbbbbbbbb'] };
-  I.lll = { bg: '#2a1d3e', px: [ // Lava Lamp Legends: a lava lamp
+  I.lll = { bg: '#2a1d3e', px: [ // Blob Lamp Legends: a blob lamp
     '......SSSS......',
     '.....sSSSSs.....',
     '.....bbbbbb.....',
@@ -319,7 +319,7 @@ window.NP = NP;
     '.SSSSSSSSSSSSSSS',
     '..sssssssssssss.',
     '................'] };
-  I.cyr = { bg: '#0a1a2a', px: [ // Cyber Raccoon 2099: a raccoon with a visor
+  I.cyr = { bg: '#0a1a2a', px: [ // Cyber Raccoon: a raccoon with a visor
     '..s..........s..',
     '.sSs........sSs.',
     '.sSSssssssssSSs.',
@@ -336,7 +336,7 @@ window.NP = NP;
     '..g.gg.g..g.gg..',
     '.g..g..gg.g..g..',
     'gggggggggggggggg'] };
-  I.bfb = { bg: '#5a2a1e', px: [ // Bowling for Badgers: a badger next to a bowling pin
+  I.bfb = { bg: '#5a2a1e', px: [ // Badger Bowl Extreme: a badger next to a bowling pin
     '...........WW...',
     '..........WWWW..',
     '..........WrrW..',
@@ -370,7 +370,7 @@ window.NP = NP;
     'llllllllllllllll',
     'GGGGGGGGGGGGGGGG',
     'nnnnnnnnnnnnnnnn'] };
-  I.tnk = { bg: '#3a1f3a', px: [ // Turnip Kingdom: a turnip wearing a crown
+  I.tnk = { bg: '#3a1f3a', px: [ // Turnip Monarchy: a turnip wearing a crown
     '...y..y..y......',
     '...yyyyyyy......',
     '...yryyyry......',
@@ -404,7 +404,7 @@ window.NP = NP;
     '..Sddddddddddddd',
     'SSSddddddddddddd',
     'kkkkkkkkkkkkkkkk'] };
-  I.bgd = { bg: '#2d5a2d', px: [ // Bigfoot Derby: Bigfoot holding the checkered flag
+  I.bgd = { bg: '#2d5a2d', px: [ // Sasquatch Derby: a sasquatch holding the checkered flag
     '..........kWkWkW',
     '...nnnnn..WkWkWk',
     '..nnnnnnn.kWkWkW',
@@ -421,7 +421,7 @@ window.NP = NP;
     '.Nnnn.nnnN......',
     'tttttttttttttttt',
     'tntttttnttttttnt'] };
-  I.hyo = { bg: '#c8323c', px: [ // Hyper Origami: a paper crane
+  I.hyo = { bg: '#c8323c', px: [ // Crease Fighters: a paper crane
     '................',
     '.......W........',
     '......WW........',
@@ -757,7 +757,7 @@ window.NP = NP;
     if (it.kind === 'grail') return 'np';
     if (it.kind === 'merch') return I[it.id] ? it.id : null;
     if (it.kind === 'lot') return null;
-    var id = it.id || '';
+    var id = it.art || it.id || '';
     if (id === 'mf1' || id === 'mf2' || id === 'mf3') return 'mf';
     if (I[id]) return id;
     var sp = SPORTS_ICON[id.slice(0, 2)];
