@@ -60,6 +60,9 @@
     #menu-art { image-rendering: pixelated; margin-bottom: 14px; }
     
     #title-card { position: absolute; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; z-index: 10; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; text-align: center; padding: 20px; }
+    #btn-mute { position: fixed; z-index: 30; top: 0; left: 0; width: 40px; height: 40px; padding: 0; border-radius: 8px; border: 2px solid rgba(255,255,255,0.45); background: rgba(11,11,18,0.6); color: rgba(255,255,255,0.85); font: bold 18px monospace; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    #btn-mute.muted { color: #ff6b9a; border-color: #ff6b9a; }
+    #btn-mute.muted::after { content: ''; position: absolute; left: 5px; right: 5px; top: 17px; height: 2px; background: #ff6b9a; transform: rotate(-45deg); }
     #title-card h2 { font-size: 48px; color: #FF00FF; margin: 0; text-shadow: 2px 2px 0 #00FFCC; }
 </style>
 </head>
@@ -97,6 +100,7 @@ Touch: On-screen buttons.</p>
         <button class="action-btn" id="next-btn" style="display:none;">NEXT: LEVEL 2</button>
     </div>
 </div>
+<button id="btn-mute" tabindex="-1" aria-label="Sound on" title="Sound on (M)">&#9835;</button>
 <script>
 const canvas = document.getElementById('gameCanvas');
 let ctx = canvas.getContext('2d');
@@ -108,6 +112,114 @@ let VIEW_SCALE = 1, DPR = 1, VY = 0;
 let maxLevel = parseInt(localStorage.getItem('sss_max_level') || '1');
 let startBtnLevel = 1; // level the main button starts (retry uses the current level)
 let unlockedHeroes = parseInt(localStorage.getItem('sss_unlocked_heroes') || '3');
+
+// ---------- Sound: original synthesized Web Audio (oscillators + noise, no files) ----------
+const AU = { ctx: null, master: null, sfxG: null, musG: null, noise: null, muted: localStorage.getItem('sss_muted') === '1', unlocked: false, calls: {}, last: {}, song: 0, step: 0, nextT: 0 };
+const AU_MASTER = 0.5;
+function auInit() {
+    if (AU.ctx) return;
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    try {
+        const c = new AC(); AU.ctx = c;
+        const comp = c.createDynamicsCompressor(); AU.comp = comp; comp.threshold.value = -14; comp.knee.value = 10; comp.ratio.value = 6; comp.attack.value = 0.003; comp.release.value = 0.2;
+        AU.master = c.createGain(); AU.master.gain.value = AU.muted ? 0 : AU_MASTER; AU.master.connect(comp); comp.connect(c.destination);
+        AU.sfxG = c.createGain(); AU.sfxG.gain.value = 0.55; AU.sfxG.connect(AU.master);
+        AU.musG = c.createGain(); AU.musG.gain.value = 0.22; AU.musG.connect(AU.master);
+        const n = c.createBuffer(1, c.sampleRate, c.sampleRate), d = n.getChannelData(0); let s = 12345;
+        for (let i = 0; i < d.length; i++) { s = (s * 1103515245 + 12345) & 0x7fffffff; d[i] = s / 0x3fffffff - 1; }
+        AU.noise = n;
+    } catch (e) { AU.ctx = null; }
+}
+function auUnlock() {
+    auInit(); const c = AU.ctx; if (!c) return;
+    if (c.state !== 'running' && !document.hidden) { const p = c.resume(); if (p && p.catch) p.catch(() => {}); }
+    if (!AU.unlocked) { try { const b = c.createBuffer(1, 1, 22050), src = c.createBufferSource(); src.buffer = b; src.connect(c.destination); src.start(0); } catch (e) {} AU.unlocked = true; }
+}
+['touchstart', 'touchend', 'pointerdown', 'mousedown', 'keydown', 'click'].forEach(ev => window.addEventListener(ev, auUnlock, { capture: true, passive: true }));
+document.addEventListener('visibilitychange', () => { const c = AU.ctx; if (!c) return; if (document.hidden) { if (c.state === 'running') c.suspend().catch(() => {}); } else if (AU.unlocked) c.resume().catch(() => {}); });
+
+function tone(type, f0, f1, dur, vol, delay, dest) {
+    const c = AU.ctx, t = c.currentTime + (delay || 0), o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(f0, t); if (f1 && f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(dest || AU.sfxG); o.start(t); o.stop(t + dur + 0.02);
+}
+function noiseHit(dur, vol, ftype, f0, f1, delay, dest) {
+    const c = AU.ctx, t = c.currentTime + (delay || 0), s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+    s.buffer = AU.noise; f.type = ftype || 'lowpass'; f.frequency.setValueAtTime(f0 || 2000, t); if (f1) f.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(dest || AU.sfxG); s.start(t, Math.random() * 0.5); s.stop(t + dur + 0.02);
+}
+const NOTE = (m) => 440 * Math.pow(2, (m - 69) / 12);
+function sfx(name) {
+    AU.calls[name] = (AU.calls[name] || 0) + 1;
+    const c = AU.ctx; if (!c) return;
+    const now = c.currentTime; if (AU.last[name] !== undefined && now - AU.last[name] < 0.03 && c.state === 'running') return; AU.last[name] = now;
+    try {
+        switch (name) {
+            case 'shoot_shoot': tone('square', 900, 260, 0.08, 0.16); noiseHit(0.05, 0.12, 'highpass', 3000); break;
+            case 'shoot_melee': noiseHit(0.14, 0.22, 'bandpass', 900, 3500); tone('triangle', 260, 620, 0.12, 0.14); break;
+            case 'shoot_fireball': tone('sawtooth', 160, 520, 0.2, 0.12); tone('triangle', 320, 900, 0.18, 0.1, 0.02); break;
+            case 'shoot_roll': tone('square', 520, 820, 0.06, 0.12); tone('square', 820, 600, 0.07, 0.1, 0.06); break;
+            case 'jump': tone('square', 280, 620, 0.12, 0.11); break;
+            case 'djump': tone('triangle', 520, 1040, 0.1, 0.14); tone('square', 780, 1560, 0.1, 0.06, 0.05); break;
+            case 'swap': tone('triangle', 660, 990, 0.07, 0.14); tone('triangle', 990, 1320, 0.07, 0.12, 0.07); break;
+            case 'ehit': tone('square', 240, 130, 0.06, 0.12); break;
+            case 'edeath': noiseHit(0.28, 0.3, 'lowpass', 2400, 200); tone('square', 420, 60, 0.25, 0.12); break;
+            case 'crate': noiseHit(0.18, 0.28, 'lowpass', 1200, 150); tone('triangle', 140, 70, 0.15, 0.15); break;
+            case 'block': tone('square', 1250, 1250, 0.05, 0.08); tone('square', 1680, 1500, 0.06, 0.06, 0.01); noiseHit(0.05, 0.1, 'highpass', 5000); break;
+            case 'hurt': tone('sawtooth', 420, 70, 0.38, 0.18); noiseHit(0.25, 0.22, 'lowpass', 1500, 200); break;
+            case 'rescue': [72, 76, 79, 84].forEach((m, i) => tone('square', NOTE(m), NOTE(m), 0.09, 0.1, i * 0.07)); tone('triangle', NOTE(88), NOTE(88), 0.25, 0.1, 0.28); noiseHit(0.12, 0.15, 'highpass', 2500); break;
+            case 'bosshit': tone('square', 160, 90, 0.07, 0.13); noiseHit(0.06, 0.14, 'bandpass', 1800); break;
+            case 'roar': tone('sawtooth', 75, 42, 1.0, 0.18); tone('sawtooth', 79, 44, 1.0, 0.16); noiseHit(0.9, 0.2, 'lowpass', 600, 120); break;
+            case 'bossdie': noiseHit(1.6, 0.4, 'lowpass', 3000, 80); for (let i = 0; i < 5; i++) tone('sawtooth', 300 - i * 40, 40, 0.4, 0.1, i * 0.18); break;
+            case 'start': [64, 67, 71, 76].forEach((m, i) => tone('square', NOTE(m), NOTE(m), 0.1, 0.1, i * 0.09)); tone('triangle', NOTE(52), NOTE(52), 0.4, 0.14); break;
+            case 'clear': [[72,0],[76,0.12],[79,0.24],[84,0.36],[79,0.54],[84,0.66]].forEach(([m, d]) => { tone('square', NOTE(m), NOTE(m), 0.14, 0.11, d); tone('triangle', NOTE(m - 12), NOTE(m - 12), 0.14, 0.1, d); }); tone('square', NOTE(88), NOTE(88), 0.5, 0.1, 0.8); break;
+            case 'over': [[67,0],[63,0.22],[60,0.44],[55,0.7]].forEach(([m, d]) => tone('triangle', NOTE(m), NOTE(m) * 0.97, 0.3, 0.16, d)); noiseHit(0.5, 0.1, 'lowpass', 500, 100, 0.7); break;
+            case 'menu': tone('square', 880, 880, 0.05, 0.1); tone('square', 1320, 1320, 0.06, 0.08, 0.05); break;
+            case 'mute': tone('triangle', 660, 990, 0.08, 0.12); break;
+        }
+    } catch (e) {}
+}
+
+// Looping chiptunes, one per level (original melodies). 16 steps per bar, 4 bars.
+const SONGS = {
+    1: { bpm: 138,
+         lead: 'A4 . C5 E5 . A5 . G5 E5 . D5 . E5 . . . F5 . E5 D5 . C5 . D5 E5 . . . A4 . . . A4 . C5 E5 . A5 . B5 C6 . B5 . G5 . . . A5 . G5 E5 . D5 . C5 B4 . C5 . A4 . . .',
+         bass: 'A2 . A3 . A2 . A3 . A2 . A3 . A2 . G2 . F2 . F3 . F2 . F3 . F2 . F3 . G2 . G3 . C3 . C4 . C3 . C4 . G2 . G3 . G2 . B2 . E2 . E3 . E2 . E3 . E2 . E3 . G2 . G#2 .',
+         drums: 'k.h.s.h.k.k.s.hh', leadW: 'square', leadV: 0.07, bassW: 'triangle', bassV: 0.16 },
+    2: { bpm: 112,
+         lead: 'D4 . . F4 . . A4 . . . G4 . F4 . E4 . D4 . . . . . A3 . . . C4 . D4 . . . F4 . . A4 . . C5 . . . A4 . G4 . F4 . E4 . . . G4 . . . E4 . D4 . . . . .',
+         bass: 'D2 . . . D2 . . D3 D2 . . . D2 . C2 . A#1 . . . A#1 . . A#2 A#1 . . . A#1 . C2 . F2 . . . F2 . . F3 F2 . . . F2 . E2 . A1 . . . A1 . . A2 A1 . . . C2 . C#2 .',
+         drums: 'k...h...k.k.h..h', leadW: 'triangle', leadV: 0.1, bassW: 'square', bassV: 0.05, echo: true }
+};
+function parseNotes(str) { const nm = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }; return str.trim().split(/\s+/).map(t => { if (t === '.') return 0; const m = /^([A-G])(#?)(\d)$/.exec(t); return m ? 12 * (+m[3] + 1) + nm[m[1]] + (m[2] ? 1 : 0) : 0; }); }
+Object.values(SONGS).forEach(s => { s.L = parseNotes(s.lead); s.B = parseNotes(s.bass); });
+function musicStart(lvl) { AU.song = lvl; AU.step = 0; AU.nextT = 0; }
+function musicStop() { AU.song = 0; }
+function musStep(s, i, t) {
+    const c = AU.ctx, dur = 60 / s.bpm / 4, L = s.L[i % s.L.length], B = s.B[i % s.B.length], dr = s.drums[i % 16];
+    const play = (w, f, d, v, at) => { const o = c.createOscillator(), g = c.createGain(); o.type = w; o.frequency.setValueAtTime(f, at); g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(v, at + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, at + d); o.connect(g); g.connect(AU.musG); o.start(at); o.stop(at + d + 0.02); };
+    if (L) { play(s.leadW, NOTE(L), dur * 1.8, s.leadV, t); if (s.echo) play(s.leadW, NOTE(L), dur * 1.6, s.leadV * 0.35, t + dur * 3); AU.calls.music_note = (AU.calls.music_note || 0) + 1; }
+    if (B) play(s.bassW, NOTE(B), dur * 1.6, s.bassV, t);
+    if (dr === 'k') { const o = c.createOscillator(), g = c.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.12); g.gain.setValueAtTime(0.35, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.14); o.connect(g); g.connect(AU.musG); o.start(t); o.stop(t + 0.16); }
+    else if (dr === 's') noiseHit(0.12, 0.22, 'bandpass', 1800, 900, t - c.currentTime, AU.musG);
+    else if (dr === 'h') noiseHit(0.03, 0.1, 'highpass', 7000, 0, t - c.currentTime, AU.musG);
+}
+setInterval(() => {
+    const c = AU.ctx, s = SONGS[AU.song]; if (!c || !s || c.state !== 'running') return;
+    const dur = 60 / s.bpm / 4;
+    if (AU.nextT < c.currentTime) AU.nextT = c.currentTime + 0.05;
+    try { while (AU.nextT < c.currentTime + 0.2) { musStep(s, AU.step, AU.nextT); AU.nextT += dur; AU.step = (AU.step + 1) % 64; } } catch (e) {}
+}, 40);
+
+function setMuted(m) {
+    AU.muted = m; localStorage.setItem('sss_muted', m ? '1' : '0');
+    if (AU.master) AU.master.gain.setValueAtTime(m ? 0 : AU_MASTER, AU.ctx.currentTime);
+    const b = document.getElementById('btn-mute'); if (b) { b.classList.toggle('muted', m); b.setAttribute('aria-label', m ? 'Sound off' : 'Sound on'); b.title = m ? 'Sound off (M)' : 'Sound on (M)'; }
+    if (!m) sfx('mute');
+}
+
 
 // ---------- Pixel art, drawn in code ----------
 const PX = 2;
@@ -509,6 +621,242 @@ function buildSprites() {
 }
 buildSprites();
 
+// ---------- Layered parallax backgrounds (pre-rendered, art pixels are 2 world px) ----------
+// Layer canvases cover world y -60..600 (330 art rows), so the portrait and Level 2 vertical camera never see an edge.
+const BG = { 1: null, 2: null };
+const BG_TOP = -60, BG_H = 330;
+function bgRng(seed) { let s = (seed >>> 0) || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
+function bgLayer(w, fn) { const c = mk(w, BG_H), g = c.getContext('2d'); g.imageSmoothingEnabled = false; const p = (x, y, ww, hh, col) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), ww, hh); }; fn(p, g, w); return c; }
+// tiny 3x5 pixel font for cartridge labels (made-up titles only)
+const FONT35 = { A:'010101111101101',B:'110101110101110',C:'011100100100011',D:'110101101101110',E:'111100110100111',F:'111100110100100',G:'011100101101011',H:'101101111101101',I:'111010010010111',J:'001001001101010',K:'101101110101101',L:'100100100100111',M:'101111111101101',N:'110101101101101',O:'010101101101010',P:'110101110100100',Q:'010101101110011',R:'110101110101101',S:'011100010001110',T:'111010010010010',U:'101101101101111',V:'101101101101010',W:'101101111111101',X:'101101010101101',Y:'101101010010010',Z:'111001010100111','2':'110001010100111','3':'110001010001110','9':'111101111001111' };
+function pxText(p, str, x, y, col) { for (const ch of str) { const g = FONT35[ch]; if (g) for (let i = 0; i < 15; i++) if (g[i] === '1') p(x + (i % 3), y + Math.floor(i / 3), 1, 1, col); x += 4; } }
+function pxTextW(str) { return str.length * 4 - 1; }
+function radial(g, x, y, r, col) { const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, col); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }
+
+function buildBgL1() {
+    const L = { lights: [], screens: [], leds: [], stars: [] };
+    // 1. far: night sky, digital moon, horizon glow, stars
+    L.far = bgLayer(640, (p, g, W) => {
+        const gr = g.createLinearGradient(0, 0, 0, BG_H);
+        gr.addColorStop(0, '#07071a'); gr.addColorStop(0.45, '#100f2a'); gr.addColorStop(0.72, '#1f1838'); gr.addColorStop(0.86, '#171329'); gr.addColorStop(1, '#0b0a16');
+        g.fillStyle = gr; g.fillRect(0, 0, W, BG_H);
+        const r = bgRng(11);
+        for (let i = 0; i < 140; i++) { const x = r() * W, y = r() * 200, b = r(); p(x, y, 1, 1, b > 0.85 ? '#5a5d8c' : (b > 0.5 ? '#36385e' : '#25264a')); if (b > 0.93) L.stars.push([Math.round(x), Math.round(y)]); }
+        // moon with 3-tone shading and scanlines
+        const mx = 470, my = 72, R = 26;
+        radial(g, mx, my, 70, 'rgba(120,90,200,0.16)');
+        for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
+            const d = dx * dx + dy * dy; if (d > R * R) continue;
+            const lit = (dx + 9) * (dx + 9) + (dy + 9) * (dy + 9), shade = (dx - 10) * (dx - 10) + (dy - 10) * (dy - 10);
+            let col = '#3d3a66'; if (lit < 170) col = '#625f9c'; else if (lit < 420) col = '#4e4b84'; else if (shade < 160) col = '#2d2a52';
+            if (((dy + R) % 4) === 0) col = '#2a2849';
+            p(mx + dx, my + dy, 1, 1, col);
+        }
+        p(mx + 6, my - 8, 6, 4, '#2f2d55'); p(mx - 12, my + 6, 8, 5, '#2f2d55'); p(mx + 10, my + 10, 4, 3, '#34325c');
+        // perspective grid floor near the horizon, very faint
+        g.fillStyle = 'rgba(160,80,220,0.10)';
+        for (let i = 0; i < 6; i++) g.fillRect(0, 236 + i * i * 3, W, 1);
+        for (let x = -W; x < W * 2; x += 32) { g.beginPath(); g.moveTo(W / 2 + (x - W / 2) * 0.15, 236); g.lineTo(x, BG_H); g.lineTo(x + 1, BG_H); g.lineTo(W / 2 + (x - W / 2) * 0.15 + 1, 236); g.fill(); }
+        radial(g, W / 2, 236, 220, 'rgba(255,60,180,0.07)');
+    });
+    // 2. far skyline: thin towers, rim light from the moon side, dim window grids, antenna lights
+    L.sky = bgLayer(640, (p, g, W) => {
+        const r = bgRng(23); let x = 0;
+        while (x < W) {
+            const w = 14 + Math.floor(r() * 22), top = 120 + Math.floor(r() * 110);
+            p(x, top, w, BG_H - top, '#14152c'); p(x, top, 1, BG_H - top, '#1f2142'); p(x + w - 2, top, 2, BG_H - top, '#0f1022'); p(x, top, w, 1, '#262856');
+            for (let wy = top + 4; wy < 300; wy += 4) for (let wx = x + 3; wx < x + w - 3; wx += 3) { const v = r(); if (v > 0.55) p(wx, wy, 1, 2, v > 0.95 ? '#3b3666' : (v > 0.85 ? '#24264c' : '#1a1b38')); }
+            if (r() > 0.55) { const ax = x + Math.floor(w / 2); p(ax, top - 10, 1, 10, '#1f2142'); L.lights.push([ax, top - 11, r() * 100 | 0]); }
+            x += w + Math.floor(r() * 6);
+        }
+        const fog = g.createLinearGradient(0, 200, 0, BG_H); fog.addColorStop(0, 'rgba(40,24,70,0)'); fog.addColorStop(1, 'rgba(40,24,70,0.55)'); g.fillStyle = fog; g.fillRect(0, 200, W, BG_H - 200);
+    });
+    // 3. mid: checkered towers (the zone's look), shaded faces, ledges, billboard screens
+    L.mid = bgLayer(560, (p, g, W) => {
+        const r = bgRng(37); let x = 6;
+        while (x < W - 60) {
+            const w = 40 + Math.floor(r() * 30), top = 150 + Math.floor(r() * 80);
+            p(x, top, w, BG_H - top, '#1a1b33');
+            for (let cy = top + 6; cy < BG_H; cy += 6) for (let cx = x + 2; cx < x + w - 6; cx += 6) if (((cx - x) / 6 + (cy - top) / 6) % 2 < 1) p(cx, cy, 6, 6, '#1e2040');
+            p(x, top, 3, BG_H - top, '#25284c'); p(x + w - 5, top, 5, BG_H - top, '#121326');
+            p(x - 2, top - 3, w + 4, 3, '#2a2d55'); p(x - 2, top - 3, w + 4, 1, '#3a3e70'); p(x - 2, top, w + 4, 1, '#0e0f20');
+            for (let wy = top + 9; wy < 290; wy += 12) for (let wx = x + 7; wx < x + w - 10; wx += 12) { const v = r(); if (v > 0.7) { p(wx, wy, 4, 3, v > 0.93 ? '#4a3f5e' : '#2a2c52'); p(wx, wy + 3, 4, 1, '#121326'); } }
+            if (r() > 0.4) { const sw = Math.min(w - 12, 30), sx = x + Math.floor((w - sw) / 2), sy = top + 16; p(sx - 2, sy - 2, sw + 4, 18, '#0c0d1c'); p(sx - 2, sy - 2, sw + 4, 1, '#34386a'); p(sx, sy, sw, 14, '#141a30'); p(sx + Math.floor(sw / 2), sy + 16, 2, 6, '#121326'); L.screens.push([sx, sy, sw, 14, r() * 1000 | 0]); }
+            x += w + 14 + Math.floor(r() * 30);
+        }
+        const fog = g.createLinearGradient(0, 210, 0, BG_H); fog.addColorStop(0, 'rgba(30,20,56,0)'); fog.addColorStop(1, 'rgba(30,20,56,0.5)'); g.fillStyle = fog; g.fillRect(0, 210, W, BG_H - 210);
+    });
+    // 4. near: data pylons, sagging cables, server cabinets with LED rows
+    L.near = bgLayer(480, (p, g, W) => {
+        const r = bgRng(53), pyl = [];
+        for (let x = 30; x < W; x += 120) {
+            const top = 196 + Math.floor(r() * 30); pyl.push([x + 4, top + 6]);
+            p(x, top, 9, BG_H - top, '#101124'); p(x, top, 2, BG_H - top, '#232651'); p(x + 7, top, 2, BG_H - top, '#0a0a18');
+            for (let yy = top + 8; yy < BG_H; yy += 10) { p(x + 2, yy, 5, 1, '#1a1c3a'); }
+            p(x - 4, top, 17, 3, '#1b1d3e'); p(x - 4, top, 17, 1, '#2f3366');
+            L.leds.push([x + 4, top - 2, 0]);
+        }
+        g.strokeStyle = '#191a36'; g.lineWidth = 1;
+        for (let i = 0; i < pyl.length; i++) { const a = pyl[i], b = pyl[(i + 1) % pyl.length], bx = i + 1 < pyl.length ? b[0] : b[0] + W; g.beginPath(); g.moveTo(a[0], a[1]); g.quadraticCurveTo((a[0] + bx) / 2, a[1] + 26, bx, b[1]); g.stroke(); }
+        for (let x = 80; x < W; x += 150) {
+            const h = 34 + Math.floor(r() * 20), top = 290 - h, w = 26;
+            p(x, top, w, h + 40, '#121329'); p(x, top, w, 2, '#2a2d5a'); p(x, top, 2, h + 40, '#1f2246'); p(x + w - 3, top, 3, h + 40, '#0b0b18');
+            for (let yy = top + 6; yy < 286; yy += 7) { p(x + 4, yy, w - 9, 4, '#0c0d1e'); p(x + 4, yy, w - 9, 1, '#1d1f40'); L.leds.push([x + 6, yy + 2, 1]); L.leds.push([x + 10, yy + 2, 2]); }
+        }
+    });
+    return L;
+}
+
+function buildBgL2() {
+    const L = { drips: [], crystals: [], dripMid: null, dripNear: null };
+    const NAMES = [['MOLE','PATROL'],['TOAST','QUEST'],['YAK','ATTACK'],['DISCO','DRAGON'],['GRAVY','RACER'],['LLAMA','LASER'],['NOODLE','KNIGHT'],['BADGER','BLAST'],['SODA','SQUAD'],['TURNIP','TURBO'],['WOMBAT','WARP'],['PICKLE','PILOT']];
+    const LABELS = [['#24403f','#2f5552','#18302f'],['#43263f','#5a3354','#2e1a2b'],['#43381f','#5a4b29','#2d2515'],['#2a2b48','#383a60','#1c1d33']];
+    const cart = (p, x, y, s, k, pal) => { // s: 1 = label text, 0 = plain label; k: index for name/label
+        const [B, Lt, D] = pal, w = 34, h = 40;
+        p(x + 1, y, w - 2, h - 6, B); p(x, y + 2, w, h - 10, B);
+        p(x + 1, y, w - 2, 1, Lt); p(x, y + 2, 1, h - 10, Lt); p(x + w - 1, y + 2, 1, h - 10, D); p(x + 1, y + h - 7, w - 2, 1, D);
+        for (let rr = 2; rr < 8; rr += 2) p(x + 3, y + rr, w - 6, 1, D);
+        const lb = LABELS[k % LABELS.length], nm = NAMES[k % NAMES.length];
+        p(x + 4, y + 9, w - 8, 18, D); p(x + 5, y + 10, w - 10, 16, lb[0]); p(x + 5, y + 10, w - 10, 1, lb[1]); p(x + 5, y + 25, w - 10, 1, lb[2]);
+        p(x + 6, y + 11, 4, 4, lb[1]); p(x + 7, y + 12, 2, 2, lb[2]);
+        if (s) { pxText(p, nm[0], x + Math.floor((w - pxTextW(nm[0])) / 2), y + 13, '#6c6577'); pxText(p, nm[1], x + Math.floor((w - pxTextW(nm[1])) / 2), y + 19, '#776d62'); }
+        else { p(x + 8, y + 15, w - 16, 1, lb[1]); p(x + 8, y + 19, w - 20, 1, lb[1]); }
+        p(x + 4, y + h - 6, w - 8, 6, D); for (let px = x + 6; px < x + w - 6; px += 2) p(px, y + h - 5, 1, 3, Lt);
+    };
+    const crystal = (p, g, x, base, h, hue) => {
+        const [c1, c2, c3, glow] = hue === 0 ? ['#5c3c8a', '#3d2766', '#2a1a48', 'rgba(150,90,255,0.20)'] : ['#2b6f72', '#1d4d50', '#123335', 'rgba(60,220,210,0.16)'];
+        radial(g, x, base - h / 2, h * 1.1, glow);
+        for (let i = 0; i < h; i++) { const hw = Math.max(1, Math.floor((h - i) / 3)); p(x - hw, base - i, hw, 1, c1); p(x, base - i, hw, 1, c2); p(x + hw - 1, base - i, 1, 1, c3); }
+        p(x - 1, base - h + 2, 1, Math.floor(h / 2), '#9b86d0');
+        L.crystals.push([x, base - h / 2, h, hue]);
+    };
+    const stalac = (p, x, w, len, cols, list, sh) => {
+        for (let i = 0; i < len; i++) { const hw = Math.max(0, Math.round(w * (1 - i / len))); if (!hw) break; p(x - hw, i, hw * 2, 1, cols[0]); p(x - hw, i, Math.max(1, hw >> 1), 1, cols[1]); p(x + hw - 1, i, 1, 1, cols[2]); }
+        if (list) list.push([x, len - 1, sh]);
+    };
+    // 1. far: cave depth gradient, distant faded cartridge stacks, light shafts
+    L.far = bgLayer(640, (p, g, W) => {
+        const gr = g.createLinearGradient(0, 0, 0, BG_H);
+        gr.addColorStop(0, '#060408'); gr.addColorStop(0.35, '#100a15'); gr.addColorStop(0.62, '#1a1124'); gr.addColorStop(0.85, '#120b18'); gr.addColorStop(1, '#08050a');
+        g.fillStyle = gr; g.fillRect(0, 0, W, BG_H);
+        const r = bgRng(71);
+        for (let i = 0; i < 4; i++) { const sx = 60 + i * 160 + r() * 40; g.fillStyle = 'rgba(120,90,170,0.05)'; g.beginPath(); g.moveTo(sx, 0); g.lineTo(sx + 14, 0); g.lineTo(sx + 70, BG_H); g.lineTo(sx + 30, BG_H); g.fill(); }
+        for (let x = 0; x < W; x += 30) { const n = 2 + Math.floor(r() * 5); for (let j = 0; j < n; j++) { const yy = 290 - (j + 1) * 24 + Math.floor(r() * 4); p(x + (j % 2) * 3, yy, 24, 22, '#1a1221'); p(x + (j % 2) * 3, yy, 24, 1, '#22182b'); p(x + 4 + (j % 2) * 3, yy + 6, 16, 10, '#150e1b'); } }
+        for (let x = 0; x < W; x += 22) stalac(p, x + r() * 10, 5 + r() * 5, 20 + r() * 30, ['#0d0912', '#141019', '#09060c']);
+        const fog = g.createLinearGradient(0, 150, 0, 290); fog.addColorStop(0, 'rgba(60,40,90,0)'); fog.addColorStop(1, 'rgba(60,40,90,0.35)'); g.fillStyle = fog; g.fillRect(0, 150, W, 140);
+    });
+    // 2. back wall: stacked cartridge rock wall, crystal glow, fog
+    L.wall = bgLayer(560, (p, g, W) => {
+        const r = bgRng(89); let k = 3;
+        for (let x = 0; x < W; x += 38) {
+            const n = 2 + Math.floor(r() * 4);
+            for (let j = 0; j < n; j++) cart(p, x + (j % 2 ? 2 : -2), 296 - (j + 1) * 36, 0, k++, ['#1c1424', '#261c30', '#120c18']);
+            if (r() > 0.55) { const t = 1 + Math.floor(r() * 2); for (let j = 0; j < t; j++) cart(p, x + (j % 2 ? 3 : -1), 10 + j * 30, 0, k++, ['#1a1222', '#22192c', '#100a15']); }
+        }
+        g.fillStyle = 'rgba(16,10,22,0.55)'; g.fillRect(0, 0, W, BG_H);
+        for (let x = 40; x < W; x += 110 + Math.floor(r() * 40)) crystal(p, g, x, 296, 18 + Math.floor(r() * 16), r() > 0.5 ? 1 : 0);
+        const fog = g.createLinearGradient(0, 200, 0, BG_H); fog.addColorStop(0, 'rgba(70,40,100,0)'); fog.addColorStop(1, 'rgba(70,40,100,0.30)'); g.fillStyle = fog; g.fillRect(0, 200, W, BG_H - 200);
+    });
+    // 3. mid: big detailed cartridges with labels, crystals, stalactites with drip points
+    L.mid = bgLayer(600, (p, g, W) => {
+        const r = bgRng(97); let k = 0;
+        for (let x = 20; x < W - 40; x += 92 + Math.floor(r() * 50)) {
+            const n = 1 + Math.floor(r() * 3);
+            for (let j = 0; j < n; j++) cart(p, x + (j % 2 ? 4 : 0), 292 - (j + 1) * 38, 1, k++, ['#2a1f33', '#3a2c46', '#181020']);
+            crystal(p, g, x + 44, 294, 22 + Math.floor(r() * 18), k % 2);
+            if (r() > 0.4) crystal(p, g, x - 8, 294, 12 + Math.floor(r() * 10), (k + 1) % 2);
+        }
+        g.fillStyle = 'rgba(14,9,20,0.25)'; g.fillRect(0, 0, W, BG_H);
+        for (let x = 10; x < W; x += 46 + Math.floor(r() * 30)) stalac(p, x, 6 + r() * 6, 30 + r() * 40, ['#1a1220', '#2a1f33', '#0e0912'], L.drips, 'mid');
+    });
+    // 4. near: dark foreground stalagmites and hanging rock with violet rim light
+    L.near = bgLayer(480, (p, g, W) => {
+        const r = bgRng(113);
+        for (let x = 30; x < W; x += 140 + Math.floor(r() * 50)) {
+            const h = 50 + Math.floor(r() * 40), w = 16 + Math.floor(r() * 10);
+            for (let i = 0; i < h; i++) { const hw = Math.max(1, Math.round(w * (0.35 + 0.65 * i / h))); p(x - hw, 300 - h + i, hw * 2, 1, '#0e0912'); p(x - hw, 300 - h + i, 2, 1, '#2c1d3c'); p(x + hw - 3, 300 - h + i, 3, 1, '#07050a'); }
+        }
+        for (let x = 70; x < W; x += 120 + Math.floor(r() * 60)) stalac(p, x, 10 + r() * 8, 50 + r() * 40, ['#0f0a14', '#2a1d38', '#07050a'], L.drips, 'near');
+        for (let x = 100; x < W; x += 200) crystal(p, g, x, 300, 26, 1);
+    });
+    L.dripMid = L.drips.filter(d => d[2] === 'mid'); L.dripNear = L.drips.filter(d => d[2] === 'near');
+    return L;
+}
+
+function buildBackgrounds() { BG[1] = buildBgL1(); BG[2] = buildBgL2(); }
+buildBackgrounds();
+
+// draw one layer tiled horizontally at parallax factor par (screen space x, world y)
+function bgDraw(img, par) {
+    const w = img.width * 2, off = ((cx * par) % w + w) % w;
+    for (let x = -off; x < GW; x += w) ctx.drawImage(img, Math.round(x), BG_TOP, w, BG_H * 2);
+}
+function bgOffX(par, w) { return ((cx * par) % w + w) % w; }
+function bgEach(list, par, lw, fn) { // lw: layer width in art px
+    const w = lw * 2, off = bgOffX(par, w);
+    for (let base = -off; base < GW; base += w) for (const it of list) { const sx = base + it[0] * 2; if (sx > -20 && sx < GW + 20) fn(it, sx, BG_TOP + it[1] * 2); }
+}
+
+function drawBgL1() {
+    const L = BG[1];
+    bgDraw(L.far, 0.05);
+    // twinkling stars
+    bgEach(L.stars, 0.05, 640, (s, x, y) => { const tw = (tick + s[0] * 7) % 90; if (tw < 10) { ctx.fillStyle = '#9da2e0'; ctx.fillRect(x - 1, y, 4, 2); ctx.fillRect(x, y - 1, 2, 4); } });
+    bgDraw(L.sky, 0.12);
+    bgEach(L.lights, 0.12, 640, (l, x, y) => { if (((tick + l[2] * 3) % 80) < 40) { glow(x + 1, y + 1, 6, 'rgba(255,60,90,0.25)'); ctx.fillStyle = '#c23a5a'; ctx.fillRect(x, y, 2, 2); } });
+    bgDraw(L.mid, 0.28);
+    // flickering billboard screens: scrolling scan bars in dim zone colors
+    bgEach(L.screens, 0.28, 560, (s, x, y) => {
+        const w = s[2] * 2, h = s[3] * 2, ph = (tick + s[4]) % 240, flick = ((tick + s[4]) % 173) < 4;
+        if (flick) return;
+        ctx.fillStyle = ph < 120 ? 'rgba(45,224,200,0.10)' : 'rgba(196,92,255,0.10)'; ctx.fillRect(x, y, w, h);
+        ctx.fillStyle = ph < 120 ? 'rgba(45,224,200,0.22)' : 'rgba(196,92,255,0.22)';
+        for (let k = 0; k < 3; k++) { const yy = (Math.floor(ph / 2) * 2 + k * 10) % h; ctx.fillRect(x + 2, y + yy, w - 4, 2); }
+        for (let cx2 = 0; cx2 < w - 4; cx2 += 8) if (((cx2 + s[4] + (tick >> 4)) % 3) === 0) ctx.fillRect(x + 2 + cx2, y + h - 6, 4, 4);
+    });
+    bgDraw(L.near, 0.45);
+    bgEach(L.leds, 0.45, 480, (d, x, y) => {
+        const on = d[2] === 0 ? ((tick + x) % 60 < 30) : (((tick >> 3) + x * 3 + d[2] * 5) % 7 < 3);
+        if (!on) return; ctx.fillStyle = d[2] === 0 ? '#c23a5a' : (d[2] === 1 ? '#2a9c8e' : '#7d4cb0'); ctx.fillRect(x, y, 2, 2);
+    });
+    // drifting data motes, rising slowly
+    for (let i = 0; i < 22; i++) {
+        const sp = 0.15 + (i % 5) * 0.06, x = ((i * 137.5 + tick * 0.2 * ((i % 3) - 1) - cx * 0.35) % (GW + 40) + GW + 40) % (GW + 40) - 20;
+        const y = 560 - ((tick * sp + i * 97) % 520);
+        ctx.fillStyle = i % 3 ? 'rgba(45,224,200,0.22)' : 'rgba(196,92,255,0.25)'; ctx.fillRect(Math.round(x), Math.round(y), 2, 2);
+    }
+}
+
+function drawBgL2() {
+    const L = BG[2];
+    bgDraw(L.far, 0.05);
+    bgDraw(L.wall, 0.14);
+    // slow drifting depth fog band
+    const fo = (tick * 0.15 + cx * 0.2) % 400;
+    ctx.save(); ctx.globalAlpha = 0.07; ctx.fillStyle = '#6a4a9a';
+    for (let x = -fo; x < GW; x += 400) { ctx.beginPath(); ctx.ellipse(x + 200, 430, 240, 36, 0, 0, Math.PI * 2); ctx.fill(); }
+    ctx.restore();
+    bgDraw(L.mid, 0.3);
+    // pulsing crystal glow
+    bgEach(L.crystals, 0.3, 600, (c, x, y) => { const a = 0.06 + 0.05 * Math.sin((tick + x) * 0.04); glow(x, y, c[2] * 1.4, c[3] ? `rgba(60,220,210,${a.toFixed(3)})` : `rgba(160,100,255,${a.toFixed(3)})`); });
+    bgDraw(L.near, 0.5);
+    // drips falling from stalactite tips (mid and near)
+    const dripFor = (list, par, lw, speed, col) => bgEach(list, par, lw, (d, x, y) => {
+        const per = 150 + (d[0] * 13) % 120, t = (tick + d[0] * 31) % per, fall = t - 30;
+        if (t < 30) { ctx.fillStyle = col; ctx.fillRect(x, y + 2, 2, Math.max(1, Math.floor(t / 10))); }
+        else { const yy = y + 2 + fall * fall * 0.04 * speed; if (yy < 600) { ctx.fillStyle = col; ctx.fillRect(x, yy, 2, 4); } }
+    });
+    dripFor(L.dripMid, 0.3, 600, 1, 'rgba(110,170,190,0.45)');
+    dripFor(L.dripNear, 0.5, 480, 1.2, 'rgba(130,190,210,0.55)');
+    // floating spores
+    for (let i = 0; i < 18; i++) {
+        const x = ((i * 151.3 - cx * 0.4 + Math.sin((tick + i * 50) * 0.01) * 20) % (GW + 40) + GW + 40) % (GW + 40) - 20;
+        const y = 120 + ((i * 89 + tick * 0.1) % 420);
+        ctx.fillStyle = i % 2 ? 'rgba(150,110,220,0.25)' : 'rgba(80,200,190,0.2)'; ctx.fillRect(Math.round(x), Math.round(y), 2, 2);
+    }
+}
+
+
 // ---------- Layout: fit the canvas to the stage, keep world height 600 ----------
 const stage = document.getElementById('stage');
 function resize() {
@@ -523,6 +871,12 @@ function resize() {
     canvas.style.width = Math.round(w) + 'px'; canvas.style.height = Math.round(h) + 'px';
     canvas.width = Math.round(w * DPR); canvas.height = Math.round(h * DPR);
     ctx = canvas.getContext('2d'); ctx.imageSmoothingEnabled = false;
+    placeMute();
+}
+function placeMute() {
+    const m = document.getElementById('btn-mute'); if (!m) return;
+    const r = stage.getBoundingClientRect();
+    m.style.top = Math.round(r.top + 6) + 'px'; m.style.left = Math.round(r.right - 46) + 'px';
 }
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', () => setTimeout(resize, 100));
@@ -552,11 +906,18 @@ bindBtn('btn-swap', ['ShiftLeft', 'ShiftRight', 'KeyE']);
 
 window.addEventListener('keydown', e => { if (!e.repeat && ['ShiftLeft','ShiftRight','KeyE'].includes(e.code)) swapQueued = true; if (state === 'PLAY' && ['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault(); keys[e.code] = true; });
 window.addEventListener('keyup', e => keys[e.code] = false);
+window.addEventListener('keydown', e => { if (e.code === 'KeyM' && !e.repeat) setMuted(!AU.muted); });
+(function () {
+    const m = document.getElementById('btn-mute');
+    m.addEventListener('mousedown', e => e.preventDefault());
+    m.addEventListener('click', e => { e.preventDefault(); auUnlock(); setMuted(!AU.muted); m.blur(); });
+    setMuted(AU.muted);
+})();
 window.addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 
-document.getElementById('start-btn').addEventListener('click', () => { startLevel(startBtnLevel); });
+document.getElementById('start-btn').addEventListener('click', () => { sfx('menu'); startLevel(startBtnLevel); });
 if (maxLevel >= 2) { const nb = document.getElementById('next-btn'); nb.innerText = 'PLAY LEVEL 2'; nb.style.display = 'block'; } // level select persists
-document.getElementById('next-btn').addEventListener('click', () => { startLevel(2); });
+document.getElementById('next-btn').addEventListener('click', () => { sfx('menu'); startLevel(2); });
 
 // Hero Definitions
 const HEROES = [
@@ -652,7 +1013,8 @@ function startLevel(lvl) {
     }
 
     const title = currentLevel === 1 ? "STAGE 1: CHECKERED ZONE" : "STAGE 2: CARTRIDGE CAVERNS";
-    showTitleCard(title, () => { state = 'PLAY'; });
+    sfx('start'); musicStop();
+    showTitleCard(title, () => { state = 'PLAY'; musicStart(currentLevel); });
 }
 
 function spawnParticles(x, y, color, n) {
@@ -660,6 +1022,7 @@ function spawnParticles(x, y, color, n) {
 }
 
 function shoot(h) {
+    sfx('shoot_' + h.type);
     let bx = player.dir === 1 ? player.x + player.w : player.x - h.pW;
     let by = player.y + 15 - h.pH/2;
     if (h.type === 'melee') {
@@ -703,9 +1066,10 @@ function safeSpot(prefX) {
 function damagePlayer(fromPit) {
     if (player.invuln > 0 && !fromPit) return;
     shake = 15; lives--; player.flash = 10;
+    sfx('hurt');
     spawnParticles(player.x - 5, player.y, '#ffffff', 10);
     if (lives <= 0) {
-        state = 'OVER';
+        state = 'OVER'; musicStop(); sfx('over');
         document.getElementById('menu-screen').style.display = 'flex';
         document.getElementById('menu-title').innerText = 'GAME OVER';
         document.getElementById('menu-title').style.color = '#FF0000';
@@ -723,7 +1087,7 @@ function damagePlayer(fromPit) {
 }
 
 function winLevel() {
-    state = 'WIN';
+    state = 'WIN'; musicStop(); sfx('clear');
     if (currentLevel === 1 && maxLevel < 2) {
         maxLevel = 2; localStorage.setItem('sss_max_level', '2');
     }
@@ -773,6 +1137,7 @@ function update() {
     const swapNow = !!(keys['ShiftLeft'] || keys['ShiftRight'] || keys['KeyE']);
     if ((swapNow || swapQueued) && !player.swapHeld) {
         currentHero = (currentHero + 1) % unlockedHeroes;
+        sfx('swap');
         spawnParticles(player.x, player.y, '#fff', 10);
         popups.push({x: player.x-20, y: player.y-20, t: "SWAPPED!", l: 30});
     }
@@ -781,9 +1146,9 @@ function update() {
     const jumpNow = !!(keys['ArrowUp'] || keys['KeyW'] || keys['KeyK']);
     if (jumpNow && !player.jumpHeld) {
         if (player.grounded) {
-            player.vy = hInfo.jump; player.grounded = false; player.jumps = 1;
+            player.vy = hInfo.jump; player.grounded = false; player.jumps = 1; sfx('jump');
         } else if (currentHero === 3 && player.jumps < 2) {
-            player.vy = hInfo.jump; player.jumps = 2;
+            player.vy = hInfo.jump; player.jumps = 2; sfx('djump');
             spawnParticles(player.x, player.y+player.h, '#fff', 10);
         }
     }
@@ -826,7 +1191,7 @@ function update() {
     if (cyTarget < -T) cyTarget = -T;
     cy += (cyTarget - cy) * 0.1;
     
-    if (cx >= L_END*T - GW - 10) boss.active = true;
+    if (cx >= L_END*T - GW - 10) { if (!boss.active) sfx('roar'); boss.active = true; }
 
     enemies.forEach(e => {
         if (e.hp <= 0) return;
@@ -901,7 +1266,7 @@ function update() {
                 if (player.invuln <= 0 && rectIntersect(player, seg)) damagePlayer();
             });
             if (allDead) {
-                boss.dead = true; score += 10000; shake = 30;
+                boss.dead = true; score += 10000; shake = 30; sfx('bossdie');
                 for (let k = 0; k < 8; k++) spawnParticles(boss.segments[0].x + Math.random()*100, GH/2 + (Math.random()-0.5)*200, '#ff2bd6', 14);
                 setTimeout(winLevel, 2000);
             }
@@ -927,7 +1292,7 @@ function update() {
         if (hitB) {
             if (hitB.type === 'dest' && (!b.melee || !b.hits.includes(hitB))) {
                 if (b.melee || b.roll) b.hits.push(hitB);
-                hitB.hp -= b.dmg; hitB.flash = 5;
+                hitB.hp -= b.dmg; hitB.flash = 5; sfx(hitB.hp <= 0 ? 'crate' : 'ehit');
                 if (hitB.hp <= 0) { hitB.solid = false; spawnParticles(hitB.x, hitB.y, '#a0703f'); score += 50; shake = 4; }
             }
             if (!b.melee && !b.roll) { spawnParticles(b.x - 14, b.y - 14, b.c, 4); bullets.splice(i,1); continue; }
@@ -939,13 +1304,14 @@ function update() {
                 if (hitE.type === 'turret') {
                     let hitsFront = (b.vx > 0 && hitE.dir === -1) || (b.vx < 0 && hitE.dir === 1);
                     if (hitsFront && !b.melee && player.lungeT <= 0) { 
+                        sfx('block');
                         spawnParticles(b.x, b.y, '#2de0c8', 4); 
                         if(!b.roll) bullets.splice(i, 1); 
                         continue; 
                     }
                 }
                 if (b.melee || b.roll) b.hits.push(hitE);
-                hitE.hp -= b.dmg; hitE.flash = 6;
+                hitE.hp -= b.dmg; hitE.flash = 6; sfx(hitE.hp <= 0 ? 'edeath' : 'ehit');
                 if (hitE.hp <= 0) { spawnParticles(hitE.x, hitE.y, '#ff5544'); spawnParticles(hitE.x, hitE.y, '#ffcc00', 6); score += 100; popups.push({x: hitE.x, y: hitE.y, t: "+100", l: 30}); shake = 3; }
                 if (!b.melee && !b.roll) { bullets.splice(i,1); continue; }
             }
@@ -953,9 +1319,9 @@ function update() {
             if (boss.active && !boss.dead) {
                 if (currentLevel === 1 && rectIntersect(b, boss) && (!b.melee || !b.hits.includes(boss)) && (!b.roll || !b.hits.includes(boss))) {
                     if (b.melee || b.roll) b.hits.push(boss);
-                    boss.hp -= b.dmg; boss.flash = 4; spawnParticles(b.x + Math.random()*20 - 16, b.y - 10, '#ffff66', 6);
+                    boss.hp -= b.dmg; boss.flash = 4; spawnParticles(b.x + Math.random()*20 - 16, b.y - 10, '#ffff66', 6); sfx('bosshit');
                     if (boss.hp <= 0) {
-                        boss.dead = true; score += 5000; shake = 30;
+                        boss.dead = true; score += 5000; shake = 30; sfx('bossdie');
                         for (let k = 0; k < 5; k++) spawnParticles(boss.x + Math.random()*100, boss.y + Math.random()*100, k % 2 ? '#ff2bd6' : '#20f0ff', 14);
                         setTimeout(winLevel, 2000);
                     }
@@ -964,14 +1330,14 @@ function update() {
                     let hitSeg = boss.segments.find(s => s.hp > 0 && rectIntersect(b, s) && (!b.melee || !b.hits.includes(s)) && (!b.roll || !b.hits.includes(s)));
                     if (hitSeg) {
                         if (b.melee || b.roll) b.hits.push(hitSeg);
-                        hitSeg.hp -= b.dmg; hitSeg.flash = 4; spawnParticles(b.x, b.y, '#fff', 4);
+                        hitSeg.hp -= b.dmg; hitSeg.flash = 4; spawnParticles(b.x, b.y, '#fff', 4); sfx(hitSeg.hp <= 0 ? 'edeath' : 'bosshit');
                         if (!b.melee && !b.roll) { bullets.splice(i,1); continue; }
                     }
                 }
             }
             let hitC = cages.find(c => c.active && rectIntersect(b, c));
             if (hitC) {
-                hitC.active = false; spawnParticles(hitC.x, hitC.y, '#c2c8d2'); spawnParticles(hitC.x, hitC.y, '#ffe066', 8); rescues++; score += 500;
+                hitC.active = false; sfx('rescue'); spawnParticles(hitC.x, hitC.y, '#c2c8d2'); spawnParticles(hitC.x, hitC.y, '#ffe066', 8); rescues++; score += 500;
                 if (currentLevel === 2 && unlockedHeroes === 3) {
                     unlockedHeroes = 4; localStorage.setItem('sss_unlocked_heroes', '4');
                     popups.push({x: hitC.x-80, y: hitC.y-20, t: "TURBO COURIER UNLOCKED!", l: 90});
@@ -1091,46 +1457,7 @@ function draw() {
     ctx.setTransform(VIEW_SCALE * DPR, 0, 0, VIEW_SCALE * DPR, 0, -(VY + cy) * VIEW_SCALE * DPR);
     ctx.imageSmoothingEnabled = false;
     
-    const bgPos = cx * 0.3, bgOff = bgPos % 100;
-    if (currentLevel === 1) {
-        ctx.fillStyle = '#12121c'; ctx.fillRect(0, cy, GW, GH-cy);
-        ctx.fillStyle = '#191a28';
-        for (let i = -bgOff; i < GW + 100; i += 100) {
-            const col = Math.round((i + bgPos) / 100);
-            for (let j = 0; j < GH; j += 100) if ((col + j / 100) % 2 === 1) ctx.fillRect(Math.round(i), j, 100, 100);
-        }
-        ctx.fillStyle = '#20223a';
-        const farOff = (cx * 0.15) % 160;
-        for (let i = -160; i < GW + 160; i += 160) { ctx.fillRect(i - farOff, 330, 70, 200); ctx.fillRect(i - farOff + 80, 380, 50, 150); }
-        ctx.fillStyle = '#2b2f52';
-        for (let i = -160; i < GW + 160; i += 160) { ctx.fillRect(i - farOff + 10, 345, 6, 6); ctx.fillRect(i - farOff + 40, 375, 6, 6); ctx.fillRect(i - farOff + 95, 400, 6, 6); }
-    } else {
-        ctx.fillStyle = '#100a12'; ctx.fillRect(0, cy, GW, GH-cy);
-        // stacked cartridge rock walls, two dark parallax layers
-        const cartLayer = (img, par, step, s, minN, maxN, yBase, fromTop) => {
-            const off = cx * par, w = img.width * s, h = img.height * s, first = Math.floor(off / step) - 1;
-            for (let k = first; k < first + Math.ceil(GW / step) + 3; k++) {
-                const hs = Math.imul(k + (fromTop ? 7919 : 0), 2654435761) >>> 0;
-                const n = minN + (hs % (maxN - minN + 1)), x0 = Math.round(k * step - off + (hs % 9) - 4);
-                for (let j = 0; j < n; j++) {
-                    const jx = ((hs >>> (j + 3)) & 1) ? 2 * s : -2 * s;
-                    const yy = fromTop ? yBase + j * (h - 4 * s) : yBase - (j + 1) * (h - 4 * s);
-                    ctx.drawImage(img, Math.round(x0 + jx), Math.round(yy), w, h);
-                }
-            }
-        };
-        cartLayer(SPR.cartFar, 0.12, 58, 2, 3, 6, GH - 40, false);
-        cartLayer(SPR.cartFar, 0.12, 58, 2, 1, 2, -20, true);
-        ctx.fillStyle = '#2a1a3a';
-        const farOff = (cx * 0.15) % 160;
-        for (let i = -160; i < GW + 160; i += 160) {
-            ctx.beginPath(); ctx.moveTo(i-farOff+40, GH); ctx.lineTo(i-farOff+70, GH-200); ctx.lineTo(i-farOff+120, GH); ctx.fill();
-        }
-        cartLayer(SPR.cartNear, 0.3, 112, 2.5, 1, 3, GH - 50, false);
-        ctx.globalCompositeOperation = 'lighter';
-        for (let i = -160; i < GW + 160; i += 160) { glow(i-farOff+70, GH-180, 40, 'rgba(45,224,200,0.1)'); ctx.fillStyle='#2de0c8'; ctx.fillRect(i-farOff+68, GH-180, 4, 16); }
-        ctx.globalCompositeOperation = 'source-over';
-    }
+    if (currentLevel === 1) drawBgL1(); else drawBgL2();
 
     ctx.save();
     let sx = shake > 0 ? (Math.random()-0.5)*shake : 0;
