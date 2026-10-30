@@ -773,4 +773,22 @@
   });
   gear = loadGear();
   buildPicker();
+  marginTaps();
+
+  // Landscape phones show the game narrow with empty space beside it: taps and swipes there steer too.
+  function marginTaps() {
+    var stage = document.getElementById("np-stage"), cv = document.getElementById("np-canvas"), id = null;
+    if (!stage || !cv) return;
+    function local(e) { var r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / (r.width / W), y: (e.clientY - r.top) / (r.height / H) }; }
+    stage.addEventListener("pointerdown", function (e) {
+      if (e.target !== stage || Shell.state() !== "playing" || id !== null) return;
+      e.preventDefault(); id = e.pointerId;
+      try { stage.setPointerCapture(id); } catch (err) { /* ignore */ }
+      var q = local(e); pointer("down", q.x, q.y);
+    });
+    stage.addEventListener("pointermove", function (e) { if (e.pointerId === id && Shell.state() === "playing") { var q = local(e); pointer("move", q.x, q.y); } });
+    function end(type) { return function (e) { if (e.pointerId !== id) return; id = null; if (Shell.state() === "playing") { var q = local(e); pointer(type, q.x, q.y); } }; }
+    stage.addEventListener("pointerup", end("up"));
+    stage.addEventListener("pointercancel", end("cancel"));
+  }
 })();

@@ -8,6 +8,55 @@
 <meta name="description" content="Christmas Eve, 1994. Dash down the mall and reach the toy store before the gates come down. A free seasonal game in the Nostalgia Pro Arcade.">
 <title>Mall Santa Dash '94 | Nostalgia Pro Arcade</title>
 <link rel="stylesheet" href="../shared-b2/shell.css">
+<link rel="preload" href="../shared-b2/fonts/press-start-2p.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../shared-b2/fonts/silkscreen.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* Phone polish for this game only (the shared shell is untouched). */
+.np-bar, .np-ov { touch-action: manipulation; }
+.np-stage:not(:has(.np-ov.on)) { touch-action: none; }
+.np-back { flex-shrink: 0; }
+#np-ov-over .np-row span { white-space: nowrap; }
+#np-ov-over .np-row b { text-align: right; }
+/* Start and game over buttons stay on screen while the card scrolls. */
+#np-ov-title .np-card [data-act=start] {
+  position: sticky; bottom: 0; z-index: 1;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--accent) 45%, #000), 0 4px 0 16px var(--panel);
+}
+#np-ov-title .np-tip { margin-top: 26px; }
+#np-ov-over .np-card { padding-bottom: 0; }
+#np-ov-over .np-actions { position: sticky; bottom: 0; z-index: 1; padding: 8px 0 14px; background: var(--panel); }
+#np-ov-over .np-small { margin-bottom: 18px; }
+@media (pointer: coarse), (max-width: 600px) {
+  /* keep the buttons clear of Android nav bars, as the shared card does */
+  #np-ov-over .np-card { padding-bottom: 0; }
+  #np-ov-over .np-actions { padding-bottom: max(20px, env(safe-area-inset-bottom, 0px)); }
+  #np-ov-over .np-small { margin-bottom: max(56px, env(safe-area-inset-bottom, 0px)); }
+}
+/* On the game over card a trophy toast sits over the top bar, clear of the score and the buttons. */
+body .npt-wrap.npt-low { top: calc(env(safe-area-inset-top) + 4px); bottom: auto; }
+@media (max-width: 340px) {
+  .np-bar { gap: 6px; padding: 6px; }
+  .np-back { padding: 0 8px; }
+}
+/* Landscape phones: the top bar moves to a side rail so the game gets the full height. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .np-app { flex-direction: row; }
+  .np-bar {
+    flex: 0 0 112px; flex-wrap: wrap; align-content: space-between; justify-content: center;
+    min-height: 0; padding: 8px; border-bottom: 0; border-right: 2px solid var(--line);
+  }
+  .np-back { width: 100%; padding: 0 6px; }
+  .np-title { flex: 1 0 100%; font-size: 9px; line-height: 1.6; -webkit-line-clamp: 4; }
+  .np-flash b { font-size: 16px; }
+  .np-flash span { font-size: 12px; margin-top: 4px; }
+  .np-ov { padding: 10px; }
+  #np-ov-over { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+  #np-ov-over .np-actions { grid-template-columns: 1fr 1fr; }
+  body #np-ov-over .np-actions [data-act=again] { font-size: 12px; min-height: 56px; }
+  #np-ov-over .np-actions .np-btn { font-size: 13px; }
+  body .npt-wrap, body .npt-wrap.npt-low { top: calc(env(safe-area-inset-top) + 8px); bottom: auto; }
+}
+</style>
 </head>
 <body>
 <noscript><p style="padding:24px;font-family:monospace;color:#eceae2;background:#101219">Mall Santa Dash needs JavaScript turned on. <a href="../index.html" style="color:#3fd07a">Back to the arcade</a></p></noscript>
