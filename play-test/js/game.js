@@ -2114,9 +2114,9 @@
     it.seller = c.id; it.ask = Math.max(1, Math.round(it.ask * 0.85)); it.minFrac = Math.min(it.minFrac, 0.6);
     s.cameo = c.id; S.cameoN = (S.cameoN || 0) + 1;
   }
-  function spotCameo(id) {
+  function spotCameo(id, noBonus) {
     var seen = cameosSeen(), first = !Object.keys(seen).length, was = seen[id];
-    if (!was) { seen[id] = 1; store.set('cameos', seen); if (S) bonus('Odd sellers', 10); track('cameo_' + id); }
+    if (!was) { seen[id] = 1; store.set('cameos', seen); if (S && !noBonus) bonus('Odd sellers', 10); track('cameo_' + id); }
     var n = Object.keys(seen).length, all = (NP.CAMEOS || []).length, T = NP.CAMEO_TEXT;
     if (!was) celebrate('goal', (first ? T.first + ' ' : '') + T.spotted.replace('{n}', n).replace('{all}', all));
     if (!was && n >= all && !store.get('cameoTrophy', 0)) {
@@ -2128,9 +2128,22 @@
   function cameoBox(s) {
     if (!s.cameo) return '';
     var c = (NP.CAMEOS || []).filter(function (x) { return x.id === s.cameo; })[0]; if (!c) return '';
-    if (!s.cameoSpotted) { s.cameoSpotted = true; setTimeout(function () { spotCameo(c.id); }, 600); }
     return '<div class="cameo"><canvas class="cameo-cv" width="48" height="64" data-cameo="' + c.id + '" aria-hidden="true"></canvas><div><b class="cameo-tag">' + esc(NP.CAMEO_TEXT.tag) + '</b> <b>' + esc(c.name) + '</b>' +
       '<div class="cameo-t">' + esc(c.tag) + '.</div><div class="cameo-l">"' + esc(c.hi[0]) + '"</div></div></div>';
+  }
+  // r6.2: an odd seller counts as spotted once their card is really on screen (above the NEXT bar), so the
+  // "odd seller!" chip never shows while the card is still hidden under the bar on a short screen
+  var cameoIO = null;
+  function watchCameo(s) {
+    if (cameoIO) { cameoIO.disconnect(); cameoIO = null; }
+    var el = document.querySelector('.screen.stop .cameo');
+    if (!el || !s || !s.cameo || s.cameoSpotted) return;
+    var id = s.cameo, go = function () { if (s.cameoSpotted) return; s.cameoSpotted = true; if (cameoIO) { cameoIO.disconnect(); cameoIO = null; } setTimeout(function () { spotCameo(id); }, 350); };
+    if (!('IntersectionObserver' in window)) { setTimeout(go, 600); return; }
+    var ns = document.querySelector('.nsbar'), nsH = ns ? Math.ceil(ns.getBoundingClientRect().height) : 90;
+    cameoIO = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting && e.intersectionRatio >= 0.6) go(); }); },
+      { threshold: [0, 0.6, 1], rootMargin: '0px 0px -' + nsH + 'px 0px' });
+    cameoIO.observe(el);
   }
   function drawCameos() {
     document.querySelectorAll('[data-cameo]').forEach(function (cv) { try { NP.drawCameo(cv.getContext('2d'), cv.getAttribute('data-cameo'), 2); } catch (e) {} });
@@ -2140,7 +2153,8 @@
   // ---------- Demo round 5: a mini event every minute or so (never during a reveal or a panel) ----------
   var miniT = null;
   function miniTick() {
-    if (!DEMO || !S || (S.screen !== 'stop' && S.screen !== 'walk') || !S.stop) return;
+    if (!S || (S.screen !== 'stop' && S.screen !== 'walk') || !S.stop) return;
+    if (!DEMO) return miniTickFull();
     if (revealOn || tipEl || document.querySelector('.crt-overlay, .callov, .tvov, .minicard, .tvad-ov, .reveal-ov, .wpanel:not([hidden]), .setov, .wmap-ov')) return;
     var now = Date.now();
     if (!S.miniAt) { S.miniAt = now + 40000; return; }
@@ -2173,13 +2187,37 @@
     if (S.screen === 'stop') { var y = window.scrollY; render(); window.scrollTo(0, y); } else if (NP.Walk && NP.Walk.refresh) NP.Walk.refresh();
     animCash();
   }
+  // r6.2: the full game's mini events. They never touch money, prices, the clock or points (the balance stays exactly as it was):
+  // a TV to watch, an odd seller at the swap meet, and little moments around town. Same pacing as the demo, up to 4 a Saturday.
+  function miniTickFull() {
+    if (revealOn || tipEl || document.querySelector('.crt-overlay, .callov, .tvov, .minicard, .tvad-ov, .reveal-ov, .wpanel:not([hidden]), .setov, .wmap-ov, .loading-ov')) return;
+    var now = Date.now();
+    if (!S.miniAt) { S.miniAt = now + 40000; return; }
+    if (now < S.miniAt || (S.miniN || 0) >= 4) return;
+    S.miniAt = now + 70000; S.miniN = (S.miniN || 0) + 1;
+    var E = NP.FULL_MINI, walkable = S.stop.type === 'flea' || S.stop.type === 'expo';
+    var ids = Object.keys(E).filter(function (k) { return k !== 'cameo' || (walkable && (S.cameoN || 0) < 2); });
+    var id = ids[(NP.hashStr(S.seed + '|full|' + S.miniN) + S.history.length) % ids.length];
+    if (S.miniLast === id) id = ids[(ids.indexOf(id) + 1) % ids.length];
+    S.miniLast = id;
+    var line = E[id], act = null;
+    if (id === 'tv') act = 'tv';
+    if (id === 'cameo') {
+      var cm = pickCameo();
+      if (cm) { S.cameoN = (S.cameoN || 0) + 1; act = 'cameo:' + cm.id; line = NP.CAMEO_TEXT.mini.replace('{name}', cm.name).replace('{tag}', cm.tag) + ' "' + cm.hi[0] + '"'; }
+      else { id = 'blow'; line = E.blow; }
+    }
+    if (line.indexOf('{seller}') >= 0) { var sl = NP.SELLERS[S.stop.seller] || NP.SELLERS.friendly; line = line.replace('{seller}', sl.name); }
+    showMini(line, act);
+    track('mini_full_' + id);
+  }
   function showMini(text, act) {
     var old = document.querySelector('.minicard'); if (old) old.parentNode.removeChild(old);
     var el = document.createElement('div'); el.className = 'minicard'; el.setAttribute('role', 'status');
     var cid = act && act.indexOf('cameo:') === 0 ? act.slice(6) : null;
     el.innerHTML = (cid ? '<canvas class="cameo-cv" width="48" height="64" data-cameo="' + cid + '" aria-hidden="true"></canvas>' : '') + '<b>' + esc(cid ? NP.CAMEO_TEXT.tag : NP.DEMO5.miniTag) + '</b> ' + esc(text) + '<div class="mc-btns">' + (act === 'tv' ? '<button data-mini="tv">' + esc(NP.DEMO5.tvBtn) + '</button>' : '') + '<button data-mini="ok">OK</button></div>';
     document.body.appendChild(el);
-    if (cid) { drawCameos(); setTimeout(function () { spotCameo(cid); }, 500); }
+    if (cid) { drawCameos(); setTimeout(function () { spotCameo(cid, !DEMO); }, 500); } // a full game mini event never pays points
     sfx('jingle');
     var t = setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, act ? 9000 : 6000);
     el.addEventListener('click', function (e) {
@@ -3485,6 +3523,7 @@
     if (lc && NP.Scene) { if (s.laughNow) { s.laughNow = false; NP.Scene.laugh(lc, getLook()); } else NP.Scene.laugh(lc, getLook(), true); }
     if (refuse) drawGlamCan();
     drawCameos();
+    setTimeout(function () { if (S && S.screen === 'stop') watchCameo(S.stop); }, 0); // after the NEXT bar is placed
     var slot = document.querySelector('.yardban-slot'), yb = null;
     if (slot) {
       // one banner canvas for the whole game, moved into each yard sale as it renders (a page never piles up drawing surfaces)
@@ -3720,6 +3759,7 @@
     if (!it || it.state !== 'avail' || blockedHere()) return;
     braydenCheck(it.uid);
     if (kind === 'lowball' && rivalHere('gary')) return;
+    if (kind === 'counter' && !DEMO && it.counter) { it.counter = null; track('counter_taken'); kind = 'fair'; } // r6.2: in the full game the counter is the Fair offer, nothing cheaper
     var o = kind === 'steve' ? ['steve', 'Off hold', Math.round(it.ask * 1.2)] : kind === 'counter' && it.counter ? ['counter', 'Deal', it.counter] : offers(it).filter(function (x) { return x[0] === kind; })[0];
     if (!o) return;
     var price = o[2];
@@ -3764,6 +3804,12 @@
       if (!DEMO) { goalTick('miss'); comboBreak(); }
       it.line = sellerLine(it, 'no');
       // the demo: the seller meets you partway, so a miss is never a dead end
+      // the full game (r6.2): no new prices, ever. After a Lowball, the seller says so if Fair would land, and the Deal button IS the Fair offer.
+      // When only full price would do, nothing changes: you find out the usual way.
+      if (!DEMO && kind === 'lowball') {
+        var fair = offers(it)[1][2];
+        if (fair + 1e-6 >= it.minFrac * it.ask && fair < it.ask && fair > price) { it.counter = fair; it.line += ' ' + NP.DEMO5.counter.replace('{$}', money(fair)); track('counter_offered'); var fu = it.uid; setTimeout(function () { var cb = document.querySelector('#card-' + fu + ' .counter'); if (cb && S && S.screen === 'stop') showTip('counter', { el: cb, below: true }); }, 250); }
+      }
       if (DEMO) { var cm = Math.round(Math.max(it.minFrac * it.ask, (price + it.ask) / 2)); if (cm >= it.ask) cm = it.ask - 1; if (cm > price) { it.counter = cm; it.line += ' ' + NP.DEMO5.counter.replace('{$}', money(cm)); track('counter_offered'); var cuid = it.uid; setTimeout(function () { var cb = document.querySelector('#card-' + cuid + ' .counter'); if (cb && S && S.screen === 'stop') showTip('counter', { el: cb, below: true }); }, 250); } }
       if (rivalHere('brayden')) S.stop.bfocus = it.uid; // you showed interest; Brayden noticed
       sfx('reject');
@@ -4749,7 +4795,7 @@
     app = document.getElementById('app');
     applyFx(); applyTextSize();
     if (DEMO) setInterval(function () { if (S && S.screen === 'walk') demoSave(); }, 10000); // the swap meet autosaves while you walk
-    if (DEMO && !miniT) miniT = setInterval(miniTick, 5000);
+    if (!miniT) miniT = setInterval(miniTick, 5000); // r6.2: the full game has (flavor-only) mini events too
     document.addEventListener('click', onClick);
     document.addEventListener('change', onChange);
     document.addEventListener('input', onInput);
@@ -4841,7 +4887,7 @@
   };
 
   // test hooks (harmless in production)
-  window.__NP_TEST = { keep: function () { return K(); }, spotCameo: function (id) { return spotCameo(id); }, playTV: function (w) { playTV(w || 'map'); },
+  window.__NP_TEST = { keep: function () { return K(); }, chip: function (lv, t) { celebrate(lv, t); }, spotCameo: function (id) { return spotCameo(id); }, playTV: function (w) { playTV(w || 'map'); },
     // the season simulator used for the balance pass (test only; nothing in the game calls these)
     sim: {
       route: function () { return planRoute().map(function (x) { return x.id; }); },

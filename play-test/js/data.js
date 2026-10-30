@@ -1326,6 +1326,16 @@ NP.MAGNETS.push(
 // =====================================================================================================
 // ---------- Demo round 5 ----------
 // =====================================================================================================
+// r6.2: the full game's mini events. Flavor only: nothing here changes money, prices, the clock or points.
+NP.FULL_MINI = {
+  tv: 'The TV on the next table is showing ads from the good old days. Want to watch one?',
+  cameo: '',
+  blow: 'A kid at the next table blows into a cartridge, slots it in, and it boots right up. Blow on it. It helps.',
+  radio: '104.8 The Dust plays the Saguaro Splash Cola jingle for the third time this hour. You know every word now.',
+  van: 'A white van rolls past real slow. Dex waves. You do not wave back.',
+  haggle: 'Somebody two tables over just talked {seller} down a dollar. You heard the whole thing. It took eleven minutes.',
+  dust: 'A dust devil spins through the lot and takes a stack of price stickers with it. Nobody chases them.'
+};
 NP.DEMO5 = {
   start: 'Demo Saturday. $100. Back by noon. Tap the yard sale on the map, or the big Drive button.',
   mapNote: 'Tap a stop on the map to drive there. Gray ones are in the full version.',

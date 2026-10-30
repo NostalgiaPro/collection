@@ -23,6 +23,7 @@ NP.TownMap = (function () {
   var C = { sand: '#d9b77e', sand2: '#cfa96c', road: '#4a4d57', line: '#ffcc33', ink: '#0b1022', cream: '#fff1d6', green: '#3f8f4a', green2: '#57a061',
     canal: '#29adff', canal2: '#7fd0ff', roof: '#c8323c', wall: '#e8dcc0', grey: '#8a90a0', gold: '#ffcc33', cyan: '#29d3e8', red: '#e4343e' };
 
+  function esc(v) { return String(v).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function P(g, x, y, w, h, c) { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), w, h); }
   function txt(g, s, x, y, col, align) { NP.pixelText(g, s, x + 1, y + 1, 1, C.ink, align); NP.pixelText(g, s, x, y, 1, col, align); }
   function rnd(seed) { var a = seed >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -65,7 +66,8 @@ NP.TownMap = (function () {
       for (var c = 0; c < 2; c++) { var cx = x0 + r() * (x1 - x0), cy = y0 + r() * (y1 - y0); if (cy > 120 && cy < 138) continue; P(g, cx, cy, 2, 7, C.green); P(g, cx - 2, cy + 2, 2, 1, C.green); P(g, cx - 2, cy, 1, 3, C.green); P(g, cx + 2, cy + 3, 2, 1, C.green2); P(g, cx + 3, cy + 1, 1, 3, C.green2); }
     }
     // street names
-    STREETS_H.forEach(function (n, i) { txt(g, n, (XS[1] + XS[2]) / 2, YS[i] + 8, C.cream, 'center'); });
+    // street names sit on the road itself (on a little sign), clear of the stop names above the buildings
+    STREETS_H.forEach(function (n, i) { var cx = (XS[1] + XS[2]) / 2, w = n.length * 6 + 4; P(g, cx - w / 2, YS[i] - 5, w, 10, '#2a2d36'); txt(g, n, cx, YS[i] - 3, '#e8dcc0', 'center'); });
   }
   function building(g, s, x, y, t) {
     // every stop is a little building at its corner, set back from the road
@@ -123,7 +125,15 @@ NP.TownMap = (function () {
     useGrid(opts.cols || 4);
     var stops = opts.stops, pos = layout(stops), town = document.createElement('canvas');
     town.width = W; town.height = H; drawTown(town.getContext('2d'));
-    box.innerHTML = '<div class="tm-wrap"><canvas class="tm-cv" width="' + W + '" height="' + H + '" aria-label="Town map. Tap a stop to drive there."></canvas></div>' +
+    // r6.2: the stop names are real text laid over the map, so they stay readable on a phone and follow Text size
+    var colPct = ((XS[1] - XS[0]) / W * 100 - 1.5).toFixed(2), lab = '';
+    stops.concat([{ id: 'home', home: true, short: 'HOME' }]).forEach(function (s) {
+      var p = px(s.home ? HOME : pos[s.id]), cls = 'tm-lab' + (s.locked ? ' locked' : s.visited ? ' visited' : s.late ? ' late' : '') + (s.next ? ' next' : '');
+      var left = Math.max(colPct / 2, Math.min(100 - colPct / 2, p.x / W * 100));
+      lab += '<span class="' + cls + '" style="left:' + left.toFixed(2) + '%;top:' + ((p.y - 33) / H * 100).toFixed(2) + '%;max-width:' + colPct + '%">' + esc(s.locked ? 'FULL GAME' : (s.short || s.name)) + '</span>';
+      if (s.rare && !s.visited) lab += '<span class="tm-lab rare" style="left:' + left.toFixed(2) + '%;top:' + ((p.y - 33) / H * 100).toFixed(2) + '%">RARE STUFF!</span>';
+    });
+    box.innerHTML = '<div class="tm-wrap"><div class="tm-in" style="--tmr:' + (W / H).toFixed(4) + '"><canvas class="tm-cv" width="' + W + '" height="' + H + '" aria-label="Town map. Tap a stop to drive there."></canvas><div class="tm-labels" aria-hidden="true">' + lab + '</div></div></div>' +
       '<div class="tm-drive" hidden><div class="tm-dl"></div><button class="tm-skip" type="button">Skip the drive &#9654;&#9654;</button></div>';
     var cv = box.querySelector('.tm-cv'), g = cv.getContext('2d'), live = true, t0 = performance.now();
     g.imageSmoothingEnabled = false;
@@ -143,14 +153,13 @@ NP.TownMap = (function () {
         var p = px(pos[s.id]);
         building(g, s, p.x, p.y, t);
         var label = s.locked ? 'FULL GAME' : (s.short || s.name);
-        var half = String(label).length * 3, lx = Math.max(half + 2, Math.min(W - half - 2, p.x)); // keep the name on the map at the edges
-        txt(g, label, lx, p.y - 42, s.locked ? '#b8bdc8' : s.visited ? '#9fe8c0' : s.late ? '#8a90a0' : C.cream, 'center');
+
         if (s.visited) { P(g, p.x + 12, p.y - 34, 7, 7, '#3ddc84'); txt(g, '', p.x, p.y, C.ink); }
         if (s.late && !s.visited) { g.fillStyle = 'rgba(11,16,34,.55)'; g.fillRect(p.x - 20, p.y - 36, 40, 32); }
         if (s.next && !driving) { nextId = s.id; var rr = 3 + (Math.floor(t * 3) % 3); g.strokeStyle = C.gold; g.lineWidth = 2; g.strokeRect(p.x - 17 - rr, p.y - 34 - rr, 34 + rr * 2, 28 + rr * 2); }
-        if (s.rare && !s.visited && Math.floor(t * 2.5) % 2 === 0) { txt(g, 'RARE STUFF!', Math.max(35, Math.min(W - 35, p.x)), p.y - 52, C.gold, 'center'); }
+
       });
-      building(g, { home: true }, px(HOME).x, px(HOME).y, t); txt(g, 'HOME', px(HOME).x, px(HOME).y - 42, C.cream, 'center');
+      building(g, { home: true }, px(HOME).x, px(HOME).y, t);
       if (driving) {
         var d = driving, k = Math.min(1, (now - d.start) / d.dur);
         var dist = k * d.total, seg = 0;

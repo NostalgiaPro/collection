@@ -8,8 +8,8 @@ window.NP = NP;
 (function () {
   'use strict';
   var sent = {};
-  // the hidden test page (/play-test/) never sends anything
-  function testPage() { try { return /\/play-test(\/|$)/i.test(location.pathname || ''); } catch (e) { return false; } }
+  // test copies never send anything: the hidden test page (/play-test/), and any copy run from this computer (localhost and the like, NP.platform 'dev')
+  function testPage() { try { return /\/play-test(\/|$)/i.test(location.pathname || '') || NP.platform === 'dev'; } catch (e) { return false; } }
   function code() {
     var c = NP.CONFIG || {};
     var k = String(c.ANALYTICS_CODE || '').trim();

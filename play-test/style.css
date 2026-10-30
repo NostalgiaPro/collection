@@ -978,3 +978,30 @@ body.has-ns #yaystack { margin-bottom: 0; }
   .yardban { max-width: calc(20vh * 240 / 64); max-width: calc(20dvh * 240 / 64); margin: 2px auto; }
   .scenestrip { display: none; }
 }
+
+/* ---------- r6.2: town map names as real text, and the map fits above the NEXT bar in landscape ---------- */
+.tm-in { --tmpad: calc(min(26px, 6.5vw) * var(--tsz, 1)); position: relative; max-width: calc(62vh * var(--tmr, 1.43)); margin: 0 auto; container-type: inline-size; padding-top: var(--tmpad); background: #d9b77e; }
+.tm-in .tm-cv { max-width: none; width: 100%; }
+.tm-labels { position: absolute; left: 0; right: 0; bottom: 0; top: var(--tmpad); pointer-events: none; } /* the sand strip on top gives the top row's names room */
+.tm-lab { position: absolute; transform: translate(-50%, -100%); text-align: center; white-space: normal; overflow-wrap: anywhere;
+  font: bold calc(10px * var(--tsz, 1)) / 1.05 "Courier New", Courier, ui-monospace, monospace; font-size: calc(clamp(9px, 2.8cqw, 15px) * var(--tsz, 1));
+  color: #fff1d6; background: rgba(11, 16, 34, .72); padding: 1px 3px; border-radius: 2px; letter-spacing: 0; overflow-wrap: normal; word-break: keep-all; hyphens: none; }
+.tm-lab.visited { color: #9fe8c0; }
+.tm-lab.late, .tm-lab.locked { color: #b8bdc8; background: rgba(11, 16, 34, .55); }
+.tm-lab.next { box-shadow: 0 0 0 2px var(--gold); }
+.tm-lab.rare { transform: translate(-50%, -210%); color: var(--gold); white-space: nowrap; animation: tmBlink 0.8s steps(2) infinite; }
+@keyframes tmBlink { 50% { opacity: 0; } }
+body.calmfx .tm-lab.rare { animation: none; }
+@media (orientation: landscape) and (max-height: 500px) {
+  /* the map first, right under the top bar, sized to sit fully above the NEXT bar */
+  .screen.map { display: flex; flex-direction: column; }
+  .screen.map > #townmap, .screen.map > .tm-note { order: -1; }
+  .screen.map > #townmap { margin-top: 4px; }
+  .screen.map > h2 { display: none; } /* the NEXT bar already says where to; this keeps the map clear of the bar */
+  .tm-in { --tmpad: calc(18px * var(--tsz, 1)); max-width: calc((100vh - 168px * var(--tsz, 1)) * var(--tmr, 1.43)); max-width: calc((100dvh - 168px * var(--tsz, 1)) * var(--tmr, 1.43)); }
+}
+/* r6.2: a 3-line pop-up in the NEXT bar fits inside it at every text size */
+.nsbar.chipping .ns-chip { padding-top: 2px; padding-bottom: calc(2px + env(safe-area-inset-bottom)); overflow: hidden; }
+.nsbar .ns-chip .yay { line-height: 1.12; font-size: calc(14px * var(--tsz, 1)); max-height: 100%; }
+.nsbar .ns-chip .yay.goaldone { font-size: calc(13px * var(--tsz, 1)); }
+.nsbar .ns-chip .yay.goaldone .yay-h { font-size: calc(15px * var(--tsz, 1)); }
