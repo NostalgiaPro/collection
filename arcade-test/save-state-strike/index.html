@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Save State Strike</title>
+<style>
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #111; overflow: hidden; font-family: monospace; user-select: none; -webkit-user-select: none; }
+    canvas { display: block; width: 100vw; height: 100vh; object-fit: contain; background: #000; }
+    
+    #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .touch-btn { pointer-events: auto; position: absolute; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.5); border-radius: 50%; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; color: rgba(255,255,255,0.7); box-sizing: border-box; }
+    .touch-btn:active { background: rgba(255,255,255,0.4); }
+    
+    #btn-left { bottom: 30px; left: 20px; }
+    #btn-right { bottom: 30px; left: 110px; }
+    #btn-shoot { bottom: 30px; right: 110px; }
+    #btn-jump { bottom: 30px; right: 20px; }
+    
+    #menu-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; pointer-events: auto; }
+    h1 { font-size: 40px; margin-bottom: 10px; color: #00FFCC; text-shadow: 3px 3px 0 #FF00FF; text-align: center; }
+    p { font-size: 16px; margin-bottom: 30px; text-align: center; max-width: 600px; line-height: 1.5; }
+    button { padding: 15px 30px; font-size: 24px; font-family: monospace; background: #FF00FF; color: white; border: 4px solid #FFF; cursor: pointer; text-transform: uppercase; font-weight: bold; }
+    button:active { background: #00FFCC; color: #000; }
+    
+    @media (min-width: 1024px) { .touch-btn { display: none; } } /* Hide touch on large screens */
+</style>
+</head>
+<body>
+
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+
+<div id="ui-layer">
+    <div class="touch-btn" id="btn-left">&lt;</div>
+    <div class="touch-btn" id="btn-right">&gt;</div>
+    <div class="touch-btn" id="btn-shoot">FIRE</div>
+    <div class="touch-btn" id="btn-jump">JUMP</div>
+</div>
+
+<div id="menu-screen">
+    <h1 id="menu-title">SAVE STATE STRIKE</h1>
+    <p id="menu-desc">The Glitch Empire has corrupted the source code! Run, gun, and smash cages to swap heroes.<br><br>Keyboard: Arrows/WASD to move, Space/J to Fire, Up/K to Jump.<br>Touch: On-screen buttons.</p>
+    <button id="start-btn">START MISSION</button>
+</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const GW = 800, GH = 600;
+
+// Game State
+let state = 'TITLE'; // TITLE, PLAY, OVER, WIN
+let score = 0, lives = 3, rescues = 0, cx = 0, shake = 0;
+
+// Input
+const keys = {};
+function bindBtn(id, keyCodes) {
+    const el = document.getElementById(id);
+    const down = (e) => { e.preventDefault(); keyCodes.forEach(k => keys[k] = true); };
+    const up = (e) => { e.preventDefault(); keyCodes.forEach(k => keys[k] = false); };
+    el.addEventListener('touchstart', down); el.addEventListener('touchend', up); el.addEventListener('touchcancel', up);
+    el.addEventListener('mousedown', down); el.addEventListener('mouseup', up); el.addEventListener('mouseleave', up);
+}
+bindBtn('btn-left', ['ArrowLeft', 'KeyA']);
+bindBtn('btn-right', ['ArrowRight', 'KeyD']);
+bindBtn('btn-jump', ['ArrowUp', 'KeyW', 'KeyK']);
+bindBtn('btn-shoot', ['Space', 'KeyJ']);
+
+window.addEventListener('keydown', e => { if (state === 'PLAY' && ['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault(); keys[e.code] = true; });
+window.addEventListener('keyup', e => keys[e.code] = false);
+document.getElementById('start-btn').addEventListener('click', startGame);
+
+// Hero Definitions
+const HEROES = [
+    { name: "THE COVER SHOOTER", cBody: "#455A64", cEye: "#00BCD4", speed: 4, jump: -10, fireDelay: 10, w: 24, h: 32, pW: 10, pH: 4, pSpd: 14, type: "shoot", pColor: "#00FFFF" },
+    { name: "THE RADICAL MASCOT", cBody: "#00E676", cEye: "#111", speed: 6.5, jump: -13, fireDelay: 20, w: 24, h: 28, pW: 32, pH: 28, pSpd: 0, type: "melee", pColor: "rgba(255,255,255,0.7)" },
+    { name: "THE QUARTER-CIRCLE BRAWLER", cBody: "#FFFFFF", cEye: "#FF0000", speed: 3.5, jump: -11.5, fireDelay: 35, w: 26, h: 32, pW: 18, pH: 18, pSpd: 8, type: "fireball", pColor: "#FF5722" }
+];
+let currentHero = 0;
+let player = {};
+
+// Entities
+const T = 40; // Tile size
+const L_END = 250; // Level length in tiles
+let blocks = [], enemies = [], cages = [], bullets = [], particles = [], popups = [], boss = {};
+
+function rectIntersect(r1, r2) {
+    return !(r2.x >= r1.x + r1.w || r2.x + r2.w <= r1.x || r2.y >= r1.y + r1.h || r2.y + r2.h <= r1.y); // edge contact is not overlap
+}
+
+function startGame() {
+    state = 'PLAY'; score = 0; lives = 3; rescues = 0; cx = 0; shake = 0; currentHero = 0;
+    document.getElementById('menu-screen').style.display = 'none';
+    document.getElementById('start-btn').blur();
+    player = { x: 100, y: GH/2, vx: 0, vy: 0, dir: 1, grounded: false, fireTimer: 0, invuln: 0 };
+    boss = { x: L_END*T - 400, y: GH/2 - 64, w: 128, h: 128, hp: 60, maxHp: 60, active: false, dead: false, vy: 3, timer: 0 };
+    blocks = []; enemies = []; cages = []; bullets = []; particles = []; popups = [];
+    
+    // Generate Level
+    for (let x = 0; x < L_END; x++) {
+        if (x < 15 || x > L_END - 20 || Math.random() > 0.15) {
+            blocks.push({x: x*T, y: GH - T*2, w: T, h: T*2, solid: true, type: 'ground'}); // Floor
+        }
+        if (x > 15 && x < L_END - 20 && Math.random() < 0.15) {
+            let py = GH - T*4 - Math.random() * T * 3;
+            blocks.push({x: x*T, y: py, w: T*3, h: T, solid: true, type: 'plat'}); // Platform
+            if (Math.random() < 0.5) enemies.push({x: x*T+T, y: py-T, w: 24, h: 24, vx: -1.5, vy: 0, hp: 2, type: 'bot'});
+        }
+        if (x > 20 && x < L_END - 20 && Math.random() < 0.05) {
+            blocks.push({x: x*T, y: GH - T*4, w: T, h: T*2, solid: true, type: 'dest', hp: 3}); // Destructible wall
+        }
+        if (x > 30 && x % 40 === 0) {
+            cages.push({x: x*T, y: GH - T*3, w: 32, h: 32, active: true}); // Prisoner Cage
+        }
+        if (x > 15 && x < L_END - 20 && Math.random() < 0.1) {
+            enemies.push({x: x*T, y: GH - T*3, w: 24, h: 24, vx: -1.5, vy: 0, hp: 2, type: 'bot'}); // Ground enemy
+        }
+    }
+    blocks.push({x: L_END*T, y: 0, w: T, h: GH, solid: true, type: 'ground'}); // Boss wall
+}
+
+function spawnParticles(x, y, color) {
+    for (let i=0; i<12; i++) {
+        particles.push({ x: x+16, y: y+16, vx: (Math.random()-0.5)*12, vy: (Math.random()-0.5)*12, life: 15+Math.random()*15, max: 30, c: color });
+    }
+}
+
+function shoot(h) {
+    let bx = player.dir === 1 ? player.x + player.w : player.x - h.pW;
+    let by = player.y + player.h/2 - h.pH/2;
+    if (h.type === 'melee') {
+        bullets.push({x: bx, y: by, w: h.pW, h: h.pH, vx: player.vx, vy: 0, life: 8, isPlayer: true, dmg: 2, c: h.pColor, melee: true});
+        player.vx = player.dir * 8; // slight lunge
+    } else {
+        bullets.push({x: bx, y: by, w: h.pW, h: h.pH, vx: h.pSpd * player.dir, vy: 0, life: 60, isPlayer: true, dmg: h.type==='fireball' ? 3 : 1, c: h.pColor});
+    }
+}
+
+function damagePlayer() {
+    if (player.invuln > 0) return;
+    shake = 15; lives--;
+    if (lives <= 0) {
+        state = 'OVER';
+        document.getElementById('menu-screen').style.display = 'flex';
+        document.getElementById('menu-title').innerText = 'GAME OVER';
+        document.getElementById('menu-title').style.color = '#FF0000';
+        document.getElementById('menu-desc').innerText = `Final Score: ${score}\nRescues: ${rescues}`;
+        document.getElementById('start-btn').innerText = 'RETRY MISSION';
+    } else {
+        player.x = cx + 100; player.y = 50; player.vx = 0; player.vy = 0; player.invuln = 120;
+    }
+}
+
+function update() {
+    if (state !== 'PLAY') return;
+    let hInfo = HEROES[currentHero];
+    player.w = hInfo.w; player.h = hInfo.h;
+    
+    // Player Input
+    let mv = 0;
+    if (keys['ArrowLeft'] || keys['KeyA']) mv = -hInfo.speed;
+    if (keys['ArrowRight'] || keys['KeyD']) mv = hInfo.speed;
+    player.vx = mv;
+    if (mv !== 0) player.dir = Math.sign(mv);
+
+    if ((keys['ArrowUp'] || keys['KeyW'] || keys['KeyK']) && player.grounded) {
+        player.vy = hInfo.jump; player.grounded = false;
+    }
+    if ((keys['Space'] || keys['KeyJ']) && player.fireTimer <= 0) {
+        shoot(hInfo); player.fireTimer = hInfo.fireDelay;
+    }
+    
+    if (player.fireTimer > 0) player.fireTimer--;
+    if (player.invuln > 0) player.invuln--;
+    if (shake > 0) shake--;
+
+    // Player Physics
+    player.vy += 0.6; player.vy = Math.min(player.vy, 12);
+    player.x += player.vx;
+    let hitX = blocks.find(b => b.solid && rectIntersect(player, b));
+    if (hitX) { player.x = player.vx > 0 ? hitX.x - player.w : hitX.x + hitX.w; player.vx = 0; }
+    
+    player.y += player.vy; player.grounded = false;
+    let hitY = blocks.find(b => b.solid && rectIntersect(player, b));
+    if (hitY) {
+        if (player.vy > 0) { player.y = hitY.y - player.h; player.grounded = true; }
+        else { player.y = hitY.y + hitY.h; }
+        player.vy = 0;
+    }
+
+    if (player.y > GH + 100) damagePlayer();
+    if (player.x < cx) player.x = cx; // Screen left bound
+
+    // Camera Lock
+    let camTarget = player.x - GW/3;
+    if (camTarget > L_END*T - GW) camTarget = L_END*T - GW;
+    cx = Math.max(cx, camTarget);
+    if (cx >= L_END*T - GW - 10) boss.active = true;
+
+    // Enemies
+    enemies.forEach(e => {
+        if (e.hp <= 0) return;
+        e.vy += 0.6; e.vy = Math.min(e.vy, 12);
+        e.y += e.vy;
+        let hy = blocks.find(b => b.solid && rectIntersect(e, b));
+        if (hy) { e.y = e.vy > 0 ? hy.y - e.h : hy.y + hy.h; e.vy = 0; }
+        
+        e.x += e.vx;
+        let hx = blocks.find(b => b.solid && rectIntersect(e, b));
+        if (hx) { e.vx *= -1; e.x += e.vx; }
+
+        if (e.x > cx && e.x < cx+GW && Math.random() < 0.005) {
+            let dx = player.x < e.x ? -1 : 1;
+            bullets.push({x: dx<0 ? e.x-10 : e.x+e.w, y: e.y+e.h/2-4, w:8, h:8, vx: dx*4, vy: 0, life: 100, player: false, dmg: 1, c: '#FFeb3b'});
+        }
+        if (player.invuln <= 0 && rectIntersect(player, e)) damagePlayer();
+    });
+
+    // Boss
+    if (boss.active && !boss.dead) {
+        boss.y += boss.vy;
+        if (boss.y < 50 || boss.y > GH - 200) boss.vy *= -1;
+        boss.timer++;
+        if (boss.timer > 70) {
+            boss.timer = 0;
+            for (let a = -2; a <= 2; a++) {
+                bullets.push({x: boss.x, y: boss.y + boss.h/2, w: 12, h: 12, vx: -7, vy: a*1.5, life: 150, player: false, dmg: 1, c: '#FF00FF'});
+            }
+        }
+        if (player.invuln <= 0 && rectIntersect(player, boss)) damagePlayer();
+    }
+
+    // Bullets
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        let b = bullets[i];
+        b.x += b.vx; b.y += b.vy; b.life--;
+        if (b.life <= 0) { bullets.splice(i,1); continue; }
+        
+        let hitB = blocks.find(blk => blk.solid && rectIntersect(b, blk));
+        if (hitB) {
+            if (hitB.type === 'dest') {
+                hitB.hp -= b.dmg;
+                if (hitB.hp <= 0) { hitB.solid = false; spawnParticles(hitB.x, hitB.y, '#8B4513'); score += 50; shake = 4; }
+            }
+            if (!b.melee) { bullets.splice(i,1); continue; }
+        }
+
+        if (b.isPlayer) {
+            let hitE = enemies.find(e => e.hp > 0 && rectIntersect(b, e));
+            if (hitE) {
+                hitE.hp -= b.dmg;
+                if (hitE.hp <= 0) { spawnParticles(hitE.x, hitE.y, '#F00'); score += 100; popups.push({x: hitE.x, y: hitE.y, t: "+100", l: 30}); shake = 3; }
+                if (!b.melee) { bullets.splice(i,1); continue; }
+            }
+            if (boss.active && !boss.dead && rectIntersect(b, boss)) {
+                boss.hp -= b.dmg; spawnParticles(b.x + Math.random()*20, b.y + boss.h/2, '#FF0');
+                if (boss.hp <= 0) {
+                    boss.dead = true; score += 5000; shake = 30;
+                    setTimeout(() => {
+                        state = 'WIN';
+                        document.getElementById('menu-screen').style.display = 'flex';
+                        document.getElementById('menu-title').innerText = 'MISSION CLEAR';
+                        document.getElementById('menu-title').style.color = '#00FFCC';
+                        document.getElementById('menu-desc').innerText = `You destroyed the Glitch Core!\nFinal Score: ${score}\nRescues: ${rescues}`;
+                        document.getElementById('start-btn').innerText = 'PLAY AGAIN';
+                    }, 2000);
+                }
+                if (!b.melee) { bullets.splice(i,1); continue; }
+            }
+            let hitC = cages.find(c => c.active && rectIntersect(b, c));
+            if (hitC) {
+                hitC.active = false; spawnParticles(hitC.x, hitC.y, '#AAA'); rescues++; score += 500;
+                currentHero = (currentHero + 1) % HEROES.length;
+                popups.push({x: hitC.x-40, y: hitC.y-20, t: "NEW RENEGADE UNLOCKED!", l: 90});
+                shake = 10; player.invuln = 60;
+                if (!b.melee) { bullets.splice(i,1); continue; }
+            }
+        } else {
+            if (player.invuln <= 0 && rectIntersect(b, player)) { damagePlayer(); bullets.splice(i,1); continue; }
+        }
+    }
+}
+
+function draw() {
+    // Parallax Checkerboard Background
+    ctx.fillStyle = '#1A1A1A'; ctx.fillRect(0, 0, GW, GH);
+    let bgOff = (cx * 0.3) % 100;
+    ctx.fillStyle = '#222222';
+    for (let i = -100; i < GW; i += 100) {
+        for (let j = 0; j < GH; j += 100) {
+            if (Math.abs((Math.floor((i + bgOff)/100) + Math.floor(j/100)) % 2) === 1) ctx.fillRect(i, j, 100, 100);
+        }
+    }
+
+    ctx.save();
+    let sx = shake > 0 ? (Math.random()-0.5)*shake : 0;
+    let sy = shake > 0 ? (Math.random()-0.5)*shake : 0;
+    ctx.translate(Math.floor(-cx + sx), Math.floor(sy));
+
+    // Blocks
+    blocks.forEach(b => {
+        if (!b.solid) return;
+        if (b.x < cx - 100 || b.x > cx + GW + 100) return; // Culling
+        if (b.type === 'ground' || b.type === 'plat') {
+            ctx.fillStyle = '#4CAF50'; ctx.fillRect(b.x, b.y, b.w, b.h);
+            ctx.fillStyle = '#388E3C';
+            for (let py=0; py<b.h; py+=20) {
+                for (let px=0; px<b.w; px+=20) {
+                    if (((px/20) + (py/20)) % 2 === 0) ctx.fillRect(b.x+px, b.y+py, 20, 20);
+                }
+            }
+        } else if (b.type === 'dest') {
+            ctx.fillStyle = '#8D6E63'; ctx.fillRect(b.x, b.y, b.w, b.h);
+            ctx.fillStyle = '#5D4037'; ctx.fillRect(b.x+4, b.y+4, b.w-8, b.h-8);
+            if (b.hp < 3) { ctx.fillStyle = '#111'; ctx.fillRect(b.x+10, b.y+10, 10, 15); }
+        }
+    });
+
+    // Cages
+    cages.forEach(c => {
+        if (!c.active) return;
+        ctx.fillStyle = '#FF9800'; ctx.fillRect(c.x+8, c.y+12, 16, 20); // Prisoner
+        ctx.fillStyle = '#9E9E9E'; // Bars
+        for (let i=0; i<=32; i+=8) ctx.fillRect(c.x+i, c.y, 2, 32);
+        ctx.fillRect(c.x, c.y, 32, 2); ctx.fillRect(c.x, c.y+30, 32, 2);
+    });
+
+    // Enemies
+    enemies.forEach(e => {
+        if (e.hp <= 0) return;
+        ctx.fillStyle = '#E53935'; ctx.fillRect(e.x, e.y, e.w, e.h);
+        ctx.fillStyle = '#000'; ctx.fillRect(e.x + (e.vx>0?16:4), e.y+4, 4, 4); // Eye
+    });
+
+    // Boss
+    if (boss.active && !boss.dead) {
+        ctx.fillStyle = '#333'; ctx.fillRect(boss.x, boss.y, boss.w, boss.h); // Body
+        ctx.fillStyle = '#F0F'; ctx.fillRect(boss.x+20, boss.y+30, 24, 24); ctx.fillRect(boss.x+boss.w-44, boss.y+30, 24, 24); // Eyes
+        ctx.fillStyle = '#0FF'; ctx.fillRect(boss.x+boss.w/2-16, boss.y+boss.h/2, 32, 32); // Core
+        ctx.fillStyle = '#F00'; ctx.fillRect(boss.x, boss.y - 20, boss.w, 10); // HP BG
+        ctx.fillStyle = '#0F0'; ctx.fillRect(boss.x, boss.y - 20, boss.w * (boss.hp/boss.maxHp), 10); // HP Bar
+    }
+
+    // Player
+    if (state === 'PLAY' && (player.invuln === 0 || Math.floor(Date.now() / 100) % 2 === 0)) {
+        let hInfo = HEROES[currentHero];
+        ctx.fillStyle = hInfo.cBody; ctx.fillRect(player.x, player.y, player.w, player.h);
+        ctx.fillStyle = '#111';
+        let fx = player.dir === 1 ? player.x + player.w - 10 : player.x + 2;
+        if (currentHero === 0) { ctx.fillStyle = hInfo.cEye; ctx.fillRect(fx-2, player.y+4, 12, 6); } // Visor
+        else if (currentHero === 1) { ctx.beginPath(); ctx.moveTo(fx, player.y+4); ctx.lineTo(fx+8, player.y+4); ctx.lineTo(fx+4, player.y+10); ctx.fill(); } // Shades
+        else { ctx.fillStyle = hInfo.cEye; ctx.fillRect(player.x, player.y+4, player.w, 4); } // Headband
+    }
+
+    // Bullets & Particles
+    bullets.forEach(b => { ctx.fillStyle = b.c; ctx.fillRect(b.x, b.y, b.w, b.h); });
+    particles.forEach((p, i) => { p.x+=p.vx; p.y+=p.vy; p.life--; if(p.life<=0) particles.splice(i,1); else { ctx.fillStyle = p.c; let s = (p.life/p.max)*8; ctx.fillRect(p.x, p.y, s, s); }});
+
+    // Popups
+    popups.forEach((p, i) => { p.y -= 0.5; p.l--; if(p.l<=0) popups.splice(i,1); else { ctx.fillStyle = '#FFF'; ctx.font = 'bold 16px monospace'; ctx.textAlign = 'left'; ctx.fillText(p.t, p.x, p.y); }});
+
+    ctx.restore();
+
+    // UI Layer
+    if (state === 'PLAY') {
+        ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, 0, GW, 45);
+        ctx.fillStyle = '#FFF'; ctx.font = 'bold 18px monospace';
+        ctx.textAlign = 'left'; ctx.fillText(`SCORE: ${score.toString().padStart(6,'0')}  LIVES: ${lives}`, 20, 28);
+        ctx.textAlign = 'right'; ctx.fillText(`${HEROES[currentHero].name} | RESCUES: ${rescues} / ${cages.length}`, GW - 20, 28);
+        
+        // Next unlock meter
+        ctx.fillStyle = '#333'; ctx.fillRect(GW - 220, 35, 200, 6);
+        ctx.fillStyle = '#00FFCC'; ctx.fillRect(GW - 220, 35, 200 * (cages.length ? rescues / cages.length : 0), 6);
+    }
+}
+
+function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+</script>
+</body>
+</html>
