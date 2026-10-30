@@ -9,7 +9,7 @@
   var ACCENT = {
     "shelf-links": "#9bff3f", "bargain-bin-buckets": "#ff3fa4", "bleacher-carts": "#ffd23f", "tape-pin-lanes": "#a77bff",
     "ticket-roll-alley": "#3ff0ff", "fourth-and-collect": "#9bff3f", "pawn-shop-pool": "#ff4b3e", "rink-rat-shootout": "#3ff0ff",
-    "powder-day-haul": "#a77bff", "table-rink-rumble": "#ff3fa4", "creature-feature-ko": "#ff8a1f", "gravy-or-bust": "#e0662a", "mall-santa-dash": "#3fd07a", meta: "#ff4b3e", game: "#ffd23f"
+    "powder-day-haul": "#a77bff", "table-rink-rumble": "#ff3fa4", "creature-feature-ko": "#ff8a1f", "gravy-or-bust": "#e0662a", "mall-santa-dash": "#3fd07a", "flea-fortress-flyby": "#ff9b3f", meta: "#ff4b3e", game: "#ffd23f"
   };
   var $ = function (id) { return document.getElementById(id); };
   var filter = "all", seen = 0, lastFocus = null;

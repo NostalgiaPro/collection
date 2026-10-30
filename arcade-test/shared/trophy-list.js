@@ -140,6 +140,17 @@
       T(146, "mnj-score", "Employee of the Month", "Score 20,000 points in one run.", "sealed", { goal: { stat: "score", at: 20000, unit: "PTS", fromBest: true }, end: function (s) { return s.score >= 20000; } }),
       T(147, "mnj-perfect", "Jolly All Season", "Close on Christmas Eve with the Cheer meter at 75 or higher.", "slabbed", end(function (s) { return !!s.eve && s.cheer >= 75; }))
     ] },
+    // Flea Fortress Flyby (isometric shooter), test path only for now. Slots 148-155; never reuse them.
+    { slug: "flea-fortress-flyby", name: "Flea Fortress Flyby", status: "live", trophies: [
+      T(148, "fff-under", "Under the Counter", "Fly under an electric force field.", "loose"),
+      T(149, "fff-tanks", "Topped Off", "Shoot 6 fuel tanks in one run.", "loose", { goal: { stat: "tanks", at: 6, margin: 2, unit: "fuel tanks", one: "fuel tank" }, end: function (s) { return s.tanks >= 6; } }),
+      T(150, "fff-ears", "No Reception", "Shoot 3 rabbit ear TVs in one run.", "loose", { goal: { stat: "ears", at: 3, margin: 1, unit: "rabbit ear TVs", one: "rabbit ear TV" }, end: function (s) { return s.ears >= 3; } }),
+      T(151, "fff-discs", "Flying Disc Clearance", "Shoot 15 flying discs in one run.", "boxed", { goal: { stat: "discs", at: 15, margin: 4, unit: "flying discs", one: "flying disc" }, end: function (s) { return s.discs >= 15; } }),
+      T(152, "fff-boss", "Haggle Over", "Beat the Haggletron at the far end of the fortress.", "boxed", end(function (s) { return s.beaten >= 1; })),
+      T(153, "fff-fumes", "Running on Fumes", "Beat the Haggletron with less than 20% fuel left.", "sealed"),
+      T(154, "fff-clean", "Never Opened", "Beat the Haggletron without losing a ship on that fortress.", "sealed"),
+      T(155, "fff-loop", "Second Lap of the Lot", "Beat the Haggletron twice in one run.", "slabbed", end(function (s) { return s.beaten >= 2; }))
+    ] },
     // Batch 3 (test path only for now). Claude's build used slots 72-95, which collide with Creature Feature KO (71-82)
     // and Gravy or Bust! (83-93), so the new batch 3 trophies were moved up by 22 to slots 94-117. 47-58 are unchanged.
     { slug: "pawn-shop-pool", name: "Pawn Shop Pool", status: "live", trophies: [
