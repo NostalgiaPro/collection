@@ -16,6 +16,7 @@
   var COLORS = ["#ffd23f", "#2f6bff", "#ff4b3e", "#a77bff", "#ff8a2a", "#2fbf5a", "#9a2f3a", "#1b1c22", "#ffd23f"];
 
   var S = {}, keys = {}, idleT = 0, parts = [];
+  var X = window.NPX && window.NPX.on ? window.NPX : null;   // test-only extras (shared/extras.js)
 
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
 
@@ -34,6 +35,7 @@
           aim: -Math.PI / 2, power: 0, charging: false, chargeT: 0, drag: null, kb: false,
           shot: null, shots: 0, scratches: 0, combos: 0, bestCombo: 0, potted: 0, breakPots: 0, rackShots: 0, over: false };
     parts.length = 0;
+    if (X) S.x = { sc: X.scenery(), fever: new X.Fever(15), sched: new X.Scheduler(25, 55, 2), rare: null, rares: 0, events: 0, intro: false };
   }
   function clock() { return S.time + S.penalty - S.bonus; }
   function ballsLeft() { var n = 0; for (var i = 0; i < S.balls.length; i++) if (!S.balls[i].in) n++; return n + (RACKS - S.rack) * 9; }
@@ -55,7 +57,7 @@
       b = a[i]; if (b.in) continue;
       var sp = Math.hypot(b.vx, b.vy);
       if (sp > 0) {
-        var ns = Math.max(0, sp - (FR_C + FR_K * sp) * dt);
+        var ns = Math.max(0, sp - (FR_C + FR_K * sp) * (S.x && S.x.sc.id === "rain" ? 1.2 : 1) * dt);
         if (ns < 3) { b.vx = b.vy = 0; } else { b.vx *= ns / sp; b.vy *= ns / sp; }
       }
       b.x += b.vx * dt; b.y += b.vy * dt;
@@ -107,7 +109,7 @@
     Shell.sfx("cup");
     if (!S.shot) return;
     if (b.n === 0) S.shot.scratch = true;
-    else { S.shot.pots++; S.potted++; }
+    else { S.shot.pots++; S.potted++; if (S.x && S.x.rare && POCKETS[S.x.rare.p] === p) S.shot.rarePot = true; }
   }
 
   /* ---------------- Shooting ---------------- */
@@ -126,6 +128,7 @@
   function endShot() {
     var sh = S.shot, msg = null;
     S.shot = null;
+    if (S.x) extrasShot(sh);
     if (sh.isBreak && sh.pots > 0) { S.breakPots++; if (window.Trophies) Trophies.unlock("psp-break"); }
     if (sh.pots >= 2) {
       S.bonus += COMBO_SEC; S.combos++; S.bestCombo = Math.max(S.bestCombo, sh.pots);
@@ -170,6 +173,51 @@
     c.x = HEAD.x; c.y = HEAD.y;
   }
 
+  /* ---------------- Test-only extras ---------------- */
+  var EVENTS = [
+    { title: "Trunk Deal", text: "A guy in a faded muscle car offers a milk crate of carts. Pay 10 seconds, sight unseen?",
+      a: { label: "Pay 10 sec", run: function () { S.penalty += 10; if (X.coin(0.45)) return rareNow("Under the football carts: "); return "A crate of worthless football carts. Plus 10 seconds."; } },
+      b: { label: "Pass", run: function () { return "He drives off. Probably nothing in there."; } } },
+    { title: "Price Swap", text: "Someone swapped a $50 tag with a $2 tag on the cue rack.",
+      a: { label: "Be honest", run: function () { S.bonus += 5; return "The owner appreciates it. 5 seconds off the clock."; } },
+      b: { label: "Pay $2", run: function () { if (X.coin(0.5)) { S.bonus += 5; return "Nobody noticed. 5 seconds off."; } S.penalty += 10; return "Caught at the register. Plus 10 seconds."; } } },
+    { title: "Guard Dog", text: "A grumpy bulldog is napping on the rail next to a corner pocket.",
+      a: { label: "Pet him", run: function () { if (X.coin(0.5)) return "He licks your hand and waddles off."; S.penalty += 6; return "He bites. Plus 6 seconds."; } },
+      b: { label: "Bribe him", run: function () { S.penalty += 2; return "A snack costs 2 seconds. He leaves happy."; } } },
+    { title: "Pawn Lowball", text: "The broker offers a heavy box of sports carts for one dollar.",
+      a: { label: "Take it", run: function () { S.penalty += 4; if (X.coin(0.3)) return rareNow("At the very bottom: "); return "Thirty copies of the same baseball game. Plus 4 seconds."; } },
+      b: { label: "Pass", run: function () { return "You keep your shelf space."; } } },
+    { title: "The Stand-Off", text: "The owner says he might close early. Call his bluff?",
+      a: { label: "Walk away", run: function () { if (X.coin(0.5)) { S.bonus += 5; return "He calls you back. 5 seconds off."; } S.penalty += 5; return "He lets you walk. Plus 5 seconds."; } },
+      b: { label: "Keep playing", run: function () { return "You chalk up and keep shooting."; } } }
+  ];
+  function rareMult() { var sc = S.x.sc.id; return (sc === "suburbs" ? 3 : sc === "fog" ? 1.5 : 1) * (S.x.fever.active() ? 2 : 1); }
+  function rareNow(prefix) {
+    var it = X.rollRare(rareMult()), fake = S.x.sc.id === "twilight" && X.coin(0.35);
+    var pts = X.collect(it, fake);
+    if (!fake) { S.x.rares++; S.bonus += pts; return (prefix || "") + it.n + " (" + X.TIER[it.t].word + "). " + pts + " seconds off."; }
+    return "It was a reproduction cartridge. Nothing gained.";
+  }
+  function extrasShot(sh) {
+    var x = S.x;
+    // a clean pot keeps the streak going; three in a row starts the Hot Streak
+    if (sh.pots > 0 && !sh.scratch) x.fever.hit("Clock runs at half speed"); else x.fever.miss();
+    if (sh.rarePot && x.rare) { x.rare = null; var it = X.rollRare(rareMult()), fake = S.x.sc.id === "twilight" && X.coin(0.35), pts = X.collect(it, fake); if (!fake) { x.rares++; S.bonus += pts; } }
+    else if (x.rare && --x.rare.shots <= 0) x.rare = null;
+    if (!x.rare && Math.random() < 0.16 * rareMult()) x.rare = { p: Math.floor(Math.random() * POCKETS.length), shots: 3 };
+  }
+  function extrasTick(dt) {
+    var x = S.x;
+    if (!x.intro) { x.intro = true; Shell.flash(x.sc.name, x.sc.line, "#9bff3f", 1500); }
+    x.fever.tick(dt);
+    if (S.phase === "aim" && !S.charging && !S.drag && x.sched.due(clock())) { x.events++; X.startEvent(X.pick(EVENTS)); }
+  }
+  function clockRate() {
+    if (!S.x) return 1;
+    var r = S.x.sc.id === "sun" || S.x.sc.id === "suburbs" ? 1.1 : S.x.sc.id === "golden" ? 0.9 : 1;
+    return S.x.fever.active() ? r * 0.5 : r;
+  }
+
   function finish(cleared) {
     if (S.over) return;
     S.over = true;
@@ -177,6 +225,7 @@
     var html = row("Shot clock", fmt(Math.round(clock()))) + row("Shots", S.shots) + row("Scratches", S.scratches + " (+" + S.scratches * SCRATCH_SEC + " sec)") +
       row("Two for one shots", S.combos + " (-" + S.combos * COMBO_SEC + " sec)");
     if (!cleared) html += row("Balls left at closing", left + " (+" + left * LEFT_SEC + " sec)");
+    if (S.x) html += row("Scenery (test)", S.x.sc.name) + row("Rare finds (test)", S.x.rares + " this run, " + X.foundCount() + " of " + X.RARES.length + " found") + row("Hot Streaks (test)", S.x.fever.count);
     Shell.gameOver(score, { title: cleared ? "CLEARED OUT" : "CLOSED", html: html,
       stats: { cleared: cleared, time: score, racks: cleared ? RACKS : S.rack - 1, shots: S.shots, scratches: S.scratches, combos: S.combos, bestCombo: S.bestCombo, potted: S.potted } });
   }
@@ -185,7 +234,9 @@
 
   /* ---------------- Update ---------------- */
   function update(dt) {
-    S.t += dt; S.pt += dt; S.time += dt;
+    if (X && X.eventActive()) { X.eventTick(dt); return; }
+    S.t += dt; S.pt += dt; S.time += dt * clockRate();
+    if (S.x) extrasTick(dt);
     var i;
     for (i = parts.length - 1; i >= 0; i--) { var q = parts[i]; q.life -= dt; q.x += q.vx * dt; q.y += q.vy * dt; if (q.life <= 0) parts.splice(i, 1); }
     var a = all();
@@ -214,6 +265,7 @@
 
   /* ---------------- Input ---------------- */
   function pointer(type, x, y) {
+    if (X && X.eventActive()) { X.eventPointer(type, x, y); return; }
     if (type === "down") {
       if (!canShoot()) return;
       S.drag = { sx: x, sy: y, x: x, y: y }; S.kb = false; S.charging = false;
@@ -230,6 +282,7 @@
     }
   }
   function key(type, code, e) {
+    if (X && X.eventActive()) { keys = {}; X.eventKey(type, code); return; }
     var act = code === "Space" || code === "Enter" || code === "NumpadEnter";
     if (type === "down") {
       keys[code] = true;
@@ -312,8 +365,10 @@
 
   function drawAim(c) {
     var sh = currentShot(), dx = Math.cos(sh.a), dy = Math.sin(sh.a), cx = S.cue.x, cy = S.cue.y;
-    if (S.rack < 3) {
-      var hit = cast(sh.a), lim = S.rack === 1 ? hit.d : Math.min(hit.d, 70);
+    var fever = S.x && S.x.fever.active(), fog = S.x && S.x.sc.id === "fog";
+    if (S.rack < 3 || fever) {
+      var hit = cast(sh.a), lim = S.rack === 1 || fever ? hit.d : Math.min(hit.d, 70);
+      if (fog && !fever) lim = Math.min(lim, 55);
       for (var d = R + 4; d < lim; d += 7) fr(c, cx + dx * d - 1, cy + dy * d - 1, 2, 2, "rgba(236,234,226,.8)");
       if (S.rack === 1 || hit.d <= 70) {
         c.strokeStyle = "rgba(236,234,226,.75)"; c.lineWidth = 1;
@@ -367,7 +422,14 @@
     for (var i = 0; i < a.length; i++) drawBall(c, a[i]);
     if (state === "playing" && S.phase === "aim") drawAim(c);
     for (i = 0; i < parts.length; i++) fr(c, parts[i].x, parts[i].y, 3, 3, parts[i].c);
+    if (S.x) {
+      var area = { x: X0 - 20, y: Y0 - 20, w: X1 - X0 + 40, h: Y1 - Y0 + 40 };
+      X.drawScenery(c, S.x.sc, t, area);
+      if (S.x.rare) { var rp = POCKETS[S.x.rare.p]; X.drawCart(c, rp.x + (rp.x < 180 ? 16 : -16), rp.y + (rp.y < 200 ? 20 : rp.y > 400 ? -20 : 0), "rare", t, 0.8); }
+      S.x.fever.draw(c, area, t);
+    }
     drawHUD(c, t);
+    if (S.x) { X.drawTag(c, S.x.sc, 10, 58); X.drawEvent(c, W, H); }   // tag sits just under the top status bar, not on it
   }
 
   // Hook for automated checks (no effect on play)
