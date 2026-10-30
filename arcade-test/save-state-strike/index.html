@@ -22,22 +22,27 @@
     #stage { grid-area: stage; position: relative; min-width: 0; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000; }
     canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
 
-    .pad { display: flex; align-items: center; gap: 12px; padding: 12px 10px 16px; background: #0b0b12; min-width: 0; }
+    .pad { display: flex; align-items: center; gap: 12px; padding: 12px 10px 16px; background: #0b0b12; min-width: 0; position: relative; }
     #pad-l { grid-area: pl; justify-content: flex-start; }
     #pad-r { grid-area: pr; justify-content: flex-end; }
+    .pad-row { display: flex; gap: 10px; }
+    
     .touch-btn { position: relative; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.55); border-radius: 50%; width: 76px; height: 76px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; color: rgba(255,255,255,0.85); touch-action: none; }
     .touch-btn:active, .touch-btn.on { background: rgba(45,224,200,0.35); }
     #btn-shoot { border-color: #ff6b9a; }
     #btn-jump { border-color: #2de0c8; }
+    
+    #btn-swap { position: absolute; top: -56px; right: 10px; width: 56px; height: 56px; font-size: 14px; border-color: #ffd166; }
 
     /* Landscape phones: controls sit in side columns, never over the play area */
     @media (orientation: landscape) {
         #main { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: minmax(0, 1fr); grid-template-areas: "pl stage pr"; }
         .pad { flex-direction: column; justify-content: center !important; gap: 12px; padding: 8px 10px; }
-        .pad-row { display: flex; gap: 10px; }
+        .pad-row { flex-direction: column; gap: 12px; }
         #hud { font-size: 14px; padding: 5px 12px 4px; }
         #h-meter { flex: 0 0 120px; margin-top: 0; }
         .touch-btn { width: 62px; height: 62px; font-size: 16px; }
+        #btn-swap { position: relative; top: auto; right: auto; width: 62px; height: 62px; font-size: 16px; }
     }
     /* Desktop: keyboard play, no touch buttons */
     @media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
@@ -65,29 +70,31 @@
         <div id="h-meter"><i id="h-meter-fill"></i></div>
     </div>
     <div id="main">
-        <div class="pad" id="pad-l"><div class="pad-row" style="display:flex;gap:12px"><div class="touch-btn" id="btn-left">&lt;</div><div class="touch-btn" id="btn-right">&gt;</div></div></div>
+        <div class="pad" id="pad-l"><div class="pad-row"><div class="touch-btn" id="btn-left">&lt;</div><div class="touch-btn" id="btn-right">&gt;</div></div></div>
         <div id="stage"><canvas id="gameCanvas" width="800" height="600"></canvas></div>
-        <div class="pad" id="pad-r"><div class="pad-row" style="display:flex;gap:12px"><div class="touch-btn" id="btn-shoot">FIRE</div><div class="touch-btn" id="btn-jump">JUMP</div></div></div>
+        <div class="pad" id="pad-r">
+            <div class="touch-btn" id="btn-swap">SWP</div>
+            <div class="pad-row"><div class="touch-btn" id="btn-shoot">FIRE</div><div class="touch-btn" id="btn-jump">JMP</div></div>
+        </div>
     </div>
 </div>
 
 <div id="menu-screen">
     <canvas id="menu-art" width="1" height="1"></canvas>
     <h1 id="menu-title">SAVE STATE STRIKE</h1>
-    <p id="menu-desc">The Glitch Empire has corrupted the source code! Run, gun, and smash cages to swap heroes.<br><br>Keyboard: Arrows/WASD to move, Space/J to Fire, Up/K to Jump.<br>Touch: On-screen buttons.</p>
+    <p id="menu-desc">The Glitch Empire has corrupted the source code! Run, gun, and smash cages to swap heroes.<br><br>Keyboard: Arrows/WASD to move, Space/J to Fire, E/Shift to Swap, Up/K to Jump.<br>Touch: On-screen buttons.</p>
     <button id="start-btn">START MISSION</button>
 </div>
 <script>
 const canvas = document.getElementById('gameCanvas');
 let ctx = canvas.getContext('2d');
 const GW_BASE = 800, GH = 600;
-let GW = 800;            // visible world width, changes with the screen shape
-let VIEW_SCALE = 1, DPR = 1, VY = 0; // VY: rows of empty sky trimmed off the top on tall screens
+let GW = 800;
+let VIEW_SCALE = 1, DPR = 1, VY = 0;
 
 // ---------- Pixel art, drawn in code ----------
 const PX = 2; // world units per art pixel
 function mk(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
-// Draw art on a (w+2)x(h+2) canvas with a 1px dark outline added around every shape.
 function art(w, h, fn, outline) {
     const c = mk(w + 2, h + 2), g = c.getContext('2d');
     const p = (x, y, ww, hh, col) => { g.fillStyle = col; g.fillRect(x + 1, y + 1, ww, hh); };
@@ -114,61 +121,116 @@ function pack(c) { const l = flipC(c); return { r: c, l: l, wr: tintC(c, '#fffff
 function artSoldier(pose) {
     return art(24, 24, (p) => {
         const H1='#36401c',H2='#56652a',H3='#88994a',S1='#eab48a',S2='#b97c50',E='#141414',V1='#7d6c3c',V2='#a8935a',V3='#544726',SH='#3b422b',P1='#56603a',P2='#394026',B='#2a211c',G1='#25292f',G2='#545c66',G3='#a3acb6';
-        const by = (pose === 'idle1' || pose === 'run0') ? 1 : 0;
+        let dy = (pose === 'idle1' || pose === 'run0' || pose === 'run2') ? 1 : 0;
+        let dx = 0; if (pose === 'hit') { dx = -2; dy = 0; } // dy 0 keeps the helmet and hair inside the 24px frame
         const gx = pose === 'shoot' ? -1 : 0;
+        
         // legs
-        if (pose === 'run0') { p(7,16,3,2,P2); p(5,18,3,2,P2); p(4,20,3,2,P2); p(2,22,4,2,B); p(11,16,3,2,P1); p(12,18,3,2,P1); p(13,20,3,2,P1); p(13,22,4,2,B); }
+        if (pose === 'hit') { p(10+dx,16+dy,4,6,P2); p(9+dx,22+dy,5,2,B); p(12+dx,14+dy,4,6,P1); p(13+dx,20+dy,5,2,B); }
+        else if (pose === 'run0') { p(7,16,3,2,P2); p(5,18,3,2,P2); p(4,20,3,2,P2); p(2,22,4,2,B); p(11,16,3,2,P1); p(12,18,3,2,P1); p(13,20,3,2,P1); p(13,22,4,2,B); }
         else if (pose === 'run1') { p(8,16,3,6,P2); p(7,22,4,2,B); p(11,16,3,2,P1); p(12,17,3,2,P1); p(11,19,3,2,P1); p(11,21,4,2,B); }
+        else if (pose === 'run2') { p(11,16,3,2,P2); p(12,18,3,2,P2); p(13,20,3,2,P2); p(13,22,4,2,B); p(7,16,3,2,P1); p(5,18,3,2,P1); p(4,20,3,2,P1); p(2,22,4,2,B); }
+        else if (pose === 'run3') { p(11,16,3,2,P2); p(12,17,3,2,P2); p(11,19,3,2,P2); p(11,21,4,2,B); p(8,16,3,6,P1); p(7,22,4,2,B); }
         else if (pose === 'jump') { p(7,16,3,2,P2); p(5,17,3,3,P2); p(4,20,4,2,B); p(11,16,4,2,P1); p(13,17,3,2,P1); p(12,19,3,1,P1); p(12,20,4,2,B); }
         else if (pose === 'shoot') { p(6,16,3,6,P2); p(5,22,4,2,B); p(12,16,3,6,P1); p(12,22,4,2,B); p(12,18,3,1,V3); }
         else { p(7,16,3,6,P2); p(6,22,4,2,B); p(11,16,3,6,P1); p(11,22,4,2,B); p(11,18,3,1,V3); }
-        const y = by;
+        const y = dy;
+        
         // back arm
-        p(5,9+y,2,4,SH); p(5,13+y,2,1,S2);
+        if (pose === 'hit') { p(4+dx,7+dy,2,4,SH); p(3+dx,11+dy,2,2,S2); }
+        else { p(5,9+y,2,4,SH); p(5,13+y,2,1,S2); }
+        
         // helmet
-        p(6,0+y,8,1,H2); p(5,1+y,10,2,H2); p(7,1+y,3,1,H3); p(6,0+y,2,1,H3); p(9,2+y,1,1,H1); p(12,1+y,1,1,H1); p(4,3+y,12,1,H1);
+        p(6+dx,0+dy,8,1,H2); p(5+dx,1+dy,10,2,H2); p(7+dx,1+dy,3,1,H3); p(6+dx,0+dy,2,1,H3); p(9+dx,2+dy,1,1,H1); p(12+dx,1+dy,1,1,H1); p(4+dx,3+dy,12,1,H1);
+        
         // face
-        p(7,4+y,7,3,S1); p(7,4+y,7,1,S2); p(13,5+y,1,1,S1); p(11,5+y,1,1,E); p(7,5+y,1,2,S2); p(8,7+y,5,1,S2); p(8,5+y,1,2,'#2b2b1c');
-        p(9,8+y,3,1,S2);
+        if (pose === 'hit') {
+            p(7+dx,4+dy,7,3,S1); p(7+dx,4+dy,7,1,S2); p(12+dx,5+dy,1,1,S1); p(10+dx,5+dy,1,1,'#000'); p(11+dx,6+dy,2,1,'#000'); p(7+dx,5+dy,1,2,S2); p(8+dx,7+dy,5,1,S2); p(9+dx,8+dy,3,1,S2);
+        } else {
+            p(7+dx,4+dy,7,3,S1); p(7+dx,4+dy,7,1,S2); p(13+dx,5+dy,1,1,S1); p(11+dx,5+dy,1,1,E); p(7+dx,5+dy,1,2,S2); p(8+dx,7+dy,5,1,S2); p(8+dx,5+dy,1,2,'#2b2b1c'); p(9+dx,8+dy,3,1,S2);
+        }
+        
         // vest
-        p(6,9+y,8,6,V1); p(6,9+y,8,1,V2); p(7,10+y,1,4,V2); p(9,12+y,2,2,V3); p(12,12+y,2,2,V3); p(6,15+y,8,1,V3); p(9,15+y,2,1,'#c8b060');
+        p(6+dx,9+dy,8,6,V1); p(6+dx,9+dy,8,1,V2); p(7+dx,10+dy,1,4,V2); p(9+dx,12+dy,2,2,V3); p(12+dx,12+dy,2,2,V3); p(6+dx,15+dy,8,1,V3); p(9+dx,15+dy,2,1,'#c8b060');
+        
         // front arm and rifle
-        p(11,9+y,3,2,SH);
-        p(4+gx,11+y,3,3,G1); p(7+gx,11+y,10,2,G1); p(8+gx,11+y,8,1,G2); p(17+gx,11+y,6,1,G2); p(22+gx,11+y,1,1,G3); p(12+gx,13+y,2,2,G1); p(13+gx,10+y,3,1,G1);
-        p(10+gx,12+y,2,2,S1); p(13,13+y,3,1,SH); p(16+gx,12+y,2,2,S1);
+        p(11+dx,9+dy,3,2,SH);
+        
+        if (pose === 'hit') {
+            p(4+dx,13+dy,3,3,G1); p(7+dx,13+dy,10,2,G1); p(8+dx,13+dy,8,1,G2); p(17+dx,13+dy,6,1,G2); p(22+dx,13+dy,1,1,G3); p(12+dx,15+dy,2,2,G1); p(13+dx,12+dy,3,1,G1);
+            p(10+dx,14+dy,2,2,S1); p(13+dx,15+dy,3,1,SH); p(16+dx,14+dy,2,2,S1);
+        } else {
+            p(4+gx,11+y,3,3,G1); p(7+gx,11+y,10,2,G1); p(8+gx,11+y,8,1,G2); p(17+gx,11+y,6,1,G2); p(22+gx,11+y,1,1,G3); p(12+gx,13+y,2,2,G1); p(13+gx,10+y,3,1,G1);
+            p(10+gx,12+y,2,2,S1); p(13,13+y,3,1,SH); p(16+gx,12+y,2,2,S1);
+        }
     });
 }
 // THE RADICAL MASCOT: orange lizard, purple jacket, shades, chunky sneakers
 function artLizard(pose) {
     return art(24, 24, (p) => {
         const O1='#f2892a',O2='#bf5a12',O3='#ffd08e',SG='#ff3e9a',J1='#6e2fa6',J2='#9c5ad6',J3='#47197a',Z='#2de0c8',SN='#f5f5f5',SO='#e0306a',SHT='#24243a',M='#7a2e0c';
-        const by = (pose === 'idle1' || pose === 'run0') ? 1 : 0, y = by;
+        let dy = (pose === 'idle1' || pose === 'run0' || pose === 'run2') ? 1 : 0;
+        let dx = 0; if (pose === 'hit') { dx = -2; dy = 0; } // dy 0 keeps the helmet and hair inside the 24px frame
+        const y = dy;
+        
         // tail
-        if (pose === 'run0' || pose === 'idle1' || pose === 'attack') { p(4,13+y,3,2,O1); p(2,14+y,3,2,O1); p(0,13+y,3,2,O1); p(0,12+y,2,1,O2); }
+        if (pose === 'hit') { p(2+dx,15+dy,3,2,O1); p(0+dx,16+dy,3,2,O1); }
+        else if (pose === 'run0' || pose === 'idle1' || pose === 'attack') { p(4,13+y,3,2,O1); p(2,14+y,3,2,O1); p(0,13+y,3,2,O1); p(0,12+y,2,1,O2); }
         else { p(4,14+y,3,2,O1); p(2,15+y,3,2,O1); p(0,17+y,3,2,O1); p(0,19+y,2,1,O2); }
+        
         // legs and sneakers
         const shoe = (x, yy, w) => { p(x,yy,w,2,SN); p(x,yy+2,w,1,SO); p(x+2,yy,2,1,Z); };
-        if (pose === 'run0') { p(6,17,2,2,O1); p(4,19,2,2,O1); shoe(1,20,5); p(11,17,2,2,O1); p(13,19,2,2,O1); shoe(13,21,5); }
+        
+        if (pose === 'hit') { p(10+dx,17+dy,2,2,O1); p(8+dx,19+dy,2,2,O1); shoe(5+dx,20+dy,5); p(13+dx,15+dy,2,2,O1); p(15+dx,17+dy,2,2,O1); shoe(14+dx,19+dy,5); }
+        else if (pose === 'run0') { p(6,17,2,2,O1); p(4,19,2,2,O1); shoe(1,20,5); p(11,17,2,2,O1); p(13,19,2,2,O1); shoe(13,21,5); }
         else if (pose === 'run1') { p(8,17,2,4,O1); shoe(7,21,5); p(11,17,3,2,O1); p(13,18,2,2,O1); shoe(12,19,5); }
+        else if (pose === 'run2') { p(11,17,2,2,O1); p(13,19,2,2,O1); shoe(13,21,5); p(6,17,2,2,O1); p(4,19,2,2,O1); shoe(1,20,5); }
+        else if (pose === 'run3') { p(11,17,3,2,O1); p(13,18,2,2,O1); shoe(12,19,5); p(8,17,2,4,O1); shoe(7,21,5); }
         else if (pose === 'jump') { p(7,17,2,2,O1); shoe(4,19,5); p(11,17,2,2,O1); shoe(12,18,5); }
         else if (pose === 'attack') { p(8,17,2,4,O1); shoe(7,21,5); p(11,16,5,2,O1); p(16,15,5,3,SN); p(21,15,1,3,SO); p(17,15,2,1,Z); }
         else { p(7,17,2,4,O1); p(11,17,2,4,O1); shoe(6,21,5); shoe(11,21,5); }
+        
         // shorts
-        p(6,15+y,8,2,SHT);
+        p(6+dx,15+dy,8,2,SHT);
+        
         // back arm
-        if (pose === 'attack') { p(3,9+y,3,2,J3); p(1,9+y,2,2,O2); } else { p(5,9+y,2,4,J3); p(5,13+y,2,1,O2); }
+        if (pose === 'attack') { p(3,9+y,3,2,J3); p(1,9+y,2,2,O2); } 
+        else if (pose === 'hit') { p(4+dx,7+dy,2,4,J3); p(3+dx,11+dy,2,2,O2); }
+        else { p(5,9+y,2,4,J3); p(5,13+y,2,1,O2); }
+        
         // jacket
-        p(6,8+y,8,7,J1); p(6,8+y,8,1,J2); p(5,8+y,2,2,J2); p(13,8+y,2,2,J2); p(10,9+y,2,5,O3); p(9,9+y,1,6,Z); p(12,9+y,1,6,Z); p(6,14+y,8,1,J3); p(7,10+y,1,3,J2);
-        // head with long snout, no spikes
-        p(7,0+y,5,1,O1); p(6,1+y,7,1,O1); p(6,2+y,12,1,O1); p(6,3+y,13,1,O1); p(6,4+y,13,1,O1); p(7,5+y,11,1,O1);
-        p(9,6+y,8,1,O1); p(10,7+y,5,1,O2); p(7,1+y,3,1,O3); p(12,5+y,6,1,M); p(17,3+y,1,1,O2);
-        p(10,2+y,5,1,SG); p(11,3+y,3,1,SG); p(11,2+y,1,1,'#ffffff'); p(7,2+y,3,1,'#2a1030');
-        p(8,7+y,3,2,O1);
+        if (pose === 'attack') {
+            p(7,7+y,8,8,J1); p(7,7+y,8,1,J2); p(6,7+y,2,2,J2); p(14,7+y,2,2,J2); p(11,8+y,2,6,O3); p(10,8+y,1,7,Z); p(13,8+y,1,7,Z); p(7,14+y,8,1,J3); p(8,9+y,1,3,J2);
+        } else {
+            p(6+dx,8+dy,8,7,J1); p(6+dx,8+dy,8,1,J2); p(5+dx,8+dy,2,2,J2); p(13+dx,8+dy,2,2,J2); p(10+dx,9+dy,2,5,O3); p(9+dx,9+dy,1,6,Z); p(12+dx,9+dy,1,6,Z); p(6+dx,14+dy,8,1,J3); p(7+dx,10+dy,1,3,J2);
+        }
+        
+        // head
+        if (pose === 'attack') {
+            p(8,0+y,5,1,O1); p(7,1+y,7,1,O1); p(7,2+y,12,1,O1); p(7,3+y,13,1,O1); p(7,4+y,13,1,O1); p(8,5+y,11,1,O1);
+            p(10,6+y,8,1,O1); p(11,7+y,5,1,O2); p(8,1+y,3,1,O3); p(13,5+y,6,1,M); p(18,3+y,1,1,O2);
+            p(11,2+y,5,1,SG); p(12,3+y,3,1,SG); p(12,2+y,1,1,'#ffffff'); p(8,2+y,3,1,'#2a1030');
+            p(9,7+y,3,2,O1);
+        } else if (pose === 'hit') {
+            p(7+dx,1+dy,5,1,O1); p(6+dx,2+dy,7,1,O1); p(6+dx,3+dy,12,1,O1); p(6+dx,4+dy,13,1,O1); p(6+dx,5+dy,13,1,O1); p(7+dx,6+dy,11,1,O1);
+            p(9+dx,7+dy,8,1,O1); p(10+dx,8+dy,5,1,O2); p(7+dx,2+dy,3,1,O3); p(12+dx,6+dy,6,1,M); p(17+dx,4+dy,1,1,O2);
+            p(10+dx,3+dy,5,1,SG); p(11+dx,4+dy,3,1,SG); p(11+dx,3+dy,1,1,'#ffffff'); p(10+dx,5+dy,2,1,'#000'); p(12+dx,6+dy,2,1,'#000');
+            p(8+dx,8+dy,3,2,O1);
+        } else {
+            p(7,0+y,5,1,O1); p(6,1+y,7,1,O1); p(6,2+y,12,1,O1); p(6,3+y,13,1,O1); p(6,4+y,13,1,O1); p(7,5+y,11,1,O1);
+            p(9,6+y,8,1,O1); p(10,7+y,5,1,O2); p(7,1+y,3,1,O3); p(12,5+y,6,1,M); p(17,3+y,1,1,O2);
+            p(10,2+y,5,1,SG); p(11,3+y,3,1,SG); p(11,2+y,1,1,'#ffffff'); p(7,2+y,3,1,'#2a1030');
+            p(8,7+y,3,2,O1);
+        }
+        
         // front arm
         if (pose === 'run0') { p(13,10+y,3,2,J2); p(16,10+y,2,2,O1); }
         else if (pose === 'run1') { p(12,10+y,2,3,J2); p(11,13+y,2,2,O1); }
+        else if (pose === 'run2') { p(13,10+y,3,2,J2); p(16,10+y,2,2,O1); }
+        else if (pose === 'run3') { p(12,10+y,2,3,J2); p(11,13+y,2,2,O1); }
         else if (pose === 'jump') { p(13,8+y,2,2,J2); p(14,6+y,2,2,O1); }
-        else if (pose === 'attack') { p(13,9+y,2,2,J2); p(15,8+y,2,2,O1); }
+        else if (pose === 'attack') { p(14,8+y,2,2,J2); p(16,7+y,2,2,O1); }
+        else if (pose === 'hit') { p(11+dx,12+dy,2,3,J2); p(10+dx,15+dy,2,2,O1); }
         else { p(13,9+y,2,4,J2); p(13,13+y,2,2,O1); }
     });
 }
@@ -176,41 +238,64 @@ function artLizard(pose) {
 function artBrawler(pose) {
     return art(24, 24, (p) => {
         const K1='#c07f4f',K2='#8e5530',HR='#1d1416',TIE='#2de0c8',T1='#f0b62a',T2='#bd8614',Q1='#5a3384',Q2='#3a1f5c',W='#f1e7d0',W2='#c9bc9c',E='#141414';
-        const by = (pose === 'idle1' || pose === 'run0') ? 1 : 0, y = by;
+        let dy = (pose === 'idle1' || pose === 'run0' || pose === 'run2') ? 1 : 0;
+        let dx = 0; if (pose === 'hit') { dx = -2; dy = 0; } // dy 0 keeps the helmet and hair inside the 24px frame
+        const y = dy;
+        
         // ponytail
-        if (pose === 'run0' || pose === 'run1' || pose === 'jump') { p(3,2+y,3,2,HR); p(1,3+y,3,2,HR); p(0,5+y,2,2,HR); }
+        if (pose === 'run0' || pose === 'run1' || pose === 'run2' || pose === 'run3' || pose === 'jump') { p(3+dx,2+dy,3,2,HR); p(1+dx,3+dy,3,2,HR); p(0+dx,5+dy,2,2,HR); }
+        else if (pose === 'hit') { p(4+dx,1+dy,3,2,HR); p(2+dx,2+dy,3,2,HR); p(1+dx,4+dy,2,2,HR); }
         else { p(4,2+y,2,2,HR); p(3,4+y,2,3,HR); p(2,7+y,2,2,HR); }
+        
         // legs
         const wrapFoot = (x, yy, col) => { p(x,yy,3,1,W); p(x,yy+1,4,2,col); };
-        if (pose === 'run0') { p(5,17,3,2,Q2); p(3,19,3,2,Q2); wrapFoot(2,21,K2); p(11,17,3,2,Q1); p(12,19,3,2,Q1); wrapFoot(13,21,K1); }
+        if (pose === 'hit') { p(10+dx,17+dy,3,2,Q2); p(8+dx,19+dy,3,2,Q2); wrapFoot(7+dx,21+dy,K2); p(14+dx,15+dy,3,2,Q1); p(15+dx,17+dy,3,2,Q1); wrapFoot(16+dx,19+dy,K1); }
+        else if (pose === 'run0') { p(5,17,3,2,Q2); p(3,19,3,2,Q2); wrapFoot(2,21,K2); p(11,17,3,2,Q1); p(12,19,3,2,Q1); wrapFoot(13,21,K1); }
         else if (pose === 'run1') { p(7,17,3,4,Q2); wrapFoot(7,21,K2); p(11,17,3,2,Q1); p(13,17,2,3,Q1); p(12,20,3,1,W); p(12,21,3,2,K1); }
+        else if (pose === 'run2') { p(11,17,3,2,Q2); p(12,19,3,2,Q2); wrapFoot(13,21,K2); p(5,17,3,2,Q1); p(3,19,3,2,Q1); wrapFoot(2,21,K1); }
+        else if (pose === 'run3') { p(11,17,3,2,Q2); p(13,17,2,3,Q2); p(12,20,3,1,W); p(12,21,3,2,K2); p(7,17,3,4,Q1); wrapFoot(7,21,K1); }
         else if (pose === 'jump') { p(6,17,3,2,Q2); p(4,18,3,2,Q2); p(3,20,3,2,K2); p(11,17,4,2,Q1); p(14,18,3,2,Q1); p(17,18,1,2,W); p(18,18,3,2,K1); }
         else if (pose === 'attack') { p(4,17,3,4,Q2); wrapFoot(2,21,K2); p(12,17,3,4,Q1); wrapFoot(12,21,K1); }
         else { p(5,17,3,4,Q2); wrapFoot(4,21,K2); p(11,17,3,4,Q1); wrapFoot(11,21,K1); }
-        p(6,15+y,8,2,Q1); p(6,16+y,8,1,Q2);
+        
+        p(6+dx,15+dy,8,2,Q1); p(6+dx,16+dy,8,1,Q2);
+        
         // back arm
-        if (pose === 'attack') { p(4,10+y,3,2,K2); p(2,10+y,2,2,W2); } else { p(5,9+y,2,3,K2); p(5,12+y,2,2,W2); }
+        if (pose === 'attack') { p(4,10+y,3,2,K2); p(2,10+y,2,2,W2); } 
+        else if (pose === 'hit') { p(4+dx,7+dy,2,3,K2); p(4+dx,10+dy,2,2,W2); }
+        else { p(5,9+y,2,3,K2); p(5,12+y,2,2,W2); }
+        
         // torso: tank top
-        p(6,8+y,9,2,K1); p(7,9+y,6,5,T1); p(7,8+y,2,1,T1); p(11,8+y,2,1,T1); p(7,12+y,6,2,T2); p(6,14+y,8,1,TIE);
+        p(6+dx,8+dy,9,2,K1); p(7+dx,9+dy,6,5,T1); p(7+dx,8+dy,2,1,T1); p(11+dx,8+dy,2,1,T1); p(7+dx,12+dy,6,2,T2); p(6+dx,14+dy,8,1,TIE);
+        
         // head
-        p(8,0+y,5,1,HR); p(7,1+y,6,2,HR); p(8,3+y,5,4,K1); p(12,3+y,1,1,K1); p(7,3+y,2,3,HR); p(9,2+y,4,1,HR); p(6,2+y,1,2,TIE);
-        p(11,4+y,1,1,E); p(10,3+y,2,1,HR); p(11,6+y,1,1,K2); p(9,7+y,3,1,K2);
+        if (pose === 'hit') {
+            p(8+dx,1+dy,5,1,HR); p(7+dx,2+dy,6,2,HR); p(8+dx,4+dy,5,4,K1); p(12+dx,4+dy,1,1,K1); p(7+dx,4+dy,2,3,HR); p(9+dx,3+dy,4,1,HR); p(6+dx,3+dy,1,2,TIE);
+            p(10+dx,5+dy,1,1,'#000'); p(11+dx,6+dy,2,1,'#000'); p(10+dx,4+dy,2,1,HR); p(11+dx,7+dy,1,1,K2); p(9+dx,8+dy,3,1,K2);
+        } else {
+            p(8,0+y,5,1,HR); p(7,1+y,6,2,HR); p(8,3+y,5,4,K1); p(12,3+y,1,1,K1); p(7,3+y,2,3,HR); p(9,2+y,4,1,HR); p(6,2+y,1,2,TIE);
+            p(11,4+y,1,1,E); p(10,3+y,2,1,HR); p(11,6+y,1,1,K2); p(9,7+y,3,1,K2);
+        }
+        
         // front arm
         if (pose === 'attack') { p(13,9+y,6,2,K1); p(17,9+y,2,2,W); p(19,8+y,3,3,W); }
         else if (pose === 'jump') { p(13,9+y,2,2,K1); p(15,8+y,2,2,K1); p(17,7+y,2,2,W); }
+        else if (pose === 'hit') { p(11+dx,12+dy,2,2,K1); p(12+dx,10+dy,2,3,K1); p(12+dx,8+dy,3,2,W); }
         else { p(13,9+y,2,2,K1); p(14,7+y,2,3,K1); p(14,5+y,3,2,W); }
     });
 }
-// Patrol robot grunt, 2 walk frames
+// Patrol robot grunt, 4 walk frames
 function artBot(f) {
     return art(16, 16, (p) => {
         const B='#6b6f80',L='#a0a6ba',D='#3a3d4a',V='#ff3355',F='#2a2c36';
-        p(8,1,1,2,D); p(7,0,3,1,f ? '#ffcc00' : '#aa5500');
-        p(4,3,8,1,L); p(3,4,10,4,B); p(4,5,8,2,D); p(f ? 9 : 8,5,2,2,V); p(f ? 9 : 8,5,1,1,'#ffd0d8');
-        p(2,8,12,4,B); p(3,8,10,1,L); p(6,9,4,2,D); p(7,10,1,1,f ? '#2de0c8' : '#127a6e');
+        p(8,1,1,2,D); p(7,0,3,1, (f%2===0) ? '#ffcc00' : '#aa5500');
+        p(4,3,8,1,L); p(3,4,10,4,B); p(4,5,8,2,D); p( (f%2===0) ? 9 : 8,5,2,2,V); p( (f%2===0) ? 9 : 8,5,1,1,'#ffd0d8');
+        p(2,8,12,4,B); p(3,8,10,1,L); p(6,9,4,2,D); p(7,10,1,1, (f%2===0) ? '#2de0c8' : '#127a6e');
         p(12,9,4,2,D); p(15,9,1,1,'#ffeb3b');
-        if (f) { p(4,12,3,2,D); p(9,12,3,1,D); p(4,14,5,2,F); p(9,13,5,2,F); }
-        else { p(3,12,3,1,D); p(10,12,3,2,D); p(2,13,5,2,F); p(9,14,5,2,F); }
+        if (f === 0) { p(4,12,3,2,D); p(9,12,3,1,D); p(4,14,5,2,F); p(9,13,5,2,F); }
+        else if (f === 1) { p(5,12,3,1,D); p(10,12,3,2,D); p(3,13,5,2,F); p(10,14,5,2,F); }
+        else if (f === 2) { p(3,12,3,1,D); p(10,12,3,2,D); p(2,13,5,2,F); p(9,14,5,2,F); }
+        else if (f === 3) { p(4,12,3,2,D); p(9,12,3,1,D); p(3,14,5,2,F); p(8,13,5,2,F); }
     });
 }
 // Rescue cage: bars with a small prisoner silhouette inside
@@ -229,22 +314,23 @@ function artCage(f) {
 function artBoss(f) {
     return art(64, 64, (p) => {
         const D='#15161f',M='#2e3244',M2='#454b66',L='#6a7396',MAG='#ff2bd6',CY='#20f0ff',WH='#e8fbff',R='#ff4455';
-        p(14,0,2,5,L); p(13,0,4,1,R); p(48,0,2,5,L); p(47,0,4,1,f ? R : '#ffcc00');
+        p(14,0,2,5,L); p(13,0,4,1,R); p(48,0,2,5,L); p(47,0,4,1,f===1 ? R : '#ffcc00');
         p(6,4,52,56,M); p(4,8,56,48,M); p(6,4,52,2,M2); p(4,8,2,48,M2); p(6,58,52,2,D); p(58,8,2,48,D);
         p(8,26,6,24,M2); p(50,26,6,24,M2);
         for (const [x,y] of [[8,7],[54,7],[8,54],[54,54],[30,7]]) p(x,y,2,2,L);
         p(10,12,16,10,D); p(38,12,16,10,D);
         p(12,14,12,6,MAG); p(40,14,12,6,MAG);
         for (let yy = 15; yy < 20; yy += 2) { p(12,yy,12,1,'#a0108a'); p(40,yy,12,1,'#a0108a'); }
-        p(f ? 13 : 15,15,3,3,WH); p(f ? 41 : 43,15,3,3,WH);
+        p(f===1 ? 13 : 15,15,3,3,WH); p(f===1 ? 41 : 43,15,3,3,WH);
+        if (f === 2) { p(12,14,12,6,D); p(40,14,12,6,D); p(12,16,12,2,MAG); p(40,16,12,2,MAG); } // blink
         const cx0 = 32, cy0 = 37;
         for (let dy = -10; dy <= 10; dy++) {
             const h = Math.floor(Math.sqrt(110 - dy * dy)), h2 = Math.floor(Math.sqrt(Math.max(0, 49 - dy * dy))), h3 = Math.floor(Math.sqrt(Math.max(0, 12 - dy * dy)));
             p(cx0 - h, cy0 + dy, h * 2, 1, D);
-            if (h2) p(cx0 - h2, cy0 + dy, h2 * 2, 1, f ? CY : '#0f8f9c');
-            if (h3) p(cx0 - h3, cy0 + dy, h3 * 2, 1, f ? WH : CY);
+            if (h2) p(cx0 - h2, cy0 + dy, h2 * 2, 1, f===1 ? CY : '#0f8f9c');
+            if (h3) p(cx0 - h3, cy0 + dy, h3 * 2, 1, f===1 ? WH : CY);
         }
-        p(16,51,32,6,D); for (let x = 18; x < 47; x += 4) p(x,52,2,4,f ? L : M2);
+        p(16,51,32,6,D); for (let x = 18; x < 47; x += 4) p(x,52,2,4,f===1 ? L : M2);
         p(0,28,6,4,M2); p(0,40,6,4,M2); p(0,29,3,2,D); p(0,41,3,2,D);
         p(20,24,3,1,MAG); p(44,30,4,1,CY); p(9,46,3,1,CY); p(52,22,2,1,MAG); p(26,9,5,1,CY);
     });
@@ -270,15 +356,15 @@ function artCrate() {
 
 const SPR = {};
 function buildSprites() {
-    const poses = ['idle0','idle1','run0','run1','jump','shoot'];
+    const poses = ['idle0','idle1','run0','run1','run2','run3','jump','shoot','hit'];
     SPR.heroes = [artSoldier, artLizard, artBrawler].map((fn, i) => {
         const o = {};
         poses.forEach(ps => { o[ps] = pack(fn(i === 0 ? ps : (ps === 'shoot' ? 'attack' : ps))); });
         return o;
     });
-    SPR.bot = [pack(artBot(0)), pack(artBot(1))];
+    SPR.bot = [artBot(0), artBot(1), artBot(2), artBot(3)].map(pack);
     SPR.cage = [artCage(0), artCage(1)];
-    SPR.boss = [artBoss(0), artBoss(1)];
+    SPR.boss = [artBoss(0), artBoss(1), artBoss(2)];
     SPR.bossW = tintC(SPR.boss[0], '#ffffff');
     SPR.bossM = tintC(SPR.boss[0], '#ff2bd6');
     SPR.bossC = tintC(SPR.boss[0], '#20f0ff');
@@ -312,9 +398,10 @@ let score = 0, lives = 3, rescues = 0, cx = 0, shake = 0, tick = 0;
 
 // Input
 const keys = {};
+let swapQueued = false;
 function bindBtn(id, keyCodes) {
     const el = document.getElementById(id);
-    const down = (e) => { e.preventDefault(); keyCodes.forEach(k => keys[k] = true); el.classList.add('on'); };
+    const down = (e) => { e.preventDefault(); if (id === 'btn-swap') swapQueued = true; keyCodes.forEach(k => keys[k] = true); el.classList.add('on'); };
     const up = (e) => { e.preventDefault(); keyCodes.forEach(k => keys[k] = false); el.classList.remove('on'); };
     el.addEventListener('touchstart', down, { passive: false }); el.addEventListener('touchend', up); el.addEventListener('touchcancel', up);
     el.addEventListener('mousedown', down); el.addEventListener('mouseup', up); el.addEventListener('mouseleave', up);
@@ -323,8 +410,9 @@ bindBtn('btn-left', ['ArrowLeft', 'KeyA']);
 bindBtn('btn-right', ['ArrowRight', 'KeyD']);
 bindBtn('btn-jump', ['ArrowUp', 'KeyW', 'KeyK']);
 bindBtn('btn-shoot', ['Space', 'KeyJ']);
+bindBtn('btn-swap', ['ShiftLeft', 'ShiftRight', 'KeyE']);
 
-window.addEventListener('keydown', e => { if (state === 'PLAY' && ['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault(); keys[e.code] = true; });
+window.addEventListener('keydown', e => { if (!e.repeat && ['ShiftLeft','ShiftRight','KeyE'].includes(e.code)) swapQueued = true; if (state === 'PLAY' && ['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault(); keys[e.code] = true; });
 window.addEventListener('keyup', e => keys[e.code] = false);
 window.addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 document.getElementById('start-btn').addEventListener('click', startGame);
@@ -349,11 +437,12 @@ function rectIntersect(r1, r2) {
 }
 
 function startGame() {
+    swapQueued = false;
     state = 'PLAY'; score = 0; lives = 3; rescues = 0; cx = 0; shake = 0; currentHero = 0;
     document.getElementById('menu-screen').style.display = 'none';
     document.getElementById('start-btn').blur();
     const h0 = HEROES[0];
-    player = { x: 100, y: GH - T*2 - h0.h, w: h0.w, h: h0.h, vx: 0, vy: 0, dir: 1, grounded: false, fireTimer: 0, invuln: 0, flash: 0, muzzle: 0, runT: 0, safeX: 100 };
+    player = { x: 100, y: GH - T*2 - h0.h, w: h0.w, h: h0.h, vx: 0, vy: 0, dir: 1, grounded: false, fireTimer: 0, invuln: 0, flash: 0, muzzle: 0, runT: 0, safeX: 100, swapHeld: false };
     boss = { x: L_END*T - 170, y: GH/2 - 64, w: 128, h: 128, hp: 60, maxHp: 60, active: false, dead: false, vy: 3, timer: 0, flash: 0 };
     blocks = []; enemies = []; cages = []; bullets = []; particles = []; popups = [];
 
@@ -467,6 +556,15 @@ function update() {
     if (Math.abs(player.vx) > hInfo.speed && player.fireTimer > hInfo.fireDelay - 6) player.vx *= 0.8; // melee lunge decays
     else player.vx = mv;
     if (mv !== 0) player.dir = Math.sign(mv);
+
+    // Swap on press, including taps shorter than one update step
+    const swapNow = !!(keys['ShiftLeft'] || keys['ShiftRight'] || keys['KeyE']);
+    if ((swapNow || swapQueued) && !player.swapHeld) {
+        currentHero = (currentHero + 1) % HEROES.length;
+        spawnParticles(player.x, player.y, '#fff', 10);
+        popups.push({x: player.x-20, y: player.y-20, t: "SWAPPED!", l: 30});
+    }
+    player.swapHeld = swapNow; swapQueued = false;
 
     if ((keys['ArrowUp'] || keys['KeyW'] || keys['KeyK']) && player.grounded) {
         player.vy = hInfo.jump; player.grounded = false;
@@ -601,10 +699,11 @@ function update() {
 
 // ---------- Drawing ----------
 function heroPose() {
+    if (player.flash > 0) return 'hit';
     const h = HEROES[currentHero];
     if (player.fireTimer > h.fireDelay - (h.type === 'shoot' ? 5 : 10)) return 'shoot';
     if (!player.grounded) return 'jump';
-    if (player.vx !== 0) return Math.floor(player.runT / 7) % 2 ? 'run1' : 'run0';
+    if (player.vx !== 0) return 'run' + (Math.floor(player.runT / 6) % 4);
     return Math.floor(tick / 32) % 2 ? 'idle1' : 'idle0';
 }
 // Sprite art is drawn so the body center sits at art column 11.5 and the feet at row 25.
@@ -657,7 +756,7 @@ function drawBullet(b) {
     ctx.fillStyle = '#ffffff'; ctx.fillRect(b.x + b.w/4, b.y + b.h/4, b.w/2, b.h/2);
 }
 function drawBoss() {
-    const f = Math.floor(tick / 10) % 2;
+    const f = boss.flash > 0 ? 0 : (tick % 60 < 5 ? 2 : Math.floor(tick / 15) % 2);
     const src = boss.flash > 0 ? SPR.bossW : SPR.boss[f];
     const bx = boss.x - PX, by = boss.y - PX, S = src.width * PX;
     const glitchy = Math.random() < (boss.hp < boss.maxHp / 2 ? 0.45 : 0.25);
@@ -729,7 +828,7 @@ function draw() {
     // Enemies
     enemies.forEach(e => {
         if (e.hp <= 0 || e.x + e.w < cx - 50 || e.x > cx + GW + 50) return;
-        const set = SPR.bot[Math.floor((tick + e.x) / 10) % 2];
+        const set = SPR.bot[Math.floor((tick + e.x) / 5) % 4];
         const right = e.vx > 0, wf = e.flash > 0;
         const img = right ? (wf ? set.wr : set.r) : (wf ? set.wl : set.l);
         ctx.drawImage(img, Math.round(e.x + e.w/2 - img.width*PX/2), Math.round(e.y + e.h - 17*PX), img.width*PX, img.height*PX);
