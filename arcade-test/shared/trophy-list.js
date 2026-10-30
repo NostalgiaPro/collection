@@ -127,18 +127,18 @@
       T(125, "msd-clean", "No Receipt Needed", "Reach the toy store gate without a single bump.", "sealed"),
       T(126, "msd-doorbuster", "Doorbuster Champion", "Score 50,000 points and reach the gate with more than 30 seconds left.", "slabbed")
     ] },
-    // Seasonal (Christmas 2026), test path only for now. My Name Is Jeff. Slots 130-138; never reuse them.
-    // (127-129 stay unused: they belonged to the retired Scrooge's Haunt draft.)
+    // Seasonal (Christmas 2026), test path only for now. My Name Is Jeff. Slots 139-147; never reuse them.
+    // (127-138 are reserved for Badge of Confusion, 12 trophies; 127-129 were also the retired Scrooge's Haunt draft.)
     { slug: "my-name-is-jeff", name: "My Name Is Jeff", status: "live", seasonal: "christmas", trophies: [
-      T(130, "mnj-week", "First Week on the Floor", "Make it to December 8.", "loose", { goal: { stat: "day", at: 8, margin: 3, unit: "days", one: "day" }, end: function (s) { return s.day >= 8; } }),
-      T(131, "mnj-combo", "Neck and Neck", "Chain 5 quick restocks in a row.", "loose"),
-      T(132, "mnj-top", "Top Shelf Service", "Restock the top shelf 25 times in one run.", "loose", { goal: { stat: "top", at: 25, unit: "top shelf restocks", one: "top shelf restock" }, end: function (s) { return s.top >= 25; } }),
-      T(133, "mnj-hot", "Hot Toy Handler", "Restock the Hot Toy shelf 30 times in one run.", "boxed", { goal: { stat: "hot", at: 30, unit: "Hot Toy restocks", one: "Hot Toy restock" }, end: function (s) { return s.hot >= 30; } }),
-      T(134, "mnj-half", "Halfway to the Holidays", "Make it to December 13.", "boxed", { goal: { stat: "day", at: 13, margin: 3, unit: "days", one: "day" }, end: function (s) { return s.day >= 13; } }),
-      T(135, "mnj-clean", "Spotless Shift", "Get through a whole day, December 10 or later, without one empty shelf.", "boxed"),
-      T(136, "mnj-eve", "Christmas Eve Closing", "Keep the shelves stocked all the way through Christmas Eve.", "sealed", end(function (s) { return !!s.eve; })),
-      T(137, "mnj-score", "Employee of the Month", "Score 20,000 points in one run.", "sealed", { goal: { stat: "score", at: 20000, unit: "PTS", fromBest: true }, end: function (s) { return s.score >= 20000; } }),
-      T(138, "mnj-perfect", "Jolly All Season", "Close on Christmas Eve with the Cheer meter at 75 or higher.", "slabbed", end(function (s) { return !!s.eve && s.cheer >= 75; }))
+      T(139, "mnj-week", "First Week on the Floor", "Make it to December 8.", "loose", { goal: { stat: "day", at: 8, margin: 3, unit: "days", one: "day" }, end: function (s) { return s.day >= 8; } }),
+      T(140, "mnj-combo", "Neck and Neck", "Chain 5 quick restocks in a row.", "loose"),
+      T(141, "mnj-top", "Top Shelf Service", "Restock the top shelf 25 times in one run.", "loose", { goal: { stat: "top", at: 25, unit: "top shelf restocks", one: "top shelf restock" }, end: function (s) { return s.top >= 25; } }),
+      T(142, "mnj-hot", "Hot Toy Handler", "Restock the Hot Toy shelf 30 times in one run.", "boxed", { goal: { stat: "hot", at: 30, unit: "Hot Toy restocks", one: "Hot Toy restock" }, end: function (s) { return s.hot >= 30; } }),
+      T(143, "mnj-half", "Halfway to the Holidays", "Make it to December 13.", "boxed", { goal: { stat: "day", at: 13, margin: 3, unit: "days", one: "day" }, end: function (s) { return s.day >= 13; } }),
+      T(144, "mnj-clean", "Spotless Shift", "Get through a whole day, December 10 or later, without one empty shelf.", "boxed"),
+      T(145, "mnj-eve", "Christmas Eve Closing", "Keep the shelves stocked all the way through Christmas Eve.", "sealed", end(function (s) { return !!s.eve; })),
+      T(146, "mnj-score", "Employee of the Month", "Score 20,000 points in one run.", "sealed", { goal: { stat: "score", at: 20000, unit: "PTS", fromBest: true }, end: function (s) { return s.score >= 20000; } }),
+      T(147, "mnj-perfect", "Jolly All Season", "Close on Christmas Eve with the Cheer meter at 75 or higher.", "slabbed", end(function (s) { return !!s.eve && s.cheer >= 75; }))
     ] },
     // Batch 3 (test path only for now). Claude's build used slots 72-95, which collide with Creature Feature KO (71-82)
     // and Gravy or Bust! (83-93), so the new batch 3 trophies were moved up by 22 to slots 94-117. 47-58 are unchanged.
