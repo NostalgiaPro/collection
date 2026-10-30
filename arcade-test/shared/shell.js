@@ -434,6 +434,8 @@
     show("over");
     // Rewards (shared/rewards.js, optional): so-close line, score count-up, PB confetti + sting.
     if (window.NPRewards) { try { window.NPRewards.over({ slug: G.slug, score: score, prev: prev, isNew: beat, fmt: fmt, stats: opts.stats || {} }); } catch (e) { console.error(e); } }
+    // High score table (shared/hiscores.js, optional, test pages only): top 10 with made-up seeds + initials entry.
+    if (window.NPHiScores) { try { window.NPHiScores.over({ slug: G.slug, score: score, fmt: fmt, lower: !!G.lowerIsBetter }); } catch (e) { console.error(e); } }
     if (CFG.trackEvent) CFG.trackEvent("arcade/" + G.slug + "/game-over", G.title + " game over");
   }
 
