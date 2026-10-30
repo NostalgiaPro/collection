@@ -148,6 +148,17 @@ body.np-game {
 .np-flash.off { opacity: 0; transform: translate(-50%, -60%) scale(1); transition: transform .3s, opacity .3s; }
 
 #np-over-tro { color: var(--gold); }
+/* Game over card: the bottom buttons (PLAY AGAIN, Back to arcade, Support) must be reachable on phones.
+   Android can draw the page under its nav bar / gesture bar (edge-to-edge, home screen app) without
+   reporting a safe-area inset, so the card ends with extra scroll room on touch screens. */
+#np-ov-over { padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+#np-ov-over .np-card {
+  max-height: 100%; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+}
+@media (pointer: coarse), (max-width: 600px) {
+  #np-ov-over .np-card { padding-bottom: calc(24px + max(56px, env(safe-area-inset-bottom, 0px))); }
+}
 .np-app [hidden] { display: none !important; }
 .np-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
