@@ -1,5 +1,5 @@
 /* Bump this string whenever you upload new files, or phones keep the old ones. */
-const CACHE = "nostalgiapro-v38";
+const CACHE = "nostalgiapro-v39";
 
 const PAGES = [
   "/", "/index.html", "/anniversaries.html", "/consoles.html", "/reviews.html",
@@ -12,7 +12,7 @@ const PAGES = [
   "/retro.css", "/eras.css", "/eras.js", "/data/music-albums.json", "/growth.js", "/growth.css", "/home.css", "/home.js", "/images/google-play-badge-en.png", "/icon-192.png", "/icon-512.png",
   "/images/merch-is-it-on-the-shelf-tee.webp", "/images/merch-physical-media-enjoyer-tee.webp", "/images/merch-daily-shelf-tee.webp",
   "/arcade/trophies/", "/arcade/trophies/shelf.css", "/arcade/trophies/shelf.js", "/arcade/trophies/game-list.js",
-  "/arcade/shared/trophy-list.js", "/arcade/shared/trophies.js", "/arcade/shared/rewards.js",
+  "/arcade/shared/trophy-list.js", "/arcade/shared/trophies.js", "/arcade/shared/rewards.js", "/arcade/shared/extras.js",
   "/arcade/pawn-shop-pool/", "/arcade/pawn-shop-pool/game.js", "/arcade/rink-rat-shootout/", "/arcade/rink-rat-shootout/game.js",
   "/arcade/powder-day-haul/", "/arcade/powder-day-haul/game.js", "/arcade/table-rink-rumble/", "/arcade/table-rink-rumble/game.js"
 ];

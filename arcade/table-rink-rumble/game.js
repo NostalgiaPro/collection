@@ -13,6 +13,7 @@
   ];
 
   var S = {}, keys = {}, idleT = 0, parts = [];
+  var X = window.NPX && window.NPX.on ? window.NPX : null;   // batch 3 extras (shared/extras.js)
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
 
   function opp() {
@@ -25,6 +26,8 @@
           p: { x: 180, y: Y1 - 70, vx: 0, vy: 0, tx: 180, ty: Y1 - 70 }, c: { x: 180, y: Y0 + 60, vx: 0, vy: 0, tx: 180, ty: Y0 + 60, nt: 0 },
           k: { x: 180, y: MID + 60, vx: 0, vy: 0 }, last: null, pinT: 0, pinGap: 0, ghost: null, back: 0, snd: { me: 0, cpu: 0 }, boost: 0, goals: 0, conceded: 0, fastest: 0 };
     parts.length = 0;
+    if (X) S.x = { sc: X.scenery(), fever: new X.Fever(15), sched: new X.Scheduler(20, 35, 2), rare: null, rares: 0, intro: false, dark: 0, sticky: 0,
+                   puddles: [{ x: 110 + Math.random() * 40, y: Y0 + 90 + Math.random() * 60, r: 34 }, { x: 210 + Math.random() * 40, y: MID + 60 + Math.random() * 80, r: 34 }] };
     faceoff(1);
   }
   function faceoff(side) {   // side 1: puck on your half, -1: on the CPU's half
@@ -66,10 +69,16 @@
       if (-vn > 60 && S.pinT <= 0 && S.t - S.snd[who] > 0.15) { S.snd[who] = S.t; Shell.tone(who === "me" ? 520 : 400, 0.05, "square", Math.min(0.3, 0.1 - vn / 3000)); Shell.noise(0.04, 0.3, 2000, 1); }
     }
   }
+  function block(pd) {
+    var dx = pd.x - S.k.x, dy = pd.y - S.k.y, d = Math.hypot(dx, dy), rr = PR + KR;
+    if (d < rr && d > 1e-4) { pd.x = S.k.x + dx / d * rr; pd.y = S.k.y + dy / d * rr; pd.vx = pd.vy = 0; }
+  }
   function stepPuck(dt) {
     var k = S.k;
     var sp = Math.hypot(k.vx, k.vy);
-    if (sp > 0) { var ns = Math.max(0, sp - (8 + sp * 0.18) * dt); k.vx *= ns / sp; k.vy *= ns / sp; }
+    var drag = 1;
+    if (S.x && S.x.sc.id === "rain") for (var pi = 0; pi < S.x.puddles.length; pi++) if (Math.hypot(k.x - S.x.puddles[pi].x, k.y - S.x.puddles[pi].y) < S.x.puddles[pi].r) drag = 3;
+    if (sp > 0) { var ns = Math.max(0, sp - (8 + sp * 0.18) * drag * dt); k.vx *= ns / sp; k.vy *= ns / sp; }
     k.x += k.vx * dt; k.y += k.vy * dt;
     if (k.x < X0 + KR) { k.x = X0 + KR; k.vx = Math.abs(k.vx) * 0.92; wall(); }
     if (k.x > X1 - KR) { k.x = X1 - KR; k.vx = -Math.abs(k.vx) * 0.92; wall(); }
@@ -121,9 +130,11 @@
       if (window.Trophies) Trophies.unlock("trr-goal");
       S.row = (S.row || 0) + 1;                         // goals in a row, for the rewards.js streak pill only
       if (window.NPRewards && S.row >= 2) NPRewards.streak(S.row);
+      if (S.x) S.x.fever.hit("He slows down, you speed up");
       S.boost += 0.06;                                  // he gets a little faster every time you score
     } else {
       S.cpu++; S.conceded++; S.row = 0;
+      if (S.x) S.x.fever.miss();
       var own = S.last === "me" && S.k.vy > 0;
       Shell.flash(own ? "OWN GOAL" : "HE SCORES", own ? "Restocking fee. " + S.me + " to " + S.cpu : o.name + " scores. " + S.me + " to " + S.cpu, "#ff3fa4", 900);
       Shell.sfx("miss");
@@ -160,11 +171,62 @@
     Shell.sfx("best");
   }
 
+  /* ---------------- Batch 3 extras ---------------- */
+  var EVENTS = [
+    { title: "Wrong Case", text: "The puck in the slot came out of the wrong case. Complain to the owner?",
+      a: { label: "Complain", run: function () { if (X.coin(0.5)) { faceoff(1); return "He gives you the serve to make it right."; } faceoff(-1); return "He takes it back and serves from his side."; } },
+      b: { label: "Play on", run: function () { return "A puck is a puck."; } } },
+    { title: "Nostalgia Blindness", text: "Your childhood favorite is on the snack bar shelf. It is not good. You loved it.",
+      a: { label: "Buy it", run: function () { S.x.fever.hit("He slows down, you speed up"); return "Pure joy. One step closer to a Hot Streak."; } },
+      b: { label: "Resist", run: function () { return "You keep your margin. And your dignity."; } } },
+    { title: "Floor Find", text: "There's a dropped cartridge under the table.",
+      a: { label: "Grab it", run: function () { return rareNow(); } },
+      b: { label: "Leave it", run: function () { return "Somebody else's lucky day."; } } },
+    { title: "Battery Dead", text: "The table lights flicker out mid-match.",
+      a: { label: "Plug it in", run: function () { faceoff(-1); return "Lights back on. He gets the serve."; } },
+      b: { label: "Play dark", run: function () { S.x.dark = 10; return "The table goes dim for a while."; } } },
+    { title: "Coffee Spill", text: "Somebody's soda tips over on the rail next to you.",
+      a: { label: "Dodge", run: function () { if (X.coin(0.6)) return "Saved your sleeve."; S.x.sticky = 5; return "Sticky paddle. You move slower for 5 seconds."; } },
+      b: { label: "Wipe it up", run: function () { faceoff(-1); return "All clean. He serves."; } } }
+  ];
+  function rareMult() { var sc = S.x.sc.id; return (sc === "suburbs" ? 3 : sc === "fog" ? 1.5 : 1) * (S.x.fever.active() ? 2 : 1); }
+  function rareNow() {
+    var it = X.rollRare(rareMult()), fake = S.x.sc.id === "twilight" && X.coin(0.35);
+    X.collect(it, fake);
+    if (fake) return "Thin shell, wrong screws. A reproduction.";
+    S.x.rares++; return it.n + " (" + X.TIER[it.t].word + ").";
+  }
+  function cpuMult() {
+    if (!S.x) return 1;
+    var id = S.x.sc.id, m = id === "sun" ? 1.08 : id === "suburbs" ? 1.1 : id === "golden" ? 0.9 : 1;
+    return S.x.fever.active() ? m * 0.7 : m;
+  }
+  function extrasTick(dt) {
+    var x = S.x;
+    if (!x.intro) { x.intro = true; Shell.flash(x.sc.name, x.sc.line, "#9bff3f", 1500); }
+    x.fever.tick(dt);
+    if (x.dark > 0) x.dark -= dt;
+    if (x.sticky > 0) x.sticky -= dt;
+    // an event is due at this faceoff: hold the serve while a goal message or trophy popup is still up, then open the card
+    if (S.phase === "face" && S.pt < 0.05 && x.sched.ready(S.t)) {
+      if (X.busy() && (x.hold = (x.hold || 0) + dt) < 4) S.pt = 0;
+      else { x.hold = 0; if (x.sched.due(S.t)) X.startEvent(X.pick(EVENTS)); }
+    }
+    if (S.phase === "play" && !x.rare && Math.random() < dt * 0.05 * rareMult()) x.rare = { x: X0 + 50 + Math.random() * (X1 - X0 - 100), y: Y0 + 50 + Math.random() * (MID - Y0 - 90), life: 10, tier: X.rollRare(rareMult()) };
+    if (x.rare) {
+      x.rare.life -= dt;
+      if (S.last === "me" && Math.hypot(S.k.x - x.rare.x, S.k.y - x.rare.y) < KR + 10) {   // knock the puck through it
+        var fake = x.sc.id === "twilight" && X.coin(0.35); X.collect(x.rare.tier, fake); if (!fake) x.rares++; x.rare = null;
+      } else if (x.rare.life <= 0) x.rare = null;
+    }
+  }
+
   function finish() {
     var score = S.wins * 10 + S.bestMargin;
     Shell.gameOver(score, { title: "TABLE CLOSED", html:
       row("Matches won in a row", S.wins) + row("Best winning margin", S.bestMargin ? "+" + S.bestMargin : "None") +
-      row("Lost to", opp().name) + row("Goals for / against", S.goals + " / " + S.conceded),
+      row("Lost to", opp().name) + row("Goals for / against", S.goals + " / " + S.conceded) +
+      (S.x ? row("Scenery", S.x.sc.name) + row("Rare finds", S.x.rares + " this run, " + X.foundCount() + " of " + X.RARES.length + " found") + row("Hot Streaks", S.x.fever.count) : ""),
       stats: { wins: S.wins, bestMargin: S.bestMargin, goals: S.goals, conceded: S.conceded, fastest: S.fastest ? Math.round(S.fastest) : undefined,   // undefined until a win, so rewards.js skips it (0 would look like a record)
       lastOpponent: S.match } });
   }
@@ -203,7 +265,10 @@
 
   /* ---------------- Update ---------------- */
   function update(dt) {
+    if (X && X.eventActive()) { X.eventTick(dt); return; }
     S.t += dt; S.pt += dt;
+    if (S.x) extrasTick(dt);
+    if (X && X.eventActive()) return;
     var i;
     for (i = parts.length - 1; i >= 0; i--) { var q = parts[i]; q.life -= dt; q.x += q.vx * dt; q.y += q.vy * dt; if (q.life <= 0) parts.splice(i, 1); }
     if (S.phase === "lost") { if (S.pt > 1.3) finish(); return; }
@@ -226,9 +291,11 @@
     }
     cpuThink(dt);
     for (i = 0; i < n; i++) {
-      movePaddle(S.p, sdt, pMax, MID + PR, Y1 - PR);
-      movePaddle(S.c, sdt, o.speed * (1 + S.boost), Y0 + PR, MID - PR);
+      var mine = pMax * (S.x ? (S.x.fever.active() && (mv.x || mv.y) ? 2 : 1) * (S.x.sticky > 0 ? 0.6 : 1) : 1);   // batch 3 extras: Hot Streak, sticky paddle
+      movePaddle(S.p, sdt, mine, MID + PR, Y1 - PR);
+      movePaddle(S.c, sdt, o.speed * (1 + S.boost) * cpuMult(), Y0 + PR, MID - PR);
       if (S.phase === "play") { stepPuck(sdt); hit(S.p, "me"); hit(S.c, "cpu"); unstick(sdt); }
+      else { block(S.p); block(S.c); }   // during the faceoff a paddle can't slide through the waiting puck
       if (S.phase !== "play") break;
     }
   }
@@ -241,6 +308,7 @@
   function clampHalfX(x) { return clamp(x, X0 + PR, X1 - PR); }
   function clampHalfY(y) { return clamp(y, MID + PR, Y1 - PR); }
   function pointer(type, x, y, e) {
+    if (X && X.eventActive()) { drag = null; X.eventPointer(type, x, y); return; }
     var touch = e && e.pointerType === "touch";
     if (!touch) {
       drag = null;
@@ -284,7 +352,10 @@
     stage.addEventListener("pointerup", end);
     stage.addEventListener("pointercancel", end);
   }
-  function key(type, code) { keys[code] = type === "down"; }
+  function key(type, code) {
+    if (X && X.eventActive()) { for (var kk in keys) keys[kk] = false; X.eventKey(type, code); return; }
+    keys[code] = type === "down";
+  }
 
   /* ---------------- Drawing ---------------- */
   function fr(c, x, y, w, h, col) { c.fillStyle = col; c.fillRect(x, y, w, h); }
@@ -320,12 +391,22 @@
   }
   function draw(c, state) {
     drawTable(c);
+    if (S.x && S.x.sc.id === "rain") S.x.puddles.forEach(function (p) { c.fillStyle = "rgba(120,170,255,.28)"; c.beginPath(); c.ellipse(p.x, p.y, p.r, p.r * 0.7, 0, 0, TAU); c.fill(); });
+    if (S.x && S.x.rare) X.drawCart(c, S.x.rare.x, S.x.rare.y, S.x.rare.tier.t, S.t, 0.8);
     if (S.phase === "face" || S.phase === "play") circ(c, S.k.x + 2, S.k.y + 3, KR, "rgba(0,0,0,.35)");
     if (S.phase !== "next" && S.phase !== "lost") { circ(c, S.k.x, S.k.y, KR, "#eceae2"); circ(c, S.k.x, S.k.y, KR - 4, "#ff4b3e"); }
     drawPaddle(c, S.c, "#ff3fa4", "#a8256a");
     drawPaddle(c, S.p, "#3ff0ff", "#1f8a93");
     for (var i = 0; i < parts.length; i++) fr(c, parts[i].x, parts[i].y, 3, 3, parts[i].c);
+    if (S.x) {
+      var area = { x: X0 - 10, y: Y0 - 12, w: X1 - X0 + 20, h: Y1 - Y0 + 24 };
+      if (S.x.sc.id === "fog") { c.fillStyle = "rgba(225,232,240,.35)"; c.fillRect(X0, Y0, X1 - X0, MID - Y0 - 30); }
+      X.drawScenery(c, S.x.sc, S.t, area);
+      if (S.x.dark > 0) { c.fillStyle = "rgba(0,0,0,.45)"; c.fillRect(area.x, area.y, area.w, area.h); }
+      S.x.fever.draw(c, area, S.t);
+    }
     drawHUD(c);
+    if (S.x) { X.drawTag(c, S.x.sc, 10, H - 12); X.drawEvent(c, W, H); }
   }
 
   // Hook for automated checks (no effect on play)

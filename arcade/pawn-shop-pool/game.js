@@ -15,7 +15,9 @@
   var RACKS = 3, CLOSE_AT = 300, SCRATCH_SEC = 10, COMBO_SEC = 3, LEFT_SEC = 20;
   var COLORS = ["#ffd23f", "#2f6bff", "#ff4b3e", "#a77bff", "#ff8a2a", "#2fbf5a", "#9a2f3a", "#1b1c22", "#ffd23f"];
 
-  var S = {}, keys = {}, idleT = 0, parts = [];
+  var GBTN = { x: 80, y: 9, w: 52, h: 36 };             // GUIDE on/off button in the top bar
+  var S = {}, keys = {}, idleT = 0, parts = [], guideOn = null;
+  var X = window.NPX && window.NPX.on ? window.NPX : null;   // batch 3 extras (shared/extras.js)
 
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
 
@@ -34,6 +36,7 @@
           aim: -Math.PI / 2, power: 0, charging: false, chargeT: 0, drag: null, kb: false,
           shot: null, shots: 0, scratches: 0, combos: 0, bestCombo: 0, potted: 0, breakPots: 0, rackShots: 0, over: false };
     parts.length = 0;
+    if (X) S.x = { sc: X.scenery(), fever: new X.Fever(15), sched: new X.Scheduler(25, 55, 2), rare: null, rares: 0, events: 0, intro: false };
   }
   function clock() { return S.time + S.penalty - S.bonus; }
   function ballsLeft() { var n = 0; for (var i = 0; i < S.balls.length; i++) if (!S.balls[i].in) n++; return n + (RACKS - S.rack) * 9; }
@@ -55,7 +58,7 @@
       b = a[i]; if (b.in) continue;
       var sp = Math.hypot(b.vx, b.vy);
       if (sp > 0) {
-        var ns = Math.max(0, sp - (FR_C + FR_K * sp) * dt);
+        var ns = Math.max(0, sp - (FR_C + FR_K * sp) * (S.x && S.x.sc.id === "rain" ? 1.2 : 1) * dt);
         if (ns < 3) { b.vx = b.vy = 0; } else { b.vx *= ns / sp; b.vy *= ns / sp; }
       }
       b.x += b.vx * dt; b.y += b.vy * dt;
@@ -107,7 +110,7 @@
     Shell.sfx("cup");
     if (!S.shot) return;
     if (b.n === 0) S.shot.scratch = true;
-    else { S.shot.pots++; S.potted++; }
+    else { S.shot.pots++; S.potted++; if (S.x && S.x.rare && POCKETS[S.x.rare.p] === p) S.shot.rarePot = true; }
   }
 
   /* ---------------- Shooting ---------------- */
@@ -126,6 +129,7 @@
   function endShot() {
     var sh = S.shot, msg = null;
     S.shot = null;
+    if (S.x) extrasShot(sh);
     if (sh.isBreak && sh.pots > 0) { S.breakPots++; if (window.Trophies) Trophies.unlock("psp-break"); }
     if (sh.pots >= 2) {
       S.bonus += COMBO_SEC; S.combos++; S.bestCombo = Math.max(S.bestCombo, sh.pots);
@@ -152,7 +156,7 @@
       S.balls = rackBalls(); S.rackShots = 0;
       if (!sh.scratch) { S.cue.x = HEAD.x; S.cue.y = HEAD.y; }
       respot();
-      msg = ["RACK " + S.rack, S.rack === 2 ? "Shorter guide line from here." : "No guide line. Sold as is.", "#ffd23f"];
+      msg = ["RACK " + S.rack, S.rack === 2 ? "Fresh rack. The clock keeps running." : "Last rack before closing.", "#ffd23f"];
       Shell.sfx("best");
     }
     if (msg) Shell.flash(msg[0], msg[1], msg[2], 1100);
@@ -170,6 +174,51 @@
     c.x = HEAD.x; c.y = HEAD.y;
   }
 
+  /* ---------------- Batch 3 extras ---------------- */
+  var EVENTS = [
+    { title: "Trunk Deal", text: "A guy in a faded muscle car offers a milk crate of carts. Pay 10 seconds, sight unseen?",
+      a: { label: "Pay 10 sec", run: function () { S.penalty += 10; if (X.coin(0.45)) return rareNow("Under the football carts: "); return "A crate of worthless football carts. Plus 10 seconds."; } },
+      b: { label: "Pass", run: function () { return "He drives off. Probably nothing in there."; } } },
+    { title: "Price Swap", text: "Someone swapped a $50 tag with a $2 tag on the cue rack.",
+      a: { label: "Be honest", run: function () { S.bonus += 5; return "The owner appreciates it. 5 seconds off the clock."; } },
+      b: { label: "Pay $2", run: function () { if (X.coin(0.5)) { S.bonus += 5; return "Nobody noticed. 5 seconds off."; } S.penalty += 10; return "Caught at the register. Plus 10 seconds."; } } },
+    { title: "Guard Dog", text: "A grumpy bulldog is napping on the rail next to a corner pocket.",
+      a: { label: "Pet him", run: function () { if (X.coin(0.5)) return "He licks your hand and waddles off."; S.penalty += 6; return "He bites. Plus 6 seconds."; } },
+      b: { label: "Bribe him", run: function () { S.penalty += 2; return "A snack costs 2 seconds. He leaves happy."; } } },
+    { title: "Pawn Lowball", text: "The broker offers a heavy box of sports carts for one dollar.",
+      a: { label: "Take it", run: function () { S.penalty += 4; if (X.coin(0.3)) return rareNow("At the very bottom: "); return "Thirty copies of the same baseball game. Plus 4 seconds."; } },
+      b: { label: "Pass", run: function () { return "You keep your shelf space."; } } },
+    { title: "The Stand-Off", text: "The owner says he might close early. Call his bluff?",
+      a: { label: "Walk away", run: function () { if (X.coin(0.5)) { S.bonus += 5; return "He calls you back. 5 seconds off."; } S.penalty += 5; return "He lets you walk. Plus 5 seconds."; } },
+      b: { label: "Keep playing", run: function () { return "You chalk up and keep shooting."; } } }
+  ];
+  function rareMult() { var sc = S.x.sc.id; return (sc === "suburbs" ? 3 : sc === "fog" ? 1.5 : 1) * (S.x.fever.active() ? 2 : 1); }
+  function rareNow(prefix) {
+    var it = X.rollRare(rareMult()), fake = S.x.sc.id === "twilight" && X.coin(0.35);
+    var pts = X.collect(it, fake);
+    if (!fake) { S.x.rares++; S.bonus += pts; return (prefix || "") + it.n + " (" + X.TIER[it.t].word + "). " + pts + " seconds off."; }
+    return "It was a reproduction cartridge. Nothing gained.";
+  }
+  function extrasShot(sh) {
+    var x = S.x;
+    // a clean pot keeps the streak going; three in a row starts the Hot Streak
+    if (sh.pots > 0 && !sh.scratch) x.fever.hit("Clock runs at half speed"); else x.fever.miss();
+    if (sh.rarePot && x.rare) { x.rare = null; var it = X.rollRare(rareMult()), fake = S.x.sc.id === "twilight" && X.coin(0.35), pts = X.collect(it, fake); if (!fake) { x.rares++; S.bonus += pts; } }
+    else if (x.rare && --x.rare.shots <= 0) x.rare = null;
+    if (!x.rare && Math.random() < 0.16 * rareMult()) x.rare = { p: Math.floor(Math.random() * POCKETS.length), shots: 3 };
+  }
+  function extrasTick(dt) {
+    var x = S.x;
+    if (!x.intro) { x.intro = true; Shell.flash(x.sc.name, x.sc.line, "#9bff3f", 1500); }
+    x.fever.tick(dt);
+    if (S.phase === "aim" && !S.charging && !S.drag && x.sched.due(clock())) { x.events++; X.startEvent(X.pick(EVENTS)); }
+  }
+  function clockRate() {
+    if (!S.x) return 1;
+    var r = S.x.sc.id === "sun" || S.x.sc.id === "suburbs" ? 1.1 : S.x.sc.id === "golden" ? 0.9 : 1;
+    return S.x.fever.active() ? r * 0.5 : r;
+  }
+
   function finish(cleared) {
     if (S.over) return;
     S.over = true;
@@ -177,6 +226,7 @@
     var html = row("Shot clock", fmt(Math.round(clock()))) + row("Shots", S.shots) + row("Scratches", S.scratches + " (+" + S.scratches * SCRATCH_SEC + " sec)") +
       row("Two for one shots", S.combos + " (-" + S.combos * COMBO_SEC + " sec)");
     if (!cleared) html += row("Balls left at closing", left + " (+" + left * LEFT_SEC + " sec)");
+    if (S.x) html += row("Scenery", S.x.sc.name) + row("Rare finds", S.x.rares + " this run, " + X.foundCount() + " of " + X.RARES.length + " found") + row("Hot Streaks", S.x.fever.count);
     Shell.gameOver(score, { title: cleared ? "CLEARED OUT" : "CLOSED", html: html,
       stats: { cleared: cleared, time: score, racks: cleared ? RACKS : S.rack - 1, shots: S.shots, scratches: S.scratches, combos: S.combos, bestCombo: S.bestCombo, potted: S.potted } });
   }
@@ -185,7 +235,9 @@
 
   /* ---------------- Update ---------------- */
   function update(dt) {
-    S.t += dt; S.pt += dt; S.time += dt;
+    if (X && X.eventActive()) { X.eventTick(dt); return; }
+    S.t += dt; S.pt += dt; S.time += dt * clockRate();
+    if (S.x) extrasTick(dt);
     var i;
     for (i = parts.length - 1; i >= 0; i--) { var q = parts[i]; q.life -= dt; q.x += q.vx * dt; q.y += q.vy * dt; if (q.life <= 0) parts.splice(i, 1); }
     var a = all();
@@ -213,8 +265,19 @@
   }
 
   /* ---------------- Input ---------------- */
+  /* Aim guide: optional, on by default, remembered on this device (npArcade.pawn-shop-pool.guide). */
+  function guide() { if (guideOn === null) guideOn = Shell.load("guide") !== "0"; return guideOn; }
+  function toggleGuide() {
+    guideOn = !guide();
+    Shell.save("guide", guideOn ? "1" : "0");
+    Shell.flash(guideOn ? "GUIDE ON" : "GUIDE OFF", guideOn ? "Aim line, first bounce and contact shown." : "Eyeball it. Press G to bring it back.", guideOn ? "#3ff0ff" : "#8e93a2", 800);
+    Shell.tone(guideOn ? 880 : 440, 0.06, "square", 0.15);
+  }
+  function inGuideBtn(x, y) { return x >= GBTN.x - 4 && x <= GBTN.x + GBTN.w + 4 && y >= 0 && y <= 54; }
   function pointer(type, x, y) {
+    if (X && X.eventActive()) { X.eventPointer(type, x, y); return; }
     if (type === "down") {
+      if (inGuideBtn(x, y)) { toggleGuide(); return; }
       if (!canShoot()) return;
       S.drag = { sx: x, sy: y, x: x, y: y }; S.kb = false; S.charging = false;
     } else if (type === "move" && S.drag) {
@@ -230,9 +293,11 @@
     }
   }
   function key(type, code, e) {
+    if (X && X.eventActive()) { keys = {}; X.eventKey(type, code); return; }
     var act = code === "Space" || code === "Enter" || code === "NumpadEnter";
     if (type === "down") {
       keys[code] = true;
+      if (code === "KeyG" && !e.repeat) { toggleGuide(); return; }
       if (act && !e.repeat && canShoot() && !S.charging) { S.charging = true; S.chargeT = 0; S.power = 0; S.kb = true; S.drag = null; }
     } else {
       keys[code] = false;
@@ -301,6 +366,71 @@
     return { d: best, ball: hit, x: cx + dx * best, y: cy + dy * best };
   }
 
+  // Ray from any point along (dx, dy): first ball (ghost-ball contact) or rail it reaches.
+  function castFrom(cx, cy, dx, dy) {
+    var best = 9999, hit = null, wall = null;
+    for (var i = 0; i < S.balls.length; i++) {
+      var b = S.balls[i]; if (b.in) continue;
+      var fx = b.x - cx, fy = b.y - cy, tproj = fx * dx + fy * dy;
+      if (tproj <= 0) continue;
+      var perp2 = fx * fx + fy * fy - tproj * tproj, rr = 4 * R * R;
+      if (perp2 > rr) continue;
+      var tt = tproj - Math.sqrt(rr - perp2);
+      if (tt < best) { best = Math.max(0, tt); hit = b; }
+    }
+    var tw = 9999, tx;
+    if (dx > 1e-6) { tx = (X1 - R - cx) / dx; if (tx < tw) { tw = tx; wall = "x"; } }
+    if (dx < -1e-6) { tx = (X0 + R - cx) / dx; if (tx < tw) { tw = tx; wall = "x"; } }
+    if (dy > 1e-6) { tx = (Y1 - R - cy) / dy; if (tx < tw) { tw = tx; wall = "y"; } }
+    if (dy < -1e-6) { tx = (Y0 + R - cy) / dy; if (tx < tw) { tw = tx; wall = "y"; } }
+    if (tw < best) { best = Math.max(0, tw); hit = null; } else wall = null;
+    var px = cx + dx * best, py = cy + dy * best, pk = null;
+    if (!hit) for (var j = 0; j < POCKETS.length; j++) if (Math.hypot(px - POCKETS[j].x, py - POCKETS[j].y) < MOUTH) { pk = POCKETS[j]; break; }
+    return { d: best, ball: hit, wall: wall, pocket: pk, x: px, y: py };
+  }
+  function dots(c, x0, y0, dx, dy, from, to, col) {
+    for (var d = from; d < to; d += 7) fr(c, x0 + dx * d - 1, y0 + dy * d - 1, 2, 2, col);
+  }
+  function arrowLine(c, x, y, dx, dy, len, col) {
+    var ex = x + dx * len, ey = y + dy * len;
+    c.strokeStyle = col; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(x, y); c.lineTo(ex, ey); c.stroke();
+    c.fillStyle = col; c.beginPath();
+    c.moveTo(ex + dx * 6, ey + dy * 6); c.lineTo(ex - dy * 4, ey + dx * 4); c.lineTo(ex + dy * 4, ey - dx * 4); c.closePath(); c.fill();
+  }
+  // Ghost ball where the cue meets the first ball, plus where that ball heads and where the cue glances off.
+  function drawContact(c, h, dx, dy, alpha) {
+    var b = h.ball, nx = b.x - h.x, ny = b.y - h.y, nl = Math.hypot(nx, ny) || 1;
+    nx /= nl; ny /= nl;
+    c.strokeStyle = "rgba(236,234,226," + (0.85 * alpha) + ")"; c.lineWidth = 1;
+    c.beginPath(); c.arc(h.x, h.y, R, 0, TAU); c.stroke();
+    var cut = clamp(dx * nx + dy * ny, 0, 1);                       // 1 = straight on, 0 = thin cut
+    arrowLine(c, b.x + nx * (R + 2), b.y + ny * (R + 2), nx, ny, 22 + 60 * cut, "rgba(255,210,63," + (0.9 * alpha) + ")");
+    var tx = dx - cut * nx, ty = dy - cut * ny, tl = Math.hypot(tx, ty);
+    if (tl > 0.08) dots(c, h.x, h.y, tx / tl, ty / tl, R + 3, R + 3 + 40 * tl, "rgba(63,240,255," + (0.7 * alpha) + ")");
+  }
+  function drawGuide(c, a) {
+    var dx = Math.cos(a), dy = Math.sin(a), cx = S.cue.x, cy = S.cue.y;
+    var h = castFrom(cx, cy, dx, dy);
+    dots(c, cx, cy, dx, dy, R + 4, h.d, "rgba(236,234,226,.85)");
+    if (h.ball) { drawContact(c, h, dx, dy, 1); return; }
+    if (h.pocket) { c.strokeStyle = "rgba(155,255,63,.85)"; c.lineWidth = 2; c.beginPath(); c.arc(h.pocket.x, h.pocket.y, h.pocket.r + 3, 0, TAU); c.stroke(); return; }
+    // first bounce off the rail
+    c.strokeStyle = "rgba(236,234,226,.6)"; c.lineWidth = 1; c.beginPath(); c.arc(h.x, h.y, R, 0, TAU); c.stroke();
+    var rx = h.wall === "x" ? -dx : dx, ry = h.wall === "y" ? -dy : dy;
+    var h2 = castFrom(h.x, h.y, rx, ry), lim = Math.min(h2.d, 200);
+    dots(c, h.x, h.y, rx, ry, R + 2, lim, "rgba(236,234,226,.45)");
+    if (h2.ball && h2.d <= 200) drawContact(c, h2, rx, ry, 0.6);
+    else if (h2.pocket && h2.d <= 200) { c.strokeStyle = "rgba(155,255,63,.6)"; c.lineWidth = 2; c.beginPath(); c.arc(h2.pocket.x, h2.pocket.y, h2.pocket.r + 3, 0, TAU); c.stroke(); }
+  }
+  function drawGuideBtn(c) {
+    var on = guide();
+    fr(c, GBTN.x, GBTN.y, GBTN.w, GBTN.h, on ? "rgba(63,240,255,.18)" : "rgba(29,32,41,.9)");
+    c.strokeStyle = on ? "#3ff0ff" : "#3a3e4c"; c.lineWidth = 1; c.strokeRect(GBTN.x + 0.5, GBTN.y + 0.5, GBTN.w - 1, GBTN.h - 1);
+    Shell.uiText(c, "GUIDE (G)", GBTN.x + GBTN.w / 2, GBTN.y + 5, 8, "#8e93a2", "center");
+    Shell.text(c, on ? "ON" : "OFF", GBTN.x + GBTN.w / 2, GBTN.y + 20, 8, on ? "#3ff0ff" : "#8e93a2", "center");
+  }
+
   function currentShot() {
     if (S.drag) {
       var len = Math.hypot(S.drag.sx - S.drag.x, S.drag.sy - S.drag.y);
@@ -312,14 +442,7 @@
 
   function drawAim(c) {
     var sh = currentShot(), dx = Math.cos(sh.a), dy = Math.sin(sh.a), cx = S.cue.x, cy = S.cue.y;
-    if (S.rack < 3) {
-      var hit = cast(sh.a), lim = S.rack === 1 ? hit.d : Math.min(hit.d, 70);
-      for (var d = R + 4; d < lim; d += 7) fr(c, cx + dx * d - 1, cy + dy * d - 1, 2, 2, "rgba(236,234,226,.8)");
-      if (S.rack === 1 || hit.d <= 70) {
-        c.strokeStyle = "rgba(236,234,226,.75)"; c.lineWidth = 1;
-        c.beginPath(); c.arc(hit.x, hit.y, R, 0, TAU); c.stroke();
-      }
-    }
+    if (guide()) drawGuide(c, sh.a);
     // the cue stick, pulled back by the power
     var back = R + 6 + sh.p * 40, len = 150;
     c.save(); c.lineCap = "round";
@@ -357,6 +480,7 @@
     var ha = -Math.PI / 2 + k * TAU;
     c.strokeStyle = "#ffd23f"; c.lineWidth = 2; c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx + Math.cos(ha) * 14, cy + Math.sin(ha) * 14); c.stroke();
     Shell.uiText(c, "CLOSED AT " + fmt(CLOSE_AT), W - 54, 44, 8, "#8e93a2", "right");
+    drawGuideBtn(c);
   }
 
   function draw(c, state) {
@@ -367,11 +491,18 @@
     for (var i = 0; i < a.length; i++) drawBall(c, a[i]);
     if (state === "playing" && S.phase === "aim") drawAim(c);
     for (i = 0; i < parts.length; i++) fr(c, parts[i].x, parts[i].y, 3, 3, parts[i].c);
+    if (S.x) {
+      var area = { x: X0 - 20, y: Y0 - 20, w: X1 - X0 + 40, h: Y1 - Y0 + 40 };
+      X.drawScenery(c, S.x.sc, t, area);
+      if (S.x.rare) { var rp = POCKETS[S.x.rare.p]; X.drawCart(c, rp.x + (rp.x < 180 ? 16 : -16), rp.y + (rp.y < 200 ? 20 : rp.y > 400 ? -20 : 0), "rare", t, 0.8); }
+      S.x.fever.draw(c, area, t);
+    }
     drawHUD(c, t);
+    if (S.x) { X.drawTag(c, S.x.sc, 10, 58); X.drawEvent(c, W, H); }   // tag sits just under the top status bar, not on it
   }
 
   // Hook for automated checks (no effect on play)
-  window.__pool = { S: function () { return S; }, update: update, shoot: shoot, step: step, cast: cast, moving: moving, POCKETS: POCKETS, R: R };
+  window.__pool = { S: function () { return S; }, update: update, shoot: shoot, step: step, cast: cast, castFrom: castFrom, guide: function () { return guide(); }, moving: moving, POCKETS: POCKETS, R: R };
 
   Shell.init({
     slug: "pawn-shop-pool",
@@ -380,8 +511,8 @@
     width: W, height: H,
     lowerIsBetter: true,
     format: fmt,
-    howTo: "Clear three racks in the back room before the shop closes. Drag back from anywhere to aim and set power, then let go.",
-    keys: "Keys: left and right aim (up and down fine tune), hold Space for power, release to shoot. P pause, M mute, R restart.",
+    howTo: "Clear three racks in the back room before the shop closes. Drag back from anywhere to aim and set power, then let go. Tap GUIDE at the top to turn the aim line on or off.",
+    keys: "Keys: left and right aim (up and down fine tune), hold Space for power, release to shoot, G turns the aim guide on or off. P pause, M mute, R restart.",
     tip: "A scratch costs 10 seconds. Two balls in one shot takes 3 off.",
     reset: reset,
     update: update,

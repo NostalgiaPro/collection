@@ -11,6 +11,7 @@
   var SAVES = ["Is it on the shelf? Not yours.", "Already in his collection.", "Denied. Mint condition.", "Not for sale."];
 
   var S = {}, keys = {}, idleT = 0, parts = [];
+  var X = window.NPX && window.NPX.on ? window.NPX : null;   // batch 3 extras (shared/extras.js)
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
 
   function reset() {
@@ -18,6 +19,7 @@
           drag: null, shot: null, goals: 0, points: 0, tops: 0, posts: 0, saves: 0, shots: 0, streak: 0, bestStreak: 0,
           per: [0, 0, 0], frontT: 0, pokes: 0, net: 0, saveIdx: 0 };
     parts.length = 0;
+    if (X) S.x = { sc: X.scenery(), fever: new X.Fever(15), sched: new X.Scheduler(18, 30, 2), rare: null, rares: 0, intro: false, fast: false, distract: false, bonusNext: 0 };
   }
 
   function period() { return Math.min(PERIODS - 1, S.period); }
@@ -40,7 +42,9 @@
   function shoot(ax, ay, len) {
     if (!canShoot()) return;
     var T = 0.42 - clamp(len, 0, 1) * 0.12;
-    S.shot = { x: ax, y: ay, T: T, t: 0, fromX: S.px, res: null, gStart: S.g };
+    if (S.x) { if (S.x.sc.id === "rain") T += 0.04; if (S.x.fast) { T -= 0.06; S.x.fast = false; } }
+    S.shot = { x: ax, y: ay, T: T, t: 0, fromX: S.px, res: null, gStart: S.g, distract: !!(S.x && S.x.distract) };
+    if (S.x) S.x.distract = false;
     S.shots++;
     S.phase = "shot"; S.pt = 0; S.frontT = 0;
     S.drag = null;
@@ -59,6 +63,7 @@
     if (res === "goal") {
       var top = ax > 2.0 && y > 2.85;
       var pts = top ? 2 : 1;
+      if (S.x && S.x.bonusNext) { pts += S.x.bonusNext; S.x.bonusNext = 0; }
       S.goals++; S.points += pts; S.per[p]++; S.streak++; S.bestStreak = Math.max(S.bestStreak, S.streak);
       if (top) S.tops++;
       S.net = 1;
@@ -73,8 +78,10 @@
         if (S.streak >= 5) Trophies.unlock("rrs-streak");
       }
       if (window.NPRewards && S.streak >= 2) NPRewards.streak(S.streak);   // goals in a row (shared/rewards.js)
+      if (S.x) { S.x.fever.hit("The goalie is a step slow"); extrasRare(x, y); }
     } else {
       S.streak = 0;
+      if (S.x) S.x.fever.miss();
       if (res === "post") { S.posts++; Shell.sfx("ding"); Shell.flash("DING!", "Off the iron. 0 points.", "#eceae2", 800); if (window.Trophies) Trophies.unlock("rrs-ding"); }
       else if (res === "save") { S.saves++; Shell.sfx("hit"); Shell.flash("SAVE", SAVES[S.saveIdx++ % SAVES.length], "#ff3fa4", 900); }
       else { Shell.sfx("miss"); Shell.flash(y > NET_H ? "OVER THE BAR" : "WIDE", "", "#8e93a2", 700); }
@@ -83,16 +90,18 @@
 
   /* ---------------- Update ---------------- */
   function update(dt) {
+    if (X && X.eventActive()) { X.eventTick(dt); return; }
     S.t += dt; S.pt += dt;
     var i, p = period();
     for (i = parts.length - 1; i >= 0; i--) { var q = parts[i]; q.life -= dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vy += 200 * dt; if (q.life <= 0) parts.splice(i, 1); }
     if (S.net > 0) S.net = Math.max(0, S.net - dt * 2);
 
+    if (S.x) extrasTick(dt);
     if (S.phase === "break") {
       if (S.pt > 1.4) { S.phase = "ready"; S.pt = 0; S.clock = PERIOD_LEN; }
       return;
     }
-    S.clock -= dt;
+    S.clock -= dt * (S.x && (S.x.sc.id === "sun") ? 1.1 : 1);
     if (S.clock <= 0 && S.phase !== "shot") {
       S.clock = 0;
       Shell.sfx("buzzer");
@@ -104,14 +113,15 @@
     }
 
     var mv = (keys.ArrowLeft ? -1 : 0) + (keys.ArrowRight ? 1 : 0);
-    if (mv && S.phase === "ready") { S.px = clamp(S.px + mv * 1.6 * dt, -SLOT, SLOT); S.kb = true; }
+    if (mv && S.phase === "ready") { S.px = clamp(S.px + mv * 1.6 * (S.x && S.x.fever.active() ? 2 : 1) * dt, -SLOT, SLOT); S.kb = true; }
     var up = (keys.ArrowUp ? 1 : 0) + (keys.ArrowDown ? -1 : 0);
     if (up) { S.aimY = clamp(S.aimY + up * 3.2 * dt, 0.2, 3.9); S.kb = true; }
 
     // goalie: squares up to the puck, then reacts to the shot after a short delay
     var target = goalieHome();
-    if (S.phase === "shot" && S.shot.t > REACT[p]) target = clamp(S.shot.x * 0.9, -GREACH, GREACH);
-    var gv = GSPEED[p] * (S.phase === "shot" ? 1 : 0.5);
+    var react = REACT[p] + (S.x && S.x.fever.active() ? 0.08 : 0) + (S.shot && S.shot.distract ? 0.2 : 0);
+    if (S.phase === "shot" && S.shot.t > react) target = clamp(S.shot.x * 0.9, -GREACH, GREACH);
+    var gv = GSPEED[p] * (S.phase === "shot" ? 1 : 0.5) * (S.x ? (S.x.sc.id === "golden" ? 0.9 : S.x.sc.id === "suburbs" ? 1.1 : 1) : 1);
     S.g += clamp(target - S.g, -gv * dt, gv * dt);
 
     if (S.phase === "ready") {
@@ -137,10 +147,52 @@
     }
   }
 
+  /* ---------------- Batch 3 extras ---------------- */
+  var EVENTS = [
+    { title: "Coffee Spill", text: "A fan leans over the glass with a hot cocoa and bumps your elbow.",
+      a: { label: "Dodge", run: function () { if (X.coin(0.7)) return "Clean dodge. Your streak is safe."; S.streak = 0; S.x.fever.miss(); return "Splash. Your scoring streak resets."; } },
+      b: { label: "Ignore it", run: function () { S.clock = Math.max(1, S.clock - 2); return "Cocoa on the glove. 2 seconds wiping it off."; } } },
+    { title: "Mint Myth", text: "The ref swears this scuffed puck is in mint condition.",
+      a: { label: "Argue", run: function () { if (X.coin(0.5)) { S.x.fast = true; return "He swaps in a fresh puck. Your next shot is faster."; } S.clock = Math.max(1, S.clock - 3); return "You lose 3 seconds arguing."; } },
+      b: { label: "Shrug", run: function () { return "A puck is a puck."; } } },
+    { title: "Early Bird", text: "The ice cleaner rolls out early. Knock on the glass?",
+      a: { label: "Knock", run: function () { if (X.coin(0.5)) { S.x.distract = true; return "The goalie turns to look. He's slow on your next shot."; } S.clock = Math.max(1, S.clock - 3); return "Slush spray. 3 seconds lost."; } },
+      b: { label: "Wait", run: function () { return "You wait it out."; } } },
+    { title: "Rental Sticker", text: "Your stick still has a stubborn old rental sticker on it.",
+      a: { label: "Peel it", run: function () { if (X.coin(0.5)) { S.x.bonusNext = 1; return "Clean peel. Your next goal is worth one extra point."; } return "It rips. The label art is ruined."; } },
+      b: { label: "Leave it", run: function () { return "Character, you call it."; } } },
+    { title: "Floor Find", text: "Something is under the team bench. Looks like a cartridge.",
+      a: { label: "Grab it", run: function () { return rareNow(); } },
+      b: { label: "Leave it", run: function () { return "Somebody else's lucky day."; } } }
+  ];
+  function rareMult() { var sc = S.x.sc.id; return (sc === "suburbs" ? 3 : sc === "fog" ? 1.5 : 1) * (S.x.fever.active() ? 2 : 1); }
+  function rareNow() {
+    var it = X.rollRare(rareMult()), fake = S.x.sc.id === "twilight" && X.coin(0.35);
+    X.collect(it, fake);
+    if (fake) return "Thin shell, wrong screws. A reproduction.";
+    S.x.rares++; return it.n + " (" + X.TIER[it.t].word + ").";
+  }
+  function extrasRare(x, y) {   // a goal that goes in near the taped-on cartridge collects it
+    var r = S.x.rare;
+    if (r && Math.hypot(x - r.x, y - r.y) < 0.8) { S.x.rare = null; var it = X.rollRare(rareMult()), fake = S.x.sc.id === "twilight" && X.coin(0.35); X.collect(it, fake); if (!fake) { S.x.rares++; S.points += 1; } }
+  }
+  function extrasTick(dt) {
+    var x = S.x;
+    if (!x.intro) { x.intro = true; Shell.flash(x.sc.name, x.sc.line, "#9bff3f", 1500); }
+    x.fever.tick(dt);
+    if (S.phase === "ready" && !S.drag && S.pt > 0.3 && x.sched.due(S.t)) X.startEvent(X.pick(EVENTS), { noSpace: true });   // Space shoots here, so it never picks a choice
+    if (S.phase === "ready" && !x.rare && S.pt > 0.2 && Math.random() < dt * 0.06 * rareMult()) {
+      var side = Math.random() < 0.5 ? -1 : 1;
+      x.rare = { x: side * (1.9 + Math.random() * 0.8), y: 0.5 + Math.random() * 3.0, life: 9 };
+    }
+    if (x.rare && (x.rare.life -= dt) <= 0) x.rare = null;
+  }
+
   function finish() {
+    var extra = S.x ? row("Scenery", S.x.sc.name) + row("Rare finds", S.x.rares + " this run, " + X.foundCount() + " of " + X.RARES.length + " found") + row("Hot Streaks", S.x.fever.count) : "";
     Shell.gameOver(S.points, { title: "FINAL HORN", html:
       row("Goals", S.goals + " of " + S.shots + " shots") + row("Top corners", S.tops) + row("Posts", S.posts) +
-      row("By period", S.per.join("  /  ")) + row("Longest scoring streak", S.bestStreak),
+      row("By period", S.per.join("  /  ")) + row("Longest scoring streak", S.bestStreak) + extra,
       stats: { points: S.points, goals: S.goals, tops: S.tops, posts: S.posts, shots: S.shots, per: S.per.slice(), bestStreak: S.bestStreak, pokes: S.pokes } });
   }
   function row(a, b) { return '<div class="np-row"><span>' + a + '</span><b>' + b + '</b></div>'; }
@@ -153,6 +205,7 @@
   /* ---------------- Input ---------------- */
   // One gesture: slide sideways to move across the slot, then flick up to shoot.
   function pointer(type, x, y) {
+    if (X && X.eventActive()) { X.eventPointer(type, x, y); return; }
     if (type === "down") {
       if (!canShoot()) return;
       S.drag = { sx: x, sy: y, ox: x, oy: y, px0: S.px, mode: "slide", x: x, y: y }; S.kb = false;
@@ -177,6 +230,7 @@
     return { x: S.px * 1.3 + clamp(dx / dy, -1.2, 1.2) * 3.4, y: clamp((len - 40) / 170 * 4.4, 0, 4.6), len: clamp(len / 240, 0, 1) };
   }
   function key(type, code, e) {
+    if (X && X.eventActive()) { keys = {}; X.eventKey(type, code); return; }
     var act = code === "Space" || code === "Enter" || code === "NumpadEnter";
     if (type === "down") {
       keys[code] = true;
@@ -299,10 +353,18 @@
     if (behind) drawPuck(c);
     drawGoalie(c, t);
     if (!behind) drawPuck(c);
+    if (S.x && S.x.rare) X.drawCart(c, sx(S.x.rare.x), sy(S.x.rare.y), "rare", t, 0.75);
     drawPlayer(c);
     for (var i = 0; i < parts.length; i++) fr(c, parts[i].x, parts[i].y, 3, 3, parts[i].c);
+    if (S.x) {
+      var area = { x: 0, y: 60, w: W, h: H - 60 };
+      X.drawScenery(c, S.x.sc, t, area);
+      if (S.x.sc.id === "fog") { c.fillStyle = "rgba(225,232,240,.28)"; c.fillRect(sx(-NET_W) - 20, sy(NET_H) - 20, NET_W * 2 * PX + 40, NET_H * PX + 30); }
+      S.x.fever.draw(c, area, t);
+    }
     drawHUD(c);
     if (state === "playing" && S.phase === "ready") drawAim(c);
+    if (S.x) { X.drawTag(c, S.x.sc, 10, H - 12); X.drawEvent(c, W, H); }
   }
 
   // Hook for automated checks (no effect on play)
