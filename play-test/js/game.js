@@ -481,7 +481,7 @@
       history: [] // stop ids in the order you visited them (the route card and the funnel use this)
     };
     // Round 3b: today's rotating stores and collector moments, then the rivals (Brayden can be at the mall store now)
-    if (!DEMO) { addStores(day, seed, m); assignRivals(day, seed, m); placeMedia(day, seed); placeVariants(day, seed); }
+    if (!DEMO) { addStores(day, seed, m); assignRivals(day, seed, m); placeMedia(day, seed); placeVariants(day, seed); addRummage(day, seed, m); }
     // Round 3c: the Desert Pixel Expo, last stop of Saturday 12 (and now and then in Endless)
     if (season && expoWeek(SEASON.week)) addExpo(day, seed);
     if (season) freshStock(day, seed);
@@ -864,7 +864,7 @@
   // If it will not all fit before the mode ends, the stops after the swap meet go first, then the ones before it,
   // so the swap meet (the walkable one, with Dex) stays on the route as long as it can.
   // The gift shop is never on the route. It is always on the map, shouting.
-  var ROUTE_ORDER = ['yard', 'yard', 'yard', 'sports', 'thrift', 'mall', 'pal', 'flea', 'record', 'rental', 'rental', 'banned', 'thrift', 'pawn', 'expo'];
+  var ROUTE_ORDER = ['rummage', 'yard', 'yard', 'yard', 'sports', 'thrift', 'mall', 'pal', 'flea', 'record', 'rental', 'rental', 'banned', 'thrift', 'pawn', 'expo'];
   var STORE_TYPES = ['mall', 'banned', 'pal', 'record', 'rental'];
   var EXPO_DOORS = 15 * 60; // the Desert Pixel Expo opens at 3 PM
   var STAY_EST = 25; // minutes we guess you spend at a stop
@@ -878,7 +878,7 @@
       if (s) { order.push(s); used[s.id] = true; }
     });
     all.forEach(function (o) { if (!used[o.id]) order.push(o); });
-    var list = order.filter(function (s) { return !s.visited; });
+    var list = order.filter(function (s) { return !s.visited && !closedNow(s, S.time + costOf(s)); });
     // in the demo, leaving the swap meet ends the day, so it always goes last
     if (DEMO) list.sort(function (a, b) { return (a.type === 'flea') - (b.type === 'flea'); });
     // the Desert Pixel Expo is always the last stop, and the rest of the route has to leave time to get there by the doors (3 PM)
@@ -980,6 +980,30 @@
   function baseStop(type, name, seller, cost) {
     return { id: 'n' + (nStore++), type: type, name: name, seller: seller, cost: cost, items: [], dig: [], dug: false, visited: false, rivalAt: null, rumor: false, cleared: false };
   }
+  // ---------- r6.3: the rummage sale (full game only) ----------
+  // Some Saturdays (about 1 in 3), early. Open 7 to 10 AM. Bins of loose games, music and movies at rummage prices.
+  // It has its own random numbers, so the rest of the day is exactly what it would have been without it.
+  var RUMMAGE_CLOSE = 10 * 60;
+  function addRummage(day, seed, m) {
+    var r = mulberry32(NP.hashStr('rummage|' + seed));
+    if (r() > 0.34) return;
+    var st = baseStop('rummage', NP.STOPNAMES.rummage[0], 'rummage', 52);
+    st.id = 'rm0'; st.closesAt = RUMMAGE_CLOSE;
+    var MS = NP.MEDIA_SECS;
+    for (var i = 0; i < 4; i++) {
+      var g = makeItem(r, rollGame(r, [0.78, 0.2]), { seller: 'rummage' });
+      g.cond = 'loose'; g.ask = 1 + Math.floor(r() * 2); g.sec = '';
+      st.items.push(g);
+    }
+    mediaUsed = {};
+    for (var a = 0; a < 2; a++) { var mu = addMediaTo(r, st, 'music', ['tape', 'vinyl'], [0.8, 0.18], 'music'); mu.ask = Math.max(1, Math.min(mu.ask, 3)); }
+    var mv = addMediaTo(r, st, 'movie', ['vhs'], [0.8, 0.18], 'movies'); mv.ask = 1;
+    st.secs = [['', MS.rummageGames], ['music', MS.rummageMusic], ['movies', MS.rummageMovies]];
+    st.joke = NP.RUMMAGE.jokes[Math.floor(r() * NP.RUMMAGE.jokes.length)];
+    day.stops.splice(0, 0, st);
+  }
+  // r6.3: a stop with hours (the rummage sale): you have to get there with time to look before it closes
+  function closedNow(s, at) { return !!(s && s.closesAt && (at != null ? at : S.time) + 15 > s.closesAt); }
   function addStores(day, seed, m) {
     var r = mulberry32(NP.hashStr('stores|' + seed));
     nStore = 0;
@@ -1206,6 +1230,7 @@
     if (s.type === 'mall') return '<div class="sign sign-mall"><small>' + esc(NP.MALL.toUpperCase()) + ' · UPPER LEVEL</small><span>' + esc(s.name.toUpperCase()) + '</span></div>';
     if (s.type === 'pal') return '<div class="sign sign-pal"><span>' + esc(s.name) + '</span><small>Come on in. Mind the boxes.</small></div>';
     if (s.type === 'banned') return '<div class="sign sign-ban"><span>' + esc(s.name.toUpperCase()) + '</span><small>PLEASE WAIT TO BE HELPED</small></div>';
+    if (s.type === 'rummage') return '<div class="sign sign-rum"><span>' + esc(NP.RUMMAGE.sign) + '</span></div>' + (s.joke ? '<div class="note rum-joke">' + esc(s.joke) + '</div>' : '');
     return '';
   }
 
@@ -3191,7 +3216,7 @@
 
   function stopIcon(t) {
     return { yard: '&#127968;', sports: '&#127944;', thrift: '&#128717;', flea: '&#9978;', pawn: '&#128176;', gift: '&#11088;',
-      mall: '&#128722;', banned: '&#128682;', pal: '&#129309;', record: '&#127926;', rental: '&#128252;', expo: '&#127918;' }[t] || '';
+      mall: '&#128722;', banned: '&#128682;', pal: '&#129309;', record: '&#127926;', rental: '&#128252;', expo: '&#127918;', rummage: '&#128230;' }[t] || '';
   }
   function stopBlurb(s) {
     return {
@@ -3206,6 +3231,7 @@
       pal: 'Lonnie talks. A lot. The clock does not stop for it.',
       record: 'Vinyl, tapes, CDs, movies and a little game shelf. Mostly opinions.',
       rental: 'STORE CLOSING. Everything must go. Even the late fees.',
+      rummage: NP.RUMMAGE.blurb,
       expo: NP.EXPO.blurb
     }[s.type];
   }
@@ -3282,7 +3308,7 @@
         return;
       }
       var c = costOf(s), arrive = S.time + c;
-      var tooLate = arrive > endT();
+      var tooLate = arrive > endT() || closedNow(s, arrive);
       var isNext = nx && nx.id === s.id;
       var cls = 'stopcard ' + s.type + (s.visited ? ' done' : '') + (tooLate && !s.visited ? ' late' : '') + (isNext ? ' next' : '');
       var gp = s.gift ? Math.round(10 + adLevel() * 15) : 0;
@@ -3300,13 +3326,14 @@
       if (DEMO && s.type === 'flea' && !s.visited) h += '<div class="featured rare">&#9733; ' + esc(NP.DEMO_WANT_TEXT.rareTag) + '</div>';
       if (s.demoRaid && !s.visited) h += '<div class="rumor">' + NP.RIVAL.name + '\'s van is headed here too. He will show up right after you do.</div>';
       if (s.visited) h += '<div class="st-done">Visited</div>';
-      else if (tooLate) h += '<div class="st-done">Not enough daylight</div>';
+      else if (tooLate) h += '<div class="st-done">' + (closedNow(s, arrive) ? esc(NP.RUMMAGE.closedCard) : 'Not enough daylight') + '</div>';
       else h += '<button data-act="go" data-id="' + s.id + '" data-via="map"' + (s.gift ? ' class="giftbtn"' : '') + '>' + (s.gift ? 'Visit the Gift Shop!' : s.type === 'expo' && arrive < EXPO_DOORS ? 'Drive there (wait for the doors)' : 'Drive there') + '</button>';
       h += '</div>';
     });
     h += '</div><button class="big home" data-act="gohome">Head home and shelve it</button></div>';
     app.innerHTML = h;
     if (NP.TownMap) mountTown();
+    if (NP.TownMap) setTimeout(function () { if (S && S.screen === 'map' && window.pageYOffset < 4) fitTownMap(); }, 0); // after the NEXT bar is in place
   }
 
   // a billboard on the drive, now and then (never in the walkable swap meet, never on top of a haggle)
@@ -3577,16 +3604,25 @@
     var h = '<div class="bubble big">' + (booth ? 'Welcome to our Swap Meet Location! Same official merch, same zero shelf value, now closer to the churros.' : 'Welcome! Everything here is official, overpriced, and worth zero on your shelf. Enjoy!') + '</div>' +
       '<div class="giftnote">Prices go up as the day goes on. Each purchase costs you 10 points. ' + (adFree ? 'Ad-Less Edition owners pay the same, plus a small Ad-Less fee of $0.' : '') + '</div>';
     h += '<div class="items">';
-    NP.MERCH.forEach(function (m) {
+    var realCard = '';
+    if (!booth && realMerchOk()) {
+      var RM = NP.REAL_MERCH;
+      realCard = '<div class="item gift realmerch"><div class="artbox"><canvas class="ms-tee big" width="40" height="36" aria-hidden="true"></canvas></div><div class="info"><div class="it-t">' + esc(RM.giftTitle) + '</div>' +
+        '<div class="it-d"><span class="tag t-real">' + esc(RM.giftTag) + '</span> ' + esc(RM.giftLine) + '</div>' +
+        '<div class="btns"><a class="offer full ms-go" href="' + esc(CFG.MERCH_URL) + '" target="_blank" rel="noopener" data-merch="gift">' + esc(RM.giftBtn) + ' &#8599;</a></div></div></div>';
+    }
+    NP.MERCH.forEach(function (m, mi) {
+      if (mi === 2 && realCard) { h += realCard; realCard = ''; } // the real one sits in among the fake ones
       var p = giftPrice(m);
       var got = S.bag.some(function (b) { return b.id === m.id && b.fromGift; });
       h += '<div class="item gift' + (got ? ' sold' : '') + '"><div class="artbox" data-art="g' + m.id + '"></div><div class="info"><div class="it-t">' + esc(m.t) + '</div>' + tagHTML({ kind: 'merch', id: m.id }) +
         '<div class="it-a">Price <b>' + money(p) + '</b></div>' +
         (got ? '<div class="stamp">IN THE BAG</div>' : '<div class="btns"><button class="offer full" data-act="buygift" data-id="' + m.id + '"' + (p > S.cash ? ' disabled' : '') + '>Buy it ' + money(p) + '</button></div>') + '</div></div>';
     });
-    return h + '</div>';
+    return h + realCard + '</div>';
   }
   function drawGiftArts() {
+    document.querySelectorAll('.realmerch .ms-tee').forEach(drawTee);
     NP.MERCH.forEach(function (m) {
       var el = document.querySelector('[data-art="g' + m.id + '"]');
       if (el && !el.firstChild) el.appendChild(NP.makeArt({ kind: 'merch', id: m.id }, 3));
@@ -4159,9 +4195,22 @@
     var fl = S.day.stops.filter(function (x) { return x.type === 'flea'; })[0], nx = planRoute()[0];
     return S.day.stops.filter(function (x) { return !x.xban; }).map(function (x) {
       return { id: x.id, type: x.type, name: x.name, short: mapLabel(x),
-        locked: !!x.locked, visited: !!x.visited, next: !!(nx && nx.id === x.id), rare: DEMO && x === fl, late: !x.visited && S.time + costOf(x) > endT() };
+        locked: !!x.locked, visited: !!x.visited, next: !!(nx && nx.id === x.id), rare: DEMO && x === fl, late: !x.visited && (S.time + costOf(x) > endT() || closedNow(x, S.time + costOf(x))) };
     });
   }
+  // r6.3: the town map is sized to sit fully above the NEXT bar on every screen (desktop too), measured, not guessed
+  function fitTownMap() {
+    var tin = document.querySelector('#townmap .tm-in'); if (!tin) return;
+    tin.style.maxWidth = '';
+    var ns = document.querySelector('.nsbar'), r = tin.getBoundingClientRect();
+    var top = r.top + (window.pageYOffset || 0) - (window.pageYOffset || 0); // as laid out with the page at the top
+    var bottomLimit = (ns ? ns.getBoundingClientRect().top : window.innerHeight) - 8;
+    var pad = parseFloat(getComputedStyle(tin).paddingTop) || 0, ratio = parseFloat(getComputedStyle(tin).getPropertyValue('--tmr')) || 1.43;
+    if (r.bottom <= bottomLimit) return;
+    var w = Math.floor((bottomLimit - r.top - pad) * ratio);
+    if (w >= 240) tin.style.maxWidth = w + 'px'; // never smaller than 240 wide; on a very short screen it scrolls instead
+  }
+  window.addEventListener('resize', function () { if (S && S.screen === 'map') fitTownMap(); });
   function mountTown() {
     var box = document.getElementById('townmap'); if (!box || !NP.TownMap) return;
     if (townCtl && !townCtl.isDriving()) townCtl.stop(); // the last map is gone; free it now
@@ -4187,6 +4236,7 @@
   function driveTo(id, via) {
     var s = S.day.stops.filter(function (x) { return x.id === id; })[0];
     if (!s || s.visited) { render(); return; }
+    if (closedNow(s, S.time + costOf(s))) { S.toast = NP.RUMMAGE.closed; render(); return; } // r6.3: it closes at 10 AM
     if (NP.TownMap) { step('f06_drive_' + (S.history.length + 1) + '_' + s.type + '_' + (via || 'map')); if (tipEl) closeTip(); return townDrive(s, via); } // r6.1: the town map drive, demo and full game
     step('f06_drive_' + (S.history.length + 1) + '_' + s.type + '_' + (via || 'map'));
     if (tipEl) closeTip();
@@ -4205,7 +4255,48 @@
 
   // ---------- commercials ----------
   var adTimer = null;
+  // ---------- r6.3: the real merch (full game only) ----------
+  // The game has exactly one real product: RC's actual Nostalgia Pro tee (MERCH_URL). Besides the existing results link,
+  // it shows in two quiet places, never during a haggle, never at the swap meet or the Expo, and never in the demo:
+  // one card in the Gift Shop, and now and then a spot in a break between stops (at most once a day, about 1 break in 3).
+  function realMerchOk() { return !DEMO && linksOk() && !!CFG.MERCH_URL && !adFree; }
+  function merchSpotDue() {
+    if (!realMerchOk()) return false;
+    var last = S.history[S.history.length - 1], ls = S.day.stops.filter(function (x) { return x.id === last; })[0];
+    if (!ls || ls.type === 'flea' || ls.type === 'expo') return false;
+    var today = phoenixDate();
+    if (store.get('merchSpotDay', '') === today) return false;
+    if ((NP.hashStr(S.seed + '|merch|' + S.visited) % 3) !== 0) return false;
+    store.set('merchSpotDay', today);
+    return true;
+  }
+  function showMerchSpot(next) {
+    var M = NP.REAL_MERCH, ov = document.createElement('div');
+    ov.className = 'tvad-ov merch-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', M.spotTitle);
+    ov.innerHTML = '<div class="tvad merchspot"><div class="tvad-top"><span class="tvad-ch">CH 3</span><span class="tvad-lab">' + esc(M.spotLabel) + '</span></div>' +
+      '<div class="ms-body"><canvas class="ms-tee" width="40" height="36" aria-hidden="true"></canvas><div><div class="ms-h">' + esc(M.spotTitle) + '</div><div class="ms-t">' + esc(M.spotLine) + '</div></div></div>' +
+      '<a class="ms-go" href="' + esc(CFG.MERCH_URL) + '" target="_blank" rel="noopener" data-merch="break">' + esc(M.spotBtn) + ' &#8599;</a>' +
+      '<button class="tvad-skip" type="button">' + esc(M.skip) + ' &#9654;&#9654;</button></div>';
+    document.body.appendChild(ov);
+    drawTee(ov.querySelector('.ms-tee'));
+    track('merch_spot_shown');
+    var done = false, close = function () { if (done) return; done = true; if (ov.parentNode) ov.parentNode.removeChild(ov); window.removeEventListener('keydown', key, true); next(); };
+    var key = function (e) { if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); close(); } };
+    ov.querySelector('.tvad-skip').addEventListener('click', close);
+    ov.querySelector('.ms-go').addEventListener('click', function () { setTimeout(close, 50); });
+    window.addEventListener('keydown', key, true);
+    setTimeout(close, 9000); // it never holds you up
+    if (window.__NP_TEST) window.__NP_TEST.closeMerch = close;
+  }
+  // a plain pixel tee (not the real design, which lives on the store page)
+  function drawTee(cv) {
+    if (!cv) return; var g = cv.getContext('2d'), P = function (x, y, w, h, c) { g.fillStyle = c; g.fillRect(x, y, w, h); };
+    P(0, 0, 40, 36, '#1d2b53');
+    P(4, 4, 32, 8, '#0b1022'); P(10, 4, 20, 30, '#0b1022'); P(5, 5, 30, 6, '#2a3a6e'); P(11, 5, 18, 28, '#2a3a6e');
+    P(16, 4, 8, 3, '#1d2b53'); P(15, 13, 10, 9, '#ffcc33'); P(16, 14, 8, 7, '#fff1d6'); P(17, 16, 2, 3, '#e4343e'); P(21, 16, 2, 3, '#e4343e'); P(17, 20, 6, 1, '#29d3e8');
+  }
   function showCommercial(next, last) {
+    if (!last && merchSpotDue()) return showMerchSpot(next);
     if (!adFree && NP.TVAds && !last) {
       S.adsShown++;
       var n = store.get('tvN', 0) || 0; store.set('tvN', n + 1);
@@ -4887,7 +4978,7 @@
   };
 
   // test hooks (harmless in production)
-  window.__NP_TEST = { keep: function () { return K(); }, chip: function (lv, t) { celebrate(lv, t); }, spotCameo: function (id) { return spotCameo(id); }, playTV: function (w) { playTV(w || 'map'); },
+  window.__NP_TEST = { keep: function () { return K(); }, merchSpot: function (cb) { showMerchSpot(cb || function () {}); }, merchDue: function () { return merchSpotDue(); }, chip: function (lv, t) { celebrate(lv, t); }, spotCameo: function (id) { return spotCameo(id); }, playTV: function (w) { playTV(w || 'map'); },
     // the season simulator used for the balance pass (test only; nothing in the game calls these)
     sim: {
       route: function () { return planRoute().map(function (x) { return x.id; }); },

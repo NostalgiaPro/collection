@@ -208,12 +208,31 @@ NP.STOPNAMES = {
   banned: ['Staff Only Games'],
   pal: ["Lonnie's Games & Whatnot"],
   record: ['Music Store (Also Movies) (Also Games)'],
-  rental: ['Video Rental Store', 'The Other Video Rental Store']
+  rental: ['Video Rental Store', 'The Other Video Rental Store'],
+  // r6.3: an early morning rummage sale, some Saturdays. Made up: the hall, the street and the host.
+  rummage: ['Rummage Sale at the Old Dance Hall']
 };
 NP.MALL = 'The Mall at Parking Lot C';
+// r6.3: the rummage sale
+NP.RUMMAGE = {
+  sign: 'RUMMAGE SALE 7 TO 10 AM. EVERYTHING MUST GO. MOST OF IT WILL NOT.',
+  hours: 'Open 7 to 10 AM only.',
+  closed: 'The rummage sale wrapped up at 10 AM. Rhonda is stacking chairs.',
+  closedCard: 'Closed. The rummage sale ends at 10 AM.',
+  blurb: 'Folding tables, three bins, and one coffee urn that has been on since 1987. Open 7 to 10 AM.',
+  jokes: [
+    'A sign on the coffee urn: "Coffee 25 cents. Refills 25 cents. Complaints 25 cents."',
+    'Somebody donated a box labeled GAMES. It is all board games with half the pieces. One cartridge is in there. Just the one.',
+    'A hand-lettered sign on the last bin: "PLEASE DO NOT BLOW ON THE CARTRIDGES." Somebody has crossed out "DO NOT".'
+  ]
+};
 
 // Seller personalities. minLo/minHi = fraction of asking price they accept.
 NP.SELLERS = {
+  rummage: { name: 'Rummage Rhonda', ask: 0.3, minLo: 0.4, minHi: 0.6,
+    hi: ['Morning, sweetie! Everything is a dollar. Unless I decide it is not.', 'Early bird! The good stuff goes fast. Well. The stuff goes.', 'Coffee is on the table. It has been on the table since the eighties.'],
+    yes: ['Sold! Put a quarter in the coffee can on your way out, if you want.', 'It is yours. Every dollar goes to the new folding chairs.'],
+    no: ['Oh, a little more than that, hon. These chairs will not buy themselves.', 'Make it a round number and we have a deal. A rounder number.'] },
   grandma: { name: 'Sweet Retiree', ask: 0.35, minLo: 0.35, minHi: 0.55,
     hi: ["Oh, my grandson's old games! He's 41 now. Make me an offer, hon.", 'Everything must go. My husband says so. He is in the garage hiding his records.', "I don't know what any of these are, sweetie, but the one with the ferret seems nice."],
     yes: ['Sold! Want a lemonade? It is mostly ice.', "That's fine, sweetie. Put it on your little shelf.", 'Deal. Take a cookie too. Take two. Please, I made forty.'],
@@ -339,7 +358,8 @@ NP.NOBUY = {
   sports: 'The football guy does not buy. He has enough football. He has all of it.',
   gift: 'The Gift Shop does not buy anything. It only sells. That is the whole business model.',
   rental: 'They are closing. They are not buying anything. They are barely selling.',
-  banned: 'Nobody here is buying. Nobody here is doing anything.'
+  banned: 'Nobody here is buying. Nobody here is doing anything.',
+  rummage: 'Rhonda does not buy. Rhonda has a hall full of other people\'s stuff already.'
 };
 
 NP.RIVAL = { name: 'Dex', shop: 'Flipside Resale' };
@@ -1123,6 +1143,7 @@ NP.SELLERS.crate = { name: 'The Crate Lady', ask: 0.75, minLo: 0.55, minHi: 0.85
 // What each stop calls its music and movie shelves
 NP.MEDIA_SECS = {
   games: 'Games',
+  rummageGames: 'The cartridge bin (loose, untested, a dollar or two)', rummageMusic: 'The record and tape bin', rummageMovies: 'A laundry basket of movies',
   yard: ['A box of records and tapes', "Dad's old tapes and records", 'A shoebox of cassettes', 'A laundry basket of records and movies'],
   music: 'Record and CD bins', movies: 'Movie rack', crate: "The Crate Lady's crates", pawnMusic: 'CDs and records behind the counter', pawnMovies: 'Movies, two for something'
 };
@@ -1335,6 +1356,18 @@ NP.FULL_MINI = {
   van: 'A white van rolls past real slow. Dex waves. You do not wave back.',
   haggle: 'Somebody two tables over just talked {seller} down a dollar. You heard the whole thing. It took eleven minutes.',
   dust: 'A dust devil spins through the lot and takes a stack of price stickers with it. Nobody chases them.'
+};
+// r6.3: the one real product, RC's actual Nostalgia Pro tee (links to MERCH_URL in config.js). Full game only.
+NP.REAL_MERCH = {
+  spotLabel: 'A WORD FROM AN ACTUAL SPONSOR',
+  spotTitle: 'Nostalgia Pro: The Actual Shirt',
+  spotLine: 'This one is real. Everything else in this game is made up. It opens the real store in a new tab.',
+  spotBtn: 'See the shirt',
+  skip: 'Back to the game',
+  giftTitle: 'Nostalgia Pro: The Actual Shirt',
+  giftTag: 'REAL',
+  giftLine: 'The only thing in this shop that actually exists. It opens the real store in a new tab. It does not go in your bag and it is worth zero points.',
+  giftBtn: 'See the real shirt'
 };
 NP.DEMO5 = {
   start: 'Demo Saturday. $100. Back by noon. Tap the yard sale on the map, or the big Drive button.',

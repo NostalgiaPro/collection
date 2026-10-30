@@ -44,6 +44,9 @@ window.NP = NP;
     try {
       var el = e.target && e.target.closest && e.target.closest('[data-track]');
       if (el) NP.track(el.getAttribute('data-track'));
+      // r6.3: the real merch links say where the tap came from: merch_click plus merch_click_gift or merch_click_break
+      var mr = e.target && e.target.closest && e.target.closest('[data-merch]');
+      if (mr) { NP.track('merch_click'); NP.track('merch_click_' + mr.getAttribute('data-merch')); }
       var a = e.target && e.target.closest && e.target.closest('a[href]');
       var fb = String((NP.CONFIG || {}).FEEDBACK_URL || '');
       if (a && fb && a.getAttribute('href') === fb) NP.track('feedback_tapped');

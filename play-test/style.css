@@ -1005,3 +1005,18 @@ body.calmfx .tm-lab.rare { animation: none; }
 .nsbar .ns-chip .yay { line-height: 1.12; font-size: calc(14px * var(--tsz, 1)); max-height: 100%; }
 .nsbar .ns-chip .yay.goaldone { font-size: calc(13px * var(--tsz, 1)); }
 .nsbar .ns-chip .yay.goaldone .yay-h { font-size: calc(15px * var(--tsz, 1)); }
+
+/* ---------- r6.3: the real merch ---------- */
+.merchspot { max-width: 460px; }
+.ms-body { display: flex; gap: 12px; align-items: center; background: #0b1022; border: 3px solid #E69F00; padding: 12px; margin: 6px 0 10px; }
+.ms-tee { width: 80px; height: 72px; image-rendering: pixelated; flex: none; }
+.ms-tee.big { width: 100%; height: auto; max-width: 120px; }
+.ms-h { color: var(--gold); font-weight: bold; font-size: calc(18px * var(--tsz, 1)); }
+.ms-t { color: var(--cream); font-size: calc(15px * var(--tsz, 1)); margin-top: 4px; line-height: 1.35; }
+.ms-go { display: flex; align-items: center; justify-content: center; min-height: 52px; margin-bottom: 8px; background: #E69F00; color: #0b1022; font-weight: bold; text-decoration: none; border: 2px solid #fff1d6; font-size: calc(17px * var(--tsz, 1)); }
+.item.realmerch { border-color: #E69F00; }
+.tag.t-real { background: #E69F00; color: #0b1022; }
+.item.realmerch a.ms-go { display: inline-flex; padding: 0 16px; margin: 3px; }
+/* r6.3: the rummage sale sign */
+.sign-rum { background: #fff1d6; color: #7a2e1a; border: 3px dashed #b07a4a; padding: 8px 12px; margin: 6px 0; transform: rotate(-1deg); font-weight: bold; text-align: center; font-size: calc(16px * var(--tsz, 1)); }
+.rum-joke { font-style: italic; }

@@ -11,7 +11,7 @@ NP.TownMap = (function () {
   var GRIDS = { 4: { W: 320, XS: [34, 112, 190, 268] }, 5: { W: 400, XS: [34, 117, 200, 283, 366] } };
   function useGrid(cols) { var gr = GRIDS[cols] || GRIDS[4]; W = gr.W; XS = gr.XS; ORDER = orderFor(XS.length); }
   var HOME = [0, 2];
-  var PREFER = { yard: [1, 2], flea: [3, 1], gift: [2, 0], thrift: [1, 0], pawn: [3, 2], sports: [0, 1], expo: [4, 1], mall: [4, 0], record: [2, 1] };
+  var PREFER = { yard: [1, 2], flea: [3, 1], gift: [2, 0], thrift: [1, 0], pawn: [3, 2], sports: [0, 1], expo: [4, 1], mall: [4, 0], record: [2, 1], rummage: [0, 0] };
   function orderFor(n) {
     var base = [[1, 2], [3, 1], [2, 0], [0, 0], [1, 0], [3, 0], [0, 1], [1, 1], [2, 1], [2, 2], [3, 2]];
     if (n > 4) base = base.concat([[4, 0], [4, 1], [4, 2]]);
@@ -98,6 +98,14 @@ NP.TownMap = (function () {
       if (s.type === 'pawn') { P(g, bx + 12, by - 5, 3, 6, C.gold); P(g, bx + 10, by - 4, 7, 1, C.gold); P(g, bx + 10, by - 1, 7, 1, C.gold); }
       if (s.type === 'record') { P(g, bx + 9, by - 6, 8, 8, C.ink); P(g, bx + 12, by - 3, 2, 2, C.red); }
       if (s.type === 'banned') { P(g, bx + 9, by + 14, 8, 2, C.red); P(g, bx + 12, by + 11, 2, 8, C.red); }
+      return;
+    }
+    if (s.type === 'rummage') {
+      // the old dance hall: a long low building, a banner, and three bins out front
+      P(g, bx - 4, by + 6, 34, 16, '#b07a4a'); P(g, bx - 5, by + 2, 36, 5, '#7a4a2a');
+      P(g, bx - 2, by - 3, 30, 5, C.cream); for (var rb = 0; rb < 30; rb += 4) P(g, bx - 2 + rb, by - 2, 2, 3, C.red);
+      P(g, bx + 9, by + 13, 8, 9, '#3a2a1a');
+      P(g, bx - 3, by + 18, 7, 4, '#2e3f9e'); P(g, bx + 21, by + 18, 7, 4, '#2f7d3e'); P(g, bx + 1, by + 17, 2, 1, C.gold); P(g, bx + 24, by + 17, 2, 1, C.cream);
       return;
     }
     if (s.type === 'mall' || s.type === 'expo') {
