@@ -69,6 +69,10 @@
       if (-vn > 60 && S.pinT <= 0 && S.t - S.snd[who] > 0.15) { S.snd[who] = S.t; Shell.tone(who === "me" ? 520 : 400, 0.05, "square", Math.min(0.3, 0.1 - vn / 3000)); Shell.noise(0.04, 0.3, 2000, 1); }
     }
   }
+  function block(pd) {
+    var dx = pd.x - S.k.x, dy = pd.y - S.k.y, d = Math.hypot(dx, dy), rr = PR + KR;
+    if (d < rr && d > 1e-4) { pd.x = S.k.x + dx / d * rr; pd.y = S.k.y + dy / d * rr; pd.vx = pd.vy = 0; }
+  }
   function stepPuck(dt) {
     var k = S.k;
     var sp = Math.hypot(k.vx, k.vy);
@@ -291,6 +295,7 @@
       movePaddle(S.p, sdt, mine, MID + PR, Y1 - PR);
       movePaddle(S.c, sdt, o.speed * (1 + S.boost) * cpuMult(), Y0 + PR, MID - PR);
       if (S.phase === "play") { stepPuck(sdt); hit(S.p, "me"); hit(S.c, "cpu"); unstick(sdt); }
+      else { block(S.p); block(S.c); }   // during the faceoff a paddle can't slide through the waiting puck
       if (S.phase !== "play") break;
     }
   }
