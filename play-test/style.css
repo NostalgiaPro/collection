@@ -1020,3 +1020,29 @@ body.calmfx .tm-lab.rare { animation: none; }
 /* r6.3: the rummage sale sign */
 .sign-rum { background: #fff1d6; color: #7a2e1a; border: 3px dashed #b07a4a; padding: 8px 12px; margin: 6px 0; transform: rotate(-1deg); font-weight: bold; text-align: center; font-size: calc(16px * var(--tsz, 1)); }
 .rum-joke { font-style: italic; }
+
+/* ---------- r6.4: jerk sellers, Sharpie signs, the yard sale radio ---------- */
+.jtell-row { display: flex; align-items: center; gap: 10px; margin: 6px 0 2px; }
+.jtell { width: 84px; height: 60px; image-rendering: pixelated; flex: none; background: #1a1430; border: 2px solid #3a2f5c; }
+.jtell-t { display: flex; flex-direction: column; font-size: calc(15px * var(--tsz, 1)); line-height: 1.25; }
+.jtell-t b { color: var(--gold); }
+.jtell-t span { color: #ffb3b3; font-style: italic; }
+.bubble.jerky { border-color: #D55E00; }
+.sharpie { position: relative; display: inline-flex; flex-direction: column; align-items: flex-start; max-width: 100%; background: #c9a46a; color: #14141a; border: 1px solid #8a6a3a;
+  padding: 8px 14px 6px; margin: 6px 0 4px; transform: rotate(var(--tilt, -1deg)); box-shadow: 2px 3px 0 rgba(0,0,0,.35);
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', 'Segoe Print', cursive, sans-serif; font-weight: bold; letter-spacing: .5px; font-size: calc(16px * var(--tsz, 1)); line-height: 1.2; }
+.sharpie s { text-decoration-color: #c8323c; text-decoration-thickness: 3px; color: #3a2a1a; }
+.sharpie .sh-s { align-self: flex-end; font-size: calc(12px * var(--tsz, 1)); opacity: .75; transform: rotate(-4deg); margin-top: 2px; }
+.sharpie .tape { position: absolute; top: -6px; width: 34px; height: 12px; background: rgba(233,220,176,.85); }
+.sharpie .tape.tl { left: 6px; transform: rotate(-8deg); }
+.sharpie .tape.tr { right: 6px; transform: rotate(7deg); }
+.radiobar { display: flex; align-items: center; gap: 10px; background: #1b2a1f; border: 2px dashed #6aa06a; padding: 8px 10px; margin: 6px 0; font-size: calc(14px * var(--tsz, 1)); color: #d8f0d0; }
+.rad-ico { flex: none; width: 28px; height: 20px; background: #8a5e36; border: 2px solid #0b1022; position: relative; box-shadow: inset -10px 0 0 #2b2f3f; }
+.rad-ico::before { content: ''; position: absolute; left: 4px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: #c9d1dc; box-shadow: inset 0 0 0 2px #5d6370; }
+.rad-ico::after { content: ''; position: absolute; right: 2px; top: -12px; width: 2px; height: 12px; background: #c9d1dc; transform: rotate(18deg); transform-origin: bottom; }
+body.calmfx .sharpie { transform: none; }
+@media (orientation: landscape) and (max-height: 500px) {
+  .sharpie { font-size: calc(13px * var(--tsz, 1)); padding: 5px 12px 4px; margin: 4px 0 2px; }
+  .jtell { width: 70px; height: 50px; }
+  .radiobar { padding: 5px 8px; }
+}

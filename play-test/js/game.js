@@ -441,6 +441,8 @@
     var early = makeItem(er, ee, { seller: yard.seller, ask: 6 });
     early.cond = 'cib'; early.flags = {}; early.tell = true; early.minFrac = 0.4; early.sticker = true; early.early = true; early.uid = 'early';
     yard.items.unshift(early);
+    // Round 6.4: one table at the swap meet is on the phone. Ask twice.
+    demoPhoneJerk(flea, F.item);
     // open stops first, locked ones after
     day.stops = [yard, flea, gift].concat(day.stops.filter(function (s) { return s.locked; }));
   }
@@ -490,6 +492,7 @@
     // the one seller today who would never sell out, and the stop they are at (never the swap meet: that one has its own)
     var colaStops = day.stops.filter(function (s) { return openStop(s) && s.type !== 'flea' && s.seller && NP.SPONSOR && NP.SPONSOR.refuse && NP.SPONSOR.refuse[s.seller]; });
     if (colaStops.length) colaStops[NP.hashStr(seed + '|cola') % colaStops.length].cola = true;
+    if (!DEMO) addJerks(day, seed); // Round 6.4
     // Round 5: the visit streak cash, on the first Saturday you start on a new day
     if (!DEMO) { claimVisit(); if (S.visitBonus) S.toast = NP.LOGIN.line.replace('{n}', S.visitBonus.days).replace('{c}', S.visitBonus.cash); }
   }
@@ -1230,8 +1233,18 @@
     if (s.type === 'mall') return '<div class="sign sign-mall"><small>' + esc(NP.MALL.toUpperCase()) + ' · UPPER LEVEL</small><span>' + esc(s.name.toUpperCase()) + '</span></div>';
     if (s.type === 'pal') return '<div class="sign sign-pal"><span>' + esc(s.name) + '</span><small>Come on in. Mind the boxes.</small></div>';
     if (s.type === 'banned') return '<div class="sign sign-ban"><span>' + esc(s.name.toUpperCase()) + '</span><small>PLEASE WAIT TO BE HELPED</small></div>';
-    if (s.type === 'rummage') return '<div class="sign sign-rum"><span>' + esc(NP.RUMMAGE.sign) + '</span></div>' + (s.joke ? '<div class="note rum-joke">' + esc(s.joke) + '</div>' : '');
-    return '';
+    if (s.type === 'rummage') return '<div class="sign sign-rum"><span>' + esc(NP.RUMMAGE.sign) + '</span></div>' + (s.joke ? '<div class="note rum-joke">' + esc(s.joke) + '</div>' : '') + sharpieSign(s);
+    return sharpieSign(s);
+  }
+  // Round 6.4: a cardboard sign in marker, taped up crooked. Crossed-out prices, and somebody's initials.
+  function sharpieSign(s) {
+    var SH = NP.SHARPIE; if (!SH) return '';
+    var list = s.jerk && !DEMO ? SH.stop.jerk : SH.stop[s.type];
+    if (!list) return '';
+    var h = NP.hashStr((S && S.seed) + '|sharpie|' + s.id);
+    var txt = esc(list[h % list.length]).replace(/\{([^}]*)\}/g, '<s>$1</s>');
+    var scr = SH.scrawl[(h >>> 4) % SH.scrawl.length];
+    return '<div class="sharpie" style="--tilt:' + ((h % 5) - 2) * 0.8 + 'deg"><span class="tape tl"></span><span class="tape tr"></span><span class="sh-t">' + txt + '</span><span class="sh-s">' + esc(scr) + '</span></div>';
   }
 
   // ---------- the mall game store: the glass case ----------
@@ -2117,7 +2130,7 @@
       track(skipped ? 'tv_skipped' : 'tv_watched');
       var sc = applyScene();
       music(sc ? SCENES[sc].music : 'title', true);
-      if (NP.Sound && NP.Sound.ambience) NP.Sound.ambience(S && S.screen === 'walk' && S.stop && S.stop.type === 'flea' ? 'crowd' : null);
+      if (NP.Sound && NP.Sound.ambience) NP.Sound.ambience(ambFor());
     } });
   }
 
@@ -2929,6 +2942,13 @@
 
   // ---------- rendering ----------
   var app;
+  // the background sound for this screen: the crowd at the swap meet and the Expo, the card table radio at a yard sale
+  function ambFor() {
+    if (!S || !S.stop) return null;
+    if (S.screen === 'walk' && (S.stop.type === 'flea' || S.stop.type === 'expo')) return 'crowd';
+    if (S.screen === 'stop' && (S.stop.type === 'yard' || S.stop.type === 'rummage')) return 'radio';
+    return null;
+  }
   function render() {
     if (S && !DEMO) { feverCheck(); goalTime(); }
     renderScreen(); animCash();
@@ -2940,7 +2960,7 @@
     var sc = applyScene();
     music(sc ? SCENES[sc].music : !S || S.screen === 'title' ? 'title' : S.screen === 'walk' ? 'swap' : 'title', true);
     tempo(sc ? paceMult() : 1);
-    if (NP.Sound && NP.Sound.ambience) NP.Sound.ambience(S && S.screen === 'walk' && S.stop && (S.stop.type === 'flea' || S.stop.type === 'expo') ? 'crowd' : null);
+    if (NP.Sound && NP.Sound.ambience) NP.Sound.ambience(ambFor());
     if (S && S.season && (S.screen === 'map' || S.screen === 'stop' || S.screen === 'walk' || S.screen === 'home')) saveSoon();
     if (DEMO && S) { if (S.screen === 'home' || S.screen === 'results') demoClear(); else demoSave(); }
     if (!S || S.screen === 'title') return renderTitle();
@@ -3369,6 +3389,7 @@
     if (it.kind === 'mbox') n.push(it.opened ? 'You opened it. Inside: ' + it.inside + '.' : mboxOddsText());
     if (it.flaw && (it.inspected || it.state !== 'avail')) n.push(NP.FLAW.tag + '. ' + NP.FLAW.note.replace('{f}', it.flaw));
     if (it.dailyTip && it.state === 'avail') n.push('This is the one from the daily tip.');
+    if (it.jerkRare && it.state === 'avail') n.push(NP.JERK.rareNote);
     // Round 3b
     if ((it.kind === 'music' || it.kind === 'movie') && NP.itemInfo) { var mb = NP.itemInfo(it).box; if (mb) n.push('Back of the ' + (it.kind === 'music' ? 'sleeve' : 'box') + ': "' + mb + '"'); }
     gagNotes(it).forEach(function (x) { n.push(x); });
@@ -3443,7 +3464,7 @@
 
   function itemCard(it, s) {
     var plat = NP.PLATFORMS[it.p];
-    var sellerName = NP.SELLERS[it.seller] ? NP.SELLERS[it.seller].name : '';
+    var sellerName = it.jerk ? jerkName(it.seller, it.jerk) : NP.SELLERS[it.seller] ? NP.SELLERS[it.seller].name : '';
     var h = '<div class="item ' + it.state + (it.ultra ? ' ultra' : '') + '" id="card-' + it.uid + '"><div class="artbox" data-art="' + it.uid + '"></div><div class="info">' +
       '<div class="it-t">' + esc(it.t) + '</div>' + tagHTML(it, reproKnown(it)) +
       '<div class="it-p">' + (it.kind === 'game' || it.kind === 'grail' ? esc(plat.name) + ' &middot; ' : (it.kind === 'music' || it.kind === 'movie') ? esc(it.by) + ' &middot; ' + (it.lab ? esc(it.lab) + ' &middot; ' : '') : '') + '<span class="pill ' + it.cond + '">' + condLabel(it) + '</span></div>' +
@@ -3506,8 +3527,10 @@
       // loudly refuses to sell out, while selling out
       h += '<div class="bubble big">' + esc(seller.name) + ': "' + esc(refuse[0]) + '"</div>' +
         '<div class="glam"><canvas class="glamcan" width="22" height="30" aria-label="A can of ' + esc(NP.SPONSOR.name) + '"></canvas><div class="glam-t">' + esc(refuse[1]) + '</div></div>';
-    } else if (seller && s.hello) h += '<div class="bubble big">' + esc(seller.name) + ': "' + esc(s.hello) + '"</div>';
+    } else if (seller && s.hello && s.jerk) h += jerkTellHTML(s.jerk, jerkName(s.seller, s.jerk), S.seed + s.id) + '<div class="bubble big jerky">' + esc(jerkName(s.seller, s.jerk)) + ': ' + esc(jerkQuote(s.hello)) + '</div>';
+    else if (seller && s.hello) h += '<div class="bubble big">' + esc(seller.name) + ': "' + esc(s.hello) + '"</div>';
     if (s.type === 'flea') h += '<div class="bubble big">Different vendor at every table. Some of them know what they got.</div>';
+    if (s.type === 'yard' && NP.YARD_RADIO) h += '<div class="radiobar"><span class="rad-ico" aria-hidden="true"></span><span>' + esc(NP.YARD_RADIO[NP.hashStr(S.seed + s.id + 'radio') % NP.YARD_RADIO.length]) + '</span></div>';
     h += cameoBox(s);
     h += rivalNotes(s);
     // Round 3b: what is going on at this store today
@@ -3549,6 +3572,7 @@
     var lc = document.querySelector('.laughcv');
     if (lc && NP.Scene) { if (s.laughNow) { s.laughNow = false; NP.Scene.laugh(lc, getLook()); } else NP.Scene.laugh(lc, getLook(), true); }
     if (refuse) drawGlamCan();
+    if (s.jerk && !DEMO) { startTells(); jerkTip('.jtell-row'); }
     drawCameos();
     setTimeout(function () { if (S && S.screen === 'stop') watchCameo(S.stop); }, 0); // after the NEXT bar is placed
     var slot = document.querySelector('.yardban-slot'), yb = null;
@@ -3705,6 +3729,7 @@
     S.screen = 'stop';
     step('f07_arrive_' + S.history.length + '_' + s.type);
     if (s.seller && NP.SELLERS[s.seller]) s.hello = helloFor(s.seller) || NP.SELLERS[s.seller].hi[s.id.charCodeAt(1) % NP.SELLERS[s.seller].hi.length];
+    if (s.jerk && jerkDef(s.jerk)) { var jh = jerkDef(s.jerk).hi; s.hello = jh[NP.hashStr(S.seed + s.id) % jh.length]; track('jerk_met'); track('jerk_met_' + s.jerk); }
     if (s.rivalAt && S.time >= s.rivalAt) {
       // rival cleared the best stuff
       s.cleared = true; S.ev.rivalHits++;
@@ -3749,6 +3774,7 @@
 
   function sellerLine(it, key) {
     var sl = NP.SELLERS[it.seller] || NP.SELLERS.friendly;
+    if (it.jerk && jerkDef(it.jerk) && (key === 'yes' || key === 'no')) return jerkSay(it, key);
     if (it.uid.indexOf('dx') === 0) return key === 'yes' ? 'Pleasure. Tell your followers.' : 'That is a collector\'s item now. Market rate.';
     var arr = sl[key] || sl.no;
     var line = arr[(S.pitchN++) % arr.length];
@@ -3791,6 +3817,110 @@
     if (!S.said.partner && (it.kind === 'standee' || (S.day.partner && price >= 30))) { S.said.partner = true; S.callNow = true; }
   }
 
+  // ---------- Round 6.4: jerk sellers ----------
+  // A jerk is a mood laid over a normal seller, for one stop or one swap meet table. Full game only,
+  // except the demo's one guy on the phone at the swap meet, who answers if you ask twice.
+  // Everything here uses its own seeded numbers, so the rest of the day is exactly what it was.
+  var JERK_OK = { friendly: 1, firm: 1, ikwig: 1, pawn: 1, mall: 1, snob: 1, chill: 1, rental: 1 };
+  var JERK_KINDS = ['scoff', 'budge', 'raise', 'brag', 'phone', 'walk'];
+  function jerkSkip(it) { return !it || it.ultra || it.dailyTip || it.kind === 'grail' || it.kind === 'mbox' || it.kind === 'lot' || it.featured || it.planted || it.special || it.early || it.held || it.uid.indexOf('dx') === 0; }
+  // the swap meet tables, grouped the same way walk.js lays them out (up to 3 things a table, 5 tables)
+  function fleaGroups(items) {
+    var groups = [], open = {};
+    items.filter(function (it) { return it.kind !== 'lot' && !it.crate; }).forEach(function (it) {
+      var g = open[it.seller];
+      if (g && it.jerkRare) { g.items.push(it); return; } // the jerk's good thing stays on the jerk's table
+      if (!g || g.items.length >= 3) {
+        if (groups.length >= 5) { groups[groups.length - 1].items.push(it); return; }
+        g = { seller: it.seller, items: [] }; open[it.seller] = g; groups.push(g);
+      }
+      g.items.push(it);
+    });
+    return groups;
+  }
+  function jerkify(it, kind) {
+    if (jerkSkip(it)) return;
+    it.jerk = kind;
+    if (kind === 'brag') it.ask = Math.max(2, Math.round(it.ask * 1.25));
+    it.minFrac = kind === 'budge' ? 1 : Math.min(1, (it.minFrac || 0.7) + 0.12);
+  }
+  function jerkRare(r, st, seller, kind) {
+    var e = pick(r, NP.CATALOG.filter(function (g) { return g.tier === 3; }));
+    var it = makeItem(r, e, { seller: seller, cibP: 0.6, sealedP: 0.15 });
+    it.flags = {}; it.tell = true; it.jerkRare = true;
+    jerkify(it, kind);
+    return it;
+  }
+  function addJerks(day, seed) {
+    var J = NP.JERK; if (!J) return;
+    var r = mulberry32(NP.hashStr('jerk|' + seed));
+    day.stops.forEach(function (s) {
+      if (!openStop(s) || s.gift || s.locked || s.cola || s.type === 'expo' || s.type === 'banned') return;
+      if (s.type === 'flea') {
+        fleaGroups(s.items).forEach(function (g) {
+          if (!JERK_OK[g.seller] || r() >= J.share) return;
+          var kind = pick(r, JERK_KINDS);
+          g.items.forEach(function (it) { jerkify(it, kind); });
+          if (r() < J.rareShare) { var last = g.items[g.items.length - 1]; s.items.splice(s.items.indexOf(last) + 1, 0, jerkRare(r, s, g.seller, kind)); }
+        });
+        return;
+      }
+      if (!s.seller || !JERK_OK[s.seller] || r() >= J.share) return;
+      var k = pick(r, JERK_KINDS.filter(function (x) { return !(x === 'budge' && s.seller === 'firm'); }));
+      s.jerk = k;
+      s.items.concat(s.dig || []).forEach(function (it) { if (it.seller === s.seller) jerkify(it, k); });
+      if (r() < J.rareShare) s.items.push(jerkRare(r, s, s.seller, k));
+    });
+  }
+  // the demo: one swap meet table, on the phone. Nothing else about it changes.
+  function demoPhoneJerk(flea, F) {
+    var g = fleaGroups(flea.items).filter(function (g) { return !g.items.some(function (it) { return jerkSkip(it) || it === F; }); });
+    g = g.filter(function (x) { return x.seller === 'firm'; })[0] || g[g.length - 1];
+    if (g) g.items.forEach(function (it) { it.jerk = 'phone'; });
+  }
+  function jerkDef(k) { return NP.JERK && NP.JERK.kinds[k]; }
+  function jerkName(key, kind) { var d = jerkDef(kind); return d ? d.name : (NP.SELLERS[key] ? NP.SELLERS[key].name : ''); }
+  function jerkSay(it, list) { var a = jerkDef(it.jerk)[list] || jerkDef(it.jerk).no; return a[NP.hashStr(it.uid + list + (it.jsaid = (it.jsaid || 0) + 1)) % a.length]; }
+  // deterministic coin for "does the jerk end the deal": the same offer on the same item always goes the same way
+  function jerkCoin(it, tag, p) { return (NP.hashStr(it.uid + '|' + tag + '|' + (it.jn = (it.jn || 0) + 1)) % 1000) / 1000 < p; }
+  // Markup Marv: show interest in something and it costs more. Once per thing.
+  function jerkBump(it) {
+    if (!it || it.jerk !== 'raise' || it.raised || it.state !== 'avail') return false;
+    it.raised = true;
+    it.ask = Math.max(it.ask + 1, Math.round(it.ask * 1.2));
+    it.counter = null;
+    it.line = jerkSay(it, 'bump').replace('{$}', money(it.ask));
+    track('jerk_raise');
+    return true;
+  }
+  var jerkSeen = false;
+  function jerkTip(anchorSel) {
+    if (jerkSeen) return; jerkSeen = true;
+    setTimeout(function () { var el = anchorSel && document.querySelector(anchorSel); if (S && (S.screen === 'stop' || S.screen === 'walk')) showTip('jerk', el ? { el: el, below: true } : null); }, 400);
+  }
+  // the tell, drawn: the seller's portrait with crossed arms, rolling eyes, a sigh or a phone (character.js draws it)
+  function jerkTellHTML(kind, name, seed) {
+    var d = jerkDef(kind); if (!d) return '';
+    return '<div class="jtell-row"><canvas class="jtell" width="56" height="40" data-tell="' + d.tell + '" data-seed="' + esc(seed) + '" aria-hidden="true"></canvas>' +
+      '<div class="jtell-t"><b>' + esc(name) + '</b><span>' + esc((DEMO && kind === 'phone' ? NP.JERK.demoPhone : NP.JERK.tells[d.tell])) + '</span></div></div>';
+  }
+  var jtLoop = null;
+  function drawTells() {
+    var cvs = document.querySelectorAll('canvas.jtell');
+    if (!cvs.length || !NP.Char || !NP.Char.drawTell) { jtLoop = null; return; }
+    var t = performance.now() / 1000;
+    cvs.forEach(function (c) {
+      var g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.clearRect(0, 0, c.width, c.height);
+      var look = NP.Char.normalize(NP.Char.random(mulberry32(NP.hashStr('jlook|' + c.getAttribute('data-seed'))), { noBrand: true, natural: true }));
+      NP.Char.drawTell(g, look, c.getAttribute('data-tell'), 4, 0, 1.6, calm() ? 0 : t, { bust: true });
+    });
+    if (calm()) { jtLoop = null; return; }
+    var me = jtLoop = setTimeout(function () { requestAnimationFrame(function () { if (jtLoop === me) drawTells(); }); }, 120); // one loop, ever
+  }
+  function startTells() { if (jtLoop) { clearTimeout(jtLoop); jtLoop = null; } drawTells(); }
+  // a jerk's line in a bubble: quoted, unless it is already somebody talking on the phone or a stage direction
+  function jerkQuote(t) { return /^["(]/.test(t) ? t : '"' + t + '"'; }
+
   function doOffer(it, kind) {
     if (!it || it.state !== 'avail' || blockedHere()) return;
     braydenCheck(it.uid);
@@ -3800,12 +3930,23 @@
     if (!o) return;
     var price = o[2];
     if (price > S.cash + creditHere()) return;
+    // Round 6.4: jerks. On the phone: the first ask gets a finger held up. Markup Marv: interest costs you.
+    if (it.jerk === 'phone' && !it.phoneAsked) {
+      it.phoneAsked = true;
+      if (!DEMO) actCost(3);
+      it.line = jerkSay(it, 'ignore'); track('jerk_phone');
+      sfx('tick');
+      if (!checkSundown()) render();
+      return;
+    }
+    if (!DEMO && it.jerk === 'raise' && !it.raised && kind !== 'steve') { actCost(T_HAGGLE); jerkBump(it); sfx('reject'); if (!checkSundown()) render(); return; }
     snapForUndo('buy', it.t);
     actCost(T_HAGGLE);
     if (kind === 'steve') { kind = 'full'; rivalHit('steve'); }
     var sl = NP.SELLERS[it.seller] || {};
     var frac = price / it.ask;
-    if (frac + 1e-6 >= it.minFrac || kind === 'full' || kind === 'counter' || (kind === 'fair' && feverOn())) {
+    var scoffed = !DEMO && it.jerk === 'scoff' && kind === 'lowball'; // Scoffing Stan never takes a lowball, not even on a $1 tape
+    if (!scoffed && (frac + 1e-6 >= it.minFrac || kind === 'full' || kind === 'counter' || (kind === 'fair' && feverOn()))) {
       if (kind === 'counter') { it.counter = null; track('counter_taken'); }
       var cr = payFor(price);
       it.line = sellerLine(it, 'yes') + (cr ? ' (' + money(cr) + ' of that was your store credit.)' : '');
@@ -3829,6 +3970,13 @@
           if (it.flaw) track('near_miss_flaw');
         }
       } else { goalTick('buy', it, { price: price, offer: kind }); demoJuice(it, price); setTimeout(offerUndo, 50); }
+    } else if (!DEMO && it.jerk && it.jerk !== 'phone' && ((kind === 'lowball' && jerkCoin(it, 'low', it.jerk === 'scoff' ? 0.5 : it.jerk === 'walk' ? 0.4 : 0.25)) || (kind !== 'lowball' && it.jerk === 'walk' && jerkCoin(it, 'walk', 0.4)))) {
+      // the jerk ends the deal: the thing goes back under the table
+      S.streak = 0;
+      it.state = 'pulled'; it.line = jerkSay(it, 'quit'); S.ev.jerkQuit = (S.ev.jerkQuit || 0) + 1;
+      goalTick('miss'); comboBreak();
+      track('jerk_quit'); track('jerk_quit_' + it.jerk);
+      sfx('reject');
     } else if (kind === 'lowball' && sl.touchy && !DEMO) {
       S.streak = 0;
       it.state = 'pulled'; it.line = S.rem.ikwig && S.rem.ikwig.mad ? 'AGAIN? Unbelievable. Off the table. I will remember this too.' : sl.mad[0]; S.ev.offended++;
@@ -3838,11 +3986,11 @@
     } else {
       S.streak = 0;
       if (!DEMO) { goalTick('miss'); comboBreak(); }
-      it.line = sellerLine(it, 'no');
+      it.line = !DEMO && it.jerk && kind === 'lowball' ? jerkSay(it, 'low') : sellerLine(it, 'no');
       // the demo: the seller meets you partway, so a miss is never a dead end
       // the full game (r6.2): no new prices, ever. After a Lowball, the seller says so if Fair would land, and the Deal button IS the Fair offer.
       // When only full price would do, nothing changes: you find out the usual way.
-      if (!DEMO && kind === 'lowball') {
+      if (!DEMO && kind === 'lowball' && !it.jerk) { // jerks never meet you partway
         var fair = offers(it)[1][2];
         if (fair + 1e-6 >= it.minFrac * it.ask && fair < it.ask && fair > price) { it.counter = fair; it.line += ' ' + NP.DEMO5.counter.replace('{$}', money(fair)); track('counter_offered'); var fu = it.uid; setTimeout(function () { var cb = document.querySelector('#card-' + fu + ' .counter'); if (cb && S && S.screen === 'stop') showTip('counter', { el: cb, below: true }); }, 250); }
       }
@@ -4458,6 +4606,7 @@
     if (keptReseal) titles.push('Bought Some Very Nice Shrink Wrap');
     if (S.ev.giftSpent >= 25) titles.push('Fully Merchandised');
     if (S.ev.offended) titles.push('Insulted a Man Who Knows What He Got');
+    if (S.ev.jerkQuit) titles.push('Got Told to Get Outta Here');
     if (S.ev.soldRepro) titles.push('Sold a Bootleg With a Straight Face');
     if (S.ev.sellMad) titles.push('Pushed a Man Who Knows What You Got');
     if (S.ev.creditLeft >= 10) titles.push('Left ' + money(S.ev.creditLeft) + ' in Store Credit Behind');
@@ -4779,14 +4928,14 @@
       case 'tv': playTV(el.getAttribute('data-where') || 'map'); break;
       case 'jumpsell': var sb = document.getElementById('sellbox'); if (sb) sb.scrollIntoView({ behavior: 'smooth', block: 'start' }); break;
       case 'inspect':
-        var it = findItem(uid); braydenCheck(uid); actCost(T_INSPECT); it.inspected = true;
+        var it = findItem(uid); braydenCheck(uid); actCost(T_INSPECT); it.inspected = true; if (!DEMO) jerkBump(it);
         if (it.flags && it.flags.repro && it.tell) { sfx('uhoh'); track('repro_inspected'); magnet('eagle'); }
         goalTick('inspect', it);
         if (isMedia(it)) revealGag(it, 'inspect');
         blowOnIt(it);
         if (rivalHere('brayden') && it.state === 'avail') S.stop.bfocus = it.uid;
         if (!checkSundown()) render(); break;
-      case 'check': var it2 = findItem(uid); braydenCheck(uid); actCost(T_SHELF); it2.checked = true; S.ev.checks++; goalTick('check'); if (rivalHere('brayden') && it2.state === 'avail') S.stop.bfocus = it2.uid; if (!checkSundown()) render(); break;
+      case 'check': var it2 = findItem(uid); braydenCheck(uid); actCost(T_SHELF); it2.checked = true; if (!DEMO) jerkBump(it2); S.ev.checks++; goalTick('check'); if (rivalHere('brayden') && it2.state === 'avail') S.stop.bfocus = it2.uid; if (!checkSundown()) render(); break;
       case 'dig': braydenCheck(null); actCost(T_DIG); S.stop.dug = true; goalTick('dig'); if (!checkSundown()) render(); break;
       case 'leave': if (tipEl) closeTip(); leaveStop(el.getAttribute('data-via') || 'map'); window.scrollTo(0, 0); break;
       case 'buygift': buyGift(el.getAttribute('data-id')); break;
@@ -4973,6 +5122,7 @@
     walkBoost: function () { return walkBoost(); }, wantTable: function (o) { wantTable(o); },
     adLevel: adLevel, adFree: function () { return adFree; }, look: getLook, helloFor: helloFor,
     fmtTime: fmtTime, money: money, esc: esc, sfx: sfx, track: track, demo: DEMO,
+    fleaGroups: fleaGroups, jerkQuote: jerkQuote, jerkDef: jerkDef, jerkName: jerkName, jerkTellHTML: jerkTellHTML, startTells: startTells, jerkTip: jerkTip, calm: function () { return calm(); },
     takeToast: function () { var t = S.toast; S.toast = ''; return t; },
     tip: function (k) { return showTip(k, k === 'dex' ? dexAnchor() : null); }, tipOpen: tipOpen
   };
@@ -4992,8 +5142,8 @@
       goalType: function () { var def = S.goal && goalDef(S.goal.id); return def ? def.type : null; },
       leaveReal: function () { leaveStop('map'); },
       offer: function (uid, kind) { var it = findItem(uid); if (it) doOffer(it, kind); return it ? it.state : null; },
-      inspect: function (uid) { var it = findItem(uid); if (!it) return; actCost(T_INSPECT); it.inspected = true; },
-      check: function (uid) { var it = findItem(uid); if (!it) return; actCost(T_SHELF); it.checked = true; },
+      inspect: function (uid) { var it = findItem(uid); if (!it) return; actCost(T_INSPECT); it.inspected = true; jerkBump(it); },
+      check: function (uid) { var it = findItem(uid); if (!it) return; actCost(T_SHELF); it.checked = true; jerkBump(it); },
       dig: function () { actCost(T_DIG); S.stop.dug = true; },
       unblock: function () { var D = storyOf(S.stop); if (D && !D.coded && D.choices) D.choices.forEach(function (c, i) { if (c.unblock && !storyState(S.stop).open) doStory(i); }); if (S.stop.lateFee) doLateFee(); },
       shelve: function () { S.screen = 'home'; S.stop = null; shelve(); return { score: S.result.score, items: S.result.items.length }; },

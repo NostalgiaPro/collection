@@ -286,6 +286,100 @@ NP.SELLERS = {
     no: ['I am closing, not giving it away. Well. Almost giving it away.', 'The manager says no. The manager is a sticky note.'] }
 };
 
+// ---------- Round 6.4: jerk sellers (full game; the demo gets one harmless guy on his phone) ----------
+// A jerk is a mood laid over a normal seller at one stop or one swap meet table. They show it before you say a word:
+// arms crossed, eyes rolling, a big sigh, or a phone glued to one ear. Smaller discounts, no meeting you partway,
+// and a lowball can end the deal. Now and then the jerk has the best thing in the place.
+NP.JERK = {
+  share: 0.25,
+  rareShare: 0.4,
+  // tell: what you see. name: what the table sign says.
+  kinds: {
+    scoff: { name: 'Scoffing Stan', tell: 'roll',
+      hi: ['Look all you want. Looking costs nothing. For now.', 'Oh good. Another expert.', 'Yeah, yeah. Prices are on stuff. Read.'],
+      yes: ['Fine. Take it. Jeez.', 'Whatever. Enjoy it, I guess.'],
+      no: ['C\'mon. That is not an offer. That is a coupon.', 'Nope. Try again with real money.'],
+      low: ['You serious? Get outta here.', 'Ha! No. You serious? Get outta here.'],
+      quit: ['You serious? Get outta here. It is off the table. Go bother somebody else.'] },
+    budge: { name: 'Not Budging Norm', tell: 'arms',
+      hi: ['Price is the price.', 'Before you ask: no.', 'Stickers are final. I do not do the math thing.'],
+      yes: ['Sticker price. Good. Was that so hard?', 'Correct. Next.'],
+      no: ['Price is the price.', 'Nope. Read the sticker again. Slower.', 'Still no. The sticker did not change. Neither did I.'],
+      low: ['Half? C\'mon. Price is the price.'],
+      quit: ['Okay, we are done here. Off the table.'] },
+    raise: { name: 'Markup Marv', tell: 'roll',
+      hi: ['Oh, a collector. Great. Love that for me.', 'Everything is priced fair. For now.', 'Take your time. Prices only go up.'],
+      yes: ['Pleasure. You got a deal. A deal for me.', 'Sold. Should have charged more, honestly.'],
+      no: ['Prices go up when people look at stuff. That is just how it works.', 'Nah. You looked at it too long.'],
+      low: ['A lowball? On a collector piece? Jeez.'],
+      bump: ['Oh, you want THAT one? Yeah, that one is {$} now. Demand just went up.', 'Hm. You picked that up kind of fast. That one is {$}.', 'Ooh, you like it. Okay. {$}.'],
+      quit: ['Nope. Not selling it to you now. Off the table.'] },
+    brag: { name: 'Worth More Online Wes', tell: 'arms',
+      hi: ['Careful. Everything on this table is super rare. Worth way more online.', 'I looked all of this up. Once. On my phone. It is all rare.', 'You will not find these anywhere. I checked one website.'],
+      yes: ['Steal of the century. For you. Not for me.', 'Fine. You know this is worth way more online, right?'],
+      no: ['It is super rare. Worth way more online.', 'C\'mon. You know what this goes for online? Me neither, but it is a lot.', 'Online, this is a car payment.'],
+      low: ['Half? For something this rare? Jeez.'],
+      quit: ['You know what, I will just sell it online. Off the table.'] },
+    phone: { name: 'Hang On Hank', tell: 'phone',
+      hi: ['(On the phone. Does not look up.)', '"No, the OTHER storage unit." (Still on the phone.)', '"Uh huh. Uh huh. Hang on, somebody is here." (They do not hang on.)'],
+      ignore: ['(Still on the phone.) "No, I said the BLUE tote." One finger goes up. Ask again.', '(On the phone.) "Uh huh. Uh huh." A finger goes up. You wait. Ask again.', '(On the phone.) "Hang on." They turn around. Ask again.'],
+      yes: ['(Covers the phone.) "Yeah, fine, take it." (Back on the phone.)', '"Sure, sure." (Still on the phone. Takes your money anyway.)'],
+      no: ['(Covers the phone.) "Nah." (Back on the phone.)', '"No, not you. Well. Also you. No."'],
+      low: ['(Covers the phone.) "C\'mon, really?"'],
+      quit: ['"Hang on, I gotta go." They pack it up, still talking. Off the table.'] },
+    walk: { name: 'Walkaway Wendell', tell: 'sigh',
+      hi: ['*Big sigh.* Yeah, what.', '*Sigh.* Everything is priced. Do not make it weird.', '*Sigh.* I been here since five.'],
+      yes: ['*Sigh.* Fine. Here.', 'Sure. Whatever. *Sigh.*'],
+      no: ['Jeez. No.', '*Sigh.* No.'],
+      low: ['*Sigh.* C\'mon.'],
+      quit: ['Okay, I am done. Have a good one. (He walks off with it.)', '*Big sigh.* Nope. Done. It goes back in the truck.'] }
+  },
+  // the tell under their name, in plain body language
+  tells: { arms: 'Arms crossed.', roll: 'Eyes rolling.', sigh: 'Big sigh.', phone: 'On the phone.' },
+  rareNote: 'This one is actually good. Of course it is at this table.',
+  tip: { h: 'That seller is a jerk', b: 'Crossed arms, an eye roll, a big sigh, a phone glued to one ear: this seller is going to be a pain. Smaller discounts, no meeting you partway, and a lowball can end the deal. Sometimes they have the best thing in the place.' },
+  // the demo's one: he is on the phone and answers if you ask twice
+  demoPhone: 'On the phone. Ask twice.'
+};
+
+// ---------- Round 6.4: smelly nerds (a gag about the hobby, never about how anyone looks) ----------
+NP.SMELL = {
+  share: 0.3,
+  whew: ['Whew.', 'Oof.', 'Yikes.', 'Whew. Long morning.'],
+  wave: ['*waves hand*', 'Oof.'],
+  // tap on a smelly shopper or nerd
+  lines: ['Been in line since 4 AM. Has not been home. Has not stopped talking about it.', 'Three days at the convention. One shirt. Zero regrets.', 'Smells like a garage full of cartridges in July. Honestly, kind of nostalgic.', 'He has been digging in bins since sunrise. The bins won.']
+};
+
+// ---------- Round 6.4: beat-up carts, tables and Sharpie on everything ----------
+NP.SHARPIE = {
+  // taped to a swap meet table front (pixel text, so short and all caps)
+  table: ['NO RETURNS', 'CASH ONLY', 'ALL GAMES $5', 'MAKE OFFER', 'NO HOLDS', 'AS IS', 'DO NOT TOUCH', 'TESTED?'],
+  // the cardboard signs at menu stops, in marker. Anything in {braces} is crossed out.
+  stop: {
+    yard: ['ALL GAMES {$5} $8 (NOT THOSE ONES)', 'MAKE OFFER (NO LOWBALLS)', 'CASH ONLY. NO CHECKS. NO "I WILL COME BACK."', 'EVERYTHING {WORKS} TURNS ON'],
+    thrift: ['NO RETURNS', 'ELECTRONICS SOLD AS IS. VERY AS IS.', 'CARTRIDGES {$3} {$2} $4'],
+    pawn: ['NO RETURNS. NO REFUNDS. NO "MY COUSIN SAID."', '{CARDS OK} CASH ONLY'],
+    rummage: ['ALL BINS {50 CENTS} $1', 'CASH ONLY. EXACT CHANGE. PLEASE.'],
+    rental: ['EVERYTHING {MUST GO} WENT'],
+    sports: ['FOOTBALL GAMES {$1} {$2} $1'],
+    jerk: ['MAKE OFFER (NO OFFERS)', 'PRICES FIRM. DO NOT ASK.', 'NO LOWBALLS. NO EXCEPTIONS. NO ASKING ABOUT EXCEPTIONS.', 'LOOKING {COSTS NOTHING} $1']
+  },
+  // little marks somebody added later
+  scrawl: ['J.R.', 'TALLY |||| |||', 'NO HOLDS', ':)', 'NO RESTROOM', 'K.T. WAS HERE', '|||| ||', 'ASK ABOUT BOX', 'BLOW ON IT. IT HELPS.'],
+  // flavor for the parked carts at the swap meet
+  carts: ['A shopping cart with one wheel that points a different way from the other three. Duct tape on the handle. Somebody wrote "MINE" on it in marker. Somebody else crossed it out and wrote "NOPE."',
+    'A cart full of old cables, two power bricks and a lamp. A price sticker on the basket says $3. For the cables? For the cart? Nobody knows.',
+    'Rust spots, a bent corner and a masking tape tag: "TALLY: |||| |||| ||". Tally of what? It does not say. It squeaks when the wind blows.'],
+  squeak: 'SQUEAK'
+};
+
+// ---------- Round 6.4: the radio on the card table at a yard sale ----------
+NP.YARD_RADIO = ['A little radio on the card table is playing 104.8 The Dust. Mostly static. The static has a good beat.',
+  'The radio on the card table is stuck between two stations. Both of them are playing ads.',
+  'A radio with a coat hanger for an antenna. It picks up one station, and the station is mostly the weather.',
+  'The radio on the card table is tuned to the oldies station. The oldies are from 2004. You feel something.'];
+
 // ---------- shop owners buying from you (selling and trading in) ----------
 // lo/hi = the most they will pay, as a share of what the game is really worth. The first offer is lower than that.
 // firm: the offer never moves. touchy: ask once too often and they stop buying that game. detect: always spots a bootleg.
@@ -580,6 +674,7 @@ NP.GOALS = function (m, budget) {
 // One-time tips. Each shows once, ever, and costs no daylight. "short" is the How to play version.
 NP.TIPS = {
   // Demo round 5 first-use tips (short on purpose)
+  jerk: { h: 'That seller is a jerk', b: 'Crossed arms, an eye roll, a big sigh, a phone glued to one ear: this seller is going to be a pain. Smaller discounts, no meeting you partway, and a lowball can end the deal. Sometimes they have the best thing in the place.' },
   counter: { h: 'They met you partway', b: 'A seller who says no will often name a price. Tap Deal to take it. It always works.' },
   stallmap: { h: 'The stall map', b: 'Tap MAP to see every table. Tap one and you walk straight there.' },
   offers: { h: 'Making an offer', b: 'Lowball is half the sticker. Some sellers take it. Some take it personally. Fair is three quarters. Full price always works, which is how they get you.',

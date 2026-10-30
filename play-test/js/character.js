@@ -228,7 +228,53 @@ NP.Char = (function () {
     ctx.drawImage(frame(L, dir, step), Math.round(x), Math.round(y), FW * s, FH * s);
   }
 
+  // ---------- Round 6.4: body language drawn over a sprite ----------
+  // kind: 'arms' (crossed), 'roll' (eyes rolling), 'sigh' (a big sigh), 'phone' (on the phone),
+  // 'squint' (something smells), 'wave' (waving the smell away). x, y = the sprite's top-left corner, s = scale.
+  // t = seconds, for the little animations (0 holds the pose still, for Calm effects).
+  function overlay(g, kind, L, dir, x, y, s, t) {
+    s = s || 1; L = L || DEFAULT; t = t || 0;
+    var skin = SKIN[L.skin] || SKIN[1], mirror = dir === 'right', side = dir === 'left' || dir === 'right';
+    function P(px, py, w, h, c) {
+      g.fillStyle = c;
+      var X = mirror ? FW - px - w : px;
+      g.fillRect(Math.round(x + X * s), Math.round(y + py * s), Math.ceil(w * s), Math.ceil(h * s));
+    }
+    var front = dir === 'down' || !dir;
+    if (kind === 'arms' && front) {
+      P(3, 12, 10, 1, OUT); P(3, 13, 10, 2, skin); P(3, 15, 10, 1, OUT); P(7, 13, 2, 2, dark(skin, 0.78));
+    } else if (kind === 'roll' && front) {
+      var c = t ? (t % 3.2) : 0.5, up = c < 1.1; // rolls, holds, rolls again
+      if (up && L.glasses !== 'shades') { P(6, 7, 1, 2, '#ffffff'); P(9, 7, 1, 2, '#ffffff'); P(c < 0.35 ? 5 : c < 0.7 ? 6 : 7, 6, 1, 1, OUT); P(c < 0.35 ? 8 : c < 0.7 ? 9 : 10, 6, 1, 1, OUT); P(6, 7, 1, 1, EYE); P(9, 7, 1, 1, EYE); }
+      P(5, 5, 2, 1, dark(skin, 0.6)); P(9, 5, 2, 1, dark(skin, 0.6)); // brows up
+    } else if (kind === 'sigh' && front) {
+      var on = !t || (t % 4) < 2.4;
+      if (L.glasses !== 'shades') { P(6, 7, 1, 1, skin); P(9, 7, 1, 1, skin); } // heavy lids
+      if (on) { P(7, 10, 2, 1, OUT); P(10, 10, 2, 1, '#e8f1ff'); P(12, 9, 2, 2, '#e8f1ff'); P(14, 8, 2, 1, '#e8f1ff'); } // the breath going out
+    } else if (kind === 'phone') {
+      var talk = t && Math.floor(t * 5) % 2;
+      if (front) { P(12, 4, 2, 5, OUT); P(12, 5, 1, 3, '#2b2f3f'); P(12, 9, 2, 2, skin); P(12, 11, 1, 3, skin); if (L.glasses !== 'shades') { P(6, 7, 1, 1, skin); P(9, 7, 1, 1, skin); } if (talk) P(7, 10, 2, 1, OUT); }
+      else if (side) { P(9, 5, 2, 4, OUT); P(9, 6, 1, 2, '#2b2f3f'); }
+    } else if (kind === 'squint') {
+      if (front && L.glasses !== 'shades') { P(6, 7, 1, 2, skin); P(9, 7, 1, 2, skin); P(5, 8, 2, 1, EYE); P(9, 8, 2, 1, EYE); P(7, 10, 2, 1, dark(skin, 0.6)); }
+      else if (side) { P(5, 7, 1, 2, skin); P(4, 8, 2, 1, EYE); }
+    } else if (kind === 'wave') {
+      var up2 = t ? Math.floor(t * 8) % 2 : 0;
+      if (side) P(1, 6 + up2, 2, 2, skin);
+      else if (front) { P(13, 6 + up2, 2, 2, skin); P(13, 8 + up2, 1, 3, skin); P(6, 7, 1, 1, skin); P(9, 7, 1, 1, skin); }
+    }
+  }
+  // the seller portrait on a stop screen: the whole sprite, then the tell, then (for a sigh) the word itself
+  function drawTell(g, L, tell, x, y, s, t, opts) {
+    g.imageSmoothingEnabled = false;
+    g.drawImage(frame(L, 'down', 0), Math.round(x), Math.round(y), FW * s, FH * s);
+    overlay(g, tell, L, 'down', x, y, s, t);
+    if (tell === 'sigh' && NP.pixelText && (!t || (t % 4) < 2.4)) NP.pixelText(g, 'SIGH', Math.round(x + 15 * s), Math.round(y + 1), 1, '#fff1d6');
+    if (tell === 'roll' && NP.pixelText && (!t || (t % 3.2) < 1.1)) NP.pixelText(g, 'UGH', Math.round(x + 16 * s), Math.round(y + 1), 1, '#fff1d6');
+  }
+
   return {
+    overlay: overlay, drawTell: drawTell,
     FW: FW, FH: FH, SKIN: SKIN, HAIRCOL: HAIRCOL, HAIR: HAIR, SHIRTS: SHIRTS, HATS: HATS, GLASSES: GLASSES,
     DEFAULT: DEFAULT, normalize: normalize, random: random, frame: frame, draw: draw
   };
