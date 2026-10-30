@@ -1446,7 +1446,7 @@ NP.Walk = (function () {
       var rv = app.querySelector('.walk-rivals'), rvH = rv && rv.offsetHeight ? rv.getBoundingClientRect().height + 16 : 0;
       // the next-step bar is pinned to the bottom of the screen, so the play area stops above it
       var nsb = document.querySelector('.nsbar'), nsH = nsb ? nsb.getBoundingClientRect().height : 0;
-      var helpEl = app.querySelector('.walk-help'), helpH = helpEl && window.innerHeight < 500 ? helpEl.getBoundingClientRect().height + 8 : 0;
+      var helpEl = app.querySelector('.walk-help'), helpH = helpEl ? helpEl.getBoundingClientRect().height + 8 : 0; // the help line may sit below the fold: the cost is on the play area and the NEXT bar says what to do
       var over = Math.ceil(bottom - window.innerHeight - rvH - helpH + nsH);
       var bw = box.getBoundingClientRect().width;
       if (pass === 0) box.style.maxWidth = Math.max(200, Math.floor((ch - over - 7) * VW / VH + 6)) + 'px';

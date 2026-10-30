@@ -1635,8 +1635,6 @@
     if (!text) return;
     // the demo: want list cards wait for the find reveal to finish, so one good moment lands at a time
     if (DEMO && revealOn && (tries || 0) < 12 && ['goal', 'goaldone', 'unlock'].indexOf(level) >= 0) { setTimeout(function () { celebrate(level, text, (tries || 0) + 1); }, 350); return; }
-    var st = chipStack();
-    while (st.children.length >= 3) st.removeChild(st.firstChild);
     var el = document.createElement('div');
     el.className = 'yay ' + (level || 'good') + (calm() ? ' calm' : '');
     el.setAttribute('role', 'status');
@@ -1646,9 +1644,67 @@
       var parts = String(text).split('|');
       el.innerHTML = '<b class="yay-h"><span class="yay-sp" aria-hidden="true">&#10022;</span> ' + esc(parts[0]) + ' <span class="yay-sp" aria-hidden="true">&#10022;</span></b><span class="yay-b">' + esc(parts.slice(1).join(' · ')) + '</span>';
     } else el.innerHTML = '<span class="yay-sp" aria-hidden="true">&#10022;</span> ' + esc(text);
-    st.appendChild(el);
     if (level !== 'miss') sfx(level === 'big' || level === 'goaldone' ? 'sting' : level === 'streak' ? 'streak' : level === 'unlock' || level === 'goal' ? 'unlock' : 'sparkle');
-    setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, level === 'goaldone' ? 3000 : 2600);
+    placeChip(el, level === 'goaldone' ? 3000 : 2600);
+  }
+  // r6.1: a chip never covers the title or another chip.
+  // While the announcement slot under the title is on screen, chips go into it, in the page (they push things down, they never sit on top).
+  // Otherwise they wait their turn and show inside the NEXT bar itself, one at a time, so they cover nothing (tap one to move on).
+  var inlineChips = [], chipQ = [], chipBusy = false, chipCur = null, chipT = null;
+  function slotInView() {
+    var slot = document.getElementById('annc');
+    if (!slot || !S || (S.screen !== 'stop' && S.screen !== 'map')) return null;
+    var r = slot.getBoundingClientRect(), hud = document.querySelector('.hud'), ns = document.querySelector('.nsbar');
+    var top = hud ? hud.getBoundingClientRect().bottom : 0, bot = ns ? ns.getBoundingClientRect().top : window.innerHeight;
+    return r.top >= top - 4 && r.top < bot - 60 ? slot : null;
+  }
+  function placeChip(el, ms) {
+    var slot = slotInView();
+    if (slot) {
+      el.classList.add('inl');
+      while (slot.children.length >= 3) slot.removeChild(slot.firstChild);
+      slot.appendChild(el);
+      var c = { el: el, until: Date.now() + ms };
+      inlineChips.push(c);
+      setTimeout(function () {
+        el.classList.add('out');
+        setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); inlineChips = inlineChips.filter(function (x) { return x !== c; }); }, 320);
+      }, ms);
+      return;
+    }
+    if (chipQ.length >= 4) chipQ.shift();
+    chipQ.push({ el: el, ms: ms });
+    if (!chipBusy) nextChip();
+  }
+  function chipIntoBar() {
+    var ns = document.querySelector('.nsbar');
+    if (!chipCur) { if (ns) ns.classList.remove('chipping'); return; }
+    if (ns) {
+      var host = ns.querySelector('.ns-chip');
+      if (!host) { host = document.createElement('div'); host.className = 'ns-chip'; host.addEventListener('click', function () { if (chipT) clearTimeout(chipT); endChip(); }); ns.appendChild(host); }
+      ns.classList.add('chipping'); ns.classList.toggle('chip-big', /goaldone|big|unlock/.test(chipCur.el.className));
+      if (chipCur.el.parentNode !== host) { host.innerHTML = ''; host.appendChild(chipCur.el); }
+    } else {
+      var st = chipStack(); // no bar on this screen (the title, home, results): the old spot at the bottom
+      if (chipCur.el.parentNode !== st) { st.innerHTML = ''; st.appendChild(chipCur.el); }
+    }
+  }
+  function endChip() {
+    if (chipCur && chipCur.el.parentNode) chipCur.el.parentNode.removeChild(chipCur.el);
+    chipCur = null; chipT = null;
+    nextChip();
+  }
+  function nextChip() {
+    var c = chipQ.shift();
+    if (!c) { chipBusy = false; chipCur = null; chipIntoBar(); return; }
+    chipBusy = true; chipCur = c;
+    chipIntoBar();
+    var ms = chipQ.length ? Math.min(c.ms, 1800) : c.ms; // a line of them moves along faster
+    chipT = setTimeout(endChip, ms);
+  }
+  function restoreChips() {
+    var slot = document.getElementById('annc'); if (!slot) return;
+    inlineChips.forEach(function (c) { if (Date.now() < c.until && c.el.parentNode !== slot) slot.appendChild(c.el); });
   }
   function magnets() { var m = store.get('magnets', {}); return m && typeof m === 'object' ? m : {}; }
   function magnet(id) {
@@ -1933,7 +1989,8 @@
     var X = NP.DEMO5.set, ov = document.querySelector('.setov'), fresh = !ov;
     if (!ov) { ov = document.createElement('div'); ov.className = 'setov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', X.title); document.body.appendChild(ov); }
     var vol = NP.Sound && NP.Sound.volume ? Math.round(NP.Sound.volume() * 100) : 100, muted = NP.Sound && NP.Sound.isMuted();
-    ov.innerHTML = '<div class="setp"><h2>' + esc(X.title) + '</h2>' +
+    var keepY = ov.querySelector('.set-body') ? ov.querySelector('.set-body').scrollTop : 0;
+    ov.innerHTML = '<div class="setp"><h2>' + esc(X.title) + '</h2><div class="set-body">' +
       '<div class="setrow"><span>' + esc(X.sound) + '</span>' + seg('mute', muted ? 'off' : 'on', [['on', 'On'], ['off', 'Off']]).replace(/data-act="mute" data-v="(on|off)" aria-pressed="true"/g, 'data-noop="1" aria-pressed="true"') + '</div>' +
       '<div class="setrow"><label for="setvol">' + esc(X.volume) + ' <b class="set-volv">' + vol + '%</b></label><input id="setvol" type="range" min="0" max="100" step="5" value="' + vol + '" data-set="vol"></div>' +
       '<div class="setrow"><span>' + esc(X.text) + '</span>' + seg('tsize', store.get('tsize', 1), [[1, 'Normal'], [1.15, 'Large'], [1.3, 'Larger']]) + '</div>' +
@@ -1941,8 +1998,9 @@
       '<div class="setrow"><span>' + esc(X.fx) + '<small>' + esc(X.fxNote) + '</small></span>' + seg('calmfx2', store.get('calmFx', false) ? 'calm' : 'full', [['full', 'Full'], ['calm', 'Calm']]) + '</div>' +
       '<div class="setrow"><span>' + esc(X.tips) + '</span>' + seg('tips', tipsOff ? 'off' : 'on', [['on', 'On'], ['off', 'Off']]).replace(/data-act="tips" data-v="(on|off)" aria-pressed="true"/g, 'data-noop="1" aria-pressed="true"') + '</div>' +
       '<div class="setrow"><label class="adtoggle"><input type="checkbox" data-act="adfree"' + (adFree ? ' checked' : '') + '> Ad-Less Edition</label>' + fsButton() + '</div>' +
-      '<div class="setnote">' + esc(X.colors) + '</div>' +
-      '<button class="big" data-act="setclose">' + esc(X.done) + '</button></div>';
+      '<div class="setnote">' + esc(X.colors) + ' <a href="privacy.html" target="_blank" rel="noopener">' + esc(X.privacy) + '</a></div></div>' +
+      '<button class="big set-done" data-act="setclose">' + esc(X.done) + '</button></div>';
+    var sb = ov.querySelector('.set-body'); if (sb) sb.scrollTop = keepY;
     if (fresh) {
       ov.addEventListener('click', function (e) { if (e.target === ov) closeSettings(); });
       ov.__key = function (e) { if (e.key === 'Escape') closeSettings(); }; window.addEventListener('keydown', ov.__key);
@@ -2812,6 +2870,8 @@
     if (S && !DEMO) { feverCheck(); goalTime(); }
     renderScreen(); animCash();
     placeNextStep();
+    restoreChips();
+    if (chipCur) chipIntoBar(); // a re-render made a new NEXT bar; put the chip back in it
   }
   function renderScreen() {
     var sc = applyScene();
@@ -3157,9 +3217,9 @@
     if (!S.mapTracked) { S.mapTracked = true; track('map_open'); step('f05_map'); }
     step('map_' + S.history.length + '_shown');
     mapIdle();
-    var h = hud() + '<div class="screen map"><h2>Where to next?</h2>';
+    var h = hud() + '<div class="screen map"><h2>Where to next?</h2><div id="annc" class="annc" aria-live="polite"></div>';
     if (S.toast) { h += '<div class="toast">' + esc(S.toast) + '</div>'; S.toast = ''; }
-    if (DEMO) h += '<div id="townmap"></div><div class="tm-note" aria-live="polite">' + esc(NP.DEMO5.mapNote) + '</div>' +
+    if (NP.TownMap) h += '<div id="townmap"></div><div class="tm-note" aria-live="polite">' + esc(DEMO ? NP.DEMO5.mapNote : NP.DEMO5.mapNoteFull) + '</div>' +
       (NP.TVAds ? '<button class="tvbreak" data-act="tv" data-where="map"><span class="tvb-ico" aria-hidden="true"></span>' + esc(NP.DEMO5.tvBreak) + '</button>' : '');
     h += routeCard();
     if (S.wx && S.wx.id !== 'sunny' && S.time === START) h += '<div class="wxnote wx-' + S.wx.id + '">' + S.wx.icon + ' ' + S.wx.temp + '&deg;F. ' + esc(S.wx.blurb) + sponsorLine(S.wx, true) + '</div>';
@@ -3208,7 +3268,7 @@
     });
     h += '</div><button class="big home" data-act="gohome">Head home and shelve it</button></div>';
     app.innerHTML = h;
-    if (DEMO) mountTown();
+    if (NP.TownMap) mountTown();
   }
 
   // a billboard on the drive, now and then (never in the walkable swap meet, never on top of a haggle)
@@ -3362,11 +3422,19 @@
     return h;
   }
 
+  var ybTarget = null, ybLoop = null, ybCanvas = null;
+  function ybTick() {
+    ybLoop = null;
+    var T = ybTarget;
+    if (!T || !document.body.contains(T.cv) || calm()) { ybTarget = null; return; }
+    NP.drawYardBanner(T.cv, T.seed, T.sky, (performance.now() - T.t0) / 1000);
+    ybLoop = setTimeout(function () { requestAnimationFrame(ybTick); }, 66);
+  }
   function renderStop() {
     var s = S.stop;
     var seller = NP.SELLERS[s.seller];
     if (s.reseller && !s.resold && (s.acts || 0) >= 2) doResell(s);
-    var h = hud() + '<div class="screen stop st-' + s.type + '">' + sceneStrip() + (DEMO && s.type === 'yard' && NP.drawYardBanner ? '<canvas class="yardban" width="240" height="64" aria-hidden="true"></canvas>' : '') + '<h2>' + stopIcon(s.type) + ' ' + esc(s.name) + '</h2>' + signHTML(s);
+    var h = hud() + '<div class="screen stop st-' + s.type + '">' + sceneStrip() + (s.type === 'yard' && NP.drawYardBanner ? '<div class="yardban-slot"></div>' : '') + '<h2>' + stopIcon(s.type) + ' ' + esc(s.name) + '</h2>' + signHTML(s) + '<div id="annc" class="annc" aria-live="polite"></div>';
     if (s.cleared) h += '<div class="rival">' + NP.RIVAL.name + ' from ' + NP.RIVAL.shop + ' beat you here. He took the good stuff and set up a table out front.</div>';
     var refuse = s.cola && NP.SPONSOR && NP.SPONSOR.refuse ? NP.SPONSOR.refuse[s.seller] : null;
     if (seller && refuse) {
@@ -3417,12 +3485,18 @@
     if (lc && NP.Scene) { if (s.laughNow) { s.laughNow = false; NP.Scene.laugh(lc, getLook()); } else NP.Scene.laugh(lc, getLook(), true); }
     if (refuse) drawGlamCan();
     drawCameos();
-    var yb = document.querySelector('.yardban');
+    var slot = document.querySelector('.yardban-slot'), yb = null;
+    if (slot) {
+      // one banner canvas for the whole game, moved into each yard sale as it renders (a page never piles up drawing surfaces)
+      if (!ybCanvas) { ybCanvas = document.createElement('canvas'); ybCanvas.width = 240; ybCanvas.height = 64; ybCanvas.className = 'yardban'; ybCanvas.setAttribute('aria-hidden', 'true'); }
+      yb = ybCanvas; slot.appendChild(yb);
+    }
     if (yb) {
-      var t0 = performance.now(), sky = skyOf();
-      NP.drawYardBanner(yb, s.id + S.seed, sky, 0);
-      // the balloons bob a little (stops when the banner is gone, and with calm effects)
-      if (!calm()) (function tick() { if (!document.body.contains(yb)) return; NP.drawYardBanner(yb, s.id + S.seed, sky, (performance.now() - t0) / 1000); setTimeout(function () { requestAnimationFrame(tick); }, 66); })();
+      ybTarget = { cv: yb, seed: s.id + S.seed, sky: skyOf(), t0: performance.now() };
+      NP.drawYardBanner(yb, ybTarget.seed, ybTarget.sky, 0);
+      // the balloons bob a little: one loop for the whole game that follows whichever banner is on screen
+      // (it stops when the banner is gone, and with calm effects)
+      if (!calm() && !ybLoop) ybTick();
     }
     if (buys) soonCheckTips();
   }
@@ -4026,19 +4100,30 @@
 
   // the drive: a loading screen with a tip (that is also an ad), then you are there
   var townCtl = null;
+  // the label over a stop on the town map: its own name when it fits (12 letters), or the first words of it
+  function mapLabel(x) {
+    if (DEMO || x.type === 'gift' || x.type === 'flea' || x.type === 'banned') return NP.DEMO5.short[x.type] || x.type.toUpperCase();
+    if (x.type === 'expo') return 'PIXEL EXPO';
+    var n = String(x.name).replace(/\s*\([^)]*\)/g, '').toUpperCase(), w = n.split(' ');
+    if (n.length <= 12) return n;
+    if ((w[0] + ' ' + w[1]).length <= 12) return w[0] + ' ' + w[1];
+    return w[0].length <= 12 ? w[0] : NP.DEMO5.short[x.type] || x.type.toUpperCase();
+  }
   function townStops() {
     var fl = S.day.stops.filter(function (x) { return x.type === 'flea'; })[0], nx = planRoute()[0];
     return S.day.stops.filter(function (x) { return !x.xban; }).map(function (x) {
-      return { id: x.id, type: x.type, name: x.name, short: x.locked ? (NP.DEMO5.short[x.type] || 'CLOSED') : NP.DEMO5.short[x.type] || x.type.toUpperCase(),
-        locked: !!x.locked, visited: !!x.visited, next: !!(nx && nx.id === x.id), rare: x === fl };
+      return { id: x.id, type: x.type, name: x.name, short: mapLabel(x),
+        locked: !!x.locked, visited: !!x.visited, next: !!(nx && nx.id === x.id), rare: DEMO && x === fl, late: !x.visited && S.time + costOf(x) > endT() };
     });
   }
   function mountTown() {
     var box = document.getElementById('townmap'); if (!box || !NP.TownMap) return;
-    townCtl = NP.TownMap.mount(box, { stops: townStops(), at: lastStopId() || 'home', onPick: function (st) {
+    if (townCtl && !townCtl.isDriving()) townCtl.stop(); // the last map is gone; free it now
+    townCtl = NP.TownMap.mount(box, { cols: DEMO ? 4 : 5, stops: townStops(), at: lastStopId() || 'home', onPick: function (st) {
       var note = document.querySelector('.tm-note');
       if (st.locked) { if (note) note.textContent = NP.DEMO5.lockedNote; sfx('uhoh'); return; }
       if (st.visited) { if (note) note.textContent = NP.DEMO5.visitedNote; return; }
+      if (st.late) { if (note) note.textContent = NP.DEMO5.lateNote.replace('{name}', st.name); sfx('uhoh'); return; }
       driveTo(st.id, 'townmap');
     } });
   }
@@ -4046,17 +4131,17 @@
     if (S.screen !== 'map' || !townCtl || !document.getElementById('townmap')) { S.screen = 'map'; S.stop = null; render(); }
     if (!townCtl) { arrive(s); render(); return; }
     var mins = costOf(s), t0 = S.time, clk = document.querySelector('.hud .clock');
-    var spd = store.get('speed', 'normal') === 'fast' ? 900 : 1700;
+    var spd = window.__NP_INSTANT ? 1 : store.get('speed', 'normal') === 'fast' ? 900 : 1700; // __NP_INSTANT: older test scripts that expect the drive to be done at once
     document.querySelectorAll('.routecard button, .stops button, .tm-cv').forEach(function (b) { b.disabled = true; });
     try { document.getElementById('townmap').scrollIntoView({ block: 'center', behavior: calm() ? 'auto' : 'smooth' }); } catch (e) {}
     townCtl.drive(s.id, { dur: spd, label: 'Driving to ' + s.name + ' · ' + mins + ' min', onSkip: function () { track('drive_skip'); },
       onTick: function (k) { if (clk) clk.textContent = fmtTime(Math.min(t0 + Math.round(k * mins), endT())); },
-      done: function () { if (!S || S.screen !== 'map') return; arrive(s); render(); window.scrollTo(0, 0); } });
+      done: function () { if (!S || S.screen !== 'map') return; arrive(s); render(); window.scrollTo(0, 0); if (S.screen === 'stop' && S.stop && S.stop.cleared) showTip('dex', null); } });
   }
   function driveTo(id, via) {
     var s = S.day.stops.filter(function (x) { return x.id === id; })[0];
     if (!s || s.visited) { render(); return; }
-    if (DEMO) { step('f06_drive_' + (S.history.length + 1) + '_' + s.type + '_' + (via || 'map')); if (tipEl) closeTip(); return townDrive(s, via); }
+    if (NP.TownMap) { step('f06_drive_' + (S.history.length + 1) + '_' + s.type + '_' + (via || 'map')); if (tipEl) closeTip(); return townDrive(s, via); } // r6.1: the town map drive, demo and full game
     step('f06_drive_' + (S.history.length + 1) + '_' + s.type + '_' + (via || 'map'));
     if (tipEl) closeTip();
     var drive = function () { arrive(s); render(); window.scrollTo(0, 0); if (S.screen === 'stop' && S.stop && S.stop.cleared) showTip('dex', null); };

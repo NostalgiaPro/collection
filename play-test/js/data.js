@@ -1223,7 +1223,7 @@ NP.GOALS_POOL = [
   { id: 'w41', name: 'Steady Hands', label: 'No misses: land 3 offers in a row', type: 'nomiss', n: 3, mins: 120, d: 'mid', reward: 'Lucky Price Gun' },
   { id: 'w42', name: 'Clean Hour', label: 'No misses for 60 minutes (land at least one offer)', type: 'clean', n: 1, mins: 60, d: 'mid', reward: 'Pocket Calculator' },
   { id: 'w43', name: 'Crate Digger', label: 'Find a record, tape, CD or movie', type: 'buy', f: { kind: 'media' }, n: 1, d: 'easy', reward: 'Record Brush' },
-  { id: 'w44', name: 'Wax On', label: 'Find a vinyl record', type: 'buy', f: { kind: 'music', fmt: 'vinyl' }, n: 1, d: 'mid', reward: 'Inner Sleeve Pack' },
+  { id: 'w44', name: 'Needle Drop', label: 'Find a vinyl record', type: 'buy', f: { kind: 'music', fmt: 'vinyl' }, n: 1, d: 'mid', reward: 'Inner Sleeve Pack' },
   { id: 'w45', name: 'Tape Deck', label: 'Find a movie on VHS', type: 'buy', f: { kind: 'movie', fmt: 'vhs' }, n: 1, d: 'easy', reward: 'Tracking Knob' },
   { id: 'w46', name: 'Full Shelf', label: 'One of each: a game, some music and a movie', type: 'groups', groups: [{ kind: 'game' }, { kind: 'music' }, { kind: 'movie' }], n: 3, d: 'mid', reward: 'Shelf Divider Set' }
 ];
@@ -1331,11 +1331,13 @@ NP.DEMO5 = {
   mapNote: 'Tap a stop on the map to drive there. Gray ones are in the full version.',
   lockedNote: 'That one opens in the full version.',
   visitedNote: 'You already hit that one today.',
+  mapNoteFull: 'Tap a stop on the map to drive there. The cards below have the details.',
+  lateNote: 'Not enough daylight left to make it to {name}.',
   undo: 'Undo: {what}',
   undone: 'Undone. Everything is back the way it was.',
   set: { title: 'Settings', sound: 'Sound', volume: 'Volume', text: 'Text size', speed: 'Game speed', speedNote: 'Fast makes drives and reveals quicker.',
     fx: 'Effects', fxNote: 'Calm turns off shake, flashes and confetti.', tips: 'Tips', done: 'Done',
-    colors: 'Colors are picked so colorblind players can tell them apart, and every color comes with a word.' },
+    colors: 'Colors are picked so colorblind players can tell them apart, and every color comes with a word.', privacy: 'Privacy' },
   next: { tag: 'NEXT:', map: 'Drive to the {name}.', drive: 'Drive', home: 'Head home and shelve it.', homeBtn: 'Head home',
     mapFull: 'Drive to {name}.', walkExpo: 'Tap a booth to shop it. The doors at the bottom are the way out.',
     early: 'There is a cheap find on this table. Tap any offer on it.', goal: '{goal}.', shop: 'Make an offer on anything. Or move on.',
