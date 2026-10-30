@@ -171,9 +171,9 @@ NP.Intro = (function () {
     { h: ['ASK YOUR', 'PARENTS'], s: ['TO DRIVE YOU TO', 'A YARD SALE.'], v: 'you', bg: '#16213e' }
   ];
   var ADS_FREE = [
-    { h: ['THE AD-FREE', 'EDITION'], s: ['NOW WITH AN AD', 'FOR ITSELF.'], v: 'box', bg: NAVY },
+    { h: ['THE AD-LESS', 'EDITION'], s: ['NOW WITH AN AD', 'FOR ITSELF.'], v: 'box', bg: NAVY },
     { h: ['NO ADS.'], s: ['EXCEPT THIS ONE.', 'AND THE NEXT ONE.'], v: 'stars', bg: '#2a1d3e' },
-    { h: ['IS IT ON', 'THE SHELF?'], s: ['ASK THE AD-FREE', 'EDITION. IT KNOWS.'], v: 'you', bg: '#123a2f' }
+    { h: ['IS IT ON', 'THE SHELF?'], s: ['ASK THE AD-LESS', 'EDITION. IT KNOWS.'], v: 'you', bg: '#123a2f' }
   ];
   var ADS_DEMO = { h: ['THE FULL', 'VERSION'], s: ['SOLD SEPARATELY.', 'BY US. FOR 99 CENTS.'], v: 'box', bg: '#3a1f1f' };
   var ADS_DEMO_SOON = { h: ['THE FULL', 'VERSION'], s: ['COMING SOON.', 'FOR 99 CENTS.'], v: 'box', bg: '#3a1f1f' };
@@ -482,7 +482,7 @@ NP.Intro = (function () {
     "Tip: It's a dry heat. That is not a tip. That is Haboob Antiperspirant's slogan.",
     'Tip: Gila Glow SPF 900 blocks the sun. All of it. Do not wear it while driving.'
   ];
-  var TIPS_FREE = ['Tip: You have the Ad-Free Edition. This tip is ad-free.', 'Tip: Tell a friend about the Ad-Free Edition. It is free of ads.'];
+  var TIPS_FREE = ['Tip: You have the Ad-Less Edition. This tip is ad-less.', 'Tip: Tell a friend about the Ad-Less Edition. It is without ads.'];
   var TIPS_WX = {
     hot: ['Tip: Hot days burn daylight. Bring water. Buy water at the gift shop.', 'Tip: Too hot to haggle? The gift shop has air conditioning. Probably.'],
     rain: ['Tip: Rain keeps the crowds home. More for you. Less for Dex.', 'Tip: Cardboard boxes do not love rain. Neither does Dex.']
@@ -511,6 +511,7 @@ NP.Intro = (function () {
     g.imageSmoothingEnabled = false;
     function finish() { if (fin) return; fin = true; if (ov.parentNode) ov.parentNode.removeChild(ov); done(); }
     if (text === null) setTimeout(finish, billboard ? 2400 : 700);
+    else if (isDemo()) setTimeout(finish, 3500); // the demo drives on by itself after a few seconds (a tap still skips)
     function onBox(e) { return e.target && e.target.closest && e.target.closest('.tipoff'); }
     ov.addEventListener('click', function (e) { if (onBox(e)) return; if (performance.now() - t0 > 400) finish(); });
     function ldKey(e) { if (e.repeat || fin) return; if (performance.now() - t0 < 400) return; if (onBox(e) || e.key === 'Tab' || e.key === 'Shift') return; e.preventDefault(); window.removeEventListener('keydown', ldKey, true); finish(); }
@@ -660,7 +661,7 @@ NP.Intro = (function () {
     ov.className = 'unsp';
     ov.setAttribute('role', 'dialog');
     ov.setAttribute('aria-label', 'An unsponsored moment');
-    ov.innerHTML = '<div class="unsp-in"><div class="unsp-h">' + (opts.adFree ? 'AN AD-FREE UNSPONSORED MOMENT' : 'AN UNSPONSORED MOMENT') + '</div>' +
+    ov.innerHTML = '<div class="unsp-in"><div class="unsp-h">' + (opts.adFree ? 'AN AD-LESS UNSPONSORED MOMENT' : 'AN UNSPONSORED MOMENT') + '</div>' +
       '<canvas width="160" height="96"></canvas>' +
       '<div class="unsp-s">' + SP.name + '. Not a sponsor.</div><div class="unsp-k">Tap to get back to haggling</div></div>';
     document.body.appendChild(ov);

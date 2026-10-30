@@ -12,13 +12,14 @@ NP.Sound = (function () {
   var muted = false;
   try { muted = localStorage.getItem(KEY) === '1'; } catch (e) {}
   var wanted = null, playing = null, seq = null, unlocked = false;
-  var MASTER = 0.9;
+  var MASTER = 0.9, VOL = 1;
+  try { var sv = parseFloat(localStorage.getItem('npgame_volume')); if (sv >= 0 && sv <= 1) VOL = sv; } catch (e) {}
 
   function ensure() {
     if (!AC) return null;
     if (!ctx) {
       try { ctx = new AC(); } catch (e) { return null; }
-      master = ctx.createGain(); master.gain.value = muted ? 0 : MASTER; master.connect(ctx.destination);
+      master = ctx.createGain(); master.gain.value = muted ? 0 : MASTER * VOL; master.connect(ctx.destination);
       sfxBus = ctx.createGain(); sfxBus.gain.value = 0.55; sfxBus.connect(master);
       musicBus = ctx.createGain(); musicBus.gain.value = 0.2; musicBus.connect(master);
       ctx.onstatechange = function () { if (ctx.state === 'running') afterUnlock(); };
@@ -94,7 +95,7 @@ NP.Sound = (function () {
     if (!ready()) return;
     unlocked = true;
     if (seq) seq.next = ctx.currentTime + 0.05;
-    startMusic();
+    startMusic(); startAmb();
   }
   function attach() {
     GESTURES.forEach(function (g) { window.addEventListener(g, onGesture, true); });
@@ -168,11 +169,27 @@ NP.Sound = (function () {
       for (var i = 0; i < 6; i++) tone(2800 + i * 320, t + 0.35 + i * 0.035, 0.05, 'sine', 0.05);
     },
     streak: function (t) { [74, 79, 83].forEach(function (n, i) { tone(midi(n), t + i * 0.05, 0.07, 'triangle', 0.12); }); },
-    unlock: function (t) { [72, 79, 84, 88].forEach(function (n, i) { tone(midi(n), t + i * 0.08, i === 3 ? 0.3 : 0.07, 'triangle', 0.12); }); }
+    unlock: function (t) { [72, 79, 84, 88].forEach(function (n, i) { tone(midi(n), t + i * 0.08, i === 3 ? 0.3 : 0.07, 'triangle', 0.12); }); },
+    // Round 5: the jackpot sounds
+    rise: function (t, n) { var b = 67 + Math.min(12, (n || 1) * 2); [0, 4, 7].forEach(function (d, i) { tone(midi(b + d), t + i * 0.045, i === 2 ? 0.12 : 0.05, 'square', 0.1); }); },
+    coin: function (t) { tone(1976, t, 0.04, 'square', 0.07); tone(2637, t + 0.04, 0.09, 'square', 0.06); },
+    flip: function (t) { noise(t, 0.08, 0.18, 'bandpass', 1400); tone(520, t + 0.02, 0.07, 'triangle', 0.08, null, 900); },
+    shake: function (t) { tone(70, t, 0.18, 'sine', 0.35, null, 40); noise(t, 0.12, 0.12, 'lowpass', 400); },
+    grail: function (t) {
+      [60, 64, 67, 72, 76, 79, 84].forEach(function (n, i) { tone(midi(n), t + i * 0.08, i === 6 ? 0.6 : 0.09, 'square', 0.11); });
+      [72, 76, 79].forEach(function (n) { tone(midi(n), t + 0.6, 0.7, 'triangle', 0.08); });
+      for (var i = 0; i < 10; i++) tone(2600 + i * 240, t + 0.55 + i * 0.03, 0.06, 'sine', 0.05);
+    },
+    miss: function (t) { tone(midi(70), t, 0.1, 'square', 0.1); tone(midi(66), t + 0.12, 0.1, 'square', 0.1); tone(midi(61), t + 0.24, 0.3, 'square', 0.1); }
   };
-  function sfx(name) {
+  // the same sound twice within 30ms only plays once (a burst of wins never piles up hundreds of notes)
+  var lastFx = {};
+  function sfx(name, arg) {
     if (muted || !ready() || !FX[name]) return;
-    try { FX[name](ctx.currentTime + 0.01); } catch (e) {}
+    var now = ctx.currentTime;
+    if (lastFx[name] != null && now - lastFx[name] < 0.03) return;
+    lastFx[name] = now;
+    try { FX[name](now + 0.01, arg); } catch (e) {}
   }
 
   // ---------- music: two short chiptune loops, 4 bars of 16 steps ----------
@@ -270,12 +287,57 @@ NP.Sound = (function () {
   function setMuted(m) {
     muted = !!m;
     try { localStorage.setItem(KEY, muted ? '1' : '0'); } catch (e) {}
-    if (master && ctx) { try { master.gain.setTargetAtTime(muted ? 0 : MASTER, ctx.currentTime, 0.02); } catch (e) { master.gain.value = muted ? 0 : MASTER; } }
-    if (muted) { stopSeq(); playing = null; if (silentEl) silentEl.pause(); } else { silentLoop(); startMusic(); }
+    if (master && ctx) { try { master.gain.setTargetAtTime(muted ? 0 : MASTER * VOL, ctx.currentTime, 0.02); } catch (e) { master.gain.value = muted ? 0 : MASTER * VOL; } }
+    if (muted) { stopSeq(); playing = null; stopAmb(); if (silentEl) silentEl.pause(); } else { silentLoop(); startMusic(); startAmb(); }
     var label = muted ? 'Sound: off' : 'Sound: on';
     document.querySelectorAll('[data-act="mute"]').forEach(function (b) { b.textContent = label; b.setAttribute('aria-pressed', muted ? 'true' : 'false'); });
   }
   function toggle() { setMuted(!muted); if (muted && NP.track) NP.track('muted'); return muted; }
+
+  // ---------- volume (Demo round 5 settings) ----------
+  function setVolume(v) {
+    VOL = Math.max(0, Math.min(1, +v));
+    try { localStorage.setItem('npgame_volume', String(VOL)); } catch (e) {}
+    if (master && ctx && !muted) { try { master.gain.setTargetAtTime(MASTER * VOL, ctx.currentTime, 0.02); } catch (e) { master.gain.value = MASTER * VOL; } }
+  }
+
+  // ---------- ambience: a swap meet crowd murmur (filtered noise that swells, plus far-off chatter blips) ----------
+  var ambWanted = null, amb = null;
+  function stopAmb() {
+    if (!amb) return;
+    clearInterval(amb.id);
+    try { amb.g.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.2); amb.src.stop(ctx.currentTime + 0.8); } catch (e) {}
+    amb = null;
+  }
+  function startAmb() {
+    if (!ready() || muted || amb || ambWanted !== 'crowd') return;
+    var src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    src.buffer = noiseBuf; src.loop = true;
+    f.type = 'bandpass'; f.frequency.value = 520; f.Q.value = 0.7;
+    g.gain.value = 0.0001; g.gain.setTargetAtTime(0.05, ctx.currentTime, 0.6);
+    src.connect(f); f.connect(g); g.connect(musicBus);
+    src.start();
+    amb = { src: src, g: g, f: f, id: setInterval(function () {
+      if (!ready() || !amb) return;
+      var t = ctx.currentTime;
+      try { amb.g.gain.setTargetAtTime(0.035 + Math.random() * 0.035, t, 0.5); amb.f.frequency.setTargetAtTime(420 + Math.random() * 260, t, 0.6); } catch (e) {}
+      // somebody laughs, somebody haggles: two or three quick voice-like blips, low and far away
+      if (Math.random() < 0.55) { var b = 180 + Math.random() * 140, n = 2 + (Math.random() * 2 | 0); for (var i = 0; i < n; i++) tone(b * (1 + Math.random() * 0.25), t + i * 0.09, 0.07, 'triangle', 0.025, musicBus); }
+    }, 900) };
+  }
+  function ambience(name) { ambWanted = name || null; if (ambWanted !== 'crowd') stopAmb(); else startAmb(); }
+
+  // ---------- ad jingles: [midi note, beats, bass note] steps, a lead with a bass under it ----------
+  function jingle(notes, bpm, wave) {
+    if (muted || !ready() || !notes) return 0;
+    var t = ctx.currentTime + 0.05, beat = 60 / (bpm || 140);
+    notes.forEach(function (n) {
+      if (n[0]) tone(midi(n[0]), t, beat * n[1] * 0.9, wave || 'square', 0.09);
+      if (n[2]) tone(midi(n[2]), t, beat * n[1] * 0.9, 'triangle', 0.35);
+      t += beat * n[1];
+    });
+    return (t - ctx.currentTime) * 1000;
+  }
 
   // a soft blip on every button press (the specific sounds layer on top)
   document.addEventListener('click', function (e) {
@@ -285,7 +347,8 @@ NP.Sound = (function () {
   }, true);
 
   return {
-    sfx: sfx, music: music, tempo: tempo, toggle: toggle, setMuted: setMuted,
+    sfx: sfx, music: music, tempo: tempo, toggle: toggle, setMuted: setMuted, setVolume: setVolume, volume: function () { return VOL; },
+    ambience: ambience, jingle: jingle,
     isMuted: function () { return muted; }, isReady: ready, supported: !!AC, unlock: onGesture,
     nowPlaying: function () { return seq ? playing : null; },
     label: function () { return muted ? 'Sound: off' : 'Sound: on'; }

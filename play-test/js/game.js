@@ -47,7 +47,8 @@
   function soundButton() { return NP.Sound && NP.Sound.supported ? '<button class="fsbtn sndbtn" data-act="mute" aria-pressed="' + (NP.Sound.isMuted() ? 'true' : 'false') + '">' + NP.Sound.label() + '</button>' : ''; }
   function linksOk() { return CFG.ALLOW_LINKS !== false; }
   function feedbackOk() { return linksOk() && !!CFG.FEEDBACK_URL; }
-  function sfx(n) { if (NP.Sound) NP.Sound.sfx(n); }
+  function sfx(n, a) { if (NP.Sound) NP.Sound.sfx(n, a); }
+  function pl(n, one, many) { return n + ' ' + (n === 1 ? one : (many || one + 's')); }
   function music(n, keepPace) { if (NP.Sound) NP.Sound.music(n); if (!keepPace) tempo(1); }
   function tempo(m) { if (NP.Sound && NP.Sound.tempo) NP.Sound.tempo(m); }
   function track(n, once) { if (NP.track) NP.track(n, once); }
@@ -431,6 +432,15 @@
     var rep = makeItem(r, e, { seller: 'friendly', ask: 34 });
     rep.cond = 'cib'; rep.flags = { repro: true }; rep.tell = true; rep.minFrac = 0.7; rep.planted = true; rep.sticker = false;
     flea.items.splice(Math.min(2, flea.items.length), 0, rep);
+    // a guaranteed good find at the first stop: an uncommon Kestrel 16 game, complete in box, priced like a coaster.
+    // Any offer lands, so every player gets an early win in their first couple of minutes.
+    var er = mulberry32(NP.hashStr('demo-early|' + todaySeed));
+    var pool = NP.CATALOG.filter(function (g) { return g.tier === 2 && g.p === 'k16'; });
+    var ee = pool.filter(function (g) { return !day.owned[g.id] && !yard.items.concat(yard.dig).some(function (i) { return i.id === g.id; }); })[0] || pool[0];
+    delete day.owned[ee.id];
+    var early = makeItem(er, ee, { seller: yard.seller, ask: 6 });
+    early.cond = 'cib'; early.flags = {}; early.tell = true; early.minFrac = 0.4; early.sticker = true; early.early = true; early.uid = 'early';
+    yard.items.unshift(early);
     // open stops first, locked ones after
     day.stops = [yard, flea, gift].concat(day.stops.filter(function (s) { return s.locked; }));
   }
@@ -475,11 +485,13 @@
     // Round 3c: the Desert Pixel Expo, last stop of Saturday 12 (and now and then in Endless)
     if (season && expoWeek(SEASON.week)) addExpo(day, seed);
     if (season) freshStock(day, seed);
-    if (!DEMO) placeUltra(day, seed, m);
+    if (!DEMO) { placeUltra(day, seed, m); placeNearMisses(day, seed); placeMysteryBoxes(day, seed); placeDailyTip(day, seed); }
     S.rem = DEMO || free ? {} : applyMemory(day);
     // the one seller today who would never sell out, and the stop they are at (never the swap meet: that one has its own)
     var colaStops = day.stops.filter(function (s) { return openStop(s) && s.type !== 'flea' && s.seller && NP.SPONSOR && NP.SPONSOR.refuse && NP.SPONSOR.refuse[s.seller]; });
     if (colaStops.length) colaStops[NP.hashStr(seed + '|cola') % colaStops.length].cola = true;
+    // Round 5: the visit streak cash, on the first Saturday you start on a new day
+    if (!DEMO) { claimVisit(); if (S.visitBonus) S.toast = NP.LOGIN.line.replace('{n}', S.visitBonus.days).replace('{c}', S.visitBonus.cash); }
   }
 
   // ---------- rivals: who is out today, and where ----------
@@ -614,6 +626,43 @@
     }
     if ((r.screen === 'stop' || r.screen === 'walk') && !r.stop) r.screen = 'map';
     return r;
+  }
+  // the demo saves its one Saturday at every stop, so a phone player who gets interrupted can come back and finish
+  var DEMO_SAVE_V = 1;
+  function demoSave() {
+    if (!DEMO || !S) return;
+    if (S.screen !== 'map' && S.screen !== 'stop' && S.screen !== 'walk') return;
+    var stop = S.stop;
+    S.stop = stop ? { __stop: stop.id } : null;
+    var feat = S.day.featured && S.day.featured.item;
+    if (feat) S.day.featured.item = { __uid: feat.uid };
+    var out = null;
+    try { out = JSON.parse(JSON.stringify(S)); } catch (e) { out = null; }
+    S.stop = stop; if (feat) S.day.featured.item = feat;
+    if (out) { try { store.set('demorun', { v: DEMO_SAVE_V, seed: todaySeed, run: out }); } catch (e) {} }
+  }
+  function demoClear() { if (DEMO && store.raw('demorun') !== null) { try { store.set('demorun', null); } catch (e) {} } }
+  function readDemoSave() {
+    if (!DEMO) return null;
+    var sv = null;
+    try { sv = store.get('demorun', null); } catch (e) { sv = null; }
+    var ok = false;
+    try { ok = !!(sv && sv.v === DEMO_SAVE_V && sv.run && sv.run.day && Array.isArray(sv.run.day.stops) && Array.isArray(sv.run.bag) && typeof sv.run.time === 'number' && sv.run.time < NOON); } catch (e) { ok = false; }
+    return ok ? sv : null;
+  }
+  function continueDemo() {
+    var sv = readDemoSave();
+    if (!sv) { renderTitle(); return; }
+    track('continue_used');
+    cartOpen = false;
+    try {
+      S = unpackRun(sv.run);
+      S.mapTracked = false;
+      if (S.screen === 'walk' && NP.Walk && NP.Char) NP.Walk.enter(S.stop);
+      S.toast = NP.DEMO_WANT_TEXT.welcome;
+      if (S.screen === 'stop' || S.screen === 'walk') demoGoal(); // pick the want list chain back up
+      render(); window.scrollTo(0, 0);
+    } catch (e) { S = null; demoClear(); renderTitle(); }
   }
   function saveGame(run) {
     if (DEMO || !SEASON) return;
@@ -798,7 +847,10 @@
   var DRIVE_CAP = 80;
   // fromId: where you are driving from (default: the stop you were at last). The two rental stores are across the street: 4 minutes on foot.
   function lastStopId() { return S.history.length ? S.history[S.history.length - 1] : null; }
+  // the demo gets to the fun faster: short fixed drives (the full game keeps its drive formula)
+  var DEMO_DRIVE = { yard: 35, flea: 45, gift: 30 };
   function costOf(s, fromId) {
+    if (DEMO && DEMO_DRIVE[s.type]) return DEMO_DRIVE[s.type];
     var from = fromId !== undefined ? fromId : lastStopId();
     if (s.across && from === s.across) return 4;
     var m = S.wx ? S.wx.mult : 1; return Math.min(DRIVE_CAP, Math.round(s.cost * (1 + (m - 1) * 0.5)));
@@ -1345,7 +1397,7 @@
     for (var i = 0; i < 10; i++) holes += '<span class="ph' + (i < Math.min(p, 10) ? ' on' : '') + '"></span>';
     var h = '<div class="punch"><div class="punch-h">PUNCH CARD</div><div class="punch-row" aria-label="' + Math.min(p, 10) + ' of 10 punches">' + holes + '</div>' +
       '<div class="punch-k">' + Math.min(p, 10) + ' of 10. One punch per visit and per purchase. Good at any friendly shop.</div>';
-    if (p >= 10) h += '<div class="btns"><button class="offer full" data-act="punch" data-how="credit">Cash it in: $10 off here</button><button class="offer fair" data-act="punch" data-how="game">Cash it in: a free game</button></div>';
+    if (p >= 10) h += '<div class="btns"><button class="offer full" data-act="punch" data-how="credit">Cash it in: $10 off here</button><button class="offer fair" data-act="punch" data-how="game">Cash it in: a game on the house</button></div>';
     return h + '</div>';
   }
   function doPunch(how) {
@@ -1358,7 +1410,7 @@
       var it = makeItem(r, rollGame(r, [0.55, 0.4]), { seller: s.seller, cibP: 0.3 });
       it.uid = 'pfree' + s.id + S.bag.length; it.flags.repro = false; it.state = 'sold'; it.paid = 0;
       var b = JSON.parse(JSON.stringify(it)); b.stopType = s.type; b.boughtAt = s.id; S.bag.push(b);
-      S.toast = 'Card cashed in. ' + (s.type === 'pal' ? 'Lonnie' : 'The clerk') + ' hands you ' + it.t + '. Free.';
+      S.toast = 'Card cashed in. ' + (s.type === 'pal' ? 'Lonnie' : 'The clerk') + ' hands you ' + it.t + '. On the house.';
     }
     saveK(); track('punch_cashin_' + how); sfx('cash'); magnet('punch');
     render();
@@ -1422,7 +1474,7 @@
     if (s.bundleLine) h += '<div class="bubble">' + esc(s.bundleLine) + '</div>';
     if (L.length < 2) return h + (s.bundleLine ? '' : '<div class="note">Not enough left for a box deal.</div>') + '</div>';
     var sum = L.reduce(function (a, it) { return a + it.ask; }, 0);
-    h += '<div class="story-t">' + esc(D.line) + ' ' + L.length + ' things, ' + money(sum) + ' on the stickers.</div><div class="btns">';
+    h += '<div class="story-t">' + esc(D.line) + ' ' + pl(L.length, 'thing') + ', ' + money(sum) + ' on the stickers.</div><div class="btns">';
     [['lowball', 'Lowball'], ['fair', 'Fair'], ['full', 'Round it down']].forEach(function (o) {
       var p = Math.max(1, Math.round(sum * BUNDLE[o[0]]));
       h += '<button class="offer ' + o[0] + '" data-act="bundle" data-kind="' + o[0] + '"' + (p > S.cash + creditHere() || blockedHere(s) ? ' disabled' : '') + '>' + o[1] + ' ' + money(p) + ' for all of it</button>';
@@ -1443,7 +1495,7 @@
       L.forEach(function (it, i) { var p = i === L.length - 1 ? left : Math.round(price * it.ask / sum); left -= p; takeItem(it, Math.max(0, p), kind); it.line = ''; if (!DEMO) goalTick('buy', it, { price: Math.max(0, p), offer: kind, bundle: true }); });
       s.bundleLine = 'Deal. "Take the box too. Take the table if you want it."';
       sfx('cash'); sfx('accept'); track('bundle_bought');
-      celebrate('good', 'Box deal! ' + L.length + ' things for ' + money(price) + '.');
+      celebrate('good', 'Box deal! ' + pl(L.length, 'thing') + ' for ' + money(price) + '.');
     } else { s.bundleLine = '"No. The whole box is worth more than that. Probably. I never counted it."'; sfx('reject'); track('bundle_no'); }
     if (!checkSundown()) { render(); afterBuy(); }
   }
@@ -1549,7 +1601,7 @@
     var here = s.items.filter(function (it) { return it.booth === 'autograph' && (!it.hidden || s.grailOpen); });
     if (here.length) h += '<div class="items">' + here.map(function (it) { return itemCard(it, s); }).join('') + '</div>';
     var chet = S.bag.filter(function (b) { return !b.signed && (b.by === 'Chet Brickwall' || b.kind === 'standee'); });
-    if (chet.length) h += '<h3>Get it signed (free, he is right there)</h3>' + chet.map(function (b) {
+    if (chet.length) h += '<h3>Get it signed (no charge, he is right there)</h3>' + chet.map(function (b) {
       return '<div class="sellrow"><div class="artbox sm" data-bart="' + b.uid + '"></div><div class="info"><div class="it-t">' + esc(b.t) + '</div><div class="btns"><button class="offer full" data-act="sign" data-uid="' + b.uid + '">Get it signed</button></div></div></div>';
     }).join('');
     else h += '<div class="note">Chet will sign anything from one of his movies (or a cardboard version of himself). Nothing in your bag qualifies.</div>';
@@ -1572,25 +1624,30 @@
   // Small reward hits that never change the balance: count-ups with ticks, chimes for good moments, streaks,
   // personal bests, fridge magnets and collector ranks. Full game only (the demo stays exactly as it was).
   // Reduced motion: no animation, the numbers just appear. Sound follows the Sound button. Nothing here blocks a tap.
-  function calm() { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
+  // calm effects: the settings toggle (no screen shake, flashes or bounce), or the system's reduce motion setting
+  function calm() { if (store.get('calmFx', false)) return true; try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
   function chipStack() {
     var st = document.getElementById('yaystack');
     if (!st) { st = document.createElement('div'); st.id = 'yaystack'; st.setAttribute('aria-live', 'polite'); document.body.appendChild(st); }
     return st;
   }
-  function celebrate(level, text) {
-    if (DEMO || !text) return;
+  function celebrate(level, text, tries) {
+    if (!text) return;
+    // the demo: want list cards wait for the find reveal to finish, so one good moment lands at a time
+    if (DEMO && revealOn && (tries || 0) < 12 && ['goal', 'goaldone', 'unlock'].indexOf(level) >= 0) { setTimeout(function () { celebrate(level, text, (tries || 0) + 1); }, 350); return; }
     var st = chipStack();
     while (st.children.length >= 3) st.removeChild(st.firstChild);
     var el = document.createElement('div');
     el.className = 'yay ' + (level || 'good') + (calm() ? ' calm' : '');
     el.setAttribute('role', 'status');
     if (level === 'goaldone') {
+      bannerUntil = Date.now() + 3000;
+      if (tipEl) closeTip(); // nothing covers the win
       var parts = String(text).split('|');
       el.innerHTML = '<b class="yay-h"><span class="yay-sp" aria-hidden="true">&#10022;</span> ' + esc(parts[0]) + ' <span class="yay-sp" aria-hidden="true">&#10022;</span></b><span class="yay-b">' + esc(parts.slice(1).join(' · ')) + '</span>';
     } else el.innerHTML = '<span class="yay-sp" aria-hidden="true">&#10022;</span> ' + esc(text);
     st.appendChild(el);
-    sfx(level === 'big' || level === 'goaldone' ? 'sting' : level === 'streak' ? 'streak' : level === 'unlock' || level === 'goal' ? 'unlock' : 'sparkle');
+    if (level !== 'miss') sfx(level === 'big' || level === 'goaldone' ? 'sting' : level === 'streak' ? 'streak' : level === 'unlock' || level === 'goal' ? 'unlock' : 'sparkle');
     setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, level === 'goaldone' ? 3000 : 2600);
   }
   function magnets() { var m = store.get('magnets', {}); return m && typeof m === 'object' ? m : {}; }
@@ -1616,6 +1673,7 @@
     if (!S) { hudCash = null; return; }
     var el = document.querySelector('.hud .cashn'), to = Math.round(S.cash), from = hudCash;
     hudCash = to;
+    if (!DEMO && from != null && to > from) popNum('+$' + (to - from), 'cash' + (to - from >= 20 ? ' big' : ''));
     if (DEMO || !el || from == null || from === to || calm()) return;
     var t0 = performance.now(), dur = 450, ticks = 0;
     el.textContent = money(from); el.classList.remove('up', 'down'); el.classList.add(to > from ? 'up' : 'down');
@@ -1635,8 +1693,8 @@
     (function f(now) {
       var p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
       el.textContent = Math.round(to * e);
-      if (p >= ticks / 6 && ticks < 6) { ticks++; sfx('tick'); }
-      if (p < 1 && document.body.contains(el)) requestAnimationFrame(f); else el.textContent = to;
+      if (p >= ticks / 6 && ticks < 6) { ticks++; sfx('coin'); }
+      if (p < 1 && document.body.contains(el)) requestAnimationFrame(f); else { el.textContent = to; if (to >= 300) { el.classList.add('bigwin'); sfx('cash'); } }
     })(t0);
   }
   // a good buy: a haggle win, a streak, a rare one
@@ -1649,9 +1707,7 @@
       else if (S.streak === 5) { celebrate('streak', 'Haggle streak: 5. The sellers are talking about you.'); magnet('streak5'); }
       else celebrate('good', 'Haggle win! Saved ' + money(it.ask - price) + '.');
     } else S.streak = 0;
-    if (it.ultra) celebrate('big', 'ULTRA RARE! ' + it.t);
-    else if (it.kind === 'grail') celebrate('big', 'THE GRAIL.');
-    else if ((it.tier || 0) >= 3) celebrate('big', 'Rare find. Allegedly.');
+    // the find reveal (Round 5) shows the rare ones, so there is no chip for them here
   }
   // personal bests and "so close" lines, worked out when you shelve
   function personalBests(R) {
@@ -1706,6 +1762,13 @@
       return '<div class="mag' + (got ? ' got' : '') + '"><b>' + (got ? esc(x.name) : '?') + '</b><small>' + esc(x.how) + '</small></div>';
     }).join('') + '</div>' + tackleHTML() + '</div>';
   }
+  // the demo's results: what is in your tackle box, and how much more the full game's want list has
+  function demoTackle() {
+    var tb = tackle(), T = NP.DEMO_WANT_TEXT, got = NP.GOALS_POOL.filter(function (d) { return tb[d.id]; });
+    if (!got.length) return '';
+    return '<div class="demotackle"><b>' + esc(T.box) + ':</b> ' + got.map(function (d) { return esc(d.reward); }).join(', ') + '. ' +
+      esc(T.boxLine.replace('{have}', got.length).replace('{all}', NP.GOALS_POOL.length)) + '</div>';
+  }
   // the tackle box: want list rewards
   function tackleHTML() {
     var tb = tackle(), W = NP.WANT_TEXT, have = NP.GOALS_POOL.filter(function (d) { return tb[d.id]; }).length;
@@ -1721,31 +1784,65 @@
   // =====================================================================================================
   // From playtesting: the long version got repetitive. Full game only; the demo never sees any of this.
   function feverOn() { return !!(S && S.fever && S.time < S.fever); }
-  function comboMult() { return 1 + 0.25 * Math.min(S.combo || 0, 8); }
-  // rising stakes you can feel: the music and your walking speed pick up with the combo, more in a fever
+  // ---------- Round 5: streaks. Back-to-back good haggles and finds raise it; each tier pays more (x1.25, x1.5, x2 cap) ----------
+  function tierOf(c) { var m = 1, T = NP.STREAK.tiers; for (var i = 0; i < T.length; i++) if (c >= T[i][0]) m = T[i][1]; return m; }
+  function nextTier(c) { var T = NP.STREAK.tiers; for (var i = 0; i < T.length; i++) if (c < T[i][0]) return T[i]; return null; }
+  function fmtX(m) { return String(Math.round(m * 100) / 100); }
+  function comboMult() { return tierOf((S && S.combo) || 0); }
+  // rising stakes you can feel: the music and your walking speed pick up with the streak, more in a fever
   function paceMult() { return DEMO || !S ? 1 : 1 + 0.03 * Math.min(S.combo || 0, 8) + (feverOn() ? 0.06 : 0); }
   function walkBoost() { return DEMO || !S ? 1 : 1 + 0.05 * Math.min(S.combo || 0, 8) + (feverOn() ? 0.2 : 0); }
-  // bonus points: they go on the Saturday's score (and, at half weight, the season score)
+  // bonus points: they go on the Saturday's score (and, at half weight, the season score). Each one pops on screen.
   function bonus(cat, pts) {
-    pts = Math.max(1, Math.round(pts * (feverOn() ? 2 : 1)));
+    pts = Math.max(1, Math.round(pts));
     S.bonusLog = S.bonusLog || [];
     S.bonusLog.push([cat, pts]);
+    popNum('+' + pts + ' pts', pts >= 40 ? 'big' : '');
     return pts;
   }
   function comboUp(n) {
     if (DEMO || !S) return;
     var before = S.combo || 0;
     S.combo = before + (n || 1);
+    var m0 = tierOf(before), m1 = tierOf(S.combo);
+    sfx('rise', S.combo);
     if (!feverOn() && before < NP.FEVER.at && S.combo >= NP.FEVER.at) {
       S.fever = S.time + NP.FEVER.mins;
       track('fever'); magnet('fever');
       celebrate('big', NP.FEVER.text);
-    } else if (S.combo >= 3 && S.combo % 2 === 1) celebrate('streak', 'Combo x' + comboMult().toFixed(2).replace(/0$/, '').replace(/\.0$/, '') + '!');
+    }
+    if (m1 > m0) { celebrate('streak', 'STREAK x' + fmtX(m1) + '!'); track('streak_x' + fmtX(m1).replace('.', '')); if (m1 >= 2) magnet('streakx2'); }
     tempo(paceMult());
   }
+  // a find's value on the shelf, worked out the same way the appraisal does (near enough)
+  function estValue(it) {
+    if (!it) return 0;
+    if (it.kind === 'grail') return 100;
+    if (it.kind === 'game') return (it.base || 0) * (COND_MULT[it.cond] || 1) * (it.variant && NP.VARIANTS[it.variant] ? NP.VARIANTS[it.variant].mult : 1) * (it.flaw ? NP.FLAW.mult : 1);
+    if (isMedia(it)) return (it.base || 0) * mediaMult(it);
+    return 0;
+  }
+  // a good buy keeps the streak going: you haggled it down, or it is worth half again what you paid
+  function goodBuy(it, price) {
+    if (DEMO) return;
+    var v = estValue(it);
+    if (!(price < it.ask || (v > 0 && v >= price * NP.STREAK.good))) return;
+    comboUp(1);
+    S.lastGoodV = v;
+    var m = comboMult();
+    if (m > 1 && v > 0) { var pay = Math.min(NP.STREAK.cap, Math.round(v * (m - 1))); if (pay > 0) bonus('Streak', pay); }
+  }
   function comboBreak() {
-    if (!S || feverOn()) return; // fever protects your combo until it runs out
-    if ((S.combo || 0) >= 3) S.toast = (S.toast ? S.toast + ' ' : '') + 'Combo broken. Start a new one.';
+    if (!S || feverOn()) return; // fever protects your streak until it runs out
+    var c = S.combo || 0;
+    if (c >= 2 && !DEMO) {
+      var nt = nextTier(c), v = S.lastGoodV || 0;
+      var msg = 'Streak broken at x' + fmtX(tierOf(c)) + '.';
+      if (nt && v > 0) msg += ' ' + (nt[0] - c) + ' more good deal' + (nt[0] - c === 1 ? '' : 's') + ' and x' + fmtX(nt[1]) + ' would have paid +' + Math.min(NP.STREAK.cap, Math.round(v * (nt[1] - 1))) + ' on a find like your last one.';
+      else if (v > 0) msg += ' It was paying +' + Math.min(NP.STREAK.cap, Math.round(v * (tierOf(c) - 1))) + ' a find.';
+      celebrate('miss', msg); sfx('miss');
+      track('streak_broken_' + c);
+    }
     S.combo = 0;
     tempo(paceMult());
   }
@@ -1753,8 +1850,460 @@
     if (S && S.fever && S.time >= S.fever) { S.fever = 0; S.combo = 0; S.toast = (S.toast ? S.toast + ' ' : '') + 'Fever is over. Back to normal haggling.'; track('fever_end'); }
   }
 
+  // ---------- Round 5: find reveals (loot colors, a box that flips open, a shake, a sting; the grail gets the works) ----------
+  function rarityOf(it) {
+    if (!it) return 'common';
+    if (it.kind === 'grail' || it.ultra || it.uid === 'exgrail') return 'grail';
+    var t = it.tier || 0;
+    if (it.variant === 'promo' || it.variant === 'shell-gold') t = Math.max(t, 3);
+    if (it.cond === 'sealed' && t >= 2) t = 3;
+    return t >= 3 ? 'rare' : t === 2 ? 'uncommon' : 'common';
+  }
+  var revealOn = null;
+  function shake(n) {
+    if (calm()) return;
+    var el = document.getElementById('app'); if (!el) return;
+    el.classList.remove('shake1', 'shake2'); void el.offsetWidth; el.classList.add('shake' + n);
+    setTimeout(function () { el.classList.remove('shake' + n); }, 450);
+  }
+  function closeReveal() {
+    if (!revealOn) return;
+    var R = revealOn; revealOn = null;
+    clearTimeout(R.t); window.removeEventListener('keydown', R.key, true);
+    R.ov.classList.add('out');
+    setTimeout(function () { if (R.ov.parentNode) R.ov.parentNode.removeChild(R.ov); }, 180);
+  }
+  function reveal(it, opts) {
+    if (!it) return;
+    opts = opts || {};
+    var rar = opts.rarity || rarityOf(it), RR = NP.RARITY[rar], quiet = calm();
+    var dur = opts.dur || { common: 800, uncommon: 1050, rare: 1250, grail: 1500 }[rar];
+    if (DEMO && fast()) dur = Math.round(dur * 0.6);
+    if (revealOn) { var old = revealOn; closeReveal(); if (old.ov.parentNode) old.ov.parentNode.removeChild(old.ov); } // a new find replaces the last card at once
+    document.querySelectorAll('.reveal-ov.out').forEach(function (o) { if (o.parentNode) o.parentNode.removeChild(o); });
+    var ov = document.createElement('div');
+    ov.className = 'reveal-ov r-' + rar + (quiet ? ' calm' : '') + (opts.miss ? ' miss' : '');
+    ov.setAttribute('role', 'status'); ov.setAttribute('aria-live', 'polite');
+    ov.innerHTML = (rar === 'grail' && !quiet ? '<div class="rv-flash"></div>' : '') +
+      '<div class="rv-card" style="--rc:' + RR.color + '"><div class="rv-box"><div class="rv-lid"></div><div class="rv-art"></div></div>' +
+      '<div class="rv-rar">' + esc(opts.label || RR.label) + '</div><div class="rv-t">' + esc(it.t) + '</div>' +
+      (opts.line ? '<div class="rv-l">' + esc(opts.line) + '</div>' : '') +
+      (opts.stamp ? '<div class="rv-stamp">' + esc(opts.stamp) + '</div>' : '') +
+      '<div class="rv-skip">' + (coarse() ? 'Tap' : 'Click') + ' to skip</div></div>';
+    document.body.appendChild(ov);
+    try { ov.querySelector('.rv-art').appendChild(NP.makeArt(it, 3)); } catch (e) {}
+    var key = function (e) { if (e.key === 'Tab' || e.key === 'Shift') return; e.preventDefault(); e.stopPropagation(); closeReveal(); };
+    revealOn = { ov: ov, key: key, t: setTimeout(closeReveal, dur) };
+    ov.addEventListener('click', function (e) { e.stopPropagation(); closeReveal(); });
+    window.addEventListener('keydown', key, true);
+    if (opts.miss) { sfx('miss'); shake(1); return; }
+    sfx('flip');
+    if (rar === 'grail') { sfx('grail'); shake(2); }
+    else if (rar === 'rare') { sfx('sting'); shake(1); }
+    else if (rar === 'uncommon') { sfx('unlock'); shake(1); }
+    track('reveal_' + rar);
+  }
+
+  // ---------- Demo round 5: the find, with juice ----------
+  function confetti(n) {
+    if (calm()) return;
+    var host = document.createElement('div'); host.className = 'confetti'; host.setAttribute('aria-hidden', 'true');
+    var cols = ['#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7', '#fff1d6'], h = '';
+    for (var i = 0; i < (n || 36); i++) h += '<i style="left:' + (Math.random() * 100).toFixed(1) + '%;background:' + cols[i % cols.length] + ';--dx:' + ((Math.random() - 0.5) * 120).toFixed(0) + 'px;--r:' + Math.round(Math.random() * 720) + 'deg;animation-delay:' + (Math.random() * 0.25).toFixed(2) + 's;animation-duration:' + (1 + Math.random() * 0.6).toFixed(2) + 's"></i>';
+    host.innerHTML = h; document.body.appendChild(host);
+    setTimeout(function () { if (host.parentNode) host.parentNode.removeChild(host); }, 2000);
+  }
+  function demoJuice(it, price) {
+    if (!(it.kind === 'game' || it.kind === 'grail' || isMedia(it))) return;
+    var v = Math.round(estValue(it)), steal = v >= price * 3 && v - price >= 10;
+    var rar = rarityOf(it);
+    reveal(it, { label: NP.RARITY[rar].label, line: 'Worth about ' + money(v) + '. You paid ' + money(price) + '.', stamp: steal ? 'STEAL!' : '' });
+    if (v > price) setTimeout(function () { popNum('+' + money(v - price) + ' value', v - price >= 20 ? 'cash big' : 'cash'); }, 450);
+    if (steal) { setTimeout(function () { confetti(40); sfx('fanfare'); }, 300); track('steal'); }
+  }
+
+  // ---------- Demo round 5: settings (one button, everything in one place) ----------
+  function setButton() { return '<button class="fsbtn setbtn" data-act="settings" aria-haspopup="dialog"><span aria-hidden="true">&#9881;</span> Settings</button>'; }
+  function applyTextSize() { var v = +store.get('tsize', 1) || 1; if ([1, 1.15, 1.3].indexOf(v) < 0) v = 1; document.documentElement.style.setProperty('--tsz', v); document.body.classList.toggle('bigtext', v > 1); }
+  function fast() { return store.get('speed', 'normal') === 'fast'; }
+  function seg(act, cur, opts) {
+    return '<div class="seg" role="group">' + opts.map(function (o) { return '<button data-act="' + act + '" data-v="' + o[0] + '" aria-pressed="' + (String(cur) === String(o[0])) + '">' + esc(o[1]) + '</button>'; }).join('') + '</div>';
+  }
+  function openSettings() {
+    var X = NP.DEMO5.set, ov = document.querySelector('.setov'), fresh = !ov;
+    if (!ov) { ov = document.createElement('div'); ov.className = 'setov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', X.title); document.body.appendChild(ov); }
+    var vol = NP.Sound && NP.Sound.volume ? Math.round(NP.Sound.volume() * 100) : 100, muted = NP.Sound && NP.Sound.isMuted();
+    ov.innerHTML = '<div class="setp"><h2>' + esc(X.title) + '</h2>' +
+      '<div class="setrow"><span>' + esc(X.sound) + '</span>' + seg('mute', muted ? 'off' : 'on', [['on', 'On'], ['off', 'Off']]).replace(/data-act="mute" data-v="(on|off)" aria-pressed="true"/g, 'data-noop="1" aria-pressed="true"') + '</div>' +
+      '<div class="setrow"><label for="setvol">' + esc(X.volume) + ' <b class="set-volv">' + vol + '%</b></label><input id="setvol" type="range" min="0" max="100" step="5" value="' + vol + '" data-set="vol"></div>' +
+      '<div class="setrow"><span>' + esc(X.text) + '</span>' + seg('tsize', store.get('tsize', 1), [[1, 'Normal'], [1.15, 'Large'], [1.3, 'Larger']]) + '</div>' +
+      '<div class="setrow"><span>' + esc(X.speed) + '<small>' + esc(X.speedNote) + '</small></span>' + seg('speed', store.get('speed', 'normal'), [['normal', 'Normal'], ['fast', 'Fast']]) + '</div>' +
+      '<div class="setrow"><span>' + esc(X.fx) + '<small>' + esc(X.fxNote) + '</small></span>' + seg('calmfx2', store.get('calmFx', false) ? 'calm' : 'full', [['full', 'Full'], ['calm', 'Calm']]) + '</div>' +
+      '<div class="setrow"><span>' + esc(X.tips) + '</span>' + seg('tips', tipsOff ? 'off' : 'on', [['on', 'On'], ['off', 'Off']]).replace(/data-act="tips" data-v="(on|off)" aria-pressed="true"/g, 'data-noop="1" aria-pressed="true"') + '</div>' +
+      '<div class="setrow"><label class="adtoggle"><input type="checkbox" data-act="adfree"' + (adFree ? ' checked' : '') + '> Ad-Less Edition</label>' + fsButton() + '</div>' +
+      '<div class="setnote">' + esc(X.colors) + '</div>' +
+      '<button class="big" data-act="setclose">' + esc(X.done) + '</button></div>';
+    if (fresh) {
+      ov.addEventListener('click', function (e) { if (e.target === ov) closeSettings(); });
+      ov.__key = function (e) { if (e.key === 'Escape') closeSettings(); }; window.addEventListener('keydown', ov.__key);
+      track('settings_open');
+      var f = ov.querySelector('button'); if (f) try { f.focus({ preventScroll: true }); } catch (e) {}
+    }
+  }
+  function closeSettings() { var ov = document.querySelector('.setov'); if (!ov) return; window.removeEventListener('keydown', ov.__key); ov.parentNode.removeChild(ov); if (S) render(); }
+
+  // ---------- Demo round 5: undo the last buy or sale (8 seconds) ----------
+  var undoSnap = null, undoT = null;
+  var UNDO_SKIP = { day: 1, stop: 1, screen: 1, seed: 1, history: 1, miniAt: 1, miniN: 1, miniLast: 1, cameoN: 1 };
+  function snapForUndo(kind, label) {
+    if (!DEMO || !S || !S.stop) return;
+    var top = {}, s = S.stop;
+    Object.keys(S).forEach(function (k) { if (!UNDO_SKIP[k]) top[k] = S[k]; });
+    var items = {};
+    ['items', 'dig', 'rivalTable'].forEach(function (a) { (s[a] || []).forEach(function (it) { items[it.uid] = it; }); });
+    var stopFlat = {}; Object.keys(s).forEach(function (k) { if (['items', 'dig', 'rivalTable'].indexOf(k) < 0) stopFlat[k] = s[k]; });
+    try { undoSnap = { kind: kind, label: label, stopId: s.id, screen: S.screen, top: JSON.stringify(top), items: JSON.stringify(items), stopFlat: JSON.stringify(stopFlat) }; } catch (e) { undoSnap = null; }
+  }
+  function offerUndo() {
+    if (!undoSnap) return;
+    var old = document.querySelector('.undochip'); if (old) old.parentNode.removeChild(old);
+    var el = document.createElement('button'); el.className = 'undochip'; el.setAttribute('data-act', 'undo');
+    el.innerHTML = '&#8630; ' + esc(NP.DEMO5.undo.replace('{what}', undoSnap.label));
+    document.body.appendChild(el);
+    if (undoT) clearTimeout(undoT);
+    undoT = setTimeout(dropUndo, 8000);
+  }
+  function dropUndo() { undoSnap = null; if (undoT) clearTimeout(undoT); undoT = null; var el = document.querySelector('.undochip'); if (el) el.parentNode.removeChild(el); }
+  function doUndo() {
+    var u = undoSnap; dropUndo();
+    if (!u || !S || !S.stop || S.stop.id !== u.stopId) return;
+    if (revealOn) closeReveal();
+    var top = JSON.parse(u.top), items = JSON.parse(u.items), flat = JSON.parse(u.stopFlat), s = S.stop;
+    Object.keys(S).forEach(function (k) { if (!UNDO_SKIP[k] && !(k in top)) delete S[k]; });
+    Object.keys(top).forEach(function (k) { S[k] = top[k]; });
+    Object.keys(flat).forEach(function (k) { s[k] = flat[k]; });
+    ['items', 'dig', 'rivalTable'].forEach(function (a) { if (s[a]) s[a] = s[a].filter(function (it) { return items[it.uid]; }); }); // anything put out after the sale goes back too
+    ['items', 'dig', 'rivalTable'].forEach(function (a) { (s[a] || []).forEach(function (it) { var w = items[it.uid]; if (!w) return; Object.keys(it).forEach(function (k) { if (!(k in w)) delete it[k]; }); Object.keys(w).forEach(function (k) { it[k] = w[k]; }); }); });
+    track('undo_' + u.kind);
+    S.toast = NP.DEMO5.undone;
+    sfx('flip');
+    var y = window.scrollY; render(); window.scrollTo(0, y);
+  }
+
+  // ---------- Demo round 5: the next step, always on screen, one big button in thumb reach ----------
+  function nextStep() {
+    var N = NP.DEMO5.next;
+    if (!S) return null;
+    if (S.screen === 'map') { var n = planRoute()[0]; return n ? { t: DEMO ? N.map.replace('{name}', NP.DEMO5.short[n.type] ? NP.DEMO5.short[n.type].toLowerCase().replace(/^./, function (c) { return c.toUpperCase(); }) : n.name) : N.mapFull.replace('{name}', n.name), b: N.drive, id: n.id } : { t: N.home, b: N.homeBtn, home: true }; }
+    if (S.screen === 'stop' && S.stop) {
+      var avail = S.stop.items.filter(function (x) { return x.state === 'avail'; });
+      var early = avail.filter(function (x) { return x.early; })[0];
+      var nx = planRoute()[0];
+      var t = early ? N.early : S.goal ? N.goal.replace('{goal}', (goalDef(S.goal.id) || {}).label || '') : avail.length ? N.shop : N.done;
+      return nx ? { t: t, b: N.next, id: nx.id } : { t: t, b: N.homeBtn, home: true };
+    }
+    if (S.screen === 'walk') return { t: S.goal ? N.goal.replace('{goal}', (goalDef(S.goal.id) || {}).label || '') : S.stop && S.stop.type === 'expo' ? N.walkExpo : N.walk, b: null };
+    return null;
+  }
+  function nextStepHTML() {
+    var n = nextStep(); if (!n) return '';
+    return '<div class="nsbar" role="status"><span class="ns-t"><b>' + esc(NP.DEMO5.next.tag) + '</b> ' + esc(n.t) + '</span>' + (n.b ? '<button class="ns-b" data-act="nsgo">' + esc(n.b) + ' &#9654;</button>' : '') + '</div>';
+  }
+  function placeNextStep() {
+    var old = document.querySelector('.nsbar'); if (old) old.parentNode.removeChild(old);
+    document.body.classList.remove('has-ns');
+    var h = nextStepHTML(); if (!h) return;
+    var d = document.createElement('div'); d.innerHTML = h; document.body.appendChild(d.firstChild);
+    document.body.classList.add('has-ns');
+  }
+  function nextStepGo() {
+    var n = nextStep(); if (!n) return;
+    track('nextstep_' + S.screen);
+    if (tipEl) closeTip();
+    if (S.screen === 'map') { if (n.home) { var hb = document.querySelector('[data-act="gohome"], [data-act="leavehome"]'); if (hb) hb.click(); } else driveTo(n.id, 'nextbar'); return; }
+    if (S.screen === 'stop') { if (n.home) leaveStop('home'); else leaveStop('next', n.id); }
+  }
+
+  // ---------- Demo round 5: TV commercials (optional, never cost daylight) ----------
+  function playTV(where) {
+    if (!NP.TVAds) return;
+    var n = store.get('tvN', 0) || 0; store.set('tvN', n + 1);
+    music(null); if (NP.Sound && NP.Sound.ambience) NP.Sound.ambience(null);
+    track('tv_' + where);
+    NP.TVAds.play({ idx: n, label: where === 'map' ? 'A QUICK BREAK BETWEEN DRIVES' : where === 'yard' ? 'THE TV ON THE CARD TABLE' : 'ON THE NEXT TABLE', onDone: function (skipped) {
+      track(skipped ? 'tv_skipped' : 'tv_watched');
+      var sc = applyScene();
+      music(sc ? SCENES[sc].music : 'title', true);
+      if (NP.Sound && NP.Sound.ambience) NP.Sound.ambience(S && S.screen === 'walk' && S.stop && S.stop.type === 'flea' ? 'crowd' : null);
+    } });
+  }
+
+  // ---------- Demo round 5: the odd sellers (rare, random, all original). Spot all nine for a hidden trophy ----------
+  function cameosSeen() { var c = store.get('cameos', {}); return c && typeof c === 'object' ? c : {}; }
+  function pickCameo() {
+    var seen = cameosSeen(), all = NP.CAMEOS || [], fresh = all.filter(function (c) { return !seen[c.id]; });
+    var pool = fresh.length && Math.random() < 0.75 ? fresh : all;
+    return pool[Math.floor(Math.random() * pool.length)] || null;
+  }
+  function maybeCameo(s) {
+    if (!NP.CAMEOS || !s || s.cameo !== undefined) return;
+    s.cameo = null;
+    if (s.type === 'flea' || s.type === 'expo' || s.gift || s.type === 'banned' || s.type === 'mall') return; // the walkable places get theirs as a mini event
+    if ((S.cameoN || 0) >= 2 || Math.random() > (window.__NP_TEST && window.__NP_TEST.cameoOdds != null ? window.__NP_TEST.cameoOdds : 0.25)) return;
+    var c = pickCameo(); if (!c) return;
+    var it = s.items.filter(function (x) { return x.state === 'avail' && x.kind === 'game' && !x.early && !x.mistag; })[0];
+    if (!it) return;
+    it.seller = c.id; it.ask = Math.max(1, Math.round(it.ask * 0.85)); it.minFrac = Math.min(it.minFrac, 0.6);
+    s.cameo = c.id; S.cameoN = (S.cameoN || 0) + 1;
+  }
+  function spotCameo(id) {
+    var seen = cameosSeen(), first = !Object.keys(seen).length, was = seen[id];
+    if (!was) { seen[id] = 1; store.set('cameos', seen); if (S) bonus('Odd sellers', 10); track('cameo_' + id); }
+    var n = Object.keys(seen).length, all = (NP.CAMEOS || []).length, T = NP.CAMEO_TEXT;
+    if (!was) celebrate('goal', (first ? T.first + ' ' : '') + T.spotted.replace('{n}', n).replace('{all}', all));
+    if (!was && n >= all && !store.get('cameoTrophy', 0)) {
+      store.set('cameoTrophy', 1); track('cameo_trophy');
+      setTimeout(function () { celebrate('goaldone', T.trophy); confetti(60); sfx('fanfare'); }, 900);
+    }
+    return !was;
+  }
+  function cameoBox(s) {
+    if (!s.cameo) return '';
+    var c = (NP.CAMEOS || []).filter(function (x) { return x.id === s.cameo; })[0]; if (!c) return '';
+    if (!s.cameoSpotted) { s.cameoSpotted = true; setTimeout(function () { spotCameo(c.id); }, 600); }
+    return '<div class="cameo"><canvas class="cameo-cv" width="48" height="64" data-cameo="' + c.id + '" aria-hidden="true"></canvas><div><b class="cameo-tag">' + esc(NP.CAMEO_TEXT.tag) + '</b> <b>' + esc(c.name) + '</b>' +
+      '<div class="cameo-t">' + esc(c.tag) + '.</div><div class="cameo-l">"' + esc(c.hi[0]) + '"</div></div></div>';
+  }
+  function drawCameos() {
+    document.querySelectorAll('[data-cameo]').forEach(function (cv) { try { NP.drawCameo(cv.getContext('2d'), cv.getAttribute('data-cameo'), 2); } catch (e) {} });
+  }
+  function cameoCount() { return Object.keys(cameosSeen()).length; }
+
+  // ---------- Demo round 5: a mini event every minute or so (never during a reveal or a panel) ----------
+  var miniT = null;
+  function miniTick() {
+    if (!DEMO || !S || (S.screen !== 'stop' && S.screen !== 'walk') || !S.stop) return;
+    if (revealOn || tipEl || document.querySelector('.crt-overlay, .callov, .tvov, .minicard, .tvad-ov, .reveal-ov, .wpanel:not([hidden]), .setov, .wmap-ov')) return;
+    var now = Date.now();
+    if (!S.miniAt) { S.miniAt = now + 40000; return; }
+    if (now < S.miniAt || (S.miniN || 0) >= 4) return;
+    S.miniAt = now + 70000; S.miniN = (S.miniN || 0) + 1;
+    var E = NP.DEMO5.mini, ids = Object.keys(E), id = ids[(NP.hashStr(S.seed + '|' + S.miniN) + S.history.length) % ids.length];
+    if (S.miniLast === id) id = ids[(ids.indexOf(id) + 1) % ids.length];
+    S.miniLast = id;
+    var pool = S.stop.items.filter(function (x) { return x.state === 'avail' && (x.kind === 'game' || isMedia(x)); });
+    var line = E[id], act = null;
+    if (id === 'flash') {
+      var who = pool.length ? pool[0].seller : null, sl = NP.SELLERS[who] || {};
+      pool.filter(function (x) { return x.seller === who; }).forEach(function (x) { x.ask = Math.max(1, Math.round(x.ask * 0.7)); });
+      line = line.replace('{who}', sl.name || 'A seller');
+    } else if (id === 'gun') {
+      var g = pool.filter(function (x) { return x.kind === 'game' && x.tier >= 2; })[0] || pool[0];
+      if (g) { g.ask = 1; g.minFrac = 1; g.mistag = true; line = line.replace('{t}', g.t); } else { id = 'cash'; line = E.cash; }
+    } else if (id === 'tv') act = 'tv';
+    else if (id === 'cameo') {
+      var cm = S.cameoN >= 2 ? null : pickCameo();
+      if (cm) { S.cameoN = (S.cameoN || 0) + 1; act = 'cameo:' + cm.id; line = NP.CAMEO_TEXT.mini.replace('{name}', cm.name).replace('{tag}', cm.tag) + ' "' + cm.hi[0] + '"'; }
+      else { id = 'cash'; line = E.cash; }
+    }
+    if (id === 'cameo' && S.stop.type !== 'flea') { id = 'cash'; line = E.cash; act = null; }
+    if (id === 'cash') S.cash += 5;
+    if (id === 'radio') S.cash += 10;
+    showMini(line, act);
+    bonus('Mini events', 10);
+    track('mini_' + id);
+    if (S.screen === 'stop') { var y = window.scrollY; render(); window.scrollTo(0, y); } else if (NP.Walk && NP.Walk.refresh) NP.Walk.refresh();
+    animCash();
+  }
+  function showMini(text, act) {
+    var old = document.querySelector('.minicard'); if (old) old.parentNode.removeChild(old);
+    var el = document.createElement('div'); el.className = 'minicard'; el.setAttribute('role', 'status');
+    var cid = act && act.indexOf('cameo:') === 0 ? act.slice(6) : null;
+    el.innerHTML = (cid ? '<canvas class="cameo-cv" width="48" height="64" data-cameo="' + cid + '" aria-hidden="true"></canvas>' : '') + '<b>' + esc(cid ? NP.CAMEO_TEXT.tag : NP.DEMO5.miniTag) + '</b> ' + esc(text) + '<div class="mc-btns">' + (act === 'tv' ? '<button data-mini="tv">' + esc(NP.DEMO5.tvBtn) + '</button>' : '') + '<button data-mini="ok">OK</button></div>';
+    document.body.appendChild(el);
+    if (cid) { drawCameos(); setTimeout(function () { spotCameo(cid); }, 500); }
+    sfx('jingle');
+    var t = setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, act ? 9000 : 6000);
+    el.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('[data-mini]'); if (!b) return;
+      clearTimeout(t); if (el.parentNode) el.parentNode.removeChild(el);
+      if (b.getAttribute('data-mini') === 'tv') playTV('mini');
+    });
+  }
+
+  // ---------- Round 5: number pops (slot machine digits, coin ticks; big wins bounce) ----------
+  function popNum(text, kind) {
+    if (!text) return;
+    var host = document.getElementById('popstack');
+    if (!host) { host = document.createElement('div'); host.id = 'popstack'; host.setAttribute('aria-hidden', 'true'); document.body.appendChild(host); }
+    while (host.children.length >= 2) host.removeChild(host.firstChild);
+    var el = document.createElement('div'), quiet = calm(), di = 0;
+    el.className = 'pop' + (kind ? ' ' + kind : '') + (quiet ? ' calm' : '');
+    el.innerHTML = String(text).split('').map(function (ch) {
+      if (!/\d/.test(ch) || quiet) return '<span class="ch">' + esc(ch) + '</span>';
+      var strip = '0123456789012345678901234567890'.split('').join('<br>');
+      return '<span class="dg"><span style="--d:' + ch + ';--i:' + (di++) + '">' + strip + '</span></span>';
+    }).join('');
+    host.appendChild(el);
+    var big = /big/.test(kind || '');
+    for (var k = 0; k < (big ? 6 : 3); k++) setTimeout(function () { sfx('coin'); }, 60 + k * 85);
+    if (big) setTimeout(function () { sfx('cash'); }, 560);
+    setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, big ? 1700 : 1300);
+  }
+
+  // ---------- Round 5: near misses (a rival grabs something great in front of you; near mint copies with one tiny flaw) ----------
+  function placeNearMisses(day, seed) {
+    var r = mulberry32(NP.hashStr('nearmiss|' + seed));
+    // the grab: about one Saturday in five, at one menu stop
+    var hosts = day.stops.filter(function (s) { return openStop(s) && ['yard', 'thrift', 'pawn', 'sports', 'pal', 'record', 'rental'].indexOf(s.type) >= 0; });
+    if (hosts.length && r() < 0.2) day.nearMiss = pick(r, hosts).id;
+    // near mint, one tiny flaw: at most two a day
+    var n = 0;
+    day.stops.forEach(function (st) {
+      if (!openStop(st) || st.type === 'expo') return;
+      (st.items || []).concat(st.dig || []).forEach(function (it) {
+        if (n >= 2 || it.kind !== 'game' || it.flaw || it.ultra || it.ex || (it.cond !== 'cib' && it.cond !== 'sealed') || (it.flags && (it.flags.repro || it.flags.reseal))) return;
+        if (r() < 0.05) { it.flaw = pick(r, NP.FLAWS); n++; }
+      });
+    });
+  }
+  function nearMissGrab(s) {
+    if (DEMO || !S.day.nearMiss || S.day.nearMiss !== s.id || S.nearMissDone) return;
+    S.nearMissDone = true;
+    var r = mulberry32(NP.hashStr(S.seed + '|grab|' + s.id));
+    var it, val;
+    if (r() < 0.3) {
+      var u = pick(r, NP.ULTRA);
+      it = { uid: 'nm' + s.id, id: u.id, t: u.t, p: u.p, tier: 4, base: u.base, kind: 'game', ultra: true, art: u.art, cond: 'cib', flags: {}, state: 'gone', line: '', sticker: true };
+      val = u.base * 2;
+    } else {
+      var pool = NP.CATALOG.filter(function (g) { return g.tier === 3 && !S.day.owned[g.id]; });
+      var e = pick(r, pool.length ? pool : NP.CATALOG.filter(function (g) { return g.tier === 3; }));
+      it = { uid: 'nm' + s.id, id: e.id, t: e.t, p: e.p, tier: 3, base: e.base, kind: 'game', cond: 'sealed', flags: {}, state: 'gone', line: '', sticker: false, set: e.set, g: e.g };
+      val = e.base * COND_MULT.sealed;
+    }
+    var others = rivalsAt(s).filter(function (id) { return id !== 'gary'; });
+    var who = others.length ? others[0] : 'dex';
+    it.goneBy = who;
+    var name = who === 'dex' ? NP.RIVAL.name : rivalName(who), paid = 4 + Math.floor(r() * 9);
+    s.items.unshift(it);
+    var N = NP.NEAR_MISS, line = N.lines[Math.floor(r() * N.lines.length)].replace('{r}', name).replace('{p}', money(paid)).replace('{v}', money(Math.round(val)));
+    track('near_miss_grab');
+    setTimeout(function () { reveal(it, { miss: true, rarity: it.ultra ? 'grail' : 'rare', stamp: N.stamp, line: line, dur: 1500 }); }, 120);
+  }
+
+  // ---------- Round 5: the $5 mystery box (the odds on the box are the real odds) ----------
+  function placeMysteryBoxes(day, seed) {
+    var r = mulberry32(NP.hashStr('mbox|' + seed));
+    day.stops.forEach(function (st) {
+      if (!openStop(st) || st.type !== 'yard' || r() > 0.4) return;
+      var b = makeItem(r, { id: 'mbox', t: NP.MBOX.t, p: 'k16', base: 0 }, { kind: 'mbox', ask: NP.MBOX.ask, seller: st.seller });
+      b.uid = 'mb' + st.id; b.minFrac = 1; b.sticker = false;
+      st.items.splice(Math.min(2, st.items.length), 0, b);
+    });
+  }
+  function mboxOddsText() {
+    return 'Odds on the box: ' + NP.MBOX.odds.map(function (o) { return Math.round(o[1] * 100) + '% ' + o[2]; }).join(' · ') + '. Those are the real odds.';
+  }
+  function openMbox(box, price) {
+    var r = mulberry32(NP.hashStr(S.seed + '|mboxopen|' + box.uid));
+    var x = r(), acc = 0, tier = 'junk';
+    for (var i = 0; i < NP.MBOX.odds.length; i++) { acc += NP.MBOX.odds[i][1]; if (x < acc) { tier = NP.MBOX.odds[i][0]; break; } }
+    var it;
+    if (tier === 'junk') {
+      if (r() < 0.5) { var m = pick(r, NP.MERCH); it = makeItem(r, { id: m.id, t: m.t, p: 'k16', base: 0 }, { kind: 'merch', ask: 0 }); }
+      else { var sp = pick(r, NP.SPORTS); it = makeItem(r, sp, { seller: box.seller, sports: true, ask: 1 }); it.cond = 'loose'; }
+    } else {
+      var e = pick(r, NP.CATALOG.filter(function (g) { return g.tier === (tier === 'good' ? 2 : 3); }));
+      it = makeItem(r, e, { seller: box.seller });
+      it.cond = tier === 'good' ? 'cib' : 'sealed';
+    }
+    it.flags = {}; it.tell = true; it.tested = false; it.inspected = true;
+    it.uid = box.uid + 'x'; it.state = 'sold'; it.paid = price; it.fromBox = true;
+    var b = JSON.parse(JSON.stringify(it)); b.paid = price; b.stopType = S.stop.type; b.boughtAt = S.stop.id;
+    S.bag = S.bag.filter(function (x) { return x.uid !== box.uid; });
+    S.bag.push(b);
+    box.opened = tier; box.inside = it.t;
+    track('mbox_' + tier);
+    var lines = NP.MBOX[tier];
+    reveal(it, { line: NP.MBOX.open + ' ' + lines[Math.floor(r() * lines.length)], rarity: tier === 'treasure' ? 'grail' : tier === 'good' ? 'uncommon' : 'common', label: tier === 'treasure' ? 'SEALED TREASURE' : tier === 'good' ? 'SOMETHING GOOD' : 'JUNK' });
+    if (tier === 'treasure') { magnet('jackpot'); comboUp(2); }
+    else if (tier === 'good') comboUp(1);
+  }
+
+  // ---------- Round 5: the daily tip (a real rare one, at a real stop today, near made-up cross streets) ----------
+  function placeDailyTip(day, seed) {
+    var r = mulberry32(NP.hashStr('dailytip|' + seed));
+    var hosts = day.stops.filter(function (s) { return openStop(s) && ['yard', 'thrift', 'pawn', 'flea'].indexOf(s.type) >= 0; });
+    if (!hosts.length) return;
+    var st = pick(r, hosts);
+    var it = (st.items || []).filter(function (x) { return x.kind === 'game' && x.tier >= 3 && x.state === 'avail' && !x.hidden && !(x.flags && x.flags.repro); })[0];
+    if (!it) {
+      var e = pick(r, NP.CATALOG.filter(function (g) { return g.tier === 3; }));
+      it = makeItem(r, e, { seller: st.type === 'flea' ? 'friendly' : (st.seller || 'friendly'), cibP: 0.5, sealedP: 0.1 });
+      it.flags.repro = false;
+      st.items.push(it);
+    }
+    it.dailyTip = true;
+    var streets = shuffle(r, NP.DAILY_STREETS);
+    day.tip = { stopId: st.id, stopName: st.name, uid: it.uid, a: streets[0], b: streets[1] };
+  }
+  function dailyTipHTML() {
+    var T = !DEMO && S && S.day.tip; if (!T) return '';
+    var st = S.day.stops.filter(function (x) { return x.id === T.stopId; })[0], it = st && (st.items || []).filter(function (x) { return x.uid === T.uid; })[0];
+    if (!st || st.visited || !it || it.state !== 'avail') return '';
+    return '<div class="rc-tip"><b>' + esc(NP.DAILY_TIP.h) + '</b> ' + esc(NP.DAILY_TIP.line.replace('{stop}', T.stopName).replace('{a}', T.a).replace('{b}', T.b)) + '</div>';
+  }
+
+  // ---------- Round 5: the visit streak (stored on this device only: the last day you came by, and how many in a row) ----------
+  function dayShift(ds, n) { var p = ds.split('-').map(Number); var d = new Date(Date.UTC(p[0], p[1] - 1, p[2]) + n * 86400000); return iso(d); }
+  function visitStreak() {
+    if (DEMO) return null;
+    var today = phoenixDate(), v = store.get('visit', null) || {};
+    if (v.last !== today) {
+      var reset = !!v.last && v.last !== dayShift(today, -1);
+      v.days = v.last === dayShift(today, -1) ? (v.days || 0) + 1 : 1;
+      v.last = today; v.reset = reset;
+      store.set('visit', v);
+      track('visit_day_' + Math.min(v.days, NP.LOGIN.max));
+      if (v.days >= 7) magnet('visit7');
+    }
+    return v;
+  }
+  function visitCash(v) { return Math.min(NP.LOGIN.max, v.days || 1) * NP.LOGIN.per; }
+  function visitLine() {
+    var v = visitStreak(); if (!v) return '';
+    var c = visitCash(v), claimed = store.get('visitClaim', '') === v.last;
+    return (v.reset ? NP.LOGIN.reset + ' ' : '') + NP.LOGIN.line.replace('{n}', v.days).replace('{c}', c) + (claimed ? ' (Already added today.)' : '') + ' ' + NP.LOGIN.next.replace('{c}', Math.min(NP.LOGIN.max, (v.days || 1) + 1) * NP.LOGIN.per);
+  }
+  // the first Saturday you start on a new day gets the visit streak cash
+  function claimVisit() {
+    if (DEMO || !S) return;
+    var v = visitStreak(); if (!v || store.get('visitClaim', '') === v.last) return;
+    store.set('visitClaim', v.last);
+    var c = visitCash(v);
+    S.cash += c; if (!S.season) S.budget += c;
+    S.visitBonus = { days: v.days, cash: c };
+    track('visit_claimed');
+  }
+
   // ---------- the want list (mini-goals, Round 3c.1) ----------
-  function goalDef(id) { return NP.GOALS_POOL.filter(function (g) { return g.id === id; })[0] || null; }
+  function goalDef(id) {
+    if (DEMO) return (NP.DEMO_WANT || []).filter(function (g) { return g.id === id; })[0] || null;
+    return NP.GOALS_POOL.filter(function (g) { return g.id === id; })[0] || null;
+  }
+  // the demo's want list: one easy entry at the yard sale, one at the swap meet. They run until noon and cannot fail.
+  function demoGoal() {
+    if (!S || !S.stop) return;
+    // a goal from the last stop that is not done yet just quietly makes way for this stop's (nothing is lost)
+    if (S.goal) { var cur = goalDef(S.goal.id); if (cur && cur.at === S.stop.type) return; S.goal = null; }
+    var def = (NP.DEMO_WANT || []).filter(function (d) { return d.at === S.stop.type && (S.goalHist || []).indexOf(d.id) < 0; })[0];
+    if (!def) return;
+    S.goal = { id: def.id, end: endT(), prog: 0, quickStops: {} };
+    S.goalHist = (S.goalHist || []).concat([def.id]);
+    track('wantlist_shown'); track('wantlist_shown_' + def.id);
+    celebrate('goal', NP.WANT_TEXT.tag + ': ' + def.name + '. ' + def.label + '. Reward: ' + def.reward + '.');
+  }
   function wantDiff(def) { return NP.WANT_DIFF[def.d] || NP.WANT_DIFF.mid; }
   function isCart(it) { var pl = NP.PLATFORMS[it.p]; return !!pl && pl.media !== 'disc'; }
   // does this item fit a want list entry? ctx is the purchase ({ price, offer, bundle }); without it, "could it?"
@@ -1868,7 +2417,7 @@
     celebrate('goal', NP.WANT_TEXT.tag + ': ' + def.name + '. ' + def.label + ' (' + mins + ' min). Reward: ' + def.reward + '.');
   }
   function goalTick(kind, it, ctx) {
-    if (DEMO || !S || !S.goal) return;
+    if (!S || !S.goal) return;
     var def = goalDef(S.goal.id); if (!def) { S.goal = null; return; }
     var g = S.goal, before = g.prog, t = def.type, st = S.stop;
     if (kind === 'buy' && t === 'buy' && wantMatch(def.f, it, ctx || { price: it.ask }, st)) g.prog++;
@@ -1912,14 +2461,20 @@
     S.goal = null; S.goalNext = S.time + 20;
     if (D.tip) S.cash += D.tip;
     comboUp(2);
-    var W = NP.WANT_TEXT, bn = W.bannerFor[def.id];
+    var W = NP.WANT_TEXT, bn = def.banner || W.bannerFor[def.id];
     if (!bn) { var pickB = W.banners.filter(function (b) { return b !== S.lastBanner && b !== 'GRAIL IN HAND!' && b !== 'SET COMPLETE!'; }); bn = pickB[NP.hashStr(S.seed + '|' + S.goalsDone.length) % pickB.length]; }
     S.lastBanner = bn;
     celebrate('goaldone', bn + '|' + def.name + '|+' + pts + ' points' + (D.tip ? ', +$' + D.tip : '') + '|Reward: ' + def.reward);
     var tb = tackle(), had = tb[def.id] || 0;
     tb[def.id] = had + 1; store.set('tackle', tb);
-    if (!had) celebrate('unlock', W.newReward + ': ' + def.reward);
+    if (!had && !DEMO) celebrate('unlock', W.newReward + ': ' + def.reward); // the demo's goal card already names the reward
     track('goal_done_' + def.id);
+    if (DEMO) {
+      track('wantlist_done'); track('wantlist_done_' + def.id);
+      setTimeout(function () { if (S && S.stop && !S.goal) { demoGoal(); if (S.goal) { var gb = document.querySelector('.goalbar'); if (gb) gb.outerHTML = goalBar(); else render(); } } }, 3300);
+      var have = NP.GOALS_POOL.filter(function (d) { return tb[d.id]; }).length;
+      if (S.goalsDone.length === 1) celebrate('unlock', NP.DEMO_WANT_TEXT.more.replace('{n}', NP.GOALS_POOL.length - have).replace('{all}', NP.GOALS_POOL.length));
+    }
     magnet('goal1'); if (S.goalsDone.length >= 5) magnet('goal5');
   }
   function soClose() {
@@ -1945,14 +2500,18 @@
   }
   // the strip under the top bar: the want list entry, your combo, fever
   function goalBar() {
-    if (DEMO || !S || S.screen === 'results' || S.screen === 'home') return '';
+    if (!S || S.screen === 'results' || S.screen === 'home') return '';
     var h = '', def = S.goal && goalDef(S.goal.id);
     if (def) {
       var left = Math.max(0, S.goal.end - S.time);
       var prog = def.type === 'clean' ? (S.goal.landed ? 'clean so far, ' + S.goal.landed + ' landed' : 'clean so far') : S.goal.prog + ' of ' + def.n;
-      h += '<span class="gb-goal" title="' + esc(def.name + ': ' + def.label) + '"><b>' + esc(NP.WANT_TEXT.tag) + '</b> <span class="gb-lab"><span class="gb-name">' + esc(def.name) + '</span><span class="gb-task">: ' + esc(def.label) + '</span></span> <span class="gb-prog">' + prog + '</span> <span class="gb-time">' + left + ' min left</span></span>';
+      h += '<span class="gb-goal"><b>' + esc(NP.WANT_TEXT.tag) + '</b> ' + esc(def.name) + ': ' + esc(def.label) + ' <span class="gb-prog">' + prog + '</span> <span class="gb-time">' + left + ' min left</span></span>';
     }
-    if ((S.combo || 0) >= 1) h += '<span class="gb-combo">Combo x' + comboMult().toFixed(2).replace(/0$/, '').replace(/\.0$/, '') + '</span>';
+    if ((S.combo || 0) >= 1) {
+      var c = S.combo, nt = nextTier(c), dots = '';
+      for (var di = 0; di < Math.min(c, 6); di++) dots += '&#9679;';
+      h += '<span class="gb-combo' + (c >= 6 ? ' max' : '') + '">STREAK ' + c + ' <span class="gb-dots">' + dots + '</span> x' + fmtX(comboMult()) + (nt ? ' &middot; ' + (nt[0] - c) + ' to x' + fmtX(nt[1]) : ' &middot; MAX') + '</span>';
+    }
     if (feverOn()) h += '<span class="gb-fever">FEVER ' + (S.fever - S.time) + ' min</span>';
     return h ? '<div class="goalbar' + (feverOn() ? ' fever' : '') + '" aria-live="polite">' + h + '</div>' : '';
   }
@@ -2223,7 +2782,7 @@
     fever: { label: 'FEVER', music: 'fever' }
   };
   function sceneOf() {
-    if (DEMO || !S) return null;
+    if (!S) return null; // Demo round 5: the demo gets the scenery and music too
     if (S.screen === 'results' || S.screen === 'home' || S.screen === 'title') return null;
     if (feverOn()) return 'fever';
     var st = S.stop;
@@ -2252,12 +2811,15 @@
   function render() {
     if (S && !DEMO) { feverCheck(); goalTime(); }
     renderScreen(); animCash();
+    placeNextStep();
   }
   function renderScreen() {
     var sc = applyScene();
     music(sc ? SCENES[sc].music : !S || S.screen === 'title' ? 'title' : S.screen === 'walk' ? 'swap' : 'title', true);
     tempo(sc ? paceMult() : 1);
+    if (NP.Sound && NP.Sound.ambience) NP.Sound.ambience(S && S.screen === 'walk' && S.stop && (S.stop.type === 'flea' || S.stop.type === 'expo') ? 'crowd' : null);
     if (S && S.season && (S.screen === 'map' || S.screen === 'stop' || S.screen === 'walk' || S.screen === 'home')) saveSoon();
+    if (DEMO && S) { if (S.screen === 'home' || S.screen === 'results') demoClear(); else demoSave(); }
     if (!S || S.screen === 'title') return renderTitle();
     if (S.screen === 'map') return renderMap();
     if (S.screen === 'walk') return NP.Walk ? NP.Walk.render(app, hud()) : renderStop();
@@ -2285,7 +2847,7 @@
     if (S.screen === 'walk' && S.stop) return 'You are at <b>' + esc(S.stop.name) + '</b>. ' + (S.stop.type === 'expo' ? 'The doors out are at the bottom. Closes at 5:30 PM.' : 'The exit is the gate at the bottom.');
     var r = planRoute(), n = r[0];
     if (S.screen === 'stop' && S.stop) {
-      return n ? 'Next stop: <b>' + esc(n.name) + '</b> &middot; ' + costOf(n) + ' min drive' : 'No time for another stop after this one. Head home after.';
+      return n ? 'Next stop: <b>' + esc(n.name) + '</b> &middot; ' + costOf(n) + ' min drive' + (DEMO && n.type === 'flea' ? ' &middot; ' + esc(NP.DEMO_WANT_TEXT.nextTease) : '') : 'No time for another stop after this one. Head home after.';
     }
     return n ? 'Next stop: <b>' + esc(n.name) + '</b> &middot; ' + costOf(n) + ' min &middot; home by ' + endLabel() : 'No time for another stop. Head home and shelve it.';
   }
@@ -2294,7 +2856,7 @@
     var h = '<div class="hud"><div class="hud-l"><span class="clock">' + fmtTime(Math.min(S.time, endT())) + '</span>' +
       (S.wx ? '<span class="wx wx-' + S.wx.id + '" title="' + esc(S.wx.name) + '">' + S.wx.icon + ' ' + S.wx.temp + '&deg;F</span>' : '') +
       '<span class="cash"><span class="cashn">' + money(S.cash) + '</span>' + (creditHere() ? ' <small class="credit">+' + money(creditHere()) + ' credit</small>' : '') + '</span><span class="bagc">Bag: ' + S.bag.length + '</span></div>' +
-      '<div class="hud-r">' + soundButton() + fsButton() + tipsButton() + '<label class="adtoggle"><input type="checkbox" data-act="adfree"' + (adFree ? ' checked' : '') + '> Ad-Free<span class="ad-long"> Edition</span></label></div></div>' +
+      '<div class="hud-r">' + soundButton() + setButton() + '</div></div>' +
       '<div class="sunbar" title="Daylight left"><div style="width:' + sunPct() + '%"></div><span>' + sunText() + '</span></div>' +
       '<div class="nextbar">' + nextLine() + '</div>' + goalBar();
     var lvl = adLevel();
@@ -2310,19 +2872,21 @@
   var cartOpen = false;
   function cartHTML() {
     if (!DEMO) return cartFull();
+    var dsv = readDemoSave();
     return '<div class="cart-label"><div class="cart-brand">NOSTALGIA PRO</div><div class="cart-sub">' + (DEMO ? 'THE DEMO' : 'THE GAME') + ' &middot; SELECT A MODE</div>' +
+      (dsv ? '<button class="cart-item mode" data-act="democontinue">CONTINUE <small>your Saturday, ' + esc(fmtTime(dsv.run.time)) + '</small></button>' : '') +
       '<button class="cart-item mode" data-act="start" data-mode="noon">BACK BY NOON <small>' + (DEMO ? 'the demo' : 'short run') + '</small></button>' +
       (DEMO ? '<button class="cart-item mode" disabled aria-disabled="true">HOME BY SUNDOWN <small>full version</small></button>'
         : '<button class="cart-item mode" data-act="start" data-mode="sundown">HOME BY SUNDOWN <small>the whole day</small></button>') +
-      (DEMO ? '<button class="cart-item" disabled aria-disabled="true">FREE PLAY <small>full version</small></button>'
-        : '<button class="cart-item" data-act="start" data-free="1" data-mode="' + esc(store.get('mode', 'sundown')) + '">FREE PLAY <small>random Saturday, ' + (store.get('mode', 'sundown') === 'noon' ? 'back by noon' : 'home by sundown') + '</small></button>') +
+      (DEMO ? '<button class="cart-item" disabled aria-disabled="true">RANDOM SATURDAY <small>full version</small></button>'
+        : '<button class="cart-item" data-act="start" data-free="1" data-mode="' + esc(store.get('mode', 'sundown')) + '">RANDOM SATURDAY <small>a new one every time, ' + (store.get('mode', 'sundown') === 'noon' ? 'back by noon' : 'home by sundown') + '</small></button>') +
       '<button class="cart-item" disabled aria-disabled="true">2 COLLECTORS <small>sold separately</small></button>' +
       (DEMO ? '<button class="cart-item" disabled aria-disabled="true">HOME SHELF <small>full version</small></button>'
         : '<button class="cart-item" data-act="shelf">HOME SHELF</button>') +
       '<button class="cart-item" data-act="howto">HOW TO PLAY</button>' +
       (NP.Creator ? '<button class="cart-item" data-act="look">' + (hasLook() ? 'CHANGE YOUR LOOK' : 'MAKE YOUR CHARACTER') + '</button>' : '') +
       (feedbackOk() ? '<a class="cart-item small" href="' + esc(CFG.FEEDBACK_URL) + '" target="_blank" rel="noopener" data-track="feedback_open">TELL US WHAT YOU THINK</a>' : '') +
-      '</div><div class="cart-foot"><label class="adtoggle"><input type="checkbox" data-act="adfree"' + (adFree ? ' checked' : '') + '> Ad-Free Edition</label>' + soundButton() + fsButton() +
+      '</div><div class="cart-foot"><label class="adtoggle"><input type="checkbox" data-act="adfree"' + (adFree ? ' checked' : '') + '> Ad-Less Edition</label>' + soundButton() + fsButton() + setButton() +
       '<span class="cart-fine">MADE IN A GARAGE &middot; NOT FOR RESALE</span></div>';
   }
   // the full game's menu: the season first (Continue, New game), then the one-day runs
@@ -2333,15 +2897,22 @@
       cont +
       '<button class="cart-item mode" data-act="newgame">NEW GAME <small>12 Saturdays</small></button>' +
       '<button class="cart-item mode" data-act="start" data-mode="noon">BACK BY NOON <small>today\'s quick run</small></button>' +
-      '<button class="cart-item" data-act="start" data-free="1" data-mode="sundown">FREE PLAY <small>one random Saturday</small></button>' +
+      '<button class="cart-item" data-act="start" data-free="1" data-mode="sundown">RANDOM SATURDAY <small>a new one every time</small></button>' +
       '<button class="cart-item" disabled aria-disabled="true">2 COLLECTORS <small>sold separately</small></button>' +
       '<button class="cart-item" data-act="shelf">HOME SHELF</button>' +
       '<button class="cart-item" data-act="howto">HOW TO PLAY</button>' +
+      fxButton() +
       (NP.Creator ? '<button class="cart-item" data-act="look">' + (hasLook() ? 'CHANGE YOUR LOOK' : 'MAKE YOUR CHARACTER') + '</button>' : '') +
       (feedbackOk() ? '<a class="cart-item small" href="' + esc(CFG.FEEDBACK_URL) + '" target="_blank" rel="noopener" data-track="feedback_open">TELL US WHAT YOU THINK</a>' : '') +
-      '</div><div class="cart-foot"><label class="adtoggle"><input type="checkbox" data-act="adfree"' + (adFree ? ' checked' : '') + '> Ad-Free Edition</label>' + soundButton() + fsButton() +
+      '</div><div class="cart-foot"><label class="adtoggle"><input type="checkbox" data-act="adfree"' + (adFree ? ' checked' : '') + '> Ad-Less Edition</label>' + soundButton() + fsButton() + setButton() +
       '<span class="cart-fine">MADE IN A GARAGE &middot; NOT FOR RESALE</span></div>';
   }
+  // Round 5: the settings toggle for screen shake, flashes and bouncing numbers
+  function fxButton() {
+    var on = !!store.get('calmFx', false);
+    return '<button class="cart-item fxbtn" data-act="calmfx" aria-pressed="' + on + '">EFFECTS: ' + (on ? 'CALM' : 'FULL') + ' <small>' + (on ? 'no shake or flashes' : 'shake, flashes, bounce') + '</small></button>';
+  }
+  function applyFx() { try { document.body.classList.toggle('calmfx', !!store.get('calmFx', false)); } catch (e) {} }
   // the season, under the menu: where you are, or a friendly note if the save could not be read
   function seasonBox() {
     if (DEMO) return '';
@@ -2418,7 +2989,7 @@
       '<details class="howto"><summary><b>How it works</b></summary><ul>' +
       (DEMO ? '<li>Back by noon. Each stop costs time. The big Drive button always takes you to the next one.</li>'
         : '<li>New game is a season: 12 Saturdays, home by sundown each time. You work all week, Friday is payday, and your money and shelf carry over. It saves itself.</li>' +
-          '<li>Back by noon is today\'s quick run. Free Play is one random Saturday.</li><li>Each stop costs daylight. The big Drive button always takes you to the next one.</li>') +
+          '<li>Back by noon is today\'s quick run. Random Saturday is a new Saturday every time.</li><li>Each stop costs daylight. The big Drive button always takes you to the next one.</li>') +
       '<li>Make an offer: lowball, fair or full price. Sellers have opinions.</li>' +
       (DEMO ? '' : '<li>Sell or trade in games from your bag at thrift stores, the pawn shop and swap meet tables. Ask for more if you dare.</li>' +
         '<li>Rivals: Dex every Saturday, plus two or three of Brayden, Phone Guy Phil, Brody, Gary and Slab Steve. Each one changes one rule. The morning forecast says who is out.</li>' +
@@ -2434,8 +3005,9 @@
       (todayN ? '<div class="scores">Today, back by noon: <b>' + todayN.score + '</b> (' + esc(todayN.title) + ')</div>' : '') +
       (best ? '<div class="scores">Best ever' + (DEMO ? '' : ', home by sundown') + ': <b>' + best.score + '</b></div>' : '') +
       (bestN ? '<div class="scores">Best ever, back by noon: <b>' + bestN.score + '</b></div>' : '') +
-      (home.length && !DEMO ? '<div class="scores">Home shelf: ' + home.length + ' finds</div>' : '') +
+      (home.length && !DEMO ? '<div class="scores">Home shelf: ' + pl(home.length, 'find') + '</div>' : '') +
       (!DEMO && (store.get('finds', 0) || Object.keys(magnets()).length) ? '<div class="scores rankline">' + rankLine() + '</div>' : '') +
+      (!DEMO ? '<div class="scores visitline">' + esc(visitLine()) + '</div>' : '') +
       (DEMO ? fullGameLine() : '') +
       (!store.ok ? '<div class="savewarn">This browser is not letting the game save. Everything still plays, but your progress will be gone when you close the page.</div>' : '') +
       '<div class="foot">A parody. Every game, console, store and company in here is made up.</div>' +
@@ -2468,7 +3040,7 @@
       byDay[r.d].unshift(r);
     }
     var h = '<div class="screen shelfscr"><h2>&#127968; Your Home Shelf</h2>' +
-      '<div class="shelfnote">' + home.length + ' finds from ' + days.length + ' Saturday' + (days.length === 1 ? '' : 's') + '. Only your first run each day goes on the shelf. Replays are just for fun.</div>';
+      '<div class="shelfnote">' + pl(home.length, 'find') + ' from ' + days.length + ' Saturday' + (days.length === 1 ? '' : 's') + '. Only your first run each day goes on the shelf. Replays are just for fun.</div>';
     if (!DEMO && homeAll.length) {
       var cnt = { all: homeAll.length, games: 0, music: 0, movies: 0 };
       homeAll.forEach(function (rec) { cnt[hsGroup(rec)]++; });
@@ -2507,6 +3079,7 @@
       '<div class="howto-grid"><div class="todo"><div class="todo-h">Saturday to-do</div><ul>' +
       (NP.GOALS ? NP.GOALS(DEMO ? 'noon' : store.get('mode', 'noon')) : []).map(function (g, i, a) { return '<li' + (i === a.length - 1 ? ' class="dex"' : '') + '>' + esc(g) + '</li>'; }).join('') + '</ul></div>' +
       '<ul class="howto-tips">' +
+      (DEMO ? '' : '<li><b>Effects.</b> Screen shake, flashes and bouncing numbers can be turned down. ' + fxButton() + '</li>') +
       (DEMO ? '' : '<li><b>Two ways to play.</b> Back by noon is a short run that ends at 12:00 PM. Home by sundown is the whole Saturday, till 5:30 PM.</li>') +
       '<li><b>Getting around.</b> The big Drive button takes you to the next stop on today\'s route. Driving costs daylight. ' + (touch ? 'At the swap meet, tap where you want to go (tap a table to shop it), or use the pad.' : 'At the swap meet, click where you want to go (click a table to shop it), or walk with the arrow keys or WASD and press Space at a table.') + '</li>';
     ['offers', 'pricey', 'dupe', 'dex', 'broke'].forEach(function (k) {
@@ -2553,6 +3126,9 @@
       h += '<div class="rc-none">No time for another stop. Time to go home and shelve it.</div><button class="big drive" data-act="gohome">Head home and shelve it &#9654;</button>';
     }
     if (broke) h += '<div class="rc-broke">Out of cash? Sell or trade in games from your bag at a thrift store, the pawn shop or a swap meet table. Cash you do not spend is worth points too.</div>';
+    h += dailyTipHTML();
+    var fl = DEMO ? S.day.stops.filter(function (x) { return x.type === 'flea' && !x.visited; })[0] : null;
+    if (fl) h += '<div class="rc-tease"><b>&#9733; ' + esc(fl.name) + '.</b> ' + esc(NP.DEMO_WANT_TEXT.tease) + '</div>';
     if (S.day.theme && S.history.length === 0) h += '<div class="rc-theme"><b>' + esc(S.day.theme.name) + '.</b> ' + esc(S.day.theme.line) + '</div>';
     if (S.day.rivals && S.day.rivals.length) h += '<div class="rc-spotted"><b>Spotted today:</b> ' + esc(spottedText()) + '</div>';
     if (S.season && S.week === NP.SEASON.weeks && S.history.length === 0) h += '<div class="rc-final">' + esc(NP.FINALE_NOTE) + '</div>';
@@ -2583,6 +3159,8 @@
     mapIdle();
     var h = hud() + '<div class="screen map"><h2>Where to next?</h2>';
     if (S.toast) { h += '<div class="toast">' + esc(S.toast) + '</div>'; S.toast = ''; }
+    if (DEMO) h += '<div id="townmap"></div><div class="tm-note" aria-live="polite">' + esc(NP.DEMO5.mapNote) + '</div>' +
+      (NP.TVAds ? '<button class="tvbreak" data-act="tv" data-where="map"><span class="tvb-ico" aria-hidden="true"></span>' + esc(NP.DEMO5.tvBreak) + '</button>' : '');
     h += routeCard();
     if (S.wx && S.wx.id !== 'sunny' && S.time === START) h += '<div class="wxnote wx-' + S.wx.id + '">' + S.wx.icon + ' ' + S.wx.temp + '&deg;F. ' + esc(S.wx.blurb) + sponsorLine(S.wx, true) + '</div>';
     if (DEMO) h += '<div class="demonote">DEMO SATURDAY: three stops are open. The demo ends when you leave the Saguaro Swap Meet.</div>';
@@ -2621,6 +3199,7 @@
       if (s.rumor && !s.visited) h += '<div class="rumor">' + NP.RIVAL.name + '\'s van was spotted heading here around ' + fmtTime(s.rivalAt) + '.</div>';
       var others = rivalsAt(s).filter(function (id) { return id !== 'dex'; });
       if (others.length && !s.visited) h += '<div class="rivchips">' + others.map(function (id) { return '<span class="rivchip">' + esc(rivalName(id)) + ' is here</span>'; }).join('') + '</div>';
+      if (DEMO && s.type === 'flea' && !s.visited) h += '<div class="featured rare">&#9733; ' + esc(NP.DEMO_WANT_TEXT.rareTag) + '</div>';
       if (s.demoRaid && !s.visited) h += '<div class="rumor">' + NP.RIVAL.name + '\'s van is headed here too. He will show up right after you do.</div>';
       if (s.visited) h += '<div class="st-done">Visited</div>';
       else if (tooLate) h += '<div class="st-done">Not enough daylight</div>';
@@ -2629,6 +3208,7 @@
     });
     h += '</div><button class="big home" data-act="gohome">Head home and shelve it</button></div>';
     app.innerHTML = h;
+    if (DEMO) mountTown();
   }
 
   // a billboard on the drive, now and then (never in the walkable swap meet, never on top of a haggle)
@@ -2661,6 +3241,9 @@
     if (it.featured) n.push(DEMO ? 'The featured lot. In the full version, there is a new one every day.' : 'Today\'s featured lot. Everyone playing today sees this exact box.');
     if (it.planted && !it.inspected) n.push('Complete in box for that price? That seems very generous.');
     if (it.kind === 'merch') n.push('Official Nostalgia Pro merch. Worth nothing. Costs something.');
+    if (it.kind === 'mbox') n.push(it.opened ? 'You opened it. Inside: ' + it.inside + '.' : mboxOddsText());
+    if (it.flaw && (it.inspected || it.state !== 'avail')) n.push(NP.FLAW.tag + '. ' + NP.FLAW.note.replace('{f}', it.flaw));
+    if (it.dailyTip && it.state === 'avail') n.push('This is the one from the daily tip.');
     // Round 3b
     if ((it.kind === 'music' || it.kind === 'movie') && NP.itemInfo) { var mb = NP.itemInfo(it).box; if (mb) n.push('Back of the ' + (it.kind === 'music' ? 'sleeve' : 'box') + ': "' + mb + '"'); }
     gagNotes(it).forEach(function (x) { n.push(x); });
@@ -2681,6 +3264,7 @@
     if (it.mistag && it.state === 'avail') n.push('The price gun slipped. It says $1.');
     if (it.kind === 'grail' && it.id === 'npx') n.push('The Expo prototype. Counts double, like everything here.');
     if (it.special) n.push('"That\'s the \'97. The good one."');
+    if (it.early && it.state === 'avail') n.push(NP.DEMO_WANT_TEXT.early);
     if (it.inspected && isMedia(it) && !(it.gag && NP.MEDIA_GAGS[it.gag].hidden)) n.push(it.gag === 'eaten' && !it.fixed ? 'It will not play like this. Somebody needs a pencil.' : it.kind === 'music' ? 'Plays fine. Sleeve and all.' : 'Plays fine. The tracking is close enough.');
     if (it.inspected && !isMedia(it)) {
       var f = it.flags, said = false;
@@ -2700,6 +3284,7 @@
 
   function condLabel(it) {
     if (it.kind === 'lot') return 'Blind lot';
+    if (it.kind === 'mbox') return 'Mystery box';
     if (it.kind === 'merch') return 'Merch';
     if (it.kind === 'grail') return 'Complete in box';
     if (it.kind === 'music' || it.kind === 'movie') return NP.FORMATS[it.fmt] || 'Used';
@@ -2720,7 +3305,10 @@
   function tagHTML(it, repro) {
     if (!NP.itemInfo) return '';
     var inf = NP.itemInfo(it, { repro: repro });
-    return '<div class="it-d"><span class="tag t-' + inf.tag + '">' + esc(inf.label) + '</span> ' + esc(inf.d) + '</div>';
+    // the demo keeps it to the first sentence (no reading walls); the rest is one tap away
+    var dd = inf.d || '', cut = DEMO ? dd.search(/[.!?]\s/) : -1;
+    if (cut > 0 && cut < dd.length - 2) return '<div class="it-d"><span class="tag t-' + inf.tag + '">' + esc(inf.label) + '</span> ' + esc(dd.slice(0, cut + 1)) + ' <details class="more"><summary>More</summary>' + esc(dd.slice(cut + 2)) + '</details></div>';
+    return '<div class="it-d"><span class="tag t-' + inf.tag + '">' + esc(inf.label) + '</span> ' + esc(dd) + '</div>';
   }
   function tagPill(it, repro) {
     if (!NP.itemInfo) return '';
@@ -2750,6 +3338,11 @@
       if (steveHold(it)) {
         var sp = Math.round(it.ask * 1.2);
         h += '<button class="offer full steve" data-act="offer" data-kind="steve" data-uid="' + it.uid + '"' + (sp > S.cash + creditHere() ? ' disabled' : '') + '>Take it off hold ' + money(sp) + ' (+20%)</button>';
+      } else if (it.counter && it.counter < it.ask) {
+        h += '<button class="offer full counter" data-act="offer" data-kind="counter" data-uid="' + it.uid + '"' + (it.counter > S.cash + creditHere() ? ' disabled' : '') + '>' + esc(NP.DEMO5.counterBtn.replace('{$}', money(it.counter))) + '</button>';
+        offers(it).forEach(function (o) { if (o[0] === 'full') h += '<button class="offer full" data-act="offer" data-kind="full" data-uid="' + it.uid + '"' + (o[2] > S.cash + creditHere() ? ' disabled' : '') + '>' + o[1] + ' ' + money(o[2]) + '</button>'; });
+      } else if (it.kind === 'mbox') {
+        h += '<button class="offer full" data-act="offer" data-kind="full" data-uid="' + it.uid + '"' + (it.ask > S.cash + creditHere() ? ' disabled' : '') + '>' + esc(NP.MBOX.btn) + '</button>';
       } else offers(it).forEach(function (o) {
         if (o[0] === 'lowball' && rivalHere('gary')) { h += '<button class="offer lowball" disabled aria-disabled="true">Gary already tried that</button>'; return; }
         h += '<button class="offer ' + o[0] + '" data-act="offer" data-kind="' + o[0] + '" data-uid="' + it.uid + '"' + (o[2] > S.cash + creditHere() ? ' disabled' : '') + '>' + o[1] + ' ' + money(o[2]) + '</button>';
@@ -2773,7 +3366,7 @@
     var s = S.stop;
     var seller = NP.SELLERS[s.seller];
     if (s.reseller && !s.resold && (s.acts || 0) >= 2) doResell(s);
-    var h = hud() + '<div class="screen stop st-' + s.type + '">' + sceneStrip() + '<h2>' + stopIcon(s.type) + ' ' + esc(s.name) + '</h2>' + signHTML(s);
+    var h = hud() + '<div class="screen stop st-' + s.type + '">' + sceneStrip() + (DEMO && s.type === 'yard' && NP.drawYardBanner ? '<canvas class="yardban" width="240" height="64" aria-hidden="true"></canvas>' : '') + '<h2>' + stopIcon(s.type) + ' ' + esc(s.name) + '</h2>' + signHTML(s);
     if (s.cleared) h += '<div class="rival">' + NP.RIVAL.name + ' from ' + NP.RIVAL.shop + ' beat you here. He took the good stuff and set up a table out front.</div>';
     var refuse = s.cola && NP.SPONSOR && NP.SPONSOR.refuse ? NP.SPONSOR.refuse[s.seller] : null;
     if (seller && refuse) {
@@ -2782,11 +3375,12 @@
         '<div class="glam"><canvas class="glamcan" width="22" height="30" aria-label="A can of ' + esc(NP.SPONSOR.name) + '"></canvas><div class="glam-t">' + esc(refuse[1]) + '</div></div>';
     } else if (seller && s.hello) h += '<div class="bubble big">' + esc(seller.name) + ': "' + esc(s.hello) + '"</div>';
     if (s.type === 'flea') h += '<div class="bubble big">Different vendor at every table. Some of them know what they got.</div>';
+    h += cameoBox(s);
     h += rivalNotes(s);
     // Round 3b: what is going on at this store today
     h += eventBox(s) + storyBox(s) + caseBox(s) + palBox(s) + recordBox(s) + rentalBox(s) + bundleBox(s) + clubBox(s);
     if (s.reseller && s.resold) h += '<div class="story">' + trueTag(NP.STORIES.reseller) + '<div class="story-h">' + esc(NP.STORIES.reseller.title) + '</div><div class="story-t">' + esc(NP.STORIES.reseller.line) + '</div></div>';
-    if (adLevel() >= 2) h += '<div class="poster">' + (adFree ? 'POSTER: The Ad-Free Edition. No posters. (Except this one.)' : 'POSTER: Nostalgia Pro: The Shelf Dust. Now in Sealed. Gift Shop open till ' + endLabel() + '.') + '</div>';
+    if (adLevel() >= 2) h += '<div class="poster">' + (adFree ? 'POSTER: The Ad-Less Edition. No posters. (Except this one.)' : 'POSTER: Nostalgia Pro: The Shelf Dust. Now in Sealed. Gift Shop open till ' + endLabel() + '.') + '</div>';
     if (S.toast) { h += '<div class="toast">' + esc(S.toast) + '</div>'; S.toast = ''; }
     var buys = blockedHere(s) ? null : buyerFor(s);
     if (buys) h += '<div class="sellhint">This stop buys ' + (NP.BUYERS[buys].media ? 'games, music and movies' : 'games') + ' too. <button class="linkish" data-act="jumpsell">Sell or trade in &#8595;</button></div>';
@@ -2811,6 +3405,7 @@
       h += '</div>';
     }
     if (buys) h += sellHTML(s);
+    if (DEMO && s.type === 'yard' && NP.TVAds) h += '<div class="tvset"><span class="tvb-ico" aria-hidden="true"></span><span>' + esc(NP.DEMO5.yardTV) + '</span><button data-act="tv" data-where="yard">' + esc(NP.DEMO5.tvBtn) + '</button></div>';
     h += '<div class="stop-actions">';
     if (s.dig.length && !s.dug && storyGate(s) !== 'hide') h += '<button data-act="dig">' + (s.type === 'sports' ? 'Dig deeper into the football bin' : s.digLabel || 'Dig through the back boxes') + ' (15 min)</button>';
     h += leaveButtons() + '</div></div>';
@@ -2821,6 +3416,14 @@
     var lc = document.querySelector('.laughcv');
     if (lc && NP.Scene) { if (s.laughNow) { s.laughNow = false; NP.Scene.laugh(lc, getLook()); } else NP.Scene.laugh(lc, getLook(), true); }
     if (refuse) drawGlamCan();
+    drawCameos();
+    var yb = document.querySelector('.yardban');
+    if (yb) {
+      var t0 = performance.now(), sky = skyOf();
+      NP.drawYardBanner(yb, s.id + S.seed, sky, 0);
+      // the balloons bob a little (stops when the banner is gone, and with calm effects)
+      if (!calm()) (function tick() { if (!document.body.contains(yb)) return; NP.drawYardBanner(yb, s.id + S.seed, sky, (performance.now() - t0) / 1000); setTimeout(function () { requestAnimationFrame(tick); }, 66); })();
+    }
     if (buys) soonCheckTips();
   }
 
@@ -2859,7 +3462,7 @@
   // shared by the Gift Shop stop and the booth inside the swap meet
   function giftHTML(booth) {
     var h = '<div class="bubble big">' + (booth ? 'Welcome to our Swap Meet Location! Same official merch, same zero shelf value, now closer to the churros.' : 'Welcome! Everything here is official, overpriced, and worth zero on your shelf. Enjoy!') + '</div>' +
-      '<div class="giftnote">Prices go up as the day goes on. Each purchase costs you 10 points. ' + (adFree ? 'Ad-Free Edition owners pay the same, plus a small Ad-Free fee of $0.' : '') + '</div>';
+      '<div class="giftnote">Prices go up as the day goes on. Each purchase costs you 10 points. ' + (adFree ? 'Ad-Less Edition owners pay the same, plus a small Ad-Less fee of $0.' : '') + '</div>';
     h += '<div class="items">';
     NP.MERCH.forEach(function (m) {
       var p = giftPrice(m);
@@ -2910,6 +3513,22 @@
     var whole = Math.floor(t + 1e-9);
     S.tfrac = t - whole;
     S.time += whole;
+    progressClock();
+  }
+  // anonymous progress counts: each stop entered and left, and each hour of the game clock reached (progress_0800 ...)
+  function progress(kind, s) {
+    if (!S || !s) return;
+    track('progress_' + kind + '_' + s.type);
+    progressClock();
+  }
+  function progressClock() {
+    if (!S) return;
+    S.progH = S.progH || {};
+    for (var h = Math.floor(START / 60) + 1; h <= Math.min(Math.floor(S.time / 60), Math.floor(endT() / 60)); h++) {
+      if (S.progH[h]) continue;
+      S.progH[h] = 1;
+      track('progress_' + (h < 10 ? '0' : '') + h + '00');
+    }
   }
   function outOfTime() { return S.time >= endT(); }
 
@@ -2929,6 +3548,7 @@
   }
 
   function arrive(s) {
+    if (DEMO) dropUndo();
     S.time += costOf(s); // the drive, same minutes the map card showed
     s.visited = true;
     S.history.push(s.id);
@@ -2945,20 +3565,22 @@
     }
     // demo: Dex always shows up a few minutes after you do (walk.js also brings him in after 45 real seconds)
     if (DEMO && s.demoRaid) s.rivalAt = S.time + 12;
+    maybeCameo(s);
     track('stop_' + s.type + '_enter');
     if (s.type === 'flea') track('swapmeet_enter');
     // Round 3b
     if (s.type === 'mall' && s.scene === 'uturn') { spend(5); S.ev.uturn = true; track('mall_uturn'); }
     // Round 3c replay pack: the clock for quick finds, goal progress, a surprise now and then, a new goal now and then
-    // Grok Bot r3c1 fix: wait for the Expo doors (and pay) before a want list entry starts, so its clock does not run in the line
-    if (s.type === 'expo') expoArrive(s);
     S.stopArrive = S.time;
-    if (!DEMO) { goalTick('stop'); maybeEvent(s); maybeGoal(); }
+    if (!DEMO) { goalTick('stop'); maybeEvent(s); maybeGoal(); nearMissGrab(s); }
+    else demoGoal();
+    progress('enter', s);
     if (s.type === 'pal') palArrive(s);
     if (s.type === 'record' && s.seller === 'chill') { K().punch++; saveK(); }
     if (s.story) track('story_' + s.story);
     if (s.moment) track('moment_' + s.moment);
     // the swap meet is walkable
+    if (s.type === 'expo') expoArrive(s);
     if ((s.type === 'flea' || s.type === 'expo') && NP.Walk && NP.Char) {
       S.screen = 'walk';
       NP.Walk.enter(s);
@@ -3024,15 +3646,17 @@
     if (!it || it.state !== 'avail' || blockedHere()) return;
     braydenCheck(it.uid);
     if (kind === 'lowball' && rivalHere('gary')) return;
-    var o = kind === 'steve' ? ['steve', 'Off hold', Math.round(it.ask * 1.2)] : offers(it).filter(function (x) { return x[0] === kind; })[0];
+    var o = kind === 'steve' ? ['steve', 'Off hold', Math.round(it.ask * 1.2)] : kind === 'counter' && it.counter ? ['counter', 'Deal', it.counter] : offers(it).filter(function (x) { return x[0] === kind; })[0];
     if (!o) return;
     var price = o[2];
     if (price > S.cash + creditHere()) return;
+    snapForUndo('buy', it.t);
     actCost(T_HAGGLE);
     if (kind === 'steve') { kind = 'full'; rivalHit('steve'); }
     var sl = NP.SELLERS[it.seller] || {};
     var frac = price / it.ask;
-    if (frac + 1e-6 >= it.minFrac || kind === 'full' || (kind === 'fair' && feverOn())) {
+    if (frac + 1e-6 >= it.minFrac || kind === 'full' || kind === 'counter' || (kind === 'fair' && feverOn())) {
+      if (kind === 'counter') { it.counter = null; track('counter_taken'); }
       var cr = payFor(price);
       it.line = sellerLine(it, 'yes') + (cr ? ' (' + money(cr) + ' of that was your store credit.)' : '');
       takeItem(it, price, kind);
@@ -3040,13 +3664,22 @@
       cheerBuy(it, price);
       if (!DEMO) {
         goalTick('land');
-        if (price < it.ask) { goalTick('haggle'); comboUp(1); }
+        if (price < it.ask) goalTick('haggle');
+        goodBuy(it, price);
         goalTick('buy', it, { price: price, offer: kind });
         quickFind();
         if (it.ultra) { comboUp(2); magnet('ultra'); track('ultra_bought'); }
         if (isMedia(it)) { revealGag(it, 'buy'); S.mediaN = (S.mediaN || 0) + 1; if (S.mediaN >= 5) magnet('crate'); }
-      }
-    } else if (kind === 'lowball' && sl.touchy) {
+        if (it.dailyTip) { bonus('Daily tip', 15); magnet('tip'); celebrate('good', NP.DAILY_TIP.paid); track('daily_tip_bought'); }
+        // Round 5: the reveal (the mystery box opens instead)
+        if (it.kind === 'mbox') openMbox(it, price);
+        else if (it.kind === 'game' || it.kind === 'grail' || isMedia(it)) {
+          var fl = it.flaw ? NP.FLAW.note.replace('{f}', it.flaw) : '';
+          reveal(it, { label: (it.flaw ? NP.FLAW.tag + ' · ' : '') + NP.RARITY[rarityOf(it)].label, line: fl || (it.kind === 'grail' ? 'Worth 100 points on the shelf. You paid ' + money(price) + '.' : estValue(it) > 0 ? 'Worth about ' + money(Math.round(estValue(it))) + '. You paid ' + money(price) + '.' : '') });
+          if (it.flaw) track('near_miss_flaw');
+        }
+      } else { goalTick('buy', it, { price: price, offer: kind }); demoJuice(it, price); setTimeout(offerUndo, 50); }
+    } else if (kind === 'lowball' && sl.touchy && !DEMO) {
       S.streak = 0;
       it.state = 'pulled'; it.line = S.rem.ikwig && S.rem.ikwig.mad ? 'AGAIN? Unbelievable. Off the table. I will remember this too.' : sl.mad[0]; S.ev.offended++;
       remember('ikwig', 'mad');
@@ -3056,6 +3689,8 @@
       S.streak = 0;
       if (!DEMO) { goalTick('miss'); comboBreak(); }
       it.line = sellerLine(it, 'no');
+      // the demo: the seller meets you partway, so a miss is never a dead end
+      if (DEMO) { var cm = Math.round(Math.max(it.minFrac * it.ask, (price + it.ask) / 2)); if (cm >= it.ask) cm = it.ask - 1; if (cm > price) { it.counter = cm; it.line += ' ' + NP.DEMO5.counter.replace('{$}', money(cm)); track('counter_offered'); var cuid = it.uid; setTimeout(function () { var cb = document.querySelector('#card-' + cuid + ' .counter'); if (cb && S && S.screen === 'stop') showTip('counter', { el: cb, below: true }); }, 250); } }
       if (rivalHere('brayden')) S.stop.bfocus = it.uid; // you showed interest; Brayden noticed
       sfx('reject');
     }
@@ -3151,6 +3786,7 @@
     var q = sellQ(b, bt), B = NP.BUYERS[bt];
     if (q.state === 'mad') return;
     braydenCheck(null);
+    snapForUndo('sell', b.t);
     actCost(T_SELL);
     var amt = how === 'trade' ? tradeVal(q) : q.offer;
     S.bag = S.bag.filter(function (x) { return x !== b; });
@@ -3176,6 +3812,7 @@
     if (profit > 0) goalTick('sell');
     if (profit >= 5) celebrate('good', 'Sold for ' + money(profit) + ' more than you paid.');
     step('first_sale'); step('f09_sell_' + S.history.length + '_' + S.stop.type);
+    if (DEMO) setTimeout(offerUndo, 50);
     track('sold_' + S.stop.type + '_' + how);
     if (!checkSundown()) render();
   }
@@ -3260,11 +3897,14 @@
     tipEl.style.top = Math.round(Math.max(minT, Math.min(maxT, top))) + 'px';
     tipEl.classList.toggle('below', below);
   }
+  var bannerUntil = 0; // a want list banner is up: a tip waits until it is done, so the win is not covered
   function showTip(key, anchor) {
     var T = NP.TIPS && NP.TIPS[key];
     if (!T || tipsOff) return false;
     var seen = tipsSeen();
     if (seen[key]) return false;
+    var wait = bannerUntil - Date.now();
+    if (wait > 0) { setTimeout(function () { if (S && (S.screen === 'stop' || S.screen === 'map')) showTip(key, anchor && anchor.el && document.body.contains(anchor.el) ? anchor : null); }, wait + 100); return false; }
     if (tipEl) { if (tipQueue.indexOf(key) < 0) tipQueue.push(key); return false; }
     seen[key] = true; store.set('tips', seen);
     tipAnchor = anchor || null;
@@ -3358,8 +3998,9 @@
 
   // via: 'next' (the big Next stop button), 'map' (back to the map), 'home' (straight home)
   function leaveStop(via, nextId) {
+    if (DEMO) dropUndo();
     var wasDemoEnd = DEMO && S.stop && S.stop.type === 'flea';
-    if (S.stop) step('f08_leave_' + S.history.length + '_' + S.stop.type + '_' + (via || 'map'));
+    if (S.stop) { step('f08_leave_' + S.history.length + '_' + S.stop.type + '_' + (via || 'map')); progress('leave', S.stop); }
     if (S.stop) { braydenCheck(null); if (S.toast) S.toast = S.toast.replace('You moved on, so', 'On your way out,'); if (!DEMO) goalTick('leave', null, S.stop); }
     if (S.stop && S.stop.type === 'pal') { S.toast = (S.toast ? S.toast + ' ' : '') + 'You, on the way out: "' + NP.PAL.leave + '" ' + NP.PAL.leaveReply; track('pal_leave_line'); }
     var left = creditHere();
@@ -3384,9 +4025,38 @@
   }
 
   // the drive: a loading screen with a tip (that is also an ad), then you are there
+  var townCtl = null;
+  function townStops() {
+    var fl = S.day.stops.filter(function (x) { return x.type === 'flea'; })[0], nx = planRoute()[0];
+    return S.day.stops.filter(function (x) { return !x.xban; }).map(function (x) {
+      return { id: x.id, type: x.type, name: x.name, short: x.locked ? (NP.DEMO5.short[x.type] || 'CLOSED') : NP.DEMO5.short[x.type] || x.type.toUpperCase(),
+        locked: !!x.locked, visited: !!x.visited, next: !!(nx && nx.id === x.id), rare: x === fl };
+    });
+  }
+  function mountTown() {
+    var box = document.getElementById('townmap'); if (!box || !NP.TownMap) return;
+    townCtl = NP.TownMap.mount(box, { stops: townStops(), at: lastStopId() || 'home', onPick: function (st) {
+      var note = document.querySelector('.tm-note');
+      if (st.locked) { if (note) note.textContent = NP.DEMO5.lockedNote; sfx('uhoh'); return; }
+      if (st.visited) { if (note) note.textContent = NP.DEMO5.visitedNote; return; }
+      driveTo(st.id, 'townmap');
+    } });
+  }
+  function townDrive(s, via) {
+    if (S.screen !== 'map' || !townCtl || !document.getElementById('townmap')) { S.screen = 'map'; S.stop = null; render(); }
+    if (!townCtl) { arrive(s); render(); return; }
+    var mins = costOf(s), t0 = S.time, clk = document.querySelector('.hud .clock');
+    var spd = store.get('speed', 'normal') === 'fast' ? 900 : 1700;
+    document.querySelectorAll('.routecard button, .stops button, .tm-cv').forEach(function (b) { b.disabled = true; });
+    try { document.getElementById('townmap').scrollIntoView({ block: 'center', behavior: calm() ? 'auto' : 'smooth' }); } catch (e) {}
+    townCtl.drive(s.id, { dur: spd, label: 'Driving to ' + s.name + ' · ' + mins + ' min', onSkip: function () { track('drive_skip'); },
+      onTick: function (k) { if (clk) clk.textContent = fmtTime(Math.min(t0 + Math.round(k * mins), endT())); },
+      done: function () { if (!S || S.screen !== 'map') return; arrive(s); render(); window.scrollTo(0, 0); } });
+  }
   function driveTo(id, via) {
     var s = S.day.stops.filter(function (x) { return x.id === id; })[0];
     if (!s || s.visited) { render(); return; }
+    if (DEMO) { step('f06_drive_' + (S.history.length + 1) + '_' + s.type + '_' + (via || 'map')); if (tipEl) closeTip(); return townDrive(s, via); }
     step('f06_drive_' + (S.history.length + 1) + '_' + s.type + '_' + (via || 'map'));
     if (tipEl) closeTip();
     var drive = function () { arrive(s); render(); window.scrollTo(0, 0); if (S.screen === 'stop' && S.stop && S.stop.cleared) showTip('dex', null); };
@@ -3405,6 +4075,14 @@
   // ---------- commercials ----------
   var adTimer = null;
   function showCommercial(next, last) {
+    if (!adFree && NP.TVAds && !last) {
+      S.adsShown++;
+      var n = store.get('tvN', 0) || 0; store.set('tvN', n + 1);
+      music(null); if (NP.Sound && NP.Sound.ambience) NP.Sound.ambience(null);
+      track('tv_drive');
+      NP.TVAds.play({ idx: n, label: "WE'LL BE RIGHT BACK", onDone: function (skipped) { track(skipped ? 'tv_skipped' : 'tv_watched'); next(); } });
+      return;
+    }
     var pool = adFree ? NP.ADFREE_ADS : NP.ADS;
     var ad = adFree ? pool[S.adsShown % pool.length] : pool[S.day.adOrder[S.adsShown % pool.length]];
     S.adsShown++;
@@ -3438,7 +4116,7 @@
   function renderHome() {
     var h = '<div class="screen homescr"><h2>&#127968; Home. Time to shelve it.</h2>';
     if (S.toast) { h += '<div class="toast">' + esc(S.toast) + '</div>'; S.toast = ''; }
-    h += '<div class="shelfnote">Home at ' + fmtTime(Math.min(S.time, endT())) + ' with ' + money(S.cash) + ' left and ' + S.bag.length + ' things in the bag.</div>';
+    h += '<div class="shelfnote">Home at ' + fmtTime(Math.min(S.time, endT())) + ' with ' + money(S.cash) + ' left and ' + pl(S.bag.length, 'thing') + ' in the bag.</div>';
     if (NP.SPONSOR && NP.SPONSOR.home && !adFree) h += '<div class="glam"><canvas class="glamcan" width="22" height="30" aria-hidden="true"></canvas><div class="glam-t">' + esc(NP.SPONSOR.home) + '</div></div>';
     if (!S.bag.length) h += '<div class="bubble big">The bag is empty. Bold strategy.</div>';
     var pending = 0;
@@ -3515,6 +4193,7 @@
         }
         if (!note) note = 'Good pickup.';
         if (b.flags.residue && !b.cleaned) { v *= 0.7; note += ' Sticker goo: worth 30% less. You never cleaned it.'; }
+        if (b.flaw) { v *= NP.FLAW.mult; note += ' ' + NP.FLAW.tag + ': ' + b.flaw.toLowerCase().replace(/\.$/, '') + ', worth 15% less.'; }
         if (b.variant && NP.VARIANTS[b.variant] && !(b.flags.damaged && b.cond === 'loose')) { v *= NP.VARIANTS[b.variant].mult; note += ' ' + NP.VARIANTS[b.variant].note; }
         if (b.gradeMult) { v *= b.gradeMult; note += ' Graded ' + b.grade + '.'; }
         pts += Math.round(v); haul += v;
@@ -3580,9 +4259,10 @@
       '<div class="runtitle">"' + esc(R.title) + '"</div>' + (S.shelfLine ? '<div class="bubble big hero">You: "' + esc(S.shelfLine) + '"</div>' : '') +
       (R.also.length ? '<div class="also">Also earned: ' + R.also.map(esc).join(' &middot; ') + '</div>' : '') +
       '<div class="bigscore"><span class="bsn">' + R.score + '</span> <small>points</small></div>' +
-      '<div class="stats">Spent ' + money(R.spent) + ' of ' + money(S.budget) + ' &middot; Haul value ' + money(R.haul) + ' &middot; ' + R.items.length + ' items' +
+      '<div class="stats">Spent ' + money(R.spent) + ' of ' + money(S.budget) + ' &middot; Haul value ' + money(R.haul) + ' &middot; ' + pl(R.items.length, 'item') +
       (S.ev.sold ? ' &middot; Sold or traded ' + S.ev.sold + ' for ' + money(S.ev.sales) : '') + '</div>' +
       '<div class="scores">' + esc(S.recordMsg || '') + '</div>' +
+      (DEMO ? demoTackle() : '') +
       rewardsHTML() +
       featuredReveal() + bannedList() +
       '<canvas id="card" width="1200" height="675"></canvas>' +
@@ -3678,7 +4358,7 @@
     ctx.fillStyle = C.red; ctx.fillRect(0, 0, W, 70);
     ctx.fillStyle = C.cyan; ctx.fillRect(0, 70, W, 6);
     NP.pixelText(ctx, 'NOSTALGIA PRO', 40, 17, 5, C.cream);
-    NP.pixelText(ctx, DEMO ? 'DEMO' : S.free ? 'FREE PLAY' : S.season ? seasonLabel(S.week) : 'SATURDAY #' + S.runNo, W - 40, 26, 3, C.cream, 'right');
+    NP.pixelText(ctx, DEMO ? 'DEMO' : S.free ? 'RANDOM SATURDAY' : S.season ? seasonLabel(S.week) : 'SATURDAY #' + S.runNo, W - 40, 26, 3, C.cream, 'right');
     // you, standing next to your score
     if (NP.Char) NP.Char.draw(ctx, getLook(), 'down', 0, W - 374, 100, 4);
     // title
@@ -3774,7 +4454,7 @@
     // footer
     ctx.fillStyle = C.navy2; ctx.fillRect(0, H - 70, W, 70);
     // a season's seed is long, so the footer names the season instead (it used to run into the web address)
-    NP.pixelText(ctx, DEMO ? 'THE FREE DEMO' : (S.free ? 'FREE PLAY' : S.season ? 'SEASON' + (S.day.expo ? ' · THE EXPO' : '') : 'DAILY RUN ' + S.seed) + ' · ' + NP.MODES[modeOf()].name, 40, H - 46, 3, C.cream);
+    NP.pixelText(ctx, DEMO ? 'THE FREE DEMO' : (S.free ? 'RANDOM SATURDAY' : S.season ? 'SEASON' + (S.day.expo ? ' · THE EXPO' : '') : 'DAILY RUN ' + S.seed) + ' · ' + NP.MODES[modeOf()].name, 40, H - 46, 3, C.cream);
     NP.pixelText(ctx, 'THENOSTALGIAPRO.COM', W - 40, H - 46, 3, C.cyan, 'right');
     if (items.length > show.length) NP.pixelText(ctx, '+' + (items.length - show.length) + ' MORE', W / 2 - 40, H - 42, 2, C.gold, 'center');
     // scanlines
@@ -3783,7 +4463,7 @@
 
   function shareText() {
     var R = S.result;
-    return 'Nostalgia Pro, ' + (DEMO ? 'the free demo' : (S.free ? 'Free Play' : S.season ? 'season, ' + seasonLabelLc(S.week) : 'Saturday #' + S.runNo) + ', ' + NP.MODES[modeOf()].name) + ' (' + S.wx.temp + 'F)\n"' + R.title + '"\nScore ' + R.score + ' | Spent ' + money(R.spent) + ' | ' + R.items.length + ' finds\nFeatured lot: ' + featuredStatus() + '\nIs it on the shelf? Play: thenostalgiapro.com';
+    return 'Nostalgia Pro, ' + (DEMO ? 'the free demo' : (S.free ? 'Random Saturday' : S.season ? 'season, ' + seasonLabelLc(S.week) : 'Saturday #' + S.runNo) + ', ' + NP.MODES[modeOf()].name) + ' (' + S.wx.temp + 'F)\n"' + R.title + '"\nScore ' + R.score + ' | Spent ' + money(R.spent) + ' | ' + pl(R.items.length, 'find') + '\nFeatured lot: ' + featuredStatus() + '\nIs it on the shelf? Play: thenostalgiapro.com';
   }
 
   function shelve() {
@@ -3810,7 +4490,7 @@
       return;
     }
     if (DEMO) msg = 'Demo run complete. In the full version, this haul would go on your home shelf.';
-    else if (S.free) msg = 'Free Play. Random Saturdays do not go on your home shelf.';
+    else if (S.free) msg = 'Random Saturday. These do not go on your home shelf.';
     else if (!prev) { store.set(dk, { score: R.score, title: R.title }); saveHomeShelf(R); msg = 'Official ' + mname + ' run for today saved to your home shelf.'; }
     else msg = 'Replay. Today\'s official ' + mname + ' run was ' + prev.score + '.';
     if (!best || R.score > best.score) { store.set(bk, { score: R.score, seed: S.seed }); msg += ' New personal best (' + mname + ')!'; }
@@ -3849,10 +4529,13 @@
         if (!DEMO && !fr) store.set('mode', md);
         step('f03_mode_' + md + (fr ? '_free' : ''));
         var begin = function () { beginSaturday(md, fr); };
-        if (NP.Creator && !hasLook()) showCreator(begin, 'Looks good. Start Saturday');
+        // the demo gets you to the first find fast: a look is picked for you (change it any time from the menu)
+        if (DEMO && NP.Creator && !hasLook() && NP.Char) { store.set('look', NP.Char.normalize(NP.Char.random(Math.random, { noBrand: true }))); track('creator_skipped'); begin(); }
+        else if (NP.Creator && !hasLook()) showCreator(begin, 'Looks good. Start Saturday');
         else begin();
         break;
       case 'continue': cartOpen = false; step('f03_continue'); continueGame(); break;
+      case 'democontinue': step('f03_continue'); continueDemo(); break;
       case 'newgame': step('f03_newgame'); if (readSave()) renderNewGameCheck(); else beginNewSeason(); break;
       case 'newgame-yes': beginNewSeason(); break;
       case 'nextsat': if (SEASON) renderWeekdays(); break;
@@ -3871,6 +4554,7 @@
       case 'offer': doOffer(findItem(uid), el.getAttribute('data-kind')); break;
       case 'sell': doSell(uid, el.getAttribute('data-bt'), el.getAttribute('data-how')); break;
       case 'askmore': askMore(uid, el.getAttribute('data-bt')); break;
+      case 'tv': playTV(el.getAttribute('data-where') || 'map'); break;
       case 'jumpsell': var sb = document.getElementById('sellbox'); if (sb) sb.scrollIntoView({ behavior: 'smooth', block: 'start' }); break;
       case 'inspect':
         var it = findItem(uid); braydenCheck(uid); actCost(T_INSPECT); it.inspected = true;
@@ -3923,8 +4607,9 @@
         var a = document.createElement('a');
         a.download = 'nostalgia-pro-share-card-' + S.seed + '.png';
         a.href = $('#card').toDataURL('image/png');
-        document.body.appendChild(a); a.click(); a.remove(); track('share_card_saved'); break;
+        document.body.appendChild(a); a.click(); a.remove(); track('share_card_saved'); track('share_tapped'); break;
       case 'copy':
+        track('share_tapped');
         var t = shareText();
         var done = function () { el.textContent = 'Copied!'; };
         if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, function () { window.prompt('Copy this:', t); });
@@ -3943,26 +4628,46 @@
         window.scrollTo(0, 0); break;
       case 'demoagain': track('replay'); newRun(); S.screen = 'map'; render(); window.scrollTo(0, 0); break;
       case 'fullscreen': toggleFullscreen(); break;
-      case 'tips': setTipsOff(!tipsOff); break;
-      case 'mute': if (NP.Sound) NP.Sound.toggle(); break;
+      case 'tips': setTipsOff(!tipsOff); if (document.querySelector('.setov')) openSettings(); break;
+      case 'settings': openSettings(); break;
+      case 'setclose': closeSettings(); break;
+      case 'tsize': store.set('tsize', +el.getAttribute('data-v')); applyTextSize(); openSettings(); track('textsize_' + el.getAttribute('data-v')); break;
+      case 'speed': store.set('speed', el.getAttribute('data-v')); openSettings(); track('speed_' + el.getAttribute('data-v')); break;
+      case 'calmfx2': store.set('calmFx', el.getAttribute('data-v') === 'calm'); applyFx(); openSettings(); break;
+      case 'undo': doUndo(); break;
+      case 'nsgo': nextStepGo(); break;
+      case 'mute': if (NP.Sound) NP.Sound.toggle(); if (document.querySelector('.setov')) openSettings(); break;
       case 'hsname': var cap = $('#hscap'); if (cap) cap.textContent = el.getAttribute('data-name'); break;
+      case 'calmfx': store.set('calmFx', !store.get('calmFx', false)); applyFx(); el.outerHTML = fxButton(); track(store.get('calmFx', false) ? 'fx_calm' : 'fx_full'); break;
       case 'hsfilter': homeFilter = el.getAttribute('data-v') || 'all'; renderHomeShelf(); break;
       case 'totitle': S = null; cartOpen = true; renderTitle(); window.scrollTo(0, 0); break;
     }
   }
+  function onInput(e) {
+    if (e.target.getAttribute && e.target.getAttribute('data-set') === 'vol' && NP.Sound && NP.Sound.setVolume) {
+      NP.Sound.setVolume(e.target.value / 100);
+      var o = document.querySelector('.set-volv'); if (o) o.textContent = e.target.value + '%';
+      if (NP.Sound.isMuted() && +e.target.value > 0) NP.Sound.setMuted(false);
+    }
+  }
   function onChange(e) {
+    if (e.target.getAttribute && e.target.getAttribute('data-set') === 'vol') { sfx('coin'); track('volume_set'); return; }
     if (e.target.classList && e.target.classList.contains('tipoff-in')) { setTipsOff(e.target.checked); return; }
     if (e.target.getAttribute('data-act') === 'adfree') {
       adFree = e.target.checked; store.set('adfree', adFree);
-      if (S) S.toast = adFree ? 'Ad-Free Edition activated. Enjoy these ads for the Ad-Free Edition.' : 'Ads are back. They missed you.';
+      if (S) S.toast = adFree ? 'Ad-Less Edition activated. Enjoy these ads for the Ad-Less Edition.' : 'Ads are back. They missed you.';
       render();
     }
   }
 
   window.addEventListener('DOMContentLoaded', function () {
     app = document.getElementById('app');
+    applyFx(); applyTextSize();
+    if (DEMO) setInterval(function () { if (S && S.screen === 'walk') demoSave(); }, 10000); // the swap meet autosaves while you walk
+    if (DEMO && !miniT) miniT = setInterval(miniTick, 5000);
     document.addEventListener('click', onClick);
     document.addEventListener('change', onChange);
+    document.addEventListener('input', onInput);
     S = null;
     track('boot', true);
     // Phones only allow sound after a tap, so the game opens on a Tap to start screen.
@@ -3982,10 +4687,13 @@
     if (S.screen === 'map') return 'map_' + S.history.length;
     return S.screen;
   }
-  var hidSent = false;
+  var hidSent = false, quitSent = false;
   function onHide() {
     // a season Saturday saves right away when the page is hidden or closed (no waiting on the autosave timer)
     if (S && S.season && (S.screen === 'map' || S.screen === 'stop' || S.screen === 'walk' || S.screen === 'home')) { if (saveT) { clearTimeout(saveT); saveT = null; } saveGame(); }
+    if (DEMO) demoSave(); // the demo saves right away when the page is hidden or closed, too
+    // the quit marker: where the player was the first time the tab was hidden or closed. Sent once per page load.
+    if (!quitSent) { quitSent = true; try { if (NP.track) NP.track('quit_' + whereNow(), true, true); } catch (e) {} }
     if (hidSent) return;
     hidSent = true;
     try { if (NP.track) NP.track('hidden_on_' + whereNow(), true, true); } catch (e) {}
@@ -4022,7 +4730,8 @@
     newRun(md, free);
     var go = function () { track('intro_done'); step('f04_intro_done'); S.screen = 'map'; render(); window.scrollTo(0, 0); };
     music(null);
-    if (NP.Intro) NP.Intro.morning(app, { look: getLook(), runNo: S.runNo, label: DEMO ? 'DEMO SATURDAY' : S.free ? 'FREE PLAY' : 'SATURDAY #' + S.runNo, wx: S.wx, featured: S.day.featured, adFree: adFree, demo: DEMO, mode: S.mode, spotted: DEMO ? '' : spottedText() }, go);
+    if (DEMO) { S.toast = NP.DEMO5.start; return go(); } // the demo skips the morning scenes and starts on the town map
+    if (NP.Intro) NP.Intro.morning(app, { look: getLook(), runNo: S.runNo, label: DEMO ? 'DEMO SATURDAY' : S.free ? 'RANDOM SATURDAY' : 'SATURDAY #' + S.runNo, wx: S.wx, featured: S.day.featured, adFree: adFree, demo: DEMO, mode: S.mode, spotted: DEMO ? '' : spottedText() }, go);
     else go();
   }
 
@@ -4039,7 +4748,7 @@
     state: function () { return S; }, END: END, rivalNotes: rivalNotes, rivalHit: rivalHit, rivalsAt: rivalsAt, endT: endT, endLabel: endLabel, sellHTML: sellHTML, creditHere: creditHere,
     spend: spend, checkSundown: checkSundown, updateHud: updateHud, leaveButtons: leaveButtons, step: step,
     itemCard: itemCard, drawArts: drawArts, giftHTML: giftHTML, gradeHTML: function () { return gradeHTML(); }, autographHTML: function () { return autographHTML(); }, drawGiftArts: drawGiftArts, dexSetup: dexSetup,
-    walkBoost: function () { return walkBoost(); }, wantTable: function (o) { if (!DEMO) wantTable(o); },
+    walkBoost: function () { return walkBoost(); }, wantTable: function (o) { wantTable(o); },
     adLevel: adLevel, adFree: function () { return adFree; }, look: getLook, helloFor: helloFor,
     fmtTime: fmtTime, money: money, esc: esc, sfx: sfx, track: track, demo: DEMO,
     takeToast: function () { var t = S.toast; S.toast = ''; return t; },
@@ -4047,7 +4756,7 @@
   };
 
   // test hooks (harmless in production)
-  window.__NP_TEST = { keep: function () { return K(); },
+  window.__NP_TEST = { keep: function () { return K(); }, spotCameo: function (id) { return spotCameo(id); }, playTV: function (w) { playTV(w || 'map'); },
     // the season simulator used for the balance pass (test only; nothing in the game calls these)
     sim: {
       route: function () { return planRoute().map(function (x) { return x.id; }); },

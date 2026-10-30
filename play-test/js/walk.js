@@ -135,7 +135,72 @@ NP.Walk = (function () {
     pickCola();
     setupDex(r);
     setupRivals(r);
+    setupCrowd(r);
   }
+
+  // ---------- Demo round 5: a few shoppers wander the aisles (just for looks; they never take anything) ----------
+  function setupCrowd(r) {
+    W.crowd = [];
+    var n = 5;
+    for (var i = 0; i < n; i++) {
+      var node = [0, 2, 4, 6, 8, 11, 13, 16, 18][Math.floor(r() * 9)], p = nodePx(node);
+      W.crowd.push({ look: NP.Char.normalize(NP.Char.random(r, { noBrand: true })), node: node, x: p.x + (r() * 6 - 3), y: p.y, path: [], wait: 0.5 + r() * 3, dir: 'down', step: 0, anim: 0, speed: 22 + r() * 14 });
+    }
+  }
+  function updateCrowd(dt) {
+    (W.crowd || []).forEach(function (n) {
+      if (n.path.length) { moveNpc(n, dt); return; }
+      n.step = 0;
+      if ((n.wait -= dt) > 0) return;
+      if (Math.random() < 0.4) { n.wait = 1 + Math.random() * 3; n.dir = Math.random() < 0.6 ? 'up' : n.dir; return; } // stops to look at a table
+      var nb = ADJ[n.node]; if (!nb || !nb.length) return;
+      n.path = [nb[Math.floor(Math.random() * nb.length)]];
+      if (n.path[0] === N_GATE) n.path = [n.node === N_GATE ? nb[0] : nb[(nb.indexOf(N_GATE) + 1) % nb.length]];
+    });
+  }
+
+  // ---------- Demo round 5: the stall map. Tap a place and you walk there ----------
+  function mapPlaces() {
+    return W.objs.filter(function (o) { return o.open && o.label && o.fx != null && o.kind !== 'pillar'; });
+  }
+  function openStallMap() {
+    if (!W || W.panel) return;
+    closeStallMap();
+    var ov = document.createElement('div'); ov.className = 'wmap-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', 'Map of the swap meet');
+    var seen = W.seenObj || {};
+    var places = mapPlaces();
+    var h = '<div class="wmap"><div class="wmap-h"><b>' + (W.expo ? 'MAP OF THE HALL' : 'MAP OF THE SWAP MEET') + '</b><button class="wmap-x" data-wm="close" aria-label="Close the map">&#10005;</button></div>' +
+      '<canvas class="wmap-cv" width="' + (MW * 6) + '" height="' + (MH * 6) + '"></canvas><div class="wmap-list">';
+    places.forEach(function (o, i) {
+      h += '<button data-wm="' + i + '"><span class="wm-n">' + (i + 1) + '</span> ' + esc(o.title || o.label) + (seen[o.label] ? ' <span class="wm-seen">&#10003; seen</span>' : '') + '</button>';
+    });
+    h += '</div><div class="wmap-f">Tap a place and you walk there. Walking uses a little daylight.</div></div>';
+    ov.innerHTML = h;
+    document.body.appendChild(ov);
+    // the little map: the floor, every place numbered, and you
+    var g = ov.querySelector('canvas').getContext('2d'), k = 6 / T;
+    g.imageSmoothingEnabled = false;
+    if (W.floor) g.drawImage(W.floor, 0, 0, MW * 6, MH * 6);
+    g.fillStyle = 'rgba(11,16,34,.35)'; g.fillRect(0, 0, MW * 6, MH * 6);
+    places.forEach(function (o, i) {
+      g.fillStyle = seen[o.label] ? '#56B4E9' : '#E69F00'; g.fillRect(o.fx * 6, o.fy * 6, o.fw * 6, o.fh * 6);
+      g.fillStyle = '#0b1022'; g.font = 'bold 9px monospace'; g.textAlign = 'center'; g.fillText(String(i + 1), (o.fx + o.fw / 2) * 6, (o.fy + o.fh / 2) * 6 + 3);
+    });
+    g.fillStyle = '#fff1d6'; g.fillRect(W.x * k - 3, W.y * k - 6, 6, 6); g.fillStyle = '#e4343e'; g.fillRect(W.x * k - 2, W.y * k - 5, 4, 4);
+    g.fillStyle = '#fff1d6'; g.fillRect(GATE_X0 * 6, (MH - 1) * 6, (GATE_X1 - GATE_X0 + 1) * 6, 6);
+    ov.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('[data-wm]');
+      if (!b) { if (e.target === ov) closeStallMap(); return; }
+      var v = b.getAttribute('data-wm');
+      closeStallMap();
+      if (v === 'close') return;
+      var o = places[+v]; if (!o) return;
+      if (G().track) G().track('stallmap_go');
+      tapTo((o.fx + o.fw / 2) * T, (o.fy + o.fh / 2) * T);
+    });
+    if (G().track) G().track('stallmap_open');
+  }
+  function closeStallMap() { var o = document.querySelector('.wmap-ov'); if (o) o.parentNode.removeChild(o); }
 
   function setSolid(x, y, obj) {
     if (x < 0 || y < 0 || x >= MW || y >= MH) return;
@@ -697,7 +762,7 @@ NP.Walk = (function () {
     }
     var h = '<div class="bubble big">' + esc(sd.name) + ': "' + esc(tb.cola && SP ? SP.colaLine : tb.hello) + '"</div>';
     if (tb.cola && SP) h += '<div class="glam"><canvas class="glamcan" width="22" height="30" aria-label="A can of ' + esc(SP.name) + '"></canvas><div class="glam-t">' + esc(SP.colaAction) + '</div></div>';
-    if (G().adLevel() >= 2) h += '<div class="poster">' + (G().adFree() ? 'TAPED TO THE TABLE: The Ad-Free Edition. No posters. (Except this one.)' : 'TAPED TO THE TABLE: Nostalgia Pro: The Shelf Dust. Now in Sealed. Booth open till ' + (G().endLabel ? G().endLabel() : '5:30 PM') + '.') + '</div>';
+    if (G().adLevel() >= 2) h += '<div class="poster">' + (G().adFree() ? 'TAPED TO THE TABLE: The Ad-Less Edition. No posters. (Except this one.)' : 'TAPED TO THE TABLE: Nostalgia Pro: The Shelf Dust. Now in Sealed. Booth open till ' + (G().endLabel ? G().endLabel() : '5:30 PM') + '.') + '</div>';
     h += '<div class="items">' + tb.items.map(function (it) { return G().itemCard(it, s); }).join('') + '</div>';
     // every game vendor here buys too (selling and trading in, from game.js)
     if (G().sellHTML) h += G().sellHTML(s, tb.seller);
@@ -759,6 +824,7 @@ NP.Walk = (function () {
   function openPanel(o) {
     if (o && (o.kind === 'table' || o.kind === 'booth')) philCheck(o);
     W.panel = o; keys = {}; touchVec.x = touchVec.y = 0;
+    if (o && o.label) (W.seenObj = W.seenObj || {})[o.label] = 1;
     if (o && o.open && G().wantTable) G().wantTable(o);
     if (o && o.cola) G().sfx('sparkle');
     var el = panelEl();
@@ -852,7 +918,8 @@ NP.Walk = (function () {
       W.lastStep = W.step;
       W.dist += moved;
       var ticked = false;
-      while (W.dist >= PX_PER_MIN) { W.dist -= PX_PER_MIN; G().spend(1); ticked = true; }
+      var ppm = G().demo ? PX_PER_MIN * 1.5 : PX_PER_MIN; // the demo's walking costs less daylight
+      while (W.dist >= ppm) { W.dist -= ppm; G().spend(1); ticked = true; }
       if (ticked) {
         G().updateHud();
         if (G().checkSundown()) return false;
@@ -864,6 +931,7 @@ NP.Walk = (function () {
 
     updateDex(dt);
     updateRivals(dt);
+    updateCrowd(dt);
     if (W.expo) updateExpo(dt);
     if (W.toastT > 0) {
       W.toastT -= dt;
@@ -1090,7 +1158,7 @@ NP.Walk = (function () {
     var af = G().adFree();
     var key = (W && W.expo ? 'x' : '') + af;
     if (bannerCache[key]) return bannerCache[key];
-    var a = W && W.expo ? 'DESERT PIXEL EXPO!  ' : 'SAGUARO SWAP MEET!  ', b = W && W.expo ? 'CONVENTION HALL B · NO REFUNDS' : af ? 'AN AD-FREE ZONE (SPONSORED)' : 'SPONSORED BY NOSTALGIA PRO';
+    var a = W && W.expo ? 'DESERT PIXEL EXPO!  ' : 'SAGUARO SWAP MEET!  ', b = W && W.expo ? 'CONVENTION HALL B · NO REFUNDS' : af ? 'AN AD-LESS ZONE (SPONSORED)' : 'SPONSORED BY NOSTALGIA PRO';
     var w = NP.textWidth(a + b, 1) + 16;
     var c = document.createElement('canvas'); c.width = w; c.height = 14;
     var g = c.getContext('2d');
@@ -1195,7 +1263,7 @@ NP.Walk = (function () {
     }
     sign(X + 40, Y - 13, 'GIFT SHOP', GOLD, INK);
     var lvl = G().adLevel();
-    if (lvl >= 2) sign(X + 40, Y + 64, G().adFree() ? 'AD-FREE PRICES' : 'PRICES UP TODAY', GOLD, RED);
+    if (lvl >= 2) sign(X + 40, Y + 64, G().adFree() ? 'AD-LESS PRICES' : 'PRICES UP TODAY', GOLD, RED);
   }
 
   function drawFlip() {
@@ -1251,7 +1319,7 @@ NP.Walk = (function () {
 
   function draw() {
     var cv = document.getElementById('walkcv');
-    if (!cv || !W.floor) return; // Grok Bot r3c2 fix: never draw a walk whose floor is not built yet
+    if (!cv) return;
     ctx = cv.getContext('2d');
     ctx.imageSmoothingEnabled = false;
     CX = Math.round(Math.max(0, Math.min(MW * T - VW, W.x - VW / 2)));
@@ -1266,6 +1334,7 @@ NP.Walk = (function () {
     var d = W.dex;
     if (d && d.present) list.push({ base: d.y, draw: function () { shadow(d.x, d.y); sprite(d.look, d.dir, d.step, d.x, d.y); } });
     (W.npcs || []).forEach(function (n) { if (n.present) list.push({ base: n.y, draw: function () { shadow(n.x, n.y); sprite(n.look, n.dir, n.step, n.x, n.y); } }); });
+    (W.crowd || []).forEach(function (n) { list.push({ base: n.y, draw: function () { shadow(n.x, n.y); sprite(n.look, n.dir, n.step, n.x, n.y); } }); });
     (W.nerds || []).forEach(function (n) { if (n.present) list.push({ base: n.y, draw: function () { shadow(n.x, n.y); sprite(n.look, n.dir, n.step, n.x, n.y); if (n.state === 'go') drawWant(n); } }); });
     list.sort(function (a, b) { return a.base - b.base; });
     list.forEach(function (o) { o.draw(); });
@@ -1340,12 +1409,15 @@ NP.Walk = (function () {
       '<div class="walkwrap' + (touch ? ' touch' : '') + '">' +
       '<div class="cvbox" style="--ratio:' + ratio + '">' +
       '<canvas id="walkcv" tabindex="0" width="' + VW + '" height="' + VH + '" aria-label="' + (W.expo ? 'The Desert Pixel Expo convention hall' : 'The Saguaro Swap Meet') + '. Use arrow keys to walk and space to look."></canvas>' +
-      '<div class="wtoast" hidden></div><div class="wpanel" hidden tabindex="-1"></div></div>' +
+      '<div class="wtoast" hidden></div><div class="wpanel" hidden tabindex="-1"></div>' +
+      // Demo round 5: the walking cost sits on the play area itself, so it shows in landscape too
+      ('<button class="wmapbtn" data-w="map" aria-label="' + (W.expo ? 'Map of the hall' : 'Map of the swap meet') + '. Tap a place to walk there.">MAP</button>') +
+      ('<div class="wcost" aria-hidden="true">&#9728; ' + (G().demo ? '9' : '6') + ' steps = 1 min</div>') + '</div>' +
       '<div class="tpad"><div class="dpad" id="dpad"><i class="u"></i><i class="l"></i><i class="c"></i><i class="r"></i><i class="d"></i></div>' +
       '<button class="abtn" data-w="act" aria-label="Look">A</button></div></div>' +
       '<div class="walk-help">' + (W.expo ? (touch ? 'Tap a booth to walk over. The thing floating over a nerd is what they are running for.' : 'Click a booth to walk over, or use the arrow keys. The thing floating over a nerd is what they are running for.')
-        : touch ? 'Tap anywhere to walk there. Tap a table to shop it. The pad and A button work too.' : 'Click anywhere to walk there, or use the arrow keys or WASD. Click a table (or press Space) to shop it. Esc to step back.') +
-      ' Walking uses daylight too, about a minute for every six steps.' + '</div>' +
+        : G().demo ? (touch ? 'Tap anywhere to walk. Tap a table to shop.' : 'Click to walk, or use the arrow keys. Click a table to shop.') : touch ? 'Tap anywhere to walk there. Tap a table to shop it. The pad and A button work too.' : 'Click anywhere to walk there, or use the arrow keys or WASD. Click a table (or press Space) to shop it. Esc to step back.') +
+      (G().demo ? ' Walking uses a little daylight: about 1 minute for every 9 steps.' : ' Walking uses daylight too, about a minute for every six steps.') + '</div>' +
       (G().rivalNotes ? '<div class="walk-rivals">' + (W.expo ? passHTML() + '<div class="note">' + esc(NP.EXPO.rivals) + '</div>' : '') + G().rivalNotes(W.stop) + '</div>' : '') + '</div>';
     W.floor = W.floor || buildFloor();
     bindPad();
@@ -1372,7 +1444,10 @@ NP.Walk = (function () {
       var bottom = app.getBoundingClientRect().top + (window.pageYOffset || 0) + app.offsetHeight;
       // the rival notes sit under the play area and may scroll; they do not shrink the canvas (Grok Bot r3a fix)
       var rv = app.querySelector('.walk-rivals'), rvH = rv && rv.offsetHeight ? rv.getBoundingClientRect().height + 16 : 0;
-      var over = Math.ceil(bottom - window.innerHeight - rvH);
+      // the next-step bar is pinned to the bottom of the screen, so the play area stops above it
+      var nsb = document.querySelector('.nsbar'), nsH = nsb ? nsb.getBoundingClientRect().height : 0;
+      var helpEl = app.querySelector('.walk-help'), helpH = helpEl && window.innerHeight < 500 ? helpEl.getBoundingClientRect().height + 8 : 0;
+      var over = Math.ceil(bottom - window.innerHeight - rvH - helpH + nsH);
       var bw = box.getBoundingClientRect().width;
       if (pass === 0) box.style.maxWidth = Math.max(200, Math.floor((ch - over - 7) * VW / VH + 6)) + 'px';
       else if (over > 0) box.style.maxWidth = Math.max(200, Math.floor(bw - over * VW / VH - 2)) + 'px';
@@ -1384,10 +1459,7 @@ NP.Walk = (function () {
 
   function render(app, hudHTML) {
     if (!W) return;
-    // Grok Bot r3c2 fix: going straight from the swap meet to the Expo ("Next stop" in the parking lot panel) left the
-    // swap meet canvas in the page, so the Expo never got built (no floor, swap meet heading, the walk loop crashed).
-    // Build again whenever this is a new walk (enter() makes a new W).
-    if (!document.getElementById('walkcv') || !W.built) { build(app, hudHTML); W.built = true; }
+    if (!document.getElementById('walkcv')) build(app, hudHTML);
     else {
       var hh = document.getElementById('walkhud');
       if (hh) hh.innerHTML = hudHTML;
@@ -1397,6 +1469,7 @@ NP.Walk = (function () {
     if (t) showToast(t);
     // Dex is already here when you walk in (he beat you to it)
     if (W.dex && W.dex.present && G().tip) G().tip('dex');
+    if (G().tip) G().tip('stallmap');
     if (W.panel) panelRender();
     if (!raf && active()) { lastT = performance.now(); raf = requestAnimationFrame(loop); }
   }
@@ -1444,7 +1517,7 @@ NP.Walk = (function () {
       if (e.code === 'Escape') { e.preventDefault(); closePanel(); }
       return;
     }
-    // arrows and WASD always walk, even right after clicking the sound or Ad-Free button
+    // arrows and WASD always walk, even right after clicking the sound or Ad-Less button
     var k = KEYMAP[e.code];
     if (k) { keys[k] = true; e.preventDefault(); return; }
     // Space and Enter belong to whatever button or checkbox has focus
@@ -1465,6 +1538,7 @@ NP.Walk = (function () {
     var a = el.getAttribute('data-w');
     if (a === 'close') closePanel();
     else if (a === 'act') interact();
+    else if (a === 'map') openStallMap();
   });
 
   return {
