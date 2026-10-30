@@ -3,8 +3,13 @@
 (function () {
   "use strict";
   var W = 360, H = 540, TAU = Math.PI * 2, PY = 160;
-  var LEN = 15200, V0 = 150, V1 = 265, STEER = 230, CRASHES = 3;
-  var SPIN_RATE = 720, LAND_TOL = 42;
+  // Control tuning (easier pass): slower top speed, snappier grip, more forgiving spins and hit boxes.
+  var LEN = 15200, V0 = 132, V1 = 228, STEER = 215, CRASHES = 3;
+  var GRIP_ON = 11, GRIP_OFF = 18, GRIP_SLOW = 6;         // how fast the board reaches / drops its carve speed (1/s)
+  var FOLLOW = 5.5;                                        // mouse / touch: carve toward the pointer, this gain (1/s)
+  var AIR_STEER = 0.45, BRAKE = 0.68;                      // a little steering in the air; Up arrow digs in
+  var SPIN_RATE = 600, FINISH_RATE = 900, LAND_TOL = 55;   // let go and the board finishes its half turn by itself
+  var HIT_PAD = 2, GRAB_PAD = 15;                          // obstacle hit pad (was 6), disc / ramp grab pad (was 9)
   var BTN = { x: 130, y: 470, w: 100, h: 56 };          // SPIN button (touch)
 
   var S = {}, keys = {}, idleT = 0, parts = [];
@@ -53,20 +58,21 @@
   function reset() {
     S = { t: 0, d: 0, x: 180, vx: 0, v: V0, obs: build(1 + Math.floor(Math.random() * 1e6)), phase: "ride", pt: 0,
           air: 0, airT: 0, spin: 0, spinning: false, crash: 0, inv: 0, crashes: 0, discs: 0, tricks: 0, bestSpin: 0, jumps: 0,
-          gates: 0, gatesTotal: 0, score: 0, finished: false, ptrSteer: 0, mouseSteer: null, holdSpin: false, carve: 0 };
+          gates: 0, gatesTotal: 0, score: 0, finished: false, ptrSteer: 0, mouseSteer: null, holdSpin: false, carve: 0, tx: null, ptrId: null, spinIds: {} };
     parts.length = 0;
     if (X) S.xt = { sc: X.scenery(), fever: new X.Fever(15), sched: new X.Scheduler(12, 24, 2), rares: 0, intro: false, slowSteer: 0, boostT: 0 };
   }
 
   /* ---------------- Update ---------------- */
-  function steerInput() {
-    var k = (keys.ArrowLeft ? -1 : 0) + (keys.ArrowRight ? 1 : 0);
-    if (k) return k;
-    if (S.ptrSteer) return S.ptrSteer;
-    if (S.mouseSteer != null) return S.mouseSteer;
+  // Returns the carve speed the rider wants (px/s). Keys carve at full speed; mouse and touch
+  // steer toward the pointer's x, easing off as the rider gets there, so there is no drifting.
+  function steerTarget() {
+    var k = (keys.ArrowLeft || keys.KeyA ? -1 : 0) + (keys.ArrowRight || keys.KeyD ? 1 : 0);
+    if (k) { S.tx = null; return k * STEER; }
+    if (S.tx != null) return clamp((S.tx - S.x) * FOLLOW, -STEER, STEER);
     return 0;
   }
-  function spinHeld() { return keys.Space || keys.Enter || S.holdSpin; }
+  function spinHeld() { if (keys.Space || keys.Enter || S.holdSpin) return true; for (var id in S.spinIds) return true; return false; }
 
   function update(dt) {
     if (X && X.eventActive()) { X.eventTick(dt); return; }
@@ -76,17 +82,17 @@
     for (i = parts.length - 1; i >= 0; i--) { var q = parts[i]; q.life -= dt; q.x += q.vx * dt; q.y += q.vy * dt; if (q.life <= 0) parts.splice(i, 1); }
     if (S.phase === "done") { if (S.pt > 1.2) finish(); return; }
 
-    var k = clamp(S.d / LEN, 0, 1), target = (V0 + (V1 - V0) * k) * speedMult();
+    var k = clamp(S.d / LEN, 0, 1), target = (V0 + (V1 - V0) * k) * speedMult() * (keys.ArrowUp || keys.KeyW ? BRAKE : 1);
     if (S.crash > 0) {
       S.crash -= dt * (S.xt && S.xt.sc.id === "golden" ? 1.15 : 1); S.v = Math.max(40, S.v - 300 * dt);
       if (S.crash <= 0) { S.inv = 1.4; }
     } else {
-      S.v += (target - S.v) * Math.min(1, dt * 0.8);
+      S.v += (target - S.v) * Math.min(1, dt * (S.v > target ? 2.2 : 0.8));
       if (S.inv > 0) S.inv -= dt;
-      var st = S.air > 0 ? 0 : steerInput();
-      S.vx += (st * STEER - S.vx) * Math.min(1, dt * (S.xt && (S.xt.slowSteer > 0 || S.xt.sc.id === "rain") ? 4 : 7));
-      S.carve = st;
-      if (S.air > 0) { S.vx *= 1 - dt * 0.3; }
+      var want = steerTarget() * (S.air > 0 ? AIR_STEER : 1);
+      var grip = S.xt && (S.xt.slowSteer > 0 || S.xt.sc.id === "rain") ? GRIP_SLOW : Math.abs(want) > Math.abs(S.vx) ? GRIP_ON : GRIP_OFF;
+      S.vx += (want - S.vx) * Math.min(1, dt * grip);
+      S.carve = clamp(S.vx / STEER, -1, 1);
     }
     S.x = clamp(S.x + S.vx * dt, 14, W - 14);
     S.d += S.v * dt;
@@ -95,6 +101,10 @@
     if (S.air > 0) {
       S.airT += dt;
       if (spinHeld()) { S.spin += SPIN_RATE * dt; S.spinning = true; }
+      else if (S.spinning && S.spin % 180 > 0.5) {         // let go: finish the half turn you started
+        var to = Math.ceil(S.spin / 180 - 1e-6) * 180;
+        S.spin = Math.min(to, S.spin + FINISH_RATE * dt);
+      }
       if (S.airT >= S.air) land();
     }
 
@@ -102,19 +112,19 @@
     for (i = 0; i < S.obs.length; i++) {
       o = S.obs[i];
       if (o.y < S.d - 40) continue;
-      if (o.y > S.d + 30) break;
+      if (o.y > S.d + 40) break;
       if (o.gone) continue;
       var dy = o.y - S.d, dx = o.x - S.x;
       if (o.t === "gate") {
         if (!o.done && dy < 0) {
           o.done = true; S.gatesTotal++;
-          if (Math.abs(dx) < o.half - 6) { S.gates++; S.score += 100; Shell.flash("GATE", "+100", "#3ff0ff", 600); Shell.sfx("score"); if (S.xt) S.xt.fever.hit("Faster board, magnet discs"); }
+          if (Math.abs(dx) < o.half + 2) { S.gates++; S.score += 100; Shell.flash("GATE", "+100", "#3ff0ff", 600); Shell.sfx("score"); if (S.xt) S.xt.fever.hit("Faster board, magnet discs"); }
           else { Shell.flash("MISSED GATE", "", "#8e93a2", 600); if (S.xt) S.xt.fever.miss(); }
         }
         continue;
       }
-      if (Math.abs(dy) > o.r + 9 || Math.abs(dx) > o.r + 9) continue;
-      if (Math.hypot(dx, dy) > o.r + (o.t === "disc" || o.t === "ramp" ? 9 : 6)) continue;
+      if (Math.abs(dy) > o.r + GRAB_PAD || Math.abs(dx) > o.r + GRAB_PAD) continue;
+      if (Math.hypot(dx, dy) > o.r + (o.t === "disc" || o.t === "ramp" || o.t === "rare" ? GRAB_PAD : HIT_PAD)) continue;
       if (o.t === "rare") { o.gone = true; extrasRare(o); continue; }
       if (o.t === "disc") {
         o.gone = true; S.discs++; S.score += 50;
@@ -125,7 +135,7 @@
         continue;
       }
       if (o.t === "ramp") {
-        if (S.air <= 0 && S.crash <= 0) { o.gone = true; S.air = 0.7 + S.v / 520; S.airT = 0; S.spin = 0; S.spinning = false; S.jumps++; Shell.sfx("boost"); }
+        if (S.air <= 0 && S.crash <= 0) { o.gone = true; S.air = 0.8 + S.v / 450; S.airT = 0; S.spin = 0; S.spinning = false; S.jumps++; Shell.sfx("boost"); }
         continue;
       }
       if (S.air > 0 || S.crash > 0 || S.inv > 0) continue;
@@ -134,7 +144,7 @@
 
     if (S.d >= LEN && S.phase === "ride") {
       S.finished = true; S.phase = "done"; S.pt = 0;
-      var bonus = Math.max(0, Math.round((95 - S.t) * 25));
+      var bonus = Math.max(0, Math.round((106 - S.t) * 25));   // par moved with the lower speeds
       S.timeBonus = bonus; S.score += bonus;
       Shell.flash("BOTTOM OF MOUNT BACKLOG", "Time bonus +" + bonus, "#ffd23f", 1300);
       Shell.sfx("best"); Shell.sfx("crowd");
@@ -250,25 +260,40 @@
   function row(a, b) { return '<div class="np-row"><span>' + a + '</span><b>' + b + '</b></div>'; }
 
   /* ---------------- Input ---------------- */
+  // Mouse: the rider carves toward the cursor (no click needed). Touch: put a finger down anywhere and
+  // slide it; the rider follows the finger's left/right position. In the air, a press anywhere (or the
+  // SPIN button, or a second finger) spins. Letting go of the screen on touch stops steering.
   function inBtn(x, y) { return x >= BTN.x && x <= BTN.x + BTN.w && y >= BTN.y && y <= BTN.y + BTN.h; }
   function pointer(type, x, y, e) {
-    if (X && X.eventActive()) { S.ptrSteer = 0; S.holdSpin = false; X.eventPointer(type, x, y); return; }
-    var touch = e && e.pointerType !== "mouse";
+    if (X && X.eventActive()) { S.tx = null; S.holdSpin = false; S.spinIds = {}; X.eventPointer(type, x, y); return; }
+    var touch = e && e.pointerType && e.pointerType !== "mouse";
     if (type === "down") {
-      if (inBtn(x, y)) { S.holdSpin = true; return; }
-      if (touch) S.ptrSteer = x < W / 2 ? -1 : 1;
-      else S.mouseSteer = clamp((x - W / 2) / 90, -1, 1);
+      S.ptrId = e ? e.pointerId : null;
+      if (S.air > 0) { S.holdSpin = true; return; }   // in the air: press anywhere (SPIN button included) to spin
+      S.tx = clamp(x, 14, W - 14); S.ptrSteer = 1;
     } else if (type === "move") {
-      if (!touch) S.mouseSteer = clamp((x - W / 2) / 90, -1, 1);
-      else if (S.ptrSteer) S.ptrSteer = x < W / 2 ? -1 : 1;
+      if (!touch || S.ptrSteer) S.tx = clamp(x, 14, W - 14);
     } else if (type === "up" || type === "cancel") {
-      S.holdSpin = false; S.ptrSteer = 0;
+      S.holdSpin = false; S.ptrSteer = 0; S.ptrId = null;
+      if (touch) S.tx = null;
     }
+  }
+  // Extra fingers (the shell only tracks one pointer): a second finger held down spins.
+  function bindExtraTouch() {
+    var cv = document.getElementById("np-canvas");
+    if (!cv) return;
+    cv.addEventListener("pointerdown", function (e) {
+      if (e.pointerType === "mouse" || S.ptrId == null || e.pointerId === S.ptrId) return;
+      if (Shell.state() !== "playing" || (X && X.eventActive())) return;
+      S.spinIds[e.pointerId] = true;
+    });
+    function lift(e) { if (S.spinIds && S.spinIds[e.pointerId]) delete S.spinIds[e.pointerId]; }
+    cv.addEventListener("pointerup", lift); cv.addEventListener("pointercancel", lift);
   }
   function key(type, code) {
     if (X && X.eventActive()) { for (var kk in keys) keys[kk] = false; X.eventKey(type, code); return; }
     keys[code] = type === "down";
-    if (type === "down" && (code === "ArrowLeft" || code === "ArrowRight")) S.mouseSteer = null;
+    if (type === "down" && (code === "ArrowLeft" || code === "ArrowRight" || code === "KeyA" || code === "KeyD")) S.tx = null;
   }
 
   /* ---------------- Drawing ---------------- */
@@ -317,6 +342,11 @@
         break;
     }
   }
+  function drawTarget(c) {   // small marker where mouse / touch steering is heading
+    if (S.tx == null || S.crash > 0 || Math.abs(S.tx - S.x) < 4) return;
+    c.fillStyle = "rgba(47,59,122,.45)";
+    c.beginPath(); c.moveTo(S.tx, PY + 22); c.lineTo(S.tx - 6, PY + 31); c.lineTo(S.tx + 6, PY + 31); c.closePath(); c.fill();
+  }
   function drawRider(c) {
     var air = S.air > 0 ? Math.sin(Math.PI * clamp(S.airT / S.air, 0, 1)) : 0;
     var lift = air * 26, sc = 1 + air * 0.25;
@@ -352,11 +382,20 @@
       fr(c, BTN.x, BTN.y, BTN.w, BTN.h, on ? "rgba(255,63,164,.9)" : "rgba(29,32,41,.55)");
       c.strokeStyle = on ? "#ffd23f" : "rgba(142,147,162,.6)"; c.lineWidth = 2; c.strokeRect(BTN.x + 1, BTN.y + 1, BTN.w - 2, BTN.h - 2);
       Shell.text(c, "SPIN", BTN.x + BTN.w / 2, BTN.y + 16, 10, on ? "#101219" : "#8e93a2", "center");
-      Shell.uiText(c, on ? "HOLD IN THE AIR" : "IN THE AIR ONLY", BTN.x + BTN.w / 2, BTN.y + 34, 8, on ? "#101219" : "#8e93a2", "center");
+      Shell.uiText(c, on ? "HOLD ANYWHERE" : "IN THE AIR ONLY", BTN.x + BTN.w / 2, BTN.y + 34, 8, on ? "#101219" : "#8e93a2", "center");
     }
-    if (S.air > 0 && S.spin > 0) Shell.text(c, Math.floor(S.spin / 180) * 180 + "", S.x, PY - 60, 10, "#ff3fa4", "center");
+    if (S.air > 0 && S.spin > 0) {
+      var done = Math.floor(S.spin / 180 + 1e-6) * 180, goal = Math.ceil(S.spin / 180 - 1e-6) * 180;
+      Shell.text(c, goal + "", S.x, PY - 60, 10, "#ff3fa4", "center");
+      if (spinHeld() && letGo()) Shell.text(c, "LET GO", S.x, PY - 76, 8, "#ff4b3e", "center");
+    }
   }
 
+  // True when starting another half turn would not finish before the landing.
+  function letGo() {
+    var left = S.air - S.airT, part = S.spin % 180, need = (180 - part) / FINISH_RATE;
+    return left < need + 180 / SPIN_RATE + 0.05;
+  }
   function draw(c, state) {
     drawSnow(c);
     // finish line
@@ -371,6 +410,7 @@
       if (y > H + 30) break;
       drawObj(c, o, y);
     }
+    if (state === "playing") drawTarget(c);
     drawRider(c);
     for (i = 0; i < parts.length; i++) fr(c, parts[i].x, parts[i].y, 3, 3, parts[i].c);
     if (S.xt) {
@@ -388,7 +428,7 @@
   }
 
   // Hook for automated checks (no effect on play)
-  window.__powder = { S: function () { return S; }, update: update, keys: keys, LEN: LEN };
+  window.__powder = { S: function () { return S; }, update: update, keys: keys, LEN: LEN, pointer: pointer };
 
   Shell.init({
     slug: "powder-day-haul",
@@ -396,15 +436,16 @@
     accent: "#a77bff",
     width: W, height: H,
     format: function (n) { return n + " PTS"; },
-    howTo: "Carve down Mount Backlog and grab the loose discs before the bottom. Hold the left or right side to carve. Hit a ramp, then hold SPIN in the air and land straight.",
-    keys: "Keys: left and right carve, hold Space in the air to spin. Mouse: steer left or right of center. P pause, M mute, R restart.",
-    tip: "Three wipeouts and you're done. Land spins straight or it counts as a wipeout.",
+    howTo: "Carve down Mount Backlog and grab the loose discs before the bottom. Touch: slide your finger left or right and the rider follows it. Hit a ramp, then hold anywhere in the air to spin. Let go and the board finishes the turn.",
+    keys: "Keys: left and right (or A and D) carve, Up (or W) slows you down, hold Space in the air to spin. Mouse: the rider follows the cursor, click and hold in the air to spin. P pause, M mute, R restart.",
+    tip: "Three wipeouts and you're done. Let go of SPIN when LET GO shows up or you land sideways.",
     reset: reset,
     update: update,
     draw: draw,
     pointer: pointer,
     key: key,
     idle: function (dt) { idleT += dt; },
-    onPause: function () { for (var k in keys) keys[k] = false; S.ptrSteer = 0; S.holdSpin = false; }
+    onPause: function () { for (var k in keys) keys[k] = false; S.ptrSteer = 0; S.holdSpin = false; S.spinIds = {}; if (S.ptrId != null) S.tx = null; }
   });
+  bindExtraTouch();
 })();
