@@ -135,7 +135,7 @@ NP.Walk = (function () {
     pickCola();
     setupDex(r);
     setupRivals(r);
-    if (G().demo) setupCrowd(r);
+    setupCrowd(r);
     var ct = W.tables.filter(function (t) { return t.cameo; })[0];
     if (ct) {
       // wait until any tip card is closed, so the banner is never hidden under it
@@ -156,6 +156,136 @@ NP.Walk = (function () {
       var node = [0, 2, 4, 6, 8, 11, 13, 16, 18][Math.floor(r() * 9)], p = nodePx(node);
       W.crowd.push({ look: NP.Char.normalize(NP.Char.random(r, { noBrand: true })), node: node, x: p.x + (r() * 6 - 3), y: p.y, path: [], wait: 0.5 + r() * 3, dir: 'down', step: 0, anim: 0, speed: 22 + r() * 14 });
     }
+    // Round 6.4: a few of them have been out since 4 AM, and one is pushing a cart with a bad wheel
+    var sr = mulberry32(NP.hashStr(S().seed + '|smell|' + W.stop.id));
+    smellUp(W.crowd, sr, true);
+    smellUp(W.npcs || [], sr, false);
+    var pusher = W.crowd.filter(function (n) { return !n.smelly; })[0];
+    if (pusher) { pusher.cart = cartLook(sr); pusher.cart.wobbly = true; pusher.speed = 20; }
+  }
+  // ---------- Round 6.4: smelly nerds (a gag about the hobby: long mornings, longer conventions) ----------
+  function smellUp(list, r, atLeastOne) {
+    var share = (NP.SMELL && NP.SMELL.share) || 0.3, any = false;
+    list.forEach(function (n) { n.smelly = r() < share; n.flyA = r() * 6.28; n.flies = r() < 0.5 ? 2 : 1; any = any || n.smelly; });
+    if (atLeastOne && !any && list.length) list[Math.floor(r() * list.length)].smelly = true;
+  }
+  function smellers() {
+    var out = [];
+    (W.crowd || []).forEach(function (n) { if (n.smelly) out.push(n); });
+    (W.npcs || []).forEach(function (n) { if (n.smelly && n.present) out.push(n); });
+    (W.nerds || []).forEach(function (n) { if (n.smelly && n.present) out.push(n); });
+    return out;
+  }
+  function nearSmell(x, y, rad, self) {
+    var hit = null;
+    smellers().forEach(function (m) { if (m !== self && Math.abs(m.x - x) < rad && Math.abs(m.y - y) < rad * 0.75) hit = m; });
+    return hit;
+  }
+  // everyone else leans away and waves a hand, and the crowd steps around
+  function updateSmell(dt) {
+    var people = (W.crowd || []).concat(W.nerds || []).concat(W.npcs || []);
+    people.forEach(function (n) {
+      if (n.react > 0) n.react -= dt;
+      if (n.smelly || (n.present === false)) return;
+      var m = nearSmell(n.x, n.y, 22, n);
+      if (m && !(n.react > 0) && !n.reactCool) { n.react = 1.2; n.lean = n.x < m.x ? -1 : 1; n.reactCool = 3 + Math.random() * 2; }
+      if (n.reactCool) { n.reactCool -= dt; if (n.reactCool <= 0) n.reactCool = 0; }
+    });
+    // you, walking past
+    var m2 = nearSmell(W.x, W.y, 20, null);
+    W.smellNear = !!m2;
+    if (W.whewT > 0) W.whewT -= dt;
+    if (m2 && !(W.whewT > 0) && !(W.whewCool > 0)) {
+      var L = (NP.SMELL && NP.SMELL.whew) || ['Whew.'];
+      W.whew = L[Math.floor(Math.random() * L.length)].toUpperCase(); W.whewT = 1.4; W.whewCool = 6;
+      if (!W.smellToast && NP.SMELL) { W.smellToast = true; showToast(NP.SMELL.lines[NP.hashStr(S().seed + W.stop.id) % NP.SMELL.lines.length]); }
+      if (G().track) G().track('smell_whew');
+    }
+    if (W.whewCool > 0) W.whewCool -= dt;
+  }
+  function smellSlow() { return W && W.smellNear ? 0.85 : 1; }
+  // haze under them, stink lines and a fly or two over them
+  function drawSmell(n, now, calm) {
+    var x = n.x - CX, y = n.y - CY, pulse = calm ? 0 : Math.sin(now * 2) * 0.04;
+    // a green-ish haze, roughly round, that breathes a little
+    ctx.fillStyle = 'rgba(140,205,80,' + (0.17 + pulse) + ')';
+    ctx.fillRect(Math.round(x - 12), Math.round(y - 24), 24, 24);
+    ctx.fillRect(Math.round(x - 9), Math.round(y - 29), 18, 33);
+    ctx.fillRect(Math.round(x - 14), Math.round(y - 18), 28, 12);
+    // three wavy stink lines rising off the top of their head
+    for (var k = 0; k < 3; k++) {
+      var ph = calm ? k : now * 2.2 + k * 1.3, bx = x - 6 + k * 6, rise = calm ? 0 : (ph % 3);
+      for (var j = 0; j < 5; j++) {
+        var sx = Math.round(bx + Math.sin(ph * 2 + j * 1.1) * 1.6), sy = Math.round(y - 28 - j * 2 - rise);
+        ctx.fillStyle = 'rgba(40,70,20,.55)'; ctx.fillRect(sx + 1, sy, 1, 2);
+        ctx.fillStyle = j > 3 ? 'rgba(170,240,110,.6)' : '#9be36b'; ctx.fillRect(sx, sy, 1, 2);
+      }
+    }
+    for (var f = 0; f < (n.flies || 1); f++) {
+      var a = (calm ? 0 : now * (5 + f * 1.7)) + n.flyA + f * 3.1, fx = x + Math.cos(a) * (7 + f * 2), fy = y - 27 + Math.sin(a * 1.3) * 4;
+      ctx.fillStyle = '#111'; ctx.fillRect(Math.round(fx), Math.round(fy), 1, 1);
+      if (calm || Math.floor(now * 20 + f) % 2) { ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.fillRect(Math.round(fx), Math.round(fy) - 1, 1, 1); }
+    }
+  }
+  // one person in the crowd (or a nerd, or a rival): shadow, haze, cart, sprite, body language
+  function drawPerson(n, extra) {
+    var now = performance.now() / 1000, calm = G().calm && G().calm();
+    var lean = n.react > 0 ? n.lean : 0;
+    shadow(n.x, n.y);
+    if (n.cart && n.dir === 'up') drawCart(n.cart, n.x - 8, n.y - 16, now, n);
+    sprite(n.look, n.dir, n.step, n.x + lean, n.y);
+    if (n.react > 0) NP.Char.overlay(ctx, 'wave', n.look, n.dir, n.x + lean - 8 - CX, n.y - 24 - CY, 1, calm ? 0 : now);
+    if (n.cart && n.dir !== 'up') {
+      var o = n.dir === 'left' ? [-22, -12] : n.dir === 'right' ? [6, -12] : [-8, -4];
+      drawCart(n.cart, n.x + o[0], n.y + o[1], now, n);
+    }
+    if (n.smelly) drawSmell(n, now, calm);
+    if (extra) extra();
+  }
+
+  // ---------- Round 6.4: beat-up shopping carts ----------
+  function cartLook(r) {
+    return { rust: Math.floor(r() * 4) + 1, rustAt: [r(), r(), r(), r()], dent: r() < 0.6, bent: r() < 0.5, duct: r() < 0.6, tape: r() < 0.6,
+      sticker: r() < 0.6, scrawl: Math.floor(r() * 3), load: Math.floor(r() * 4), wire: r() < 0.5 ? '#a3a9b6' : '#8d93a0' };
+  }
+  // a 16 by 13 cart; x, y in world pixels (its top-left). The wobbly one jiggles and squeaks while it moves.
+  function drawCart(c, x, y, now, owner) {
+    var moving = owner && owner.path && owner.path.length;
+    var calm = G().calm && G().calm();
+    var jig = c.wobbly && moving && !calm ? Math.floor(now * 9) % 2 : 0;
+    var drift = c.wobbly && moving && !calm ? Math.round(Math.sin(now * 3.1) * 1.2) : 0;
+    x += drift; y += jig;
+    var wire = c.wire, dk = '#5d6370';
+    // contents first, so the wire draws over them
+    if (c.load === 1) { R(x + 4, y + 2, 4, 3, '#2b2f3f'); R(x + 8, y + 1, 3, 4, '#c8323c'); }
+    if (c.load === 2) { R(x + 3, y + 3, 6, 2, '#a87443'); R(x + 8, y + 2, 5, 3, '#c9d1dc'); }
+    if (c.load === 3) { R(x + 4, y + 1, 7, 4, '#d8b07a'); R(x + 6, y + 1, 2, 4, '#a87443'); }
+    // basket
+    R(x + 2, y, 13, 1, wire); R(x + 2, y, 1, 7, wire);
+    if (c.dent) { R(x + 2, y + 6, 5, 1, wire); R(x + 7, y + 5, 2, 1, wire); R(x + 9, y + 6, 5, 1, wire); } // a dent from a parking lot pole
+    else R(x + 2, y + 6, 12, 1, wire); R(x + 14, y + (c.bent ? 1 : 0), 1, c.bent ? 6 : 7, wire);
+    if (c.bent) R(x + 15, y - 1, 1, 1, wire); // the corner that got bent in a parking lot
+    for (var i = 4; i < 14; i += 2) R(x + i, y + 1, 1, 5, 'rgba(163,169,182,.55)');
+    R(x + 2, y + 3, 12, 1, 'rgba(163,169,182,.55)');
+    // handle (duct tape on some)
+    R(x, y - 2, 4, 1, dk); R(x + 1, y - 1, 1, 2, dk);
+    if (c.duct) R(x, y - 3, 3, 2, '#9aa0a8');
+    // rust spots
+    for (var k = 0; k < c.rust; k++) R(x + 3 + Math.floor(c.rustAt[k] * 10), y + (k % 2 ? 6 : 0), 1, 1, '#a0522d');
+    // masking tape with marker on it, and a price sticker half peeled off
+    if (c.tape) { R(x + 9, y + 2, 4, 2, '#e9dcb0'); R(x + 10, y + 3, 2, 1, '#1b1b28'); }
+    if (c.sticker) { R(x + 3, y + 4, 3, 2, '#ffcc33'); R(x + 5, y + 4, 1, 1, '#fff1a8'); }
+    if (c.scrawl === 1) { R(x + 4, y + 1, 1, 1, '#1b1b28'); R(x + 5, y + 2, 1, 1, '#1b1b28'); R(x + 6, y + 1, 1, 1, '#1b1b28'); }
+    if (c.scrawl === 2) { for (var t2 = 0; t2 < 4; t2++) R(x + 3 + t2, y + 5, 1, 1, '#1b1b28'); R(x + 3, y + 5, 4, 1, 'rgba(27,27,40,.6)'); }
+    // frame and wheels (the wobbly one points the wrong way)
+    R(x + 3, y + 7, 11, 1, dk); R(x + 3, y + 8, 1, 3, dk); R(x + 13, y + 8, 1, 3, dk);
+    R(x + 2, y + 11, 3, 2, '#2b2422'); R(x + 12, y + 11, 3, 2, '#2b2422');
+    if (c.wobbly) R(x + 12 + jig, y + 12, 3, 1, '#2b2422');
+    // squeak
+    if (c.wobbly && moving && owner && Math.abs(owner.x - W.x) < 70 && Math.abs(owner.y - W.y) < 56) {
+      if (!c.sq || now - c.sq > 1.3) { c.sq = now; c.sqShow = now; if (!calm) G().sfx('squeak'); }
+    }
+    if (c.sqShow && now - c.sqShow < 0.5) TXT((NP.SHARPIE && NP.SHARPIE.squeak) || 'SQUEAK', x + 8, y - 10, CREAM, 'center');
   }
   function updateCrowd(dt) {
     (W.crowd || []).forEach(function (n) {
@@ -164,14 +294,18 @@ NP.Walk = (function () {
       if ((n.wait -= dt) > 0) return;
       if (Math.random() < 0.4) { n.wait = 1 + Math.random() * 3; n.dir = Math.random() < 0.6 ? 'up' : n.dir; return; } // stops to look at a table
       var nb = ADJ[n.node]; if (!nb || !nb.length) return;
+      // Round 6.4: the crowd steps around anybody with a cloud over them
+      var clear = n.smelly ? nb : nb.filter(function (m) { var q = nodePx(m); return !nearSmell(q.x, q.y, 26, n); });
+      if (clear.length) nb = clear;
       n.path = [nb[Math.floor(Math.random() * nb.length)]];
       if (n.path[0] === N_GATE) n.path = [n.node === N_GATE ? nb[0] : nb[(nb.indexOf(N_GATE) + 1) % nb.length]];
     });
+    updateSmell(dt);
   }
 
   // ---------- Demo round 5: the stall map. Tap a place and you walk there ----------
   function mapPlaces() {
-    return W.objs.filter(function (o) { return o.open && o.label && o.fx != null; });
+    return W.objs.filter(function (o) { return o.open && o.label && o.fx != null && o.kind !== 'pillar' && o.kind !== 'cart'; });
   }
   function openStallMap() {
     if (!W || W.panel) return;
@@ -234,10 +368,9 @@ NP.Walk = (function () {
     var s = W.stop;
     var lots = s.items.filter(function (it) { return it.kind === 'lot'; });
     var vis = s.items.filter(function (it) { return it.kind !== 'lot' && !it.crate; });
-    // r5 fix: the rare seller's games go first so they always get a stall of their own
-    if (s.cameo) vis = vis.filter(function (it) { return it.seller === s.cameo; }).concat(vis.filter(function (it) { return it.seller !== s.cameo; }));
     var groups = [], open = {};
-    vis.forEach(function (it) {
+    if (G().fleaGroups) groups = G().fleaGroups(s.items); // the same tables game.js used to pick today's jerks
+    else vis.forEach(function (it) {
       var g = open[it.seller];
       if (!g || g.items.length >= 3) {
         if (groups.length >= SLOTS.length) { groups[groups.length - 1].items.push(it); return; }
@@ -266,18 +399,24 @@ NP.Walk = (function () {
         seller: g ? g.seller : null, items: g ? g.items : [], cloth: g ? (CLOTH[g.seller] || CLOTH.friendly) : ['#8a5e36', '#a87443', '#6b4a2b'],
         vendor: g ? NP.Char.normalize(NP.Char.random(r, { noBrand: true, natural: true })) : null
       };
+      tb.wear = tableWear(idx);
       if (g) {
         var sd = NP.SELLERS[g.seller];
         var dflt = sd.hi[Math.floor(r() * sd.hi.length)];
         tb.hello = (G().helloFor && G().helloFor(g.seller)) || dflt;
-        tb.label = sd.name.toUpperCase() + "'S TABLE";
-        tb.title = sd.name + "'s table";
+        // Round 6.4: a jerk at this table? (game.js decided, in the morning)
+        var jk = g.items.filter(function (it) { return it.jerk; })[0];
+        tb.jerk = jk ? jk.jerk : null;
+        var nm = tb.jerk && G().jerkName ? G().jerkName(g.seller, tb.jerk) : sd.name;
+        if (tb.jerk && G().jerkDef) { var jh = G().jerkDef(tb.jerk).hi; tb.hello = jh[NP.hashStr(S().seed + 'tb' + idx) % jh.length]; tb.tell = G().jerkDef(tb.jerk).tell; tb.name = nm; }
+        tb.label = nm.toUpperCase() + "'S TABLE";
+        tb.title = nm + "'s table";
         if (sd.cameo) { tb.cameo = g.seller; tb.title = '\u2605 RARE SELLER: ' + sd.name; tb.hello = sd.hi[0]; }
         tb.open = function () { return tablePanel(tb); };
         // vendor stands behind the table
         setSolid(sl[0] + 1, sl[1] - 1, tb);
         W.tables.push(tb);
-        W.spots.push({ node: sl[2], items: function () { return tb.items; }, name: sd.name });
+        W.spots.push({ node: sl[2], items: function () { return tb.items; }, name: nm });
       } else {
         // no game vendor in this slot today. Something else is.
         var f = FILLERS[fillerN++ % FILLERS.length];
@@ -324,7 +463,26 @@ NP.Walk = (function () {
     addObj(flip);
   }
 
+  // Round 6.4: every table has had a life. Scuffs, tape, Sharpie, a sign hanging off the front.
+  function tableWear(idx) {
+    var r = mulberry32(NP.hashStr(S().seed + '|wear|' + W.stop.id + '|' + idx));
+    var SH = (NP.SHARPIE && NP.SHARPIE.table) || [];
+    var signs = [['NO', 'RETURNS'], ['CASH', 'ONLY'], ['ALL GAMES', '$5'], ['MAKE', 'OFFER'], ['NO', 'HOLDS'], ['~$10', '$8'], ['AS IS', '~$5 $4'], ['TESTED?', 'MAYBE']];
+    var w = { scuffs: [], sign: r() < 0.85 ? signs[Math.floor(r() * signs.length)] : null, tape: r() < 0.7, tapeX: 4 + Math.floor(r() * 30),
+      tally: r() < 0.55, tallyN: 3 + Math.floor(r() * 6), doodle: Math.floor(r() * 3), init: r() < 0.5 ? ['JR', 'KT', 'DB', 'MW', 'TL'][Math.floor(r() * 5)] : null, stain: r() < 0.6, stainX: 6 + Math.floor(r() * 34) };
+    for (var i = 0; i < 6; i++) w.scuffs.push([Math.floor(r() * 46) + 1, Math.floor(r() * 4), r() < 0.5]);
+    w.hint = SH.length ? 1 : 0;
+    return w;
+  }
   function buildProps() {
+    // Round 6.4: two parked shopping carts nobody is coming back for
+    var cr = mulberry32(NP.hashStr(S().seed + '|carts|' + W.stop.id));
+    var flav = (NP.SHARPIE && NP.SHARPIE.carts) || [];
+    [[12, 15], [18, 16]].forEach(function (pos, i) {
+      var c = cartLook(cr), txt = flav[(i + Math.floor(cr() * 3)) % Math.max(1, flav.length)] || 'A shopping cart.';
+      addObj({ kind: 'cart', fx: pos[0], fy: pos[1], fw: 1, fh: 1, base: (pos[1] + 1) * T, label: 'SHOPPING CART', title: 'A shopping cart',
+        open: function () { return flavor(txt); }, draw: function () { R(pos[0] * T, pos[1] * T + 14, 16, 2, 'rgba(0,0,0,.2)'); drawCart(c, pos[0] * T - 1, pos[1] * T + 2, performance.now() / 1000, null); } });
+    });
     // full game: the Crate Lady sells records, tapes, CDs and movies out of the milk crates (the demo keeps the workout tapes)
     var crateItems = W.stop.items.filter(function (it) { return it.crate; });
     addObj({ kind: 'crates', fx: 9, fy: 15, fw: 2, fh: 1, base: 16 * T, label: crateItems.length ? "THE CRATE LADY'S CRATES" : 'MILK CRATES OF TAPES', title: crateItems.length ? NP.SELLERS.crate.name : 'Milk crates',
@@ -417,6 +575,9 @@ NP.Walk = (function () {
     }
     if (s.nerdsDone) W.nerds.forEach(function (n) { n.present = false; });
     W.passEl = true;
+    // Round 6.4: three days of convention. Some of the nerds have been here for all three.
+    var sr = mulberry32(NP.hashStr(st.seed + '|smell|' + s.id));
+    smellUp(W.nerds, sr, true); smellUp(W.npcs, sr, false);
   }
 
   function stampBooth(b) {
@@ -476,6 +637,7 @@ NP.Walk = (function () {
   }
   function updateExpo(dt) {
     var s = W.stop, st = S(), since = (performance.now() - W.enterAt) / 1000;
+    updateSmell(dt);
     var going = 0;
     W.nerds.forEach(function (n) {
       if (n.state === 'wait') {
@@ -780,18 +942,24 @@ NP.Walk = (function () {
       return { small: true, html: '<div class="bubble big">Brody from BrodyBox is filming at this table. "Can you walk around? You\'re in my shot. This video is NOT sponsored."</div>' +
         '<div class="note">The table opens back up at ' + G().fmtTime(tb.brodyUntil) + '. Come back then, or shop somewhere else.</div>' };
     }
+    var nm = tb.name || sd.name;
     var h = '';
     if (tb.cameo) {
       var cm = (NP.CAMEOS || []).filter(function (x) { return x.id === tb.cameo; })[0];
       if (cm) h += '<div class="cameo rare"><span class="cameo-star" aria-hidden="true">&#9733;</span><canvas class="cameo-cv" width="48" height="64" data-cameo="' + cm.id + '" aria-hidden="true"></canvas><div><b class="cameo-tag">' + esc(NP.CAMEO_TEXT.tag) + '</b> <b>' + esc(cm.name) + '</b><div class="cameo-t">' + esc(cm.tag) + '.</div></div></div>';
     }
-    h += '<div class="bubble big">' + esc(sd.name) + ': "' + esc(tb.cola && SP ? SP.colaLine : tb.hello) + '"</div>';
+    h += (tb.jerk && G().jerkTellHTML ? G().jerkTellHTML(tb.jerk, nm, S().seed + 'tb' + tb.fx + tb.fy) : '') +
+      '<div class="bubble big' + (tb.jerk ? ' jerky' : '') + '">' + esc(nm) + ': ' + esc(tb.jerk && G().jerkQuote ? G().jerkQuote(tb.hello) : '"' + (tb.cola && SP ? SP.colaLine : tb.hello) + '"') + '</div>';
     if (tb.cola && SP) h += '<div class="glam"><canvas class="glamcan" width="22" height="30" aria-label="A can of ' + esc(SP.name) + '"></canvas><div class="glam-t">' + esc(SP.colaAction) + '</div></div>';
-    if (G().adLevel() >= 2) h += '<div class="poster">' + (G().adFree() ? 'TAPED TO THE TABLE: The Ad-Free Edition. No posters. (Except this one.)' : 'TAPED TO THE TABLE: Nostalgia Pro: The Shelf Dust. Now in Sealed. Booth open till ' + (G().endLabel ? G().endLabel() : '5:30 PM') + '.') + '</div>';
+    if (G().adLevel() >= 2) h += '<div class="poster">' + (G().adFree() ? 'TAPED TO THE TABLE: The Ad-Less Edition. No posters. (Except this one.)' : 'TAPED TO THE TABLE: Nostalgia Pro: The Shelf Dust. Now in Sealed. Booth open till ' + (G().endLabel ? G().endLabel() : '5:30 PM') + '.') + '</div>';
     h += '<div class="items">' + tb.items.map(function (it) { return G().itemCard(it, s); }).join('') + '</div>';
     // every game vendor here buys too (selling and trading in, from game.js)
     if (G().sellHTML) h += G().sellHTML(s, tb.seller);
-    return { html: h, after: tb.cola ? drawGlamCan : tb.cameo ? function () { if (G().drawCameos) G().drawCameos(); if (G().cameoMeet) G().cameoMeet(tb.cameo); } : null };
+    return { html: h, after: function () {
+      if (tb.cola) drawGlamCan();
+      if (tb.cameo) { if (G().drawCameos) G().drawCameos(); if (G().cameoMeet) G().cameoMeet(tb.cameo); }
+      if (tb.jerk && G().startTells) { G().startTells(); if (!G().demo && G().jerkTip) G().jerkTip('.wpanel .jtell-row'); if (!tb.metJerk) { tb.metJerk = true; G().track('jerk_met'); G().track('jerk_met_' + tb.jerk); } }
+    } };
   }
   function drawGlamCan() {
     var c = document.querySelector('.wpanel .glamcan');
@@ -935,7 +1103,7 @@ NP.Walk = (function () {
       if (Math.abs(ix) > Math.abs(iy) + 0.01) W.dir = ix < 0 ? 'left' : 'right';
       else if (Math.abs(iy) > Math.abs(ix) + 0.01) W.dir = iy < 0 ? 'up' : 'down';
       else if (!((W.dir === 'left' && ix < 0) || (W.dir === 'right' && ix > 0) || (W.dir === 'up' && iy < 0) || (W.dir === 'down' && iy > 0))) W.dir = iy < 0 ? 'up' : 'down';
-      var sp = SPEED * boost() * dt;
+      var sp = SPEED * boost() * smellSlow() * dt;
       moved += moveAxis(ix * sp, 0);
       moved += moveAxis(0, iy * sp);
     }
@@ -1097,7 +1265,7 @@ NP.Walk = (function () {
   function cancelTap() { if (W && W.path && W.path.length) { W.path = []; W.goal = null; W.marker = null; } }
   // one frame of following the path. Returns how far you moved.
   function followPath(dt) {
-    var wp = W.path[0], dx = wp.x - W.x, dy = wp.y - W.y, st = SPEED * boost() * dt, moved = 0;
+    var wp = W.path[0], dx = wp.x - W.x, dy = wp.y - W.y, st = SPEED * boost() * smellSlow() * dt, moved = 0;
     if (Math.abs(dx) <= 0.5 && Math.abs(dy) <= 0.5) {
       W.path.shift();
       if (!W.path.length) arrived();
@@ -1185,7 +1353,7 @@ NP.Walk = (function () {
     var af = G().adFree();
     var key = (W && W.expo ? 'x' : '') + af;
     if (bannerCache[key]) return bannerCache[key];
-    var a = W && W.expo ? 'DESERT PIXEL EXPO!  ' : 'SAGUARO SWAP MEET!  ', b = W && W.expo ? 'CONVENTION HALL B · NO REFUNDS' : af ? 'AN AD-FREE ZONE (SPONSORED)' : 'SPONSORED BY NOSTALGIA PRO';
+    var a = W && W.expo ? 'DESERT PIXEL EXPO!  ' : 'SAGUARO SWAP MEET!  ', b = W && W.expo ? 'CONVENTION HALL B · NO REFUNDS' : af ? 'AN AD-LESS ZONE (SPONSORED)' : 'SPONSORED BY NOSTALGIA PRO';
     var w = NP.textWidth(a + b, 1) + 16;
     var c = document.createElement('canvas'); c.width = w; c.height = 14;
     var g = c.getContext('2d');
@@ -1220,8 +1388,20 @@ NP.Walk = (function () {
     R(X, Y - 7, 48, 2, tb.cloth[1]);
     R(X - 1, Y + 6, 50, 6, INK); R(X, Y + 6, 48, 5, tb.cloth[2]);
     for (var i = 0; i < 12; i++) R(X + 1 + i * 4, Y + 10, 2, 1, tb.cloth[0]);
+    var wr = tb.wear;
+    if (wr) {
+      // scuffs and a coffee ring on the top, masking tape and Sharpie on the front
+      wr.scuffs.forEach(function (sc) { R(X + sc[0], Y - 6 + sc[1], sc[2] ? 2 : 1, 1, 'rgba(0,0,0,.18)'); });
+      if (wr.stain) { R(X + wr.stainX, Y - 5, 4, 1, 'rgba(70,40,20,.35)'); R(X + wr.stainX - 1, Y - 4, 1, 1, 'rgba(70,40,20,.35)'); R(X + wr.stainX + 4, Y - 4, 1, 1, 'rgba(70,40,20,.35)'); R(X + wr.stainX, Y - 3, 4, 1, 'rgba(70,40,20,.35)'); }
+      if (wr.tape) { R(X + wr.tapeX, Y + 6, 8, 2, '#e9dcb0'); R(X + wr.tapeX + 1, Y + 7, 1, 1, '#c9bb8c'); }
+      if (wr.tally) for (var tl = 0; tl < wr.tallyN; tl++) { if (tl % 5 === 4) R(X + 36 + (tl - 4) % 10, Y + 8, 5, 1, INK); else R(X + 36 + tl + Math.floor(tl / 5) * 2, Y + 7, 1, 3, INK); }
+      if (wr.doodle === 1) { R(X + 3, Y + 7, 3, 1, INK); R(X + 3, Y + 9, 3, 1, INK); R(X + 3, Y + 8, 1, 1, INK); R(X + 5, Y + 8, 1, 1, INK); } // a little box
+      if (wr.doodle === 2) { R(X + 3, Y + 7, 1, 1, INK); R(X + 5, Y + 7, 1, 1, INK); R(X + 3, Y + 9, 3, 1, INK); } // a smiley
+    }
     var av = tb.items.filter(avail);
     av.slice(0, 4).forEach(function (it, k) { mini(it, X + 2 + k * 11, Y - 13); });
+    if (wr && wr.sign && (tb.seller || tb.flavorSign)) drawCardSign(tb.jerk ? ['NO', 'LOWBALLS'] : wr.sign, X + 24, Y + 3, wr.init);
+    if (tb.jerk && tb.vendor && tb.tell) drawTellOnTable(tb, X, Y);
     if (tb.junk) tb.junk.forEach(function (j) { R(X + j[0], Y - 5 + j[1], j[2], j[3], j[4]); });
     if (!tb.seller && !tb.flavorSign) sign(X + 24, Y - 6, 'BACK IN 5', CREAM, INK);
     else if (tb.seller && !av.length && tb.items.length) sign(X + 24, Y - 6, 'SOLD OUT', CREAM, INK);
@@ -1233,6 +1413,45 @@ NP.Walk = (function () {
       NP.drawCan(ctx, X + 31 - CX, Y - 26 - CY, 1, phase);
       if (phase >= 1) NP.drawSparkle(ctx, X + 40 - CX, Y - 27 - CY, 1, t);
     }
+  }
+
+  // a cardboard sign in Sharpie, taped to the front of the table. '~' at the start of a line crosses it out.
+  function drawCardSign(lines, cx, y, init) {
+    var w = 0;
+    lines.forEach(function (l) { w = Math.max(w, NP.textWidth(l.replace(/^~/, ''), 1)); });
+    w += 6;
+    var h = lines.length * 7 + 3;
+    OB(cx - w / 2, y, w, h, '#c9a46a');
+    R(cx - w / 2, y, w, 1, '#d8b57f');
+    R(cx - w / 2 + 1, y - 1, 4, 2, 'rgba(233,220,176,.9)'); R(cx + w / 2 - 5, y - 1, 4, 2, 'rgba(233,220,176,.9)'); // tape
+    lines.forEach(function (l, i) {
+      var crossed = l.charAt(0) === '~', t = crossed ? l.slice(1) : l;
+      var parts = t.split(' ');
+      if (crossed && parts.length > 1) {
+        // cross out the first price, keep the new one
+        var first = parts[0], rest = parts.slice(1).join(' '), fw = NP.textWidth(first, 1), tw = NP.textWidth(t, 1), x0 = cx - tw / 2;
+        TXT(first, x0, y + 2 + i * 7, '#1b1b28'); R(x0 - 1, y + 4 + i * 7, fw + 2, 1, '#c8323c');
+        TXT(rest, x0 + fw + 6, y + 2 + i * 7, '#1b1b28');
+      } else {
+        TXT(t, cx, y + 2 + i * 7, '#1b1b28', 'center');
+        if (crossed) { var tw2 = NP.textWidth(t, 1); R(cx - tw2 / 2 - 1, y + 4 + i * 7, tw2 + 2, 1, '#c8323c'); }
+      }
+    });
+    if (init) TXT(init, cx + w / 2 - 1, y + h - 1, 'rgba(27,27,40,.7)');
+  }
+  // the jerk's tell, over the vendor behind the table (arms are hidden by the stuff on the table, so they get a bubble)
+  function drawTellOnTable(tb, X, Y) {
+    var calm = G().calm && G().calm(), now = calm ? 0 : performance.now() / 1000 + tb.fx;
+    NP.Char.overlay(ctx, tb.tell, tb.vendor, 'down', X + 16 - CX, Y - 26 - CY, 1, now);
+    var word = tb.tell === 'arms' ? 'HMPH' : tb.tell === 'roll' ? 'UGH' : tb.tell === 'sigh' ? 'SIGH' : null;
+    var show = calm || (now % 4) < 2.4;
+    if (word && show) {
+      var w = NP.textWidth(word, 1) + 5;
+      OB(X + 33, Y - 29, w, 9, CREAM);
+      R(X + 32, Y - 22, 2, 2, CREAM);
+      TXT(word, X + 33 + w / 2, Y - 27, INK, 'center');
+    }
+    if (tb.tell === 'phone' && show) TXT('...', X + 38, Y - 28, CREAM, 'center');
   }
 
   function drawVan() {
@@ -1268,8 +1487,12 @@ NP.Walk = (function () {
     OB(X, Y + 12, 48, 18, '#2f6fb3');
     R(X + 6, Y + 18, 14, 1, '#25599a'); R(X + 26, Y + 24, 16, 1, '#25599a');
     if (!s.dug) {
+      // Round 6.4: crammed. Carts sticking out at every angle, a cable that goes nowhere, a box flap with Sharpie on it
       OB(X + 4, Y + 2, 16, 12, '#a87443'); OB(X + 22, Y - 2, 14, 16, '#9a6a3b'); OB(X + 34, Y + 6, 12, 10, '#b5824e');
       R(X + 6, Y + 2, 3, 4, '#9aa0ad'); R(X + 10, Y + 1, 3, 5, NAVY); R(X + 25, Y - 4, 4, 5, '#c9d1dc'); R(X + 37, Y + 4, 3, 4, RED);
+      R(X + 13, Y, 3, 4, '#59606e'); R(X + 16, Y + 1, 2, 3, '#ffcc33'); R(X + 29, Y - 5, 3, 5, '#9aa0ad'); R(X + 30, Y - 4, 1, 2, '#e4343e');
+      R(X + 40, Y + 3, 4, 3, '#c9d1dc'); R(X + 2, Y + 12, 6, 1, '#2b2f3f'); R(X + 1, Y + 13, 1, 3, '#2b2f3f');
+      R(X + 24, Y + 4, 10, 4, '#c9a46a'); TXT('MISC', X + 29, Y + 4, '#1b1b28', 'center');
     } else {
       OB(X + 6, Y + 8, 14, 6, '#a87443'); OB(X + 26, Y + 6, 16, 8, '#9a6a3b');
       s.dig.filter(avail).slice(0, 3).forEach(function (it, k) { mini(it, X + 6 + k * 13, Y + 14); });
@@ -1296,7 +1519,7 @@ NP.Walk = (function () {
     }
     sign(X + 40, Y - 13, 'GIFT SHOP', GOLD, INK);
     var lvl = G().adLevel();
-    if (lvl >= 2) sign(X + 40, Y + 64, G().adFree() ? 'AD-FREE PRICES' : 'PRICES UP TODAY', GOLD, RED);
+    if (lvl >= 2) sign(X + 40, Y + 64, G().adFree() ? 'AD-LESS PRICES' : 'PRICES UP TODAY', GOLD, RED);
   }
 
   function drawFlip() {
@@ -1363,12 +1586,15 @@ NP.Walk = (function () {
     ctx.drawImage(bn, Math.round((MW * T - bn.width) / 2 - CX), 1 - CY);
 
     var list = W.objs.slice();
-    list.push({ base: W.y, draw: function () { shadow(W.x, W.y); sprite(W.look, W.dir, W.step, W.x, W.y); } });
+    list.push({ base: W.y, draw: function () {
+      shadow(W.x, W.y); sprite(W.look, W.dir, W.step, W.x, W.y);
+      if (W.smellNear || W.whewT > 0) NP.Char.overlay(ctx, 'squint', W.look, W.dir, W.x - 8 - CX, W.y - 24 - CY, 1, 0);
+    } });
     var d = W.dex;
     if (d && d.present) list.push({ base: d.y, draw: function () { shadow(d.x, d.y); sprite(d.look, d.dir, d.step, d.x, d.y); } });
-    (W.npcs || []).forEach(function (n) { if (n.present) list.push({ base: n.y, draw: function () { shadow(n.x, n.y); sprite(n.look, n.dir, n.step, n.x, n.y); } }); });
-    (W.crowd || []).forEach(function (n) { list.push({ base: n.y, draw: function () { shadow(n.x, n.y); sprite(n.look, n.dir, n.step, n.x, n.y); } }); });
-    (W.nerds || []).forEach(function (n) { if (n.present) list.push({ base: n.y, draw: function () { shadow(n.x, n.y); sprite(n.look, n.dir, n.step, n.x, n.y); if (n.state === 'go') drawWant(n); } }); });
+    (W.npcs || []).forEach(function (n) { if (n.present) list.push({ base: n.y, draw: function () { drawPerson(n); } }); });
+    (W.crowd || []).forEach(function (n) { list.push({ base: n.y, draw: function () { drawPerson(n); } }); });
+    (W.nerds || []).forEach(function (n) { if (n.present) list.push({ base: n.y, draw: function () { drawPerson(n, n.state === 'go' ? function () { drawWant(n); } : null); } }); });
     list.sort(function (a, b) { return a.base - b.base; });
     list.forEach(function (o) { o.draw(); });
 
@@ -1393,6 +1619,8 @@ NP.Walk = (function () {
       R(mx - 3 - mk, my - 1, 7 + mk * 2, 1, GOLD); R(mx - 1, my - 3 - mk, 1, 7 + mk * 2, GOLD);
       R(mx - 5 - mk, my + 2, 2, 1, INK); R(mx + 4 + mk, my + 2, 2, 1, INK);
     }
+    // Round 6.4: you walked through somebody's cloud
+    if (W.whewT > 0 && W.whew) sign(W.x, W.y - 38, W.whew, CREAM, INK);
     // Dex name tag when he is close
     if (d && d.present && Math.abs(d.x - W.x) < 64 && Math.abs(d.y - W.y) < 48) sign(d.x, d.y - 38, 'DEX', '#ff9e57', INK);
     (W.npcs || []).forEach(function (n) {
@@ -1444,8 +1672,8 @@ NP.Walk = (function () {
       '<canvas id="walkcv" tabindex="0" width="' + VW + '" height="' + VH + '" aria-label="' + (W.expo ? 'The Desert Pixel Expo convention hall' : 'The Saguaro Swap Meet') + '. Use arrow keys to walk and space to look."></canvas>' +
       '<div class="wtoast" hidden></div><div class="wpanel" hidden tabindex="-1"></div>' +
       // Demo round 5: the walking cost sits on the play area itself, so it shows in landscape too
-      (W.expo || !G().demo ? '' : '<button class="wmapbtn" data-w="map" aria-label="Map of the swap meet. Tap a place to walk there.">MAP</button>') +
-      (!G().demo ? '' : '<div class="wcost" aria-hidden="true">&#9728; ' + (G().demo ? '9' : '6') + ' steps = 1 min</div>') + '</div>' +
+      ('<button class="wmapbtn" data-w="map" aria-label="' + (W.expo ? 'Map of the hall' : 'Map of the swap meet') + '. Tap a place to walk there.">MAP</button>') +
+      ('<div class="wcost" aria-hidden="true">&#9728; ' + (G().demo ? '9' : '6') + ' steps = 1 min</div>') + '</div>' +
       '<div class="tpad"><div class="dpad" id="dpad"><i class="u"></i><i class="l"></i><i class="c"></i><i class="r"></i><i class="d"></i></div>' +
       '<button class="abtn" data-w="act" aria-label="Look">A</button></div></div>' +
       '<div class="walk-help">' + (W.expo ? (touch ? 'Tap a booth to walk over. The thing floating over a nerd is what they are running for.' : 'Click a booth to walk over, or use the arrow keys. The thing floating over a nerd is what they are running for.')
@@ -1479,7 +1707,7 @@ NP.Walk = (function () {
       var rv = app.querySelector('.walk-rivals'), rvH = rv && rv.offsetHeight ? rv.getBoundingClientRect().height + 16 : 0;
       // the next-step bar is pinned to the bottom of the screen, so the play area stops above it
       var nsb = document.querySelector('.nsbar'), nsH = nsb ? nsb.getBoundingClientRect().height : 0;
-      var helpEl = app.querySelector('.walk-help'), helpH = helpEl && window.innerHeight < 500 ? helpEl.getBoundingClientRect().height + 8 : 0;
+      var helpEl = app.querySelector('.walk-help'), helpH = helpEl ? helpEl.getBoundingClientRect().height + 8 : 0; // the help line may sit below the fold: the cost is on the play area and the NEXT bar says what to do
       var over = Math.ceil(bottom - window.innerHeight - rvH - helpH + nsH);
       var bw = box.getBoundingClientRect().width;
       if (pass === 0) box.style.maxWidth = Math.max(200, Math.floor((ch - over - 7) * VW / VH + 6)) + 'px';
@@ -1502,7 +1730,7 @@ NP.Walk = (function () {
     if (t) showToast(t);
     // Dex is already here when you walk in (he beat you to it)
     if (W.dex && W.dex.present && G().tip) G().tip('dex');
-    if (G().demo && !W.expo && G().tip) G().tip('stallmap');
+    if (G().tip) G().tip('stallmap');
     if (W.panel) panelRender();
     if (!raf && active()) { lastT = performance.now(); raf = requestAnimationFrame(loop); }
   }
@@ -1550,7 +1778,7 @@ NP.Walk = (function () {
       if (e.code === 'Escape') { e.preventDefault(); closePanel(); }
       return;
     }
-    // arrows and WASD always walk, even right after clicking the sound or Ad-Free button
+    // arrows and WASD always walk, even right after clicking the sound or Ad-Less button
     var k = KEYMAP[e.code];
     if (k) { keys[k] = true; e.preventDefault(); return; }
     // Space and Enter belong to whatever button or checkbox has focus

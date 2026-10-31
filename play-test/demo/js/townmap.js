@@ -6,16 +6,24 @@ window.NP = NP;
 
 NP.TownMap = (function () {
   'use strict';
-  var W = 320, H = 224;
-  var XS = [34, 112, 190, 268], YS = [46, 116, 186];     // the street grid
+  // the street grid: 4 streets across for the demo, 5 for the full game (it has up to 12 stops a day)
+  var W = 320, H = 224, XS = [34, 112, 190, 268], YS = [46, 116, 186];
+  var GRIDS = { 4: { W: 320, XS: [34, 112, 190, 268] }, 5: { W: 400, XS: [34, 117, 200, 283, 366] } };
+  function useGrid(cols) { var gr = GRIDS[cols] || GRIDS[4]; W = gr.W; XS = gr.XS; ORDER = orderFor(XS.length); }
   var HOME = [0, 2];
-  var PREFER = { yard: [1, 2], flea: [3, 1], gift: [2, 0], thrift: [1, 0], pawn: [3, 2], sports: [0, 1] };
-  var ORDER = [[1, 2], [3, 1], [2, 0], [0, 0], [1, 0], [3, 0], [0, 1], [1, 1], [2, 1], [2, 2], [3, 2]];
+  var PREFER = { yard: [1, 2], flea: [3, 1], gift: [2, 0], thrift: [1, 0], pawn: [3, 2], sports: [0, 1], expo: [4, 1], mall: [4, 0], record: [2, 1], rummage: [0, 0] };
+  function orderFor(n) {
+    var base = [[1, 2], [3, 1], [2, 0], [0, 0], [1, 0], [3, 0], [0, 1], [1, 1], [2, 1], [2, 2], [3, 2]];
+    if (n > 4) base = base.concat([[4, 0], [4, 1], [4, 2]]);
+    return base;
+  }
+  var ORDER = orderFor(4);
   var STREETS_H = ['MESQUITE LN', 'QUAIL RUN', 'CREOSOTE WAY'];
   var STREETS_V = ['OCOTILLO DR', 'JAVELINA CT', 'BRITTLEBUSH RD', 'SAGUARO BLVD'];
   var C = { sand: '#d9b77e', sand2: '#cfa96c', road: '#4a4d57', line: '#ffcc33', ink: '#0b1022', cream: '#fff1d6', green: '#3f8f4a', green2: '#57a061',
     canal: '#29adff', canal2: '#7fd0ff', roof: '#c8323c', wall: '#e8dcc0', grey: '#8a90a0', gold: '#ffcc33', cyan: '#29d3e8', red: '#e4343e' };
 
+  function esc(v) { return String(v).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function P(g, x, y, w, h, c) { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), w, h); }
   function txt(g, s, x, y, col, align) { NP.pixelText(g, s, x + 1, y + 1, 1, C.ink, align); NP.pixelText(g, s, x, y, 1, col, align); }
   function rnd(seed) { var a = seed >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -24,11 +32,11 @@ NP.TownMap = (function () {
   function layout(stops) {
     var used = {}, pos = {};
     used[HOME.join(',')] = true;
-    stops.forEach(function (s) { var p = PREFER[s.type]; if (p && !used[p.join(',')]) { pos[s.id] = p; used[p.join(',')] = true; } });
+    stops.forEach(function (s) { var p = PREFER[s.type]; if (p && p[0] < XS.length && !used[p.join(',')]) { pos[s.id] = p; used[p.join(',')] = true; } });
     stops.forEach(function (s) {
       if (pos[s.id]) return;
       for (var i = 0; i < ORDER.length; i++) { var k = ORDER[i].join(','); if (!used[k]) { pos[s.id] = ORDER[i]; used[k] = true; return; } }
-      pos[s.id] = [3, 2];
+      pos[s.id] = [XS.length - 1, 2];
     });
     pos.home = HOME;
     return pos;
@@ -58,7 +66,8 @@ NP.TownMap = (function () {
       for (var c = 0; c < 2; c++) { var cx = x0 + r() * (x1 - x0), cy = y0 + r() * (y1 - y0); if (cy > 120 && cy < 138) continue; P(g, cx, cy, 2, 7, C.green); P(g, cx - 2, cy + 2, 2, 1, C.green); P(g, cx - 2, cy, 1, 3, C.green); P(g, cx + 2, cy + 3, 2, 1, C.green2); P(g, cx + 3, cy + 1, 1, 3, C.green2); }
     }
     // street names
-    STREETS_H.forEach(function (n, i) { txt(g, n, (XS[1] + XS[2]) / 2, YS[i] + 8, C.cream, 'center'); });
+    // street names sit on the road itself (on a little sign), clear of the stop names above the buildings
+    STREETS_H.forEach(function (n, i) { var cx = (XS[1] + XS[2]) / 2, w = n.length * 6 + 4; P(g, cx - w / 2, YS[i] - 5, w, 10, '#2a2d36'); txt(g, n, cx, YS[i] - 3, '#e8dcc0', 'center'); });
   }
   function building(g, s, x, y, t) {
     // every stop is a little building at its corner, set back from the road
@@ -79,6 +88,34 @@ NP.TownMap = (function () {
       P(g, bx + 9, by - 6, 8, 8, C.gold); P(g, bx + 11, by - 8, 4, 12, C.gold); P(g, bx + 7, by - 4, 12, 4, C.gold);
       return;
     }
+    if (s.type === 'thrift' || s.type === 'pawn' || s.type === 'record' || s.type === 'rental' || s.type === 'sports' || s.type === 'banned' || s.type === 'pal') {
+      // a little storefront: wall, awning in the store's colors, a sign on top, a door
+      var SC = { thrift: ['#2f6fb0', '#e8dcc0', C.cyan], pawn: ['#6b4a2b', C.gold, C.gold], record: ['#1d1d2b', '#e4343e', C.cream], rental: ['#2e3f9e', C.gold, C.gold],
+        sports: ['#2f7d3e', C.cream, C.cream], banned: ['#59606e', C.red, C.red], pal: ['#8a5e36', '#e8dcc0', C.cyan] }[s.type];
+      P(g, bx, by + 6, 26, 16, SC[0]); for (var a = 0; a < 26; a += 4) P(g, bx + a, by + 6, 2, 4, SC[1]);
+      P(g, bx + 1, by + 1, 24, 5, C.ink); P(g, bx + 3, by + 2, 20, 3, SC[2]);
+      P(g, bx + 10, by + 14, 6, 8, '#2a1d14'); P(g, bx + 3, by + 13, 5, 4, '#7fd0ff'); P(g, bx + 18, by + 13, 5, 4, '#7fd0ff');
+      if (s.type === 'pawn') { P(g, bx + 12, by - 5, 3, 6, C.gold); P(g, bx + 10, by - 4, 7, 1, C.gold); P(g, bx + 10, by - 1, 7, 1, C.gold); }
+      if (s.type === 'record') { P(g, bx + 9, by - 6, 8, 8, C.ink); P(g, bx + 12, by - 3, 2, 2, C.red); }
+      if (s.type === 'banned') { P(g, bx + 9, by + 14, 8, 2, C.red); P(g, bx + 12, by + 11, 2, 8, C.red); }
+      return;
+    }
+    if (s.type === 'rummage') {
+      // the old dance hall: a long low building, a banner, and three bins out front
+      P(g, bx - 4, by + 6, 34, 16, '#b07a4a'); P(g, bx - 5, by + 2, 36, 5, '#7a4a2a');
+      P(g, bx - 2, by - 3, 30, 5, C.cream); for (var rb = 0; rb < 30; rb += 4) P(g, bx - 2 + rb, by - 2, 2, 3, C.red);
+      P(g, bx + 9, by + 13, 8, 9, '#3a2a1a');
+      P(g, bx - 3, by + 18, 7, 4, '#2e3f9e'); P(g, bx + 21, by + 18, 7, 4, '#2f7d3e'); P(g, bx + 1, by + 17, 2, 1, C.gold); P(g, bx + 24, by + 17, 2, 1, C.cream);
+      return;
+    }
+    if (s.type === 'mall' || s.type === 'expo') {
+      // a big box: the mall, or the convention hall with its banner
+      P(g, bx - 6, by + 2, 38, 20, s.type === 'mall' ? '#9aa3b5' : '#3a4d82'); P(g, bx - 7, by - 1, 40, 4, s.type === 'mall' ? '#6b7385' : C.ink);
+      for (var w2 = 0; w2 < 5; w2++) P(g, bx - 3 + w2 * 7, by + 7, 4, 4, '#7fd0ff');
+      P(g, bx + 8, by + 14, 10, 8, C.ink);
+      if (s.type === 'expo') { P(g, bx - 4, by - 7, 34, 6, C.red); for (var e2 = 0; e2 < 34; e2 += 3) P(g, bx - 4 + e2, by - 6, 1, 4, Math.floor(t * 3 + e2) % 2 ? C.gold : C.cream); }
+      return;
+    }
     // a yard sale: a house, a driveway, a folding table with boxes
     P(g, bx + 2, by + 4, 18, 14, C.wall); P(g, bx, by, 22, 6, C.roof); P(g, bx + 8, by + 11, 5, 7, '#6b4a2b');
     P(g, bx + 18, by + 16, 14, 3, '#c9d1dc'); P(g, bx + 19, by + 19, 1, 3, C.grey); P(g, bx + 30, by + 19, 1, 3, C.grey);
@@ -93,9 +130,18 @@ NP.TownMap = (function () {
 
   // ---------- one map on the page ----------
   function mount(box, opts) {
+    useGrid(opts.cols || 4);
     var stops = opts.stops, pos = layout(stops), town = document.createElement('canvas');
     town.width = W; town.height = H; drawTown(town.getContext('2d'));
-    box.innerHTML = '<div class="tm-wrap"><canvas class="tm-cv" width="' + W + '" height="' + H + '" aria-label="Town map. Tap a stop to drive there."></canvas></div>' +
+    // r6.2: the stop names are real text laid over the map, so they stay readable on a phone and follow Text size
+    var colPct = ((XS[1] - XS[0]) / W * 100 - 1.5).toFixed(2), lab = '';
+    stops.concat([{ id: 'home', home: true, short: 'HOME' }]).forEach(function (s) {
+      var p = px(s.home ? HOME : pos[s.id]), cls = 'tm-lab' + (s.locked ? ' locked' : s.visited ? ' visited' : s.late ? ' late' : '') + (s.next ? ' next' : '');
+      var left = Math.max(colPct / 2, Math.min(100 - colPct / 2, p.x / W * 100));
+      lab += '<span class="' + cls + '" style="left:' + left.toFixed(2) + '%;top:' + ((p.y - 33) / H * 100).toFixed(2) + '%;max-width:' + colPct + '%">' + esc(s.locked ? 'FULL GAME' : (s.short || s.name)) + '</span>';
+      if (s.rare && !s.visited) lab += '<span class="tm-lab rare" style="left:' + left.toFixed(2) + '%;top:' + ((p.y - 33) / H * 100).toFixed(2) + '%">RARE STUFF!</span>';
+    });
+    box.innerHTML = '<div class="tm-wrap"><div class="tm-in" style="--tmr:' + (W / H).toFixed(4) + '"><canvas class="tm-cv" width="' + W + '" height="' + H + '" aria-label="Town map. Tap a stop to drive there."></canvas><div class="tm-labels" aria-hidden="true">' + lab + '</div></div></div>' +
       '<div class="tm-drive" hidden><div class="tm-dl"></div><button class="tm-skip" type="button">Skip the drive &#9654;&#9654;</button></div>';
     var cv = box.querySelector('.tm-cv'), g = cv.getContext('2d'), live = true, t0 = performance.now();
     g.imageSmoothingEnabled = false;
@@ -107,7 +153,7 @@ NP.TownMap = (function () {
     }
     cv.addEventListener('click', function (ev) { if (driving) return; var s = hit(ev); if (s && opts.onPick) opts.onPick(s); });
     function frame(now) {
-      if (!live || !document.body.contains(cv)) { live = false; return; }
+      if (!live || !cv || !document.body.contains(cv)) { release(); return; }
       var t = (now - t0) / 1000;
       g.drawImage(town, 0, 0);
       var nextId = null;
@@ -115,12 +161,13 @@ NP.TownMap = (function () {
         var p = px(pos[s.id]);
         building(g, s, p.x, p.y, t);
         var label = s.locked ? 'FULL GAME' : (s.short || s.name);
-        txt(g, label, p.x, p.y - 42, s.locked ? '#b8bdc8' : s.visited ? '#9fe8c0' : C.cream, 'center');
+
         if (s.visited) { P(g, p.x + 12, p.y - 34, 7, 7, '#3ddc84'); txt(g, '', p.x, p.y, C.ink); }
+        if (s.late && !s.visited) { g.fillStyle = 'rgba(11,16,34,.55)'; g.fillRect(p.x - 20, p.y - 36, 40, 32); }
         if (s.next && !driving) { nextId = s.id; var rr = 3 + (Math.floor(t * 3) % 3); g.strokeStyle = C.gold; g.lineWidth = 2; g.strokeRect(p.x - 17 - rr, p.y - 34 - rr, 34 + rr * 2, 28 + rr * 2); }
-        if (s.rare && !s.visited && Math.floor(t * 2.5) % 2 === 0) { txt(g, 'RARE STUFF!', p.x, p.y - 52, C.gold, 'center'); }
+
       });
-      building(g, { home: true }, px(HOME).x, px(HOME).y, t); txt(g, 'HOME', px(HOME).x, px(HOME).y - 42, C.cream, 'center');
+      building(g, { home: true }, px(HOME).x, px(HOME).y, t);
       if (driving) {
         var d = driving, k = Math.min(1, (now - d.start) / d.dur);
         var dist = k * d.total, seg = 0;
@@ -138,6 +185,8 @@ NP.TownMap = (function () {
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
+    // let go of the drawings as soon as this map is gone (a page that re-renders a lot never piles them up)
+    function release() { live = false; town = null; cv = null; g = null; puffs = []; }
     function finish() {
       if (!driving) return;
       var d = driving; driving = null;
@@ -170,7 +219,7 @@ NP.TownMap = (function () {
         if (NP.Sound) NP.Sound.sfx('start');
       },
       isDriving: function () { return !!driving; },
-      stop: function () { live = false; }
+      stop: function () { release(); }
     };
   }
   return { mount: mount, layout: layout };

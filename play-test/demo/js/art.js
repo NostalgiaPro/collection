@@ -147,6 +147,11 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
     for (var g = 0; g < (w - 8) / 3; g++) P(x0 + 4 + g * 3, 35, 2, 2, '#5d6370');
     if (it.variant === 'promo') { P(x0 + 3, top + 25, w - 6, 4, NP.COL.red); P(x0 + 5, top + 26, w - 10, 2, NP.COL.cream); }
     if (it.variant === 'import') { P(x0 + 3, top + 25, w - 6, 3, NP.COL.cyan); for (var q = 0; q < (w - 8) / 2; q++) P(x0 + 4 + q * 2, top + 26, 1, 1, NP.COL.ink); }
+    // Round 6.4: loose carts have been places. A torn label corner, a price sticker, a name in marker.
+    var wh = wearHash(it), shell = VV && VV.color ? VV.color : pl.media === 'hand' ? '#59606e' : '#9aa0ad';
+    if (wh % 4 === 0) { var lx = x0 + w - 7, ly = top + 18; P(lx + 2, ly, 2, 6, shell); P(lx, ly + 3, 2, 3, shell); P(lx + 1, ly + 2, 1, 1, '#e8e2d0'); P(lx - 1, ly + 5, 1, 1, '#e8e2d0'); }
+    if (it.sticker) { P(x0 + 4, top + 19, 7, 4, NP.COL.gold); P(x0 + 5, top + 21, 5, 1, NP.COL.red); P(x0 + 10, top + 19, 1, 1, '#fff1a8'); }
+    if (wh % 7 === 3) { P(x0 + 4, top + 26, 2, 1, NP.COL.ink); P(x0 + 6, top + 27, 2, 1, NP.COL.ink); P(x0 + 9, top + 26, 3, 1, NP.COL.ink); } // somebody's initials, in marker
     return;
   }
   // box (cib / sealed)
@@ -161,8 +166,21 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
     ctx.fillStyle = 'rgba(255,255,255,0.35)';
     for (var i = 0; i < 40; i++) { var sx = 22 - i; if (sx >= 3 && sx < 29) ctx.fillRect(ox + sx * k, oy + i * k, k, k); var sx2 = 30 - i; if (sx2 >= 3 && sx2 < 29) ctx.fillRect(ox + sx2 * k, oy + i * k, k, k); }
   }
-  if (it.sticker) { P(21, 33, 8, 5, NP.COL.gold); P(22, 35, 6, 1, NP.COL.red); }
+  // Round 6.4: boxes that sat in a sunny window, and price stickers somebody started to peel
+  var bh = wearHash(it);
+  if (cond === 'cib' && bh % 3 === 0) {
+    ctx.fillStyle = 'rgba(255,238,205,.30)'; ctx.fillRect(ox + 3 * k, oy + 1 * k, 26 * k, 38 * k);
+    ctx.fillStyle = 'rgba(255,238,205,.22)'; ctx.fillRect(ox + 3 * k, oy + 1 * k, 5 * k, 38 * k);
+  }
+  if (cond === 'cib' && bh % 5 === 1) { P(3, 1, 3, 1, NP.COL.ink); P(3, 2, 1, 2, NP.COL.ink); P(26, 37, 3, 2, '#d8cbb0'); } // dinged corners
+  if (it.sticker) {
+    P(21, 33, 8, 5, NP.COL.gold); P(22, 35, 6, 1, NP.COL.red);
+    if (bh % 2) { P(27, 33, 2, 2, '#fff1a8'); P(28, 33, 1, 1, pl.c2); } // half peeled
+    if (bh % 6 === 2) { P(13, 34, 7, 4, '#ff9e57'); P(14, 36, 5, 1, NP.COL.ink); } // an older sticker under the new one
+  }
 };
+// the same item always has the same scuffs (the uid when there is one, so two copies can differ)
+function wearHash(it) { return NP.hashStr(String(it.uid || '') + '|' + (it.id || '') + '|' + (it.cond || '')); }
 
 // colors for record sleeves and movie boxes, picked from the item id so the same item always looks the same
 var MEDIA_PAL = [['#e4343e', '#ffcc33'], ['#29adff', '#fff1d6'], ['#7e57c2', '#29d3e8'], ['#00b894', '#1d2b53'], ['#ff77a8', '#1d2b53'], ['#ff9f43', '#0b1022'], ['#1d2b53', '#ff77a8'], ['#2d6a2d', '#ffcc33']];
@@ -280,7 +298,7 @@ NP.drawLogo = function (canvas, adFree) {
   var y = Math.round(H / 2 - 7 * s / 2) - s * 2;
   NP.pixelText(ctx, txt, W / 2 + s, y + s, s, NP.COL.red, 'center');
   NP.pixelText(ctx, txt, W / 2, y, s, NP.COL.cream, 'center');
-  var sub = adFree ? 'THE AD-FREE EDITION (WITH ADS)' : 'THE GAME';
+  var sub = adFree ? 'THE AD-LESS EDITION (WITH ADS)' : 'THE GAME';
   var s2 = Math.max(1, Math.floor(s / 3));
   NP.pixelText(ctx, sub, W / 2, y + 9 * s, s2, NP.COL.cyan, 'center');
 };

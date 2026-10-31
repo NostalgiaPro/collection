@@ -19,14 +19,14 @@ NP.CONFIG = {
   PRICE: '$0.99',
 
   // Feedback form (Tally). The feedback buttons stay hidden until this is filled in.
-  FEEDBACK_URL: 'https://tally.so/r/rDDJJl',
+  FEEDBACK_URL: '',
 
   // Real merch store, plugged by one button on the demo's end infomercial. Leave empty to hide the button.
   MERCH_URL: 'https://nostalgiapro-shop.fourthwall.com/',
 
   // GoatCounter site code, the part before .goatcounter.com (for example 'nostalgiapro').
   // Leave empty to turn analytics off completely.
-  ANALYTICS_CODE: 'nostalgiapro',
+  ANALYTICS_CODE: '',
 
   // Where the game is running: '' = detect automatically, or force one of
   // 'itch', 'newgrounds', 'crazygames', 'site', 'file'. CrazyGames hides outside links and the fullscreen button.

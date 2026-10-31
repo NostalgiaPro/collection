@@ -8,8 +8,8 @@ window.NP = NP;
 (function () {
   'use strict';
   var sent = {};
-  // the hidden test page (/play-test/) never sends anything
-  function testPage() { try { return /\/play-test(\/|$)/i.test(location.pathname || ''); } catch (e) { return false; } }
+  // test copies never send anything: the hidden test page (/play-test/), and any copy run from this computer (localhost and the like, NP.platform 'dev')
+  function testPage() { try { return /\/play-test(\/|$)/i.test(location.pathname || '') || NP.platform === 'dev'; } catch (e) { return false; } }
   function code() {
     var c = NP.CONFIG || {};
     var k = String(c.ANALYTICS_CODE || '').trim();
@@ -44,6 +44,9 @@ window.NP = NP;
     try {
       var el = e.target && e.target.closest && e.target.closest('[data-track]');
       if (el) NP.track(el.getAttribute('data-track'));
+      // r6.3: the real merch links say where the tap came from: merch_click plus merch_click_gift or merch_click_break
+      var mr = e.target && e.target.closest && e.target.closest('[data-merch]');
+      if (mr) { NP.track('merch_click'); NP.track('merch_click_' + mr.getAttribute('data-merch')); }
       var a = e.target && e.target.closest && e.target.closest('a[href]');
       var fb = String((NP.CONFIG || {}).FEEDBACK_URL || '');
       if (a && fb && a.getAttribute('href') === fb) NP.track('feedback_tapped');

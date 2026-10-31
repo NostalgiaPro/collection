@@ -208,12 +208,31 @@ NP.STOPNAMES = {
   banned: ['Staff Only Games'],
   pal: ["Lonnie's Games & Whatnot"],
   record: ['Music Store (Also Movies) (Also Games)'],
-  rental: ['Video Rental Store', 'The Other Video Rental Store']
+  rental: ['Video Rental Store', 'The Other Video Rental Store'],
+  // r6.3: an early morning rummage sale, some Saturdays. Made up: the hall, the street and the host.
+  rummage: ['Rummage Sale at the Old Dance Hall']
 };
 NP.MALL = 'The Mall at Parking Lot C';
+// r6.3: the rummage sale
+NP.RUMMAGE = {
+  sign: 'RUMMAGE SALE 7 TO 10 AM. EVERYTHING MUST GO. MOST OF IT WILL NOT.',
+  hours: 'Open 7 to 10 AM only.',
+  closed: 'The rummage sale wrapped up at 10 AM. Rhonda is stacking chairs.',
+  closedCard: 'Closed. The rummage sale ends at 10 AM.',
+  blurb: 'Folding tables, three bins, and one coffee urn that has been on since 1987. Open 7 to 10 AM.',
+  jokes: [
+    'A sign on the coffee urn: "Coffee 25 cents. Refills 25 cents. Complaints 25 cents."',
+    'Somebody donated a box labeled GAMES. It is all board games with half the pieces. One cartridge is in there. Just the one.',
+    'A hand-lettered sign on the last bin: "PLEASE DO NOT BLOW ON THE CARTRIDGES." Somebody has crossed out "DO NOT".'
+  ]
+};
 
 // Seller personalities. minLo/minHi = fraction of asking price they accept.
 NP.SELLERS = {
+  rummage: { name: 'Rummage Rhonda', ask: 0.3, minLo: 0.4, minHi: 0.6,
+    hi: ['Morning, sweetie! Everything is a dollar. Unless I decide it is not.', 'Early bird! The good stuff goes fast. Well. The stuff goes.', 'Coffee is on the table. It has been on the table since the eighties.'],
+    yes: ['Sold! Put a quarter in the coffee can on your way out, if you want.', 'It is yours. Every dollar goes to the new folding chairs.'],
+    no: ['Oh, a little more than that, hon. These chairs will not buy themselves.', 'Make it a round number and we have a deal. A rounder number.'] },
   grandma: { name: 'Sweet Retiree', ask: 0.35, minLo: 0.35, minHi: 0.55,
     hi: ["Oh, my grandson's old games! He's 41 now. Make me an offer, hon.", 'Everything must go. My husband says so. He is in the garage hiding his records.', "I don't know what any of these are, sweetie, but the one with the ferret seems nice."],
     yes: ['Sold! Want a lemonade? It is mostly ice.', "That's fine, sweetie. Put it on your little shelf.", 'Deal. Take a cookie too. Take two. Please, I made forty.'],
@@ -266,6 +285,100 @@ NP.SELLERS = {
     yes: ['Thank you. Please do not return it. We will not be here.', 'Sold. Rewind it once in a while. For me.', 'Rung up. On the last register that works.'],
     no: ['I am closing, not giving it away. Well. Almost giving it away.', 'The manager says no. The manager is a sticky note.'] }
 };
+
+// ---------- Round 6.4: jerk sellers (full game; the demo gets one harmless guy on his phone) ----------
+// A jerk is a mood laid over a normal seller at one stop or one swap meet table. They show it before you say a word:
+// arms crossed, eyes rolling, a big sigh, or a phone glued to one ear. Smaller discounts, no meeting you partway,
+// and a lowball can end the deal. Now and then the jerk has the best thing in the place.
+NP.JERK = {
+  share: 0.25,
+  rareShare: 0.4,
+  // tell: what you see. name: what the table sign says.
+  kinds: {
+    scoff: { name: 'Scoffing Stan', tell: 'roll',
+      hi: ['Look all you want. Looking costs nothing. For now.', 'Oh good. Another expert.', 'Yeah, yeah. Prices are on stuff. Read.'],
+      yes: ['Fine. Take it. Jeez.', 'Whatever. Enjoy it, I guess.'],
+      no: ['C\'mon. That is not an offer. That is a coupon.', 'Nope. Try again with real money.'],
+      low: ['You serious? Get outta here.', 'Ha! No. You serious? Get outta here.'],
+      quit: ['You serious? Get outta here. It is off the table. Go bother somebody else.'] },
+    budge: { name: 'Not Budging Norm', tell: 'arms',
+      hi: ['Price is the price.', 'Before you ask: no.', 'Stickers are final. I do not do the math thing.'],
+      yes: ['Sticker price. Good. Was that so hard?', 'Correct. Next.'],
+      no: ['Price is the price.', 'Nope. Read the sticker again. Slower.', 'Still no. The sticker did not change. Neither did I.'],
+      low: ['Half? C\'mon. Price is the price.'],
+      quit: ['Okay, we are done here. Off the table.'] },
+    raise: { name: 'Markup Marv', tell: 'roll',
+      hi: ['Oh, a collector. Great. Love that for me.', 'Everything is priced fair. For now.', 'Take your time. Prices only go up.'],
+      yes: ['Pleasure. You got a deal. A deal for me.', 'Sold. Should have charged more, honestly.'],
+      no: ['Prices go up when people look at stuff. That is just how it works.', 'Nah. You looked at it too long.'],
+      low: ['A lowball? On a collector piece? Jeez.'],
+      bump: ['Oh, you want THAT one? Yeah, that one is {$} now. Demand just went up.', 'Hm. You picked that up kind of fast. That one is {$}.', 'Ooh, you like it. Okay. {$}.'],
+      quit: ['Nope. Not selling it to you now. Off the table.'] },
+    brag: { name: 'Worth More Online Wes', tell: 'arms',
+      hi: ['Careful. Everything on this table is super rare. Worth way more online.', 'I looked all of this up. Once. On my phone. It is all rare.', 'You will not find these anywhere. I checked one website.'],
+      yes: ['Steal of the century. For you. Not for me.', 'Fine. You know this is worth way more online, right?'],
+      no: ['It is super rare. Worth way more online.', 'C\'mon. You know what this goes for online? Me neither, but it is a lot.', 'Online, this is a car payment.'],
+      low: ['Half? For something this rare? Jeez.'],
+      quit: ['You know what, I will just sell it online. Off the table.'] },
+    phone: { name: 'Hang On Hank', tell: 'phone',
+      hi: ['(On the phone. Does not look up.)', '"No, the OTHER storage unit." (Still on the phone.)', '"Uh huh. Uh huh. Hang on, somebody is here." (They do not hang on.)'],
+      ignore: ['(Still on the phone.) "No, I said the BLUE tote." One finger goes up. Ask again.', '(On the phone.) "Uh huh. Uh huh." A finger goes up. You wait. Ask again.', '(On the phone.) "Hang on." They turn around. Ask again.'],
+      yes: ['(Covers the phone.) "Yeah, fine, take it." (Back on the phone.)', '"Sure, sure." (Still on the phone. Takes your money anyway.)'],
+      no: ['(Covers the phone.) "Nah." (Back on the phone.)', '"No, not you. Well. Also you. No."'],
+      low: ['(Covers the phone.) "C\'mon, really?"'],
+      quit: ['"Hang on, I gotta go." They pack it up, still talking. Off the table.'] },
+    walk: { name: 'Walkaway Wendell', tell: 'sigh',
+      hi: ['*Big sigh.* Yeah, what.', '*Sigh.* Everything is priced. Do not make it weird.', '*Sigh.* I been here since five.'],
+      yes: ['*Sigh.* Fine. Here.', 'Sure. Whatever. *Sigh.*'],
+      no: ['Jeez. No.', '*Sigh.* No.'],
+      low: ['*Sigh.* C\'mon.'],
+      quit: ['Okay, I am done. Have a good one. (He walks off with it.)', '*Big sigh.* Nope. Done. It goes back in the truck.'] }
+  },
+  // the tell under their name, in plain body language
+  tells: { arms: 'Arms crossed.', roll: 'Eyes rolling.', sigh: 'Big sigh.', phone: 'On the phone.' },
+  rareNote: 'This one is actually good. Of course it is at this table.',
+  tip: { h: 'That seller is a jerk', b: 'Crossed arms, an eye roll, a big sigh, a phone glued to one ear: this seller is going to be a pain. Smaller discounts, no meeting you partway, and a lowball can end the deal. Sometimes they have the best thing in the place.' },
+  // the demo's one: he is on the phone and answers if you ask twice
+  demoPhone: 'On the phone. Ask twice.'
+};
+
+// ---------- Round 6.4: smelly nerds (a gag about the hobby, never about how anyone looks) ----------
+NP.SMELL = {
+  share: 0.3,
+  whew: ['Whew.', 'Oof.', 'Yikes.', 'Whew. Long morning.'],
+  wave: ['*waves hand*', 'Oof.'],
+  // tap on a smelly shopper or nerd
+  lines: ['Been in line since 4 AM. Has not been home. Has not stopped talking about it.', 'Three days at the convention. One shirt. Zero regrets.', 'Smells like a garage full of cartridges in July. Honestly, kind of nostalgic.', 'He has been digging in bins since sunrise. The bins won.']
+};
+
+// ---------- Round 6.4: beat-up carts, tables and Sharpie on everything ----------
+NP.SHARPIE = {
+  // taped to a swap meet table front (pixel text, so short and all caps)
+  table: ['NO RETURNS', 'CASH ONLY', 'ALL GAMES $5', 'MAKE OFFER', 'NO HOLDS', 'AS IS', 'DO NOT TOUCH', 'TESTED?'],
+  // the cardboard signs at menu stops, in marker. Anything in {braces} is crossed out.
+  stop: {
+    yard: ['ALL GAMES {$5} $8 (NOT THOSE ONES)', 'MAKE OFFER (NO LOWBALLS)', 'CASH ONLY. NO CHECKS. NO "I WILL COME BACK."', 'EVERYTHING {WORKS} TURNS ON'],
+    thrift: ['NO RETURNS', 'ELECTRONICS SOLD AS IS. VERY AS IS.', 'CARTRIDGES {$3} {$2} $4'],
+    pawn: ['NO RETURNS. NO REFUNDS. NO "MY COUSIN SAID."', '{CARDS OK} CASH ONLY'],
+    rummage: ['ALL BINS {50 CENTS} $1', 'CASH ONLY. EXACT CHANGE. PLEASE.'],
+    rental: ['EVERYTHING {MUST GO} WENT'],
+    sports: ['FOOTBALL GAMES {$1} {$2} $1'],
+    jerk: ['MAKE OFFER (NO OFFERS)', 'PRICES FIRM. DO NOT ASK.', 'NO LOWBALLS. NO EXCEPTIONS. NO ASKING ABOUT EXCEPTIONS.', 'LOOKING {COSTS NOTHING} $1']
+  },
+  // little marks somebody added later
+  scrawl: ['J.R.', 'TALLY |||| |||', 'NO HOLDS', ':)', 'NO RESTROOM', 'K.T. WAS HERE', '|||| ||', 'ASK ABOUT BOX', 'BLOW ON IT. IT HELPS.'],
+  // flavor for the parked carts at the swap meet
+  carts: ['A shopping cart with one wheel that points a different way from the other three. Duct tape on the handle. Somebody wrote "MINE" on it in marker. Somebody else crossed it out and wrote "NOPE."',
+    'A cart full of old cables, two power bricks and a lamp. A price sticker on the basket says $3. For the cables? For the cart? Nobody knows.',
+    'Rust spots, a bent corner and a masking tape tag: "TALLY: |||| |||| ||". Tally of what? It does not say. It squeaks when the wind blows.'],
+  squeak: 'SQUEAK'
+};
+
+// ---------- Round 6.4: the radio on the card table at a yard sale ----------
+NP.YARD_RADIO = ['A little radio on the card table is playing 104.8 The Dust. Mostly static. The static has a good beat.',
+  'The radio on the card table is stuck between two stations. Both of them are playing ads.',
+  'A radio with a coat hanger for an antenna. It picks up one station, and the station is mostly the weather.',
+  'The radio on the card table is tuned to the oldies station. The oldies are from 2004. You feel something.'];
 
 // ---------- shop owners buying from you (selling and trading in) ----------
 // lo/hi = the most they will pay, as a share of what the game is really worth. The first offer is lower than that.
@@ -339,7 +452,8 @@ NP.NOBUY = {
   sports: 'The football guy does not buy. He has enough football. He has all of it.',
   gift: 'The Gift Shop does not buy anything. It only sells. That is the whole business model.',
   rental: 'They are closing. They are not buying anything. They are barely selling.',
-  banned: 'Nobody here is buying. Nobody here is doing anything.'
+  banned: 'Nobody here is buying. Nobody here is doing anything.',
+  rummage: 'Rhonda does not buy. Rhonda has a hall full of other people\'s stuff already.'
 };
 
 NP.RIVAL = { name: 'Dex', shop: 'Flipside Resale' };
@@ -448,9 +562,9 @@ NP.ADS = [
   { h: 'HABOOB ANTIPERSPIRANT', s: "It's a dry heat.", f: 'You will still sweat. You will sweat with dignity.' }
 ];
 NP.ADFREE_ADS = [
-  { h: 'AD-FREE EDITION ACTIVE', s: 'You are now enjoying zero ads.', f: 'Brought to you by Nostalgia Pro: The Ad-Free Edition.' },
-  { h: 'TIRED OF ADS?', s: 'Upgrade to the Ad-Free Edition.', f: 'You already have it. Upgrade again.' },
-  { h: 'AD-FREE EDITION: GOLD', s: 'Twice the ad-free. Same ads.', f: 'This message is ad-free.' }
+  { h: 'AD-LESS EDITION ACTIVE', s: 'You are now enjoying zero ads.', f: 'Brought to you by Nostalgia Pro: The Ad-Less Edition.' },
+  { h: 'TIRED OF ADS?', s: 'Upgrade to the Ad-Less Edition.', f: 'You already have it. Upgrade again.' },
+  { h: 'AD-LESS EDITION: GOLD', s: 'Twice the ad-less. Same ads.', f: 'This message is ad-less.' }
 ];
 NP.TICKER = [
   'Try Nostalgia Pro: The Shelf Dust',
@@ -463,10 +577,10 @@ NP.TICKER = [
   'Nostalgia Pro: The Repro. It is fake. We said so.'
 ];
 NP.TICKER_ADFREE = [
-  'You are using the Ad-Free Edition',
-  'Enjoy the Ad-Free Edition, now ad-free',
-  'Ad-Free Edition: Gold, coming soon',
-  'This banner is not an ad. It is an Ad-Free Edition reminder.'
+  'You are using the Ad-Less Edition',
+  'Enjoy the Ad-Less Edition, now ad-less',
+  'Ad-Less Edition: Gold, coming soon',
+  'This banner is not an ad. It is an Ad-Less Edition reminder.'
 ];
 NP.PITCHES = [
   'Also, you ever try Nostalgia Pro: The Shelf Dust?',
@@ -477,8 +591,8 @@ NP.PITCHES = [
   "I'm not saying you should buy Mesquite Mike's Jerky. Mike is saying that. Through me."
 ];
 NP.PITCHES_ADFREE = [
-  'Have you heard about the Ad-Free Edition? No ads. Like this one.',
-  'I would pitch you merch, but you have the Ad-Free Edition. Nice.'
+  'Have you heard about the Ad-Less Edition? No ads. Like this one.',
+  'I would pitch you merch, but you have the Ad-Less Edition. Nice.'
 ];
 
 // The sponsors that are definitely not sponsors. Made up, like everything else in here.
@@ -520,8 +634,8 @@ NP.SPONSOR = {
     'BILLBOARD: This space available. Saguaro Splash Cola already bought it. It is still available.'
   ],
   billboardsAdFree: [
-    'BILLBOARD: This billboard is part of the Ad-Free Edition. It advertises nothing. Beautifully.',
-    'BILLBOARD: You are driving past an ad-free billboard. You are welcome.'
+    'BILLBOARD: This billboard is part of the Ad-Less Edition. It advertises nothing. Beautifully.',
+    'BILLBOARD: You are driving past an ad-less billboard. You are welcome.'
   ],
   home: 'You crack open a cold Saguaro Splash Cola. Not for any reason. It is just in your hand now. Label out.',
   appraisal: 'This appraisal is 100% unsponsored. (A long, refreshing sip.)'
@@ -560,6 +674,7 @@ NP.GOALS = function (m, budget) {
 // One-time tips. Each shows once, ever, and costs no daylight. "short" is the How to play version.
 NP.TIPS = {
   // Demo round 5 first-use tips (short on purpose)
+  jerk: { h: 'That seller is a jerk', b: 'Crossed arms, an eye roll, a big sigh, a phone glued to one ear: this seller is going to be a pain. Smaller discounts, no meeting you partway, and a lowball can end the deal. Sometimes they have the best thing in the place.' },
   counter: { h: 'They met you partway', b: 'A seller who says no will often name a price. Tap Deal to take it. It always works.' },
   stallmap: { h: 'The stall map', b: 'Tap MAP to see every table. Tap one and you walk straight there.' },
   offers: { h: 'Making an offer', b: 'Lowball is half the sticker. Some sellers take it. Some take it personally. Fair is three quarters. Full price always works, which is how they get you.',
@@ -783,7 +898,7 @@ NP.PAL = {
       more: 'Oh, one more thing. Speaking of sales, he heard where the good stuff is today.' },
     { id: 'cart', label: 'His cartridge cleaning method', min: 7, reward: 'disc',
       a: 'Cotton swabs, rubbing alcohol, a pencil eraser and one very specific song playing in the background. He will not tell you the song.',
-      more: 'Oh, one more thing. He takes a little off for you. Cleaning is free. The song is not.' },
+      more: 'Oh, one more thing. He takes a little off for you. Cleaning is on the house. The song is not.' },
     { id: 'shelf', label: 'How many shelves he has at home', min: 5, reward: 'tip',
       a: '"How many shelves? Define shelf." It is eleven. And a dresser. And the oven.',
       more: 'Oh, one more thing. He heard about something good out there today. He tells you before he can stop himself.' }
@@ -1123,6 +1238,7 @@ NP.SELLERS.crate = { name: 'The Crate Lady', ask: 0.75, minLo: 0.55, minHi: 0.85
 // What each stop calls its music and movie shelves
 NP.MEDIA_SECS = {
   games: 'Games',
+  rummageGames: 'The cartridge bin (loose, untested, a dollar or two)', rummageMusic: 'The record and tape bin', rummageMovies: 'A laundry basket of movies',
   yard: ['A box of records and tapes', "Dad's old tapes and records", 'A shoebox of cassettes', 'A laundry basket of records and movies'],
   music: 'Record and CD bins', movies: 'Movie rack', crate: "The Crate Lady's crates", pawnMusic: 'CDs and records behind the counter', pawnMovies: 'Movies, two for something'
 };
@@ -1151,7 +1267,7 @@ NP.CLUB = {
   box: { id: 'club12', t: 'Disc of the Month Club Welcome Box (12 CDs)',
     d: 'Twelve CDs you did not pick, for a penny. Three of them are the same rain sounds album. One of them is good. You will find out which one.' },
   bill: 'The Disc of the Month Club took ${n} out of your paycheck. You did not pick this CD either.', billAmt: 10, bills: 3,
-  billDone: 'That was the last Disc of the Month Club bill. You are free. They will send a letter asking you to come back. Do not open the letter.'
+  billDone: 'That was the last Disc of the Month Club bill. You are out. They will send a letter asking you to come back. Do not open the letter.'
 };
 // the late night music video show
 NP.CHANNEL = { name: 'Request Line 47', tag: 'the late night music video show' };
@@ -1223,7 +1339,7 @@ NP.GOALS_POOL = [
   { id: 'w41', name: 'Steady Hands', label: 'No misses: land 3 offers in a row', type: 'nomiss', n: 3, mins: 120, d: 'mid', reward: 'Lucky Price Gun' },
   { id: 'w42', name: 'Clean Hour', label: 'No misses for 60 minutes (land at least one offer)', type: 'clean', n: 1, mins: 60, d: 'mid', reward: 'Pocket Calculator' },
   { id: 'w43', name: 'Crate Digger', label: 'Find a record, tape, CD or movie', type: 'buy', f: { kind: 'media' }, n: 1, d: 'easy', reward: 'Record Brush' },
-  { id: 'w44', name: 'Wax On', label: 'Find a vinyl record', type: 'buy', f: { kind: 'music', fmt: 'vinyl' }, n: 1, d: 'mid', reward: 'Inner Sleeve Pack' },
+  { id: 'w44', name: 'Needle Drop', label: 'Find a vinyl record', type: 'buy', f: { kind: 'music', fmt: 'vinyl' }, n: 1, d: 'mid', reward: 'Inner Sleeve Pack' },
   { id: 'w45', name: 'Tape Deck', label: 'Find a movie on VHS', type: 'buy', f: { kind: 'movie', fmt: 'vhs' }, n: 1, d: 'easy', reward: 'Tracking Knob' },
   { id: 'w46', name: 'Full Shelf', label: 'One of each: a game, some music and a movie', type: 'groups', groups: [{ kind: 'game' }, { kind: 'music' }, { kind: 'movie' }], n: 3, d: 'mid', reward: 'Shelf Divider Set' }
 ];
@@ -1326,17 +1442,42 @@ NP.MAGNETS.push(
 // =====================================================================================================
 // ---------- Demo round 5 ----------
 // =====================================================================================================
+// r6.2: the full game's mini events. Flavor only: nothing here changes money, prices, the clock or points.
+NP.FULL_MINI = {
+  tv: 'The TV on the next table is showing ads from the good old days. Want to watch one?',
+  cameo: '',
+  blow: 'A kid at the next table blows into a cartridge, slots it in, and it boots right up. Blow on it. It helps.',
+  radio: '104.8 The Dust plays the Saguaro Splash Cola jingle for the third time this hour. You know every word now.',
+  van: 'A white van rolls past real slow. Dex waves. You do not wave back.',
+  haggle: 'Somebody two tables over just talked {seller} down a dollar. You heard the whole thing. It took eleven minutes.',
+  dust: 'A dust devil spins through the lot and takes a stack of price stickers with it. Nobody chases them.'
+};
+// r6.3: the one real product, RC's actual Nostalgia Pro tee (links to MERCH_URL in config.js). Full game only.
+NP.REAL_MERCH = {
+  spotLabel: 'A WORD FROM AN ACTUAL SPONSOR',
+  spotTitle: 'Nostalgia Pro: The Actual Shirt',
+  spotLine: 'This one is real. Everything else in this game is made up. It opens the real store in a new tab.',
+  spotBtn: 'See the shirt',
+  skip: 'Back to the game',
+  giftTitle: 'Nostalgia Pro: The Actual Shirt',
+  giftTag: 'REAL',
+  giftLine: 'The only thing in this shop that actually exists. It opens the real store in a new tab. It does not go in your bag and it is worth zero points.',
+  giftBtn: 'See the real shirt'
+};
 NP.DEMO5 = {
   start: 'Demo Saturday. $100. Back by noon. Tap the yard sale on the map, or the big Drive button.',
   mapNote: 'Tap a stop on the map to drive there. Gray ones are in the full version.',
   lockedNote: 'That one opens in the full version.',
   visitedNote: 'You already hit that one today.',
+  mapNoteFull: 'Tap a stop on the map to drive there. The cards below have the details.',
+  lateNote: 'Not enough daylight left to make it to {name}.',
   undo: 'Undo: {what}',
   undone: 'Undone. Everything is back the way it was.',
   set: { title: 'Settings', sound: 'Sound', volume: 'Volume', text: 'Text size', speed: 'Game speed', speedNote: 'Fast makes drives and reveals quicker.',
     fx: 'Effects', fxNote: 'Calm turns off shake, flashes and confetti.', tips: 'Tips', done: 'Done',
-    colors: 'Colors are picked so colorblind players can tell them apart, and every color comes with a word.' },
+    colors: 'Colors are picked so colorblind players can tell them apart, and every color comes with a word.', privacy: 'Privacy' },
   next: { tag: 'NEXT:', map: 'Drive to the {name}.', drive: 'Drive', home: 'Head home and shelve it.', homeBtn: 'Head home',
+    mapFull: 'Drive to {name}.', walkExpo: 'Tap a booth to shop it. The doors at the bottom are the way out.',
     early: 'There is a cheap find on this table. Tap any offer on it.', goal: '{goal}.', shop: 'Make an offer on anything. Or move on.',
     done: 'Nothing left here. Time to move on.', next: 'Next stop', walk: 'Tap a table to shop it. The gate at the bottom is the way out.' },
   counter: 'Meet me at {$}?',
