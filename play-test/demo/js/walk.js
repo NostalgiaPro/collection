@@ -1728,6 +1728,12 @@ NP.Walk = (function () {
       else if (over > 0) box.style.maxWidth = Math.max(200, Math.floor(bw - over * VW / VH - 2)) + 'px';
       else break;
     }
+    // r6.6: a help line that would be half hidden behind the NEXT bar is hidden instead of showing a cut-off sliver
+    var hl = app.querySelector('.walk-help'), nb = document.querySelector('.nsbar');
+    if (hl) {
+      hl.style.visibility = '';
+      if (nb) { var hr = hl.getBoundingClientRect(), nt = nb.getBoundingClientRect().top; if (hr.top < nt && hr.bottom > nt + 1) hl.style.visibility = 'hidden'; }
+    }
   }
   window.addEventListener('resize', function () { if (active()) fitCanvas(); });
   window.addEventListener('orientationchange', function () { if (active()) setTimeout(fitCanvas, 250); });

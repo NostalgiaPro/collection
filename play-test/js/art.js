@@ -370,44 +370,63 @@ NP.drawYardBanner = function (cv, seed, sky, t) {
   P(222, 44, 2, 12, '#5a4a3a'); P(218, 40, 10, 5, '#3f5f9a'); P(226, 38, 1, 4, '#e4343e');
 };
 
-// r6.5: hand-lettered marker on cardboard, drawn with the pixel font so it looks the same on every phone.
-// Each letter sits a little high or low, the ink bleeds a pixel here and there, and anything in {braces}
-// is crossed out in red. s = device pixels per font pixel. Returns the size it needs (draw = false just measures).
+// Hand-lettered marker on cardboard, drawn with the pixel font so it looks the same on every phone (r6.5).
+// r6.6: looser. Each letter gets its own little personality from a hash of the text: it sits a bit high or low,
+// leans left or right, some run a touch tall, some get a heavier stroke, and the gaps between letters are uneven.
+// Anything in {braces} is crossed out in red. s = device pixels per font pixel. Returns the size it needs
+// (draw: false just measures, with exactly the same letter widths, so wrapping never changes when it draws).
 NP.markerText = function (ctx, text, s, maxW, opts) {
   opts = opts || {};
   var ink = opts.ink || '#1b1b28', bleed = opts.bleed || 'rgba(27,27,40,.33)', red = opts.red || '#c8323c';
-  // words, keeping a crossed-out group together even when it has spaces in it
+  var u = Math.max(1, Math.round(s / 3)); // the smallest wobble that still shows at this size
   var words = [], re = /\{([^}]*)\}|(\S+)/g, m;
   while ((m = re.exec(String(text).toUpperCase()))) words.push(m[1] != null ? { t: m[1], x: true } : { t: m[2], x: false });
-  var cw = 6 * s, lh = 10 * s, lines = [[]], lw = [0];
+  var seed = NP.hashStr(String(text)), n = 0;
+  // one letter's personality: high or low, lean, tall, heavy, and the gap after it
   words.forEach(function (w) {
-    var ww = w.t.length * cw - s, cur = lines.length - 1, add = (lines[cur].length ? cw : 0) + ww;
-    if (lines[cur].length && lw[cur] + add > maxW) { lines.push([w]); lw.push(ww); }
+    w.c = [];
+    for (var i = 0; i < w.t.length; i++) {
+      var h = NP.hashStr(seed + '|' + (n++));
+      w.c.push({ ch: w.t[i], h: h, dy: (h % 5 === 0 ? -u : h % 5 === 1 ? u : 0),
+        lean: ((h >> 5) % 5 === 0) ? 1 : ((h >> 5) % 5 === 1) ? -1 : 0, tall: (h >> 9) % 9 === 0, heavy: (h >> 12) % 7 === 0,
+        gap: s + ((h >> 15) % 3) * u, wide: (h >> 18) % 9 === 0 ? u : 0 });
+    }
+    w.w = 0; w.c.forEach(function (c, i) { w.w += 5 * s + c.wide + (c.heavy ? u : 0) + (i < w.c.length - 1 ? c.gap : 0); });
+  });
+  var sp = 6 * s + u, lh = 10 * s + 2 * u, lines = [[]], lw = [0];
+  words.forEach(function (w) {
+    var cur = lines.length - 1, add = (lines[cur].length ? sp : 0) + w.w;
+    if (lines[cur].length && lw[cur] + add > maxW) { lines.push([w]); lw.push(w.w); }
     else { lines[cur].push(w); lw[cur] += add; }
   });
-  var W = Math.max.apply(null, lw), H = lines.length * lh - 3 * s;
+  var lift = 7 * Math.max(1, Math.round(s / 5)) + 2 * u; // room above the first line for a tall letter sitting high
+  var W = Math.max.apply(null, lw) + 2 * u, H = lines.length * lh - 3 * s + lift + 2 * u;
   if (opts.draw === false || !ctx) return { w: W, h: H, lines: lines.length };
-  var seed = NP.hashStr(String(text)), n = 0, x0 = opts.x || 0, y0 = opts.y || 0;
+  var x0 = (opts.x || 0) + u, y0 = (opts.y || 0) + lift;
   lines.forEach(function (ln, li) {
-    var x = x0 + (opts.align === 'right' ? W - lw[li] : 0), y = y0 + li * lh;
+    var x = x0 + (opts.align === 'right' ? W - 2 * u - lw[li] : 0), y = y0 + li * lh;
     ln.forEach(function (w, wi) {
-      if (wi) x += cw;
+      if (wi) x += sp;
       var start = x;
-      for (var i = 0; i < w.t.length; i++) {
-        var h = NP.hashStr(seed + '|' + (n++)), dy = (h % 5 === 0 ? -1 : h % 5 === 1 ? 1 : 0) * Math.max(1, Math.round(s / 3));
-        var gl = NP.FONT[w.t[i]] || NP.FONT['?'];
-        for (var r = 0; r < 7; r++) for (var c = 0; c < 5; c++) {
-          if (!(gl[r] & (16 >> c))) continue;
-          ctx.fillStyle = ink; ctx.fillRect(x + c * s, y + dy + r * s, s, s);
-          if (((h >> (r * 5 + c)) & 7) === 0) { ctx.fillStyle = bleed; ctx.fillRect(x + c * s + s, y + dy + r * s, Math.max(1, Math.round(s / 2)), s); }
+      w.c.forEach(function (c, ci) {
+        var gl = NP.FONT[c.ch] || NP.FONT['?'];
+        var pw = Math.round(s + c.wide / 5), rh = c.tall ? s + Math.max(1, Math.round(s / 5)) : s, top = y + c.dy - (c.tall ? (rh - s) * 7 : 0);
+        var stroke = c.heavy ? pw + u : pw;
+        for (var r = 0; r < 7; r++) {
+          var shift = Math.round((3 - r) * c.lean * u / 2); // a lean: the top row slides one way, the bottom the other
+          for (var k = 0; k < 5; k++) {
+            if (!(gl[r] & (16 >> k))) continue;
+            var px = x + k * pw + shift, py = top + r * rh;
+            ctx.fillStyle = ink; ctx.fillRect(px, py, stroke, rh);
+            if (((c.h >> (r * 5 + k)) & 7) === 0) { ctx.fillStyle = bleed; ctx.fillRect(px + stroke, py, Math.max(1, Math.round(s / 2)), rh); }
+          }
         }
-        x += cw;
-      }
+        x += 5 * s + c.wide + (c.heavy ? u : 0) + (ci < w.c.length - 1 ? c.gap : 0);
+      });
       if (w.x) { // the crossed-out price: one quick red stroke, a little crooked
-        var sw = x - cw - start + 5 * s, th = Math.max(2, Math.round(s * 0.9)), my = y + Math.round(3 * s);
+        var sw = x - start, th = Math.max(2, Math.round(s * 0.9)), my = y + Math.round(3 * s);
         ctx.fillStyle = red; ctx.fillRect(start - s, my, Math.ceil(sw / 2) + s, th); ctx.fillRect(start + Math.floor(sw / 2), my - Math.max(1, Math.round(s / 2)), Math.ceil(sw / 2) + s, th);
       }
-      x -= s; // end of the last letter, so the next word starts one space later (matches the measuring above)
     });
   });
   return { w: W, h: H, lines: lines.length };

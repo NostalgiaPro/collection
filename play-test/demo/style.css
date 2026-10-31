@@ -1061,10 +1061,12 @@ body.calmfx .sharpie { transform: none; }
 @media (orientation: portrait) and (max-height: 860px) {
   #walkhud .ticker { display: none; }                                    /* the ad ticker gives its room to the swap meet */
 }
-.hud .sndbtn { min-height: 48px; }                                       /* the Sound button matches Settings next to it */
+/* r6.6: Sound and Settings are always the same height, at every screen size (the row stretches both to the taller one) */
+.hud .hud-r { display: flex; align-items: stretch; gap: 6px; }
+.hud .hud-r .sndbtn, .hud .hud-r .setbtn { margin-top: 0; margin-bottom: 0; min-height: 44px; }
 .undochip { white-space: normal; text-overflow: clip; text-align: left; padding-top: 6px; padding-bottom: 6px; line-height: 1.2; } /* a long game name wraps instead of losing its end */
 
-/* ---- test page: demo r5 fixes carried over to r6.5 (NEXT bar room, rare seller banner and stall) ---- */
+/* ---- test page: demo r5 fixes carried over to r6.6 (NEXT bar room, rare seller banner and stall) ---- */
 
 /* ---- r5 fix: the pinned NEXT bar never covers the offer buttons on phones ---- */
 body.has-ns { padding-bottom: calc(var(--nsh, 84px) + 16px); }

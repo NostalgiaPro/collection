@@ -1227,10 +1227,10 @@
   // ---------- the store signs (made up, and nothing like any real chain's sign) ----------
   function signHTML(s) {
     if (s.type === 'record') return '<div class="sign sign-rec" aria-label="' + esc(s.name) + '"><div class="sr-main"><span class="g">MUSIC</span> <span class="o">STORE</span></div>' +
-      '<div class="sr-add"><span class="tape1">(ALSO MOVIES)</span><span class="tape2">(ALSO GAMES)</span></div></div>';
+      '<div class="sr-add"><span class="tape1">(ALSO MOVIES)</span><span class="tape2">(ALSO GAMES)</span></div></div>' + sharpieSign(s);
     if (s.type === 'rental') return '<div class="sign sign-vid ' + (s.chain || 'a') + '" aria-label="' + esc(s.name) + '"><div class="sv-box"><span class="sv-t">' + esc(s.name.toUpperCase()) + '</span></div>' +
-      '<div class="closing">STORE CLOSING · EVERYTHING MUST GO</div></div>';
-    if (s.type === 'mall') return '<div class="sign sign-mall"><small>' + esc(NP.MALL.toUpperCase()) + ' · UPPER LEVEL</small><span>' + esc(s.name.toUpperCase()) + '</span></div>';
+      '<div class="closing">STORE CLOSING · EVERYTHING MUST GO</div></div>' + sharpieSign(s);
+    if (s.type === 'mall') return '<div class="sign sign-mall"><small>' + esc(NP.MALL.toUpperCase()) + ' · UPPER LEVEL</small><span>' + esc(s.name.toUpperCase()) + '</span></div>' + sharpieSign(s);
     if (s.type === 'pal') return '<div class="sign sign-pal"><span>' + esc(s.name) + '</span><small>Come on in. Mind the boxes.</small></div>';
     if (s.type === 'banned') return '<div class="sign sign-ban"><span>' + esc(s.name.toUpperCase()) + '</span><small>PLEASE WAIT TO BE HELPED</small></div>';
     if (s.type === 'rummage') return '<div class="sign sign-rum"><span>' + esc(NP.RUMMAGE.sign) + '</span></div>' + (s.joke ? '<div class="note rum-joke">' + esc(s.joke) + '</div>' : '') + sharpieSign(s);
@@ -1245,8 +1245,14 @@
     var raw = list[h % list.length], scr = SH.scrawl[(h >>> 4) % SH.scrawl.length];
     // r6.5: the lettering is drawn in pixel marker (paintSharpies), the same on every phone. The words stay in the page for screen readers.
     var said = raw.replace(/\{([^}]*)\}/g, '$1 (crossed out)');
-    return '<div class="sharpie" style="--tilt:' + ((h % 5) - 2) * 0.5 + 'deg" role="img" aria-label="' + esc('Cardboard sign: ' + said + '. ' + scr) + '"><span class="tape tl"></span><span class="tape tr"></span>' +
+    return '<div class="sharpie" style="--tilt:' + ((h % 5) - 2) * 0.5 + 'deg" role="img" aria-label="' + esc(signSpoken(said, scr)) + '"><span class="tape tl"></span><span class="tape tr"></span>' +
       '<canvas class="sh-cv" data-sh="' + esc(raw) + '" data-sc="' + esc(scr) + '"></canvas></div>';
+  }
+  // r6.6: what a screen reader says. One period between the parts, never two, and tally marks read as tally marks.
+  function signSpoken(main, scr) {
+    function said(t) { return String(t).replace(/(TALLY\s*)?\|[|\s]*\|?/g, 'tally marks ').replace(/:\)/g, 'a smiley face').replace(/\s+/g, ' ').trim(); }
+    function end(t) { t = t.charAt(0).toUpperCase() + t.slice(1); return /[.!?"]$/.test(t) ? t : t + '.'; }
+    return 'Cardboard sign: ' + end(said(main)) + (scr ? ' ' + end(said(scr)) : '');
   }
   function paintSharpies() {
     var list = document.querySelectorAll('canvas.sh-cv');
@@ -1258,12 +1264,12 @@
       var s = Math.max(2, Math.round(2 * tsz * dpr)), s2 = Math.max(1, Math.round(1.4 * tsz * dpr));
       var txt = cv.getAttribute('data-sh'), sc = cv.getAttribute('data-sc');
       var a = NP.markerText(null, txt, s, room * dpr, { draw: false }), b = NP.markerText(null, sc, s2, room * dpr, { draw: false });
-      var W = Math.max(a.w, b.w) + 2 * s, H = a.h + b.h + 6 * s;
+      var W = Math.max(a.w, b.w) + 2 * s, H = a.h + b.h - 2 * s; // r6.6: the scrawl tucks up under the main line (both measure in room for tall letters)
       if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
       cv.style.width = (W / dpr) + 'px'; cv.style.height = (H / dpr) + 'px';
       var g = cv.getContext('2d'); g.clearRect(0, 0, W, H);
       NP.markerText(g, txt, s, room * dpr, { x: s });
-      NP.markerText(g, sc, s2, room * dpr, { x: W - b.w - s, y: a.h + 4 * s, ink: 'rgba(27,27,40,.72)', bleed: 'rgba(27,27,40,.2)' });
+      NP.markerText(g, sc, s2, room * dpr, { x: W - b.w - s, y: a.h - 3 * s, ink: 'rgba(27,27,40,.72)', bleed: 'rgba(27,27,40,.2)' });
     });
   }
 
@@ -3002,7 +3008,7 @@
 
   function sunPct() { return Math.max(0, Math.min(100, (S.time - START) / (endT() - START) * 100)); }
   function sunText() {
-    var left = Math.max(0, endT() - S.time), lt = Math.floor(left / 60) + 'h ' + (left % 60) + 'm left';
+    var left = Math.max(0, endT() - S.time), lt = (left >= 60 ? Math.floor(left / 60) + 'h ' : '') + (left % 60) + 'm left'; // r6.6: "52m left", not "0h 52m left"
     return (modeOf() === 'noon' ? 'Back by noon. ' : 'Home by sundown (5:30 PM). ') + lt;
   }
   // light refresh for the clock while walking (no full re-render, so the ticker keeps scrolling)
@@ -3558,7 +3564,8 @@
     } else if (seller && s.hello && s.jerk) h += jerkTellHTML(s.jerk, jerkName(s.seller, s.jerk), S.seed + s.id) + '<div class="bubble big jerky">' + esc(jerkName(s.seller, s.jerk)) + ': ' + esc(jerkQuote(s.hello)) + '</div>';
     else if (seller && s.hello) h += '<div class="bubble big">' + esc(seller.name) + ': "' + esc(s.hello) + '"</div>';
     if (s.type === 'flea') h += '<div class="bubble big">Different vendor at every table. Some of them know what they got.</div>';
-    if (s.type === 'yard' && NP.YARD_RADIO) h += '<div class="radiobar"><span class="rad-ico" aria-hidden="true"></span><span>' + esc(NP.YARD_RADIO[NP.hashStr(S.seed + s.id + 'radio') % NP.YARD_RADIO.length]) + '</span></div>';
+    var RL = s.type === 'yard' ? NP.YARD_RADIO : s.type === 'rummage' ? NP.RUMMAGE_RADIO : null; // r6.6: the rummage sale has its own radio
+    if (RL) h += '<div class="radiobar"><span class="rad-ico" aria-hidden="true"></span><span>' + esc(RL[NP.hashStr(S.seed + s.id + 'radio') % RL.length]) + '</span></div>';
     h += cameoBox(s);
     h += rivalNotes(s);
     // Round 3b: what is going on at this store today

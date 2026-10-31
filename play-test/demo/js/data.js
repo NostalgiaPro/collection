@@ -369,6 +369,7 @@ NP.SHARPIE = {
     rummage: ['ALL BINS {50 CENTS} $1', 'CASH ONLY. EXACT CHANGE. PLEASE.'],
     rental: ['EVERYTHING {MUST GO} WENT'],
     sports: ['FOOTBALL GAMES {$1} {$2} $1'],
+    record: ['DOLLAR BIN {$1} $1.50', 'PLEASE DO NOT ALPHABETIZE. WE HAVE A SYSTEM.', 'NO LISTENING TO THE WHOLE ALBUM IN THE STORE. {TWICE}'],
     jerk: ['MAKE OFFER (NO OFFERS)', 'PRICES FIRM. DO NOT ASK.', 'NO LOWBALLS. NO EXCEPTIONS. NO ASKING ABOUT EXCEPTIONS.', 'LOOKING {COSTS NOTHING} $1']
   },
   // little marks somebody added later
@@ -385,6 +386,11 @@ NP.YARD_RADIO = ['A little radio on the card table is playing 104.8 The Dust. Mo
   'The radio on the card table is stuck between two stations. Both of them are playing ads.',
   'A radio with a coat hanger for an antenna. It picks up one station, and the station is mostly the weather.',
   'The radio on the card table is tuned to the oldies station. The oldies are from 2004. You feel something.'];
+
+// ---------- r6.6: the radio at the rummage sale ----------
+NP.RUMMAGE_RADIO = ['The radio by the coffee urn is on the hymn station. Two hymns, a traffic report, two more hymns. The traffic report was the big moment.',
+  'A radio on the bake sale table plays the oldies station very softly. Rhonda turns it up for one song, then right back down.',
+  'Somebody brought a radio from home. It is tuned to the farm report. Corn is up. Nobody here grows corn.'];
 
 // ---------- shop owners buying from you (selling and trading in) ----------
 // lo/hi = the most they will pay, as a share of what the game is really worth. The first offer is lower than that.
