@@ -1649,18 +1649,20 @@ NP.Walk = (function () {
     var touch = isTouch();
     app.innerHTML = '<div id="walkhud">' + hudHTML + '</div>' +
       '<div class="screen walk' + (W.expo ? ' expo' : '') + '"><h2>' + (W.expo ? '&#127918;' : '&#9978;') + ' ' + esc(W.stop.name) + '</h2>' +
+      // r6.7: with a mouse, the how-to line sits above the play area (the walking cost is on the play area itself)
+      (touch ? '' : '<div class="walk-help">' + (W.expo ? 'Click a booth to walk over, or use the arrow keys. The thing floating over a nerd is what they are running for.'
+        : G().demo ? 'Click to walk, or use the arrow keys. Click a table to shop.' : 'Click anywhere to walk there, or use the arrow keys or WASD. Click a table (or press Space) to shop it. Esc to step back.') + '</div>') +
       '<div class="walkwrap' + (touch ? ' touch' : '') + '">' +
       '<div class="cvbox" style="--ratio:' + ratio + '">' +
       '<canvas id="walkcv" tabindex="0" width="' + VW + '" height="' + VH + '" aria-label="' + (W.expo ? 'The Desert Pixel Expo convention hall' : 'The Saguaro Swap Meet') + '. Use arrow keys to walk and space to look."></canvas>' +
       '<div class="wtoast" hidden></div><div class="wpanel" hidden tabindex="-1"></div>' +
       // Demo round 5: the walking cost sits on the play area itself, so it shows in landscape too
       ('<button class="wmapbtn" data-w="map" aria-label="' + (W.expo ? 'Map of the hall' : 'Map of the swap meet') + '. Tap a place to walk there.">MAP</button>') +
-      ('<div class="wcost" aria-hidden="true">&#9728; ' + (G().demo ? '9' : '6') + ' steps = 1 min</div>') + '</div>' +
+      ('<div class="wcost" aria-hidden="true"><span class="wc-sun">&#9728; </span>' + (G().demo ? '9' : '6') + ' steps = 1 min</div>') + '</div>' +
       '<div class="tpad"><div class="dpad" id="dpad"><i class="u"></i><i class="l"></i><i class="c"></i><i class="r"></i><i class="d"></i></div>' +
+      // on a phone the how-to line sits in the gap between the pad and the A button, where it always fits (r6.7)
+      (touch ? '<div class="walk-help inpad">' + (W.expo ? 'Tap a booth. The thing over a nerd is what they want.' : 'Tap to walk. Tap a table to shop.') + '</div>' : '') +
       '<button class="abtn" data-w="act" aria-label="Look">A</button></div></div>' +
-      '<div class="walk-help">' + (W.expo ? (touch ? 'Tap a booth to walk over. The thing floating over a nerd is what they are running for.' : 'Click a booth to walk over, or use the arrow keys. The thing floating over a nerd is what they are running for.')
-        : G().demo ? (touch ? 'Tap anywhere to walk. Tap a table to shop.' : 'Click to walk, or use the arrow keys. Click a table to shop.') : touch ? 'Tap anywhere to walk there. Tap a table to shop it. The pad and A button work too.' : 'Click anywhere to walk there, or use the arrow keys or WASD. Click a table (or press Space) to shop it. Esc to step back.') +
-      (G().demo ? ' Walking uses a little daylight: about 1 minute for every 9 steps.' : ' Walking uses daylight too, about a minute for every six steps.') + '</div>' +
       (G().rivalNotes ? '<div class="walk-rivals">' + (W.expo ? passHTML() + '<div class="note">' + esc(NP.EXPO.rivals) + '</div>' : '') + G().rivalNotes(W.stop) + '</div>' : '') + '</div>';
     W.floor = W.floor || buildFloor();
     bindPad();
@@ -1689,7 +1691,7 @@ NP.Walk = (function () {
       var rv = app.querySelector('.walk-rivals'), rvH = rv && rv.offsetHeight ? rv.getBoundingClientRect().height + 16 : 0;
       // the next-step bar is pinned to the bottom of the screen, so the play area stops above it
       var nsb = document.querySelector('.nsbar'), nsH = nsb ? nsb.getBoundingClientRect().height : 0;
-      var helpEl = app.querySelector('.walk-help'), helpH = helpEl ? helpEl.getBoundingClientRect().height + 8 : 0; // the help line may sit below the fold: the cost is on the play area and the NEXT bar says what to do
+      var helpH = 0; // r6.7: the help line is above the play area now, so it is part of what the canvas makes room for // the help line may sit below the fold: the cost is on the play area and the NEXT bar says what to do
       var over = Math.ceil(bottom - window.innerHeight - rvH - helpH + nsH);
       var bw = box.getBoundingClientRect().width;
       if (pass === 0) box.style.maxWidth = Math.max(200, Math.floor((ch - over - 7) * VW / VH + 6)) + 'px';

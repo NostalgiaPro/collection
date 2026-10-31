@@ -3052,14 +3052,15 @@
 
   function sunPct() { return Math.max(0, Math.min(100, (S.time - START) / (endT() - START) * 100)); }
   function sunText() {
-    var left = Math.max(0, endT() - S.time), lt = (left >= 60 ? Math.floor(left / 60) + 'h ' : '') + (left % 60) + 'm left'; // r6.6: "52m left", not "0h 52m left"
-    return (modeOf() === 'noon' ? 'Back by noon. ' : 'Home by sundown (5:30 PM). ') + lt;
+    var left = Math.max(0, endT() - S.time), lt = left >= 60 ? Math.floor(left / 60) + 'h' + (left % 60 ? ' ' + (left % 60) + 'm' : '') + ' left' : left + 'm left'; // r6.7: "5h left", "2h 5m left", "52m left" // r6.6: "52m left", not "0h 52m left"
+    // r6.7: on a phone the "(5:30 PM)" drops out (CSS), so the bar stays one line at Larger text
+    return (modeOf() === 'noon' ? 'Back by noon. ' : 'Home by sundown<span class="sb-at"> (5:30 PM)</span>. ') + lt;
   }
   // light refresh for the clock while walking (no full re-render, so the ticker keeps scrolling)
   function updateHud() {
     var c = document.querySelector('.hud .clock'); if (c) c.textContent = fmtTime(Math.min(S.time, endT()));
     var bar = document.querySelector('.sunbar div'); if (bar) bar.style.width = sunPct() + '%';
-    var sp = document.querySelector('.sunbar span'); if (sp) sp.textContent = sunText();
+    var sp = document.querySelector('.sunbar > span'); if (sp) sp.innerHTML = sunText();
   }
 
   // the line under the daylight bar: where you are going next, so nobody has to work it out from the map

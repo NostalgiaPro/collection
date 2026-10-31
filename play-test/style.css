@@ -32,7 +32,7 @@ button.big { background: var(--red); color: var(--cream); border-bottom-color: #
 .clock { color: var(--cyan); } .cash { color: var(--gold); } .bagc { color: var(--cream); font-size: calc(15px * var(--tsz, 1)) !important; }
 .sunbar { position: relative; height: 20px; background: #2b3d6e; margin: 4px 0; }
 .sunbar div { height: 100%; background: linear-gradient(90deg, #ffcc33, #ff7b39 70%, #e4343e); }
-.sunbar span { position: absolute; left: 8px; top: 1px; font-size: calc(12px * var(--tsz, 1)); font-weight: bold; color: var(--ink); text-shadow: 0 0 2px #fff; }
+.sunbar > span { position: absolute; left: 8px; top: 1px; font-size: calc(12px * var(--tsz, 1)); font-weight: bold; color: var(--ink); text-shadow: 0 0 2px #fff; }
 .ticker { overflow: hidden; white-space: nowrap; background: var(--gold); color: var(--ink); font-weight: bold; font-size: calc(12px * var(--tsz, 1)); padding: 3px 0; }
 .ticker.lvl2 { font-size: calc(14px * var(--tsz, 1)); } .ticker.lvl3 { font-size: calc(16px * var(--tsz, 1)); background: var(--red); color: var(--cream); } .ticker.lvl4 { font-size: calc(18px * var(--tsz, 1)); background: var(--red); color: var(--cream); padding: 6px 0; }
 .tick-in { display: inline-block; padding-left: 8px; animation: tick 28s linear infinite; }
@@ -140,7 +140,7 @@ button.home { margin-top: 16px; width: 100%; }
 .wp-stat { color: var(--cyan); font-size: calc(13px * var(--tsz, 1)); font-weight: bold; }
 .wp-x { margin: 0; padding: 6px 10px; }
 .wpanel .items { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
-.walk-help { font-size: calc(12px * var(--tsz, 1)); color: #9fb0d8; text-align: center; margin-top: 6px; }
+.walk-help { font-size: calc(12px * var(--tsz, 1)); color: #9fb0d8; text-align: center; margin: -2px 0 6px; line-height: 1.3; }
 .tpad { display: none; justify-content: space-between; align-items: center; padding: 12px 8px 4px; user-select: none; -webkit-user-select: none; touch-action: none; }
 .walkwrap.touch .tpad { display: flex; }
 .dpad { width: 138px; height: 138px; position: relative; touch-action: none; -webkit-user-select: none; user-select: none; }
@@ -246,7 +246,7 @@ button.hs-it:active:not(:disabled) { transform: none; }
 @media (orientation: landscape) and (max-height: 500px) {
   #app { padding-top: 4px; padding-bottom: 16px; }
   .hud { padding: 3px 8px; } .hud-l span { font-size: calc(14px * var(--tsz, 1)); margin-right: 8px; }
-  .sunbar { height: 14px; margin: 2px 0; } .sunbar span { font-size: calc(10px * var(--tsz, 1)); top: 0; }
+  .sunbar { height: 14px; margin: 2px 0; } .sunbar > span { font-size: calc(10px * var(--tsz, 1)); top: 0; }
   .ticker { font-size: calc(11px * var(--tsz, 1)) !important; padding: 1px 0 !important; }
   .walk h2, .walk-help { display: none; }
   .walkwrap.touch { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; margin-top: 6px; }
@@ -928,12 +928,12 @@ details.more[open] summary { display: none; }
 /* ---------- r6.1: the daylight bar. Bigger text that follows Text size, on its own light label so it reads on an empty bar ---------- */
 .sunbar { height: auto; min-height: calc(26px * var(--tsz, 1)); display: flex; align-items: center; margin: 4px 0; overflow: hidden; }
 .sunbar div { position: absolute; left: 0; top: 0; bottom: 0; height: auto; }
-.sunbar span { position: relative; z-index: 1; left: auto; top: auto; margin: 3px 6px; padding: 1px 8px; font-size: calc(15px * var(--tsz, 1)); line-height: 1.3;
+.sunbar > span { position: relative; z-index: 1; left: auto; top: auto; margin: 3px 6px; padding: 1px 8px; font-size: calc(15px * var(--tsz, 1)); line-height: 1.3;
   color: #0b1022; background: rgba(255, 241, 214, .95); text-shadow: none; border-radius: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: calc(100% - 12px); }
-@media (max-width: 520px) { .sunbar { height: auto; min-height: calc(24px * var(--tsz, 1)); margin: 3px 0; } .sunbar span { font-size: calc(14px * var(--tsz, 1)); top: auto; } }
+@media (max-width: 520px) { .sunbar { height: auto; min-height: calc(24px * var(--tsz, 1)); margin: 3px 0; } .sunbar > span { font-size: calc(14px * var(--tsz, 1)); top: auto; } }
 @media (orientation: landscape) and (max-height: 500px) {
   .sunbar, body.has-ns .sunbar { height: auto; min-height: calc(22px * var(--tsz, 1)); margin: 2px 0; }
-  .sunbar span { font-size: calc(13px * var(--tsz, 1)); margin: 2px 6px; top: auto; }
+  .sunbar > span { font-size: calc(13px * var(--tsz, 1)); margin: 2px 6px; top: auto; }
 }
 /* r6.1: chips. In the slot under the title they sit in the page; otherwise one at a time above the NEXT bar */
 .annc { display: flex; flex-direction: column; gap: 6px; }
@@ -1051,7 +1051,7 @@ body.calmfx .sharpie { transform: none; }
 .nsbar.chipping.chip-big .ns-chip { box-shadow: inset 0 0 0 3px var(--gold), 0 -3px 0 var(--gold); }
 .nsbar .ns-chip .yay, .nsbar .ns-chip .yay.goaldone { display: block; -webkit-line-clamp: unset; max-height: none; overflow: visible; }
 /* r6.5 polish */
-.sunbar span { white-space: normal; text-overflow: clip; }              /* the time left never gets cut to "..." on a small phone */
+.sunbar > span { white-space: normal; text-overflow: clip; }              /* the time left never gets cut to "..." on a small phone */
 .hud .bagc, .hud .cash { white-space: nowrap; }                          /* "Bag: 2" stays on one line */
 .nsbar { background: #0b1022; }                                          /* nothing shows through the bar */
 @media (max-width: 600px) {
@@ -1065,3 +1065,18 @@ body.calmfx .sharpie { transform: none; }
 .hud .hud-r { display: flex; align-items: stretch; gap: 6px; }
 .hud .hud-r .sndbtn, .hud .hud-r .setbtn { margin-top: 0; margin-bottom: 0; min-height: 44px; }
 .undochip { white-space: normal; text-overflow: clip; text-align: left; padding-top: 6px; padding-bottom: 6px; line-height: 1.2; } /* a long game name wraps instead of losing its end */
+
+/* r6.7: on a phone the swap meet how-to line lives between the pad and the A button */
+.walk-help.inpad { flex: 1; min-width: 0; margin: 0 6px; align-self: center; font-size: calc(12px * var(--tsz, 1)); line-height: 1.3; }
+/* r6.7: on a narrow play area the walking cost chip gets smaller so the MAP button never covers it */
+.cvbox { container-type: inline-size; }
+@container (max-width: 340px) {
+  .wcost { font-size: calc(10px * var(--tsz, 1)); padding: 2px 4px; }
+  .wcost .wc-sun { display: none; }
+}
+@container (max-width: 250px) {
+  .wmapbtn { font-size: calc(12px * var(--tsz, 1)); min-width: 0; padding: 0 7px; }
+  .wcost { font-size: calc(9px * var(--tsz, 1)); padding: 2px 3px; }
+}
+@media (max-width: 480px) { .sunbar .sb-at { display: none; } }
+.tm-lab.long { font-size: calc(clamp(8px, 2.15cqw, 12px) * var(--tsz, 1)); letter-spacing: -0.4px; padding-left: 1px; padding-right: 1px; }

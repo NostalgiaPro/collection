@@ -138,6 +138,8 @@ NP.TownMap = (function () {
     stops.concat([{ id: 'home', home: true, short: 'HOME' }]).forEach(function (s) {
       var p = px(s.home ? HOME : pos[s.id]), cls = 'tm-lab' + (s.locked ? ' locked' : s.visited ? ' visited' : s.late ? ' late' : '') + (s.next ? ' next' : '');
       var left = Math.max(colPct / 2, Math.min(100 - colPct / 2, p.x / W * 100));
+      var txt = s.locked ? 'FULL GAME' : (s.short || s.name);
+      if (String(txt).split(/\s+/).some(function (w) { return w.length >= 10; })) cls += ' long'; // r6.7: one long word can't wrap, so it gets a size that fits its slot
       lab += '<span class="' + cls + '" style="left:' + left.toFixed(2) + '%;top:' + ((p.y - 33) / H * 100).toFixed(2) + '%;max-width:' + colPct + '%">' + esc(s.locked ? 'FULL GAME' : (s.short || s.name)) + '</span>';
       if (s.rare && !s.visited) lab += '<span class="tm-lab rare" style="left:' + left.toFixed(2) + '%;top:' + ((p.y - 33) / H * 100).toFixed(2) + '%">RARE STUFF!</span>';
     });
