@@ -1615,11 +1615,14 @@ NP.Walk = (function () {
     var t = findTarget();
     var bar = null;
     if (t) bar = (isTouch() ? 'A' : 'SPACE') + ': ' + (t.label || t.title || 'LOOK');
-    else if (W.hint > 0) bar = W.expo ? (isTouch() ? 'TAP A BOOTH. THE NERDS ARE ALREADY RUNNING.' : 'CLICK A BOOTH. THE NERDS ARE ALREADY RUNNING.') : isTouch() ? 'TAP A TABLE TO WALK OVER AND SHOP' : 'CLICK A TABLE, OR WALK UP AND PRESS SPACE';
+    else if (W.hint > 0) bar = W.expo ? (isTouch() ? (VW < 300 ? 'TAP A BOOTH. THE NERDS ARE RUNNING.' : 'TAP A BOOTH. THE NERDS ARE ALREADY RUNNING.') : 'CLICK A BOOTH. THE NERDS ARE ALREADY RUNNING.') : isTouch() ? 'TAP A TABLE TO WALK OVER AND SHOP' : 'CLICK A TABLE, OR WALK UP AND PRESS SPACE';
     if (bar) {
       ctx.fillStyle = 'rgba(11,16,34,.88)'; ctx.fillRect(0, VH - 12, VW, 12);
       ctx.fillStyle = RED; ctx.fillRect(0, VH - 13, VW, 1);
-      NP.pixelText(ctx, bar.slice(0, Math.floor((VW - 8) / 6)), 4, VH - 10, 1, t ? GOLD : CREAM);
+      // r6.8: a line too long for a narrow play area loses whole words, never half of one
+      var maxC = Math.floor((VW - 8) / 6);
+      if (bar.length > maxC) { var cut = bar.lastIndexOf(' ', maxC); bar = bar.slice(0, cut > 10 ? cut : maxC).replace(/[,.]$/, ''); }
+      NP.pixelText(ctx, bar, 4, VH - 10, 1, t ? GOLD : CREAM);
     }
   }
 
@@ -1699,7 +1702,10 @@ NP.Walk = (function () {
       else break;
     }
     // r6.6: a help line that would be half hidden behind the NEXT bar is hidden instead of showing a cut-off sliver
-    var hl = app.querySelector('.walk-help'), nb = document.querySelector('.nsbar');
+    // r6.8: on a very small phone the gap between the pad and A is too narrow for the line: hide it rather than stack one word a line
+    var ip = app.querySelector('.walk-help.inpad');
+    if (ip) { ip.style.visibility = ''; if (ip.getBoundingClientRect().width < 60 || ip.scrollWidth > ip.clientWidth + 1) ip.style.visibility = 'hidden'; }
+    var hl = app.querySelector('.walk-help:not(.inpad)'), nb = document.querySelector('.nsbar');
     if (hl) {
       hl.style.visibility = '';
       if (nb) { var hr = hl.getBoundingClientRect(), nt = nb.getBoundingClientRect().top; if (hr.top < nt && hr.bottom > nt + 1) hl.style.visibility = 'hidden'; }

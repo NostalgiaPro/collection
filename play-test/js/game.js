@@ -1264,12 +1264,14 @@
       var s = Math.max(2, Math.round(2 * tsz * dpr)), s2 = Math.max(1, Math.round(1.4 * tsz * dpr));
       var txt = cv.getAttribute('data-sh'), sc = cv.getAttribute('data-sc');
       var a = NP.markerText(null, txt, s, room * dpr, { draw: false }), b = NP.markerText(null, sc, s2, room * dpr, { draw: false });
-      var W = Math.max(a.w, b.w) + 2 * s, H = a.h + b.h - 2 * s; // r6.6: the scrawl tucks up under the main line (both measure in room for tall letters)
+      var u1 = Math.max(1, Math.round(s / 3)), u2 = Math.max(1, Math.round(s2 / 3));
+      var sy = a.h - 3 * u1 - u2 + Math.max(2, Math.round(s / 2)); // r6.8: the scrawl sits just under the main line, never on it (r6.6 tucked it in too far)
+      var W = Math.max(a.w, b.w) + 3 * s, H = sy + b.h; // a little extra on the right for a letter's ink bleed or lean
       if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
       cv.style.width = (W / dpr) + 'px'; cv.style.height = (H / dpr) + 'px';
       var g = cv.getContext('2d'); g.clearRect(0, 0, W, H);
       NP.markerText(g, txt, s, room * dpr, { x: s });
-      NP.markerText(g, sc, s2, room * dpr, { x: W - b.w - s, y: a.h - 3 * s, ink: 'rgba(27,27,40,.72)', bleed: 'rgba(27,27,40,.2)' });
+      NP.markerText(g, sc, s2, room * dpr, { x: W - b.w - 2 * s, y: sy, ink: 'rgba(27,27,40,.72)', bleed: 'rgba(27,27,40,.2)' });
     });
   }
 
@@ -3388,7 +3390,7 @@
     h += '</div><button class="big home" data-act="gohome">Head home and shelve it</button></div>';
     app.innerHTML = h;
     if (NP.TownMap) mountTown();
-    if (NP.TownMap) setTimeout(function () { if (S && S.screen === 'map' && window.pageYOffset < 4) fitTownMap(); }, 0); // after the NEXT bar is in place
+    if (NP.TownMap) setTimeout(function () { if (S && S.screen === 'map') { if (window.pageYOffset < 4) fitTownMap(); fitMapLabels(); } }, 0); // after the NEXT bar is in place
   }
 
   // a billboard on the drive, now and then (never in the walkable swap meet, never on top of a haggle)
@@ -4394,7 +4396,15 @@
     var w = Math.floor((bottomLimit - r.top - pad) * ratio);
     if (w >= 240) tin.style.maxWidth = w + 'px'; // never smaller than 240 wide; on a very short screen it scrolls instead
   }
-  window.addEventListener('resize', function () { if (S && S.screen === 'map') fitTownMap(); });
+  // r6.8: a stop name that still runs past its label box (very small phones at Larger text) steps down in size until it fits
+  function fitMapLabels() {
+    document.querySelectorAll('#townmap .tm-lab:not(.rare)').forEach(function (l) {
+      l.style.fontSize = '';
+      var fs = parseFloat(getComputedStyle(l).fontSize) || 10, k = 0;
+      while (l.scrollWidth > l.clientWidth + 0.5 && k++ < 10) { fs *= 0.92; l.style.fontSize = fs.toFixed(2) + 'px'; }
+    });
+  }
+  window.addEventListener('resize', function () { if (S && S.screen === 'map') { fitTownMap(); fitMapLabels(); } });
   function mountTown() {
     var box = document.getElementById('townmap'); if (!box || !NP.TownMap) return;
     if (townCtl && !townCtl.isDriving()) townCtl.stop(); // the last map is gone; free it now
