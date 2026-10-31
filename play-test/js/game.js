@@ -1242,9 +1242,29 @@
     var list = s.jerk && !DEMO ? SH.stop.jerk : SH.stop[s.type];
     if (!list) return '';
     var h = NP.hashStr((S && S.seed) + '|sharpie|' + s.id);
-    var txt = esc(list[h % list.length]).replace(/\{([^}]*)\}/g, '<s>$1</s>');
-    var scr = SH.scrawl[(h >>> 4) % SH.scrawl.length];
-    return '<div class="sharpie" style="--tilt:' + ((h % 5) - 2) * 0.8 + 'deg"><span class="tape tl"></span><span class="tape tr"></span><span class="sh-t">' + txt + '</span><span class="sh-s">' + esc(scr) + '</span></div>';
+    var raw = list[h % list.length], scr = SH.scrawl[(h >>> 4) % SH.scrawl.length];
+    // r6.5: the lettering is drawn in pixel marker (paintSharpies), the same on every phone. The words stay in the page for screen readers.
+    var said = raw.replace(/\{([^}]*)\}/g, '$1 (crossed out)');
+    return '<div class="sharpie" style="--tilt:' + ((h % 5) - 2) * 0.5 + 'deg" role="img" aria-label="' + esc('Cardboard sign: ' + said + '. ' + scr) + '"><span class="tape tl"></span><span class="tape tr"></span>' +
+      '<canvas class="sh-cv" data-sh="' + esc(raw) + '" data-sc="' + esc(scr) + '"></canvas></div>';
+  }
+  function paintSharpies() {
+    var list = document.querySelectorAll('canvas.sh-cv');
+    if (!list.length || !NP.markerText) return;
+    var dpr = Math.min(3, window.devicePixelRatio || 1), tsz = +store.get('tsize', 1) || 1;
+    list.forEach(function (cv) {
+      var box = cv.parentNode, host = box && box.parentNode; if (!host) return;
+      var room = Math.max(160, Math.min(560, host.clientWidth - 34)); // CSS pixels the sign may use
+      var s = Math.max(2, Math.round(2 * tsz * dpr)), s2 = Math.max(1, Math.round(1.4 * tsz * dpr));
+      var txt = cv.getAttribute('data-sh'), sc = cv.getAttribute('data-sc');
+      var a = NP.markerText(null, txt, s, room * dpr, { draw: false }), b = NP.markerText(null, sc, s2, room * dpr, { draw: false });
+      var W = Math.max(a.w, b.w) + 2 * s, H = a.h + b.h + 6 * s;
+      if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+      cv.style.width = (W / dpr) + 'px'; cv.style.height = (H / dpr) + 'px';
+      var g = cv.getContext('2d'); g.clearRect(0, 0, W, H);
+      NP.markerText(g, txt, s, room * dpr, { x: s });
+      NP.markerText(g, sc, s2, room * dpr, { x: W - b.w - s, y: a.h + 4 * s, ink: 'rgba(27,27,40,.72)', bleed: 'rgba(27,27,40,.2)' });
+    });
   }
 
   // ---------- the mall game store: the glass case ----------
@@ -2018,6 +2038,7 @@
 
   // ---------- Demo round 5: settings (one button, everything in one place) ----------
   function setButton() { return '<button class="fsbtn setbtn" data-act="settings" aria-haspopup="dialog"><span aria-hidden="true">&#9881;</span> Settings</button>'; }
+  window.addEventListener('resize', function () { paintSharpies(); });
   function applyTextSize() { var v = +store.get('tsize', 1) || 1; if ([1, 1.15, 1.3].indexOf(v) < 0) v = 1; document.documentElement.style.setProperty('--tsz', v); document.body.classList.toggle('bigtext', v > 1); }
   function fast() { return store.get('speed', 'normal') === 'fast'; }
   function seg(act, cur, opts) {
@@ -2245,9 +2266,16 @@
       if (cm) { S.cameoN = (S.cameoN || 0) + 1; act = 'cameo:' + cm.id; line = NP.CAMEO_TEXT.mini.replace('{name}', cm.name).replace('{tag}', cm.tag) + ' "' + cm.hi[0] + '"'; }
       else { id = 'blow'; line = E.blow; }
     }
-    if (line.indexOf('{seller}') >= 0) { var sl = NP.SELLERS[S.stop.seller] || NP.SELLERS.friendly; line = line.replace('{seller}', sl.name); }
+    if (id === 'haggle') line = haggleLine(walkable);
     showMini(line, act);
     track('mini_full_' + id);
+  }
+  // r6.5: somebody else haggling. Reads right for any seller, and at a jerk stop it is about the jerk you can see.
+  function haggleLine(walkable) {
+    var H = NP.FULL_MINI_HAGGLE;
+    var j = S.stop && S.stop.jerk && jerkDef(S.stop.jerk);
+    if (j && j.mini) return j.mini;
+    return walkable ? H.walk : H.stop;
   }
   function showMini(text, act) {
     var old = document.querySelector('.minicard'); if (old) old.parentNode.removeChild(old);
@@ -2951,7 +2979,7 @@
   }
   function render() {
     if (S && !DEMO) { feverCheck(); goalTime(); }
-    renderScreen(); animCash();
+    renderScreen(); animCash(); paintSharpies();
     placeNextStep();
     restoreChips();
     if (chipCur) chipIntoBar(); // a re-render made a new NEXT bar; put the chip back in it
@@ -3970,14 +3998,14 @@
           if (it.flaw) track('near_miss_flaw');
         }
       } else { goalTick('buy', it, { price: price, offer: kind }); demoJuice(it, price); setTimeout(offerUndo, 50); }
-    } else if (!DEMO && it.jerk && it.jerk !== 'phone' && ((kind === 'lowball' && jerkCoin(it, 'low', it.jerk === 'scoff' ? 0.5 : it.jerk === 'walk' ? 0.4 : 0.25)) || (kind !== 'lowball' && it.jerk === 'walk' && jerkCoin(it, 'walk', 0.4)))) {
+    } else if (!DEMO && it.jerk && ((kind === 'lowball' && jerkCoin(it, 'low', it.jerk === 'scoff' ? 0.5 : it.jerk === 'walk' ? 0.4 : 0.25)) || (kind !== 'lowball' && it.jerk === 'walk' && jerkCoin(it, 'walk', 0.4)))) {
       // the jerk ends the deal: the thing goes back under the table
       S.streak = 0;
       it.state = 'pulled'; it.line = jerkSay(it, 'quit'); S.ev.jerkQuit = (S.ev.jerkQuit || 0) + 1;
       goalTick('miss'); comboBreak();
       track('jerk_quit'); track('jerk_quit_' + it.jerk);
       sfx('reject');
-    } else if (kind === 'lowball' && sl.touchy && !DEMO) {
+    } else if (kind === 'lowball' && sl.touchy && !DEMO && !it.jerk) { // at a jerk stop or table, the jerk's rules win (r6.5)
       S.streak = 0;
       it.state = 'pulled'; it.line = S.rem.ikwig && S.rem.ikwig.mad ? 'AGAIN? Unbelievable. Off the table. I will remember this too.' : sl.mad[0]; S.ev.offended++;
       remember('ikwig', 'mad');
@@ -5128,7 +5156,7 @@
   };
 
   // test hooks (harmless in production)
-  window.__NP_TEST = { keep: function () { return K(); }, merchSpot: function (cb) { showMerchSpot(cb || function () {}); }, merchDue: function () { return merchSpotDue(); }, chip: function (lv, t) { celebrate(lv, t); }, spotCameo: function (id) { return spotCameo(id); }, playTV: function (w) { playTV(w || 'map'); },
+  window.__NP_TEST = { keep: function () { return K(); }, haggleLine: function () { return haggleLine(!!(S && S.stop && (S.stop.type === 'flea' || S.stop.type === 'expo'))); }, merchSpot: function (cb) { showMerchSpot(cb || function () {}); }, merchDue: function () { return merchSpotDue(); }, chip: function (lv, t) { celebrate(lv, t); }, spotCameo: function (id) { return spotCameo(id); }, playTV: function (w) { playTV(w || 'map'); },
     // the season simulator used for the balance pass (test only; nothing in the game calls these)
     sim: {
       route: function () { return planRoute().map(function (x) { return x.id; }); },

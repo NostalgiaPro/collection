@@ -164,7 +164,7 @@ NP.TownMap = (function () {
 
         if (s.visited) { P(g, p.x + 12, p.y - 34, 7, 7, '#3ddc84'); txt(g, '', p.x, p.y, C.ink); }
         if (s.late && !s.visited) { g.fillStyle = 'rgba(11,16,34,.55)'; g.fillRect(p.x - 20, p.y - 36, 40, 32); }
-        if (s.next && !driving) { nextId = s.id; var rr = 3 + (Math.floor(t * 3) % 3); g.strokeStyle = C.gold; g.lineWidth = 2; g.strokeRect(p.x - 17 - rr, p.y - 34 - rr, 34 + rr * 2, 28 + rr * 2); }
+        if (s.next && !driving) { nextId = s.id; var rr = 3 + (Math.floor(t * 3) % 3); g.strokeStyle = C.gold; g.lineWidth = 2; g.strokeRect(p.x - 17 - rr, p.y - 34 - rr, 34 + rr * 2, 27 + rr); } // r6.5: it pulses up and out, never down onto the street sign
 
       });
       building(g, { home: true }, px(HOME).x, px(HOME).y, t);

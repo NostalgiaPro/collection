@@ -20,7 +20,7 @@ NP.FONT = (function () {
     '.':[0,0,0,0,0,12,12],',':[0,0,0,0,12,4,8],'!':[4,4,4,4,4,0,4],'?':[14,17,1,2,4,0,4],'-':[0,0,0,31,0,0,0],
     "'":[4,4,8,0,0,0,0],'$':[4,15,20,14,5,30,4],'#':[10,10,31,10,31,10,10],'/':[1,1,2,4,8,16,16],
     '(':[2,4,8,8,8,4,2],')':[8,4,2,2,2,4,8],'&':[12,18,20,8,21,18,13],'+':[0,4,4,31,4,4,0],
-    '%':[24,25,2,4,8,19,3],'·':[0,0,0,12,12,0,0],'"':[10,10,0,0,0,0,0],'@':[14,17,23,21,23,16,14]
+    '%':[24,25,2,4,8,19,3],'·':[0,0,0,12,12,0,0],'"':[10,10,0,0,0,0,0],'@':[14,17,23,21,23,16,14],'|':[4,4,4,4,4,4,4],'*':[0,21,14,31,14,21,0]
   };
   return g;
 })();
@@ -368,4 +368,47 @@ NP.drawYardBanner = function (cv, seed, sky, t) {
   // a saguaro and a mailbox
   P(14, 26, 5, 22, '#2f8f4e'); P(9, 32, 5, 3, '#2f8f4e'); P(9, 28, 3, 6, '#2f8f4e'); P(19, 35, 4, 3, '#2f8f4e'); P(21, 30, 3, 7, '#2f8f4e'); P(15, 27, 1, 20, '#4fbf6e');
   P(222, 44, 2, 12, '#5a4a3a'); P(218, 40, 10, 5, '#3f5f9a'); P(226, 38, 1, 4, '#e4343e');
+};
+
+// r6.5: hand-lettered marker on cardboard, drawn with the pixel font so it looks the same on every phone.
+// Each letter sits a little high or low, the ink bleeds a pixel here and there, and anything in {braces}
+// is crossed out in red. s = device pixels per font pixel. Returns the size it needs (draw = false just measures).
+NP.markerText = function (ctx, text, s, maxW, opts) {
+  opts = opts || {};
+  var ink = opts.ink || '#1b1b28', bleed = opts.bleed || 'rgba(27,27,40,.33)', red = opts.red || '#c8323c';
+  // words, keeping a crossed-out group together even when it has spaces in it
+  var words = [], re = /\{([^}]*)\}|(\S+)/g, m;
+  while ((m = re.exec(String(text).toUpperCase()))) words.push(m[1] != null ? { t: m[1], x: true } : { t: m[2], x: false });
+  var cw = 6 * s, lh = 10 * s, lines = [[]], lw = [0];
+  words.forEach(function (w) {
+    var ww = w.t.length * cw - s, cur = lines.length - 1, add = (lines[cur].length ? cw : 0) + ww;
+    if (lines[cur].length && lw[cur] + add > maxW) { lines.push([w]); lw.push(ww); }
+    else { lines[cur].push(w); lw[cur] += add; }
+  });
+  var W = Math.max.apply(null, lw), H = lines.length * lh - 3 * s;
+  if (opts.draw === false || !ctx) return { w: W, h: H, lines: lines.length };
+  var seed = NP.hashStr(String(text)), n = 0, x0 = opts.x || 0, y0 = opts.y || 0;
+  lines.forEach(function (ln, li) {
+    var x = x0 + (opts.align === 'right' ? W - lw[li] : 0), y = y0 + li * lh;
+    ln.forEach(function (w, wi) {
+      if (wi) x += cw;
+      var start = x;
+      for (var i = 0; i < w.t.length; i++) {
+        var h = NP.hashStr(seed + '|' + (n++)), dy = (h % 5 === 0 ? -1 : h % 5 === 1 ? 1 : 0) * Math.max(1, Math.round(s / 3));
+        var gl = NP.FONT[w.t[i]] || NP.FONT['?'];
+        for (var r = 0; r < 7; r++) for (var c = 0; c < 5; c++) {
+          if (!(gl[r] & (16 >> c))) continue;
+          ctx.fillStyle = ink; ctx.fillRect(x + c * s, y + dy + r * s, s, s);
+          if (((h >> (r * 5 + c)) & 7) === 0) { ctx.fillStyle = bleed; ctx.fillRect(x + c * s + s, y + dy + r * s, Math.max(1, Math.round(s / 2)), s); }
+        }
+        x += cw;
+      }
+      if (w.x) { // the crossed-out price: one quick red stroke, a little crooked
+        var sw = x - cw - start + 5 * s, th = Math.max(2, Math.round(s * 0.9)), my = y + Math.round(3 * s);
+        ctx.fillStyle = red; ctx.fillRect(start - s, my, Math.ceil(sw / 2) + s, th); ctx.fillRect(start + Math.floor(sw / 2), my - Math.max(1, Math.round(s / 2)), Math.ceil(sw / 2) + s, th);
+      }
+      x -= s; // end of the last letter, so the next word starts one space later (matches the measuring above)
+    });
+  });
+  return { w: W, h: H, lines: lines.length };
 };

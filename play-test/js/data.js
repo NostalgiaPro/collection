@@ -296,18 +296,21 @@ NP.JERK = {
   // tell: what you see. name: what the table sign says.
   kinds: {
     scoff: { name: 'Scoffing Stan', tell: 'roll',
+      mini: 'The guy ahead of you offered Scoffing Stan half. Stan said "You serious? Get outta here." The guy got outta there.',
       hi: ['Look all you want. Looking costs nothing. For now.', 'Oh good. Another expert.', 'Yeah, yeah. Prices are on stuff. Read.'],
       yes: ['Fine. Take it. Jeez.', 'Whatever. Enjoy it, I guess.'],
       no: ['C\'mon. That is not an offer. That is a coupon.', 'Nope. Try again with real money.'],
       low: ['You serious? Get outta here.', 'Ha! No. You serious? Get outta here.'],
       quit: ['You serious? Get outta here. It is off the table. Go bother somebody else.'] },
     budge: { name: 'Not Budging Norm', tell: 'arms',
+      mini: 'The guy ahead of you spent eleven minutes trying to talk Not Budging Norm down a dollar. Norm did not budge. Norm has never budged.',
       hi: ['Price is the price.', 'Before you ask: no.', 'Stickers are final. I do not do the math thing.'],
       yes: ['Sticker price. Good. Was that so hard?', 'Correct. Next.'],
       no: ['Price is the price.', 'Nope. Read the sticker again. Slower.', 'Still no. The sticker did not change. Neither did I.'],
       low: ['Half? C\'mon. Price is the price.'],
       quit: ['Okay, we are done here. Off the table.'] },
     raise: { name: 'Markup Marv', tell: 'roll',
+      mini: 'The guy ahead of you asked Markup Marv how much a game was. Marv looked at him for a long time and said "More."',
       hi: ['Oh, a collector. Great. Love that for me.', 'Everything is priced fair. For now.', 'Take your time. Prices only go up.'],
       yes: ['Pleasure. You got a deal. A deal for me.', 'Sold. Should have charged more, honestly.'],
       no: ['Prices go up when people look at stuff. That is just how it works.', 'Nah. You looked at it too long.'],
@@ -315,12 +318,14 @@ NP.JERK = {
       bump: ['Oh, you want THAT one? Yeah, that one is {$} now. Demand just went up.', 'Hm. You picked that up kind of fast. That one is {$}.', 'Ooh, you like it. Okay. {$}.'],
       quit: ['Nope. Not selling it to you now. Off the table.'] },
     brag: { name: 'Worth More Online Wes', tell: 'arms',
+      mini: 'The guy ahead of you asked Worth More Online Wes for a deal. Wes showed him a listing on his phone. For eleven minutes.',
       hi: ['Careful. Everything on this table is super rare. Worth way more online.', 'I looked all of this up. Once. On my phone. It is all rare.', 'You will not find these anywhere. I checked one website.'],
       yes: ['Steal of the century. For you. Not for me.', 'Fine. You know this is worth way more online, right?'],
       no: ['It is super rare. Worth way more online.', 'C\'mon. You know what this goes for online? Me neither, but it is a lot.', 'Online, this is a car payment.'],
       low: ['Half? For something this rare? Jeez.'],
       quit: ['You know what, I will just sell it online. Off the table.'] },
     phone: { name: 'Hang On Hank', tell: 'phone',
+      mini: 'The guy ahead of you has been waiting on Hang On Hank for eleven minutes. Hank is still on the phone. It might be the same call.',
       hi: ['(On the phone. Does not look up.)', '"No, the OTHER storage unit." (Still on the phone.)', '"Uh huh. Uh huh. Hang on, somebody is here." (They do not hang on.)'],
       ignore: ['(Still on the phone.) "No, I said the BLUE tote." One finger goes up. Ask again.', '(On the phone.) "Uh huh. Uh huh." A finger goes up. You wait. Ask again.', '(On the phone.) "Hang on." They turn around. Ask again.'],
       yes: ['(Covers the phone.) "Yeah, fine, take it." (Back on the phone.)', '"Sure, sure." (Still on the phone. Takes your money anyway.)'],
@@ -328,6 +333,7 @@ NP.JERK = {
       low: ['(Covers the phone.) "C\'mon, really?"'],
       quit: ['"Hang on, I gotta go." They pack it up, still talking. Off the table.'] },
     walk: { name: 'Walkaway Wendell', tell: 'sigh',
+      mini: 'The guy ahead of you offered Walkaway Wendell a dollar less. Wendell sighed, picked up the game and put it back in his truck.',
       hi: ['*Big sigh.* Yeah, what.', '*Sigh.* Everything is priced. Do not make it weird.', '*Sigh.* I been here since five.'],
       yes: ['*Sigh.* Fine. Here.', 'Sure. Whatever. *Sigh.*'],
       no: ['Jeez. No.', '*Sigh.* No.'],
@@ -1449,9 +1455,15 @@ NP.FULL_MINI = {
   blow: 'A kid at the next table blows into a cartridge, slots it in, and it boots right up. Blow on it. It helps.',
   radio: '104.8 The Dust plays the Saguaro Splash Cola jingle for the third time this hour. You know every word now.',
   van: 'A white van rolls past real slow. Dex waves. You do not wave back.',
-  haggle: 'Somebody two tables over just talked {seller} down a dollar. You heard the whole thing. It took eleven minutes.',
+  haggle: 'Somebody two tables over just talked the seller down a dollar. You heard the whole thing. It took eleven minutes.',
   dust: 'A dust devil spins through the lot and takes a stack of price stickers with it. Nobody chases them.'
 };
+// r6.5: the haggle mini event, worded for where you are (a jerk stop uses the jerk's own line from NP.JERK)
+NP.FULL_MINI_HAGGLE = {
+  stop: 'The guy ahead of you just talked the seller down a dollar. You heard the whole thing. It took eleven minutes.',
+  walk: 'Somebody two tables over just talked the seller down a dollar. You heard the whole thing. It took eleven minutes.'
+};
+
 // r6.3: the one real product, RC's actual Nostalgia Pro tee (links to MERCH_URL in config.js). Full game only.
 NP.REAL_MERCH = {
   spotLabel: 'A WORD FROM AN ACTUAL SPONSOR',

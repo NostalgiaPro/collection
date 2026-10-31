@@ -121,7 +121,7 @@ NP.Walk = (function () {
       stop: stop, x: 15 * T, y: 20 * T + 14, dir: 'up', step: 0, anim: 0, dist: 0,
       look: G().look(), panel: null, objs: [], solid: new Uint8Array(MW * MH), occ: new Array(MW * MH),
       toast: '', toastT: 0, ptoast: '', tables: [], spots: [], hint: 8, rivalCounted: !!stop.cleared, started: false, enterAt: performance.now(), lastStep: 0,
-      path: [], goal: null, face: null, marker: null, stuck: 0
+      path: [], goal: null, face: null, marker: null, stuck: 0, signRects: [], signAt: {}
     };
     // fence
     for (var x = 0; x < MW; x++) { setSolid(x, 0); if (x < GATE_X0 || x > GATE_X1) setSolid(x, MH - 1); }
@@ -196,6 +196,17 @@ NP.Walk = (function () {
   function smellSlow() { return W && W.smellNear ? 0.85 : 1; }
   // haze under them, stink lines and a fly or two over them
   function drawSmell(n, now, calm) {
+    // the haze, the lines and the flies stay off the hanging cardboard signs (r6.5)
+    var near = (W.signRects || []).filter(function (r) { return r[0] < n.x + 18 && r[0] + r[2] > n.x - 18 && r[1] < n.y + 6 && r[1] + r[3] > n.y - 42; });
+    if (near.length) {
+      ctx.save(); ctx.beginPath(); ctx.rect(0, 0, VW, VH);
+      near.forEach(function (r) { ctx.rect(Math.round(r[0] - CX), Math.round(r[1] - CY), r[2], r[3]); });
+      ctx.clip('evenodd');
+      drawSmellNow(n, now, calm);
+      ctx.restore();
+    } else drawSmellNow(n, now, calm);
+  }
+  function drawSmellNow(n, now, calm) {
     var x = n.x - CX, y = n.y - CY, pulse = calm ? 0 : Math.sin(now * 2) * 0.04;
     // a green-ish haze, roughly round, that breathes a little
     ctx.fillStyle = 'rgba(140,205,80,' + (0.17 + pulse) + ')';
@@ -1389,6 +1400,9 @@ NP.Walk = (function () {
     lines.forEach(function (l) { w = Math.max(w, NP.textWidth(l.replace(/^~/, ''), 1)); });
     w += 6;
     var h = lines.length * 7 + 3;
+    // r6.5: remember where the sign is, so nobody's stink lines get drawn over it
+    var key = cx + ',' + y;
+    if (!W.signAt[key]) { W.signAt[key] = 1; W.signRects.push([cx - w / 2 - 2, y - 2, w + 4, h + 4]); }
     OB(cx - w / 2, y, w, h, '#c9a46a');
     R(cx - w / 2, y, w, 1, '#d8b57f');
     R(cx - w / 2 + 1, y - 1, 4, 2, 'rgba(233,220,176,.9)'); R(cx + w / 2 - 5, y - 1, 4, 2, 'rgba(233,220,176,.9)'); // tape
