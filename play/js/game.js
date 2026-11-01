@@ -3206,6 +3206,12 @@
     return linksOk() ? '<div class="scores"><a class="tlink" href="' + esc(CFG.FULL_GAME_URL) + '" target="_blank" rel="noopener" data-track="title_buy">Get the full game (' + esc(CFG.PRICE || '$1.00') + ')</a></div>' : '';
   }
 
+  // the Substack signup link (title screen and results). A plain link to Substack's own page, no embeds.
+  function substackOk() { return linksOk() && !!CFG.SUBSTACK_URL; }
+  function substackLine() {
+    return substackOk() ? '<div class="scores"><a class="tlink" href="' + esc(CFG.SUBSTACK_URL) + '" target="_blank" rel="noopener" data-track="title_substack">Get updates on Substack &#8599;</a></div>' : '';
+  }
+
   function renderTitle() {
     music('title');
     step('f01_title');
@@ -3248,6 +3254,7 @@
       (!DEMO && (store.get('finds', 0) || Object.keys(magnets()).length) ? '<div class="scores rankline">' + rankLine() + '</div>' : '') +
       (!DEMO ? '<div class="scores visitline">' + esc(visitLine()) + '</div>' : '') +
       (DEMO ? fullGameLine() : '') +
+      (DEMO ? substackLine() : '') +
       (!store.ok ? '<div class="savewarn">This browser is not letting the game save. Everything still plays, but your progress will be gone when you close the page.</div>' : '') +
       '<div class="foot">A parody. Every game, console, store and company in here is made up.</div>' +
       '</div>';
@@ -4770,6 +4777,8 @@
       // the one real ad in the game: RC's actual merch store. A plain link, after the results, never during play.
       (linksOk() && CFG.MERCH_URL ? '<div class="shirt"><div class="shirt-k">The only item in this game that actually exists:</div>' +
       '<a href="' + esc(CFG.MERCH_URL) + '" target="_blank" rel="noopener" data-track="shirt_link">Nostalgia Pro: The Actual Shirt &#8599;</a></div>' : '') +
+      (DEMO && substackOk() ? '<div class="shirt subst"><div class="shirt-k">Game news, plus the reviews and rankings off my real shelf, by email:</div>' +
+      '<a href="' + esc(CFG.SUBSTACK_URL) + '" target="_blank" rel="noopener" data-track="results_substack">Get updates on Substack &#8599;</a></div>' : '') +
       (DEMO ? '<div class="btns center"><button class="big" data-act="demoend">Continue &#9654;</button></div>' +
         '<div class="foot">That was the demo Saturday. Continue for what comes next.</div></div>'
         : S.season ? '<div class="btns center">' + (SEASON.endingPending ? '<button class="big" data-act="ending">See how your season ended &#9654;</button>' : '<button class="big" data-act="nextsat">On to ' + esc(seasonLabelLc(SEASON.week)) + ' &#9654;</button>') +
