@@ -2140,10 +2140,21 @@
   function placeNextStep() {
     var old = document.querySelector('.nsbar'); if (old) old.parentNode.removeChild(old);
     document.body.classList.remove('has-ns');
-    var h = nextStepHTML(); if (!h) return;
+    var h = nextStepHTML(); if (!h) { document.body.style.paddingBottom = ''; return; }
     var d = document.createElement('div'); d.innerHTML = h; document.body.appendChild(d.firstChild);
     document.body.classList.add('has-ns');
+    fitNsPad();
   }
+  // r6.9e: when the NEXT bar wraps taller than the room kept for it (small phones at Larger text), keep more room
+  // at the bottom of the page so the last buttons (Back to the map) can scroll out from under it
+  function fitNsPad() {
+    var b = document.body, nb = document.querySelector('.nsbar');
+    b.style.paddingBottom = '';
+    if (!nb) return;
+    var h = Math.ceil(nb.getBoundingClientRect().height), pad = parseFloat(getComputedStyle(b).paddingBottom) || 0;
+    if (h > pad) b.style.paddingBottom = (h + 6) + 'px';
+  }
+  window.addEventListener('resize', fitNsPad);
   function nextStepGo() {
     var n = nextStep(); if (!n) return;
     track('nextstep_' + S.screen);
@@ -3248,7 +3259,8 @@
     h += '<div class="btns center"><button class="big" data-act="shelfback">Back</button></div></div>';
     app.innerHTML = h;
     document.querySelectorAll('[data-hs]').forEach(function (el) {
-      var p = el.getAttribute('data-hs').split('|'), rec = byDay[p[0]][+p[1]];
+      // r6.9e: season day keys have '|' in them (season|...|week), so split at the last '|' only
+      var a = el.getAttribute('data-hs'), cut = a.lastIndexOf('|'), rec = (byDay[a.slice(0, cut)] || [])[+a.slice(cut + 1)];
       if (rec) el.appendChild(NP.makeArt({ kind: rec.kind, id: rec.id, p: rec.p, fmt: rec.fmt, cond: rec.cond, sticker: rec.sticker }, 2));
     });
     window.scrollTo(0, 0);
