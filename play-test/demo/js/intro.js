@@ -175,8 +175,8 @@ NP.Intro = (function () {
     { h: ['NO ADS.'], s: ['EXCEPT THIS ONE.', 'AND THE NEXT ONE.'], v: 'stars', bg: '#2a1d3e' },
     { h: ['IS IT ON', 'THE SHELF?'], s: ['ASK THE AD-LESS', 'EDITION. IT KNOWS.'], v: 'you', bg: '#123a2f' }
   ];
-  var ADS_DEMO = { h: ['THE FULL', 'VERSION'], s: ['SOLD SEPARATELY.', 'BY US. FOR 99 CENTS.'], v: 'box', bg: '#3a1f1f' };
-  var ADS_DEMO_SOON = { h: ['THE FULL', 'VERSION'], s: ['COMING SOON.', 'FOR 99 CENTS.'], v: 'box', bg: '#3a1f1f' };
+  var ADS_DEMO = { h: ['THE FULL', 'VERSION'], s: ['SOLD SEPARATELY.', 'BY US. FOR $1.00.'], v: 'box', bg: '#3a1f1f' };
+  var ADS_DEMO_SOON = { h: ['THE FULL', 'VERSION'], s: ['COMING SOON.', 'FOR $1.00.'], v: 'box', bg: '#3a1f1f' };
   var DEX_LOOK = { skin: 2, hair: 'spiky', hairCol: 4, shirt: 'flipside', hat: 'back', glasses: 'shades' };
 
   function star(g, x, y, c) {

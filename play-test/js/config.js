@@ -1,4 +1,4 @@
-// Nostalgia Pro: settings. Fill in the REPLACE-ME / empty values before launch.
+// Nostalgia Pro: settings. Fill in the empty values before launch.
 //
 // Builds: run `node build.js` from the project folder. It writes dist/demo and dist/full from these same files.
 // The demo build has DEMO hard-coded on in game.js, intro.js and character.js, so editing this file
@@ -12,11 +12,11 @@ NP.CONFIG = {
 
   // The full game is not out yet. While this is true, every "get the full game" spot says
   // "Full game coming soon" and points to FOLLOW_URL instead of FULL_GAME_URL.
-  COMING_SOON: true,
-  FULL_GAME_URL: 'https://REPLACE-ME.itch.io/nostalgia-pro', // unused while COMING_SOON is true
+  COMING_SOON: false,
+  FULL_GAME_URL: 'https://thenostalgiapro.itch.io/nostalgia-pro-the-game', // unused while COMING_SOON is true
   FOLLOW_URL: 'https://x.com/NostalgiaPro',
   SITE_URL: 'https://thenostalgiapro.com',
-  PRICE: '$0.99',
+  PRICE: '$1.00', // itch.io's minimum paid price
 
   // Feedback form (Tally). The feedback buttons stay hidden until this is filled in.
   FEEDBACK_URL: '',

@@ -3145,10 +3145,10 @@
   // the "get the full game" line on the start screen
   function fullGameLine() {
     if (CFG.COMING_SOON) {
-      return '<div class="scores">Full game coming soon &middot; ' + esc(CFG.PRICE || '$0.99') +
+      return '<div class="scores">Full game coming soon &middot; ' + esc(CFG.PRICE || '$1.00') +
         (linksOk() ? ' <a class="tlink" href="' + esc(CFG.FOLLOW_URL) + '" target="_blank" rel="noopener" data-track="title_follow">Follow for updates</a>' : '') + '</div>';
     }
-    return linksOk() ? '<div class="scores"><a class="tlink" href="' + esc(CFG.FULL_GAME_URL) + '" target="_blank" rel="noopener" data-track="title_buy">Get the full game (' + esc(CFG.PRICE || '$0.99') + ')</a></div>' : '';
+    return linksOk() ? '<div class="scores"><a class="tlink" href="' + esc(CFG.FULL_GAME_URL) + '" target="_blank" rel="noopener" data-track="title_buy">Get the full game (' + esc(CFG.PRICE || '$1.00') + ')</a></div>' : '';
   }
 
   function renderTitle() {
@@ -5043,7 +5043,7 @@
           music(null);
           NP.Intro.infomercial(app, {
             comingSoon: !!CFG.COMING_SOON, url: CFG.FULL_GAME_URL, follow: CFG.FOLLOW_URL, site: CFG.SITE_URL,
-            feedback: feedbackOk() ? CFG.FEEDBACK_URL : '', merch: linksOk() ? (CFG.MERCH_URL || '') : '', links: linksOk(), price: CFG.PRICE || '$0.99', adFree: adFree
+            feedback: feedbackOk() ? CFG.FEEDBACK_URL : '', merch: linksOk() ? (CFG.MERCH_URL || '') : '', links: linksOk(), price: CFG.PRICE || '$1.00', adFree: adFree
           });
         } else { newRun(); S.screen = 'map'; render(); }
         window.scrollTo(0, 0); break;
