@@ -1830,8 +1830,16 @@ NP.Walk = (function () {
     else if (a === 'map') openStallMap();
   });
 
+  // r6.9b: the phone's back button at the swap meet or the Expo asks the same question as walking to the gate
+  function openExit() {
+    if (!active() || W.panel) return false;
+    closeStallMap();
+    openPanel(EXIT_OBJ);
+    return true;
+  }
+
   return {
-    enter: enter, render: render,
+    enter: enter, render: render, openExit: openExit,
     // test hooks
     _state: function () { return W; }, _interact: interact, _open: openPanel, _close: closePanel
   };
