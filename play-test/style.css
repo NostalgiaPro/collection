@@ -1084,3 +1084,8 @@ body.calmfx .sharpie { transform: none; }
 @media (max-width: 380px) { body.bigtext .sunbar > span { font-size: calc(13px * var(--tsz, 1)); padding-left: 6px; padding-right: 6px; } }
 .wtoast { z-index: 5; }   /* r6.8: a toast sits over the walking cost chip while it shows, instead of the chip cutting into its words */
 @media (max-width: 340px) { body.bigtext .sunbar > span { font-size: calc(11.5px * var(--tsz, 1)); } }
+
+/* r6.9b: the Back button question ("Leave the game?"), styled like the phone call box */
+.backov { z-index: 200; }
+.bk-h { color: var(--gold); font-weight: bold; font-size: calc(18px * var(--tsz, 1)); margin: 4px 0; }
+.backbox .story-t { margin: 4px 0 10px; }

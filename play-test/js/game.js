@@ -5094,6 +5094,7 @@
     // Phones only allow sound after a tap, so the game opens on a Tap to start screen.
     // That first tap turns the sound on and the title music starts right away.
     if (NP.Sound && NP.Sound.supported && !NP.Sound.isReady()) renderGate(); else renderTitle();
+    bkInit(); // r6.9b: Back stays in the game
   });
 
   // ---------- where people stop playing ----------
@@ -5162,6 +5163,112 @@
   function showCreator(next, label) {
     music('title');
     NP.Creator.render(app, getLook(), function (look) { store.set('look', look); track('creator_done'); next(); }, label);
+  }
+
+  // ---------- r6.9b: the phone's back button (and the browser's Back) stays in the game ----------
+  // The page keeps a small guard in its history (two entries at most, pushed only right after a tap or a key,
+  // so the browser keeps them). Back closes whatever is open or goes up one level, the same as the game's own
+  // Back, Close and Walk away buttons. On the title, the map and the end-of-day screens it asks first.
+  // Off inside an iframe (game portals), where the host page owns Back.
+  var BK = { on: false, idx: 0, depth: 2, leaving: false, focus: null };
+  var BACK_TEXT = { h: 'Leave the game?', saved: 'Your progress is saved.', unsaved: 'This Saturday is not saved. It ends if you leave.', stay: 'Stay', leave: 'Leave' };
+  function bkIdx() { var st = null; try { st = history.state; } catch (e) {} return st && st.npBack ? (+st.i || 0) : -1; }
+  function bkPushOne() { try { history.pushState({ npBack: 1, i: BK.idx + 1 }, ''); BK.idx++; return true; } catch (e) { return false; } }
+  function bkArm(e) {
+    if (!BK.on || BK.leaving || (e && e.isTrusted === false)) return;
+    while (BK.idx < BK.depth) if (!bkPushOne()) break;
+  }
+  function bkInit() {
+    try { if (window.top !== window || !window.history || !history.pushState || !history.replaceState) return; } catch (e) { return; }
+    var i = bkIdx();
+    if (i < 0) { try { history.replaceState({ npBack: 1, i: 0 }, ''); } catch (e) { return; } i = 0; }
+    BK.on = true; BK.idx = i;
+    window.addEventListener('popstate', bkPop);
+    ['pointerup', 'mousedown', 'touchend', 'keydown'].forEach(function (ev) { window.addEventListener(ev, bkArm, true); });
+    window.addEventListener('pageshow', function (e) { if (!e.persisted) return; BK.leaving = false; bkClose(); var j = bkIdx(); BK.idx = j < 0 ? 0 : j; });
+  }
+  function bkPop() {
+    if (!BK.on || BK.leaving) return;
+    var i = bkIdx();
+    if (i < 0) return; // not one of ours
+    var back = i < BK.idx;
+    BK.idx = i;
+    if (!back) return; // the Forward button: nothing to do
+    if (BK.idx < 1) bkPushOne(); // keep one guard above the start, so the next back comes here too
+    try { backStep(); } catch (e) { if (window.console) console.warn('back', e); }
+  }
+  // one level up from whatever is on screen now
+  function backStep() {
+    var q = function (s) { return document.querySelector(s); }, x;
+    if (q('.backov')) return bkClose();                    // the leave question is up: Back means Stay
+    if (revealOn) return closeReveal();
+    if (tipEl) return closeTip();
+    if (q('.setov')) return closeSettings();
+    if ((x = q('.tvad-ov .tvad-skip'))) return x.click();   // TV commercials and the merch break spot
+    if ((x = q('.crt-overlay .skip'))) return x.click();
+    if ((x = q('.unsp:not(.out)'))) return x.click();
+    if (q('.callov')) return;                               // the phone call wants an answer
+    if (q('.loading-ov') || (townCtl && townCtl.isDriving && townCtl.isDriving())) return; // on the road
+    if ((x = q('.wmap-ov .wmap-x'))) return x.click();
+    if ((x = q('.wpanel:not([hidden]) .wp-x'))) return x.click();
+    if ((x = q('.minicard [data-mini="ok"]'))) return x.click();
+    if ((x = q('.screen.morning [data-intro="skip"]'))) return x.click();
+    if ((x = q('#app [data-act="howback"], #app [data-act="shelfback"]'))) return x.click();
+    if ((x = q('#app .screen.confirm [data-act="totitle"], #app .screen.weekdays [data-act="totitle"]'))) return x.click();
+    if (q('#crcv')) { S = null; cartOpen = true; renderTitle(); window.scrollTo(0, 0); return; } // the look maker: back to the menu, look unchanged
+    if (S && S.screen === 'walk' && document.getElementById('walkcv')) { if (NP.Walk && NP.Walk.openExit) NP.Walk.openExit(); return; } // the gate question
+    if (S && S.screen === 'stop' && !gateOn) {
+      x = Array.prototype.slice.call(document.querySelectorAll('#app [data-act="leave"]')).filter(function (b) { return b.offsetParent && !b.closest('[hidden]') && !b.disabled; })[0];
+      if (x) x.click(); // Back to the map (and in the demo, Back in the car at the end)
+      return;
+    }
+    bkAsk();
+  }
+  function bkSaved() { return !(S && !S.season && !DEMO && (S.screen === 'map' || S.screen === 'stop' || S.screen === 'walk' || S.screen === 'home')); }
+  function bkAsk() {
+    if (document.querySelector('.backov')) return;
+    var X = BACK_TEXT, ov = document.createElement('div');
+    ov.className = 'callov backov';
+    ov.innerHTML = '<div class="callbox backbox" role="alertdialog" aria-modal="true" aria-labelledby="bk-h" aria-describedby="bk-t">' +
+      '<div class="bk-h" id="bk-h">' + esc(X.h) + '</div><div class="story-t" id="bk-t">' + esc(bkSaved() ? X.saved : X.unsaved) + '</div>' +
+      '<div class="btns"><button class="big" data-bk="stay">' + esc(X.stay) + '</button><button data-bk="leave">' + esc(X.leave) + '</button></div></div>';
+    document.body.appendChild(ov);
+    BK.focus = document.activeElement;
+    ov.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('[data-bk]');
+      if (!b) { if (e.target === ov) bkClose(); return; }
+      if (b.getAttribute('data-bk') === 'leave') bkLeave(); else bkClose();
+    });
+    ov.__key = function (e) { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); bkClose(); } };
+    window.addEventListener('keydown', ov.__key, true);
+    var f = ov.querySelector('[data-bk="stay"]'); try { f.focus({ preventScroll: true }); } catch (e) { f.focus(); }
+    sfx('flip');
+    track('back_ask');
+  }
+  function bkClose() {
+    var ov = document.querySelector('.backov'); if (!ov) return;
+    window.removeEventListener('keydown', ov.__key, true);
+    ov.parentNode.removeChild(ov);
+    if (BK.focus && document.body.contains(BK.focus)) { try { BK.focus.focus({ preventScroll: true }); } catch (e) {} }
+    BK.focus = null;
+  }
+  function bkLeave() {
+    track('back_leave');
+    // save now, not on the autosave timer
+    if (S && S.season && (S.screen === 'map' || S.screen === 'stop' || S.screen === 'walk' || S.screen === 'home')) { if (saveT) { clearTimeout(saveT); saveT = null; } saveGame(); }
+    if (DEMO) demoSave();
+    bkClose();
+    var n = BK.idx + 1, gone = false, hide = function () { gone = true; };
+    BK.leaving = true;
+    window.addEventListener('pagehide', hide);
+    try { history.go(-n); } catch (e) {}
+    // opened straight from a link or the home screen, with no page before it: go to the site instead
+    setTimeout(function () {
+      window.removeEventListener('pagehide', hide);
+      if (gone) return;
+      BK.leaving = false; var j = bkIdx(); BK.idx = j < 0 ? 0 : j;
+      if (NP.platform === 'site' && linksOk() && CFG.SITE_URL) location.href = CFG.SITE_URL;
+    }, 900);
   }
 
   // what walk.js is allowed to touch
