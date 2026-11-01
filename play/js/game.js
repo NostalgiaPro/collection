@@ -3112,7 +3112,7 @@
   function cartHTML() {
     if (!DEMO) return cartFull();
     var dsv = readDemoSave();
-    return '<div class="cart-label"><div class="cart-brand">NOSTALGIA PRO</div><div class="cart-sub">' + (DEMO ? 'THE GAME &middot; DEMO' : 'THE GAME') + ' &middot; SELECT A MODE</div>' +
+    return '<div class="cart-label"><div class="cart-brand">NOSTALGIA PRO</div><div class="cart-sub">' + 'THE GAME &middot; SELECT A MODE</div>' +
       (dsv ? '<button class="cart-item mode" data-act="democontinue">CONTINUE <small>your Saturday, ' + esc(fmtTime(dsv.run.time)) + '</small></button>' : '') +
       '<button class="cart-item mode" data-act="start" data-mode="noon">BACK BY NOON <small>' + (DEMO ? 'free demo' : 'short run') + '</small></button>' +
       (DEMO ? '<button class="cart-item mode" disabled aria-disabled="true">HOME BY SUNDOWN <small>full version</small></button>'
