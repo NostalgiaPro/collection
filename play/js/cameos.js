@@ -1,7 +1,6 @@
-// Nostalgia Pro: the odd sellers (Demo round 5, plus the easter egg sellers).
+// Nostalgia Pro: the odd sellers (full game r6.2, plus the 10 easter egg sellers).
 // Nineteen rare, random sellers. They are all original characters made up for this game.
 // Any one of them can turn up at a stop and take over one table spot. Spot all nineteen for a hidden trophy.
-// The last ten (egg: true) are original types with made-up names. Each has a short "inv" list of what else is on their blanket (just for show).
 // NP.CAMEOS is the cast. NP.drawCameo(ctx, id, k) draws a 24x32 portrait at scale k.
 var NP = window.NP || {};
 window.NP = NP;
@@ -93,10 +92,8 @@ NP.CAMEO_TEXT = {
   spotted: 'Rare seller found: {n} of {all}',
   first: 'A rare seller! There are 19 of them out there. Spot them all.',
   walkSub: 'Has a stall here today. Look for the sparkly table, or the star on the MAP.',
-  walkTag: 'RARE SELLER!',
   again: 'You have seen this one before.',
   trophy: 'HIDDEN TROPHY|Seen Them All|You spotted all 19 odd sellers',
-  inv: 'Also on the blanket, just for show: {list}.',
   trophyShort: 'Hidden trophy: Seen Them All',
   mini: '{name} is set up at the next stall. {tag}.'
 };

@@ -95,7 +95,7 @@ NP.Sound = (function () {
     if (!ready()) return;
     unlocked = true;
     if (seq) seq.next = ctx.currentTime + 0.05;
-    startMusic(); startAmb();
+    startMusic(); startAmb(); if (ambWanted === 'radio') radioOn();
   }
   function attach() {
     GESTURES.forEach(function (g) { window.addEventListener(g, onGesture, true); });
@@ -164,6 +164,8 @@ NP.Sound = (function () {
     sparkle: function (t) { for (var i = 0; i < 5; i++) tone(2600 + i * 400, t + i * 0.04, 0.06, 'sine', 0.06); },
     // Round 3c: little reward sounds (count-ups, great finds, streaks, unlocks). Quiet on purpose.
     tick: function (t) { tone(1760, t, 0.025, 'square', 0.04); },
+    squeak: function (t) { tone(2300, t, 0.07, 'sine', 0.05, null, 3100); tone(2900, t + 0.09, 0.06, 'sine', 0.04, null, 2200); },
+    buzz: function (t) { tone(190, t, 0.25, 'sawtooth', 0.02, null, 230); },
     sting: function (t) {
       [67, 72, 76, 79, 84].forEach(function (n, i) { tone(midi(n), t + i * 0.07, i === 4 ? 0.35 : 0.07, 'square', 0.1); });
       for (var i = 0; i < 6; i++) tone(2800 + i * 320, t + 0.35 + i * 0.035, 0.05, 'sine', 0.05);
@@ -325,7 +327,37 @@ NP.Sound = (function () {
       if (Math.random() < 0.55) { var b = 180 + Math.random() * 140, n = 2 + (Math.random() * 2 | 0); for (var i = 0; i < n; i++) tone(b * (1 + Math.random() * 0.25), t + i * 0.09, 0.07, 'triangle', 0.025, musicBus); }
     }, 900) };
   }
-  function ambience(name) { ambWanted = name || null; if (ambWanted !== 'crowd') stopAmb(); else startAmb(); }
+  // Round 6.4: at a yard sale the music comes out of a little radio on the card table. The same music,
+  // squeezed through a tinny speaker (a narrow band of frequencies), with a little static now and then.
+  var radio = null;
+  function radioOn() {
+    if (!ready() || radio) return;
+    var hp = ctx.createBiquadFilter(), lp = ctx.createBiquadFilter(), pk = ctx.createBiquadFilter(), g = ctx.createGain();
+    hp.type = 'highpass'; hp.frequency.value = 520;
+    lp.type = 'lowpass'; lp.frequency.value = 2600;
+    pk.type = 'peaking'; pk.frequency.value = 1300; pk.Q.value = 1.2; pk.gain.value = 7;
+    g.gain.value = 0.75;
+    try { musicBus.disconnect(); } catch (e) {}
+    musicBus.connect(hp); hp.connect(pk); pk.connect(lp); lp.connect(g); g.connect(master);
+    radio = { g: g, id: setInterval(function () {
+      if (!ready() || !radio || muted) return;
+      var t = ctx.currentTime;
+      if (Math.random() < 0.5) noise(t, 0.05 + Math.random() * 0.12, 0.012 + Math.random() * 0.02, 'bandpass', 2400 + Math.random() * 1600, master);
+      if (Math.random() < 0.12) { try { g.gain.setTargetAtTime(0.45, t, 0.05); g.gain.setTargetAtTime(0.75, t + 0.35, 0.1); } catch (e) {} } // the signal drifts for a second
+    }, 1100) };
+  }
+  function radioOff() {
+    if (!radio) return;
+    clearInterval(radio.id);
+    try { musicBus.disconnect(); musicBus.connect(master); radio.g.disconnect(); } catch (e) {}
+    radio = null;
+  }
+  function ambience(name) {
+    ambWanted = name || null;
+    if (ambWanted === 'radio') { stopAmb(); radioOn(); return; }
+    radioOff();
+    if (ambWanted !== 'crowd') stopAmb(); else startAmb();
+  }
 
   // ---------- ad jingles: [midi note, beats, bass note] steps, a lead with a bass under it ----------
   function jingle(notes, bpm, wave) {
@@ -348,7 +380,7 @@ NP.Sound = (function () {
 
   return {
     sfx: sfx, music: music, tempo: tempo, toggle: toggle, setMuted: setMuted, setVolume: setVolume, volume: function () { return VOL; },
-    ambience: ambience, jingle: jingle,
+    ambience: ambience, jingle: jingle, radio: function () { return !!radio; },
     isMuted: function () { return muted; }, isReady: ready, supported: !!AC, unlock: onGesture,
     nowPlaying: function () { return seq ? playing : null; },
     label: function () { return muted ? 'Sound: off' : 'Sound: on'; }

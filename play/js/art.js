@@ -20,7 +20,7 @@ NP.FONT = (function () {
     '.':[0,0,0,0,0,12,12],',':[0,0,0,0,12,4,8],'!':[4,4,4,4,4,0,4],'?':[14,17,1,2,4,0,4],'-':[0,0,0,31,0,0,0],
     "'":[4,4,8,0,0,0,0],'$':[4,15,20,14,5,30,4],'#':[10,10,31,10,31,10,10],'/':[1,1,2,4,8,16,16],
     '(':[2,4,8,8,8,4,2],')':[8,4,2,2,2,4,8],'&':[12,18,20,8,21,18,13],'+':[0,4,4,31,4,4,0],
-    '%':[24,25,2,4,8,19,3],'·':[0,0,0,12,12,0,0],'"':[10,10,0,0,0,0,0],'@':[14,17,23,21,23,16,14]
+    '%':[24,25,2,4,8,19,3],'·':[0,0,0,12,12,0,0],'"':[10,10,0,0,0,0,0],'@':[14,17,23,21,23,16,14],'|':[4,4,4,4,4,4,4],'*':[0,21,14,31,14,21,0]
   };
   return g;
 })();
@@ -147,6 +147,11 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
     for (var g = 0; g < (w - 8) / 3; g++) P(x0 + 4 + g * 3, 35, 2, 2, '#5d6370');
     if (it.variant === 'promo') { P(x0 + 3, top + 25, w - 6, 4, NP.COL.red); P(x0 + 5, top + 26, w - 10, 2, NP.COL.cream); }
     if (it.variant === 'import') { P(x0 + 3, top + 25, w - 6, 3, NP.COL.cyan); for (var q = 0; q < (w - 8) / 2; q++) P(x0 + 4 + q * 2, top + 26, 1, 1, NP.COL.ink); }
+    // Round 6.4: loose carts have been places. A torn label corner, a price sticker, a name in marker.
+    var wh = wearHash(it), shell = VV && VV.color ? VV.color : pl.media === 'hand' ? '#59606e' : '#9aa0ad';
+    if (wh % 4 === 0) { var lx = x0 + w - 7, ly = top + 18; P(lx + 2, ly, 2, 6, shell); P(lx, ly + 3, 2, 3, shell); P(lx + 1, ly + 2, 1, 1, '#e8e2d0'); P(lx - 1, ly + 5, 1, 1, '#e8e2d0'); }
+    if (it.sticker) { P(x0 + 4, top + 19, 7, 4, NP.COL.gold); P(x0 + 5, top + 21, 5, 1, NP.COL.red); P(x0 + 10, top + 19, 1, 1, '#fff1a8'); }
+    if (wh % 7 === 3) { P(x0 + 4, top + 26, 2, 1, NP.COL.ink); P(x0 + 6, top + 27, 2, 1, NP.COL.ink); P(x0 + 9, top + 26, 3, 1, NP.COL.ink); } // somebody's initials, in marker
     return;
   }
   // box (cib / sealed)
@@ -161,8 +166,21 @@ NP.drawItem = function (ctx, it, ox, oy, k) {
     ctx.fillStyle = 'rgba(255,255,255,0.35)';
     for (var i = 0; i < 40; i++) { var sx = 22 - i; if (sx >= 3 && sx < 29) ctx.fillRect(ox + sx * k, oy + i * k, k, k); var sx2 = 30 - i; if (sx2 >= 3 && sx2 < 29) ctx.fillRect(ox + sx2 * k, oy + i * k, k, k); }
   }
-  if (it.sticker) { P(21, 33, 8, 5, NP.COL.gold); P(22, 35, 6, 1, NP.COL.red); }
+  // Round 6.4: boxes that sat in a sunny window, and price stickers somebody started to peel
+  var bh = wearHash(it);
+  if (cond === 'cib' && bh % 3 === 0) {
+    ctx.fillStyle = 'rgba(255,238,205,.30)'; ctx.fillRect(ox + 3 * k, oy + 1 * k, 26 * k, 38 * k);
+    ctx.fillStyle = 'rgba(255,238,205,.22)'; ctx.fillRect(ox + 3 * k, oy + 1 * k, 5 * k, 38 * k);
+  }
+  if (cond === 'cib' && bh % 5 === 1) { P(3, 1, 3, 1, NP.COL.ink); P(3, 2, 1, 2, NP.COL.ink); P(26, 37, 3, 2, '#d8cbb0'); } // dinged corners
+  if (it.sticker) {
+    P(21, 33, 8, 5, NP.COL.gold); P(22, 35, 6, 1, NP.COL.red);
+    if (bh % 2) { P(27, 33, 2, 2, '#fff1a8'); P(28, 33, 1, 1, pl.c2); } // half peeled
+    if (bh % 6 === 2) { P(13, 34, 7, 4, '#ff9e57'); P(14, 36, 5, 1, NP.COL.ink); } // an older sticker under the new one
+  }
 };
+// the same item always has the same scuffs (the uid when there is one, so two copies can differ)
+function wearHash(it) { return NP.hashStr(String(it.uid || '') + '|' + (it.id || '') + '|' + (it.cond || '')); }
 
 // colors for record sleeves and movie boxes, picked from the item id so the same item always looks the same
 var MEDIA_PAL = [['#e4343e', '#ffcc33'], ['#29adff', '#fff1d6'], ['#7e57c2', '#29d3e8'], ['#00b894', '#1d2b53'], ['#ff77a8', '#1d2b53'], ['#ff9f43', '#0b1022'], ['#1d2b53', '#ff77a8'], ['#2d6a2d', '#ffcc33']];
@@ -280,7 +298,7 @@ NP.drawLogo = function (canvas, adFree) {
   var y = Math.round(H / 2 - 7 * s / 2) - s * 2;
   NP.pixelText(ctx, txt, W / 2 + s, y + s, s, NP.COL.red, 'center');
   NP.pixelText(ctx, txt, W / 2, y, s, NP.COL.cream, 'center');
-  var sub = adFree ? 'THE AD-FREE EDITION (WITH ADS)' : 'THE GAME';
+  var sub = adFree ? 'THE AD-LESS EDITION (WITH ADS)' : 'THE GAME';
   var s2 = Math.max(1, Math.floor(s / 3));
   NP.pixelText(ctx, sub, W / 2, y + 9 * s, s2, NP.COL.cyan, 'center');
 };
@@ -350,4 +368,66 @@ NP.drawYardBanner = function (cv, seed, sky, t) {
   // a saguaro and a mailbox
   P(14, 26, 5, 22, '#2f8f4e'); P(9, 32, 5, 3, '#2f8f4e'); P(9, 28, 3, 6, '#2f8f4e'); P(19, 35, 4, 3, '#2f8f4e'); P(21, 30, 3, 7, '#2f8f4e'); P(15, 27, 1, 20, '#4fbf6e');
   P(222, 44, 2, 12, '#5a4a3a'); P(218, 40, 10, 5, '#3f5f9a'); P(226, 38, 1, 4, '#e4343e');
+};
+
+// Hand-lettered marker on cardboard, drawn with the pixel font so it looks the same on every phone (r6.5).
+// r6.6: looser. Each letter gets its own little personality from a hash of the text: it sits a bit high or low,
+// leans left or right, some run a touch tall, some get a heavier stroke, and the gaps between letters are uneven.
+// Anything in {braces} is crossed out in red. s = device pixels per font pixel. Returns the size it needs
+// (draw: false just measures, with exactly the same letter widths, so wrapping never changes when it draws).
+NP.markerText = function (ctx, text, s, maxW, opts) {
+  opts = opts || {};
+  var ink = opts.ink || '#1b1b28', bleed = opts.bleed || 'rgba(27,27,40,.33)', red = opts.red || '#c8323c';
+  var u = Math.max(1, Math.round(s / 3)); // the smallest wobble that still shows at this size
+  var words = [], re = /\{([^}]*)\}|(\S+)/g, m;
+  while ((m = re.exec(String(text).toUpperCase()))) words.push(m[1] != null ? { t: m[1], x: true } : { t: m[2], x: false });
+  var seed = NP.hashStr(String(text)), n = 0;
+  // one letter's personality: high or low, lean, tall, heavy, and the gap after it
+  words.forEach(function (w) {
+    w.c = [];
+    for (var i = 0; i < w.t.length; i++) {
+      var h = NP.hashStr(seed + '|' + (n++));
+      w.c.push({ ch: w.t[i], h: h, dy: (h % 5 === 0 ? -u : h % 5 === 1 ? u : 0),
+        lean: ((h >> 5) % 5 === 0) ? 1 : ((h >> 5) % 5 === 1) ? -1 : 0, tall: (h >> 9) % 9 === 0, heavy: (h >> 12) % 7 === 0,
+        gap: s + ((h >> 15) % 3) * u, wide: (h >> 18) % 9 === 0 ? u : 0 });
+    }
+    w.w = 0; w.c.forEach(function (c, i) { w.w += 5 * s + c.wide + (c.heavy ? u : 0) + (i < w.c.length - 1 ? c.gap : 0); });
+  });
+  var sp = 6 * s + u, lh = 10 * s + 2 * u, lines = [[]], lw = [0];
+  words.forEach(function (w) {
+    var cur = lines.length - 1, add = (lines[cur].length ? sp : 0) + w.w;
+    if (lines[cur].length && lw[cur] + add > maxW) { lines.push([w]); lw.push(w.w); }
+    else { lines[cur].push(w); lw[cur] += add; }
+  });
+  var lift = 7 * Math.max(1, Math.round(s / 5)) + 2 * u; // room above the first line for a tall letter sitting high
+  var W = Math.max.apply(null, lw) + 2 * u, H = lines.length * lh - 3 * s + lift + 2 * u;
+  if (opts.draw === false || !ctx) return { w: W, h: H, lines: lines.length };
+  var x0 = (opts.x || 0) + u, y0 = (opts.y || 0) + lift;
+  lines.forEach(function (ln, li) {
+    var x = x0 + (opts.align === 'right' ? W - 2 * u - lw[li] : 0), y = y0 + li * lh;
+    ln.forEach(function (w, wi) {
+      if (wi) x += sp;
+      var start = x;
+      w.c.forEach(function (c, ci) {
+        var gl = NP.FONT[c.ch] || NP.FONT['?'];
+        var pw = Math.round(s + c.wide / 5), rh = c.tall ? s + Math.max(1, Math.round(s / 5)) : s, top = y + c.dy - (c.tall ? (rh - s) * 7 : 0);
+        var stroke = c.heavy ? pw + u : pw;
+        for (var r = 0; r < 7; r++) {
+          var shift = Math.round((3 - r) * c.lean * u / 2); // a lean: the top row slides one way, the bottom the other
+          for (var k = 0; k < 5; k++) {
+            if (!(gl[r] & (16 >> k))) continue;
+            var px = x + k * pw + shift, py = top + r * rh;
+            ctx.fillStyle = ink; ctx.fillRect(px, py, stroke, rh);
+            if (((c.h >> (r * 5 + k)) & 7) === 0) { ctx.fillStyle = bleed; ctx.fillRect(px + stroke, py, Math.max(1, Math.round(s / 2)), rh); }
+          }
+        }
+        x += 5 * s + c.wide + (c.heavy ? u : 0) + (ci < w.c.length - 1 ? c.gap : 0);
+      });
+      if (w.x) { // the crossed-out price: one quick red stroke, a little crooked
+        var sw = x - start, th = Math.max(2, Math.round(s * 0.9)), my = y + Math.round(3 * s);
+        ctx.fillStyle = red; ctx.fillRect(start - s, my, Math.ceil(sw / 2) + s, th); ctx.fillRect(start + Math.floor(sw / 2), my - Math.max(1, Math.round(s / 2)), Math.ceil(sw / 2) + s, th);
+      }
+    });
+  });
+  return { w: W, h: H, lines: lines.length };
 };
