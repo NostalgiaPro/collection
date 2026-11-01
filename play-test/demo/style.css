@@ -102,6 +102,7 @@ button.home { margin-top: 16px; width: 100%; }
 .shirt { margin: 22px auto 8px; max-width: 520px; padding: 12px; border: 2px solid var(--cream); }
 .shirt-k { font-size: calc(12px * var(--tsz, 1)); color: #c9d3f0; margin-bottom: 4px; }
 .shirt a { color: var(--gold); font-weight: bold; font-size: calc(18px * var(--tsz, 1)); }
+.shirt.subst { margin-top: 10px; }
 @media (max-width: 520px) {
   body { font-size: calc(14px * var(--tsz, 1)); }
   .items { grid-template-columns: 1fr; }

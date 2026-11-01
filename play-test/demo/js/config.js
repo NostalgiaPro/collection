@@ -16,6 +16,8 @@ NP.CONFIG = {
   FULL_GAME_URL: 'https://thenostalgiapro.itch.io/nostalgia-pro-the-game', // unused while COMING_SOON is true
   FOLLOW_URL: 'https://x.com/NostalgiaPro',
   SITE_URL: 'https://thenostalgiapro.com',
+  // RC's Substack signup. One plain link on the title screen and on the results screen. Leave empty to hide both.
+  SUBSTACK_URL: 'https://nostalgiapro.substack.com/subscribe',
   PRICE: '$1.00', // itch.io's minimum paid price
 
   // Feedback form (Tally). The feedback buttons stay hidden until this is filled in.
