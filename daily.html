@@ -294,7 +294,7 @@
 </main>
 
 <footer>
-  <form class="npsub" action="https://nostalgiapro.substack.com/subscribe" method="get" target="_blank"><p class="npsub-txt"><b>Get the weekly roundup.</b>Every review and ranking I post, once a week, free.</p><div class="npsub-row"><input type="email" name="email" required placeholder="Your email" autocomplete="email" aria-label="Your email address"><button type="submit">Subscribe</button></div><p class="npsub-note">Opens my Substack in a new tab to confirm.</p></form>
+  <form class="npsub" action="https://nostalgiapro.substack.com/subscribe" method="get" target="_blank"><p class="npsub-txt"><b>Get the weekly roundup.</b>Every review and ranking I post, once a week.</p><div class="npsub-row"><input type="email" name="email" required placeholder="Your email" autocomplete="email" aria-label="Your email address"><button type="submit">Subscribe</button></div><p class="npsub-note">Opens my Substack in a new tab to confirm.</p></form>
   <div class="elsewhere">
     <a href="https://x.com/NostalgiaPro" target="_blank" rel="noopener">X / Twitter</a>
     <a href="https://www.youtube.com/@TheNostalgiaPro" target="_blank" rel="noopener">YouTube</a>
@@ -329,7 +329,7 @@
   const fmtDay = (dn, opt) => new Date(dn * DAY).toLocaleDateString("en-US",
     Object.assign({ timeZone: "UTC", month: "short", day: "numeric", year: "numeric" }, opt || {}));
 
-  const SIGNUP_HTML = "<form class=\"npsub\" action=\"https://nostalgiapro.substack.com/subscribe\" method=\"get\" target=\"_blank\"><p class=\"npsub-txt\"><b>Get the weekly roundup.</b>Every review and ranking I post, once a week, free.</p><div class=\"npsub-row\"><input type=\"email\" name=\"email\" required placeholder=\"Your email\" autocomplete=\"email\" aria-label=\"Your email address\"><button type=\"submit\">Subscribe</button></div><p class=\"npsub-note\">Opens my Substack in a new tab to confirm.</p></form>";
+  const SIGNUP_HTML = "<form class=\"npsub\" action=\"https://nostalgiapro.substack.com/subscribe\" method=\"get\" target=\"_blank\"><p class=\"npsub-txt\"><b>Get the weekly roundup.</b>Every review and ranking I post, once a week.</p><div class=\"npsub-row\"><input type=\"email\" name=\"email\" required placeholder=\"Your email\" autocomplete=\"email\" aria-label=\"Your email address\"><button type=\"submit\">Subscribe</button></div><p class=\"npsub-note\">Opens my Substack in a new tab to confirm.</p></form>";
   let S = { games: {} };
   try { S = JSON.parse(localStorage.getItem(KEY)) || S; } catch (e) {}
   if (!S.games) S.games = {};
