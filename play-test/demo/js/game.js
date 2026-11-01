@@ -2141,13 +2141,24 @@
     var old = document.querySelector('.nsbar'); if (old) old.parentNode.removeChild(old);
     document.body.classList.remove('has-ns');
     if (!document.querySelector('.wpanel:not([hidden])')) document.body.classList.remove('wp-open');
+    if (nsRO) nsRO.disconnect();
     var h = nextStepHTML(); if (!h) return;
     var d = document.createElement('div'); d.innerHTML = h; var bar = d.firstChild; document.body.appendChild(bar);
     document.body.classList.add('has-ns');
     // test page fix: reserve exactly the bar's height at the bottom, so it never sits on top of the offer buttons
     var fit = function () { if (bar.parentNode) document.documentElement.style.setProperty('--nsh', Math.ceil(bar.getBoundingClientRect().height) + 'px'); };
     fit(); setTimeout(fit, 300);
+    // r6.9e: keep following the bar if it changes height later (turning the phone, a narrower window, the text wrapping taller),
+    // so Back to the map can always scroll out from under it on small phones at Larger text
+    if (nsRO) nsRO.observe(bar);
   }
+  function fitNsLater() {
+    var bar = document.querySelector('.nsbar'); if (!bar) return;
+    var hh = Math.ceil(bar.getBoundingClientRect().height); if (!hh) return; // hidden (walk panel open): keep the last room
+    document.documentElement.style.setProperty('--nsh', hh + 'px');
+  }
+  var nsRO = 'ResizeObserver' in window ? new ResizeObserver(fitNsLater) : null;
+  window.addEventListener('resize', fitNsLater);
   function nextStepGo() {
     var n = nextStep(); if (!n) return;
     track('nextstep_' + S.screen);
