@@ -3082,7 +3082,6 @@
       '<button class="cart-item mode" data-act="newgame">NEW GAME <small>12 Saturdays</small></button>' +
       '<button class="cart-item mode" data-act="start" data-mode="noon">BACK BY NOON <small>today\'s quick run</small></button>' +
       '<button class="cart-item" data-act="start" data-free="1" data-mode="sundown">RANDOM SATURDAY <small>a new one every time</small></button>' +
-      '<button class="cart-item" disabled aria-disabled="true">2 COLLECTORS <small>sold separately</small></button>' +
       '<button class="cart-item" data-act="shelf">HOME SHELF</button>' +
       '<button class="cart-item" data-act="howto">HOW TO PLAY</button>' +
       fxButton() +
