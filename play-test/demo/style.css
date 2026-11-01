@@ -1085,7 +1085,7 @@ body.calmfx .sharpie { transform: none; }
 .wtoast { z-index: 5; }   /* r6.8: a toast sits over the walking cost chip while it shows, instead of the chip cutting into its words */
 @media (max-width: 340px) { body.bigtext .sunbar > span { font-size: calc(11.5px * var(--tsz, 1)); } }
 
-/* ---- test page: demo r5 fixes carried over to r6.8 (NEXT bar room, rare seller banner and stall) ---- */
+/* ---- test page: demo r5 fixes carried over to r6.9 (NEXT bar room, rare seller banner and stall) ---- */
 
 /* ---- r5 fix: the pinned NEXT bar never covers the offer buttons on phones ---- */
 body.has-ns { padding-bottom: calc(var(--nsh, 84px) + 16px); }

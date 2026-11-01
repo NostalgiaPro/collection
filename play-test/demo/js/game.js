@@ -628,6 +628,9 @@
       r.day.featured.item = found || { state: 'gone', contents: [], uid: uid };
     }
     if ((r.screen === 'stop' || r.screen === 'walk') && !r.stop) r.screen = 'map';
+    // r6.9: a save from r6.8 or earlier can hold an odd seller on a jerk's item. The odd seller keeps it, without the jerk's rules.
+    var odd = {}; (NP.CAMEOS || []).forEach(function (c) { odd[c.id] = 1; });
+    r.day.stops.forEach(function (s) { (s.items || []).concat(s.dig || []).forEach(function (it) { if (it && it.jerk && odd[it.seller]) delete it.jerk; }); });
     return r;
   }
   // the demo saves its one Saturday at every stop, so a phone player who gets interrupted can come back and finish
@@ -2198,6 +2201,7 @@
       if (!clean) { its.forEach(function (it, i) { it.seller = was[i]; }); return; }
     } else {
       // test page fix: the first stop that can host one always gets one (an easter egg seller), then better odds after that
+      if (s.jerk) return; // r6.9 (kept on the test page): never at a jerk's stop
       var first = !(S.cameoN || 0);
       if (!first && ((S.cameoN || 0) >= 3 || Math.random() > (window.__NP_TEST && window.__NP_TEST.cameoOdds != null ? window.__NP_TEST.cameoOdds : 0.45))) return;
       c = pickCameo(first); if (!c) return;

@@ -628,6 +628,9 @@
       r.day.featured.item = found || { state: 'gone', contents: [], uid: uid };
     }
     if ((r.screen === 'stop' || r.screen === 'walk') && !r.stop) r.screen = 'map';
+    // r6.9: a save from r6.8 or earlier can hold an odd seller on a jerk's item. The odd seller keeps it, without the jerk's rules.
+    var odd = {}; (NP.CAMEOS || []).forEach(function (c) { odd[c.id] = 1; });
+    r.day.stops.forEach(function (s) { (s.items || []).concat(s.dig || []).forEach(function (it) { if (it && it.jerk && odd[it.seller]) delete it.jerk; }); });
     return r;
   }
   // the demo saves its one Saturday at every stop, so a phone player who gets interrupted can come back and finish
@@ -2176,7 +2179,8 @@
     if (s.type === 'flea' || s.type === 'expo' || s.gift || s.type === 'banned' || s.type === 'mall') return; // the walkable places get theirs as a mini event
     if ((S.cameoN || 0) >= 2 || Math.random() > (window.__NP_TEST && window.__NP_TEST.cameoOdds != null ? window.__NP_TEST.cameoOdds : 0.25)) return;
     var c = pickCameo(); if (!c) return;
-    var it = s.items.filter(function (x) { return x.state === 'avail' && x.kind === 'game' && !x.early && !x.mistag; })[0];
+    if (s.jerk) return; // r6.9: an odd seller never shows up at a jerk's stop, so they never take a jerk's item (and never talk like one)
+    var it = s.items.filter(function (x) { return x.state === 'avail' && x.kind === 'game' && !x.early && !x.mistag && !x.jerk; })[0];
     if (!it) return;
     it.seller = c.id; it.ask = Math.max(1, Math.round(it.ask * 0.85)); it.minFrac = Math.min(it.minFrac, 0.6);
     s.cameo = c.id; S.cameoN = (S.cameoN || 0) + 1;
