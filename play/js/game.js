@@ -3112,9 +3112,9 @@
   function cartHTML() {
     if (!DEMO) return cartFull();
     var dsv = readDemoSave();
-    return '<div class="cart-label"><div class="cart-brand">NOSTALGIA PRO</div><div class="cart-sub">' + (DEMO ? 'THE DEMO' : 'THE GAME') + ' &middot; SELECT A MODE</div>' +
+    return '<div class="cart-label"><div class="cart-brand">NOSTALGIA PRO</div><div class="cart-sub">' + (DEMO ? 'THE GAME &middot; DEMO' : 'THE GAME') + ' &middot; SELECT A MODE</div>' +
       (dsv ? '<button class="cart-item mode" data-act="democontinue">CONTINUE <small>your Saturday, ' + esc(fmtTime(dsv.run.time)) + '</small></button>' : '') +
-      '<button class="cart-item mode" data-act="start" data-mode="noon">BACK BY NOON <small>' + (DEMO ? 'the demo' : 'short run') + '</small></button>' +
+      '<button class="cart-item mode" data-act="start" data-mode="noon">BACK BY NOON <small>' + (DEMO ? 'free demo' : 'short run') + '</small></button>' +
       (DEMO ? '<button class="cart-item mode" disabled aria-disabled="true">HOME BY SUNDOWN <small>full version</small></button>'
         : '<button class="cart-item mode" data-act="start" data-mode="sundown">HOME BY SUNDOWN <small>the whole day</small></button>') +
       (DEMO ? '<button class="cart-item" disabled aria-disabled="true">RANDOM SATURDAY <small>full version</small></button>'
@@ -3229,7 +3229,7 @@
       '<div class="dl-wx">' + wx.icon + ' ' + wx.temp + '&deg;F, ' + esc(wx.name) + '. ' + esc(wx.blurb) + sponsorLine(wx) + '</div>' +
       '<div class="dl-lot">' + (DEMO ? 'Featured lot' : 'Today\'s featured lot') + ': <b>' + esc(pv.featured.name) + '</b> at ' + esc(pv.featured.stopName) + ', asking ' + money(pv.featured.ask) + '. Everyone sees the same box.</div>' +
       (pv.theme ? '<div class="dl-theme"><b>' + esc(pv.theme.name) + '.</b> ' + esc(pv.theme.line) + '</div>' : '') +
-      (DEMO ? '<small>This is the free demo: one Saturday, three stops, and it ends after the swap meet. The full version gets a new Saturday every day.</small></div>'
+      (DEMO ? '<small>This is the free demo of Nostalgia Pro: The Game. One Saturday, three stops, and it ends after the swap meet. The full version gets a new Saturday every day.</small></div>'
         : '<small>Today\'s quick run is the same for everyone. Resets at midnight, desert time.</small></div>') +
       '<details class="howto"><summary><b>How it works</b></summary><ul>' +
       (DEMO ? '<li>Back by noon. Each stop costs time. The big Drive button always takes you to the next one.</li>'
@@ -4939,7 +4939,7 @@
     // footer
     ctx.fillStyle = C.navy2; ctx.fillRect(0, H - 70, W, 70);
     // a season's seed is long, so the footer names the season instead (it used to run into the web address)
-    NP.pixelText(ctx, DEMO ? 'THE FREE DEMO' : (S.free ? 'RANDOM SATURDAY' : S.season ? 'SEASON' + (S.day.expo ? ' · THE EXPO' : '') : 'DAILY RUN ' + S.seed) + ' · ' + NP.MODES[modeOf()].name, 40, H - 46, 3, C.cream);
+    NP.pixelText(ctx, DEMO ? 'NOSTALGIA PRO: THE GAME · FREE DEMO' : (S.free ? 'RANDOM SATURDAY' : S.season ? 'SEASON' + (S.day.expo ? ' · THE EXPO' : '') : 'DAILY RUN ' + S.seed) + ' · ' + NP.MODES[modeOf()].name, 40, H - 46, 3, C.cream);
     NP.pixelText(ctx, 'THENOSTALGIAPRO.COM', W - 40, H - 46, 3, C.cyan, 'right');
     if (items.length > show.length) NP.pixelText(ctx, '+' + (items.length - show.length) + ' MORE', W / 2 - 40, H - 42, 2, C.gold, 'center');
     // scanlines
@@ -4948,7 +4948,7 @@
 
   function shareText() {
     var R = S.result;
-    return 'Nostalgia Pro, ' + (DEMO ? 'the free demo' : (S.free ? 'Random Saturday' : S.season ? 'season, ' + seasonLabelLc(S.week) : 'Saturday #' + S.runNo) + ', ' + NP.MODES[modeOf()].name) + ' (' + S.wx.temp + 'F)\n"' + R.title + '"\nScore ' + R.score + ' | Spent ' + money(R.spent) + ' | ' + pl(R.items.length, 'find') + '\nFeatured lot: ' + featuredStatus() + '\nIs it on the shelf? Play: thenostalgiapro.com';
+    return (DEMO ? 'Nostalgia Pro: The Game, free demo' : 'Nostalgia Pro, ' + (S.free ? 'Random Saturday' : S.season ? 'season, ' + seasonLabelLc(S.week) : 'Saturday #' + S.runNo) + ', ' + NP.MODES[modeOf()].name) + ' (' + S.wx.temp + 'F)\n"' + R.title + '"\nScore ' + R.score + ' | Spent ' + money(R.spent) + ' | ' + pl(R.items.length, 'find') + '\nFeatured lot: ' + featuredStatus() + '\nIs it on the shelf? Play: thenostalgiapro.com';
   }
 
   function shelve() {
@@ -5194,7 +5194,7 @@
     app.innerHTML = '<div class="screen gate"><button class="gate-btn" data-act="tapstart">' +
       '<canvas id="gatecv" width="320" height="104" aria-hidden="true"></canvas>' +
       '<span class="gate-t">' + (coarse() ? 'Tap to start' : 'Click or press Enter to start') + '</span>' +
-      '<span class="gate-s">' + (DEMO ? 'The free demo. ' : '') + 'Turn your sound up.</span></button>' +
+      '<span class="gate-s">' + (DEMO ? 'Nostalgia Pro: The Game, free demo. ' : '') + 'Turn your sound up.</span></button>' +
       '<div class="foot">A parody. Every game, console, store and company in here is made up.</div></div>';
     NP.drawLogo($('#gatecv'), adFree);
     var b = $('.gate-btn'); if (b) { try { b.focus({ preventScroll: true }); } catch (e) { b.focus(); } }
