@@ -1136,3 +1136,6 @@ body.calmfx .cameo.rare, body.calmfx .cameo-star, body.calmfx .rareban, body.cal
 }
 /* scrolling to a button (keyboard focus, scrollIntoView) keeps it clear of the pinned NEXT bar */
 html:has(body.has-ns) { scroll-padding-bottom: calc(var(--nsh, 84px) + 16px); }
+/* scroll fix: full-screen overlays scroll when their box is taller than the window, and the box centers with auto margins so its top is never cut off */
+.crt-overlay, .loading-ov, .tvad-ov, .callov, .unsp, .reveal-ov { overflow-y: auto; }
+.crt-overlay > .tv, .loading-ov > .ld-box, .tvad-ov > .tvad, .callov > .callbox, .unsp > .unsp-in, .reveal-ov > .rv-card { margin-top: auto; margin-bottom: auto; flex-shrink: 0; }
