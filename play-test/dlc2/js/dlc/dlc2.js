@@ -367,6 +367,236 @@ NP.DLC = NP.DLC || {};
     return true;
   }
 
+  // ---------- the Storage Beers shoutout: a billboard on the town map and a spot you can pull into ----------
+  // A real podcast the game credits (Storage Beers Retro Arcade, @storagebeerspod on X). Their dream: a row of storage
+  // units turned into a bar and arcade, where every roll up door opens on something good. It is pure scenery: pulling
+  // in costs no time, no cash and no score, never rolls a random number and never writes to a save, so the day plays
+  // exactly the same with or without it. It shows on the map screen of every full game day while this pack is on.
+  var SB = {
+    name: 'Storage Beers Retro Arcade', sign1: 'STORAGE BEERS', sign2: 'RETRO ARCADE',
+    credit: 'Shoutout to @storagebeerspod',
+    card: 'A row of storage units turned into a bar and arcade. Every roll up door opens on something good.',
+    go: 'Pull in and take a look', free: 'It is on the way. No time off the clock.',
+    bbLabel: 'Billboard: Storage Beers Retro Arcade. Shoutout to @storagebeerspod. Tap to pull in.',
+    intro: 'You pull into the lot. A neon sign, a row of storage doors, and a lot of happy noise behind them.',
+    pickTouch: 'Tap a door to roll it up.', pickKeys: 'Tap a door to roll it up, or press 1 to 6.',
+    unit: 'Unit {n}',
+    doors: [
+      { n: 'Pinball', line: 'Unit 1 rolls up on a row of pinball machines. Every one of them is lit up and humming.' },
+      { n: 'Lounge', line: 'Unit 2 is the lounge. A big couch, a shag rug and a floor lamp. Nobody leaves this unit on time.' },
+      { n: 'Golf sim', line: 'Unit 3 is a golf sim. You hit a real ball at a big screen, and the screen always says nice shot.' },
+      { n: 'Mini golf', line: 'Unit 4 is mini golf on green carpet. The last hole goes right through a tiny roll up door.' },
+      { n: 'Arcade', line: 'Unit 5 is wall to wall arcade cabinets, all on free play, with a stool in front of every one.' },
+      { n: 'The bar', line: 'Unit 6 is the bar. Cold ones on tap, a row of stools and a coaster with every unit number on it.' }
+    ],
+    all: 'Every door is open. A whole row of storage units, and not one of them has a box in it.',
+    back: 'Back to the map',
+    canvas: 'A row of six storage unit doors under a neon sign that says Storage Beers Retro Arcade.'
+  };
+  var sbUI = null; // the open spot, if any
+
+  // the scene: 240 x 132, drawn in code like everything else. Six doors, 32 wide, 6 apart.
+  var SBW = 240, SBH = 132, DX0 = 9, DW = 32, DG = 6, DY0 = 66, DH = 43;
+  function sbDoorX(i) { return DX0 + i * (DW + DG); }
+  function sbInside(g, i, x, y, t) {
+    var P = function (a, b, w, h, c) { g.fillStyle = c; g.fillRect(x + a, y + b, w, h); };
+    var blink = Math.floor(t * 4) % 2;
+    P(0, 0, DW, DH, '#141a33'); P(0, DH - 6, DW, 6, '#2a1d14');
+    if (i === 0) { // pinball: two machines side by side, lights going
+      [2, 17].forEach(function (mx, k) {
+        P(mx, 7, 13, 9, '#0b1022'); P(mx + 1, 8, 11, 7, '#7e2553');
+        P(mx + 3, 10, 2, 2, (blink + k) % 2 ? '#ffcc33' : '#e4343e'); P(mx + 8, 10, 2, 2, (blink + k) % 2 ? '#29d3e8' : '#ffcc33'); P(mx + 5, 13, 3, 1, '#fff1d6');
+        P(mx + 5, 16, 3, 2, '#0b1022');
+        P(mx, 18, 13, 9, '#0b1022'); P(mx + 1, 19, 11, 7, k ? '#2e3f9e' : '#e4343e'); P(mx + 1, 19, 11, 1, '#c9d1dc'); P(mx + 1, 22, 11, 1, '#ffcc33');
+        P(mx + 5, 23, 3, 2, '#ffcc33');
+        P(mx + 1, 27, 2, 11, '#0b1022'); P(mx + 10, 27, 2, 11, '#0b1022');
+      });
+    } else if (i === 1) { // the lounge: poster, couch, floor lamp, rug
+      P(0, 0, DW, DH - 6, '#3a2a4a');
+      P(4, 5, 10, 8, '#ffcc33'); P(5, 6, 8, 6, '#29d3e8'); P(7, 8, 4, 2, '#e4343e');
+      P(25, 8, 7, 4, '#ffcc33'); P(26, 7, 5, 1, '#ffcc33'); P(28, 12, 1, 26, '#c9d1dc'); P(26, 37, 5, 1, '#c9d1dc');
+      if (blink) P(24, 12, 9, 1, 'rgba(255,204,51,.35)');
+      P(2, 21, 21, 7, '#5a2a6b'); P(1, 26, 23, 9, '#7a3d8f'); P(0, 24, 3, 11, '#5a2a6b'); P(22, 24, 3, 11, '#5a2a6b');
+      P(8, 27, 1, 5, '#5a2a6b'); P(15, 27, 1, 5, '#5a2a6b'); P(3, 35, 2, 3, '#2a1d14'); P(20, 35, 2, 3, '#2a1d14');
+      P(1, 39, 30, 3, '#c8323c'); P(3, 40, 26, 1, '#e4343e');
+    } else if (i === 2) { // the golf sim: a big screen with a fairway, a mat, a ball on a tee, a club
+      P(2, 3, 28, 22, '#0b1022'); P(3, 4, 26, 9, '#29adff'); P(3, 13, 26, 11, '#3f8f4a');
+      for (var s = 0; s < 26; s += 6) P(3 + s, 13, 3, 11, '#57a061');
+      P(5, 6, 4, 2, '#fff1d6'); P(19, 11, 9, 2, '#e6c690');
+      P(22, 8, 1, 6, '#fff1d6'); P(23, 8, 3, 2, '#e4343e');
+      P(5, 37, 22, 2, '#57a061'); P(15, 35, 2, 2, '#ffffff'); P(15, 37, 1, 1, '#c9d1dc');
+      for (var c = 0; c < 12; c++) P(24 - Math.round(c / 2), 25 + c, 1, 1, '#c9d1dc');
+      P(17, 37, 2, 1, '#8a90a0');
+    } else if (i === 3) { // mini golf: carpet, bumpers, a little windmill, a flag, a ball
+      P(0, 26, DW, 18, '#3f8f4a'); P(0, 26, DW, 1, '#8a5e36'); P(0, 43, DW, 1, '#8a5e36'); P(0, 26, 1, 18, '#8a5e36'); P(31, 26, 1, 18, '#8a5e36');
+      for (var q = 2; q < 30; q += 4) P(q, 30 + (q % 8 ? 0 : 6), 1, 1, '#57a061');
+      P(21, 14, 7, 16, '#e8dcc0'); P(20, 12, 9, 3, '#c8323c'); P(23, 26, 3, 4, '#2a1d14');
+      if (blink) { P(18, 10, 13, 1, '#ffcc33'); P(24, 4, 1, 13, '#ffcc33'); } else { P(19, 6, 2, 2, '#ffcc33'); P(21, 8, 2, 2, '#ffcc33'); P(25, 12, 2, 2, '#ffcc33'); P(27, 14, 2, 2, '#ffcc33'); P(27, 6, 2, 2, '#ffcc33'); P(25, 8, 2, 2, '#ffcc33'); P(21, 12, 2, 2, '#ffcc33'); P(19, 14, 2, 2, '#ffcc33'); }
+      P(6, 37, 3, 1, '#0b1022'); P(7, 29, 1, 8, '#fff1d6'); P(8, 29, 4, 3, '#e4343e'); P(14, 38, 2, 2, '#ffffff');
+    } else if (i === 4) { // the arcade: two cabinets, screens going
+      [3, 17].forEach(function (cx, k) {
+        P(cx, 5, 12, 36, '#0b1022'); P(cx + 1, 6, 10, 34, '#1d2b53');
+        P(cx + 1, 6, 10, 4, k ? '#ffcc33' : '#e4343e');
+        P(cx + 2, 12, 8, 8, '#0b1022'); P(cx + 3 + ((Math.floor(t * 3) + k * 2) % 6), 14 + k * 2, 2, 2, k ? '#ff77a8' : '#29d3e8'); P(cx + 3, 18, 6, 1, '#3ddc84');
+        P(cx, 21, 12, 4, '#3a4d82'); P(cx + 3, 21, 1, 2, '#e4343e'); P(cx + 6, 22, 2, 1, '#ffcc33'); P(cx + 9, 22, 2, 1, '#29d3e8');
+        P(cx + 4, 30, 4, 3, '#ffcc33');
+      });
+    } else { // the bar: bottles on a shelf, taps, two cold ones, stools
+      P(0, 0, DW, DH - 6, '#2a1d14');
+      P(2, 6, 28, 1, '#8a5e36'); P(2, 13, 28, 1, '#8a5e36');
+      ['#3f8f4a', '#ffa300', '#e4343e', '#29d3e8', '#ffcc33', '#7a3d8f', '#3f8f4a'].forEach(function (col, b) { P(3 + b * 4, 2, 2, 4, col); P(3 + b * 4, 9, 2, 4, b % 2 ? '#c9d1dc' : col); });
+      P(4, 17, 24, 2, '#c9d1dc');
+      ['#e4343e', '#ffcc33', '#29d3e8', '#3ddc84'].forEach(function (col, b) { P(6 + b * 6, 19, 2, 5, col); });
+      P(9, 22, 3, 4, '#ffa300'); P(9, 21, 3, 1, '#fff1d6'); P(21, 22, 3, 4, '#ffa300'); P(21, 21, 3, 1, '#fff1d6');
+      P(0, 26, DW, 2, '#b07a4a'); P(1, 28, 30, 8, '#5a3b22'); P(1, 31, 30, 1, '#8a5e36');
+      [4, 14, 24].forEach(function (sx) { P(sx, 37, 5, 1, '#e4343e'); P(sx + 2, 38, 1, 5, '#c9d1dc'); P(sx + 1, 42, 3, 1, '#c9d1dc'); });
+    }
+  }
+  function sbDraw(cv, st, t) {
+    var g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+    var P = function (x, y, w, h, c) { g.fillStyle = c; g.fillRect(x, y, w, h); };
+    ['#1d2b53', '#2a2f5e', '#4a2f6b', '#7e2553', '#c2433f', '#ff8a3d'].forEach(function (c, i) { P(0, i * 5, SBW, 5, c); });
+    [[14, 3], [52, 6], [96, 2], [150, 5], [188, 2], [222, 7]].forEach(function (s) { P(s[0], s[1], 1, 1, '#fff1d6'); });
+    for (var m = 0; m < SBW; m++) { var mh = 3 + Math.round(3 * Math.abs(Math.sin(m / 17)) + 2 * Math.abs(Math.sin(m / 7))); P(m, 30 - mh, 1, mh, '#3a2a4a'); }
+    P(3, 26, SBW - 6, 4, '#59606e'); P(3, 30, SBW - 6, 80, '#c9b48a');
+    for (var w = 6; w < SBW - 6; w += 11) P(w, 31, 1, 79, '#bba57a');
+    // the neon sign
+    P(28, 30, 184, 27, '#0b1022'); P(28, 30, 184, 1, '#ffcc33'); P(28, 56, 184, 1, '#ffcc33'); P(28, 30, 1, 27, '#ffcc33'); P(211, 30, 1, 27, '#ffcc33');
+    if (NP.pixelText) {
+      NP.pixelText(g, SB.sign1, 121, 33, 2, '#7a5a10', 'center'); NP.pixelText(g, SB.sign1, 120, 32, 2, '#ffcc33', 'center');
+      var on = st.calm || Math.floor(t * 1.3) % 7 !== 3; // the second line flickers now and then, like real neon
+      NP.pixelText(g, SB.sign2, 120, 47, 1, on ? '#29d3e8' : '#1f6f7a', 'center');
+    }
+    for (var i = 0; i < 6; i++) {
+      var x = sbDoorX(i), d = st.doors[i];
+      P(x + DW / 2 - 5, 57, 10, 8, '#0b1022');
+      if (NP.pixelText) NP.pixelText(g, String(i + 1), x + DW / 2, 57, 1, d.p > 0 ? '#ffcc33' : '#fff1d6', 'center');
+      P(x - 1, DY0 - 1, DW + 2, DH + 1, '#8a90a0');
+      if (d.p > 0) { g.save(); g.beginPath(); g.rect(x, DY0, DW, DH); g.clip(); sbInside(g, i, x, DY0, st.calm ? 0 : t); g.restore(); }
+      var dh = Math.round(DH * (1 - d.p));
+      if (dh > 0) {
+        P(x, DY0, DW, dh, '#2f6fb0');
+        for (var y = DY0 + 2; y < DY0 + dh - 1; y += 3) { P(x, y, DW, 1, '#225a92'); P(x, y + 1, DW, 1, '#4a8bd0'); }
+        P(x, DY0 + dh - 3, DW, 3, '#1d3f66'); P(x + DW / 2 - 3, DY0 + dh - 2, 6, 1, '#c9d1dc');
+      }
+      if (d.p > 0) P(x - 1, DY0 - 1, DW + 2, 3, '#1d3f66'); // the rolled up door, tucked under the header
+      if (st.focus === i) { g.strokeStyle = '#ffcc33'; g.lineWidth = 1; g.strokeRect(x - 2.5, DY0 - 2.5, DW + 5, DH + 4); }
+    }
+    P(0, 110, SBW, 22, '#4a4d57'); P(0, 110, SBW, 3, '#8a90a0');
+    for (var k = 0; k < 6; k++) P(sbDoorX(k) + DW + 2, 116, 2, 16, '#ffcc33');
+  }
+  function sbFocusable(box) { return Array.prototype.slice.call(box.querySelectorAll('button:not([disabled])')); }
+  function sbOpen(api, from) {
+    var S = api.state();
+    if (sbUI || !S || S.screen !== 'map') return;
+    var drv = document.querySelector('#townmap .tm-drive');
+    if (drv && !drv.hidden) return; // on the road
+    var esc = api.esc, coarse = false;
+    try { coarse = window.matchMedia('(pointer: coarse)').matches || ('ontouchstart' in window); } catch (e) {}
+    var ov = document.createElement('div'), btns = '';
+    SB.doors.forEach(function (d, i) { btns += '<button type="button" class="d2sb-door" data-sbdoor="' + i + '" aria-pressed="false">' + esc(SB.unit.replace('{n}', i + 1)) + '</button>'; });
+    ov.className = 'callov dlcov d2sb-ov';
+    ov.innerHTML = '<div class="callbox d2sb-box" role="dialog" aria-modal="true" aria-labelledby="d2sb-h" aria-describedby="d2sb-t">' +
+      '<div class="d2sb-h" id="d2sb-h">' + esc(SB.name) + '</div>' +
+      '<div class="d2sb-cr">' + esc(SB.credit) + '</div>' +
+      '<div class="story-t" id="d2sb-t">' + esc(SB.intro) + ' ' + esc(coarse ? SB.pickTouch : SB.pickKeys) + '</div>' +
+      '<canvas class="d2sb-cv" width="' + SBW + '" height="' + SBH + '" role="img" aria-label="' + esc(SB.canvas) + '"></canvas>' +
+      '<div class="d2sb-s" aria-live="polite"></div>' +
+      '<div class="d2sb-doors">' + btns + '</div>' +
+      '<div class="btns"><button type="button" class="d2sb-x" data-dlcx="1">' + esc(SB.back) + '</button></div></div>';
+    document.body.appendChild(ov);
+    var cv = ov.querySelector('.d2sb-cv'), msg = ov.querySelector('.d2sb-s'), box = ov.querySelector('.d2sb-box');
+    var st = { calm: !!api.calm(), focus: -1, doors: SB.doors.map(function () { return { p: 0, open: false }; }), all: false };
+    var raf = 0, live = true;
+    function frame() {
+      raf = 0;
+      if (!live || !document.body.contains(cv)) { close(true); return; }
+      var t = performance.now() / 1000, moving = false;
+      st.doors.forEach(function (d) { if (d.open && d.p < 1) { d.p = st.calm ? 1 : Math.min(1, d.p + 0.06); moving = true; } });
+      sbDraw(cv, st, t);
+      if (!st.calm || moving) raf = requestAnimationFrame(frame);
+    }
+    function kick() { if (!raf) raf = requestAnimationFrame(frame); }
+    function openDoor(i) {
+      var d = st.doors[i]; if (!d) return;
+      var b = ov.querySelector('[data-sbdoor="' + i + '"]');
+      msg.textContent = SB.doors[i].line;
+      if (!d.open) {
+        d.open = true; api.sfx(st.calm ? 'flip' : 'shake');
+        if (b) { b.setAttribute('aria-pressed', 'true'); b.classList.add('on'); b.textContent = (i + 1) + ' · ' + SB.doors[i].n; }
+        api.track('dlc2_sb_door' + (i + 1));
+        if (!st.all && st.doors.every(function (x) { return x.open; })) {
+          st.all = true; msg.textContent = SB.doors[i].line + ' ' + SB.all;
+          setTimeout(function () { if (live) api.sfx('unlock'); }, st.calm ? 0 : 450);
+          api.track('dlc2_sb_all');
+        }
+      }
+      kick();
+    }
+    function close(silent) {
+      if (!live) return;
+      live = false; sbUI = null;
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener('keydown', key, true);
+      if (ov.parentNode) ov.parentNode.removeChild(ov);
+      if (silent) return;
+      var back = document.querySelector(from === 'map' ? '#townmap .d2sb-bb' : '.d2sb-go');
+      if (back && !back.disabled) { try { back.focus({ preventScroll: true }); } catch (e) { back.focus(); } }
+    }
+    function key(e) {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); return; }
+      if (/^[1-6]$/.test(e.key) && !e.altKey && !e.ctrlKey && !e.metaKey) { e.preventDefault(); e.stopPropagation(); openDoor(+e.key - 1); var b = ov.querySelector('[data-sbdoor="' + (+e.key - 1) + '"]'); if (b) b.focus(); return; }
+      if (e.key === 'Tab') { // keep the keyboard inside the spot while it is open
+        var f = sbFocusable(box); if (!f.length) return;
+        var at = f.indexOf(document.activeElement);
+        if (e.shiftKey && at <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+        else if (!e.shiftKey && (at < 0 || at === f.length - 1)) { e.preventDefault(); f[0].focus(); }
+      }
+    }
+    window.addEventListener('keydown', key, true);
+    ov.addEventListener('click', function (e) {
+      if (e.target === ov) { e.stopPropagation(); close(); return; } // a tap on the dark outside
+      var b = e.target.closest && e.target.closest('[data-sbdoor],[data-dlcx]');
+      if (b) { e.stopPropagation(); if (b.hasAttribute('data-dlcx')) close(); else openDoor(+b.getAttribute('data-sbdoor')); return; }
+      if (e.target === cv) {
+        var r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * SBW, y = (e.clientY - r.top) / r.height * SBH;
+        if (y < 50) return;
+        for (var i = 0; i < 6; i++) if (x >= sbDoorX(i) - DG / 2 && x < sbDoorX(i) + DW + DG / 2) { openDoor(i); return; }
+      }
+    });
+    ov.addEventListener('focusin', function (e) { var b = e.target.closest && e.target.closest('[data-sbdoor]'); st.focus = b ? +b.getAttribute('data-sbdoor') : -1; kick(); });
+    sbUI = { close: close, open: openDoor, st: st };
+    frame();
+    api.sfx('start');
+    api.track('dlc2_sb_open_' + (from === 'map' ? 'map' : 'card'));
+    var first = ov.querySelector('[data-sbdoor="0"]');
+    try { first.focus({ preventScroll: true }); } catch (e) { first.focus(); }
+  }
+  // the readable billboard, in the route card (a button the keyboard can reach)
+  function sbCard(api) {
+    var esc = api.esc;
+    return '<div class="d2sb-card"><div class="d2sb-ch">' + esc(SB.sign1 + ' ' + SB.sign2) + '</div>' +
+      '<div class="d2sb-ct">' + esc(SB.card) + '</div><div class="d2sb-cr">' + esc(SB.credit) + '</div>' +
+      '<button type="button" class="d2sb-go" data-act="dlc" data-dlc="' + ID + '" data-v="sb">' + esc(SB.go) + '</button>' +
+      '<div class="d2sb-free">' + esc(SB.free) + '</div></div>';
+  }
+  // the billboard on the town map itself: it stands on the open sand along the bottom edge of town, under the middle
+  // street, where no stop, label or drive ever goes. It is laid over the map (the map is redrawn on every visit to the
+  // map screen), so it is put back every time the route card is.
+  function sbPlace() {
+    var tin = document.querySelector('#townmap .tm-in'), cv = tin && tin.querySelector('.tm-cv');
+    if (!tin || !cv || tin.querySelector('.d2sb-layer')) return;
+    var W = cv.width || 400, H = cv.height || 224, cx = W >= 400 ? 200 : 190, bw = W >= 400 ? 160 : 140, top = 193, bh = 29;
+    var lay = document.createElement('div');
+    lay.className = 'd2sb-layer';
+    lay.innerHTML = '<button type="button" class="d2sb-bb" data-act="dlc" data-dlc="' + ID + '" data-v="sbmap" aria-label="' + SB.bbLabel + '" style="left:' + ((cx - bw / 2) / W * 100).toFixed(2) + '%;top:' +
+      (top / H * 100).toFixed(2) + '%;width:' + (bw / W * 100).toFixed(2) + '%;height:' + (bh / H * 100).toFixed(2) + '%">' +
+      '<span class="d2sb-bt">' + SB.sign1 + ' ' + SB.sign2 + '</span><span class="d2sb-bd" aria-hidden="true"><i></i><i></i><i class="o"></i><i></i><i></i><i class="o2"></i><i></i><i></i></span>' +
+      '<span class="d2sb-bc">' + SB.credit + '</span></button>';
+    var labels = tin.querySelector('.tm-labels');
+    tin.insertBefore(lay, labels || null); // under the stop names, so a long name is never hidden by it
+  }
+
   // ---------- the pack ----------
   NP.DLC[ID] = {
     id: ID, name: T.name, prefix: PX,
@@ -374,7 +604,8 @@ NP.DLC = NP.DLC || {};
       text: T, items: ITEMS, goals: GOALS,
       tags: { d2: T.tag }, tagColors: { d2: ['#2d8a3e', '#ffcc33'] }, tagShort: { d2: '10' + CENT },
       league: 'The Penny Bin League (the Sports Bin Guy, at the Cul-de-sac Sale on Javelina Ct)',
-      neighbors: T.nb.map(function (x) { return x[1]; })
+      neighbors: T.nb.map(function (x) { return x[1]; }),
+      shoutout: SB
     },
     css: '.tag.t-d2{background:#2d8a3e;color:#ffcc33}' +
       '.story.d2-league{border-left-color:#2d8a3e}' +
@@ -395,7 +626,28 @@ NP.DLC = NP.DLC || {};
       '.homescr .item:has([data-hart^="d2"]) .it-p,.sellrow[id^="sell-d2"] .it-p{font-size:0}' +
       '.homescr .item:has([data-hart^="d2"]) .it-p .pill,.sellrow[id^="sell-d2"] .it-p .pill{font-size:calc(12px * var(--tsz, 1))}' +
       '.homescr .item:has([data-hart^="d2"]) .it-p::after{content:" paid 10' + CENT + '";font-size:calc(12px * var(--tsz, 1))}' +
-      '.sellrow[id^="sell-d2"] .it-p::after{content:" you paid 10' + CENT + '";font-size:calc(12px * var(--tsz, 1))}',
+      '.sellrow[id^="sell-d2"] .it-p::after{content:" you paid 10' + CENT + '";font-size:calc(12px * var(--tsz, 1))}' +
+      // the Storage Beers billboard: on the map (sized to the map with cqw, like the stop names) and in the route card
+      '.d2sb-layer{position:absolute;left:0;right:0;top:var(--tmpad,0);bottom:0;pointer-events:none}' +
+      '.d2sb-bb{position:absolute;pointer-events:auto;box-sizing:border-box;margin:0;min-height:0;min-width:0;padding:.2cqw .5cqw;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;overflow:hidden;' +
+      'background:#2a1d0e;color:#fff1d6;border:.5cqw solid #ffcc33;border-radius:0;box-shadow:.6cqw .6cqw 0 rgba(11,16,34,.55);font:bold 2cqw/1 "Courier New",Courier,ui-monospace,monospace;letter-spacing:0;white-space:nowrap;cursor:pointer;touch-action:manipulation}' +
+      '.d2sb-bb:active:not(:disabled){transform:translate(.3cqw,.3cqw);border-bottom-width:.5cqw}' +
+      '.d2sb-bb:focus-visible{outline:3px solid #29d3e8;outline-offset:1px}' +
+      '.d2sb-bt{color:#ffcc33;font-size:2.25cqw}.d2sb-bc{font-size:2cqw}' +
+      '.d2sb-bd{display:flex;gap:.6cqw;height:1.25cqw}.d2sb-bd i{display:block;width:3.2cqw;height:100%;background:repeating-linear-gradient(180deg,#4a8bd0 0 .25cqw,#2f6fb0 .25cqw .5cqw)}' +
+      '.d2sb-bd i.o{background:#29d3e8}.d2sb-bd i.o2{background:#ff77a8}' +
+      '.d2sb-card{background:#2a1d0e;color:#fff1d6;border:3px double #ffcc33;padding:8px 10px;margin:8px 0 6px;text-align:center;transform:rotate(-.5deg);font-size:calc(13px * var(--tsz, 1))}' +
+      '.d2sb-ch{color:#ffcc33;font-weight:bold;font-size:calc(15px * var(--tsz, 1));letter-spacing:1px}' +
+      '.d2sb-ct{margin:4px 0}.d2sb-cr{color:#29d3e8;font-weight:bold;overflow-wrap:anywhere}' +
+      'button.d2sb-go{display:block;width:100%;margin:6px 0 2px;white-space:normal}.d2sb-free{font-size:calc(12px * var(--tsz, 1));color:#d6dcf0}' +
+      '.d2sb-ov{z-index:85}.d2sb-ov .callbox{max-height:92vh;max-height:92dvh;overflow-y:auto;border-color:#ffcc33}' +
+      '.d2sb-h{color:#ffcc33;font-weight:bold;font-size:calc(18px * var(--tsz, 1));margin:2px 0}.d2sb-box .d2sb-cr{margin:0 0 6px}' +
+      '.d2sb-cv{display:block;width:100%;height:auto;margin:8px 0 4px;image-rendering:pixelated;image-rendering:crisp-edges;border:3px solid #0b1022;cursor:pointer;touch-action:manipulation}' +
+      '.d2sb-s{min-height:2.8em;margin:4px 0;color:#fff1d6}' +
+      '.d2sb-doors{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.d2sb-doors button{margin:0;min-height:44px;padding:6px 4px;background:#2f6fb0;color:#fff1d6;border-bottom-color:#1d3f66;white-space:normal}' +
+      '.d2sb-doors button.on{background:#ffcc33;color:#0b1022;border-bottom-color:#b08a1f}' +
+      '.d2sb-doors button:focus-visible,.d2sb-x:focus-visible{outline:3px solid #29d3e8;outline-offset:1px}' +
+      '.d2sb-box .btns button{width:100%;margin:8px 0 0}',
     hooks: {
       // once, at page load. There is no leave or sell hook, so this listens on the page before the game's own click
       // handler runs: it closes the dime tab before the haul is shelved (on the Expo Saturday, or at the end of a one
@@ -417,6 +669,7 @@ NP.DLC = NP.DLC || {};
       act: function (api, v) {
         v = String(v || '');
         if (v.indexOf('buy:') === 0) buy(api, v.slice(4));
+        else if (v === 'sb' || v === 'sbmap') sbOpen(api, v === 'sbmap' ? 'map' : 'card');
       },
       // the dime box at the sports stop (any full game day it is open), or, on a season Saturday he stays home,
       // now and then one league year in a yard sale dig pile or a thrift bin
@@ -445,13 +698,18 @@ NP.DLC = NP.DLC || {};
         if (se) rec(api);
         api.track('dlc2_day_' + (info.season ? 'season' : info.free ? 'free' : 'daily') + (host ? '_drop' : ''));
       },
+      // the league line (when the dime box or a drop is out today), then the Storage Beers billboard on every map screen
       routeCard: function (api) {
-        var S = api.state(); if (!S || !S.day || !S.day.d2) return '';
-        migrate(api);
-        var sp = sportsStop(S), dp = dropStop(S), esc = api.esc;
-        if (sp && !sp.visited && avail(sp).length) return '<div class="rc-theme rc-d2"><b>' + esc(T.name) + '.</b> ' + esc(T.route.replace('{n}', avail(sp).length)) + '</div>';
-        if (dp && !dp.visited && avail(dp).length) return '<div class="rc-theme rc-d2"><b>' + esc(T.name) + '.</b> ' + esc(T.routeDrop.replace('{stop}', dp.name)) + '</div>';
-        return '';
+        var S = api.state(); if (!S || !S.day) return '';
+        var h = '';
+        if (S.day.d2) {
+          migrate(api);
+          var sp = sportsStop(S), dp = dropStop(S), esc = api.esc;
+          if (sp && !sp.visited && avail(sp).length) h = '<div class="rc-theme rc-d2"><b>' + esc(T.name) + '.</b> ' + esc(T.route.replace('{n}', avail(sp).length)) + '</div>';
+          else if (dp && !dp.visited && avail(dp).length) h = '<div class="rc-theme rc-d2"><b>' + esc(T.name) + '.</b> ' + esc(T.routeDrop.replace('{stop}', dp.name)) + '</div>';
+        }
+        if (S.screen === 'map') setTimeout(sbPlace, 0); // the map is mounted right after the route card is drawn
+        return h + sbCard(api);
       },
       weekdays: function (api, w) {
         var se = api.season(); if (!se) return '';
@@ -521,6 +779,7 @@ NP.DLC = NP.DLC || {};
     },
     // for tests and tools: pure helpers and the pack's own buttons, no hidden state
     util: { YEARS: YEARS, RARE: RARE, RARE_FROM: RARE_FROM, PTS: PTS, longest: longest, count: count, haveOf: haveOf, draw: draw,
-      settle: settle, tab: getTab, noSell: noSell, buy: buy, feasible: feasible, table: table }
+      settle: settle, tab: getTab, noSell: noSell, buy: buy, feasible: feasible, table: table,
+      sb: { text: SB, open: function () { return sbUI; }, place: sbPlace } }
   };
 })();
