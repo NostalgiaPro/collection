@@ -395,6 +395,94 @@ NP.DLC = NP.DLC || {};
   };
   var sbUI = null; // the open spot, if any
 
+  // ---------- Donny's table at the swap meet ----------
+  // Donny owns Storage Beers Retro Arcade (the billboard and the spot above). On a full game day the swap meet is open
+  // and has a free table slot, he sets up one table of three ordinary games from the base catalog, priced like any
+  // friendly swap meet vendor. His stock is rolled in buildDay with this pack's own numbers and put out when you walk
+  // in (after Dex's raid is decided), so Dex never takes it and every base table, price and roll stays what it was.
+  // He only takes a slot nobody else is using: the swap meet has 5 table slots, and when all 5 are full he stays home.
+  // He does not buy (there is no buyer table for him), so his table has no sell box: he is saving, not spending.
+  var DONNY = {
+    name: 'Donny', key: 'donny', n: 3, slots: 5, golf: 'pgg',
+    seller: { name: 'Donny', ask: 0.75, minLo: 0.6, minHi: 0.85,
+      hi: ['Hey! I am Donny. Every sale on this table goes toward a roll up door that opens on pinball.',
+        'You saw the billboard? Storage Beers Retro Arcade. Right now it is a dream and a folding table.',
+        'Six storage units, six good things behind the doors. Today I have one table. You start somewhere.',
+        'Everything here is priced to move. The money moves straight into a storage unit with a bar in it.'],
+      yes: ['Deal! That just paid for one slat on the arcade door.',
+        'Sold. Come find me at Storage Beers someday. First game of pinball is on me.',
+        'You got it. The lounge is one couch cushion closer.'],
+      no: ['Ooh, close. Those taps for the bar are not going to buy themselves.',
+        "I can't go that low, friend. The storage unit rent is due Friday.",
+        'A little higher? I am saving up for a golf sim. Golf sims are not cheap.'] },
+    route: '{name} has a table at {stop} today. He owns Storage Beers Retro Arcade.',
+    spot: 'The owner, Donny, has a table at {stop} today.'
+  };
+  // the swap meet's tables, grouped exactly the way the game groups them (fleaGroups in game.js)
+  function fleaTables(items) {
+    var groups = [], open = {};
+    (items || []).filter(function (it) { return it.kind !== 'lot' && !it.crate; }).forEach(function (it) {
+      var g = open[it.seller];
+      if (g && it.jerkRare) { g.items.push(it); return; }
+      if (!g || g.items.length >= 3) {
+        if (groups.length >= DONNY.slots) { groups[groups.length - 1].items.push(it); return; }
+        g = { seller: it.seller, items: [] }; open[it.seller] = g; groups.push(g);
+      }
+      g.items.push(it);
+    });
+    return groups;
+  }
+  function fleaOf(day) { return day && day.stops ? day.stops.filter(function (x) { return x.type === 'flea'; })[0] || null : null; }
+  // one ordinary catalog game, in the shape makeItem gives a swap meet game, from this pack's numbers (no base uid used)
+  function donnyItem(api, r, e, uid) {
+    var sl = DONNY.seller, pl = NP.PLATFORMS[e.p] || {};
+    var it = { uid: uid, id: e.id, t: e.t, p: e.p, tier: e.tier || 0, base: e.base, g: e.g || '', set: e.set, kind: 'game', seller: DONNY.key,
+      sticker: r() < 0.5, cond: 'loose', flags: {}, inspected: false, checked: false, state: 'avail', line: '', d2donny: true };
+    var cr = r();
+    it.cond = cr < 0.1 ? 'sealed' : cr < 0.45 ? 'cib' : 'loose';
+    if (it.cond === 'loose' && r() < (pl.media === 'disc' ? 0.25 : 0.1)) it.flags.damaged = true;
+    if (it.cond === 'cib' && r() < 0.3) it.flags.noManual = true;
+    if (r() < 0.05) it.flags.repro = true;
+    if (it.cond === 'sealed' && r() < 0.35) it.flags.reseal = true;
+    it.tell = r() < 0.7;
+    var apparent = Math.max(1, it.base * ((api.COND_MULT || {})[it.cond] || 1));
+    it.ask = Math.max(1, Math.round(apparent * sl.ask * (0.85 + 0.35 * r())));
+    it.minFrac = sl.minLo + (sl.minHi - sl.minLo) * r();
+    return it;
+  }
+  // buildDay: roll his stock (only on a day the swap meet is open and has a free table slot)
+  function donnyPlan(api, day, info) {
+    var fl = fleaOf(day);
+    if (!fl || !api.openStop(fl) || fl.locked || !NP.CATALOG || !NP.PLATFORMS) return;
+    if (fleaTables(fl.items).length >= DONNY.slots) return;
+    var r = api.mulberry32(api.hash(ID + '|' + info.seed + '|donny')), inTown = {}, here = {};
+    day.stops.forEach(function (x) { (x.items || []).concat(x.dig || []).forEach(function (it) { if (it && it.id) { inTown[it.id] = 1; if (x === fl) here[it.id] = 1; } }); });
+    // games nobody else in town has today first; on a busy day, any game that is not already at the swap meet
+    var ok = function (e) { return (e.tier === 1 || e.tier === 2) && !here[e.id] && NP.PLATFORMS[e.p]; };
+    var pool = NP.CATALOG.filter(function (e) { return ok(e) && !inTown[e.id]; }), spare = NP.CATALOG.filter(function (e) { return ok(e) && inTown[e.id]; }), picks = [];
+    if (pool.length < DONNY.n) pool = pool.concat(api.shuffle(r, spare).slice(0, DONNY.n - pool.length));
+    var golf = pool.filter(function (e) { return e.id === DONNY.golf; })[0];
+    if (golf && r() < 0.6) { picks.push(golf); pool.splice(pool.indexOf(golf), 1); } // a golf game, for the golf sim he is saving up for
+    while (picks.length < DONNY.n && pool.length) {
+      var want = r() < 0.7 ? 1 : 2, sub = pool.filter(function (e) { return e.tier === want; });
+      if (!sub.length) sub = pool;
+      var e = api.pick(r, sub); picks.push(e); pool.splice(pool.indexOf(e), 1);
+    }
+    if (!picks.length) return;
+    fl.d2n = { items: picks.map(function (e, i) { return donnyItem(api, r, e, 'dny' + i); }), out: false };
+    api.track('dlc2_donny_day');
+  }
+  // arrive: put his table out (once). The slot check runs again, in case something else took the last slot.
+  function donnyOut(api, s) {
+    if (!s || s.type !== 'flea' || !s.d2n || s.d2n.out) return;
+    s.d2n.out = true;
+    if (fleaTables(s.items).length >= DONNY.slots) { s.d2n.skipped = true; return; }
+    s.items = s.items.concat(s.d2n.items);
+    s.d2n.items = [];
+    api.track('dlc2_donny_out');
+  }
+  function donnyToday(S) { var fl = S && S.day ? fleaOf(S.day) : null; return fl && fl.d2n && !fl.d2n.skipped ? fl : null; }
+
   // the scene: 240 x 132, drawn in code like everything else. Six doors, 32 wide, 6 apart.
   var SBW = 240, SBH = 132, DX0 = 9, DW = 32, DG = 6, DY0 = 66, DH = 43;
   function sbDoorX(i) { return DX0 + i * (DW + DG); }
@@ -493,13 +581,14 @@ NP.DLC = NP.DLC || {};
     if (drv && !drv.hidden) return; // on the road
     var esc = api.esc, coarse = false;
     try { coarse = window.matchMedia('(pointer: coarse)').matches || ('ontouchstart' in window); } catch (e) {}
-    var ov = document.createElement('div'), btns = '';
+    var ov = document.createElement('div'), btns = '', dn = donnyToday(S);
     SB.doors.forEach(function (d, i) { btns += '<button type="button" class="d2sb-door" data-sbdoor="' + i + '" aria-pressed="false">' + esc(SB.unit.replace('{n}', i + 1)) + '</button>'; });
     ov.className = 'callov dlcov d2sb-ov';
     ov.innerHTML = '<div class="callbox d2sb-box" role="dialog" aria-modal="true" aria-labelledby="d2sb-h" aria-describedby="d2sb-t">' +
       '<div class="d2sb-h" id="d2sb-h">' + esc(SB.name) + '</div>' +
       '<div class="d2sb-cr">' + esc(SB.credit) + '</div>' +
       '<div class="story-t" id="d2sb-t">' + esc(SB.intro) + ' ' + esc(coarse ? SB.pickTouch : SB.pickKeys) + '</div>' +
+      (dn ? '<div class="note d2sb-dn">' + esc(DONNY.spot.replace('{stop}', dn.name)) + '</div>' : '') +
       '<canvas class="d2sb-cv" width="' + SBW + '" height="' + SBH + '" role="img" aria-label="' + esc(SB.canvas) + '"></canvas>' +
       '<div class="d2sb-s" aria-live="polite"></div>' +
       '<div class="d2sb-doors">' + btns + '</div>' +
@@ -605,7 +694,8 @@ NP.DLC = NP.DLC || {};
       tags: { d2: T.tag }, tagColors: { d2: ['#2d8a3e', '#ffcc33'] }, tagShort: { d2: '10' + CENT },
       league: 'The Penny Bin League (the Sports Bin Guy, at the Cul-de-sac Sale on Javelina Ct)',
       neighbors: T.nb.map(function (x) { return x[1]; }),
-      shoutout: SB
+      shoutout: SB, donny: DONNY,
+      sellers: { donny: DONNY.seller }
     },
     css: '.tag.t-d2{background:#2d8a3e;color:#ffcc33}' +
       '.story.d2-league{border-left-color:#2d8a3e}' +
@@ -647,7 +737,8 @@ NP.DLC = NP.DLC || {};
       '.d2sb-doors{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.d2sb-doors button{margin:0;min-height:44px;padding:6px 4px;background:#2f6fb0;color:#fff1d6;border-bottom-color:#1d3f66;white-space:normal}' +
       '.d2sb-doors button.on{background:#ffcc33;color:#0b1022;border-bottom-color:#b08a1f}' +
       '.d2sb-doors button:focus-visible,.d2sb-x:focus-visible{outline:3px solid #29d3e8;outline-offset:1px}' +
-      '.d2sb-box .btns button{width:100%;margin:8px 0 0}',
+      '.d2sb-box .btns button{width:100%;margin:8px 0 0}' +
+      '.rc-d2n b{color:#ffcc33}.d2sb-dn{color:#ffcc33;margin:4px 0 0}',
     hooks: {
       // once, at page load. There is no leave or sell hook, so this listens on the page before the game's own click
       // handler runs: it closes the dime tab before the haul is shelved (on the Expo Saturday, or at the end of a one
@@ -677,6 +768,7 @@ NP.DLC = NP.DLC || {};
         var se = info.season ? api.season() : null, week = info.week || 0;
         var r = api.mulberry32(api.hash(ID + '|' + info.seed + '|box'));
         var H = se ? haveOf(se, []) : {};
+        donnyPlan(api, day, info); // Donny's table: its own numbers, so the league rolls below are unchanged
         var sp = day.stops.filter(function (x) { return x.type === 'sports'; })[0] || null, host = null;
         if (sp && api.openStop(sp)) {
           var n = 2 + (r() < 0.5 ? 1 : 0) + (day.theme && day.theme.id === 'football' ? 1 : 0);
@@ -708,6 +800,8 @@ NP.DLC = NP.DLC || {};
           if (sp && !sp.visited && avail(sp).length) h = '<div class="rc-theme rc-d2"><b>' + esc(T.name) + '.</b> ' + esc(T.route.replace('{n}', avail(sp).length)) + '</div>';
           else if (dp && !dp.visited && avail(dp).length) h = '<div class="rc-theme rc-d2"><b>' + esc(T.name) + '.</b> ' + esc(T.routeDrop.replace('{stop}', dp.name)) + '</div>';
         }
+        var dn = donnyToday(S);
+        if (dn && !dn.visited) h += '<div class="rc-theme rc-d2n"><b>' + api.esc(DONNY.name + '\'s table.') + '</b> ' + api.esc(DONNY.route.replace('{name}', DONNY.name).replace('{stop}', dn.name)) + '</div>';
         if (S.screen === 'map') setTimeout(sbPlace, 0); // the map is mounted right after the route card is drawn
         return h + sbCard(api);
       },
@@ -718,6 +812,7 @@ NP.DLC = NP.DLC || {};
         return '<div class="wk-d2">' + (R && R.badge ? '★ ' : '') + api.esc(line) + '</div>';
       },
       arrive: function (api, s) {
+        donnyOut(api, s); // before the swap meet's tables are laid out
         var S = api.state(); if (!S || !S.day || !S.day.d2) return;
         migrate(api); noSell(api);
         if (s && s.d2) api.track(s.d2.drop ? 'dlc2_drop_arrive' : 'dlc2_box_arrive');
@@ -780,6 +875,7 @@ NP.DLC = NP.DLC || {};
     // for tests and tools: pure helpers and the pack's own buttons, no hidden state
     util: { YEARS: YEARS, RARE: RARE, RARE_FROM: RARE_FROM, PTS: PTS, longest: longest, count: count, haveOf: haveOf, draw: draw,
       settle: settle, tab: getTab, noSell: noSell, buy: buy, feasible: feasible, table: table,
-      sb: { text: SB, open: function () { return sbUI; }, place: sbPlace } }
+      sb: { text: SB, open: function () { return sbUI; }, place: sbPlace },
+      donny: { text: DONNY, tables: fleaTables, today: donnyToday } }
   };
 })();
