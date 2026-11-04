@@ -394,6 +394,19 @@ NP.DLC = NP.DLC || {};
     canvas: 'A row of six storage unit doors under a neon sign that says Storage Beers Retro Arcade.'
   };
   var sbUI = null; // the open spot, if any
+  // the playable part: once Unit 5 is open, its three cabinets run three of the site's own arcade games, free play, in
+  // a full screen frame over the doors. Unit 1's pinball runs the pinball one too. Nothing here touches the Saturday:
+  // no score, cash, time or save. The games live on the same site, at /arcade/<game>/ (absolute, so it works from any
+  // folder the game page is served from, like /play-test/dlc2/).
+  var ARCADE = '/arcade/';
+  var GAMES = [
+    { slug: 'tape-pin-lanes', name: 'Tape Pin Lanes', doors: [0, 4], col: '#e4343e' },
+    { slug: 'ticket-roll-alley', name: 'Ticket Roll Alley', doors: [4], col: '#ffcc33' },
+    { slug: 'pawn-shop-pool', name: 'Pawn Shop Pool', doors: [4], col: '#3ddc84' }
+  ];
+  var CABX = [1, 11, 22], CABW = 9; // the three cabinets inside Unit 5 (x inside the door, width)
+  var PLAY = { head: 'Free play. Nothing in here counts toward your Saturday.', btn: 'Play {name}', free: 'free play', close: 'Close',
+    frame: '{name}, free play. Press Escape or Close to go back to the doors.' };
 
   // ---------- Donny's table at the swap meet ----------
   // Donny owns Storage Beers Retro Arcade (the billboard and the spot above). On a full game day the swap meet is open
@@ -521,13 +534,13 @@ NP.DLC = NP.DLC || {};
       P(21, 14, 7, 16, '#e8dcc0'); P(20, 12, 9, 3, '#c8323c'); P(23, 26, 3, 4, '#2a1d14');
       if (blink) { P(18, 10, 13, 1, '#ffcc33'); P(24, 4, 1, 13, '#ffcc33'); } else { P(19, 6, 2, 2, '#ffcc33'); P(21, 8, 2, 2, '#ffcc33'); P(25, 12, 2, 2, '#ffcc33'); P(27, 14, 2, 2, '#ffcc33'); P(27, 6, 2, 2, '#ffcc33'); P(25, 8, 2, 2, '#ffcc33'); P(21, 12, 2, 2, '#ffcc33'); P(19, 14, 2, 2, '#ffcc33'); }
       P(6, 37, 3, 1, '#0b1022'); P(7, 29, 1, 8, '#fff1d6'); P(8, 29, 4, 3, '#e4343e'); P(14, 38, 2, 2, '#ffffff');
-    } else if (i === 4) { // the arcade: two cabinets, screens going
-      [3, 17].forEach(function (cx, k) {
-        P(cx, 5, 12, 36, '#0b1022'); P(cx + 1, 6, 10, 34, '#1d2b53');
-        P(cx + 1, 6, 10, 4, k ? '#ffcc33' : '#e4343e');
-        P(cx + 2, 12, 8, 8, '#0b1022'); P(cx + 3 + ((Math.floor(t * 3) + k * 2) % 6), 14 + k * 2, 2, 2, k ? '#ff77a8' : '#29d3e8'); P(cx + 3, 18, 6, 1, '#3ddc84');
-        P(cx, 21, 12, 4, '#3a4d82'); P(cx + 3, 21, 1, 2, '#e4343e'); P(cx + 6, 22, 2, 1, '#ffcc33'); P(cx + 9, 22, 2, 1, '#29d3e8');
-        P(cx + 4, 30, 4, 3, '#ffcc33');
+    } else if (i === 4) { // the arcade: three cabinets (one per playable game), screens going
+      CABX.forEach(function (cx, k) {
+        P(cx, 5, CABW, 36, '#0b1022'); P(cx + 1, 6, CABW - 2, 34, '#1d2b53');
+        P(cx + 1, 6, CABW - 2, 3, GAMES[k].col);
+        P(cx + 1, 11, CABW - 2, 7, '#0b1022'); P(cx + 2 + ((Math.floor(t * 3) + k * 2) % 4), 13 + (k % 2) * 2, 2, 2, k === 1 ? '#ff77a8' : '#29d3e8'); P(cx + 2, 16, CABW - 4, 1, '#3ddc84');
+        P(cx, 20, CABW, 4, '#3a4d82'); P(cx + 2, 20, 1, 2, '#e4343e'); P(cx + 5, 21, 2, 1, '#ffcc33');
+        P(cx + 3, 29, 3, 3, '#ffcc33');
       });
     } else { // the bar: bottles on a shelf, taps, two cold ones, stools
       P(0, 0, DW, DH - 6, '#2a1d14');
@@ -570,10 +583,23 @@ NP.DLC = NP.DLC || {};
       if (d.p > 0) P(x - 1, DY0 - 1, DW + 2, 3, '#1d3f66'); // the rolled up door, tucked under the header
       if (st.focus === i) { g.strokeStyle = '#ffcc33'; g.lineWidth = 1; g.strokeRect(x - 2.5, DY0 - 2.5, DW + 5, DH + 4); }
     }
+    if (st.pfocus != null) {
+      var cab = sbCab(st, st.pfocus);
+      if (cab) { g.strokeStyle = '#29d3e8'; g.lineWidth = 1; g.strokeRect(cab[0] - 1.5, cab[1] - 1.5, cab[2] + 3, cab[3] + 3); }
+    }
     P(0, 110, SBW, 22, '#4a4d57'); P(0, 110, SBW, 3, '#8a90a0');
     for (var k = 0; k < 6; k++) P(sbDoorX(k) + DW + 2, 116, 2, 16, '#ffcc33');
   }
-  function sbFocusable(box) { return Array.prototype.slice.call(box.querySelectorAll('button:not([disabled])')); }
+  // only buttons you can see (the Play buttons are hidden until their door is open)
+  function sbFocusable(box) { return Array.prototype.slice.call(box.querySelectorAll('button:not([disabled])')).filter(function (b) { return !b.hidden && !(b.closest && b.closest('[hidden]')); }); }
+  function sbGameOpen(st, k) { return GAMES[k].doors.some(function (d) { return st.doors[d] && st.doors[d].open; }); }
+  // the rectangle on the canvas for game k: its cabinet in Unit 5, or Unit 1's pinball machines when only Unit 1 is open
+  function PIN() { return [sbDoorX(0) + 2, DY0 + 7, 28, 31]; } // Unit 1's two pinball machines
+  function sbCab(st, k) {
+    if (st.doors[4].open) return [sbDoorX(4) + CABX[k], DY0 + 5, CABW, 36];
+    if (k === 0 && st.doors[0].open) return PIN();
+    return null;
+  }
   function sbOpen(api, from) {
     var S = api.state();
     if (sbUI || !S || S.screen !== 'map') return;
@@ -592,10 +618,60 @@ NP.DLC = NP.DLC || {};
       '<canvas class="d2sb-cv" width="' + SBW + '" height="' + SBH + '" role="img" aria-label="' + esc(SB.canvas) + '"></canvas>' +
       '<div class="d2sb-s" aria-live="polite"></div>' +
       '<div class="d2sb-doors">' + btns + '</div>' +
+      '<div class="d2sb-play" hidden><div class="d2sb-ph">' + esc(PLAY.head) + '</div><div class="d2sb-pbtns">' +
+      GAMES.map(function (g, k) { return '<button type="button" class="d2sb-pb" data-sbplay="' + k + '" hidden>' + esc(PLAY.btn.replace('{name}', g.name)) + '</button>'; }).join('') + '</div></div>' +
       '<div class="btns"><button type="button" class="d2sb-x" data-dlcx="1">' + esc(SB.back) + '</button></div></div>';
     document.body.appendChild(ov);
     var cv = ov.querySelector('.d2sb-cv'), msg = ov.querySelector('.d2sb-s'), box = ov.querySelector('.d2sb-box');
-    var st = { calm: !!api.calm(), focus: -1, doors: SB.doors.map(function () { return { p: 0, open: false }; }), all: false };
+    var st = { calm: !!api.calm(), focus: -1, pfocus: null, game: null, doors: SB.doors.map(function () { return { p: 0, open: false }; }), all: false };
+    var playRow = ov.querySelector('.d2sb-play');
+    function refreshPlay() {
+      var any = false;
+      GAMES.forEach(function (g, k) { var b = ov.querySelector('[data-sbplay="' + k + '"]'), on = sbGameOpen(st, k); if (b) b.hidden = !on; if (on) any = true; });
+      playRow.hidden = !any;
+    }
+    // the game, full screen, in a frame over the doors. opener: the Play button to give focus back to.
+    function play(k, opener) {
+      var g = GAMES[k]; if (!g || st.game || !live || !sbGameOpen(st, k)) return;
+      opener = opener || ov.querySelector('[data-sbplay="' + k + '"]');
+      var gv = document.createElement('div');
+      gv.className = 'dlcov d2sb-game';
+      gv.setAttribute('role', 'dialog'); gv.setAttribute('aria-modal', 'true'); gv.setAttribute('aria-label', PLAY.frame.replace('{name}', g.name));
+      gv.innerHTML = '<div class="d2sb-gbar"><span class="d2sb-gt">' + esc(g.name) + ' · ' + esc(PLAY.free) + '</span>' +
+        '<button type="button" class="d2sb-gx" data-dlcx="1">' + esc(PLAY.close) + '</button></div>' +
+        '<iframe class="d2sb-if" title="' + esc(g.name) + '" src="' + esc(ARCADE + g.slug + '/') + '" allow="autoplay; fullscreen"></iframe>';
+      // it goes in before the spot, so the phone's Back button (the first pack close button on the page) closes the game first
+      document.body.insertBefore(gv, ov);
+      var ifr = gv.querySelector('iframe'), gx = gv.querySelector('.d2sb-gx'), inner = null;
+      if (raf) { cancelAnimationFrame(raf); raf = 0; } // the doors stand still while you play
+      function focusGame() { try { ifr.focus(); if (ifr.contentWindow) ifr.contentWindow.focus(); } catch (e) {} }
+      function gkey(e) { // the frame's own keys (the spot's keys are paused while a game is open)
+        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(); return; }
+        if (e.key === 'Tab') { e.preventDefault(); e.stopPropagation(); if (document.activeElement === gx) focusGame(); else gx.focus(); }
+      }
+      function ikey(e) { if (e.key === 'Escape') { e.preventDefault(); done(); } } // Escape pressed inside the game (same site)
+      function done(silent) {
+        if (!st.game) return;
+        st.game = null;
+        window.removeEventListener('keydown', gkey, true);
+        try { if (inner) inner.removeEventListener('keydown', ikey, true); } catch (e) {}
+        if (gv.parentNode) gv.parentNode.removeChild(gv); // the frame goes, and the game with it
+        if (silent) return;
+        kick();
+        var back = opener && document.body.contains(opener) && !opener.hidden ? opener : ov.querySelector('[data-sbplay="' + k + '"]');
+        if (back) { try { back.focus({ preventScroll: true }); } catch (e) { back.focus(); } }
+      }
+      ifr.addEventListener('load', function () {
+        try { inner = ifr.contentWindow; inner.addEventListener('keydown', ikey, true); } catch (e) { inner = null; } // a page from another site: Close still works
+        if (st.game && document.activeElement !== gx) focusGame();
+      });
+      gx.addEventListener('click', function (e) { e.stopPropagation(); done(); });
+      window.addEventListener('keydown', gkey, true);
+      st.game = { k: k, close: done, frame: ifr };
+      api.sfx('start');
+      try { api.track('dlc2_sb_play_' + g.slug.replace(/-/g, '_')); } catch (e) {} // analytics are off on test pages; track() is a no-op there
+      focusGame();
+    }
     var raf = 0, live = true;
     function frame() {
       raf = 0;
@@ -619,11 +695,13 @@ NP.DLC = NP.DLC || {};
           setTimeout(function () { if (live) api.sfx('unlock'); }, st.calm ? 0 : 450);
           api.track('dlc2_sb_all');
         }
+        refreshPlay();
       }
       kick();
     }
     function close(silent) {
       if (!live) return;
+      if (st.game) st.game.close(true);
       live = false; sbUI = null;
       if (raf) cancelAnimationFrame(raf);
       window.removeEventListener('keydown', key, true);
@@ -633,6 +711,7 @@ NP.DLC = NP.DLC || {};
       if (back && !back.disabled) { try { back.focus({ preventScroll: true }); } catch (e) { back.focus(); } }
     }
     function key(e) {
+      if (st.game) return; // a game is open: its keys are its own (the frame has its own Escape)
       if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); return; }
       if (/^[1-6]$/.test(e.key) && !e.altKey && !e.ctrlKey && !e.metaKey) { e.preventDefault(); e.stopPropagation(); openDoor(+e.key - 1); var b = ov.querySelector('[data-sbdoor="' + (+e.key - 1) + '"]'); if (b) b.focus(); return; }
       if (e.key === 'Tab') { // keep the keyboard inside the spot while it is open
@@ -645,22 +724,62 @@ NP.DLC = NP.DLC || {};
     window.addEventListener('keydown', key, true);
     ov.addEventListener('click', function (e) {
       if (e.target === ov) { e.stopPropagation(); close(); return; } // a tap on the dark outside
-      var b = e.target.closest && e.target.closest('[data-sbdoor],[data-dlcx]');
-      if (b) { e.stopPropagation(); if (b.hasAttribute('data-dlcx')) close(); else openDoor(+b.getAttribute('data-sbdoor')); return; }
+      var b = e.target.closest && e.target.closest('[data-sbdoor],[data-dlcx],[data-sbplay]');
+      if (b) {
+        e.stopPropagation();
+        if (b.hasAttribute('data-dlcx')) close();
+        else if (b.hasAttribute('data-sbplay')) play(+b.getAttribute('data-sbplay'), b);
+        else openDoor(+b.getAttribute('data-sbdoor'));
+        return;
+      }
       if (e.target === cv) {
         var r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * SBW, y = (e.clientY - r.top) / r.height * SBH;
         if (y < 50) return;
+        // an open Unit 5: a tap on a cabinet plays its game. An open Unit 1: a tap on the pinball machines plays pinball.
+        var hitIn = function (cb) { return cb && x >= cb[0] - 1 && x < cb[0] + cb[2] + 1 && y >= cb[1] && y < cb[1] + cb[3]; };
+        if (st.doors[4].open) for (var c = 0; c < GAMES.length; c++) if (hitIn(sbCab(st, c))) { play(c); return; }
+        if (st.doors[0].open && hitIn(PIN())) { play(0); return; }
         for (var i = 0; i < 6; i++) if (x >= sbDoorX(i) - DG / 2 && x < sbDoorX(i) + DW + DG / 2) { openDoor(i); return; }
       }
     });
-    ov.addEventListener('focusin', function (e) { var b = e.target.closest && e.target.closest('[data-sbdoor]'); st.focus = b ? +b.getAttribute('data-sbdoor') : -1; kick(); });
-    sbUI = { close: close, open: openDoor, st: st };
+    ov.addEventListener('focusin', function (e) {
+      var b = e.target.closest && e.target.closest('[data-sbdoor]'), pb = e.target.closest && e.target.closest('[data-sbplay]');
+      st.focus = b ? +b.getAttribute('data-sbdoor') : -1; st.pfocus = pb ? +pb.getAttribute('data-sbplay') : null; kick();
+    });
+    sbUI = { close: close, open: openDoor, play: play, st: st };
     frame();
     api.sfx('start');
     api.track('dlc2_sb_open_' + (from === 'map' ? 'map' : 'card'));
     var first = ov.querySelector('[data-sbdoor="0"]');
     try { first.focus({ preventScroll: true }); } catch (e) { first.focus(); }
   }
+  // ---------- the phone buzzes when the partner calls ----------
+  // game.js (and dlc3's copy) draws the call as a .callov overlay with an INCOMING CALL header (.call-h). This watches
+  // for that overlay and rings a real phone once per call: a short ring ring pattern, stopped as soon as the call is
+  // answered. Only on a touch screen with navigator.vibrate (an iPhone has none, so it does nothing there; neither does
+  // a desktop), and never with the game's Calm effects setting on or the system's reduced motion setting.
+  var RING = [220, 120, 220, 480, 220, 120, 220];
+  var ringing = null;
+  function canBuzz() {
+    try { if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return false; return window.matchMedia('(pointer: coarse)').matches; } catch (e) { return false; }
+  }
+  function buzz(api, n) {
+    if (!n || n.__d2rung) return; // once per call
+    n.__d2rung = true;
+    if (!canBuzz() || api.calm()) return;
+    try { if (navigator.vibrate(RING)) { ringing = n; api.track('dlc2_call_buzz'); } } catch (e) {}
+  }
+  function watchCalls(api) {
+    if (typeof MutationObserver !== 'function' || !document.body) return;
+    var isCall = function (n) { return n && n.nodeType === 1 && n.classList && n.classList.contains('callov') && !!n.querySelector('.call-h'); };
+    new MutationObserver(function (muts) {
+      muts.forEach(function (m) {
+        Array.prototype.forEach.call(m.addedNodes, function (n) { if (isCall(n)) buzz(api, n); });
+        Array.prototype.forEach.call(m.removedNodes, function (n) { if (n === ringing) { ringing = null; try { navigator.vibrate(0); } catch (e) {} } });
+      });
+    }).observe(document.body, { childList: true });
+  }
+
   // the readable billboard, in the route card (a button the keyboard can reach)
   function sbCard(api) {
     var esc = api.esc;
@@ -730,7 +849,7 @@ NP.DLC = NP.DLC || {};
       '.d2sb-ch{color:#ffcc33;font-weight:bold;font-size:calc(15px * var(--tsz, 1));letter-spacing:1px}' +
       '.d2sb-ct{margin:4px 0}.d2sb-cr{color:#29d3e8;font-weight:bold;overflow-wrap:anywhere}' +
       'button.d2sb-go{display:block;width:100%;margin:6px 0 2px;white-space:normal}.d2sb-free{font-size:calc(12px * var(--tsz, 1));color:#d6dcf0}' +
-      '.d2sb-ov{z-index:85}.d2sb-ov .callbox{max-height:92vh;max-height:92dvh;overflow-y:auto;border-color:#ffcc33}' +
+      '.d2sb-ov{z-index:85;align-items:flex-start}.d2sb-ov .callbox{margin-top:2vh}.d2sb-ov .callbox{max-height:92vh;max-height:92dvh;overflow-y:auto;border-color:#ffcc33}' +
       '.d2sb-h{color:#ffcc33;font-weight:bold;font-size:calc(18px * var(--tsz, 1));margin:2px 0}.d2sb-box .d2sb-cr{margin:0 0 6px}' +
       '.d2sb-cv{display:block;width:100%;height:auto;margin:8px 0 4px;image-rendering:pixelated;image-rendering:crisp-edges;border:3px solid #0b1022;cursor:pointer;touch-action:manipulation}' +
       '.d2sb-s{min-height:2.8em;margin:4px 0;color:#fff1d6}' +
@@ -738,12 +857,21 @@ NP.DLC = NP.DLC || {};
       '.d2sb-doors button.on{background:#ffcc33;color:#0b1022;border-bottom-color:#b08a1f}' +
       '.d2sb-doors button:focus-visible,.d2sb-x:focus-visible{outline:3px solid #29d3e8;outline-offset:1px}' +
       '.d2sb-box .btns button{width:100%;margin:8px 0 0}' +
-      '.rc-d2n b{color:#ffcc33}.d2sb-dn{color:#ffcc33;margin:4px 0 0}',
+      '.rc-d2n b{color:#ffcc33}.d2sb-dn{color:#ffcc33;margin:4px 0 0}' +
+      '.d2sb-play{margin-top:8px}.d2sb-ph{font-size:calc(12px * var(--tsz, 1));color:#d6dcf0;margin:0 0 4px}' +
+      '.d2sb-pbtns{display:grid;grid-template-columns:1fr;gap:4px}.d2sb-pbtns button{margin:0;min-height:44px;background:#c8323c;color:#fff1d6;border-bottom-color:#8e1c23;white-space:normal}' +
+      '.d2sb-pbtns button[hidden]{display:none}.d2sb-pbtns button:focus-visible{outline:3px solid #29d3e8;outline-offset:1px}' +
+      '.d2sb-game{position:fixed;inset:0;z-index:95;display:flex;flex-direction:column;background:#0b1022}' +
+      '.d2sb-gbar{display:flex;align-items:center;gap:8px;padding:6px 10px;padding-top:max(6px, env(safe-area-inset-top));background:#2a1d0e;border-bottom:3px solid #ffcc33}' +
+      '.d2sb-gt{flex:1;min-width:0;color:#ffcc33;font-weight:bold;font-size:calc(15px * var(--tsz, 1))}' +
+      '.d2sb-gx{margin:0;min-height:44px;min-width:88px;background:#ffcc33;color:#0b1022;border-bottom-color:#b08a1f}.d2sb-gx:focus-visible{outline:3px solid #29d3e8;outline-offset:1px}' +
+      '.d2sb-if{flex:1;display:block;width:100%;min-height:0;border:0;background:#000}',
     hooks: {
       // once, at page load. There is no leave or sell hook, so this listens on the page before the game's own click
       // handler runs: it closes the dime tab before the haul is shelved (on the Expo Saturday, or at the end of a one
       // day run), and it makes sure a league game in the sell list is already marked "not buying it" before any sell.
       init: function (api) {
+        watchCalls(api);
         document.addEventListener('click', function (e) {
           var el = e.target && e.target.closest ? e.target.closest('[data-act]') : null;
           if (!el || el.disabled) return;
@@ -876,6 +1004,7 @@ NP.DLC = NP.DLC || {};
     util: { YEARS: YEARS, RARE: RARE, RARE_FROM: RARE_FROM, PTS: PTS, longest: longest, count: count, haveOf: haveOf, draw: draw,
       settle: settle, tab: getTab, noSell: noSell, buy: buy, feasible: feasible, table: table,
       sb: { text: SB, open: function () { return sbUI; }, place: sbPlace },
-      donny: { text: DONNY, tables: fleaTables, today: donnyToday } }
+      donny: { text: DONNY, tables: fleaTables, today: donnyToday },
+      play: { games: GAMES, path: ARCADE, ring: RING, canBuzz: canBuzz } }
   };
 })();
