@@ -383,28 +383,36 @@ NP.DLC = NP.DLC || {};
     unit: 'Unit {n}',
     doors: [
       { n: 'Pinball', line: 'Unit 1 rolls up on a row of pinball machines. Every one of them is lit up and humming.' },
-      { n: 'Lounge', line: 'Unit 2 is the lounge. A big couch, a shag rug and a floor lamp. Nobody leaves this unit on time.' },
+      { n: 'Lounge', line: 'Unit 2 is the lounge. A big couch, a floor lamp and a rink table on the rug. Nobody leaves this unit on time.' },
       { n: 'Golf sim', line: 'Unit 3 is a golf sim. You hit a real ball at a big screen, and the screen always says nice shot.' },
       { n: 'Mini golf', line: 'Unit 4 is mini golf on green carpet. The last hole goes right through a tiny roll up door.' },
       { n: 'Arcade', line: 'Unit 5 is wall to wall arcade cabinets, all on free play, with a stool in front of every one.' },
-      { n: 'The bar', line: 'Unit 6 is the bar. Cold ones on tap, a row of stools and a coaster with every unit number on it.' }
+      { n: 'The bar', line: 'Unit 6 is the bar. Cold ones on tap, a row of stools and a hoop machine in the corner.' }
     ],
     all: 'Every door is open. A whole row of storage units, and not one of them has a box in it.',
     back: 'Back to the map',
     canvas: 'A row of six storage unit doors under a neon sign that says Storage Beers Retro Arcade.'
   };
   var sbUI = null; // the open spot, if any
-  // the playable part: once Unit 5 is open, its three cabinets run three of the site's own arcade games, free play, in
-  // a full screen frame over the doors. Unit 1's pinball runs the pinball one too. Nothing here touches the Saturday:
-  // no score, cash, time or save. The games live on the same site, at /arcade/<game>/ (absolute, so it works from any
-  // folder the game page is served from, like /play-test/dlc2/).
+  // the playable part: every door plays something once it is open, free play, in a full screen frame over the doors.
+  // Nothing here touches the Saturday: no score, cash, time or save. Most of them are the site's own arcade games, at
+  // /arcade/<game>/ on the same site (absolute, so it works from any folder the game page is served from, like
+  // /play-test/dlc2/). The site has no pinball table and no golf drive, so Unit 1 and Unit 3 run small games built
+  // into this pack (kind 'canvas', drawn below). The files under /arcade/ are never changed: inside the frame this
+  // pack only hides the arcade page's own "< Arcade" link, because Close does that job here.
   var ARCADE = '/arcade/';
   var GAMES = [
-    { slug: 'tape-pin-lanes', name: 'Tape Pin Lanes', doors: [0, 4], col: '#e4343e' },
-    { slug: 'ticket-roll-alley', name: 'Ticket Roll Alley', doors: [4], col: '#ffcc33' },
-    { slug: 'pawn-shop-pool', name: 'Pawn Shop Pool', doors: [4], col: '#3ddc84' }
+    { slug: 'roll-up-pinball', name: 'Roll Up Pinball', door: 0, kind: 'canvas', room: 'Unit 1 pinball' },
+    { slug: 'table-rink-rumble', name: 'Table Rink Rumble', door: 1, room: 'Unit 2 lounge' },
+    { slug: 'sim-bay-long-drive', name: 'Sim Bay Long Drive', door: 2, kind: 'canvas', room: 'Unit 3 golf sim' },
+    { slug: 'shelf-links', name: 'Shelf Links', door: 3, room: 'Unit 4 mini golf' },
+    { slug: 'tape-pin-lanes', name: 'Tape Pin Lanes', door: 4, cab: 0, col: '#e4343e', room: 'Unit 5 arcade' },
+    { slug: 'ticket-roll-alley', name: 'Ticket Roll Alley', door: 4, cab: 1, col: '#ffcc33', room: 'Unit 5 arcade' },
+    { slug: 'pawn-shop-pool', name: 'Pawn Shop Pool', door: 4, cab: 2, col: '#3ddc84', room: 'Unit 5 arcade' },
+    { slug: 'bargain-bin-buckets', name: 'Bargain Bin Buckets', door: 5, room: 'Unit 6 bar' }
   ];
   var CABX = [1, 11, 22], CABW = 9; // the three cabinets inside Unit 5 (x inside the door, width)
+  function cabGame(c) { for (var k = 0; k < GAMES.length; k++) if (GAMES[k].cab === c) return GAMES[k]; return null; }
   var PLAY = { head: 'Free play. Nothing in here counts toward your Saturday.', btn: 'Play {name}', free: 'free play', close: 'Close',
     frame: '{name}, free play. Press Escape or Close to go back to the doors.' };
 
@@ -520,6 +528,8 @@ NP.DLC = NP.DLC || {};
       P(2, 21, 21, 7, '#5a2a6b'); P(1, 26, 23, 9, '#7a3d8f'); P(0, 24, 3, 11, '#5a2a6b'); P(22, 24, 3, 11, '#5a2a6b');
       P(8, 27, 1, 5, '#5a2a6b'); P(15, 27, 1, 5, '#5a2a6b'); P(3, 35, 2, 3, '#2a1d14'); P(20, 35, 2, 3, '#2a1d14');
       P(1, 39, 30, 3, '#c8323c'); P(3, 40, 26, 1, '#e4343e');
+      P(7, 35, 18, 5, '#8a90a0'); P(8, 35, 16, 4, '#e8e8f0'); P(15, 35, 1, 4, '#e4343e'); P(8, 36, 1, 2, '#29adff'); P(23, 36, 1, 2, '#29adff'); P(11, 37, 2, 1, '#0b1022');
+      P(8, 40, 1, 2, '#59606e'); P(23, 40, 1, 2, '#59606e');
     } else if (i === 2) { // the golf sim: a big screen with a fairway, a mat, a ball on a tee, a club
       P(2, 3, 28, 22, '#0b1022'); P(3, 4, 26, 9, '#29adff'); P(3, 13, 26, 11, '#3f8f4a');
       for (var s = 0; s < 26; s += 6) P(3 + s, 13, 3, 11, '#57a061');
@@ -537,15 +547,17 @@ NP.DLC = NP.DLC || {};
     } else if (i === 4) { // the arcade: three cabinets (one per playable game), screens going
       CABX.forEach(function (cx, k) {
         P(cx, 5, CABW, 36, '#0b1022'); P(cx + 1, 6, CABW - 2, 34, '#1d2b53');
-        P(cx + 1, 6, CABW - 2, 3, GAMES[k].col);
+        P(cx + 1, 6, CABW - 2, 3, (cabGame(k) || {}).col || '#e4343e');
         P(cx + 1, 11, CABW - 2, 7, '#0b1022'); P(cx + 2 + ((Math.floor(t * 3) + k * 2) % 4), 13 + (k % 2) * 2, 2, 2, k === 1 ? '#ff77a8' : '#29d3e8'); P(cx + 2, 16, CABW - 4, 1, '#3ddc84');
         P(cx, 20, CABW, 4, '#3a4d82'); P(cx + 2, 20, 1, 2, '#e4343e'); P(cx + 5, 21, 2, 1, '#ffcc33');
         P(cx + 3, 29, 3, 3, '#ffcc33');
       });
     } else { // the bar: bottles on a shelf, taps, two cold ones, stools
       P(0, 0, DW, DH - 6, '#2a1d14');
-      P(2, 6, 28, 1, '#8a5e36'); P(2, 13, 28, 1, '#8a5e36');
-      ['#3f8f4a', '#ffa300', '#e4343e', '#29d3e8', '#ffcc33', '#7a3d8f', '#3f8f4a'].forEach(function (col, b) { P(3 + b * 4, 2, 2, 4, col); P(3 + b * 4, 9, 2, 4, b % 2 ? '#c9d1dc' : col); });
+      P(2, 6, 19, 1, '#8a5e36'); P(2, 13, 19, 1, '#8a5e36');
+      ['#3f8f4a', '#ffa300', '#e4343e', '#29d3e8', '#ffcc33'].forEach(function (col, b) { P(3 + b * 4, 2, 2, 4, col); P(3 + b * 4, 9, 2, 4, b % 2 ? '#c9d1dc' : col); });
+      P(23, 1, 8, 7, '#fff1d6'); P(25, 3, 4, 3, '#e4343e'); P(26, 4, 2, 1, '#fff1d6'); P(24, 8, 6, 1, '#ffa300');
+      P(24, 9, 1, 3, '#c9d1dc'); P(26, 9, 1, 3, '#c9d1dc'); P(28, 9, 1, 3, '#c9d1dc'); P(25, 12, 4, 1, '#c9d1dc'); P(29, 16, 2, 2, '#ffa300');
       P(4, 17, 24, 2, '#c9d1dc');
       ['#e4343e', '#ffcc33', '#29d3e8', '#3ddc84'].forEach(function (col, b) { P(6 + b * 6, 19, 2, 5, col); });
       P(9, 22, 3, 4, '#ffa300'); P(9, 21, 3, 1, '#fff1d6'); P(21, 22, 3, 4, '#ffa300'); P(21, 21, 3, 1, '#fff1d6');
@@ -592,14 +604,263 @@ NP.DLC = NP.DLC || {};
   }
   // only buttons you can see (the Play buttons are hidden until their door is open)
   function sbFocusable(box) { return Array.prototype.slice.call(box.querySelectorAll('button:not([disabled])')).filter(function (b) { return !b.hidden && !(b.closest && b.closest('[hidden]')); }); }
-  function sbGameOpen(st, k) { return GAMES[k].doors.some(function (d) { return st.doors[d] && st.doors[d].open; }); }
-  // the rectangle on the canvas for game k: its cabinet in Unit 5, or Unit 1's pinball machines when only Unit 1 is open
-  function PIN() { return [sbDoorX(0) + 2, DY0 + 7, 28, 31]; } // Unit 1's two pinball machines
+  function sbGameOpen(st, k) { var d = st.doors[GAMES[k].door]; return !!(d && d.open); }
+  // the rectangle on the canvas for game k, once its door is open: its cabinet in Unit 5, or the whole door's inside
   function sbCab(st, k) {
-    if (st.doors[4].open) return [sbDoorX(4) + CABX[k], DY0 + 5, CABW, 36];
-    if (k === 0 && st.doors[0].open) return PIN();
-    return null;
+    var g = GAMES[k]; if (!sbGameOpen(st, k)) return null;
+    if (g.cab != null) return [sbDoorX(g.door) + CABX[g.cab], DY0 + 5, CABW, 36];
+    return [sbDoorX(g.door) + 1, DY0 + 2, DW - 2, DH - 3];
   }
+  // ---------- the pack's own two games (the site's arcade has no pinball table and no golf drive) ----------
+  // Each one draws on one canvas at its own small pixel size, scaled to fit the frame, and takes the keyboard (when the
+  // canvas has focus) and touch or mouse. Free play: the score lives only on the canvas while it is open.
+  function miniFit(cv, W, H) {
+    var wrap = cv.parentNode; if (!wrap) return;
+    var r = wrap.getBoundingClientRect(), s = Math.max(0.5, Math.min((r.width - 12) / W, (r.height - 12) / H));
+    if (s >= 1) s = Math.floor(s * 2) / 2; // whole or half steps keep the pixels even
+    cv.style.width = Math.round(W * s) + 'px'; cv.style.height = Math.round(H * s) + 'px';
+  }
+  function miniText(g, s, x, y, k, col, align) { if (NP.pixelText) { NP.pixelText(g, s, x + k, y + k, k, '#0b1022', align); NP.pixelText(g, s, x, y, k, col, align); } }
+  // shared plumbing: a frame loop, the resize, and taking the listeners off again
+  function miniRun(cv, W, H, step, draw, keys, ptr) {
+    cv.width = W; cv.height = H;
+    var g = cv.getContext('2d'), live = true, last = performance.now(), raf = 0;
+    g.imageSmoothingEnabled = false;
+    function fit() { miniFit(cv, W, H); }
+    function loop(now) {
+      if (!live) return;
+      var dt = Math.min(1 / 30, Math.max(0, (now - last) / 1000)); last = now;
+      step(dt); draw(g);
+      raf = requestAnimationFrame(loop);
+    }
+    function kd(e) { if (keys(e, true)) { e.preventDefault(); e.stopPropagation(); } }
+    function ku(e) { if (keys(e, false)) { e.preventDefault(); e.stopPropagation(); } }
+    function pt(type) { return function (e) { var r = cv.getBoundingClientRect(); if (ptr(type, (e.clientX - r.left) / r.width * W, (e.clientY - r.top) / r.height * H, e)) e.preventDefault(); }; }
+    var pd = pt('down'), pu = pt('up'), pc = pt('up');
+    cv.addEventListener('keydown', kd); cv.addEventListener('keyup', ku);
+    cv.addEventListener('pointerdown', function (e) { try { cv.focus({ preventScroll: true }); } catch (x) {} pd(e); });
+    cv.addEventListener('pointerup', pu); cv.addEventListener('pointercancel', pc);
+    cv.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    window.addEventListener('resize', fit);
+    fit(); setTimeout(fit, 0);
+    raf = requestAnimationFrame(loop);
+    return function stop() { live = false; cancelAnimationFrame(raf); window.removeEventListener('resize', fit); };
+  }
+
+  // Unit 1: Roll Up Pinball. Two flippers, three bumpers, and three targets across a little roll up door: light all
+  // three and the door rolls up for a bonus. Three balls.
+  function pinballGame(cv, api, o) {
+    var W = 180, H = 300, R = 4, GRAV = 430, FL = 26, FW = 3, MAXV = 640; // tips 17px apart at rest: the drain is wider than a ball plus a flipper
+    var WALLS = [[12, 40, 12, 232], [168, 40, 168, 232], [40, 12, 140, 12], [12, 40, 40, 12], [140, 12, 168, 40], [12, 232, 58, 262], [168, 232, 122, 262]];
+    var BUMP = [[60, 92, 9], [120, 92, 9], [90, 132, 10]];
+    var TGT = [[66, 44, 80, 44], [83, 44, 97, 44], [100, 44, 114, 44]];
+    var F = [{ x: 58, y: 262, rest: 0.45, up: -0.45, a: 0.45, w: 0, on: false }, { x: 122, y: 262, rest: Math.PI - 0.45, up: Math.PI + 0.45, a: Math.PI - 0.45, w: 0, on: false }];
+    var S = { state: 'title', score: 0, best: 0, balls: 3, ball: null, lit: [0, 0, 0], door: 0, msg: '', msgT: 0, flash: [0, 0, 0], still: 0, ptrs: {} };
+    function reset() { S.score = 0; S.balls = 3; S.lit = [0, 0, 0]; S.door = 0; S.state = 'ready'; }
+    function launch() { S.ball = { x: 156, y: 226, vx: -40 - Math.random() * 30, vy: -560 }; S.state = 'play'; S.still = 0; api.sfx('flip'); }
+    function press() {
+      if (S.state === 'title' || S.state === 'over') { reset(); api.sfx('start'); return; }
+      if (S.state === 'ready') launch();
+    }
+    function say(m) { S.msg = m; S.msgT = 1.6; }
+    function hitSeg(b, ax, ay, bx, by, rad, e, sv) {
+      var dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy, t = L2 ? ((b.x - ax) * dx + (b.y - ay) * dy) / L2 : 0;
+      t = Math.max(0, Math.min(1, t));
+      var px = ax + t * dx, py = ay + t * dy, nx = b.x - px, ny = b.y - py, d = Math.sqrt(nx * nx + ny * ny);
+      if (d >= rad || d === 0) return false;
+      nx /= d; ny /= d; b.x = px + nx * rad; b.y = py + ny * rad;
+      var svx = sv ? sv(px, py)[0] : 0, svy = sv ? sv(px, py)[1] : 0, rvx = b.vx - svx, rvy = b.vy - svy, vn = rvx * nx + rvy * ny;
+      if (vn < 0) { b.vx -= (1 + e) * vn * nx; b.vy -= (1 + e) * vn * ny; }
+      return true;
+    }
+    function sub(h) {
+      F.forEach(function (f) {
+        var target = f.on ? f.up : f.rest, old = f.a, sp = 24 * h;
+        f.a = Math.abs(target - f.a) <= sp ? target : f.a + (target > f.a ? sp : -sp);
+        f.w = (f.a - old) / h;
+      });
+      var b = S.ball; if (!b) return;
+      b.vy += GRAV * h; b.x += b.vx * h; b.y += b.vy * h;
+      WALLS.forEach(function (w) { hitSeg(b, w[0], w[1], w[2], w[3], R, 0.5); });
+      TGT.forEach(function (w, i) {
+        if (hitSeg(b, w[0], w[1], w[2], w[3], R + 1, 0.6) && !S.lit[i]) {
+          S.lit[i] = 1; S.score += 250; S.flash[i] = 0.3; api.sfx('coin');
+          if (S.lit[0] && S.lit[1] && S.lit[2]) { S.score += 1000; S.door = 1; say('DOOR UP! 1000'); api.sfx('unlock'); setTimeout(function () { S.lit = [0, 0, 0]; S.door = 0; }, 1600); }
+        }
+      });
+      BUMP.forEach(function (c, i) {
+        var dx = b.x - c[0], dy = b.y - c[1], d = Math.sqrt(dx * dx + dy * dy), rr = R + c[2];
+        if (d < rr && d > 0) {
+          var nx = dx / d, ny = dy / d, vn = b.vx * nx + b.vy * ny;
+          b.x = c[0] + nx * rr; b.y = c[1] + ny * rr;
+          if (vn < 0) { b.vx -= 2 * vn * nx; b.vy -= 2 * vn * ny; }
+          b.vx += nx * 170; b.vy += ny * 170; S.score += 100; S.flash[i] = 0.15; api.sfx('blip');
+        }
+      });
+      F.forEach(function (f) {
+        var tx = f.x + FL * Math.cos(f.a), ty = f.y + FL * Math.sin(f.a);
+        hitSeg(b, f.x, f.y, tx, ty, R + FW, 0.25, function (px, py) { return [-f.w * (py - f.y), f.w * (px - f.x)]; });
+      });
+      var v = Math.sqrt(b.vx * b.vx + b.vy * b.vy); if (v > MAXV) { b.vx *= MAXV / v; b.vy *= MAXV / v; }
+    }
+    function step(dt) {
+      if (S.msgT > 0) S.msgT -= dt;
+      S.flash = S.flash.map(function (x) { return Math.max(0, x - dt); });
+      for (var i = 0; i < 10; i++) sub(dt / 10);
+      var b = S.ball;
+      if (S.state === 'play' && b) {
+        // a ball that stays in one spot for a while (wedged somewhere) gets a nudge; a ball held on a raised flipper is fine
+        if (!S.anchor || Math.abs(b.x - S.anchor[0]) + Math.abs(b.y - S.anchor[1]) > 6) { S.anchor = [b.x, b.y]; S.still = 0; }
+        else if (!(F[0].on || F[1].on)) { S.still += dt; if (S.still > 2.5) { b.vy = -240; b.vx = (Math.random() - 0.5) * 180; S.still = 0; S.anchor = null; } }
+        if (b.y > H + R * 2) {
+          S.ball = null; S.balls--; api.sfx('uhoh');
+          if (S.balls <= 0) { S.state = 'over'; if (S.score > S.best) S.best = S.score; } else { S.state = 'ready'; say('BALL ' + (4 - S.balls)); }
+        }
+      }
+    }
+    function draw(g) {
+      var P = function (x, y, w, h, c) { g.fillStyle = c; g.fillRect(x, y, w, h); };
+      P(0, 0, W, H, '#05070f'); P(12, 12, 156, 260, '#141a33');
+      for (var y = 60; y < 230; y += 14) P(14, y, 152, 1, '#1a2244');
+      // the roll up door behind the targets
+      var dh = S.door ? 2 : 14; P(68, 22, 44, 16, '#0b1022'); P(68, 22, 44, dh, '#2f6fb0'); for (var q = 24; q < 22 + dh; q += 3) P(68, q, 44, 1, '#4a8bd0');
+      if (S.door) miniText(g, '1000', 90, 27, 1, '#ffcc33', 'center');
+      g.lineCap = 'round';
+      g.strokeStyle = '#ffcc33'; g.lineWidth = 2;
+      WALLS.forEach(function (w) { g.beginPath(); g.moveTo(w[0], w[1]); g.lineTo(w[2], w[3]); g.stroke(); });
+      TGT.forEach(function (w, i) { g.strokeStyle = S.lit[i] ? '#ffcc33' : S.flash[i] ? '#fff1d6' : '#59606e'; g.lineWidth = 3; g.beginPath(); g.moveTo(w[0], w[1]); g.lineTo(w[2], w[3]); g.stroke(); });
+      BUMP.forEach(function (c, i) {
+        g.fillStyle = S.flash[i] ? '#fff1d6' : i === 2 ? '#29d3e8' : '#e4343e'; g.beginPath(); g.arc(c[0], c[1], c[2], 0, Math.PI * 2); g.fill();
+        g.fillStyle = '#0b1022'; g.beginPath(); g.arc(c[0], c[1], c[2] - 4, 0, Math.PI * 2); g.fill();
+        g.fillStyle = '#ffcc33'; g.fillRect(c[0] - 2, c[1] - 2, 4, 4);
+      });
+      g.strokeStyle = '#fff1d6'; g.lineWidth = FW * 2;
+      F.forEach(function (f) { g.beginPath(); g.moveTo(f.x, f.y); g.lineTo(f.x + FL * Math.cos(f.a), f.y + FL * Math.sin(f.a)); g.stroke(); });
+      if (S.ball) { g.fillStyle = '#c9d1dc'; g.beginPath(); g.arc(S.ball.x, S.ball.y, R, 0, Math.PI * 2); g.fill(); g.fillStyle = '#ffffff'; g.fillRect(Math.round(S.ball.x) - 2, Math.round(S.ball.y) - 2, 2, 2); }
+      miniText(g, 'SCORE ' + S.score, 14, 278, 1, '#fff1d6');
+      miniText(g, 'BALL ' + Math.min(3, 4 - S.balls) + '/3', 166, 278, 1, '#fff1d6', 'right');
+      miniText(g, 'BEST ' + S.best, 14, 289, 1, '#8a90a0');
+      if (S.msgT > 0) miniText(g, S.msg, 90, 160, 1, '#ffcc33', 'center');
+      if (S.state === 'title' || S.state === 'over') {
+        P(20, 150, 140, 70, 'rgba(5,7,15,.85)');
+        miniText(g, S.state === 'over' ? 'GAME OVER' : 'ROLL UP PINBALL', 90, 158, S.state === 'over' ? 2 : 1, '#ffcc33', 'center');
+        if (S.state === 'over') miniText(g, 'SCORE ' + S.score, 90, 178, 1, '#fff1d6', 'center');
+        miniText(g, 'TAP OR SPACE TO START', 90, 192, 1, '#29d3e8', 'center');
+        miniText(g, 'FLIPPERS: LEFT/RIGHT', 90, 204, 1, '#c9d1dc', 'center');
+      } else if (S.state === 'ready') miniText(g, 'TAP OR SPACE TO LAUNCH', 90, 200, 1, '#29d3e8', 'center');
+    }
+    function keys(e, down) {
+      var c = e.code || e.key;
+      if (c === 'ArrowLeft' || c === 'KeyZ' || c === 'ShiftLeft') { F[0].on = down; return true; }
+      if (c === 'ArrowRight' || c === 'Slash' || c === 'ShiftRight') { F[1].on = down; return true; }
+      if (c === 'Space' || c === 'Enter' || c === 'NumpadEnter' || e.key === ' ') {
+        if (S.state === 'play') { F[0].on = F[1].on = down; } else if (down && !e.repeat) press();
+        return true;
+      }
+      if (c === 'ArrowUp' || c === 'ArrowDown') return true;
+      return false;
+    }
+    function ptr(type, x, y, e) {
+      var id = e.pointerId;
+      if (type === 'down') {
+        if (S.state !== 'play') { press(); return true; }
+        var side = x < W / 2 ? 0 : 1; S.ptrs[id] = side; F[side].on = true; return true;
+      }
+      if (S.ptrs[id] != null) { F[S.ptrs[id]].on = Object.keys(S.ptrs).some(function (k) { return +k !== id && S.ptrs[k] === S.ptrs[id]; }); delete S.ptrs[id]; return true; }
+      return false;
+    }
+    var stop = miniRun(cv, W, H, step, draw, keys, ptr);
+    return { stop: stop, state: function () { return { state: S.state, score: S.score, balls: S.balls, ball: S.ball ? { x: S.ball.x, y: S.ball.y } : null, flippers: [F[0].a, F[1].a], lit: S.lit.slice() }; } };
+  }
+
+  // Unit 3: Sim Bay Long Drive. The golf sim's driving range: tap once to start the swing, again to set the power, and
+  // once more to square up the club face. Watch the wind flag. Five balls, longest drive wins.
+  function driveGame(cv, api, o) {
+    var W = 240, H = 150, BALLS = 5, TEE = [120, 136];
+    var S = { state: 'title', ball: 0, best: 0, last: null, drives: [], meter: 0, dir: 1, power: 0, aim: 0, aimDir: 1, wind: 0, t: 0, fly: null };
+    var slow = o && o.calm ? 0.55 : 1;
+    function newWind() { S.wind = Math.round((Math.random() * 2 - 1) * 12); }
+    function press() {
+      if (S.state === 'title' || S.state === 'over') { S.ball = 0; S.drives = []; S.last = null; newWind(); S.state = 'ready'; api.sfx('start'); return; }
+      if (S.state === 'ready' || S.state === 'result') {
+        if (S.state === 'result') { if (S.ball >= BALLS) { S.state = 'over'; return; } newWind(); }
+        S.state = 'power'; S.meter = 0; S.dir = 1; api.sfx('tick'); return;
+      }
+      if (S.state === 'power') { S.power = S.meter; S.state = 'aim'; S.aim = -1; S.aimDir = 1; api.sfx('tick'); return; }
+      if (S.state === 'aim') { swing(); }
+    }
+    function swing() {
+      var acc = S.aim, pw = S.power;
+      var carry = Math.round(120 + 200 * Math.pow(pw, 1.3) * (1 - 0.45 * Math.abs(acc)) + S.wind * 1.4 * pw);
+      var side = Math.round(acc * 40 + S.wind * 0.9);
+      var ob = Math.abs(side) > 32;
+      S.last = { yards: ob ? 0 : Math.max(0, carry), side: side, ob: ob, raw: carry };
+      S.drives.push(S.last.yards); S.ball++;
+      if (S.last.yards > S.best) S.best = S.last.yards;
+      S.fly = { t: 0, carry: carry, side: side, pw: pw };
+      S.state = 'flight'; api.sfx('flip');
+    }
+    function step(dt) {
+      S.t += dt;
+      if (S.state === 'power') { S.meter += S.dir * dt * 1.25 * slow; if (S.meter >= 1) { S.meter = 1; S.dir = -1; } if (S.meter <= 0) { S.meter = 0; S.dir = 1; } }
+      if (S.state === 'aim') { S.aim += S.aimDir * dt * 1.6 * slow; if (S.aim >= 1) { S.aim = 1; S.aimDir = -1; } if (S.aim <= -1) { S.aim = -1; S.aimDir = 1; } }
+      if (S.state === 'flight') { S.fly.t += dt / (o && o.calm ? 0.6 : 1.6); if (S.fly.t >= 1) { S.fly.t = 1; S.state = 'result'; api.sfx(S.last.ob ? 'uhoh' : S.last.yards >= 290 ? 'fanfare' : 'coin'); } }
+    }
+    function yToScreen(yd) { var k = Math.min(1, yd / 330); return 136 - 78 * (1 - Math.pow(1 - k, 1.6)); }
+    function draw(g) {
+      var P = function (x, y, w, h, c) { g.fillStyle = c; g.fillRect(x, y, w, h); };
+      P(0, 0, W, H, '#05070f');
+      // the sim screen: sky, hills, a fairway to the horizon
+      ['#29adff', '#4cbcff', '#7fd0ff', '#a8defa'].forEach(function (c, i) { P(10, 8 + i * 12, 220, 12, c); });
+      for (var m = 10; m < 230; m++) P(m, 50 - Math.round(4 * Math.abs(Math.sin(m / 23))), 1, 8, '#3a7d44');
+      P(10, 56, 220, 88, '#3f8f4a');
+      for (var y = 56; y < 144; y++) { var k = (y - 56) / 88, half = 8 + k * 70; P(120 - half, y, half * 2, 1, Math.floor((y - 56) / 8) % 2 ? '#57a061' : '#4c9a57'); }
+      [100, 200, 300].forEach(function (yd) { var sy = Math.round(yToScreen(yd)); P(14, sy, 6, 1, '#fff1d6'); miniText(g, String(yd), 22, sy - 3, 1, '#fff1d6'); });
+      // the flag at the far end, blowing with the wind
+      var fy = Math.round(yToScreen(300)); P(120, fy - 12, 1, 12, '#fff1d6'); P(S.wind >= 0 ? 121 : 115, fy - 12, 5, 3, '#e4343e');
+      P(0, 0, W, 8, '#0b1022'); P(0, 144, W, 6, '#0b1022'); P(0, 0, 10, H, '#0b1022'); P(230, 0, 10, H, '#0b1022');
+      // the mat and the ball
+      P(100, 132, 40, 10, '#2d6b38'); P(118, 138, 4, 2, '#c9d1dc');
+      if (S.state === 'flight' || S.state === 'result') {
+        var f = S.fly, kk = f.t, yd = f.carry * kk, sx = TEE[0] + f.side * 1.4 * kk * (0.4 + 0.6 * kk), sy = yToScreen(yd) - Math.sin(Math.PI * kk) * (26 + 30 * f.pw);
+        var rad = kk < 1 ? 2 : 1; g.fillStyle = '#ffffff'; g.fillRect(Math.round(sx) - rad, Math.round(sy) - rad, rad * 2, rad * 2);
+      } else P(119, 133, 2, 2, '#ffffff');
+      // the panel: wind, ball, best, the swing meter
+      miniText(g, 'WIND ' + Math.abs(S.wind) + ' MPH' + (S.wind > 0 ? ' RIGHT' : S.wind < 0 ? ' LEFT' : ''), 14, 12, 1, '#0b1022');
+      miniText(g, 'BALL ' + Math.min(BALLS, S.ball + (S.state === 'result' || S.state === 'over' ? 0 : 1)) + '/' + BALLS, 226, 12, 1, '#0b1022', 'right');
+      miniText(g, 'BEST ' + S.best + ' YDS', 226, 22, 1, '#0b1022', 'right');
+      if (S.state === 'power' || S.state === 'aim') {
+        P(40, 120, 160, 10, '#0b1022'); P(41, 121, Math.round(158 * (S.state === 'power' ? S.meter : S.power)), 8, '#ffcc33');
+        P(119, 119, 2, 12, '#e4343e');
+        if (S.state === 'aim') { var ax = Math.round(120 + S.aim * 78); P(ax - 1, 117, 3, 16, '#fff1d6'); }
+        miniText(g, S.state === 'power' ? 'TAP TO SET POWER' : 'TAP ON THE RED LINE', 120, 108, 1, '#fff1d6', 'center');
+      }
+      if (S.state === 'result') {
+        miniText(g, S.last.ob ? 'INTO THE TREES' : S.last.yards + ' YARDS', 120, 70, 2, S.last.ob ? '#e4343e' : '#ffcc33', 'center');
+        miniText(g, S.ball >= BALLS ? 'TAP FOR THE SCORECARD' : 'TAP FOR THE NEXT BALL', 120, 92, 1, '#fff1d6', 'center');
+      }
+      if (S.state === 'ready') miniText(g, 'TAP OR SPACE TO SWING', 120, 100, 1, '#fff1d6', 'center');
+      if (S.state === 'title' || S.state === 'over') {
+        P(30, 54, 180, 66, 'rgba(5,7,15,.85)');
+        miniText(g, S.state === 'over' ? 'LONGEST DRIVE' : 'SIM BAY LONG DRIVE', 120, 62, 1, '#ffcc33', 'center');
+        if (S.state === 'over') miniText(g, Math.max.apply(null, S.drives.concat([0])) + ' YARDS', 120, 74, 2, '#fff1d6', 'center');
+        else { miniText(g, 'TAP 1: START THE SWING', 120, 76, 1, '#c9d1dc', 'center'); miniText(g, 'TAP 2: POWER  TAP 3: AIM', 120, 86, 1, '#c9d1dc', 'center'); }
+        miniText(g, 'TAP OR SPACE TO START', 120, 104, 1, '#29d3e8', 'center');
+      }
+    }
+    function keys(e, down) {
+      var c = e.code || e.key;
+      if (c === 'Space' || c === 'Enter' || c === 'NumpadEnter' || e.key === ' ') { if (down && !e.repeat) press(); return true; }
+      return false;
+    }
+    function ptr(type) { if (type === 'down') { press(); return true; } return false; }
+    var stop = miniRun(cv, W, H, step, draw, keys, ptr);
+    return { stop: stop, state: function () { return { state: S.state, ball: S.ball, best: S.best, drives: S.drives.slice(), wind: S.wind }; } };
+  }
+  var MINI = {
+    'roll-up-pinball': { make: pinballGame, help: 'Left and Right arrows or Z and slash work the flippers. Space or a tap launches the ball. On a touch screen, tap the left or right half.' },
+    'sim-bay-long-drive': { make: driveGame, help: 'Space, Enter or a tap: once to start the swing, once to set the power, once on the red line to aim.' }
+  };
   function sbOpen(api, from) {
     var S = api.state();
     if (sbUI || !S || S.screen !== 'map') return;
@@ -637,14 +898,19 @@ NP.DLC = NP.DLC || {};
       var gv = document.createElement('div');
       gv.className = 'dlcov d2sb-game';
       gv.setAttribute('role', 'dialog'); gv.setAttribute('aria-modal', 'true'); gv.setAttribute('aria-label', PLAY.frame.replace('{name}', g.name));
-      gv.innerHTML = '<div class="d2sb-gbar"><span class="d2sb-gt">' + esc(g.name) + ' · ' + esc(PLAY.free) + '</span>' +
+      var own = g.kind === 'canvas';
+      gv.innerHTML = '<div class="d2sb-gbar"><span class="d2sb-gt"><span class="d2sb-gr">' + esc(g.room) + ' · </span>' + esc(g.name) + ' · ' + esc(PLAY.free) + '</span>' +
         '<button type="button" class="d2sb-gx" data-dlcx="1">' + esc(PLAY.close) + '</button></div>' +
-        '<iframe class="d2sb-if" title="' + esc(g.name) + '" src="' + esc(ARCADE + g.slug + '/') + '" allow="autoplay; fullscreen"></iframe>';
+        (own ? '<div class="d2sb-mgw"><canvas class="d2sb-mg" tabindex="0" role="application" aria-label="' + esc(g.name + '. ' + (MINI[g.slug] || {}).help) + '"></canvas></div>'
+          : '<iframe class="d2sb-if" title="' + esc(g.name) + '" src="' + esc(ARCADE + g.slug + '/') + '" allow="autoplay; fullscreen"></iframe>');
       // it goes in before the spot, so the phone's Back button (the first pack close button on the page) closes the game first
       document.body.insertBefore(gv, ov);
-      var ifr = gv.querySelector('iframe'), gx = gv.querySelector('.d2sb-gx'), inner = null;
+      var ifr = gv.querySelector('iframe'), mgc = gv.querySelector('.d2sb-mg'), gx = gv.querySelector('.d2sb-gx'), inner = null, mg = null;
       if (raf) { cancelAnimationFrame(raf); raf = 0; } // the doors stand still while you play
-      function focusGame() { try { ifr.focus(); if (ifr.contentWindow) ifr.contentWindow.focus(); } catch (e) {} }
+      if (own) mg = MINI[g.slug].make(mgc, api, { calm: st.calm });
+      function focusGame() {
+        try { if (own) mgc.focus({ preventScroll: true }); else { ifr.focus(); if (ifr.contentWindow) ifr.contentWindow.focus(); } } catch (e) {}
+      }
       function gkey(e) { // the frame's own keys (the spot's keys are paused while a game is open)
         if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(); return; }
         if (e.key === 'Tab') { e.preventDefault(); e.stopPropagation(); if (document.activeElement === gx) focusGame(); else gx.focus(); }
@@ -655,19 +921,22 @@ NP.DLC = NP.DLC || {};
         st.game = null;
         window.removeEventListener('keydown', gkey, true);
         try { if (inner) inner.removeEventListener('keydown', ikey, true); } catch (e) {}
+        if (mg) { try { mg.stop(); } catch (e) {} mg = null; }
         if (gv.parentNode) gv.parentNode.removeChild(gv); // the frame goes, and the game with it
         if (silent) return;
         kick();
         var back = opener && document.body.contains(opener) && !opener.hidden ? opener : ov.querySelector('[data-sbplay="' + k + '"]');
         if (back) { try { back.focus({ preventScroll: true }); } catch (e) { back.focus(); } }
       }
-      ifr.addEventListener('load', function () {
+      if (ifr) ifr.addEventListener('load', function () {
         try { inner = ifr.contentWindow; inner.addEventListener('keydown', ikey, true); } catch (e) { inner = null; } // a page from another site: Close still works
+        // the arcade page's own "< Arcade" link would take the frame to the arcade's front page: Close does that job here
+        try { var d = ifr.contentDocument, css = d.createElement('style'); css.setAttribute('data-d2sb', '1'); css.textContent = '.np-back{display:none !important}'; (d.head || d.documentElement).appendChild(css); } catch (e) {}
         if (st.game && document.activeElement !== gx) focusGame();
       });
       gx.addEventListener('click', function (e) { e.stopPropagation(); done(); });
       window.addEventListener('keydown', gkey, true);
-      st.game = { k: k, close: done, frame: ifr };
+      st.game = { k: k, close: done, frame: ifr, mini: mg };
       api.sfx('start');
       try { api.track('dlc2_sb_play_' + g.slug.replace(/-/g, '_')); } catch (e) {} // analytics are off on test pages; track() is a no-op there
       focusGame();
@@ -735,10 +1004,9 @@ NP.DLC = NP.DLC || {};
       if (e.target === cv) {
         var r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * SBW, y = (e.clientY - r.top) / r.height * SBH;
         if (y < 50) return;
-        // an open Unit 5: a tap on a cabinet plays its game. An open Unit 1: a tap on the pinball machines plays pinball.
+        // a tap inside an open door plays its game (in Unit 5, the cabinet you tap). A shut door rolls up first.
         var hitIn = function (cb) { return cb && x >= cb[0] - 1 && x < cb[0] + cb[2] + 1 && y >= cb[1] && y < cb[1] + cb[3]; };
-        if (st.doors[4].open) for (var c = 0; c < GAMES.length; c++) if (hitIn(sbCab(st, c))) { play(c); return; }
-        if (st.doors[0].open && hitIn(PIN())) { play(0); return; }
+        for (var c = 0; c < GAMES.length; c++) if (hitIn(sbCab(st, c))) { play(c); return; }
         for (var i = 0; i < 6; i++) if (x >= sbDoorX(i) - DG / 2 && x < sbDoorX(i) + DW + DG / 2) { openDoor(i); return; }
       }
     });
@@ -769,12 +1037,31 @@ NP.DLC = NP.DLC || {};
     if (!canBuzz() || api.calm()) return;
     try { if (navigator.vibrate(RING)) { ringing = n; api.track('dlc2_call_buzz'); } } catch (e) {}
   }
+  // ---------- Saguaro Splash Cola's TV spot: "Sponsored by Storage Beers Retro Arcade" ----------
+  // tvads.js draws every commercial as a .tvad-ov overlay labeled "TV commercial: <brand>". While this pack is on, the
+  // cola spot gets one extra line under its caption. The other spots and the merch break are left alone.
+  var SPON = { line: 'Sponsored by Storage Beers Retro Arcade', ad: 'cola' };
+  function colaBrand() {
+    var L = NP.TVAds && NP.TVAds.list; if (!Array.isArray(L)) return 'Saguaro Splash Cola';
+    for (var i = 0; i < L.length; i++) if (L[i] && L[i].id === SPON.ad) return L[i].brand;
+    return 'Saguaro Splash Cola';
+  }
+  function sponsorAd(api, n) {
+    if (!n || n.querySelector('.d2sb-spon') || n.classList.contains('merch-ov')) return;
+    if (n.getAttribute('aria-label') !== 'TV commercial: ' + colaBrand()) return;
+    var line = document.createElement('div');
+    line.className = 'd2sb-spon'; line.textContent = SPON.line;
+    var cap = n.querySelector('.tvad-cap'), box = n.querySelector('.tvad');
+    if (cap && cap.parentNode) cap.parentNode.insertBefore(line, cap.nextSibling); else if (box) box.appendChild(line); else return;
+    api.track('dlc2_cola_sponsor');
+  }
   function watchCalls(api) {
     if (typeof MutationObserver !== 'function' || !document.body) return;
     var isCall = function (n) { return n && n.nodeType === 1 && n.classList && n.classList.contains('callov') && !!n.querySelector('.call-h'); };
+    var isAd = function (n) { return n && n.nodeType === 1 && n.classList && n.classList.contains('tvad-ov'); };
     new MutationObserver(function (muts) {
       muts.forEach(function (m) {
-        Array.prototype.forEach.call(m.addedNodes, function (n) { if (isCall(n)) buzz(api, n); });
+        Array.prototype.forEach.call(m.addedNodes, function (n) { if (isCall(n)) buzz(api, n); else if (isAd(n)) sponsorAd(api, n); });
         Array.prototype.forEach.call(m.removedNodes, function (n) { if (n === ringing) { ringing = null; try { navigator.vibrate(0); } catch (e) {} } });
       });
     }).observe(document.body, { childList: true });
@@ -859,13 +1146,17 @@ NP.DLC = NP.DLC || {};
       '.d2sb-box .btns button{width:100%;margin:8px 0 0}' +
       '.rc-d2n b{color:#ffcc33}.d2sb-dn{color:#ffcc33;margin:4px 0 0}' +
       '.d2sb-play{margin-top:8px}.d2sb-ph{font-size:calc(12px * var(--tsz, 1));color:#d6dcf0;margin:0 0 4px}' +
-      '.d2sb-pbtns{display:grid;grid-template-columns:1fr;gap:4px}.d2sb-pbtns button{margin:0;min-height:44px;background:#c8323c;color:#fff1d6;border-bottom-color:#8e1c23;white-space:normal}' +
+      '.d2sb-pbtns{display:grid;grid-template-columns:1fr 1fr;gap:4px}.d2sb-pbtns button{margin:0;min-height:44px;background:#c8323c;color:#fff1d6;border-bottom-color:#8e1c23;white-space:normal}' +
       '.d2sb-pbtns button[hidden]{display:none}.d2sb-pbtns button:focus-visible{outline:3px solid #29d3e8;outline-offset:1px}' +
       '.d2sb-game{position:fixed;inset:0;z-index:95;display:flex;flex-direction:column;background:#0b1022}' +
       '.d2sb-gbar{display:flex;align-items:center;gap:8px;padding:6px 10px;padding-top:max(6px, env(safe-area-inset-top));background:#2a1d0e;border-bottom:3px solid #ffcc33}' +
       '.d2sb-gt{flex:1;min-width:0;color:#ffcc33;font-weight:bold;font-size:calc(15px * var(--tsz, 1))}' +
       '.d2sb-gx{margin:0;min-height:44px;min-width:88px;background:#ffcc33;color:#0b1022;border-bottom-color:#b08a1f}.d2sb-gx:focus-visible{outline:3px solid #29d3e8;outline-offset:1px}' +
-      '.d2sb-if{flex:1;display:block;width:100%;min-height:0;border:0;background:#000}',
+      '.d2sb-if{flex:1;display:block;width:100%;min-height:0;border:0;background:#000}' +
+      '.d2sb-gr{color:#d6dcf0;font-weight:normal}' +
+      '.d2sb-mgw{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#05070f}' +
+      '.d2sb-mg{display:block;image-rendering:pixelated;image-rendering:crisp-edges;touch-action:none;outline:none;border:3px solid #0b1022}.d2sb-mg:focus-visible{border-color:#29d3e8}' +
+      '.d2sb-spon{color:#ffcc33;font-weight:bold;text-align:center;margin:4px 0;font-size:calc(13px * var(--tsz, 1))}',
     hooks: {
       // once, at page load. There is no leave or sell hook, so this listens on the page before the game's own click
       // handler runs: it closes the dime tab before the haul is shelved (on the Expo Saturday, or at the end of a one
@@ -1005,6 +1296,6 @@ NP.DLC = NP.DLC || {};
       settle: settle, tab: getTab, noSell: noSell, buy: buy, feasible: feasible, table: table,
       sb: { text: SB, open: function () { return sbUI; }, place: sbPlace },
       donny: { text: DONNY, tables: fleaTables, today: donnyToday },
-      play: { games: GAMES, path: ARCADE, ring: RING, canBuzz: canBuzz } }
+      play: { games: GAMES, path: ARCADE, ring: RING, canBuzz: canBuzz, mini: function () { return MINI; } }, sponsor: SPON }
   };
 })();
