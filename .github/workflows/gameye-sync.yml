@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: gameye-sync
@@ -59,3 +60,50 @@ jobs:
           fi
           git commit -m "$msg"
           git push
+
+
+      - name: Ensure Pages deploy for latest commit
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Rapid pushes can leave an older pages-build-deployment "in progress"
+          # and make newer deploys fail with HTTP 400. Cancel older in-progress
+          # pages runs, then wait for (or re-run) the deploy for HEAD.
+          sleep 20
+          HEAD=$(git rev-parse HEAD)
+          # Cancel in-progress pages runs that are not for HEAD
+          gh run list --workflow=pages-build-deployment --status in_progress --limit 10             --json databaseId,headSha | python3 -c '
+import json,sys,subprocess
+for r in json.load(sys.stdin):
+  if r["headSha"] != "'"$HEAD"'":
+    print("cancelling superseded pages run", r["databaseId"], r["headSha"][:7])
+    subprocess.run(["gh","run","cancel",str(r["databaseId"])], check=False)
+'
+          # Wait up to ~4 minutes for a successful pages deploy of HEAD
+          for i in $(seq 1 24); do
+            row=$(gh run list --workflow=pages-build-deployment --commit "$HEAD" --limit 1               --json databaseId,status,conclusion -q '.[0] // empty')
+            if [ -z "$row" ] || [ "$row" = "null" ]; then
+              echo "waiting for pages run to appear ($i)"
+              sleep 10
+              continue
+            fi
+            status=$(echo "$row" | python3 -c 'import json,sys; print(json.load(sys.stdin)["status"])')
+            conclusion=$(echo "$row" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("conclusion") or "")')
+            id=$(echo "$row" | python3 -c 'import json,sys; print(json.load(sys.stdin)["databaseId"])')
+            echo "pages run $id status=$status conclusion=$conclusion"
+            if [ "$status" = "completed" ] && [ "$conclusion" = "success" ]; then
+              echo "Pages deploy ok for $HEAD"
+              exit 0
+            fi
+            if [ "$status" = "completed" ] && [ "$conclusion" != "success" ]; then
+              echo "re-running failed pages deploy $id"
+              gh run rerun "$id" --failed
+              sleep 20
+              continue
+            fi
+            sleep 10
+          done
+          echo "WARNING: Pages deploy for $HEAD not confirmed success within timeout"
+          exit 0

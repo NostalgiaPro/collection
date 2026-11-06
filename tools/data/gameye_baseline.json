@@ -2853,7 +2853,7 @@
     {
       "uuid": "01a1ae91-db8c-77e4-ade2-6074002beccb",
       "item_id": 191283,
-      "site_system": "Nintendo 64",
+      "site_system": "Nintendo Switch 2",
       "site_title": "Legend of Zelda: Ocarina of Time",
       "ge_title": "Legend of Zelda: Ocarina of Time",
       "ge_platform_id": 178
@@ -5061,7 +5061,7 @@
     {
       "uuid": "01a19a7b-5b4c-75af-86c0-7e0e04e7fdb6",
       "item_id": 184186,
-      "site_system": "SNES",
+      "site_system": "Nintendo Switch 2",
       "site_title": "Star Fox",
       "ge_title": "Star Fox",
       "ge_platform_id": 178
@@ -8497,7 +8497,7 @@
     184310,
     191283
   ],
-  "variant_count": 6,
+  "variant_count": 4,
   "variants": [
     {
       "uuid": "0192ca55-4ba4-75b0-ac30-c5a070dc1625",
@@ -8516,24 +8516,6 @@
       "site_system": "NES",
       "site_title": "Chip 'n Dale",
       "kind": "variant"
-    },
-    {
-      "uuid": "01a1ae91-db8c-77e4-ade2-6074002beccb",
-      "item_id": 191283,
-      "ge_title": "Legend of Zelda: Ocarina of Time",
-      "ge_platform_id": 178,
-      "site_system": "Nintendo 64",
-      "site_title": "Legend of Zelda: Ocarina of Time",
-      "kind": "variant-cross-system"
-    },
-    {
-      "uuid": "01a19a7b-5b4c-75af-86c0-7e0e04e7fdb6",
-      "item_id": 184186,
-      "ge_title": "Star Fox",
-      "ge_platform_id": 178,
-      "site_system": "SNES",
-      "site_title": "Star Fox",
-      "kind": "variant-cross-system"
     },
     {
       "uuid": "0192ca55-4b94-7745-bdf5-797423423c15",

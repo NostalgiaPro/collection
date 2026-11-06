@@ -42,7 +42,7 @@ UA = (
 
 # GameEye platform_id -> site ## system section.
 # NES/Famicom (7): default NES; Famicom Metal Gear is remapped by title.
-# Switch 2 (178): no site section; matched as cross-system variant when seeding.
+# Switch 2 (178): own shelf section.
 PLATFORM_MAP = {
     7: "NES",
     6: "SNES",
@@ -54,6 +54,7 @@ PLATFORM_MAP = {
     41: "Nintendo 3DS",
     9: "Wii",
     97: "Nintendo Switch",
+    178: "Nintendo Switch 2",
     10: "PlayStation 1",
     11: "PlayStation 2",
     12: "PlayStation 3",
@@ -232,8 +233,6 @@ def find_hit(sys: str, nk: str, sk: str, by_nkey, by_soft, by_sys):
 def map_system(pid: int, title: str, famicom_nkeys: set[str]) -> str | None:
     if pid == 7 and nkey(title) in famicom_nkeys:
         return "Famicom"
-    if pid == 178:
-        return None  # Switch 2: no section
     return PLATFORM_MAP.get(pid)
 
 
@@ -328,9 +327,7 @@ def seed_baseline(records, user_data, site_games, dry_run: bool) -> dict:
                         "item_id": item_id,
                         "title": title,
                         "platform_id": pid,
-                        "mapped_system": "Switch 2 (no site section)"
-                        if pid == 178
-                        else f"unmapped platform_id {pid}",
+                        "mapped_system": f"unmapped platform_id {pid}",
                     }
                 )
                 continue
