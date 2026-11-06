@@ -30,8 +30,15 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/gameye_sync.py | tee /tmp/gameye-sync.log
-          if git diff --quiet -- index.html stats.html consoles.html data/shelf-games.json data/daily.json tools/data/gameye_baseline.json tools/data/gameye_pending_new.json tools/data/gameye_removed_flags.json tools/data/gameye_sync_state.json; then
+          # Commit only when the shelf or tracking lists actually change.
+          # Ignore gameye_sync_state.json alone (it always bumps last_run).
+          if git diff --quiet -- index.html stats.html consoles.html \
+              data/shelf-games.json data/daily.json \
+              tools/data/gameye_baseline.json \
+              tools/data/gameye_pending_new.json \
+              tools/data/gameye_removed_flags.json; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
+            git checkout -- tools/data/gameye_sync_state.json || true
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
@@ -45,7 +52,6 @@ jobs:
           git add index.html stats.html consoles.html data/shelf-games.json data/daily.json \
             tools/data/gameye_baseline.json tools/data/gameye_pending_new.json \
             tools/data/gameye_removed_flags.json tools/data/gameye_sync_state.json
-          # Summary for the commit message
           msg="GameEye sync: update shelf from thenostalgiapro"
           if grep -q "adding " /tmp/gameye-sync.log; then
             msg=$(grep "adding " /tmp/gameye-sync.log | head -1)
