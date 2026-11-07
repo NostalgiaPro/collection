@@ -215,6 +215,22 @@ const engine = new Engine(GODOT_CONFIG);
 	}
 }());
 		</script>
+		<!-- NP2 opening cutscene: plays first, then hands off to the title screen -->
+		<iframe id="np2-intro" src="intro/" allow="autoplay; fullscreen" title="Opening cutscene" style="position:fixed;inset:0;width:100%;height:100%;border:0;z-index:9999;background:#000"></iframe>
+		<script>
+(function () {
+	var f = document.getElementById('np2-intro');
+	function done() {
+		if (!f) return;
+		f.remove(); f = null;
+		var c = document.getElementById('canvas'); if (c) c.focus();
+	}
+	window.addEventListener('message', function (e) {
+		var d = e.data || {};
+		if (d.type === 'np2intro:start' || (d.type === 'np2intro:finished' && d.skipped)) done();
+	});
+})();
+		</script>
 	</body>
 </html>
 
