@@ -7,7 +7,7 @@
 <link rel="icon" href="data:,">
 <title>Nostalgia Pro: The Game 2: It's Bigger</title>
 <!--
-  Nostalgia Pro: The Game 2: It's Bigger . Opening cutscene (third pass)
+  Nostalgia Pro: The Game 2: It's Bigger . Opening cutscene (fourth pass)
   Hooks for the game:
     window event "np2intro:finished"  fires when the cutscene ends or is skipped (detail: {skipped})
     window event "np2intro:start"     fires when the player presses on the "Press to start" screen
@@ -53,7 +53,7 @@ html,body{margin:0;height:100%;background:#07040f;overflow:hidden;touch-action:n
 .t1{font-size:min(7.3vw,10.5vh)}
 .t2{font-size:min(9vw,12.5vh);margin-top:.04em}
 .two{background:linear-gradient(180deg,#fff 0%,#ffd1f1 25%,#ff4fb0 49%,#7a0c5a 51%,#ffb347 55%,#fff2b0 80%,#ffffff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-#neon{font-family:NPSign;font-size:min(14vw,17vh);line-height:1.05;margin-top:.12em;transform:rotate(-4deg);letter-spacing:.04em;white-space:nowrap}
+#neon{font-family:NPSign;font-size:min(10.2vw,11.5vh);line-height:1.05;margin-top:.45em;transform:rotate(-4deg) scale(0);transform-origin:50% 50%;letter-spacing:.04em;white-space:nowrap;opacity:0;will-change:transform}
 #neon span{display:inline-block;color:#4a1745;text-shadow:none;opacity:.25}
 #neon.on span{animation:flickOn .7s both}
 #neon.on span.lit{color:#fff}
@@ -61,7 +61,7 @@ html,body{margin:0;height:100%;background:#07040f;overflow:hidden;touch-action:n
 #neon.on span.buzz{animation:flickOn .7s both,buzz 3.1s 2.4s infinite}
 @keyframes buzz{0%,86%,90%,100%{opacity:1}88%{opacity:.3}89%{opacity:1}}
 .spark{position:absolute;width:min(14vw,16vh);height:min(14vw,16vh);right:-6%;top:-14%;opacity:0;background:radial-gradient(circle,#fff 0 6%,rgba(255,255,255,0) 22%),linear-gradient(0deg,rgba(255,255,255,0) 46%,#fff 50%,rgba(255,255,255,0) 54%),linear-gradient(90deg,rgba(255,255,255,0) 47%,#fff 50%,rgba(255,255,255,0) 53%);-webkit-mask:radial-gradient(circle,#000 0 30%,transparent 70%);mask:radial-gradient(circle,#000 0 30%,transparent 70%)}
-#title.show .wrap{animation:punch .5s cubic-bezier(.2,1.7,.45,1) both,shake .35s .42s linear}
+#title.show .wrap{animation:punch .45s cubic-bezier(.2,1.8,.45,1) both}
 #title.show .sn{animation:shine 1.2s .55s ease-in-out both}
 #title.show .spark{animation:spark .9s 1.5s ease-out both}
 @keyframes punch{0%{transform:scale(2.8);opacity:0;filter:blur(8px)}60%{opacity:1;filter:blur(0)}100%{transform:scale(1);opacity:1}}
@@ -167,7 +167,7 @@ const rr = (a, b) => a + (b - a) * R();
 const pick = arr => arr[Math.floor(R() * arr.length)];
 
 // ---- timeline (cuts sit on the 100 BPM beat grid, one beat = 0.6 s)
-const TITLE_T = 33.6, END_T = 38.2;
+const TITLE_T = 33.6, END_T = 39.6, T_LAND = TITLE_T + .6, GROW = [TITLE_T + 1.2, TITLE_T + 1.8, TITLE_T + 2.4];
 const T_SPOT = 15.9, T_FLARE = 16.1, T_BURN = 16.3, T_PULL = 16.8, T_LANE = 17.6, T_BOX = 19.2, T_HIT = 22.8, T_SHOP = 27.0;
 
 // ============================================================ renderer
@@ -495,9 +495,10 @@ const welcome = new THREE.Group();
     fitFont(c, 'SUNBURN VALLEY', 'NPTitle', 118, W - 130);
     c.lineJoin = 'round'; c.lineWidth = 16; c.strokeStyle = '#2a0b4d'; c.strokeText('SUNBURN VALLEY', W / 2, 228);
     const tg = c.createLinearGradient(0, 180, 0, 280); tg.addColorStop(0, '#fff27a'); tg.addColorStop(.55, '#ffb03b'); tg.addColorStop(1, '#ff5e3a'); c.fillStyle = tg; c.fillText('SUNBURN VALLEY', W / 2, 228);
-    c.fillStyle = '#2a0b4d'; rrect(c, W / 2 - 250, 318, 500, 104, 22); c.fill();
-    c.strokeStyle = '#ff4fd8'; c.lineWidth = 5; rrect(c, W / 2 - 240, 328, 480, 84, 16); c.stroke();
-    fitFont(c, 'POP. BIGGER', 'NPTitle', 64, 440); c.fillStyle = '#ff7ae0'; c.fillText('POP. BIGGER', W / 2, 372);
+    c.fillStyle = '#2a0b4d'; rrect(c, W / 2 - 230, 306, 460, 128, 24); c.fill();
+    c.strokeStyle = '#ff4fd8'; c.lineWidth = 6; rrect(c, W / 2 - 218, 318, 436, 104, 18); c.stroke();
+    fitFont(c, 'BIGGER', 'NPTitle', 96, 400); c.lineJoin = 'round'; c.lineWidth = 10; c.strokeStyle = '#120420'; c.strokeText('BIGGER', W / 2, 374);
+    const bgx = c.createLinearGradient(0, 330, 0, 420); bgx.addColorStop(0, '#fff27a'); bgx.addColorStop(1, '#ff7ae0'); c.fillStyle = bgx; c.fillText('BIGGER', W / 2, 374);
   });
   welcome.add(new THREE.Mesh(merge([B(.4, 6.2, .4, -3.6, 3.1, -.1, '#6b4226'), B(.4, 6.2, .4, 3.6, 3.1, -.1, '#6b4226'), B(10, 5.1, .3, 0, 5.6, -.05, '#2a1838')]), toon({ vertexColors: true })));
   const face = new THREE.Mesh(new THREE.PlaneGeometry(9.7, 4.85), new THREE.MeshBasicMaterial({ map: tex, transparent: true, alphaTest: .5 }));
@@ -516,34 +517,35 @@ const STORES_R = [
   [29, 9, 'Thrift Happens', 'Pre-Loved Treasures', '#ffd23f', '#ff4fd8', 'bag'],
   [6, -13, 'Pawn & Prosper', 'We Buy Gold & Games', '#59f3ff', '#ffd23f', 'pawn'],
   [-73, -93, 'Lucky Lizard Pawn', 'Cash for Consoles', '#7cff6b', '#ffe066', 'pawn'],
-  [-96, -111, 'Hole Lotta Donuts', 'Hot Now', '#ff7ad9', '#7cff6b', 'donut'],
+  [-96, -111, 'Hole Lotta Donuts', 'Now Bigger', '#ff7ad9', '#7cff6b', 'donut'],
   [-141, -160, "Dusty's Dollar Dome", 'Everything a Buck', '#7cff6b', '#ff7ad9'],
-  [-163, -186, 'Rattlesnake Lanes', 'Cosmic Bowling', '#b388ff', '#59f3ff', 'pin'],
+  [-163, -186, 'Rattlesnake Lanes', 'Bigger Pins', '#b388ff', '#59f3ff', 'pin'],
   [-189, -210, 'Gold Rush Pawn', 'Open Late', '#ffd23f', '#ff5a7a', 'pawn'],
   [-213, -240, "Pixel Pete's Arcade", 'Tokens 4 for $1', '#59f3ff', '#ff4fd8', 'arcade'],
   [-243, -276, 'Cactus Cuts', 'Barber & Beauty', '#7cff6b', '#ffd23f'],
 ];
 const STORES_L = [
   [55, 33, 'Hock Around the Clock', 'Pawn 24 Hours', '#ff4fd8', '#59f3ff'],
-  [30, 12, 'Tape Escape', 'Video Rentals', '#59f3ff', '#ff5a7a'],
+  [30, 12, 'Tape Escape', 'Bigger Selection', '#59f3ff', '#ff5a7a'],
   [9, -14, 'Mesa Mart 24/7', 'Ice Cold Drinks', '#7cff6b', '#ff7ad9'],
   [-17, -40, 'Needle Drop Records', 'Records & Tapes', '#ff7ad9', '#ffd23f'],
   [-43, -62, 'Bargain Bonanza', 'Swap & Shop', '#ffd23f', '#59f3ff'],
   [-65, -92, 'Sun Daze Diner', 'Pie & Coffee', '#ff5a7a', '#59f3ff'],
   [-95, -114, 'Desert Pawn & Gold', 'Cash Today', '#ffd23f', '#7cff6b', 'pawn'],
   [-117, -137, 'Rewind Time Video', 'New Releases Tuesday', '#59f3ff', '#ff4fd8', 'video'],
-  [-140, -160, 'Junk Drawer Antiques', 'Odds & Ends', '#b388ff', '#ffd23f'],
+  [-140, -160, 'BIGGER', 'Est. Recently', '#b388ff', '#ffd23f'],
   [-163, -190, 'Taco Twister', 'Open til 3 AM', '#ff4b3e', '#7cff6b'],
-  [-193, -215, 'Coin Op Laundry', 'Wash N Fold', '#59f3ff', '#ffffff'],
+  [-193, -215, 'Coin Op Laundry', 'Bigger Loads', '#59f3ff', '#ffffff'],
   [-218, -246, 'Big Cheese Pizza', 'Hot & Fresh', '#ffd23f', '#ff5a7a'],
   [-249, -276, 'Sunburn Swap Supply', 'Tables for Rent', '#ff7ad9', '#7cff6b'],
 ];
-const SLOT_SWAP = addSign('Sunburn Swap Meet', 'Sat & Sun til Midnight', '#ffd23f', '#ff4fd8');
+const SLOT_SWAP = addSign('Sunburn Swap Meet', 'Now Bigger! Sat & Sun', '#ffd23f', '#ff4fd8');
 const SLOT_SUNDIAL = addSign('Sundial Pawn', 'Loans on Anything', '#ffb347', '#59f3ff');
-const SLOT_PLAZA = addSign('Fountain Plaza', 'Free Concerts Friday', '#59f3ff', '#ffd23f');
-const SLOT_SALE = addSign('SALE!', 'Today Only', '#ff4b3e', '#ffd23f');
+const SLOT_PLAZA = addSign('Fountain Plaza', 'Bigger Fountain Coming Soon', '#59f3ff', '#ffd23f');
+const SLOT_SALE = addSign('SALE!', 'Bigger Sale', '#ff4b3e', '#ffd23f');
 const SLOT_BARN = addSign('Cartridge Barn', 'Retro Games Bought & Sold', '#ff4b3e', '#ffe066');
 const SLOT_OPEN = addSign('OPEN', '', '#ff4fd8', '#59f3ff');
+const SLOT_BIGIN = addSign('Bigger Inside', 'Than It Looks', '#ffe066', '#ff4fd8');
 for (const s of STORES_R) s.slot = addSign(s[2], s[3], s[4], s[5]);
 for (const s of STORES_L) s.slot = addSign(s[2], s[3], s[4], s[5]);
 const atlas = canvasTex(1024, 2048, (c) => {
@@ -570,7 +572,7 @@ function signPlane(slot, w, h, flick = -1, on = 0){
 const marqueeTex = canvasTex(2048, 96, (c, W, H) => {
   c.fillStyle = '#0c0610'; c.fillRect(0, 0, W, H);
   c.textBaseline = 'middle'; c.font = '62px NPTitle'; c.fillStyle = '#ffb02e'; c.shadowColor = '#ff7a00'; c.shadowBlur = 10;
-  const msg = 'RARE CARTRIDGES IN STOCK  *  WE BUY WHOLE COLLECTIONS  *  OPEN TIL MIDNIGHT  *  ';
+  const msg = 'RARE CARTRIDGES IN STOCK  *  NOW BIGGER  *  WE BUY WHOLE COLLECTIONS  *  OPEN TIL MIDNIGHT  *  ';
   let x = 0; while (x < W){ c.fillText(msg, x, H / 2 + 4); x += c.measureText(msg).width; }
   c.shadowBlur = 0; c.fillStyle = 'rgba(0,0,0,.55)';
   for (let y = 0; y < H; y += 6) c.fillRect(0, y, W, 2);
@@ -733,7 +735,7 @@ townLit.push(B(3, .7, 1.1, 9.2, .45, -204.3, '#8a6a4a'));
   const tex = canvasTex(1024, 256, (c, W, H) => {
     c.fillStyle = '#9fd8d0'; c.fillRect(0, 0, W, H); c.fillStyle = '#7fbdb5'; c.fillRect(0, 0, W, 16); c.fillRect(0, H - 16, W, 16);
     c.textAlign = 'center'; c.textBaseline = 'middle';
-    for (const cx of [W * .25, W * .75]){ fitFont(c, 'SUNBURN VALLEY', 'NPTitle', 74, W * .46); c.lineWidth = 10; c.lineJoin = 'round'; c.strokeStyle = '#fff6e0'; c.strokeText('SUNBURN VALLEY', cx, H / 2 + 4); c.fillStyle = '#d2461f'; c.fillText('SUNBURN VALLEY', cx, H / 2 + 4); }
+    for (const cx of [W * .25, W * .75]){ fitFont(c, 'SUNBURN VALLEY', 'NPTitle', 66, W * .44); c.lineWidth = 10; c.lineJoin = 'round'; c.strokeStyle = '#fff6e0'; c.strokeText('SUNBURN VALLEY', cx, H / 2 - 24); c.fillStyle = '#d2461f'; c.fillText('SUNBURN VALLEY', cx, H / 2 - 24); c.font = '40px NPTitle'; c.fillStyle = '#2a6f68'; c.fillText('BIGGER', cx, H / 2 + 52); }
   });
   const tank = new THREE.Mesh(new THREE.CylinderGeometry(7, 7, 8, 24, 1, true), toon({ map: tex })); tank.position.set(tx, 28, tz); tank.rotation.y = -.6; scene.add(tank);
   glowQuads.push(glowQuad(16, 14, '#ffe6b0', .35, -1, 9).rotateY(.5).translate(tx - 5, 27, tz + 6));
@@ -793,10 +795,51 @@ const shopCarts = [];
   glowQuads.push(glowQuad(26, 11, '#ff4b3e', .55, 4.4, T_SHOP).translate(cx - 2, 5.45, z + .3));
   bulbRect(new THREE.Vector3(cx - 2, 5.45, z + .34), new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 1, 0), 15.8, 4.2, .45, '#ffe9a0', 0, T_SHOP + .35);
   signQuads.push(signPlane(SLOT_OPEN, 2.4, .6, 1.7, T_SHOP + .7).translate(75.6, 2.6, z - .1));
+  signQuads.push(signPlane(SLOT_BIGIN, 3.6, .9, 5.2, T_SHOP + 1.0).translate(62.8, 2.75, z - .1));
   marqueeQuads.push(lit(new THREE.PlaneGeometry(18, .8).translate(cx - 2, 3.0, z + .26), T_SHOP + .5));
   const sp = glowQuad(22, 8, '#ffd38a', .45, -1, ON); sp.rotateX(-PI / 2); sp.translate(cx, .1, z + 3.5); glowQuads.push(sp);
 }
 
+// ---------- title teasers and the BIGGER running gag
+function billboardTex(top, sub, glow){ return canvasTex(1024, 320, (c, W, H) => {
+  rrect(c, 6, 6, W - 12, H - 12, 20); c.fillStyle = '#160a2a'; c.fill();
+  c.lineWidth = 8; c.strokeStyle = glow; c.shadowColor = glow; c.shadowBlur = 18; rrect(c, 22, 22, W - 44, H - 44, 14); c.stroke(); c.shadowBlur = 0;
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  const ty = sub ? H * .42 : H / 2; fitFont(c, top, 'NPTitle', 150, W - 90);
+  const g = c.createLinearGradient(0, ty - 70, 0, ty + 70); g.addColorStop(0, '#ffffff'); g.addColorStop(.42, '#9fc0ec'); g.addColorStop(.5, '#2b2f5a'); g.addColorStop(.54, '#ff9f5a'); g.addColorStop(.78, '#ffe3a8'); g.addColorStop(1, '#ff8fdc');
+  c.lineJoin = 'round'; c.lineWidth = 12; c.strokeStyle = '#2a0b4d'; c.strokeText(top, W / 2, ty); c.fillStyle = g; c.fillText(top, W / 2, ty);
+  if (sub){ fitFont(c, sub, 'NPSign', 56, W - 160); c.fillStyle = '#59f3ff'; c.shadowColor = '#59f3ff'; c.shadowBlur = 14; c.fillText(sub, W / 2, H * .79); }
+}); }
+{
+  // desert billboard on the way in
+  const g = new THREE.Group();
+  townLit.push(...[-4.5, 4.5].map(px => B(.5, 7.2, .5, px, 3.6, 0, '#5a3b28').applyMatrix4(new THREE.Matrix4().makeRotationY(.35)).translate(-17, 0, 262)));
+  const frame = B(14.8, 4.9, .3, 0, 9.4, -.1, '#2a1838'); frame.rotateY(.35); frame.translate(-17, 0, 262); townLit.push(frame);
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(14.4, 4.5), new THREE.MeshBasicMaterial({ map: billboardTex('NOSTALGIA PRO', 'Sunburn Valley, Exit 2', '#ff4fd8') }));
+  face.position.set(0, 9.4, .08); g.add(face); g.position.set(-17, 0, 262); g.rotation.y = .35; scene.add(g);
+}
+{
+  // rooftop neon teaser over Main Street, double sided so the aerial sees it too
+  const on = 10.3, tex = billboardTex('NOSTALGIA PRO', 'Bigger Than You Remember', '#59f3ff');
+  const f = lit(new THREE.PlaneGeometry(17, 5.3), on, 7.7).translate(-20.5, 15.5, -50.8);
+  const b = lit(new THREE.PlaneGeometry(17, 5.3), on, 7.7).rotateY(PI).translate(-20.5, 15.5, -51.2);
+  scene.add(new THREE.Mesh(mergeLit([f, b], true), lightify(new THREE.MeshBasicMaterial({ map: tex }), .06)));
+  townLit.push(B(17.4, 5.7, .3, -20.5, 15.5, -51, '#1a1024'), B(.4, 8, .4, -27, 10, -51, '#3a2a40'), B(.4, 8, .4, -14, 10, -51, '#3a2a40'));
+  glowQuads.push(glowQuad(30, 12, '#59f3ff', .4, 7.7, on).translate(-20.5, 15.5, -50.6));
+  bulbRect(new THREE.Vector3(-20.5, 15.5, -50.6), new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 1, 0), 17.8, 6.0, .5, '#ffe9a0', 0, on + .2);
+}
+{
+  // spray painted BIGGER on the Sundial Pawn wall (easy to miss behind the van)
+  const tex = canvasTex(512, 160, (c, W, H) => {
+    c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = 'italic 118px NPTitle';
+    c.save(); c.translate(W / 2, H / 2); c.rotate(-.06);
+    c.lineWidth = 16; c.strokeStyle = '#1b6b6b'; c.strokeText('BIGGER', 0, 0); c.fillStyle = '#ff4fd8'; c.fillText('BIGGER', 0, 0);
+    c.fillStyle = '#ff4fd8'; for (let i = 0; i < 14; i++){ const x = rr(-200, 200); c.fillRect(x, rr(10, 40), 4, rr(14, 46)); }
+    c.restore();
+  });
+  const g = new THREE.Mesh(new THREE.PlaneGeometry(8.4, 2.6), new THREE.MeshBasicMaterial({ map: tex, transparent: true, color: '#b8a6c8' }));
+  g.rotation.y = -PI / 2; g.position.set(23.82, 4.9, -130.5); scene.add(g);
+}
 // ============================================================ the rest of town: low buildings, strip malls, houses
 const sprawlBoxes = [], roofs = [], winP = [], winC = [], winOn = [];
 const sprawlMat = toon({});
@@ -1074,6 +1117,8 @@ const car = new THREE.Group(), carParts = {};
   carParts.flame = addFlare(chassis, .48, .38, 2.9, '#ff8a2a', .01, .01);
   carParts.beamMat = beamMat('#fff0c8', .1); chassis.add(beamPair([-.6, .6], .63, -2.6, 13, 1.7, carParts.beamMat));
   carParts.pool = poolMesh(5, 15, -10, '#ffe2a8'); car.add(carParts.pool); car.add(shadowMesh(3.4, 6.8));
+  const plate = new THREE.Mesh(new THREE.PlaneGeometry(.56, .28), new THREE.MeshBasicMaterial({ map: canvasTex(256, 128, (c, W, H) => { rrect(c, 2, 2, W - 4, H - 4, 12); c.fillStyle = '#f4efe2'; c.fill(); c.strokeStyle = '#2a0b4d'; c.lineWidth = 5; c.stroke(); c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = '20px NPSign'; c.fillStyle = '#d2461f'; c.fillText('SUNBURN VALLEY', W / 2, 24); fitFont(c, 'BIGGER', 'NPTitle', 64, W - 30); c.fillStyle = '#1d3557'; c.fillText('BIGGER', W / 2, 80); }), color: '#d8d4cc' }));
+  plate.position.set(0, .6, 2.57); chassis.add(plate);
   carParts.chassis = chassis; carParts.bodyMat = bodyMat; carParts.glassMat = glassMat;
   scene.add(car);
 }
@@ -1132,6 +1177,8 @@ const van = new THREE.Group(), vanParts = {};
   vanParts.tail = addFlare(chassis, 0, 1.25, 2.95, '#ff2a55', 2.6, .8);
   vanParts.beamMat = beamMat('#fff3c0', 0); vanParts.beams = beamPair([-.7, .7], .98, -2.8, 13, 1.8, vanParts.beamMat); chassis.add(vanParts.beams);
   vanParts.pool = poolMesh(5.5, 15, -10.5, '#ffe9b0'); van.add(vanParts.pool); van.add(shadowMesh(3.6, 7));
+  const stk = new THREE.Mesh(new THREE.PlaneGeometry(1.0, .25), new THREE.MeshBasicMaterial({ map: canvasTex(512, 128, (c, W, H) => { c.fillStyle = '#ffe14d'; c.fillRect(0, 0, W, H); c.fillStyle = '#2a0b4d'; c.fillRect(6, 6, W - 12, 6); c.fillRect(6, H - 12, W - 12, 6); c.textAlign = 'center'; c.textBaseline = 'middle'; fitFont(c, 'MY OTHER VAN IS BIGGER', 'NPTitle', 46, W - 30); c.fillText('MY OTHER VAN IS BIGGER', W / 2, H / 2 + 2); }), color: '#e0dcd0' }));
+  stk.position.set(.42, .95, 2.72); chassis.add(stk);
   vanParts.chassis = chassis; vanParts.mat = vanMat;
   scene.add(van);
 }
@@ -1264,7 +1311,7 @@ function fovAdj(v){ if (aspect >= 1) return v; const k = Math.min(1.95, .85 / as
 const vP = new THREE.Vector3(), vL = new THREE.Vector3(), vA = new THREE.Vector3(), vB = new THREE.Vector3();
 function bez3(out, a, b, c, d, t){ const u = 1 - t; return out.set(u*u*u*a.x + 3*u*u*t*b.x + 3*u*t*t*c.x + t*t*t*d.x, u*u*u*a.y + 3*u*u*t*b.y + 3*u*t*t*c.y + t*t*t*d.y, u*u*u*a.z + 3*u*u*t*b.z + 3*u*t*t*c.z + t*t*t*d.z); }
 function local(st, lx, ly, lz, out){ const c = Math.cos(st.yaw), s = Math.sin(st.yaw); return out.set(st.x + lx * c + lz * s, ly, st.z - lx * s + lz * c); }
-const SHAKES = [[T_FLARE, .3], [T_PULL, .6], [T_BOX, 1.1], [21.6, .45], [T_HIT, 1.4], [23.7, .5], [TITLE_T, .8]];
+const SHAKES = [[T_FLARE, .3], [T_PULL, .6], [T_BOX, 1.1], [21.6, .45], [T_HIT, 1.4], [23.7, .5], [TITLE_T, 1.7], [T_LAND, .6], [GROW[0], .7], [GROW[1], .85], [GROW[2], 1.2]];
 function shakeAt(T){ let a = 0; for (const [t, k] of SHAKES) if (T > t) a += k * Math.exp(-(T - t) * 5); return a; }
 const AER0 = new THREE.Vector3(67.5, 1.9, -284.6), AER1 = new THREE.Vector3(64, 48, -292), AER2 = new THREE.Vector3(30, 115, -395), AER3 = new THREE.Vector3(12, 172, -462), AERL = new THREE.Vector3(0, 0, -120);
 const cs = {}, vs = {}, tmpS2 = {};
@@ -1289,7 +1336,7 @@ function cameraAt(T){
     const u = sat((T - 28.8) / 4.8), e = 1 - Math.pow(1 - u, 2.4);
     bez3(vP, AER0, AER1, AER2, AER3, e);
     vB.set(70.5, 2.3, -298.5); vL.copy(vB).lerp(AERL, smooth(u * 1.25));
-    if (T > TITLE_T){ const d = ease((T - TITLE_T) / 4.6) * 50 + Math.max(0, T - END_T) * 2; vA.copy(AERL).sub(vP).normalize(); vP.addScaledVector(vA, d); }
+    if (T > TITLE_T){ const d = ease((T - TITLE_T) / 6) * 55 + Math.max(0, T - END_T) * 2; vA.copy(AERL).sub(vP).normalize(); vP.addScaledVector(vA, d); }
     fov = lerp(50, 56, e);
   }
   const s = shakeAt(T) * .14;
@@ -1445,15 +1492,21 @@ function updatePeople(T, st, v){
 }
 
 // ============================================================ overlays and title fx
-const elFade = $('fade'), elFlare = $('flare'), elBars = $('bars'), elTitle = $('title'), elFlash = $('flash'), elEnd = $('end'), elSkip = $('skip'), elStart = $('start'), elLens = $('lens'), elNeon = $('neon');
+const elWrap = document.querySelector('#title .wrap'), elFade = $('fade'), elFlare = $('flare'), elBars = $('bars'), elTitle = $('title'), elFlash = $('flash'), elEnd = $('end'), elSkip = $('skip'), elStart = $('start'), elLens = $('lens'), elNeon = $('neon');
 'IT\'S BIGGER'.split('').forEach((ch, i) => { const s = document.createElement('span'); s.textContent = ch === ' ' ? ' ' : ch; s.style.animationDelay = (0.55 + i * .075 + (i % 3) * .03).toFixed(3) + 's'; if (i === 9) s.className = 'buzz'; elNeon.appendChild(s); });
 const fx = $('fx'), fctx = fx.getContext('2d');
 const confetti = [];
 { const cr = rng(77); for (let i = 0; i < 170; i++){ const a = cr() * PI * 2, sp = 300 + cr() * 900; confetti.push({ vx: Math.cos(a) * sp, vy: Math.sin(a) * sp * .8 - 420, rot: cr() * 6, w: cr() * 14 - 7, spark: cr() < .35, col: ['#ff4fd8', '#59f3ff', '#ffd23f', '#7cff6b', '#ffffff', '#ff8a3d'][Math.floor(cr() * 6)], s: 6 + cr() * 8, d: cr() * .12 }); } }
+const sparkSets = [T_LAND, ...GROW].map((t0, j) => { const cr = rng(300 + j); return { t0, big: j === 3, p: Array.from({ length: 46 + j * 14 }, () => { const a = cr() * PI * 2; return { a, sp: 500 + cr() * 900 * (1 + j * .25), col: ['#fff6c8', '#ff4fd8', '#59f3ff', '#ffd23f'][Math.floor(cr() * 4)] }; }) }; });
+let neonCY = .62;
 function drawFx(T){
   const t = T - TITLE_T - .05, W = fx.width, H = fx.height, k = H / 900;
-  if (t < 0 || t > 4.5){ if (fx.dataset.dirty){ fctx.clearRect(0, 0, W, H); delete fx.dataset.dirty; } return; }
+  if (t < 0 || t > 6){ if (fx.dataset.dirty){ fctx.clearRect(0, 0, W, H); delete fx.dataset.dirty; } return; }
   fx.dataset.dirty = 1; fctx.clearRect(0, 0, W, H);
+  for (const S of sparkSets){ const tt = T - S.t0; if (tt < 0 || tt > .9) continue;
+    const ox = W / 2, oy = H * neonCY; fctx.globalAlpha = sat(1 - tt / .9); fctx.lineWidth = (S.big ? 4 : 3) * k;
+    for (const p of S.p){ const r = p.sp * (1 - Math.exp(-tt * 3.5)) / 3.5 * k, x = ox + Math.cos(p.a) * r * 1.5, y = oy + Math.sin(p.a) * r * .8 + 300 * tt * tt * k; fctx.strokeStyle = p.col; fctx.beginPath(); fctx.moveTo(x, y); fctx.lineTo(x - Math.cos(p.a) * 26 * k, y - Math.sin(p.a) * 14 * k); fctx.stroke(); } }
+  fctx.globalAlpha = 1;
   const ox = W / 2, oy = H * .4;
   for (const p of confetti){
     const tt = t - p.d; if (tt <= 0) continue;
@@ -1463,8 +1516,28 @@ function drawFx(T){
   }
   fctx.globalAlpha = 1;
 }
+function neonScale(T){
+  const ln = T - T_LAND; if (ln < 0) return 0;
+  let s = ln < .16 ? lerp(2.8, .72, 1 - Math.pow(1 - ln / .16, 3)) : .72 + (ln < .5 ? .08 * Math.exp(-(ln - .16) * 10) * Math.cos((ln - .16) * 22) : 0);
+  const steps = [.72, 1.0, 1.18, 1.38];
+  GROW.forEach((g, i) => { if (T >= g){ const kk = T - g; s = steps[i + 1] - (steps[i + 1] - steps[i]) * Math.exp(-kk * 9) * Math.cos(kk * 16); } });
+  return s;
+}
+function titleShake(T){ let a = 0; for (const [t, k] of [[TITLE_T, 1.4], [T_LAND, .6], [GROW[0], .7], [GROW[1], .85], [GROW[2], 1.2]]) if (T > t) a += k * Math.exp(-(T - t) * 7); return a; }
 function overlays(T){
-  elFade.style.opacity = (finished && pressed ? 1 : 0).toFixed(3);
+  let dim = finished && pressed ? 1 : 0;
+  if (!dim && T > TITLE_T - .9 && T < TITLE_T) dim = .62 * smooth((T - (TITLE_T - .9)) / .7);
+  elFade.style.opacity = dim.toFixed(3);
+  if (elTitle.classList.contains('show')){
+    const sc = neonScale(T), pulse = GROW.concat([T_LAND]).reduce((a, g) => a + (T > g ? Math.exp(-(T - g) * 6) : 0), 0);
+    elNeon.style.opacity = sc > 0 ? 1 : 0;
+    elNeon.style.transform = `rotate(-4deg) scale(${sc.toFixed(4)})`;
+    elNeon.style.filter = `brightness(${(1 + pulse * .8).toFixed(3)})`;
+    elWrap.style.scale = (1 + pulse * .035).toFixed(4);
+    const sk = titleShake(T), sx = Math.sin(T * 83) * sk * 16, sy = Math.sin(T * 67 + 1) * sk * 11;
+    elTitle.style.translate = `${sx.toFixed(1)}px ${sy.toFixed(1)}px`; canvas.style.translate = `${(sx * .6).toFixed(1)}px ${(sy * .6).toFixed(1)}px`;
+    if (sc > 0){ const r = elNeon.getBoundingClientRect(); neonCY = (r.top + r.height / 2) / window.innerHeight; }
+  } else { elTitle.style.translate = ''; canvas.style.translate = ''; }
   let fl = 0;
   if (T > T_FLARE && T < T_FLARE + .5) fl = Math.exp(-(T - T_FLARE - .03) * 8) * .28 * sat((T - T_FLARE) / .04);
   if (T > T_BOX && T < T_BOX + .3) fl = Math.max(fl, .2 * (1 - (T - T_BOX) / .3));
@@ -1601,16 +1674,23 @@ function buildEvents(){
   S(T_SHOP + .3, t => { tone(t, 60, .25, { type: 'square', gain: .08, to: 45, dest: A.sfx }); });
   S(T_SHOP + .85, t => { [84, 88, 91, 96, 100].forEach((n, i) => tone(t + i * .06, mtof(n), .7, { type: 'triangle', gain: .06, a: .003, r: .6, dest: A.revIn })); for (let i = 0; i < 10; i++) noise(t + .1 + rr(0, .4), .03, { f: rr(4000, 7000), q: 5, gain: .12, exp: true }); });
   S(28.8, t => { crash(t, .5); noise(t, 4.6, { type: 'lowpass', f: 250, fTo: 3800, q: 2, gain: .28, a: 3.2, r: 1.2 }); });
-  S(32.2, t => riser(t, 1.4));
-  for (let i = 0; i < 8; i++) S(32.4 + i * .15, t => snare(t, .3 + i / 8 * .9));
-  S(TITLE_T, sting); S(TITLE_T + .6, shineSfx); S(TITLE_T + .55, neonSfx);
+  // the build-up: riser, snare roll, a breath of silence, then the slam
+  S(31.8, t => riser(t, 1.5));
+  for (let i = 0; i < 12; i++) S(31.5 + i * .15, t => snare(t, .25 + i / 12 * 1.0));
+  S(TITLE_T - .3, t => { A.music.gain.cancelScheduledValues(t); A.music.gain.setTargetAtTime(.02, t, .02); noise(t, .3, { type: 'highpass', f: 1500, fTo: 12000, q: .7, gain: .3, a: .28, r: .02 }); });
+  S(TITLE_T - .01, t => { A.music.gain.cancelScheduledValues(t); A.music.gain.setValueAtTime(.5, t); });
+  S(TITLE_T, sting); S(TITLE_T + .55, neonSfx); S(TITLE_T + .62, shineSfx);
+  S(T_LAND, t => { kick(t, 1.2); snare(t, 1.1); crash(t, .8); stab(t, [60, 64, 67], .9); });
+  GROW.forEach((g, i) => S(g, t => { boom(t, .9 + i * .25); crash(t, .7 + i * .25); snare(t, 1 + i * .2); stab(t, [[65, 69, 72], [67, 71, 74], [72, 76, 79]][i], 1 + i * .3, i === 2 ? 4.2 : 1.2); }));
+  for (let i = 0; i < 10; i++) S(GROW[2] + .6 + i * .3, t => tone(t, mtof([84, 88, 91, 96][i % 4]), .4, { type: 'triangle', gain: .02, a: .004, r: .35, dest: A.revIn }));
   ev.sort((a, b) => a[0] - b[0]); return ev;
 }
+function stab(t, notes, v, dur = 1.2){ for (const n of notes){ for (const dt of [-8, 8]) tone(t, mtof(n), dur, { type: 'sawtooth', gain: .05 * v, a: .005, r: dur * .7, detune: dt, dest: A.music }); tone(t, mtof(n - 12), dur, { type: 'square', gain: .025 * v, a: .005, r: dur * .7, dest: A.revIn }); } }
 function bark(t){ tone(t, 520, .12, { type: 'sawtooth', gain: .28, to: 300, bp: 900, q: 3, dest: A.sfx }); tone(t + .13, 480, .1, { type: 'sawtooth', gain: .22, to: 280, bp: 900, q: 3, dest: A.sfx }); }
 function sting(t){
   for (const n of [36, 48, 55, 60, 64, 67, 74, 79]) for (const dt of [-7, 7]) tone(t, mtof(n), 3.8, { gain: .055, a: .01, r: 2.6, detune: dt, dest: A.music });
   for (const n of [48, 60, 64, 67]) tone(t, mtof(n), 3.4, { type: 'square', gain: .02, a: .01, r: 2.4, dest: A.revIn });
-  boom(t, 1.3); crash(t, 1.3); snare(t, 1.3);
+  boom(t, 1.7); crash(t, 1.5); snare(t, 1.4); tone(t, 45, 2.2, { type: 'sine', gain: .6, a: .002, r: 1.8, to: 24, dest: A.master });
   tone(t, 31, 1.3, { type: 'square', gain: .12, a: .002, r: 1.0, to: 26, dest: A.filt });
   [84, 88, 91, 96].forEach((n, i) => tone(t + .1 + i * .07, mtof(n), .8, { type: 'sine', gain: .07, a: .005, r: .7, dest: A.revIn }));
   for (let i = 0; i < 14; i++) noise(t + .05 + Math.random() * .5, .04, { f: 3000 + Math.random() * 4000, q: 4, gain: .12, exp: true });
@@ -1638,13 +1718,13 @@ function audioSkip(alreadyTitled){
   audioSkipped = true;
   const n = A.ctx.currentTime;
   for (const g of [A.music.gain, A.wind.gain, A.tire.gain, A.hum.gain]){ g.cancelScheduledValues(n); g.setTargetAtTime(0, n, .05); }
-  if (!alreadyTitled) setTimeout(() => { if (A.ctx.state !== 'running') return; const m = A.ctx.currentTime; A.music.gain.cancelScheduledValues(m); A.music.gain.setValueAtTime(.5, m); sting(m + .02); shineSfx(m + .64); neonSfx(m + .58); }, 160);
+  if (!alreadyTitled) setTimeout(() => { const m = A.ctx.currentTime; A.music.gain.cancelScheduledValues(m); A.music.gain.setValueAtTime(.5, m); A.t0 = m - T + .02; evIdx = events.findIndex(e => e[0] >= TITLE_T - .02); if (evIdx < 0) evIdx = events.length; audioSkipped = false; scheduler(); }, 120);
 }
 const vel = new THREE.Vector3(), rel = new THREE.Vector3(), camR = new THREE.Vector3(), es = {}, evs = {};
 function audioFrame(T){
   if (!A.master || A.ctx.state !== 'running') return;
   const drift = (A.ctx.currentTime - A.t0) - T;
-  if (Math.abs(drift) > .15 && !audioSkipped && !finished) A.t0 = A.ctx.currentTime - T;
+  if (Math.abs(drift) > .15 && !audioSkipped && T < END_T) A.t0 = A.ctx.currentTime - T;
   const off = finished && pressed, now = A.ctx.currentTime;
   const c = carState(T, es), v = vanState(T, evs);
   engineFrame(A.engCar, car, Math.max(c.v, 6), off ? 0 : 1, 0, T);
@@ -1693,7 +1773,7 @@ function finish(skipped){
   if (finished) return;
   finished = true; running = false; finishAt = performance.now();
   const had = elTitle.classList.contains('show');
-  if (skipped){ elStart.classList.add('gone'); started = true; if (T < TITLE_T + .5) T = TITLE_T + .5; audioSkip(had); }
+  if (skipped){ elStart.classList.add('gone'); started = true; if (T < TITLE_T - .12) T = TITLE_T - .12; audioSkip(had); }
   showTitle(false);
   elSkip.classList.add('gone');
   setTimeout(() => elEnd.classList.add('on'), skipped ? 1300 : 0);
@@ -1724,7 +1804,8 @@ function onGesture(e){
   } else if (onUI) return;
   if (t === 'keydown' || t === 'pointerdown' || t === 'touchstart' || t === 'mousedown' || t === 'click'){
     if (!started){ start(); return; }
-    if (finished) pressStart();
+    // only a fresh press counts, never the leftover events of the tap that hit Skip
+    if (finished && (t === 'pointerdown' || t === 'keydown') && e.timeStamp > finishAt + 400) pressStart();
   }
 }
 elSkip.addEventListener('pointerdown', e => { e.stopPropagation(); finish(true); });
@@ -1771,7 +1852,7 @@ function frame(now){
     if (T >= TITLE_T) showTitle(false);
     if (T >= END_T) finish(false);
     perfSample(dt);
-  } else if (finished) T += dt * .5;
+  } else if (finished) T += dt * (T < END_T ? 1 : .5);
   T = Math.max(0, T);
   updateWorld(T);
   const shimmer = cameraAt(T);
