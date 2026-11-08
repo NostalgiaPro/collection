@@ -12,6 +12,60 @@
   // build.js replaces the marked part with true (demo) or false (full), so the demo cannot be unlocked from config.js
   var DEMO = false;
 
+  // ---------- DLC: add-on packs (full game only, never the demo) ----------
+  // Each pack is one file in js/dlc/ that only registers itself: NP.DLC[id] = { id, name, prefix, data, hooks }.
+  // A pack is on only when its id is in NP.CONFIG.DLC and its file is loaded. In the demo the list is always empty.
+  // Hooks run in the order of NP.CONFIG.DLC. With no pack on, every hook below is skipped (see DLC_SYSTEM.md).
+  var DLC_ON = (function () {
+    if (DEMO) return [];
+    var want = Array.isArray(CFG.DLC) ? CFG.DLC : [], reg = NP.DLC || {}, out = [];
+    want.forEach(function (id) { if (typeof id === 'string' && reg[id] && reg[id].id === id && out.indexOf(id) < 0) out.push(id); });
+    return out;
+  })();
+  NP.DLC_ON = DLC_ON.slice();
+  var DLC_API = null; // filled in near the end of this file
+  function dlcOn(id) { return DLC_ON.indexOf(id) >= 0; }
+  function dlcPrefix(D) { return D.prefix || ('d' + String(D.id).replace(/^dlc/, '') + '_'); }
+  function dlcCall(D, name, args) {
+    var f = D && D.hooks && D.hooks[name];
+    if (typeof f !== 'function') return undefined;
+    try { return f.apply(D, [DLC_API].concat(args)); } catch (e) { if (window.console) console.warn('dlc ' + D.id + ' ' + name, e); return undefined; }
+  }
+  // every pack in turn; the result is ignored
+  function dlcRun(name) { var a = [].slice.call(arguments, 1); DLC_ON.forEach(function (id) { dlcCall(NP.DLC[id], name, a); }); }
+  // the first pack that answers (anything but undefined or null)
+  function dlcFirst(name) {
+    var a = [].slice.call(arguments, 1);
+    for (var i = 0; i < DLC_ON.length; i++) { var r = dlcCall(NP.DLC[DLC_ON[i]], name, a); if (r !== undefined && r !== null) return r; }
+    return null;
+  }
+  // a value handed from pack to pack; a pack that returns undefined leaves it as it was
+  function dlcPipe(name, v) {
+    var a = [].slice.call(arguments, 2);
+    DLC_ON.forEach(function (id) { var r = dlcCall(NP.DLC[id], name, [v].concat(a)); if (r !== undefined) v = r; });
+    return v;
+  }
+  function dlcHTML(name) {
+    if (!DLC_ON.length) return '';
+    var a = [].slice.call(arguments, 1), h = '';
+    DLC_ON.forEach(function (id) { var r = dlcCall(NP.DLC[id], name, a); if (typeof r === 'string') h += r; });
+    return h;
+  }
+  // a pack's extra list entries (magnets, goals, events), only the ones with the pack's own id prefix
+  function dlcData(key) {
+    var out = [];
+    DLC_ON.forEach(function (id) {
+      var D = NP.DLC[id], L = D.data && D.data[key], px = dlcPrefix(D);
+      if (Array.isArray(L)) L.forEach(function (x) { if (x && typeof x.id === 'string' && x.id.indexOf(px) === 0) out.push(x); });
+    });
+    return out;
+  }
+  function allMagnets() { return DLC_ON.length ? NP.MAGNETS.concat(dlcData('magnets')) : NP.MAGNETS; }
+  function allGoals() { return DLC_ON.length ? NP.GOALS_POOL.concat(dlcData('goals')) : NP.GOALS_POOL; }
+  function allEvents() { return DLC_ON.length ? NP.EVENTS.concat(dlcData('events')) : NP.EVENTS; }
+  // a pack's day name ("Holiday Rush"), when today is that pack's day
+  function dayTag() { return DLC_ON.length && S ? dlcFirst('dayName') || '' : ''; }
+
   // ---------- storage ----------
   // Works on itch.io, inside an iframe on thenostalgiapro.com, and opened straight from a folder (file://).
   // Keys are prefixed so they never collide with anything else on the same site, and the demo keeps
@@ -248,6 +302,7 @@
   function applyExtras(day, seed, end) {
     end = end || END;
     day.wx = weatherFor(seed);
+    if (DLC_ON.length) day.wx = dlcPipe('weather', day.wx, seed); // a pack may change the weather for its own day
     if (day.wx.id === 'rain') {
       day.stops.forEach(function (s) {
         if (s.rivalAt) { s.rivalAt += 75; if (s.rivalAt > end - 30) { s.rivalAt = null; s.rumor = false; } }
@@ -449,14 +504,15 @@
 
   // free: true for Free Play (a random Saturday that never counts as today's run)
   // season: true for a season Saturday (Home by sundown, SEASON.week, money and shelf carried over)
-  function newRun(m, free, season) {
+  // opt (DLC): { seed, dlc } a one-day run a pack starts from the title (its own seed, never saved)
+  function newRun(m, free, season, opt) {
     document.querySelectorAll('.callov').forEach(function (o) { if (o.parentNode) o.parentNode.removeChild(o); });
     hudCash = null;
     season = !DEMO && !!season && !!SEASON;
     m = DEMO ? 'noon' : season ? 'sundown' : (m || (S && S.mode) || 'sundown');
     free = !DEMO && !season && !!free;
     var date = season ? seasonDate(SEASON.week) : null;
-    var seed = season ? 'season-' + SEASON.id + '-' + date : free ? 'free-' + Math.random().toString(36).slice(2, 8) : todaySeed;
+    var seed = season ? 'season-' + SEASON.id + '-' + date : free ? (opt && opt.seed ? String(opt.seed) : 'free-' + Math.random().toString(36).slice(2, 8)) : todaySeed;
     var end = m === 'noon' ? NOON : END;
     var day = buildDay(seed, end);
     // Dex never shows up after the day is over (noon mode used to schedule him for the afternoon)
@@ -495,6 +551,13 @@
     if (!DEMO) addJerks(day, seed); // Round 6.4
     // Round 5: the visit streak cash, on the first Saturday you start on a new day
     if (!DEMO) { claimVisit(); if (S.visitBonus) S.toast = NP.LOGIN.line.replace('{n}', S.visitBonus.days).replace('{c}', S.visitBonus.cash); }
+    // DLC: last of all, so every base roll above is exactly what it was. Each pack uses its own seeded numbers.
+    if (DLC_ON.length) {
+      S.dlcRun = (opt && opt.dlc && dlcOn(opt.dlc)) ? opt.dlc : null;
+      var dinfo = { seed: seed, mode: m, season: season, free: free, week: S.week, date: date, run: S.dlcRun };
+      dlcRun('stores', day, dinfo);
+      dlcRun('buildDay', day, dinfo);
+    }
   }
 
   // ---------- rivals: who is out today, and where ----------
@@ -621,6 +684,8 @@
   }
   function unpackRun(r) {
     var stopId = r.stop && r.stop.__stop;
+    // DLC: a stop a pack added stays only if that pack is on here (or you already went there)
+    r.day.stops = r.day.stops.filter(function (x) { return !x.dlc || dlcOn(x.dlc) || x.visited || x.id === stopId; });
     r.stop = stopId ? r.day.stops.filter(function (x) { return x.id === stopId; })[0] || null : null;
     if (r.day.featured && r.day.featured.item && r.day.featured.item.__uid) {
       var uid = r.day.featured.item.__uid, found = null;
@@ -704,6 +769,8 @@
     SEASON = sv.season;
     ['rivals', 'mem', 'friend'].forEach(function (k) { if (!SEASON[k] || typeof SEASON[k] !== 'object') SEASON[k] = {}; });
     if (!Array.isArray(SEASON.banned)) SEASON.banned = [];
+    // DLC state is optional (an r6.9b save has none). A pack keeps its own part, SEASON.dlc[id].
+    if (SEASON.dlc != null && (typeof SEASON.dlc !== 'object' || Array.isArray(SEASON.dlc))) SEASON.dlc = {};
     cartOpen = false;
     if (sv.run) {
       try {
@@ -739,6 +806,7 @@
       (SEASON.clubMsg ? '<div class="wk-club">' + esc(SEASON.clubMsg) + '</div>' : '') +
       '<div class="wk-cash">You have <b>' + money(SEASON.cash) + '</b> for ' + esc(seasonLabelLc(w)) + '.</div>' +
       (w === NP.SEASON.weeks ? '<div class="wk-final">' + esc(NP.FINALE_NOTE) + '</div>' : '') +
+      dlcHTML('weekdays', w) +
       (rep ? '<div class="wk-riv"><b>Rival report.</b> ' + esc(rep) + '</div>' : '') +
       '<div class="wk-shelf">On the shelf this season: ' + SEASON.shelf.length + (SEASON.shelf.length ? ' (' + countsText(mediaCounts(SEASON.shelf)) + ')' : '') + '. ' + esc(NP.CATCH.question) + '</div>' +
       '</div><div class="btns center"><button class="big" data-act="startsat">' + esc(seasonLabelLc(w)) + ' &#9654;</button></div>' +
@@ -759,7 +827,7 @@
     var go = function () { track('intro_done'); step('f04_intro_done'); S.screen = 'map'; render(); window.scrollTo(0, 0); };
     music(null);
     track('saturday_start_' + S.week);
-    if (NP.Intro) NP.Intro.morning(app, { look: getLook(), runNo: S.runNo, label: seasonLabel(S.week), wx: S.wx, featured: S.day.featured, adFree: adFree, demo: false, mode: 'sundown',
+    if (NP.Intro) NP.Intro.morning(app, { look: getLook(), runNo: S.runNo, label: seasonLabel(S.week) + (dayTag() ? ' · ' + dayTag().toUpperCase() : ''), wx: S.wx, featured: S.day.featured, adFree: adFree, demo: false, mode: 'sundown',
       budget: S.cash, spotted: spottedText(), from: S.week > 1 ? 2 : 0 }, go);
     else go();
   }
@@ -885,6 +953,8 @@
     });
     all.forEach(function (o) { if (!used[o.id]) order.push(o); });
     var list = order.filter(function (s) { return !s.visited && !closedNow(s, S.time + costOf(s)); });
+    // DLC: a pack may reorder the route for its own day (Holiday Rush puts the 9 AM doorbusters first)
+    if (DLC_ON.length) list = dlcPipe('route', list) || list;
     // in the demo, leaving the swap meet ends the day, so it always goes last
     if (DEMO) list.sort(function (a, b) { return (a.type === 'flea') - (b.type === 'flea'); });
     // the Desert Pixel Expo is always the last stop, and the rest of the route has to leave time to get there by the doors (3 PM)
@@ -900,7 +970,7 @@
     // Round 3c: keep at least one of today's rotating stores on the route, so players who follow the big button still see them
     function isStore(x) { return STORE_TYPES.indexOf(x.type) >= 0; }
     function storesIn(l) { return l.filter(isStore).length; }
-    function keep(l, k) { return l[k].type === 'flea' || (isStore(l[k]) && storesIn(l) <= 1); }
+    function keep(l, k) { return l[k].keep || l[k].type === 'flea' || (isStore(l[k]) && storesIn(l) <= 1); } // .keep: a pack's must-see stop
     while (list.length && !fits(list)) {
       var fi = -1;
       for (var i = 0; i < list.length; i++) if (list[i].type === 'flea') fi = i;
@@ -1571,7 +1641,8 @@
 
   // ---------- the phone call: "Where are you going to put it?" ----------
   function partnerCall() {
-    var D = NP.STORIES.partner;
+    // DLC: a pack may swap the call for its own day (its version shows the true story tag only if it says so)
+    var D = (DLC_ON.length && dlcFirst('partnerCall')) || NP.STORIES.partner;
     track('partner_call');
     var ov = document.createElement('div');
     ov.className = 'callov';
@@ -1776,10 +1847,15 @@
     inlineChips.forEach(function (c) { if (Date.now() < c.until && c.el.parentNode !== slot) slot.appendChild(c.el); });
   }
   function magnets() { var m = store.get('magnets', {}); return m && typeof m === 'object' ? m : {}; }
+  // DLC: a pack's magnets (d1_...) only count while that pack is on; every other key counts the way it always did
+  function magnetCount() {
+    var on = {}; allMagnets().forEach(function (x) { on[x.id] = 1; });
+    return Object.keys(magnets()).filter(function (k) { return !/^d\d+_/.test(k) || on[k]; }).length;
+  }
   function magnet(id) {
     if (DEMO) return;
     var m = magnets(); if (m[id]) return;
-    var M = NP.MAGNETS.filter(function (x) { return x.id === id; })[0]; if (!M) return;
+    var M = allMagnets().filter(function (x) { return x.id === id; })[0]; if (!M) return;
     m[id] = S && S.season ? 'Saturday ' + S.week : 'yes';
     store.set('magnets', m);
     if (S) (S.newMagnets = S.newMagnets || []).push(id);
@@ -1790,7 +1866,7 @@
   function rankLine() {
     var n = store.get('finds', 0) || 0, k = rankOf(n), nx = NP.RANKS[k + 1];
     return 'Collector rank: <b>' + esc(NP.RANKS[k][1]) + '</b>' + (nx ? ' &middot; ' + (nx[0] - n) + ' more finds to ' + esc(nx[1]) : ' &middot; the top. The shelf is never full.') +
-      ' &middot; Fridge magnets: ' + Object.keys(magnets()).length + ' of ' + NP.MAGNETS.length;
+      ' &middot; Fridge magnets: ' + magnetCount() + ' of ' + allMagnets().length;
   }
   // the money in the top bar counts up or down to the new amount, with a few quiet ticks
   var hudCash = null;
@@ -1882,23 +1958,23 @@
   }
   function fridgeHTML() {
     var m = magnets();
-    return '<div class="fridge"><h3>The fridge</h3><div class="shelfnote">' + rankLine() + '</div><div class="magnets">' + NP.MAGNETS.map(function (x) {
+    return '<div class="fridge"><h3>The fridge</h3><div class="shelfnote">' + rankLine() + '</div><div class="magnets">' + allMagnets().map(function (x) {
       var got = !!m[x.id];
       return '<div class="mag' + (got ? ' got' : '') + '"><b>' + (got ? esc(x.name) : '?') + '</b><small>' + esc(x.how) + '</small></div>';
     }).join('') + '</div>' + tackleHTML() + '</div>';
   }
   // the demo's results: what is in your tackle box, and how much more the full game's want list has
   function demoTackle() {
-    var tb = tackle(), T = NP.DEMO_WANT_TEXT, got = NP.GOALS_POOL.filter(function (d) { return tb[d.id]; });
+    var tb = tackle(), T = NP.DEMO_WANT_TEXT, got = allGoals().filter(function (d) { return tb[d.id]; });
     if (!got.length) return '';
     return '<div class="demotackle"><b>' + esc(T.box) + ':</b> ' + got.map(function (d) { return esc(d.reward); }).join(', ') + '. ' +
-      esc(T.boxLine.replace('{have}', got.length).replace('{all}', NP.GOALS_POOL.length)) + '</div>';
+      esc(T.boxLine.replace('{have}', got.length).replace('{all}', allGoals().length)) + '</div>';
   }
   // the tackle box: want list rewards
   function tackleHTML() {
-    var tb = tackle(), W = NP.WANT_TEXT, have = NP.GOALS_POOL.filter(function (d) { return tb[d.id]; }).length;
-    return '<h3>' + esc(W.box) + ' <small class="tb-n">' + have + ' of ' + NP.GOALS_POOL.length + '</small></h3><div class="shelfnote">' + esc(W.boxNote) + '</div><div class="tackle">' +
-      NP.GOALS_POOL.map(function (d) {
+    var tb = tackle(), W = NP.WANT_TEXT, GP = allGoals(), have = GP.filter(function (d) { return tb[d.id]; }).length;
+    return '<h3>' + esc(W.box) + ' <small class="tb-n">' + have + ' of ' + GP.length + '</small></h3><div class="shelfnote">' + esc(W.boxNote) + '</div><div class="tackle">' +
+      GP.map(function (d) {
         var n = tb[d.id] || 0;
         return '<div class="tb-it' + (n ? ' got' : '') + '"><b>' + (n ? esc(d.reward) + (n > 1 ? ' <span class="tb-x">x' + n + '</span>' : '') : '?') + '</b><small>' + esc(d.name) + ': ' + esc(d.label) + '</small></div>';
       }).join('') + '</div>';
@@ -2387,10 +2463,13 @@
       st.items.splice(Math.min(2, st.items.length), 0, b);
     });
   }
-  function mboxOddsText() {
+  function mboxOddsText(it) {
+    var dt = it && it.dlc && dlcOn(it.dlc) ? dlcFirst('boxOdds', it) : null; // a pack's box prints its own real odds
+    if (dt) return dt;
     return 'Odds on the box: ' + NP.MBOX.odds.map(function (o) { return Math.round(o[1] * 100) + '% ' + o[2]; }).join(' · ') + '. Those are the real odds.';
   }
   function openMbox(box, price) {
+    if (box.dlc && dlcOn(box.dlc) && dlcFirst('openBox', box, price)) return; // a pack's box opens its own way
     var r = mulberry32(NP.hashStr(S.seed + '|mboxopen|' + box.uid));
     var x = r(), acc = 0, tier = 'junk';
     for (var i = 0; i < NP.MBOX.odds.length; i++) { acc += NP.MBOX.odds[i][1]; if (x < acc) { tier = NP.MBOX.odds[i][0]; break; } }
@@ -2475,7 +2554,7 @@
   // ---------- the want list (mini-goals, Round 3c.1) ----------
   function goalDef(id) {
     if (DEMO) return (NP.DEMO_WANT || []).filter(function (g) { return g.id === id; })[0] || null;
-    return NP.GOALS_POOL.filter(function (g) { return g.id === id; })[0] || null;
+    return allGoals().filter(function (g) { return g.id === id; })[0] || null;
   }
   // the demo's want list: one easy entry at the yard sale, one at the swap meet. They run until noon and cannot fail.
   function demoGoal() {
@@ -2515,6 +2594,7 @@
     if (f.noManual && !(it.flags && it.flags.noManual)) return false;
     if (f.stop && !(st && st.type === f.stop)) return false;
     if (f.dig && !(st && (st.dig || []).indexOf(it) >= 0)) return false;
+    if (f.dlc && it.dlc !== f.dlc) return false; // DLC: only things that pack made
     if (ctx) {
       if (f.max && ctx.price > f.max) return false;
       if (f.haggle && !(ctx.price <= it.ask * 0.8)) return false;
@@ -2581,6 +2661,7 @@
     if (t === 'trade') return S.bag.filter(function (b) { return b.kind === 'game' || isMedia(b); }).length >= def.n + 1 && stopsAhead().some(function (st) { return !!buyerFor(st); });
     if (t === 'club') return stopsAhead().some(function (st) { return st.club === 'open'; });
     if (t === 'check') return itemsAhead(function (it) { return it.kind === 'game' && !it.checked; }) >= def.n + 2;
+    if (t === 'dlc') return !!dlcFirst('goalFeasible', def); // a pack's own kind of entry
     return true;
   }
   function maybeGoal() {
@@ -2594,6 +2675,8 @@
     // walking into the swap meet, the Expo or a yard sale: the entries made for that place come first, most of the time
     var here = pool.filter(function (d) { return d.at; });
     var def = here.length && r() < (here[0].type === 'tables' ? 0.6 : 0.2) ? here[0] : pool.filter(function (d) { return !d.at; })[0] || pool[0];
+    // DLC: on a pack's own day it may offer one of its entries instead (with its own random numbers)
+    if (DLC_ON.length) def = dlcPipe('goalPick', def, { recent: recent, lastType: lastType });
     if (!def) return;
     var mins = goalMins(def);
     S.goal = { id: def.id, end: S.time + mins, prog: def.type === 'yards' ? yardsToday() : 0, quickStops: {} };
@@ -2632,6 +2715,7 @@
     if (kind === 'trade' && t === 'trade') g.prog++;
     if (kind === 'club' && t === 'club') g.prog++;
     if (kind === 'check' && t === 'check') g.prog++;
+    if (t === 'dlc' && dlcFirst('goalTick', def, kind, it, ctx)) g.prog++;
     if (g.prog > before) {
       if (g.prog >= def.n) completeGoal(def);
       else { celebrate('goal', NP.WANT_TEXT.tag + ': ' + g.prog + ' of ' + def.n + ' · ' + def.name); comboUp(1); }
@@ -2657,8 +2741,8 @@
     if (DEMO) {
       track('wantlist_done'); track('wantlist_done_' + def.id);
       setTimeout(function () { if (S && S.stop && !S.goal) { demoGoal(); if (S.goal) { var gb = document.querySelector('.goalbar'); if (gb) gb.outerHTML = goalBar(); else render(); } } }, 3300);
-      var have = NP.GOALS_POOL.filter(function (d) { return tb[d.id]; }).length;
-      if (S.goalsDone.length === 1) celebrate('unlock', NP.DEMO_WANT_TEXT.more.replace('{n}', NP.GOALS_POOL.length - have).replace('{all}', NP.GOALS_POOL.length));
+      var GPd = allGoals(), have = GPd.filter(function (d) { return tb[d.id]; }).length;
+      if (S.goalsDone.length === 1) celebrate('unlock', NP.DEMO_WANT_TEXT.more.replace('{n}', GPd.length - have).replace('{all}', GPd.length));
     }
     magnet('goal1'); if (S.goalsDone.length >= 5) magnet('goal5');
   }
@@ -2746,6 +2830,7 @@
       if (e.id === 'channel') return (s.type === 'yard' || s.type === 'thrift') && s.items.filter(function (it) { return it.state === 'avail' && isMedia(it); }).length >= 2;
       return true;
     });
+    if (DLC_ON.length) pool = dlcPipe('events', pool, s) || pool; // a pack may put its own surprise first (from allEvents)
     var e = pool[0]; if (!e) return;
     S.evUsed.push(e.id);
     s.event = { id: e.id, done: false };
@@ -2754,7 +2839,8 @@
   }
   function eventBox(s) {
     if (!s.event) return '';
-    var E = NP.EVENTS.filter(function (x) { return x.id === s.event.id; })[0]; if (!E) return '';
+    var E = allEvents().filter(function (x) { return x.id === s.event.id; })[0]; if (!E) return '';
+
     var h = '<div class="story event"><span class="truetag surp">' + esc(NP.EVENT_TAG) + '</span><div class="story-h">' + esc(E.label) + '</div>';
     if (!s.event.done) {
       var t = s.event.uid ? findItem(s.event.uid) : null;
@@ -2766,7 +2852,8 @@
     var s = S.stop; if (!s || !s.event || s.event.done) return;
     var id = s.event.id, r = mulberry32(NP.hashStr(S.seed + '|eventdo|' + s.id));
     s.event.done = true;
-    if (id === 'blow') {
+    if (DLC_ON.length && /^d\d+_/.test(id)) dlcRun('doEvent', s, id, r); // a pack's own surprise does its own thing
+    else if (id === 'blow') {
       var it = findItem(s.event.uid);
       if (it && it.state === 'avail') { it.ask = Math.max(1, Math.round(it.ask * 0.75)); it.blow = NP.CATCH.blow + ' The title screen pops up.'; it.inspected = true; }
       S.said.blow = true; magnet('blow');
@@ -3093,6 +3180,7 @@
       '<button class="cart-item mode" data-act="newgame">NEW GAME <small>12 Saturdays</small></button>' +
       '<button class="cart-item mode" data-act="start" data-mode="noon">BACK BY NOON <small>today\'s quick run</small></button>' +
       '<button class="cart-item" data-act="start" data-free="1" data-mode="sundown">RANDOM SATURDAY <small>a new one every time</small></button>' +
+      dlcHTML('menu') + // DLC: a pack's own title entries, right under Random Saturday
       '<button class="cart-item" data-act="shelf">HOME SHELF</button>' +
       '<button class="cart-item" data-act="howto">HOW TO PLAY</button>' +
       fxButton() +
@@ -3291,6 +3379,7 @@
       mall: '&#128722;', banned: '&#128682;', pal: '&#129309;', record: '&#127926;', rental: '&#128252;', expo: '&#127918;', rummage: '&#128230;' }[t] || '';
   }
   function stopBlurb(s) {
+    if (s.blurb) return s.blurb; // a pack's day can give a stop its own line
     return {
       yard: 'Cheap. Untested. Bring a flashlight.',
       sports: 'Rumor has it there is a whole bin of football games.',
@@ -3326,6 +3415,8 @@
     var fl = DEMO ? S.day.stops.filter(function (x) { return x.type === 'flea' && !x.visited; })[0] : null;
     if (fl) h += '<div class="rc-tease"><b>&#9733; ' + esc(fl.name) + '.</b> ' + esc(NP.DEMO_WANT_TEXT.tease) + '</div>';
     if (S.day.theme && S.history.length === 0) h += '<div class="rc-theme"><b>' + esc(S.day.theme.name) + '.</b> ' + esc(S.day.theme.line) + '</div>';
+    h += dlcHTML('routeCard');
+
     if (S.day.rivals && S.day.rivals.length) h += '<div class="rc-spotted"><b>Spotted today:</b> ' + esc(spottedText()) + '</div>';
     if (S.season && S.week === NP.SEASON.weeks && S.history.length === 0) h += '<div class="rc-final">' + esc(NP.FINALE_NOTE) + '</div>';
     if (S.day.ultra && !S.history.length && !DEMO) h += '<div class="rc-ultra">' + esc(NP.ULTRA_RUMOR) + '</div>';
@@ -3437,8 +3528,8 @@
     }
     if (it.featured) n.push(DEMO ? 'The featured lot. In the full version, there is a new one every day.' : 'Today\'s featured lot. Everyone playing today sees this exact box.');
     if (it.planted && !it.inspected) n.push('Complete in box for that price? That seems very generous.');
-    if (it.kind === 'merch') n.push('Official Nostalgia Pro merch. Worth nothing. Costs something.');
-    if (it.kind === 'mbox') n.push(it.opened ? 'You opened it. Inside: ' + it.inside + '.' : mboxOddsText());
+    if (it.kind === 'merch') n.push(it.dcard || 'Official Nostalgia Pro merch. Worth nothing. Costs something.');
+    if (it.kind === 'mbox') n.push(it.opened ? 'You opened it. Inside: ' + it.inside + '.' : mboxOddsText(it));
     if (it.flaw && (it.inspected || it.state !== 'avail')) n.push(NP.FLAW.tag + '. ' + NP.FLAW.note.replace('{f}', it.flaw));
     if (it.dailyTip && it.state === 'avail') n.push('This is the one from the daily tip.');
     if (it.jerkRare && it.state === 'avail') n.push(NP.JERK.rareNote);
@@ -3540,7 +3631,7 @@
         h += '<button class="offer full counter" data-act="offer" data-kind="counter" data-uid="' + it.uid + '"' + (it.counter > S.cash + creditHere() ? ' disabled' : '') + '>' + esc(NP.DEMO5.counterBtn.replace('{$}', money(it.counter))) + '</button>';
         offers(it).forEach(function (o) { if (o[0] === 'full') h += '<button class="offer full" data-act="offer" data-kind="full" data-uid="' + it.uid + '"' + (o[2] > S.cash + creditHere() ? ' disabled' : '') + '>' + o[1] + ' ' + money(o[2]) + '</button>'; });
       } else if (it.kind === 'mbox') {
-        h += '<button class="offer full" data-act="offer" data-kind="full" data-uid="' + it.uid + '"' + (it.ask > S.cash + creditHere() ? ' disabled' : '') + '>' + esc(NP.MBOX.btn) + '</button>';
+        h += '<button class="offer full" data-act="offer" data-kind="full" data-uid="' + it.uid + '"' + (it.ask > S.cash + creditHere() ? ' disabled' : '') + '>' + esc(it.boxBtn || NP.MBOX.btn) + '</button>';
       } else offers(it).forEach(function (o) {
         if (o[0] === 'lowball' && rivalHere('gary')) { h += '<button class="offer lowball" disabled aria-disabled="true">Gary already tried that</button>'; return; }
         h += '<button class="offer ' + o[0] + '" data-act="offer" data-kind="' + o[0] + '" data-uid="' + it.uid + '"' + (o[2] > S.cash + creditHere() ? ' disabled' : '') + '>' + o[1] + ' ' + money(o[2]) + '</button>';
@@ -3555,7 +3646,7 @@
     } else if (it.state === 'sold') h += '<div class="stamp">IN THE BAG ' + money(it.paid) + '</div>';
     else if (it.state === 'pulled') h += '<div class="stamp bad">OFF THE TABLE</div>';
     else if (it.state === 'kids') h += '<div class="stamp bad">' + esc(NP.STORIES.kids.stamp) + '</div>';
-    else if (it.state === 'gone') h += '<div class="stamp bad">' + (it.goneBy === 'brayden' ? 'BRAYDEN GOT IT (MOM\'S CARD)' : it.goneBy === 'wagon' ? esc(NP.STORIES.reseller.stamp) : it.goneBy === 'nerd' ? 'A NERD GOT IT' : it.goneBy === 'steve' ? 'SLAB STEVE GOT IT' : it.goneBy === 'vest' ? esc(NP.STORIES.comeback.stamp) : esc(NP.RIVAL.name.toUpperCase()) + ' GOT IT') + '</div>';
+    else if (it.state === 'gone') h += '<div class="stamp bad">' + (it.goneStamp ? esc(it.goneStamp) : it.goneBy === 'brayden' ? 'BRAYDEN GOT IT (MOM\'S CARD)' : it.goneBy === 'wagon' ? esc(NP.STORIES.reseller.stamp) : it.goneBy === 'nerd' ? 'A NERD GOT IT' : it.goneBy === 'steve' ? 'SLAB STEVE GOT IT' : it.goneBy === 'vest' ? esc(NP.STORIES.comeback.stamp) : esc(NP.RIVAL.name.toUpperCase()) + ' GOT IT') + '</div>';
     h += '</div></div>';
     return h;
   }
@@ -3587,7 +3678,7 @@
     h += cameoBox(s);
     h += rivalNotes(s);
     // Round 3b: what is going on at this store today
-    h += eventBox(s) + storyBox(s) + caseBox(s) + palBox(s) + recordBox(s) + rentalBox(s) + bundleBox(s) + clubBox(s);
+    h += eventBox(s) + storyBox(s) + caseBox(s) + palBox(s) + recordBox(s) + rentalBox(s) + bundleBox(s) + clubBox(s) + dlcHTML('stopHTML', s);
     if (s.reseller && s.resold) h += '<div class="story">' + trueTag(NP.STORIES.reseller) + '<div class="story-h">' + esc(NP.STORIES.reseller.title) + '</div><div class="story-t">' + esc(NP.STORIES.reseller.line) + '</div></div>';
     if (adLevel() >= 2) h += '<div class="poster">' + (adFree ? 'POSTER: The Ad-Less Edition. No posters. (Except this one.)' : 'POSTER: Nostalgia Pro: The Shelf Dust. Now in Sealed. Gift Shop open till ' + endLabel() + '.') + '</div>';
     if (S.toast) { h += '<div class="toast">' + esc(S.toast) + '</div>'; S.toast = ''; }
@@ -3642,6 +3733,7 @@
       if (!calm() && !ybLoop) ybTick();
     }
     if (buys) soonCheckTips();
+    if (DLC_ON.length) dlcRun('afterStop', s);
   }
 
   // the way out of a stop: straight to the next stop on the route, or back to the map
@@ -3799,6 +3891,7 @@
     if (s.type === 'mall' && s.scene === 'uturn') { spend(5); S.ev.uturn = true; track('mall_uturn'); }
     // Round 3c replay pack: the clock for quick finds, goal progress, a surprise now and then, a new goal now and then
     S.stopArrive = S.time;
+    if (DLC_ON.length) dlcRun('arrive', s); // extra sections inside a stop get set up here
     if (!DEMO) { goalTick('stop'); maybeEvent(s); maybeGoal(); nearMissGrab(s); }
     else demoGoal();
     progress('enter', s);
@@ -3867,7 +3960,8 @@
     if (it.kind === 'standee') { S.ev.standee = true; track('standee_bought'); magnet('standee'); }
     if (it.ex && S.stop.type === 'expo') { magnet('nerds'); track('expo_exclusive_bought'); }
     if (punchHere()) { K().punch++; saveK(); }
-    if (!S.said.partner && (it.kind === 'standee' || (S.day.partner && price >= 30))) { S.said.partner = true; S.callNow = true; }
+    if (!S.said.partner && (it.kind === 'standee' || (S.day.partner && price >= (S.day.partnerAt || 30)))) { S.said.partner = true; S.callNow = true; }
+    if (DLC_ON.length) dlcRun('bought', it, price, kind);
   }
 
   // ---------- Round 6.4: jerk sellers ----------
@@ -4592,7 +4686,7 @@
     var keptReseal = false, repro = false, dup = false, grail = false;
     items.forEach(function (b) {
       var v = 0, pts = 0, note = '';
-      if (b.kind === 'merch') { pts = -10; note = 'Merch. Worth nothing. You knew that.'; }
+      if (b.kind === 'merch') { pts = -10; note = b.dnote || 'Merch. Worth nothing. You knew that.'; }
       else if (b.kind === 'grail') { pts = 100; grail = true; note = 'GRAIL! You found the game in the game. Shelf label: currently playing.'; }
       else if (b.kind === 'standee') { pts = b.signed ? 40 : 0; note = b.signed ? 'A life-size cardboard Chet Brickwall, signed by the actual Chet Brickwall. Now it is worth something.' : 'A life-size cardboard Chet Brickwall. Worth nothing. Guards the shelf.'; }
       else if (b.kind === 'photo') { v = b.base || 20; pts = Math.round(v); haul += v; note = 'A signed 8x10. It goes on the wall next to the shelf.'; }
@@ -4695,6 +4789,7 @@
       (S.ev.sold ? ' &middot; Sold or traded ' + S.ev.sold + ' for ' + money(S.ev.sales) : '') + '</div>' +
       '<div class="scores">' + esc(S.recordMsg || '') + '</div>' +
       (DEMO ? demoTackle() : '') +
+      dlcHTML('results', R) +
       rewardsHTML() +
       featuredReveal() + bannedList() +
       '<canvas id="card" width="1200" height="675"></canvas>' +
@@ -4754,7 +4849,7 @@
     if (DEMO) return '';
     var h = '';
     (S.pbLines || []).forEach(function (p) { h += '<div class="pb pb-' + p[0] + '">' + (p[0] === 'best' ? '&#9733; ' : '') + esc(p[1]) + '</div>'; });
-    var nm = (S.newMagnets || []).map(function (id) { var M = NP.MAGNETS.filter(function (x) { return x.id === id; })[0]; return M ? M.name : ''; }).filter(Boolean);
+    var nm = (S.newMagnets || []).map(function (id) { var M = allMagnets().filter(function (x) { return x.id === id; })[0]; return M ? M.name : ''; }).filter(Boolean);
     if (nm.length) h += '<div class="magnew">New fridge magnet' + (nm.length > 1 ? 's' : '') + ': <b>' + nm.map(esc).join(' &middot; ') + '</b></div>';
     if (S.rankUp) h += '<div class="pb pb-best">&#9733; Collector rank up: ' + esc(S.rankUp) + '</div>';
     h += '<div class="rankline">' + rankLine() + '</div>';
@@ -4790,7 +4885,7 @@
     ctx.fillStyle = C.red; ctx.fillRect(0, 0, W, 70);
     ctx.fillStyle = C.cyan; ctx.fillRect(0, 70, W, 6);
     NP.pixelText(ctx, 'NOSTALGIA PRO', 40, 17, 5, C.cream);
-    NP.pixelText(ctx, DEMO ? 'DEMO' : S.free ? 'RANDOM SATURDAY' : S.season ? seasonLabel(S.week) : 'SATURDAY #' + S.runNo, W - 40, 26, 3, C.cream, 'right');
+    NP.pixelText(ctx, DEMO ? 'DEMO' : S.free ? (dayTag() ? dayTag().toUpperCase() : 'RANDOM SATURDAY') : S.season ? seasonLabel(S.week) : 'SATURDAY #' + S.runNo, W - 40, 26, 3, C.cream, 'right');
     // you, standing next to your score
     if (NP.Char) NP.Char.draw(ctx, getLook(), 'down', 0, W - 374, 100, 4);
     // title
@@ -4886,7 +4981,7 @@
     // footer
     ctx.fillStyle = C.navy2; ctx.fillRect(0, H - 70, W, 70);
     // a season's seed is long, so the footer names the season instead (it used to run into the web address)
-    NP.pixelText(ctx, DEMO ? 'THE FREE DEMO' : (S.free ? 'RANDOM SATURDAY' : S.season ? 'SEASON' + (S.day.expo ? ' · THE EXPO' : '') : 'DAILY RUN ' + S.seed) + ' · ' + NP.MODES[modeOf()].name, 40, H - 46, 3, C.cream);
+    NP.pixelText(ctx, DEMO ? 'THE FREE DEMO' : (S.free ? (dayTag() ? dayTag().toUpperCase() : 'RANDOM SATURDAY') : S.season ? 'SEASON' + (S.day.expo ? ' · THE EXPO' : dayTag() ? ' · ' + dayTag().toUpperCase() : '') : 'DAILY RUN ' + S.seed) + ' · ' + NP.MODES[modeOf()].name, 40, H - 46, 3, C.cream);
     NP.pixelText(ctx, 'THENOSTALGIAPRO.COM', W - 40, H - 46, 3, C.cyan, 'right');
     if (items.length > show.length) NP.pixelText(ctx, '+' + (items.length - show.length) + ' MORE', W / 2 - 40, H - 42, 2, C.gold, 'center');
     // scanlines
@@ -4895,7 +4990,8 @@
 
   function shareText() {
     var R = S.result;
-    return 'Nostalgia Pro, ' + (DEMO ? 'the free demo' : (S.free ? 'Random Saturday' : S.season ? 'season, ' + seasonLabelLc(S.week) : 'Saturday #' + S.runNo) + ', ' + NP.MODES[modeOf()].name) + ' (' + S.wx.temp + 'F)\n"' + R.title + '"\nScore ' + R.score + ' | Spent ' + money(R.spent) + ' | ' + pl(R.items.length, 'find') + '\nFeatured lot: ' + featuredStatus() + '\nIs it on the shelf? Play: thenostalgiapro.com';
+    var tg = dayTag();
+    return 'Nostalgia Pro, ' + (DEMO ? 'the free demo' : (S.free ? (tg || 'Random Saturday') : S.season ? 'season, ' + seasonLabelLc(S.week) + (tg ? ' · ' + tg : '') : 'Saturday #' + S.runNo) + ', ' + NP.MODES[modeOf()].name) + ' (' + S.wx.temp + 'F)\n"' + R.title + '"\nScore ' + R.score + ' | Spent ' + money(R.spent) + ' | ' + pl(R.items.length, 'find') + '\nFeatured lot: ' + featuredStatus() + '\nIs it on the shelf? Play: thenostalgiapro.com';
   }
 
   function shelve() {
@@ -4954,17 +5050,13 @@
       case 'howto': renderHowTo(); break;
       case 'howback': S = null; cartOpen = true; renderTitle(); window.scrollTo(0, 0); break;
       case 'start':
-        cartOpen = false;
-        SEASON = null; // a one-day run never touches the season
         var md = DEMO ? 'noon' : (el.getAttribute('data-mode') === 'noon' ? 'noon' : 'sundown');
         var fr = !DEMO && el.getAttribute('data-free') === '1';
-        if (!DEMO && !fr) store.set('mode', md);
-        step('f03_mode_' + md + (fr ? '_free' : ''));
-        var begin = function () { beginSaturday(md, fr); };
-        // the demo gets you to the first find fast: a look is picked for you (change it any time from the menu)
-        if (DEMO && NP.Creator && !hasLook() && NP.Char) { store.set('look', NP.Char.normalize(NP.Char.random(Math.random, { noBrand: true }))); track('creator_skipped'); begin(); }
-        else if (NP.Creator && !hasLook()) showCreator(begin, 'Looks good. Start Saturday');
-        else begin();
+        startOneDay(md, fr, null);
+        break;
+      case 'dlc': // a pack's own button: data-dlc is the pack, data-v what it does
+        var DP = NP.DLC && NP.DLC[el.getAttribute('data-dlc')];
+        if (DP && dlcOn(DP.id)) dlcCall(DP, 'act', [el.getAttribute('data-v'), el]);
         break;
       case 'continue': cartOpen = false; step('f03_continue'); continueGame(); break;
       case 'democontinue': step('f03_continue'); continueDemo(); break;
@@ -5158,13 +5250,25 @@
     leaveGate();
   });
 
+  // the title menu's one-day runs (Back by noon, Random Saturday, and a pack's own Saturday: opt { seed, dlc })
+  function startOneDay(md, fr, opt) {
+    cartOpen = false;
+    SEASON = null; // a one-day run never touches the season
+    if (!DEMO && !fr) store.set('mode', md);
+    step('f03_mode_' + md + (fr ? '_free' : '')); // the same funnel step as r6.9b (a pack counts its own start, dlc1_title_start)
+    var begin = function () { beginSaturday(md, fr, opt); };
+    // the demo gets you to the first find fast: a look is picked for you (change it any time from the menu)
+    if (DEMO && NP.Creator && !hasLook() && NP.Char) { store.set('look', NP.Char.normalize(NP.Char.random(Math.random, { noBrand: true }))); track('creator_skipped'); begin(); }
+    else if (NP.Creator && !hasLook()) showCreator(begin, 'Looks good. Start Saturday');
+    else begin();
+  }
   // 1 COLLECTOR: Saturday morning, then the map
-  function beginSaturday(md, free) {
-    newRun(md, free);
+  function beginSaturday(md, free, opt) {
+    newRun(md, free, false, opt);
     var go = function () { track('intro_done'); step('f04_intro_done'); S.screen = 'map'; render(); window.scrollTo(0, 0); };
     music(null);
     if (DEMO) { S.toast = NP.DEMO5.start; return go(); } // the demo skips the morning scenes and starts on the town map
-    if (NP.Intro) NP.Intro.morning(app, { look: getLook(), runNo: S.runNo, label: DEMO ? 'DEMO SATURDAY' : S.free ? 'RANDOM SATURDAY' : 'SATURDAY #' + S.runNo, wx: S.wx, featured: S.day.featured, adFree: adFree, demo: DEMO, mode: S.mode, spotted: DEMO ? '' : spottedText() }, go);
+    if (NP.Intro) NP.Intro.morning(app, { look: getLook(), runNo: S.runNo, label: DEMO ? 'DEMO SATURDAY' : S.free ? (dayTag() ? dayTag().toUpperCase() : 'RANDOM SATURDAY') : 'SATURDAY #' + S.runNo, wx: S.wx, featured: S.day.featured, adFree: adFree, demo: DEMO, mode: S.mode, spotted: DEMO ? '' : spottedText() }, go);
     else go();
   }
 
@@ -5218,6 +5322,7 @@
     if ((x = q('.tvad-ov .tvad-skip'))) return x.click();   // TV commercials and the merch break spot
     if ((x = q('.crt-overlay .skip'))) return x.click();
     if ((x = q('.unsp:not(.out)'))) return x.click();
+    if ((x = q('.dlcov [data-dlcx]'))) return x.click();     // a pack's card (Mall Santa Dash): its own close button
     if (q('.callov')) return;                               // the phone call wants an answer
     if (q('.loading-ov') || (townCtl && townCtl.isDriving && townCtl.isDriving())) return; // on the road
     if ((x = q('.wmap-ov .wmap-x'))) return x.click();
@@ -5282,6 +5387,67 @@
     }, 900);
   }
 
+  // ---------- DLC: what a pack's hooks may use, and switching packs on ----------
+  // A goal a pack starts by itself (Holiday Rush starts its line entry when the day starts). quiet: no chip (the bar shows it).
+  function startGoal(def, quiet) {
+    if (!S || !def) return;
+    var mins = goalMins(def);
+    S.goal = { id: def.id, end: S.time + mins, prog: 0, quickStops: {} };
+    S.goalHist = (S.goalHist || []).concat([def.id]);
+    track('goal_start_' + def.id);
+    if (!quiet) celebrate('goal', NP.WANT_TEXT.tag + ': ' + def.name + '. ' + def.label + ' (' + mins + ' min). Reward: ' + def.reward + '.');
+  }
+  function seasonDateOf(se, week) {
+    var p = String(se && se.start || '').split('-').map(Number);
+    if (p.length !== 3 || p.some(isNaN)) return null;
+    return iso(new Date(Date.UTC(p[0], p[1] - 1, p[2]) + (week - 1) * 7 * 86400000));
+  }
+  DLC_API = {
+    demo: DEMO, START: START, END: END, COND_MULT: COND_MULT,
+    state: function () { return S; }, season: function () { return SEASON; },
+    mulberry32: mulberry32, hash: function (s) { return NP.hashStr(String(s)); }, pick: pick, shuffle: shuffle,
+    makeItem: makeItem, makeStore: function (r, g) { return makeStore(r, g); }, openStop: openStop, costOf: costOf, planRoute: planRoute,
+    expoWeek: expoWeek, seasonDateOf: seasonDateOf, seasonLabelLc: seasonLabelLc, phoenixDate: phoenixDate,
+    endT: endT, fmtTime: fmtTime, money: money, esc: esc, pl: pl,
+    spend: spend, actCost: actCost, checkSundown: checkSundown, render: function () { render(); }, findItem: findItem, bagItem: bagItem,
+    bonus: bonus, comboUp: comboUp, magnet: magnet, celebrate: celebrate, reveal: reveal, confetti: confetti, track: track, sfx: sfx, calm: calm,
+    goalDef: goalDef, goalFeasible: goalFeasible, goalTick: goalTick, startGoal: startGoal, maybeGoal: maybeGoal,
+    startOneDay: startOneDay, rivalHit: rivalHit, saveSoon: saveSoon, isMedia: isMedia, estValue: estValue, rarityOf: rarityOf
+  };
+  // items a pack made carry their own words (dd: what it is, db: the back of the box, dtag/dlabel: the tag),
+  // so they still read right in a build without that pack (a season shelf, a save from a build that had it)
+  (function () {
+    var base = NP.itemInfo; if (!base) return;
+    NP.itemInfo = function (it, opts) {
+      if (it && it.dlc && (it.dd || it.dtag)) {
+        var tag = opts && opts.repro ? 'repro' : it.dtag || 'common';
+        return { tag: tag, label: NP.TAGS[tag] || it.dlabel || tag, d: it.dd || '', box: it.db || '' };
+      }
+      return base(it, opts);
+    };
+  })();
+  // a pack that is on: its sellers and tags join the tables (only names that are not taken), its style sheet goes in,
+  // and it may draw its own items (ids with its prefix). Everything else draws the usual way.
+  (function dlcInit() {
+    if (!DLC_ON.length) return;
+    function addTo(table, more) { if (table && more) Object.keys(more).forEach(function (k) { if (!(k in table)) table[k] = more[k]; }); }
+    DLC_ON.forEach(function (id) {
+      var D = NP.DLC[id], d = D.data || {};
+      addTo(NP.SELLERS, d.sellers); addTo(NP.TAGS, d.tags); addTo(NP.TAG_COLORS, d.tagColors); addTo(NP.TAG_SHORT, d.tagShort);
+      if (D.css) { try { var st = document.createElement('style'); st.setAttribute('data-dlc', id); st.textContent = D.css; (document.head || document.documentElement).appendChild(st); } catch (e) {} }
+    });
+    function packOf(it) {
+      var key = String(it && (it.art || it.id) || '');
+      for (var i = 0; i < DLC_ON.length; i++) { var D = NP.DLC[DLC_ON[i]]; if (key.indexOf(dlcPrefix(D)) === 0) return D; }
+      return null;
+    }
+    var baseDraw = NP.drawItem, baseKey = NP.iconKey, baseIcon = NP.drawItemIcon;
+    if (baseDraw) NP.drawItem = function (ctx, it, ox, oy, k) { var D = packOf(it); if (D && dlcCall(D, 'drawItem', [ctx, it, ox, oy, k || 1])) return; return baseDraw.apply(this, arguments); };
+    if (baseKey) NP.iconKey = function (it) { var D = packOf(it); var r = D ? dlcCall(D, 'iconKey', [it]) : null; return r || baseKey(it); };
+    if (baseIcon) NP.drawItemIcon = function (ctx, it, x, y, k) { var D = packOf(it); if (D && dlcCall(D, 'drawIcon', [ctx, it, x, y, k])) return true; return baseIcon.apply(this, arguments); };
+    dlcRun('init');
+  })();
+
   // what walk.js is allowed to touch
   NP.G = {
     state: function () { return S; }, END: END, rivalNotes: rivalNotes, rivalHit: rivalHit, rivalsAt: rivalsAt, endT: endT, endLabel: endLabel, sellHTML: sellHTML, creditHere: creditHere,
@@ -5296,7 +5462,8 @@
   };
 
   // test hooks (harmless in production)
-  window.__NP_TEST = { keep: function () { return K(); }, haggleLine: function () { return haggleLine(!!(S && S.stop && (S.stop.type === 'flea' || S.stop.type === 'expo'))); }, merchSpot: function (cb) { showMerchSpot(cb || function () {}); }, merchDue: function () { return merchSpotDue(); }, chip: function (lv, t) { celebrate(lv, t); }, spotCameo: function (id) { return spotCameo(id); }, playTV: function (w) { playTV(w || 'map'); },
+  window.__NP_TEST = { keep: function () { return K(); }, dlc: { on: DLC_ON.slice(), api: DLC_API, startGoal: startGoal },
+ haggleLine: function () { return haggleLine(!!(S && S.stop && (S.stop.type === 'flea' || S.stop.type === 'expo'))); }, merchSpot: function (cb) { showMerchSpot(cb || function () {}); }, merchDue: function () { return merchSpotDue(); }, chip: function (lv, t) { celebrate(lv, t); }, spotCameo: function (id) { return spotCameo(id); }, playTV: function (w) { playTV(w || 'map'); },
     // the season simulator used for the balance pass (test only; nothing in the game calls these)
     sim: {
       route: function () { return planRoute().map(function (x) { return x.id; }); },
