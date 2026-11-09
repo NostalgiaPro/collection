@@ -7,7 +7,7 @@
 // Where it shows up:
 //  * The licensed aisle comes with the record store, on any full game day the store is open (a season Saturday, a one
 //    day run, a Holiday Rush Saturday, a Last Day). There is no pack Saturday in a season, so the pack never competes
-//    with Holiday Rush, the Penny Bin League box or the Last Day, and those days keep their own day name.
+//    with Holiday Rush, the Dime Box Dynasty box or the Last Day, and those days keep their own day name.
 //  * On a season Saturday without the record store, about 1 in 3 times, one tie-in game or tape turns up at a yard sale,
 //    a thrift store or a pawn shop (one a day at most), so sets stay reachable.
 //  * The title entry BASED ON THE HIT MOVIE plays one Home by sundown day with the record store open all day.
@@ -20,7 +20,7 @@
 // Money: cash is whole dollars everywhere. Every price and discount here is rounded after any percentage, with a $1
 // minimum. Nothing from this pack, and nothing bought in the licensed aisle, can be sold back: the base sell list keeps
 // each owner's offer in S.sq, and this pack marks those things "not buying it" there for the stop you are at (the same
-// way Penny Bin League and the Last Day do).
+// way Dime Box Dynasty and the Last Day do).
 // Score: every pack item is a game or a tape worth at least $2 loose, and the aisle never offers anything already on
 // your shelf or anywhere else in town today, so no pack item can cost points.
 var NP = window.NP || {};

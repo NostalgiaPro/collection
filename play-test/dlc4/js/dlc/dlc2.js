@@ -1,4 +1,4 @@
-// Nostalgia Pro DLC 2: Penny Bin League. Full game only (never the demo).
+// Nostalgia Pro DLC 2: Dime Box Dynasty, sponsored by Storage Beers. Full game only (never the demo).
 // The Sports Bin Guy at the Cul-de-sac Sale runs a league all season: a dime box of Scrimmage Season, one made-up
 // football game a year from '89 to '03, 10 cents each. Get all 15 years on your season shelf and you Complete the Run.
 // Release: Sat Nov 21, 2026. There is no date gate: the pack works on any date as soon as it is on.
@@ -31,10 +31,10 @@ NP.DLC = NP.DLC || {};
 
   // ---------- every word the pack says (house style: plain words, no dashes, played straight) ----------
   var T = {
-    name: 'Penny Bin League', series: 'Scrimmage Season', tag: 'Worth a Dime',
-    cardH: 'The Penny Bin League',
+    name: 'Dime Box Dynasty, sponsored by Storage Beers', series: 'Scrimmage Season', tag: 'Worth a Dime',
+    cardH: 'Dime Box Dynasty, sponsored by Storage Beers',
     card: "The Sports Bin Guy runs a league out of a shoebox: every year of Scrimmage Season, '89 to '03, 10" + CENT + ' each, because nobody else wants them. Get all 15 years on your shelf this season and you complete the run.',
-    hi: ['Penny Bin League is open. Every year of Scrimmage Season, a dime each. Nobody else wants them, so they are ours.',
+    hi: ['Dime Box Dynasty is open. Every year of Scrimmage Season, a dime each. Nobody else wants them, so they are ours.',
       'I keep the tab. You keep the games. That is the whole league.',
       "You have to see '93. It rains in one stadium. The players do not even notice. It is beautiful.",
       "Same game every year? Sure. That is what makes it a season."],
@@ -44,7 +44,7 @@ NP.DLC = NP.DLC || {};
     empty: 'The dime box is empty. "That is the league for today. See you next Saturday."',
     tab: 'Your dime tab: {c}. Every 10 dimes, $1 comes out of your cash. The tab carries over from Saturday to Saturday. Dimes still on it on Expo Saturday cost $1. He does not make change.',
     tabOne: 'Your dime tab: {c}. Every 10 dimes, $1 comes out of your cash. Dimes still on it at the end of the day cost $1. He does not make change.',
-    noSell: 'That is a Penny Bin League game. Nobody buys those back, not even for a dime.',
+    noSell: 'That is a Dime Box Dynasty game. Nobody buys those back, not even for a dime.',
     resTab: 'Dime tab: {c}. It carries over to next Saturday.',
     take: 'Take it · 10' + CENT,
     broke: 'You need at least $1 in cash to run a dime tab.',
@@ -61,22 +61,22 @@ NP.DLC = NP.DLC || {};
     badgeCard: 'You have the Complete the Run badge this season. He still keeps the box open for you.',
     gary: 'Gary leans over the dime box. "A nickel. For the whole box." The Sports Bin Guy: "It is a dime. It has always been a dime." Gary walks off with nothing.',
     dropH: 'A box from the Cul-de-sac Sale',
-    drop: 'The Sports Bin Guy stayed home today, but he dropped off a box here this morning. The lid says PENNY BIN LEAGUE · 10' + CENT + ' EACH · I DO NOT MAKE CHANGE.',
+    drop: 'The Sports Bin Guy stayed home today, but he dropped off a box here this morning. The lid says DIME BOX DYNASTY · 10' + CENT + ' EACH · I DO NOT MAKE CHANGE.',
     dropDig: 'Somebody says the football bin guy dropped off a shoebox in the back boxes this morning. Dig through the back boxes to find it.',
-    dropFound: 'Under the back boxes: a shoebox from the Cul-de-sac Sale. The lid says PENNY BIN LEAGUE · 10' + CENT + ' EACH · I DO NOT MAKE CHANGE.',
-    chipNew: "Penny Bin League: '{y} is new. {n} of 15.",
+    dropFound: 'Under the back boxes: a shoebox from the Cul-de-sac Sale. The lid says DIME BOX DYNASTY · 10' + CENT + ' EACH · I DO NOT MAKE CHANGE.',
+    chipNew: "Dime Box Dynasty: '{y} is new. {n} of 15.",
     chipRun5: 'Five league years in a row!',
     chipRun10: 'Ten league years in a row!',
     chipDone: 'COMPLETE THE RUN! All 15 years of Scrimmage Season.',
     route: 'The Cul-de-sac Sale has the dime box today: {n} league games at 10' + CENT + ' each.',
     routeDrop: 'The Sports Bin Guy stayed home, but he dropped off a league game at {stop}.',
-    res: 'Penny Bin League · today you added {list}. Your run: {n} of 15 years.',
-    resNone: 'Penny Bin League · {g} today, no new years. Your run: {n} of 15 years.',
-    resOne: 'Penny Bin League · {g} today. In a season they would count toward the run.',
+    res: 'Dime Box Dynasty · today you added {list}. Your run: {n} of 15 years.',
+    resNone: 'Dime Box Dynasty · {g} today, no new years. Your run: {n} of 15 years.',
+    resOne: 'Dime Box Dynasty · {g} today. In a season they would count toward the run.',
     resDone: "Complete the Run. All 15 years of Scrimmage Season, '89 to '03, on one shelf. The Sports Bin Guy took his hat off. May your shelf never be full.",
     resBadge: 'Complete the Run badge: earned on Saturday {w} this season.',
-    week: 'Penny Bin League standings: {table}. Your run: {n} of 15 years.',
-    weekDone: 'Penny Bin League standings: {table}. You have the Complete the Run badge.',
+    week: 'Dime Box Dynasty standings: {table}. Your run: {n} of 15 years.',
+    weekDone: 'Dime Box Dynasty standings: {table}. You have the Complete the Run badge.',
     you: 'You', guy: 'the Sports Bin Guy',
     nb: [['Doris', 'Doris from Quail Run'], ['Merle', 'Merle on Creosote Way']]
   };
@@ -373,7 +373,7 @@ NP.DLC = NP.DLC || {};
     data: {
       text: T, items: ITEMS, goals: GOALS,
       tags: { d2: T.tag }, tagColors: { d2: ['#2d8a3e', '#ffcc33'] }, tagShort: { d2: '10' + CENT },
-      league: 'The Penny Bin League (the Sports Bin Guy, at the Cul-de-sac Sale on Javelina Ct)',
+      league: 'Dime Box Dynasty, sponsored by Storage Beers (the Sports Bin Guy, at the Cul-de-sac Sale on Javelina Ct)',
       neighbors: T.nb.map(function (x) { return x[1]; })
     },
     css: '.tag.t-d2{background:#2d8a3e;color:#ffcc33}' +

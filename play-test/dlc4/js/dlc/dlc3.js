@@ -14,7 +14,7 @@
 //
 // Money: cash is whole dollars everywhere. Every price, bid and discount here is rounded after any percentage, with a
 // $1 minimum. Nothing from the closing sale can be sold back: the base sell list keeps each owner's offer in S.sq, and
-// this pack marks every Last Day buy as "not buying it" there for the stop you are at (the same way Penny Bin League does).
+// this pack marks every Last Day buy as "not buying it" there for the stop you are at (the same way Dime Box Dynasty does).
 var NP = window.NP || {};
 window.NP = NP;
 NP.DLC = NP.DLC || {};
