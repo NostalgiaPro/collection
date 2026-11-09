@@ -1,14 +1,15 @@
 // Nostalgia Pro DLC 2: Dime Box Dynasty, sponsored by Storage Beers. Full game only (never the demo).
-// The Sports Bin Guy at the Cul-de-sac Sale runs a league all season: a dime box of Scrimmage Season, one made-up
+// Donny (the Storage Beers owner) runs a yard sale at his house: a dime box of Scrimmage Season, one made-up
 // football game a year from '89 to '03, 10 cents each. Get all 15 years on your season shelf and you Complete the Run.
 // Release: Sat Nov 21, 2026. There is no date gate: the pack works on any date as soon as it is on.
 //
-// This file only registers itself. It never edits base data when it loads, and it adds no stops: the dime box lives
-// on the sports stop (s.d2) and the league lives in SEASON.dlc.dlc2. Every random number here comes from this pack's
-// own seeded generator ('dlc2|' + seed + '|...'), and its items are built here (not with makeItem), so the base day's
-// rolls and item numbers are exactly what they were without it.
+// This file only registers itself. It never edits base data when it loads. It does not add a new stop id: it clearly
+// relabels the base sports stop as Donny's House (Storage Beers Yard Sale) when the pack is on, puts the dime box
+// there (s.d2), and keeps the league in SEASON.dlc.dlc2. Base-day rolls and item numbers stay what they were.
+// Every random number here comes from this pack's own seeded generator ('dlc2|' + seed + '|...'), and its items are
+// built here (not with makeItem).
 //
-// Money: cash is whole dollars everywhere. A league game is 10 cents, so the Sports Bin Guy keeps one dime tab: every
+// Money: cash is whole dollars everywhere. A league game is 10 cents, so Donny keeps one dime tab: every
 // tenth dime takes $1 from your cash. In a season the tab carries over from Saturday to Saturday (it is saved in
 // SEASON.dlc.dlc2.tab), and dimes still on it are settled for $1 only when the league closes its books, on the Expo
 // Saturday ("I do not make change"). A one day run settles its tab when the haul is shelved. Cents are printed by
@@ -33,11 +34,11 @@ NP.DLC = NP.DLC || {};
   var T = {
     name: 'Dime Box Dynasty, sponsored by Storage Beers', series: 'Scrimmage Season', tag: 'Worth a Dime',
     cardH: 'Dime Box Dynasty, sponsored by Storage Beers',
-    card: "The Sports Bin Guy runs a league out of a shoebox: every year of Scrimmage Season, '89 to '03, 10" + CENT + ' each, because nobody else wants them. Get all 15 years on your shelf this season and you complete the run.',
-    hi: ['Dime Box Dynasty is open. Every year of Scrimmage Season, a dime each. Nobody else wants them, so they are ours.',
-      'I keep the tab. You keep the games. That is the whole league.',
+    card: "Donny runs Dime Box Dynasty out of a shoebox at his Storage Beers yard sale: every year of Scrimmage Season, '89 to '03, 10" + CENT + ' each, because nobody else wants them. Get all 15 years on your shelf this season and you complete the run.',
+    hi: ['Welcome to my yard sale. Dime Box Dynasty is open. Every year of Scrimmage Season, a dime each. Nobody else wants them, so they are ours.',
+      'I keep the tab. You keep the games. That is the whole league. Same rule as the arcade dream: start somewhere.',
       "You have to see '93. It rains in one stadium. The players do not even notice. It is beautiful.",
-      "Same game every year? Sure. That is what makes it a season."],
+      "Same game every year? Sure. That is what makes it a season. Come find me at Storage Beers someday too."],
     oneDay: 'This is a one day run. The dime box is open, but league standings and the set only count in a season.',
     boxH: 'The dime box',
     firm: 'League games are 10' + CENT + ' and they are not haggled. "It is a dime. It has always been a dime."',
@@ -52,32 +53,32 @@ NP.DLC = NP.DLC || {};
     onShelf: 'This year is already on your shelf this season.',
     took: "You drop a dime in his coffee can. Scrimmage Season '{y} goes in the bag.",
     dollar: ' Ten dimes. That is a dollar. He takes $1 and starts a new tab.',
-    leave: 'The Sports Bin Guy: "I do not make change." You pay $1 for the {n} on the tab.',
-    leaveEnd: 'The Sports Bin Guy closes the league books for the season: "I do not make change." You pay $1 for the {n} on the tab.',
-    waive: 'The Sports Bin Guy sees your empty wallet and waves off the dimes. "The league covers it."',
+    leave: 'Donny: "I do not make change." You pay $1 for the {n} on the tab.',
+    leaveEnd: 'Donny closes the league books for the season: "I do not make change." You pay $1 for the {n} on the tab.',
+    waive: 'Donny sees your empty wallet and waves off the dimes. "The league covers it. Put it toward a roll up door someday."',
     run: 'Your run: {n} of 15 years.',
     yrsLabel: 'League years on your shelf and in your bag',
     badge: 'Complete the Run',
     badgeCard: 'You have the Complete the Run badge this season. He still keeps the box open for you.',
-    gary: 'Gary leans over the dime box. "A nickel. For the whole box." The Sports Bin Guy: "It is a dime. It has always been a dime." Gary walks off with nothing.',
-    dropH: 'A box from the Cul-de-sac Sale',
-    drop: 'The Sports Bin Guy stayed home today, but he dropped off a box here this morning. The lid says DIME BOX DYNASTY · 10' + CENT + ' EACH · I DO NOT MAKE CHANGE.',
-    dropDig: 'Somebody says the football bin guy dropped off a shoebox in the back boxes this morning. Dig through the back boxes to find it.',
-    dropFound: 'Under the back boxes: a shoebox from the Cul-de-sac Sale. The lid says DIME BOX DYNASTY · 10' + CENT + ' EACH · I DO NOT MAKE CHANGE.',
+    gary: 'Gary leans over the dime box. "A nickel. For the whole box." Donny: "It is a dime. It has always been a dime." Gary walks off with nothing.',
+    dropH: 'A box from Donny\'s house',
+    drop: 'Donny stayed home today, but he dropped off a box from his Storage Beers yard sale this morning. The lid says DIME BOX DYNASTY · 10' + CENT + ' EACH · I DO NOT MAKE CHANGE.',
+    dropDig: 'Somebody says Donny from Storage Beers dropped off a shoebox in the back boxes this morning. Dig through the back boxes to find it.',
+    dropFound: 'Under the back boxes: a shoebox from Donny\'s Storage Beers yard sale. The lid says DIME BOX DYNASTY · 10' + CENT + ' EACH · I DO NOT MAKE CHANGE.',
     chipNew: "Dime Box Dynasty: '{y} is new. {n} of 15.",
     chipRun5: 'Five league years in a row!',
     chipRun10: 'Ten league years in a row!',
     chipDone: 'COMPLETE THE RUN! All 15 years of Scrimmage Season.',
-    route: 'The Cul-de-sac Sale has the dime box today: {n} league games at 10' + CENT + ' each.',
-    routeDrop: 'The Sports Bin Guy stayed home, but he dropped off a league game at {stop}.',
+    route: "Donny Beers (Storage Beers Yard Sale) has the dime box today: {n} league games at 10" + CENT + ' each.',
+    routeDrop: 'Donny stayed home, but he dropped off a league game at {stop}.',
     res: 'Dime Box Dynasty · today you added {list}. Your run: {n} of 15 years.',
     resNone: 'Dime Box Dynasty · {g} today, no new years. Your run: {n} of 15 years.',
     resOne: 'Dime Box Dynasty · {g} today. In a season they would count toward the run.',
-    resDone: "Complete the Run. All 15 years of Scrimmage Season, '89 to '03, on one shelf. The Sports Bin Guy took his hat off. May your shelf never be full.",
+    resDone: "Complete the Run. All 15 years of Scrimmage Season, '89 to '03, on one shelf. Donny took his hat off. May your shelf never be full.",
     resBadge: 'Complete the Run badge: earned on Saturday {w} this season.',
     week: 'Dime Box Dynasty standings: {table}. Your run: {n} of 15 years.',
     weekDone: 'Dime Box Dynasty standings: {table}. You have the Complete the Run badge.',
-    you: 'You', guy: 'the Sports Bin Guy',
+    you: 'You', guy: 'Donny',
     nb: [['Doris', 'Doris from Quail Run'], ['Merle', 'Merle on Creosote Way']]
   };
 
@@ -105,14 +106,14 @@ NP.DLC = NP.DLC || {};
   var BY = {}; ITEMS.forEach(function (e) { BY[e.y] = e; });
 
   // ---------- the three want list entries (NP.GOALS_POOL format) ----------
-  // They use the game's own 'buy' type (f.dlc plus an offer tag only this pack passes), not type 'dlc': with another
-  // pack on first, its goalFeasible and goalTick hooks answer false for every entry that is not theirs, and dlcFirst
+  // They use the game's own 'buy' type (f.dlc plus an offer tag only this pack passes), not type 'dlc': with Holiday
+  // Rush on first, its goalFeasible and goalTick hooks answer false for every entry that is not theirs, and dlcFirst
   // stops at the first answer, so a 'dlc' entry here would never be asked. This pack picks them (goalPick, with its own
   // check below) and ticks them (api.goalTick('buy', item, { offer: 'd2dime' | 'd2drop' | 'd2run5' })).
   var GOALS = [
     { id: 'd2_w01', name: 'Shoebox Shopper', label: 'Buy 2 league games from the dime box', type: 'buy', f: { dlc: ID, offer: 'd2dime' }, n: 2, d: 'easy', reward: 'Roll of Dimes (Never Opened)' },
     { id: 'd2_w02', name: 'Five Years Straight', label: 'Get 5 league years in a row on your shelf', type: 'buy', f: { dlc: ID, offer: 'd2run5' }, n: 1, d: 'mid', reward: 'Painted Yard Marker Bookend' },
-    { id: 'd2_w03', name: 'Out of the Shoebox', label: 'Find a league game somewhere other than the Cul-de-sac Sale', type: 'buy', f: { dlc: ID, offer: 'd2drop' }, n: 1, d: 'mid', reward: 'Shoebox Lid That Says 10' + CENT + ' Each' }
+    { id: 'd2_w03', name: 'Out of the Shoebox', label: "Find a league game somewhere other than Donny Beers", type: 'buy', f: { dlc: ID, offer: 'd2drop' }, n: 1, d: 'mid', reward: 'Shoebox Lid That Says 10' + CENT + ' Each' }
   ];
 
   // ---------- helpers ----------
@@ -272,7 +273,7 @@ NP.DLC = NP.DLC || {};
   }
 
   // ---------- the standings (one plain line on the weekday screen) ----------
-  // the two neighbors and the Sports Bin Guy score a few points a week, from this pack's own numbers
+  // the two neighbors and Donny score a few points a week, from this pack's own numbers
   function table(api, se, w) {
     var R = peek(se) || {}, rows = [[T.you, R.pts || 0, 0], [T.guy, 0, 1]].concat(T.nb.map(function (x, i) { return [x[0], 0, 2 + i]; }));
     for (var k = 1; k < w; k++) {
@@ -321,7 +322,7 @@ NP.DLC = NP.DLC || {};
   function leagueCard(api, s) {
     var S = api.state(), esc = api.esc, season = seasonOn(api), H = season ? have(api) : {};
     var h = '<div class="story d2-league"><div class="story-h">' + esc(T.cardH) + '</div><div class="story-t">' + esc(T.card) + '</div>' +
-      '<div class="bubble">The Sports Bin Guy: "' + esc(T.hi[(s.d2.hi || 0) % T.hi.length]) + '"</div>';
+      '<div class="bubble">Donny: "' + esc(T.hi[(s.d2.hi || 0) % T.hi.length]) + '"</div>';
     h += season ? runHTML(api, H) : '<div class="note">' + esc(T.oneDay) + '</div>';
     h += '<div class="story-h d2-boxh">' + esc(T.boxH) + '</div><div class="note">' + esc(T.firm) + '</div>';
     // Gary never comes to the sports stop, and his rule does not change. On a day he is out, he tries anyway.
@@ -437,7 +438,15 @@ NP.DLC = NP.DLC || {};
         "I can't go that low, friend. The storage unit rent is due Friday.",
         'A little higher? I am saving up for a golf sim. Golf sims are not cheap.'] },
     route: '{name} has a table at {stop} today. He owns Storage Beers Retro Arcade.',
-    spot: 'The owner, Donny, has a table at {stop} today.'
+    spot: 'The owner, Donny, has a table at {stop} today.',
+    // when the pack is on, the base sports stop is clearly relabeled as Donny's house / Storage Beers yard sale
+    houseName: "Donny Beers (Storage Beers Yard Sale)",
+    houseHello: [
+      'Hey! I am Donny. This is my house, and this yard sale funds Storage Beers Retro Arcade.',
+      'You saw the billboard? The arcade is still a dream. Today the dream starts with a yard sale and a dime box.',
+      'Welcome to the Storage Beers yard sale. Every dime in that shoebox goes toward a roll up door that opens on pinball.',
+      'Pull up a folding chair. The league is open, the grass is dry, and the tab is honest.'
+    ]
   };
   // the swap meet's tables, grouped exactly the way the game groups them (fleaGroups in game.js)
   function fleaTables(items) {
@@ -1098,7 +1107,7 @@ NP.DLC = NP.DLC || {};
     data: {
       text: T, items: ITEMS, goals: GOALS,
       tags: { d2: T.tag }, tagColors: { d2: ['#2d8a3e', '#ffcc33'] }, tagShort: { d2: '10' + CENT },
-      league: 'Dime Box Dynasty, sponsored by Storage Beers (the Sports Bin Guy, at the Cul-de-sac Sale on Javelina Ct)',
+      league: "Dime Box Dynasty, sponsored by Storage Beers (Donny Beers · Storage Beers Yard Sale)",
       neighbors: T.nb.map(function (x) { return x[1]; }),
       shoutout: SB, donny: DONNY,
       sellers: { donny: DONNY.seller }
@@ -1181,8 +1190,8 @@ NP.DLC = NP.DLC || {};
         if (v.indexOf('buy:') === 0) buy(api, v.slice(4));
         else if (v === 'sb' || v === 'sbmap') sbOpen(api, v === 'sbmap' ? 'map' : 'card');
       },
-      // the dime box at the sports stop (any full game day it is open), or, on a season Saturday he stays home,
-      // now and then one league year in a yard sale dig pile or a thrift bin
+      // the dime box at Donny's house (the relabeled sports stop, any full game day it is open), or, on a season
+      // Saturday he stays home, now and then one league year in a yard sale dig pile or a thrift bin
       buildDay: function (api, day, info) {
         var se = info.season ? api.season() : null, week = info.week || 0;
         var r = api.mulberry32(api.hash(ID + '|' + info.seed + '|box'));
@@ -1190,9 +1199,12 @@ NP.DLC = NP.DLC || {};
         donnyPlan(api, day, info); // Donny's table: its own numbers, so the league rolls below are unchanged
         var sp = day.stops.filter(function (x) { return x.type === 'sports'; })[0] || null, host = null;
         if (sp && api.openStop(sp)) {
+          // same stop id and base rolls; only the label and host voice change so the player can tell it is the DLC
+          sp.name = DONNY.houseName;
+          sp.seller = DONNY.key;
           var n = 2 + (r() < 0.5 ? 1 : 0) + (day.theme && day.theme.id === 'football' ? 1 : 0);
           var ys = draw(r, n, H, week, !!se, W_NEW);
-          sp.d2 = { box: ys.map(function (y, i) { return make(r, y, 'd2b' + i, 'sports'); }), n: 0, dollars: 0, hi: Math.floor(r() * T.hi.length) };
+          sp.d2 = { box: ys.map(function (y, i) { return make(r, y, 'd2b' + i, DONNY.key); }), n: 0, dollars: 0, hi: Math.floor(r() * T.hi.length), house: true };
         } else if (se) {
           var dr = api.mulberry32(api.hash(ID + '|' + info.seed + '|drop'));
           if (dr() < DROP_P) {
@@ -1234,6 +1246,11 @@ NP.DLC = NP.DLC || {};
         donnyOut(api, s); // before the swap meet's tables are laid out
         var S = api.state(); if (!S || !S.day || !S.day.d2) return;
         migrate(api); noSell(api);
+        // house hello (Donny's yard sale voice), set after the base arrive hello so the table lines never show here
+        if (s && s.d2 && s.d2.house && !s.d2.drop) {
+          var hh = DONNY.houseHello;
+          s.hello = hh[(s.d2.hi || 0) % hh.length];
+        }
         if (s && s.d2) api.track(s.d2.drop ? 'dlc2_drop_arrive' : 'dlc2_box_arrive');
       },
       // stopHTML runs before the base sell list in the same render, so the "not buying it" answers are in place first
@@ -1274,7 +1291,7 @@ NP.DLC = NP.DLC || {};
       goalPick: function (api, def, ctx) {
         var S = api.state(); if (!S || S.goal || !S.day || !S.day.d2) return undefined;
         if (def && /^d\d+_/.test(def.id)) return undefined; // another pack's pick stands
-        if (S.day.d1) return undefined;                     // another pack's own Saturday keeps its own want list
+        if (S.day.d1) return undefined;                     // a Holiday Rush Saturday keeps its own want list
         var hist = S.goalHist || [], recent = (ctx && ctx.recent) || [];
         var cands = GOALS.filter(function (g) { return hist.indexOf(g.id) < 0 && recent.indexOf(g.id) < 0 && feasible(api, g); });
         if (!cands.length) return undefined;
