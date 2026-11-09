@@ -1139,23 +1139,24 @@ const van = new THREE.Group(), vanParts = {};
   chassis.add(new THREE.Mesh(profileExtrude([[-2.02, 1.42], [-1.61, 2.24], [-.45, 2.24], [-.45, 1.42]], 2.1, null), new THREE.MeshPhongMaterial({ color: '#14102a', shininess: 100, envMap: ENV_N, combine: THREE.AddOperation, reflectivity: .35 })));
   // gang branding: painted name + badge logo (a sealed game box with a sparkle)
   const dtex = canvasTex(1024, 256, (c, W, H) => {
-    const bx = 120, by = H / 2;
-    c.fillStyle = '#2a0b4d'; c.beginPath(); c.arc(bx, by, 104, 0, PI * 2); c.fill();
-    c.fillStyle = '#ffd23f'; c.beginPath(); c.arc(bx, by, 92, 0, PI * 2); c.fill();
-    c.fillStyle = '#1f8a72'; c.beginPath(); c.arc(bx, by, 80, 0, PI * 2); c.fill();
-    c.fillStyle = '#fff'; rrect(c, bx - 34, by - 46, 68, 86, 6); c.fill(); c.fillStyle = '#ff4fd8'; c.fillRect(bx - 28, by - 38, 56, 40);
-    c.strokeStyle = 'rgba(255,255,255,.8)'; c.lineWidth = 4; c.beginPath(); c.moveTo(bx - 40, by - 30); c.lineTo(bx + 40, by + 20); c.stroke();
-    c.fillStyle = '#fffbe6'; c.translate(bx + 46, by - 50); c.beginPath(); for (let i = 0; i < 8; i++){ const r = i % 2 ? 7 : 22, a = i / 8 * PI * 2; c.lineTo(Math.cos(a) * r, Math.sin(a) * r); } c.fill(); c.setTransform(1, 0, 0, 1, 0, 0);
-    c.font = '30px NPTitle'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#2a0b4d'; c.fillText('MCC', bx, by + 58);
-    c.textAlign = 'left';
-    fitFont(c, 'THE MINT CONDITION', 'NPTitle', 70, W - 270); c.lineJoin = 'round'; c.lineWidth = 12; c.strokeStyle = '#2a0b4d'; c.strokeText('THE MINT CONDITION', 250, H * .34); c.fillStyle = '#ffffff'; c.fillText('THE MINT CONDITION', 250, H * .34);
-    fitFont(c, 'CREW', 'NPTitle', 96, 400); c.lineWidth = 14; c.strokeText('CREW', 250, H * .72); const g = c.createLinearGradient(0, H * .55, 0, H * .9); g.addColorStop(0, '#ffe14d'); g.addColorStop(1, '#ff4fd8'); c.fillStyle = g; c.fillText('CREW', 250, H * .72);
-    fitFont(c, 'Still in the Shrink Wrap', 'NPSign', 34, 360); c.lineWidth = 6; c.strokeText('Still in the Shrink Wrap', 600, H * .74); c.fillStyle = '#fffbe6'; c.fillText('Still in the Shrink Wrap', 600, H * .74);
+    c.fillStyle = '#14081f'; c.fillRect(0, 0, W, H);
+    c.fillStyle = '#ffe14d'; c.fillRect(0, 0, 22, H); c.fillRect(W - 22, 0, 22, H);
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    fitFont(c, 'Storage Beers', 'NPTitle', 118, W - 90);
+    c.lineJoin = 'round'; c.lineWidth = 16; c.strokeStyle = '#1a0828';
+    c.strokeText('Storage Beers', W / 2, H * 0.46);
+    c.fillStyle = '#fff6d0'; c.fillText('Storage Beers', W / 2, H * 0.46);
+    fitFont(c, 'PREFERRED PARTNER', 'NPSign', 34, W - 160);
+    c.fillStyle = '#ff4fd8'; c.fillText('PREFERRED PARTNER', W / 2, H * 0.8);
   });
   const d1 = new THREE.PlaneGeometry(4.0, 1.0).rotateY(PI / 2).translate(1.065, 1.66, .7), d2 = new THREE.PlaneGeometry(4.0, 1.0).rotateY(-PI / 2).translate(-1.065, 1.66, .7);
   const hoodTex = canvasTex(256, 256, (c) => { c.fillStyle = '#2a0b4d'; c.beginPath(); c.arc(128, 128, 120, 0, PI * 2); c.fill(); c.fillStyle = '#ffd23f'; c.beginPath(); c.arc(128, 128, 104, 0, PI * 2); c.fill(); c.font = '84px NPTitle'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#2a0b4d'; c.fillText('MCC', 128, 136); });
   chassis.add(new THREE.Mesh(merge([d1, d2], { uv: true }), new THREE.MeshBasicMaterial({ map: dtex, transparent: true, alphaTest: .1, color: '#dcd6ea' })));
   const hd = new THREE.Mesh(new THREE.PlaneGeometry(.75, .75).rotateX(-PI / 2 + .29), new THREE.MeshBasicMaterial({ map: hoodTex, transparent: true, alphaTest: .1, color: '#dcd6ea' })); hd.position.set(0, 1.31, -2.2); chassis.add(hd);
+  const nose = new THREE.Mesh(new THREE.PlaneGeometry(1.7, .48).rotateY(Math.PI), new THREE.MeshBasicMaterial({ map: canvasTex(1024, 280, (c, W, H) => { c.fillStyle = '#14081f'; c.fillRect(0, 0, W, H); c.fillStyle = '#ffe14d'; c.fillRect(0, 0, W, 18); c.fillRect(0, H - 18, W, 18); c.textAlign = 'center'; c.textBaseline = 'middle'; fitFont(c, 'Storage Beers', 'NPTitle', 120, W - 60); c.lineWidth = 16; c.strokeStyle = '#1a0828'; c.strokeText('Storage Beers', W / 2, H / 2); c.fillStyle = '#fff6d0'; c.fillText('Storage Beers', W / 2, H / 2); }) }));
+  nose.position.set(0, 1.05, -2.72); chassis.add(nose);
+  const roofSign = new THREE.Mesh(new THREE.PlaneGeometry(2.55, .62).rotateY(Math.PI).rotateX(-.35), new THREE.MeshBasicMaterial({ map: canvasTex(1024, 280, (c, W, H) => { c.fillStyle = '#14081f'; c.fillRect(0, 0, W, H); c.fillStyle = '#ffe14d'; c.fillRect(0, 0, W, 16); c.fillRect(0, H - 16, W, 16); c.textAlign = 'center'; c.textBaseline = 'middle'; fitFont(c, 'Storage Beers', 'NPTitle', 132, W - 48); c.lineWidth = 18; c.strokeStyle = '#1a0828'; c.strokeText('Storage Beers', W / 2, H / 2); c.fillStyle = '#fff6d0'; c.fillText('Storage Beers', W / 2, H / 2); }) }));
+  roofSign.position.set(0, 3.22, -1.15); chassis.add(roofSign);
   const lights = [];
   for (const x of [-.7, .7]) lights.push(paint(new THREE.CylinderGeometry(.22, .22, .08, 16).rotateX(PI / 2).translate(x, .98, -2.74), '#fff3c4'));
   lights.push(B(.3, .4, .06, -.85, 1.25, 2.73, '#ff1f4b'), B(.3, .4, .06, .85, 1.25, 2.73, '#ff1f4b'));
@@ -1177,8 +1178,8 @@ const van = new THREE.Group(), vanParts = {};
   vanParts.tail = addFlare(chassis, 0, 1.25, 2.95, '#ff2a55', 2.6, .8);
   vanParts.beamMat = beamMat('#fff3c0', 0); vanParts.beams = beamPair([-.7, .7], .98, -2.8, 13, 1.8, vanParts.beamMat); chassis.add(vanParts.beams);
   vanParts.pool = poolMesh(5.5, 15, -10.5, '#ffe9b0'); van.add(vanParts.pool); van.add(shadowMesh(3.6, 7));
-  const stk = new THREE.Mesh(new THREE.PlaneGeometry(1.0, .25), new THREE.MeshBasicMaterial({ map: canvasTex(512, 128, (c, W, H) => { c.fillStyle = '#ffe14d'; c.fillRect(0, 0, W, H); c.fillStyle = '#2a0b4d'; c.fillRect(6, 6, W - 12, 6); c.fillRect(6, H - 12, W - 12, 6); c.textAlign = 'center'; c.textBaseline = 'middle'; fitFont(c, 'MY OTHER VAN IS BIGGER', 'NPTitle', 46, W - 30); c.fillText('MY OTHER VAN IS BIGGER', W / 2, H / 2 + 2); }), color: '#e0dcd0' }));
-  stk.position.set(.42, .95, 2.72); chassis.add(stk);
+  const stk = new THREE.Mesh(new THREE.PlaneGeometry(1.72, .58), new THREE.MeshBasicMaterial({ map: canvasTex(1024, 340, (c, W, H) => { c.fillStyle = '#14081f'; c.fillRect(0, 0, W, H); c.fillStyle = '#ffe14d'; c.fillRect(0, 0, W, 22); c.fillRect(0, H - 22, W, 22); c.textAlign = 'center'; c.textBaseline = 'middle'; fitFont(c, 'Storage Beers', 'NPTitle', 150, W - 70); c.lineWidth = 18; c.strokeStyle = '#1a0828'; c.strokeText('Storage Beers', W / 2, H / 2 + 4); c.fillStyle = '#fff6d0'; c.fillText('Storage Beers', W / 2, H / 2 + 4); }) }));
+  stk.position.set(0, 1.42, 2.68); chassis.add(stk);
   vanParts.chassis = chassis; vanParts.mat = vanMat;
   scene.add(van);
 }
@@ -1616,6 +1617,7 @@ function noise(t, dur, o = {}){
   s.start(t, Math.random()); s.stop(t + dur + .05);
 }
 function kick(t, v = 1){ const c = A.ctx, o = c.createOscillator(), g = c.createGain(); o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(42, t + .14); g.gain.setValueAtTime(.95 * v, t); g.gain.exponentialRampToValueAtTime(.001, t + .38); o.connect(g); g.connect(A.drums); o.start(t); o.stop(t + .4); }
+function timpani(t, v = 1){ tone(t, 90, 1.05, { type: 'sine', gain: .42 * v, a: .008, r: .85, to: 42, dest: A.music }); noise(t, .22, { type: 'lowpass', f: 220, gain: .16 * v, exp: true, dest: A.drums }); }
 function snare(t, v = 1){ noise(t, .22, { f: 1900, q: .7, gain: .42 * v, exp: true, dest: A.drums, rev: .9 }); tone(t, 200, .1, { type: 'triangle', gain: .22 * v, a: .002, r: .08, dest: A.drums, to: 150 }); }
 function hat(t, v = 1){ noise(t, .05, { type: 'highpass', f: 7500, gain: .09 * v, exp: true, dest: A.drums }); }
 function crash(t, v = 1){ noise(t, 2.2, { type: 'highpass', f: 4500, gain: .32 * v, exp: true, rev: .6, dest: A.music }); }
@@ -1629,16 +1631,26 @@ function buildEvents(){
   const ev = [], S = (t, fn) => ev.push([t, fn]);
   PROG.forEach((ch, b) => {
     const t0 = b * BAR, notes = CH[ch];
-    if (!inW(t0 + .1, QUIET)) S(t0, t => { for (const n of notes){ for (const dt of [-9, 9]) tone(t, mtof(n), BAR + .35, { gain: .045, a: b === 0 ? .5 : .25, r: .5, detune: dt }); tone(t, mtof(n + 12), BAR + .3, { type: 'triangle', gain: .02, a: b === 0 ? .6 : .3, r: .5 }); } });
-    const root = notes[0] - 24 + (ch === 'C' ? 12 : 0);
-    for (let i = 0; i < 8; i++){ const tb = t0 + i * .3; if (b < 2 || inW(tb, QUIET) || tb >= TITLE_T) continue; const tense = tb >= 15 && tb < 16.8; S(tb, t => { tone(t, mtof(root + (!tense && i % 4 === 2 ? 12 : 0)), .26, { gain: tense ? .12 : .16, a: .005, r: .1 }); tone(t, mtof(root - 12), .26, { type: 'sine', gain: .2, a: .005, r: .1, dest: A.music }); }); }
-    for (let i = 0; i < 16; i++){ const tb = t0 + i * .15; if (!inW(tb, ARP)) continue; const arp = [notes[0] + 12, notes[1] + 12, notes[2] + 12, notes[0] + 24]; S(tb, t => tone(t, mtof(arp[[0, 1, 2, 3, 2, 1, 2, 3][i % 8]]), .12, { type: 'square', gain: .028, a: .003, r: .08 })); }
-    for (let i = 0; i < 4; i++){ const tb = t0 + i * BEAT; if (!inW(tb, DRUMS)) continue;
-      S(tb, i % 2 ? (t => snare(t)) : (t => kick(t))); S(tb, hat); S(tb + .3, hat);
-      if (inW(tb, CHASE)){ S(tb + .15, t => hat(t, .6)); S(tb + .45, t => hat(t, .6)); } }
-    if (inW(t0, CHASE)){ const lead = [notes[2] + 12, notes[1] + 12, notes[2] + 12, notes[0] + 24, notes[2] + 12, notes[1] + 12, notes[0] + 12, notes[1] + 12]; lead.forEach((n, i) => { const tb = t0 + i * .3; if (tb < 22.75) S(tb, t => tone(t, mtof(n), .28, { type: 'sawtooth', gain: .035, a: .01, r: .12, detune: 6 })); }); }
+    if (t0 >= TITLE_T) return;
+    const quiet = inW(t0 + .1, QUIET);
+    const chase = inW(t0, CHASE);
+    const late = t0 >= 25.8 && t0 < TITLE_T;
+    // Slow string pad. No eighth-note bass and no square-wave arp.
+    if (!quiet) S(t0, t => { for (const n of notes){ tone(t, mtof(n), BAR + .8, { type: 'triangle', gain: chase ? .05 : .038, a: b === 0 ? .8 : .4, r: .9, dest: A.music }); tone(t, mtof(n + 12), BAR + .6, { type: 'sine', gain: .016, a: .55, r: .8, dest: A.revIn }); } });
+    const root = notes[0] - 12;
+    if (!quiet && t0 < TITLE_T) S(t0, t => tone(t, mtof(root - 12), BAR + .4, { type: 'sine', gain: chase ? .16 : .1, a: .08, r: .5, dest: A.music }));
+    // Low drum on the bar, and one more during the chase. Not a four-on-the-floor hat pattern.
+    if ((t0 >= 10.8 && !quiet) || chase || late){
+      S(t0, t => timpani(t, chase || late ? 1 : .65));
+      if (chase) S(t0 + BAR * .5, t => timpani(t, .75));
+    }
+    // Brass swell on the chase and the run into the title, one note per bar, not a 16th lead.
+    if (chase || late){
+      const brassNote = notes[2] + (chase ? 12 : 0);
+      S(t0 + .08, t => { tone(t, mtof(brassNote), chase ? 1.1 : 1.6, { type: 'sawtooth', gain: chase ? .045 : .03, a: .16, r: .45, bp: 680, q: .8, dest: A.music }); tone(t, mtof(brassNote), chase ? 1.1 : 1.6, { type: 'triangle', gain: .03, a: .2, r: .5, detune: 8, dest: A.music }); });
+    }
   });
-  S(0, t => { const f = A.filt.frequency; f.cancelScheduledValues(t); f.setValueAtTime(600, t); f.exponentialRampToValueAtTime(1400, t + 4.8); f.exponentialRampToValueAtTime(3200, t + 10.8); f.exponentialRampToValueAtTime(5200, t + 16.8); f.setValueAtTime(5200, t + 22.7); f.exponentialRampToValueAtTime(900, t + 23.2); f.setValueAtTime(900, t + 25.6); f.exponentialRampToValueAtTime(4800, t + 26.6); });
+  S(0, t => { const f = A.filt.frequency; f.cancelScheduledValues(t); f.setValueAtTime(480, t); f.exponentialRampToValueAtTime(900, t + 8); f.exponentialRampToValueAtTime(1400, t + 16.8); f.setValueAtTime(1400, t + 22.7); f.exponentialRampToValueAtTime(700, t + 23.4); f.setValueAtTime(700, t + 25.6); f.exponentialRampToValueAtTime(1600, t + 31); });
   S(0, t => { const g = A.wind.gain; g.cancelScheduledValues(t); g.setValueAtTime(0, t); g.linearRampToValueAtTime(.12, t + 1); g.setValueAtTime(.12, t + 9.8); g.linearRampToValueAtTime(0, t + 11); });
   S(.02, t => { tone(t, 55, .7, { type: 'sawtooth', gain: .18, a: .01, r: .4, to: 130, glide: .35, dest: A.sfx, bp: 420, q: 1 }); noise(t, .9, { type: 'lowpass', f: 300, fTo: 1200, gain: .12, a: .3, r: .5 }); });
   // cut accents and story hits
@@ -1862,6 +1874,7 @@ function frame(now){
   window.__frames = (window.__frames || 0) + 1;
 }
 window.__np2boot = true;
+window.__np2score = { build: audioBuild, events: buildEvents, arm(ctx){ window.NP2A.ctx = ctx; A.master = null; A.ctx = ctx; } };
 if (DEBUG_T != null){
   elStart.classList.add('gone'); started = true;
   window.__setT = t => { DEBUG_T = t; if (t >= TITLE_T) showTitle(true); };

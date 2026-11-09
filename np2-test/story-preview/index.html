@@ -111,7 +111,7 @@ body {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":680908,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":1081228,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -218,6 +218,7 @@ const engine = new Engine(GODOT_CONFIG);
 	<!-- np2-intro-handoff -->
 		<!-- NP2 opening cutscene: plays first, then hands off to the title screen -->
 		<iframe id="np2-intro" src="intro/" allow="autoplay; fullscreen" title="Opening cutscene" style="position:fixed;inset:0;width:100%;height:100%;border:0;z-index:9999;background:#000"></iframe>
+		<script src="np2_input_watch.js"></script>
 		<script src="np2_intro_handoff.js"></script>
 		<script>
 (function () {
