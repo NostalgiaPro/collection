@@ -820,7 +820,7 @@ function billboardTex(top, sub, glow){ return canvasTex(1024, 320, (c, W, H) => 
 }
 {
   // rooftop neon teaser over Main Street, double sided so the aerial sees it too
-  const on = 10.3, tex = billboardTex('NOSTALGIA PRO', 'Bigger Than You Remember', '#59f3ff');
+  const on = 10.3, tex = billboardTex('NOSTALGIA PRO', 'After Dark On Main', '#59f3ff');
   const f = lit(new THREE.PlaneGeometry(17, 5.3), on, 7.7).translate(-20.5, 15.5, -50.8);
   const b = lit(new THREE.PlaneGeometry(17, 5.3), on, 7.7).rotateY(PI).translate(-20.5, 15.5, -51.2);
   scene.add(new THREE.Mesh(mergeLit([f, b], true), lightify(new THREE.MeshBasicMaterial({ map: tex }), .06)));
@@ -1209,6 +1209,20 @@ function carState(T, o = {}){
   if (T < TOWN_T0){ o.x = LANE_X; o.z = 324 + 46 * (9.0 - T); o.yaw = 0; o.v = 46; o.drift = 0; o.brake = 0; return o; }
   pathAt(townS(T), o);
   o.v = T > T_ARCEND ? Math.max(0, 20 * (1 - (T - T_ARCEND) / (T_STOP - T_ARCEND))) : townSpeed(T);
+  // Chase evasion: lane cuts, then a harder dodge as the van swings across.
+  if (T >= 17.0 && T < 21.15) {
+    const w = Math.sin((T - 17.0) * 2.15) * 1.2;
+    o.x += w;
+    o.yaw -= w * 0.16;
+  }
+  if (T >= 18.7 && T < 19.5) {
+    const u = (T - 18.7) / 0.8;
+    const dodge = Math.sin(u * Math.PI) * 1.65;
+    o.x -= dodge;
+    o.yaw += dodge * 0.18;
+    o.brake = u < 0.42 ? 1 : 0;
+    o.v *= u < 0.42 ? 0.7 : 1.12;
+  }
   o.drift = (T > 21.25 && T < 22.35) ? .6 * Math.sin(PI * (T - 21.25) / 1.1) : 0; o.yaw -= o.drift;
   const pull = smooth((T - (T_STOP - 2.2)) / 2.2); o.z = lerp(o.z, CURB_Z, pull); o.yaw -= .12 * Math.sin(pull * PI);
   o.brake = T > T_STOP - 1.6 ? 1 : 0; return o;
@@ -1644,6 +1658,14 @@ function buildEvents(){
       S(t0, t => timpani(t, chase || late ? 1 : .65));
       if (chase) S(t0 + BAR * .5, t => timpani(t, .75));
     }
+    if (chase || late) {
+      // Quarter-note string pulse and a backbeat snare during the chase. Not a hat grid.
+      for (let i = 0; i < 4; i++) {
+        S(t0 + BEAT * i, t => tone(t, mtof(root), .26, { type: 'sawtooth', gain: .075, a: .008, r: .1, bp: 440, q: 1.1, dest: A.music }));
+        if (i % 2 === 1) S(t0 + BEAT * i, t => snare(t, .5));
+      }
+      S(t0 + BEAT * 3, t => tone(t, mtof(notes[2] + 12), .32, { type: 'triangle', gain: .07, a: .01, r: .16, bp: 980, q: .7, dest: A.music }));
+    }
     // Brass swell on the chase and the run into the title, one note per bar, not a 16th lead.
     if (chase || late){
       const brassNote = notes[2] + (chase ? 12 : 0);
@@ -1825,7 +1847,33 @@ elSkip.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '
 $('mute').addEventListener('pointerdown', e => { e.stopPropagation(); setMuted(!muted); });
 $('replay').addEventListener('pointerdown', e => { e.stopPropagation(); replay(); });
 document.addEventListener('visibilitychange', () => { if (!A.ctx) return; if (document.hidden){ A.ctx.suspend && A.ctx.suspend(); } else if (!pressed){ const p = A.ctx.resume && A.ctx.resume(); if (p && p.catch) p.catch(() => {}); } });
-window.NP2Intro = { skip: () => finish(true), replay, mute: m => setMuted(!!m), get time(){ return T; }, get audioState(){ return A.ctx ? A.ctx.state : 'none'; }, get audioEvents(){ return evIdx; } };
+async function renderSpan(from, to) {
+  const rate = 44100;
+  const dur = Math.max(0.5, to - from);
+  const off = new OfflineAudioContext(2, Math.ceil(rate * dur), rate);
+  const saved = { ctx: window.NP2A.ctx, master: A.master, live: A.live };
+  A.master = null; A.live = false;
+  window.NP2A.ctx = off;
+  audioBuild();
+  const evs = buildEvents().filter(e => e[0] >= from - 0.05 && e[0] < to);
+  for (const [et, fn] of evs) { try { fn(0.05 + (et - from)); } catch (e) {} }
+  const buf = await off.startRendering();
+  A.master = saved.master; A.live = saved.live; window.NP2A.ctx = saved.ctx;
+  const ch0 = buf.getChannelData(0), ch1 = buf.numberOfChannels > 1 ? buf.getChannelData(1) : ch0;
+  const n = buf.length, bytes = n * 4 + 44;
+  const ab = new ArrayBuffer(bytes), v = new DataView(ab);
+  const wstr = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  wstr(0, 'RIFF'); v.setUint32(4, bytes - 8, true); wstr(8, 'WAVE'); wstr(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 2, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 4, true); v.setUint16(32, 4, true); v.setUint16(34, 16, true);
+  wstr(36, 'data'); v.setUint32(40, n * 4, true);
+  for (let i = 0; i < n; i++) {
+    const l = Math.max(-1, Math.min(1, ch0[i])), r = Math.max(-1, Math.min(1, ch1[i]));
+    v.setInt16(44 + i * 4, l * 32767, true); v.setInt16(46 + i * 4, r * 32767, true);
+  }
+  return ab;
+}
+window.NP2Intro = { skip: () => finish(true), replay, mute: m => setMuted(!!m), renderSpan, get time(){ return T; }, get audioState(){ return A.ctx ? A.ctx.state : 'none'; }, get audioEvents(){ return evIdx; } };
 
 // ============================================================ resize + adaptive quality
 function resize(){
