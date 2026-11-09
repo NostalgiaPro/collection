@@ -111,7 +111,7 @@ body {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":1081228,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":1577940,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -219,6 +219,26 @@ const engine = new Engine(GODOT_CONFIG);
 		<!-- NP2 opening cutscene: plays first, then hands off to the title screen -->
 		<iframe id="np2-intro" src="intro/" allow="autoplay; fullscreen" title="Opening cutscene" style="position:fixed;inset:0;width:100%;height:100%;border:0;z-index:9999;background:#000"></iframe>
 		<script src="np2_input_watch.js"></script>
+		<script>
+window.np2StartRescue = function () {
+	if (document.getElementById('np2-rescue')) return;
+	var f = document.createElement('iframe');
+	f.id = 'np2-rescue';
+	f.src = 'rescue/';
+	f.setAttribute('allow', 'autoplay; fullscreen');
+	f.title = 'Rescue';
+	f.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:0;z-index:10000;background:#000';
+	document.body.appendChild(f);
+};
+window.addEventListener('message', function (e) {
+	var f = document.getElementById('np2-rescue');
+	if (!f || e.source !== f.contentWindow) return;
+	if (!e.data || e.data.type !== 'np2rescue:finished') return;
+	if (f.parentNode) f.parentNode.removeChild(f);
+	window.__np2RescueFinished = true;
+	if (window.__np2RescueDone) window.__np2RescueDone();
+});
+		</script>
 		<script src="np2_intro_handoff.js"></script>
 		<script>
 (function () {
