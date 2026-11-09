@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rescue</title>
+<style>
+html,body{margin:0;height:100%;background:#12081c;overflow:hidden}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block}
+#fade{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:8}
+#fade.on{opacity:1}
+.bubble{position:fixed;z-index:6;max-width:min(520px,86vw);background:#fff8e8;color:#1a1028;border:4px solid #1a1028;border-radius:16px 16px 16px 4px;padding:14px 18px 16px;font:22px/1.3 system-ui,sans-serif;box-shadow:7px 7px 0 #1a1028;display:none}
+.bubble b{display:block;font:700 12px/1 system-ui,sans-serif;letter-spacing:.12em;margin-bottom:6px}
+.bubble.hero{right:6vw;bottom:22vh;border-radius:16px 16px 4px 16px}
+.bubble.radio{left:50%;bottom:8vh;transform:translateX(-50%);background:#14081f;color:#ffe14d;border-color:#ffe14d;box-shadow:7px 7px 0 #5a2048}
+#skip{position:fixed;top:16px;right:16px;z-index:9;background:#fff;color:#1a1028;border:0;border-radius:999px;padding:10px 16px;font-weight:700}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="fade"></div>
+<div id="bDonny" class="bubble"><b>DONNY</b><span></span></div>
+<div id="bHero" class="bubble hero"><b>YOU</b><span></span></div>
+<div id="bRadio" class="bubble radio"><b>RADIO</b><span></span></div>
+<button id="skip" type="button">SKIP</button>
+<script type="module">
+import * as THREE from 'three';
+const ASK = 'What happened to me?';
+const EXPLAIN = 'Something was controlling you. I broke its hold. You’re free now. I don’t know what it was.';
+const LINE_Q = "But… if you stopped me, who’s driving that?";
+const LINE_R = "You weren’t supposed to let him go.";
+const bDonny = document.getElementById('bDonny');
+const bHero = document.getElementById('bHero');
+const bRadio = document.getElementById('bRadio');
+const fade = document.getElementById('fade');
+
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#24143a');
+scene.fog = new THREE.Fog('#24143a', 18, 55);
+const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 90);
+camera.position.set(0.35, 2.15, 8.4);
+camera.lookAt(0.15, 1.4, -1.4);
+scene.add(new THREE.HemisphereLight('#b9a7e0', '#2a1438', 0.85));
+const moon = new THREE.DirectionalLight('#ffe6c4', 1.25);
+moon.position.set(-6, 10, 4);
+scene.add(moon);
+scene.add(new THREE.PointLight('#ff4fd8', 18, 24).translateX(4).translateY(3).translateZ(1));
+scene.add(new THREE.PointLight('#59f3ff', 12, 20).translateX(-5).translateY(2.5).translateZ(-2));
+
+function std(color, emissive, rough) {
+  return new THREE.MeshStandardMaterial({ color, emissive: emissive || '#000', roughness: rough == null ? 0.55 : rough, metalness: 0.05 });
+}
+function box(w, h, d, material) {
+  return new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
+}
+function textPlane(words, w, h, bg, fg, fontPx) {
+  const c = document.createElement('canvas');
+  c.width = 1024; c.height = Math.max(128, Math.round(1024 * h / w));
+  const g = c.getContext('2d');
+  g.fillStyle = bg; g.fillRect(0, 0, c.width, c.height);
+  g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle';
+  let px = fontPx;
+  g.font = '700 ' + px + 'px system-ui,sans-serif';
+  while (g.measureText(words).width > c.width - 64 && px > 24) {
+    px -= 4;
+    g.font = '700 ' + px + 'px system-ui,sans-serif';
+  }
+  g.fillText(words, c.width / 2, c.height / 2);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex }));
+}
+function shirtMaterial(base, words, fg) {
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 512;
+  const g = c.getContext('2d');
+  g.fillStyle = base; g.fillRect(0, 0, 512, 512);
+  g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle';
+  let px = 78;
+  g.font = '700 ' + px + 'px system-ui,sans-serif';
+  while (g.measureText(words).width > 440 && px > 28) {
+    px -= 2;
+    g.font = '700 ' + px + 'px system-ui,sans-serif';
+  }
+  g.fillText(words, 256, 270);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return new THREE.MeshStandardMaterial({ map: tex, roughness: 0.72, metalness: 0.02 });
+}
+
+const roadTex = document.createElement('canvas');
+roadTex.width = 128; roadTex.height = 512;
+{
+  const g = roadTex.getContext('2d');
+  g.fillStyle = '#2a1844'; g.fillRect(0, 0, 128, 512);
+  g.fillStyle = '#ffd23f';
+  for (let y = 0; y < 512; y += 64) g.fillRect(56, y, 16, 28);
+}
+const roadMap = new THREE.CanvasTexture(roadTex);
+roadMap.wrapS = roadMap.wrapT = THREE.RepeatWrapping;
+roadMap.repeat.set(1, 8);
+const road = new THREE.Mesh(new THREE.PlaneGeometry(7, 46), new THREE.MeshStandardMaterial({ map: roadMap, roughness: 0.9 }));
+road.rotation.x = -Math.PI / 2;
+scene.add(road);
+for (const side of [-4.2, 4.2]) {
+  const walk = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 46), std('#3a3150'));
+  walk.rotation.x = -Math.PI / 2; walk.position.x = side;
+  scene.add(walk);
+}
+const signs = [['PAWN', '#ff4fd8'], ['DINER', '#7dff6a'], ['NEON', '#59f3ff'], ['LOANS', '#ffe14d']];
+signs.forEach((pair, i) => {
+  const x = -6 + (i % 2) * 12;
+  const z = -4 - Math.floor(i / 2) * 6;
+  const bld = box(3.4, 3.2, 2.2, std('#3a2460'));
+  bld.position.set(x, 1.6, z);
+  scene.add(bld);
+  const win = box(2.4, 0.7, 0.08, new THREE.MeshStandardMaterial({ color: pair[1], emissive: pair[1], emissiveIntensity: 0.8 }));
+  win.position.set(x, 3.5, z + 1.12);
+  scene.add(win);
+  const label = textPlane(pair[0], 2.1, 0.42, '#14081f', pair[1], 180);
+  label.position.set(x, 2.7, z + 1.16);
+  scene.add(label);
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 1.6, 6), std('#6a4a32'));
+  trunk.position.set(x * 0.9, 0.8, z + 1.15);
+  scene.add(trunk);
+  const crown = new THREE.Mesh(new THREE.ConeGeometry(0.55, 1.1, 6), std('#1f8a4a'));
+  crown.position.set(x * 0.9, 1.9, z + 1.15);
+  scene.add(crown);
+});
+
+function limb(w, h, d, color, x, y, z) {
+  const m = box(w, h, d, std(color));
+  m.position.set(x, y, z);
+  m.geometry.translate(0, h / 2, 0);
+  return m;
+}
+function heroFigure() {
+  const g = new THREE.Group();
+  const legL = limb(0.16, 0.72, 0.16, '#e7b48f', -0.12, 0, 0);
+  const legR = limb(0.16, 0.72, 0.16, '#e7b48f', 0.12, 0, 0);
+  g.add(legL, legR);
+  const flopL = box(0.22, 0.05, 0.34, std('#161616')); flopL.position.set(-0.12, 0.03, 0.06);
+  const flopR = flopL.clone(); flopR.position.x = 0.12;
+  g.add(flopL, flopR);
+  const shorts = box(0.48, 0.32, 0.26, std('#141414')); shorts.position.y = 0.88;
+  g.add(shorts);
+  const shirt = box(0.52, 0.48, 0.28, shirtMaterial('#f4f4f4', 'Nostalgia Pro', '#1a1a1a'));
+  shirt.position.y = 1.28;
+  g.add(shirt);
+  const armL = limb(0.12, 0.46, 0.12, '#e7b48f', -0.34, 1.15, 0);
+  const armR = limb(0.12, 0.46, 0.12, '#e7b48f', 0.34, 1.15, 0);
+  g.add(armL, armR);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), std('#e7b48f'));
+  head.position.y = 1.74; g.add(head);
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.12, 12), std('#111'));
+  cap.position.y = 1.92; g.add(cap);
+  const brim = box(0.34, 0.03, 0.16, std('#111')); brim.position.set(0, 1.86, 0.16); g.add(brim);
+  const np = textPlane('NP', 0.11, 0.045, '#111111', '#ffffff', 160);
+  np.position.set(0, 1.92, 0.24); g.add(np);
+  g.userData.swing = [armL, armR, legL, legR];
+  return g;
+}
+function donnyFigure() {
+  const g = new THREE.Group();
+  const legL = limb(0.12, 0.78, 0.12, '#e7b48f', -0.1, 0, 0);
+  const legR = limb(0.12, 0.78, 0.12, '#e7b48f', 0.1, 0, 0);
+  g.add(legL, legR);
+  const shoeL = box(0.16, 0.06, 0.28, std('#161616')); shoeL.position.set(-0.1, 0.03, 0.04);
+  const shoeR = shoeL.clone(); shoeR.position.x = 0.1; g.add(shoeL, shoeR);
+  const shorts = box(0.4, 0.28, 0.22, std('#c4a36a')); shorts.position.y = 0.92; g.add(shorts);
+  const shirt = box(0.42, 0.42, 0.22, shirtMaterial('#7a2438', 'Donny', '#f3d7a2'));
+  shirt.position.y = 1.28; g.add(shirt);
+  const armL = limb(0.1, 0.5, 0.1, '#e7b48f', -0.28, 1.12, 0);
+  const armR = limb(0.1, 0.5, 0.1, '#e7b48f', 0.28, 1.12, 0);
+  g.add(armL, armR);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.16, 14, 10), std('#e7b48f'));
+  head.scale.set(0.85, 1.35, 0.9); head.position.y = 1.72; g.add(head);
+  for (const [x, z, ry] of [[-0.08, 0.02, 0.4], [0.06, 0, -0.2], [0.12, 0.04, 0.5], [-0.02, -0.02, 0.1]]) {
+    const hair = box(0.04, 0.22, 0.04, std('#1a1a1a'));
+    hair.position.set(x, 1.92, z); hair.rotation.z = ry; g.add(hair);
+  }
+  g.userData.swing = [armL, armR, legL, legR];
+  return g;
+}
+const hero = heroFigure(); hero.position.set(-2.15, 0, 0.85); hero.scale.setScalar(1.2); scene.add(hero);
+const donny = donnyFigure(); donny.position.set(-0.55, 0, 0.55); donny.scale.setScalar(1.2); scene.add(donny);
+
+function profileExtrude(pts, depth) {
+  const sh = new THREE.Shape();
+  sh.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) sh.lineTo(pts[i][0], pts[i][1]);
+  sh.closePath();
+  const g = new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.035, bevelSegments: 1 });
+  g.translate(0, 0, -depth / 2);
+  g.rotateY(-Math.PI / 2);
+  return g;
+}
+const van = new THREE.Group();
+const bodyMat = new THREE.MeshStandardMaterial({ color: '#1d4c62', roughness: 0.42, metalness: 0.08 });
+const body = new THREE.Mesh(profileExtrude([[-2.55, 0.42], [-2.62, 0.98], [-2.45, 1.24], [-1.9, 1.4], [-1.5, 2.18], [-1.25, 2.28], [2.4, 2.28], [2.55, 2.12], [2.58, 0.42]], 1.82), bodyMat);
+van.add(body);
+const stripe = box(1.84, 0.1, 5.05, new THREE.MeshStandardMaterial({ color: '#ffe14d', emissive: '#ffe14d', emissiveIntensity: 0.15 }));
+stripe.position.y = 1.02; van.add(stripe);
+const glassMat = new THREE.MeshStandardMaterial({ color: '#b7e4ff', roughness: 0.08, metalness: 0.05, transparent: true, opacity: 0.34, side: THREE.DoubleSide });
+const glass = new THREE.Mesh(profileExtrude([[-2.0, 1.5], [-1.55, 2.16], [-0.52, 2.16], [-0.52, 1.5]], 1.48), glassMat);
+van.add(glass);
+const seat = box(0.55, 0.42, 0.48, std('#3a2a1c'));
+seat.position.set(0.2, 1.15, -1.35); van.add(seat);
+const sideGlass = new THREE.Mesh(
+  new THREE.BoxGeometry(0.05, 0.72, 1.05),
+  new THREE.MeshStandardMaterial({ color: '#d7f4ff', emissive: '#8fd4ee', emissiveIntensity: 0.45, transparent: true, opacity: 0.42, roughness: 0.04 })
+);
+sideGlass.position.set(1.16, 1.72, -1.35);
+van.add(sideGlass);
+const wheelRim = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.025, 8, 16), std('#1a1a1a'));
+wheelRim.position.set(0.15, 1.35, -1.72); van.add(wheelRim);
+const cabin = new THREE.PointLight('#fff6d0', 1.4, 3.2);
+cabin.position.set(0, 1.5, -1.2); van.add(cabin);
+const sideWords = 'Storage Beers';
+const brand = textPlane(sideWords, 2.05, 0.48, '#14081f', '#fff6d0', 140);
+brand.position.set(0.96, 1.58, 0.55); brand.rotation.y = Math.PI / 2; van.add(brand);
+const roof = textPlane(sideWords, 1.85, 0.36, '#14081f', '#fff6d0', 130);
+roof.position.set(0, 2.4, 0.45); roof.rotation.x = -0.42; van.add(roof);
+for (const [x, z] of [[-0.78, -1.55], [0.78, -1.55], [-0.78, 1.55], [0.78, 1.55]]) {
+  const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.26, 16), std('#141414'));
+  wheel.rotation.z = Math.PI / 2; wheel.position.set(x, 0.4, z); wheel.userData.wheel = true;
+  const spoke = box(0.07, 0.1, 0.72, std('#ffd23f'));
+  wheel.add(spoke);
+  van.add(wheel);
+}
+for (const x of [-0.55, 0.55]) {
+  const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 8), new THREE.MeshBasicMaterial({ color: '#fff6d0' }));
+  lamp.position.set(x, 0.95, -2.62); van.add(lamp);
+}
+const head = new THREE.PointLight('#fff1c9', 8, 10);
+head.position.set(0, 1.0, -2.7); van.add(head);
+van.rotation.y = -0.9;
+van.position.set(0.9, 0, -13);
+scene.add(van);
+
+let t = 0, done = false, last = performance.now();
+function beatName() {
+  if (t >= 23.15) return 'black';
+  if (t >= 18.0) return 'radio';
+  if (t >= 12.0) return 'question';
+  if (t >= 6.0) return 'explain';
+  if (t >= 1.0) return 'ask';
+  return 'establish';
+}
+function show() {
+  const beat = beatName();
+  bDonny.style.display = (beat === 'ask' || beat === 'question') ? 'block' : 'none';
+  bDonny.querySelector('span').textContent = beat === 'question' ? LINE_Q : ASK;
+  bHero.style.display = beat === 'explain' ? 'block' : 'none';
+  bHero.querySelector('span').textContent = EXPLAIN;
+  bRadio.style.display = beat === 'radio' ? 'block' : 'none';
+  bRadio.querySelector('span').textContent = LINE_R;
+  fade.classList.toggle('on', beat === 'black');
+  document.getElementById('skip').style.visibility = beat === 'black' ? 'hidden' : 'visible';
+  document.body.dataset.beat = beat;
+  window.__np2rescue = { t: +t.toFixed(2), beat, vanX: +van.position.x.toFixed(2), vanZ: +van.position.z.toFixed(2), black: beat === 'black', line: beat === 'ask' ? ASK : beat === 'explain' ? EXPLAIN : beat === 'question' ? LINE_Q : beat === 'radio' ? LINE_R : '' };
+}
+function finish() {
+  if (done) return;
+  done = true;
+  fade.classList.add('on');
+  const msg = { type: 'np2rescue:finished' };
+  if (window.parent && window.parent !== window) window.parent.postMessage(msg, '*');
+}
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  if (!done) t += dt;
+  const approach = Math.min(1, Math.max(0, (t - 12) / 7));
+  van.position.x = 0.9;
+  van.position.z = -13 + approach * 8.6;
+  van.rotation.y = -0.9;
+  const rolling = approach > 0 && approach < 1;
+  van.children.forEach((child) => { if (child.userData && child.userData.wheel && rolling) child.rotation.x += dt * 7; });
+  [hero, donny].forEach((fig, i) => {
+    fig.position.y = Math.sin(t * 2.2 + i) * 0.03;
+    const parts = fig.userData.swing || [];
+    parts.forEach((part, n) => { part.rotation.x = Math.sin(t * 2.4 + n + i) * 0.18; });
+  });
+  hero.rotation.y = 0.35;
+  donny.rotation.y = -0.45 + Math.sin(t * 0.7) * 0.08;
+  show();
+  if (t >= 24.0) finish();
+  renderer.render(scene, camera);
+  if (!done) requestAnimationFrame(frame);
+}
+function resize() {
+  renderer.setSize(innerWidth, innerHeight, false);
+  camera.aspect = innerWidth / Math.max(1, innerHeight);
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+resize();
+document.getElementById('skip').addEventListener('pointerdown', () => { t = 23.2; show(); setTimeout(finish, 180); });
+show();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
