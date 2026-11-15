@@ -1,647 +1,1392 @@
-/* TAPE PIN LANES: ten fast frames where the pins are stacked VHS tapes. Curve it, strike it.
-   Units are inches and seconds. x runs across the lane (0 = center), y runs down it (0 = foul line). */
-(function () {
-  "use strict";
-  var W = 360, H = 540, TAU = Math.PI * 2;
-  var LW = 20.75, GUT = 9.25, KICK = LW + GUT;           // half lane, gutter, kickback walls
-  var HEAD_Y = 720, DECK_END = 756, PIT_Y = 772;
-  var BALL_R = 4.3, PIN_R = 2.25, PIN_H = 11, PIN_W = 5.2;   // a slightly smaller pocket than batch 2
-  var BALL_M = 13, PIN_M = 3.5;                            // lighter ball: more deflection on off-center hits
-  var V_MIN = 420, V_MAX = 660, HOOK = 135, OIL_GRIP = 0.12;
-  var FALL_V = 28;                                         // a pin pushed faster than this goes down
-  var START_Y = -14, POS_MAX = LW - BALL_R - 1;
-  var F = 1000, CAMH = 40, HZ = 130, CAM0 = -150, CAM_MAX = 468;
-  var BUMPER_FRAMES = 3;
-  // Oil length per frame (inches). Shorter oil = earlier, bigger hook.
-  var OIL = [470, 380, 560, 330, 500, 420, 300, 540, 360, 450];
-  var SPOTS = [[0, 0], [-6, 10.39], [6, 10.39], [-12, 20.78], [0, 20.78], [12, 20.78], [-18, 31.18], [-6, 31.18], [6, 31.18], [18, 31.18]];
+/* TAPE PIN LANES (3D): ten fast frames on a glossy lane. Curve it, strike it.
 
-  var S = {}, keys = {}, idleT = 0, parts = [];
+   Real 3D on three.js (self-hosted, imported from ../shared/three.module.min.js), drawn on a
+   WebGL canvas that sits directly under the shell's 2D canvas. The shell canvas stays in
+   charge of input, scaling and the title / pause / game over flow, and carries the HUD.
 
-  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+   Rules, controls, scoring and the ball / pin collision model are the same as the 2D game.
+   Units are inches and seconds. x runs across the lane (0 = center), y runs down it
+   (0 = foul line), z is up. In three.js space that is (x, z, -y). */
 
-  /* ---------------- Rack + scoring ---------------- */
-  function makePin(i) {
-    return { i: i, x: SPOTS[i][0], y: HEAD_Y + SPOTS[i][1], vx: 0, vy: 0, st: "up", tilt: 0, dir: 1, wob: 0, wobT: 0, drop: 0 };
-  }
-  function fullRack() { var a = []; for (var i = 0; i < 10; i++) a.push(makePin(i)); return a; }
+const W = 360, H = 540, TAU = Math.PI * 2;
+const LW = 20.75, GUT = 9.25, KICK = LW + GUT;           // half lane, gutter, kickback walls
+const HEAD_Y = 720, DECK_END = 756, PIT_Y = 772;
+const BALL_R = 4.3, PIN_R = 2.25, PIN_TALL = 15;
+const BALL_M = 13, PIN_M = 3.5;                          // lighter ball: more deflection on off-center hits
+const V_MIN = 420, V_MAX = 660, HOOK = 135, OIL_GRIP = 0.12;
+const FALL_V = 28;                                       // a pin pushed faster than this goes down
+const START_Y = -14, POS_MAX = LW - BALL_R - 1;
+const BUMPER_FRAMES = 3;
+// Oil length per frame (inches). Shorter oil = earlier, bigger hook.
+const OIL = [470, 380, 560, 330, 500, 420, 300, 540, 360, 450];
+const SPOTS = [[0, 0], [-6, 10.39], [6, 10.39], [-12, 20.78], [0, 20.78], [12, 20.78], [-18, 31.18], [-6, 31.18], [6, 31.18], [18, 31.18]];
 
-  function reset() {
-    S = { t: 0, phase: "aim", pt: 0, splitFrame: -1, frame: 0, ball: 0, frames: [[]], pins: fullRack(),
-          pos: 0, spin: 0, power: 0, charging: false, chargeT: 0, drag: null, kb: false,
-          b: null, camY: CAM0, strikesRow: 0, strikes: 0, spares: 0, splitMsg: "", lastClack: 0, rollSnd: 0,
-          announcedBumpers: false, sweepFull: false, over: false };
-    parts.length = 0;
-  }
+const GRAV = 386;                                        // in/s^2, for hops and the drop into the pit
+const LIE = Math.PI / 2 + 0.1235;                        // a toppled pin rests on its belly and its head
+const SWEEP_T = 0.38;
+const BOARD_W = (LW * 2) / 39;
+const LANE_PITCH = 72;                                   // center to center of neighboring lanes
+const WALL_Y = PIT_Y + 30, WALL_H = 150, PIT_Z = -7;
+const CAM0 = -150, CAM_H = 40, CAM_AHEAD = 285, CAM_FOV = 30.2;   // aim camera = the old 2D projection
+const DECK_CAM = { y: 566, z: 60, ty: 741, tz: 7 };      // the pin-deck view
 
-  function oilLen() { return OIL[S.frame % OIL.length]; }
-  function bumpersUp() { return S.frame < BUMPER_FRAMES; }
+const LOGO_URL = "np_games_logo.png";
+const THREE_URL = "../shared/three.module.min.js";
+const HUD_FONT = 'Verdana, Geneva, Tahoma, "DejaVu Sans", Arial, sans-serif';
+const PIN_COLORS = ["#ff4b3e", "#16b9e8", "#ff3fa4", "#58c322", "#ffb81f"];
 
-  function standingCount() {
-    var n = 0;
-    for (var i = 0; i < S.pins.length; i++) if (S.pins[i].st === "up") n++;
-    return n;
-  }
+let S = {}, keys = {}, idleT = 0, parts = [];
+let THREE = null, R = null;                              // R holds everything the renderer owns
 
-  // Cumulative score per frame (null until it can be scored)
-  function scores(frames) {
-    var rolls = [], i, out = [];
-    for (i = 0; i < frames.length; i++) rolls = rolls.concat(frames[i]);
-    var r = 0, total = 0;
-    for (var f = 0; f < 10; f++) {
-      if (r >= rolls.length) { out.push(null); continue; }
-      if (rolls[r] === 10) {
-        if (rolls.length < r + 3) { out.push(null); r += 1; continue; }
-        total += 10 + rolls[r + 1] + rolls[r + 2]; r += 1;
-      } else {
-        if (rolls.length < r + 2) { out.push(null); r += 2; continue; }
-        if (rolls[r] + rolls[r + 1] === 10) {
-          if (rolls.length < r + 3) { out.push(null); r += 2; continue; }
-          total += 10 + rolls[r + 2];
-        } else total += rolls[r] + rolls[r + 1];
-        r += 2;
-      }
-      out.push(total);
+function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+
+/* ---------------- Rack + scoring ---------------- */
+function makePin(i) {
+  return { i: i, x: SPOTS[i][0], y: HEAD_Y + SPOTS[i][1], vx: 0, vy: 0, st: "up", dir: 1, wob: 0, wobT: 0, wobDir: 0, drop: 0,
+           // 3D presentation only: tip angle and speed, heading of the fall, hop height, spin
+           tilt: 0, tiltV: 0, head: 0, z: 0, vz: 0, yaw: Math.random() * TAU, yawV: 0, bounced: false };
+}
+function fullRack() { const a = []; for (let i = 0; i < 10; i++) a.push(makePin(i)); return a; }
+
+function reset() {
+  S = { t: 0, phase: "aim", pt: 0, splitFrame: -1, frame: 0, ball: 0, frames: [[]], pins: fullRack(), dead: [],
+        pos: 0, spin: 0, power: 0, charging: false, chargeT: 0, drag: null, kb: false,
+        b: null, camY: CAM0, strikesRow: 0, strikes: 0, spares: 0, splitMsg: "", lastClack: 0, rollSnd: 0,
+        announcedBumpers: false, sweepFull: false, over: false };
+  parts.length = 0;
+}
+
+function oilLen() { return OIL[S.frame % OIL.length]; }
+function bumpersUp() { return S.frame < BUMPER_FRAMES; }
+
+function standingCount() {
+  let n = 0;
+  for (let i = 0; i < S.pins.length; i++) if (S.pins[i].st === "up") n++;
+  return n;
+}
+
+// Cumulative score per frame (null until it can be scored)
+function scores(frames) {
+  let rolls = [], i;
+  const out = [];
+  for (i = 0; i < frames.length; i++) rolls = rolls.concat(frames[i]);
+  let r = 0, total = 0;
+  for (let f = 0; f < 10; f++) {
+    if (r >= rolls.length) { out.push(null); continue; }
+    if (rolls[r] === 10) {
+      if (rolls.length < r + 3) { out.push(null); r += 1; continue; }
+      total += 10 + rolls[r + 1] + rolls[r + 2]; r += 1;
+    } else {
+      if (rolls.length < r + 2) { out.push(null); r += 2; continue; }
+      if (rolls[r] + rolls[r + 1] === 10) {
+        if (rolls.length < r + 3) { out.push(null); r += 2; continue; }
+        total += 10 + rolls[r + 2];
+      } else total += rolls[r] + rolls[r + 1];
+      r += 2;
     }
-    return out;
+    out.push(total);
   }
-  function total() {
-    var sc = scores(S.frames), t = 0;
-    for (var i = 0; i < sc.length; i++) if (sc[i] != null) t = sc[i];
-    return t;
-  }
-  function sym(n) { return n === 0 ? "-" : String(n); }
-  function marks(fr, f) {
-    var m = [];
-    if (!fr.length) return m;
-    if (f < 9) {
-      if (fr[0] === 10) return ["X"];
-      m.push(sym(fr[0]));
-      if (fr.length > 1) m.push(fr[0] + fr[1] === 10 ? "/" : sym(fr[1]));
-      return m;
-    }
-    m.push(fr[0] === 10 ? "X" : sym(fr[0]));
-    if (fr.length > 1) {
-      if (fr[0] === 10) m.push(fr[1] === 10 ? "X" : sym(fr[1]));
-      else m.push(fr[0] + fr[1] === 10 ? "/" : sym(fr[1]));
-    }
-    if (fr.length > 2) {
-      if (fr[0] === 10 && fr[1] !== 10) m.push(fr[1] + fr[2] === 10 ? "/" : sym(fr[2]));
-      else m.push(fr[2] === 10 ? "X" : sym(fr[2]));
-    }
+  return out;
+}
+function total() {
+  const sc = scores(S.frames);
+  let t = 0;
+  for (let i = 0; i < sc.length; i++) if (sc[i] != null) t = sc[i];
+  return t;
+}
+function sym(n) { return n === 0 ? "-" : String(n); }
+function marks(fr, f) {
+  const m = [];
+  if (!fr.length) return m;
+  if (f < 9) {
+    if (fr[0] === 10) return ["X"];
+    m.push(sym(fr[0]));
+    if (fr.length > 1) m.push(fr[0] + fr[1] === 10 ? "/" : sym(fr[1]));
     return m;
   }
-
-  /* ---------------- Throw ---------------- */
-  function canThrow() { return S.phase === "aim" && S.pt > 0.15; }
-
-  function throwBall(p, spin) {
-    if (!canThrow() || p < 0.05) return;
-    var v = V_MIN + clamp(p, 0, 1) * (V_MAX - V_MIN);
-    S.b = { x: S.pos, y: START_Y, vx: 0, vy: v, spin: clamp(spin, -1, 1), gutter: false, roll: 0, hitPins: false, atPinsT: 0 };
-    S.phase = "roll"; S.pt = 0;
-    S.drag = null; S.charging = false;
-    Shell.sfx("whoosh");
+  m.push(fr[0] === 10 ? "X" : sym(fr[0]));
+  if (fr.length > 1) {
+    if (fr[0] === 10) m.push(fr[1] === 10 ? "X" : sym(fr[1]));
+    else m.push(fr[0] + fr[1] === 10 ? "/" : sym(fr[1]));
   }
-
-  /* ---------------- Physics ---------------- */
-  function clack(speed) {
-    if (speed < 40 || S.t - S.lastClack < 0.03) return;
-    S.lastClack = S.t;
-    var v = Math.min(0.45, 0.12 + speed / 1500);
-    Shell.noise(0.05, v, 2400 + Math.random() * 1600, 1.5);
-    Shell.tone(700 + Math.random() * 500, 0.04, "square", v * 0.5);
+  if (fr.length > 2) {
+    if (fr[0] === 10 && fr[1] !== 10) m.push(fr[1] + fr[2] === 10 ? "/" : sym(fr[2]));
+    else m.push(fr[2] === 10 ? "X" : sym(fr[2]));
   }
+  return m;
+}
 
-  function knock(p, speed) {
-    if (p.st === "up") {
-      if (speed > FALL_V) { p.st = "falling"; p.dir = (p.vx >= 0 ? 1 : -1); }
-      else if (speed > 4) { p.wob = Math.min(0.35, speed / 80); p.wobT = 0; }
-    }
+/* ---------------- Throw ---------------- */
+function canThrow() { return S.phase === "aim" && S.pt > 0.15; }
+
+function throwBall(p, spin) {
+  if (!canThrow() || p < 0.05) return;
+  const v = V_MIN + clamp(p, 0, 1) * (V_MAX - V_MIN);
+  S.b = { x: S.pos, y: START_Y, vx: 0, vy: v, spin: clamp(spin, -1, 1), gutter: false, roll: 0, hitPins: false, atPinsT: 0,
+          z: BALL_R, vz: 0 };
+  S.phase = "roll"; S.pt = 0;
+  S.drag = null; S.charging = false;
+  Shell.sfx("whoosh");
+}
+
+/* ---------------- Physics ---------------- */
+function clack(speed) {
+  if (speed < 40 || S.t - S.lastClack < 0.03) return;
+  S.lastClack = S.t;
+  const v = Math.min(0.45, 0.12 + speed / 1500);
+  Shell.noise(0.05, v, 2400 + Math.random() * 1600, 1.5);
+  Shell.tone(700 + Math.random() * 500, 0.04, "square", v * 0.5);
+}
+
+// A standing pin goes over. The game only cares that it is no longer "up"; the rest is for show.
+function topple(p) {
+  if (p.st !== "up") return;
+  const sp = Math.hypot(p.vx, p.vy);
+  p.st = "falling";
+  p.dir = p.vx >= 0 ? 1 : -1;
+  // The hit lands low, so the base kicks out and the head tips back toward where the hit came from.
+  p.head = sp > 1 ? Math.atan2(-p.vy, -p.vx) + (Math.random() - 0.5) * 0.7 : Math.random() * TAU;
+  p.tilt = Math.max(p.tilt, 0.04);
+  p.tiltV = 2.5 + Math.min(9, sp / 20);
+  p.vz = Math.min(95, sp * 0.2) * (0.35 + Math.random() * 0.65);
+  p.yawV = (Math.random() - 0.5) * Math.min(16, 2 + sp / 10);
+  p.bounced = false;
+}
+
+function knock(p, speed) {
+  if (p.st === "up") {
+    if (speed > FALL_V) topple(p);
+    else if (speed > 4) { p.wob = Math.min(0.35, speed / 80); p.wobT = 0; p.wobDir = Math.atan2(p.vy, p.vx); }
   }
+}
 
-  function collide(a, ar, am, b, br, bm, e) {
-    var dx = b.x - a.x, dy = b.y - a.y, d2 = dx * dx + dy * dy, rr = ar + br;
-    if (d2 >= rr * rr || d2 < 1e-6) return 0;
-    var d = Math.sqrt(d2), nx = dx / d, ny = dy / d, pen = rr - d;
-    var tm = am + bm;
-    a.x -= nx * pen * bm / tm; a.y -= ny * pen * bm / tm;
-    b.x += nx * pen * am / tm; b.y += ny * pen * am / tm;
-    var rv = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
-    if (rv >= 0) return 0;
-    var j = -(1 + e) * rv / (1 / am + 1 / bm);
-    a.vx -= j * nx / am; a.vy -= j * ny / am;
-    b.vx += j * nx / bm; b.vy += j * ny / bm;
-    return -rv;
-  }
+function collide(a, ar, am, b, br, bm, e) {
+  const dx = b.x - a.x, dy = b.y - a.y, d2 = dx * dx + dy * dy, rr = ar + br;
+  if (d2 >= rr * rr || d2 < 1e-6) return 0;
+  const d = Math.sqrt(d2), nx = dx / d, ny = dy / d, pen = rr - d;
+  const tm = am + bm;
+  a.x -= nx * pen * bm / tm; a.y -= ny * pen * bm / tm;
+  b.x += nx * pen * am / tm; b.y += ny * pen * am / tm;
+  const rv = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+  if (rv >= 0) return 0;
+  const j = -(1 + e) * rv / (1 / am + 1 / bm);
+  a.vx -= j * nx / am; a.vy -= j * ny / am;
+  b.vx += j * nx / bm; b.vy += j * ny / bm;
+  return -rv;
+}
 
-  function pinR(p) { return p.st === "up" ? PIN_R : PIN_R + 1.2; } // a toppled tape covers more deck
+function pinR(p) { return p.st === "up" ? PIN_R : PIN_R + 1.2; } // a toppled pin covers more deck
 
-  function step(dt) {
-    var b = S.b, i, j, p, q, imp;
-    if (b && b.y < PIT_Y + 40) {
-      // hook: almost nothing in the oil, full bite on the dry back end
-      var grip = b.y > oilLen() ? 1 : OIL_GRIP;
-      if (!b.gutter && b.y < HEAD_Y - 10) b.vx += b.spin * HOOK * grip * dt;
-      b.vy = Math.max(200, b.vy - 18 * dt);
-      b.x += b.vx * dt; b.y += b.vy * dt;
-      b.roll += b.vy * dt / BALL_R;
-      if (!b.gutter && b.y < DECK_END) {
-        var edge = LW - BALL_R + 2.2;
-        if (bumpersUp()) {
-          if (Math.abs(b.x) > edge) { b.x = Math.sign(b.x) * edge; b.vx = -b.vx * 0.55; Shell.sfx("click"); }
-        } else if (Math.abs(b.x) > LW - 0.5) {
-          b.gutter = true; b.vx = 0; b.side = Math.sign(b.x);
-          Shell.noise(0.18, 0.35, 220, 0.8, 0, 0, "lowpass");
-        }
-      }
-      if (b.gutter) b.x += (b.side * (LW + GUT / 2) - b.x) * Math.min(1, dt * 18);
-      if (!b.gutter) {
-        for (i = 0; i < S.pins.length; i++) {
-          p = S.pins[i];
-          if (p.st === "gone" || p.st === "down" && p.drop > 0) continue;
-          imp = collide(b, BALL_R, BALL_M, p, pinR(p), PIN_M, 0.62);
-          if (imp) { b.hitPins = true; clack(imp); knock(p, Math.hypot(p.vx, p.vy)); }
-        }
+function step(dt) {
+  const b = S.b;
+  let i, j, p, q, imp;
+  if (b && b.y < PIT_Y + 40) {
+    // hook: almost nothing in the oil, full bite on the dry back end
+    const grip = b.y > oilLen() ? 1 : OIL_GRIP;
+    if (!b.gutter && b.y < HEAD_Y - 10) b.vx += b.spin * HOOK * grip * dt;
+    b.vy = Math.max(200, b.vy - 18 * dt);
+    b.x += b.vx * dt; b.y += b.vy * dt;
+    b.roll += b.vy * dt / BALL_R;
+    if (!b.gutter && b.y < DECK_END) {
+      const edge = LW - BALL_R + 2.2;
+      if (bumpersUp()) {
+        if (Math.abs(b.x) > edge) { b.x = Math.sign(b.x) * edge; b.vx = -b.vx * 0.55; Shell.sfx("click"); }
+      } else if (Math.abs(b.x) > LW - 0.5) {
+        b.gutter = true; b.vx = 0; b.side = Math.sign(b.x);
+        Shell.noise(0.18, 0.35, 220, 0.8, 0, 0, "lowpass");
       }
     }
-    // pins
-    for (i = 0; i < S.pins.length; i++) {
-      p = S.pins[i];
-      if (p.st === "gone") continue;
-      var sp = Math.hypot(p.vx, p.vy);
-      if (sp > 0) {
-        var ns = Math.max(0, sp - (260 + sp * 1.4) * dt);
-        p.vx *= ns / sp; p.vy *= ns / sp;
-      }
-      p.x += p.vx * dt; p.y += p.vy * dt;
-      if (Math.abs(p.x) > KICK - PIN_R) { p.x = Math.sign(p.x) * (KICK - PIN_R); p.vx = -p.vx * 0.5; clack(Math.abs(p.vx) * 2); }
-      if (p.y > PIT_Y) { p.st = "gone"; continue; }
-      if (p.y < HEAD_Y - 40) { p.vy = Math.abs(p.vy) * 0.3; }
-      if (p.st === "up" && Math.hypot(p.x - (SPOTS[p.i][0]), p.y - (HEAD_Y + SPOTS[p.i][1])) > 2.5) { p.st = "falling"; p.dir = p.vx >= 0 ? 1 : -1; }
-    }
-    for (i = 0; i < S.pins.length; i++) {
-      p = S.pins[i];
-      if (p.st === "gone") continue;
-      for (j = i + 1; j < S.pins.length; j++) {
-        q = S.pins[j];
-        if (q.st === "gone") continue;
-        if (p.st === "up" && q.st === "up" && !p.vx && !p.vy && !q.vx && !q.vy) continue;
-        imp = collide(p, pinR(p), PIN_M, q, pinR(q), PIN_M, 0.55);
-        if (imp) {
-          clack(imp);
-          knock(p, Math.hypot(p.vx, p.vy)); knock(q, Math.hypot(q.vx, q.vy));
-        }
-      }
-    }
-  }
-
-  function anyMoving() {
-    for (var i = 0; i < S.pins.length; i++) {
-      var p = S.pins[i];
-      if (p.st !== "gone" && Math.hypot(p.vx, p.vy) > 4) return true;
-    }
-    return false;
-  }
-
-  /* ---------------- Flow ---------------- */
-  function setPhase(ph) { S.phase = ph; S.pt = 0; }
-
-  function update(dt) {
-    S.t += dt; S.pt += dt;
-    var i, p;
-    // standing-pin wobble + toppling animation
-    for (i = 0; i < S.pins.length; i++) {
-      p = S.pins[i];
-      if (p.st === "falling") { p.tilt = Math.min(Math.PI / 2, p.tilt + dt * 9); if (p.tilt >= Math.PI / 2) p.st = "down"; }
-      if (p.wob > 0) { p.wobT += dt; p.wob = Math.max(0, p.wob - dt * 0.5); }
-    }
-    for (i = parts.length - 1; i >= 0; i--) {
-      var q = parts[i]; q.life -= dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vy += 200 * dt;
-      if (q.life <= 0) parts.splice(i, 1);
-    }
-
-    if (S.phase === "aim") {
-      var mv = (keys.ArrowLeft ? -1 : 0) + (keys.ArrowRight ? 1 : 0);
-      if (mv) { S.pos = clamp(S.pos + mv * 22 * dt, -POS_MAX, POS_MAX); S.kb = true; }
-      var hk = (keys.ArrowUp ? 1 : 0) + (keys.ArrowDown ? -1 : 0);
-      if (hk) { S.spin = clamp(S.spin + hk * 1.1 * dt, -1, 1); S.kb = true; }
-      if (S.charging) {
-        S.chargeT += dt;
-        var ph = (S.chargeT / 1.1) % 2;
-        S.power = ph < 1 ? ph : 2 - ph;
-      }
-      S.camY += (CAM0 - S.camY) * Math.min(1, dt * 10);
-      if (!S.announcedBumpers && S.frame === BUMPER_FRAMES && S.ball === 0) {
-        S.announcedBumpers = true;
-        Shell.flash("BUMPERS DOWN", "Gutters are live from here on.", "#ff3fa4", 1300);
-      }
-      return;
-    }
-
-    if (S.phase === "roll" || S.phase === "settle") {
-      var b = S.b;
-      var maxV = Math.max(Math.hypot(b.vx, b.vy), 1);
-      for (i = 0; i < S.pins.length; i++) maxV = Math.max(maxV, Math.hypot(S.pins[i].vx, S.pins[i].vy));
-      var n = clamp(Math.ceil(maxV * dt / 1.6), 2, 30);
-      for (i = 0; i < n; i++) step(dt / n);
-      // rolling rumble
-      if (b.y < PIT_Y) {
-        S.rollSnd -= dt;
-        if (S.rollSnd <= 0) { S.rollSnd = 0.08; Shell.noise(0.1, b.gutter ? 0.1 : 0.16, b.gutter ? 260 : 140, 0.7, 0, 0, "lowpass", 0.02); }
-      }
-      var target = clamp(b.y - 150, CAM0, CAM_MAX);
-      S.camY += (target - S.camY) * Math.min(1, dt * 6);
-      if (S.phase === "roll" && b.y > HEAD_Y - 6) setPhase("settle");
-      if (S.phase === "settle") {
-        var done = (b.y > PIT_Y || b.gutter) && (!anyMoving() && S.pt > 0.35 || S.pt > 2.2);
-        if (done) resolveBall();
-      }
-      return;
-    }
-    if (S.phase === "result") {
-      if (S.pt > 0.55) startSweep();
-      return;
-    }
-    if (S.phase === "sweep") {
-      var k = S.pt / 0.38;
-      S.camY += (CAM0 - S.camY) * Math.min(1, dt * 9);
-      if (S.sweepFull) for (i = 0; i < S.pins.length; i++) S.pins[i].drop = Math.max(0, 1 - k);
-      if (k >= 1) {
-        for (i = 0; i < S.pins.length; i++) S.pins[i].drop = 0;
-        S.b = null;
-        if (S.over) { finishGame(); return; }
-        setPhase("aim");
-      }
-    }
-  }
-
-  function resolveBall() {
-    var b = S.b, i, p, down = 0;
-    for (i = 0; i < S.pins.length; i++) {
-      p = S.pins[i];
-      if (p.st !== "up") { if (!p.counted) { p.counted = true; down++; } }
-    }
-    var fr = S.frames[S.frame];
-    fr.push(down);
-    var first = S.ball === 0, f = S.frame;
-    var standing = standingCount();
-    var strike = down === 10 && (first || (f === 9 && fr.length === 2 && fr[0] === 10) || (f === 9 && fr.length === 3 && (fr[1] === 10 || fr[0] + fr[1] === 10)));
-    var spare = !strike && standing === 0 && !first;
-    var title, sub = "", col = "#eceae2";
-
-    if (strike) {
-      S.strikes++; S.strikesRow++;
-      if (S.strikesRow === 3) { title = "TURKEY!"; sub = "Three in a row. BE KIND, REWIND... ALL OF THEM."; col = "#ff4b3e"; burst(60); Shell.sfx("best"); }
-      else { title = S.strikesRow > 3 ? S.strikesRow + " IN A ROW!" : "STRIKE!"; sub = "BE KIND, REWIND... ALL OF THEM."; col = "#ffd23f"; burst(30); }
-      Shell.sfx("crowd"); Shell.sfx("score"); Shell.shake(4, 0.3);
-      if (window.Trophies) { Trophies.unlock("tpl-strike"); if (S.strikesRow === 3) Trophies.unlock("tpl-turkey"); }
-      if (window.NPRewards && S.strikesRow >= 2) NPRewards.streak(S.strikesRow);
-    } else {
-      S.strikesRow = 0;
-      if (spare) {
-        S.spares++; title = "SPARE!"; sub = "Picked it clean."; col = "#3ff0ff"; Shell.sfx("score");
-        if (window.Trophies) { Trophies.unlock("tpl-spare"); if (S.splitFrame === f) Trophies.unlock("tpl-split"); }
-      }
-      else if (down === 0 && b.gutter) {
-        title = "LATE FEE."; sub = "Gutter ball."; col = "#ff3fa4"; Shell.sfx("miss");
-        if (window.Trophies && f >= BUMPER_FRAMES) Trophies.unlock("tpl-latefee");
-      }
-      else if (down === 0) { title = "MISS"; sub = "Not a scratch on them."; col = "#8e93a2"; Shell.sfx("miss"); }
-      else {
-        title = down + (down === 1 ? " PIN" : " PINS");
-        if (first && isSplit()) { title = "SPLIT"; sub = down + " down. Good luck with the rest."; col = "#a77bff"; S.splitFrame = f; }
-        else if (standing > 0) sub = standing + " left standing.";
-        Shell.sfx("tap");
-      }
-    }
-    Shell.flash(title, sub, col, 900);
-
-    // advance frame / ball
-    var reset = false;
-    if (f < 9) {
-      if (strike || !first) { S.frame++; S.ball = 0; S.frames.push([]); reset = true; }
-      else S.ball = 1;
-    } else {
-      if (fr.length === 1) { S.ball = 1; reset = strike; }
-      else if (fr.length === 2) {
-        if (fr[0] === 10 || fr[0] + fr[1] === 10) { S.ball = 2; reset = strike || spare; }
-        else S.over = true;
-      } else S.over = true;
-    }
-    S.sweepFull = reset && !S.over;
-    setPhase("result");
-  }
-
-  function startSweep() {
-    var i, p;
-    if (S.sweepFull) {
-      S.pins = fullRack();
-      for (i = 0; i < S.pins.length; i++) S.pins[i].drop = 1;
-    } else {
-      // clear the deadwood, leave standing tapes where they are
-      var keep = [];
+    if (b.gutter) b.x += (b.side * (LW + GUT / 2) - b.x) * Math.min(1, dt * 18);
+    if (!b.gutter) {
       for (i = 0; i < S.pins.length; i++) {
         p = S.pins[i];
-        if (p.st === "up") { p.vx = p.vy = 0; p.wob = 0; keep.push(p); }
+        if (p.st === "gone" || p.st === "down" && p.drop > 0) continue;
+        imp = collide(b, BALL_R, BALL_M, p, pinR(p), PIN_M, 0.62);
+        if (imp) { b.hitPins = true; clack(imp); knock(p, Math.hypot(p.vx, p.vy)); }
       }
-      S.pins = keep;
-    }
-    Shell.noise(0.3, 0.12, 400, 0.6, 0, 900);
-    setPhase("sweep");
-  }
-
-  function isSplit() {
-    var up = [], i, j;
-    for (i = 0; i < S.pins.length; i++) if (S.pins[i].st === "up") up.push(S.pins[i]);
-    if (up.length < 2) return false;
-    for (i = 0; i < up.length; i++) if (up[i].i === 0) return false; // headpin still up: not a split
-    // group standing pins by neighbor distance; more than one group = split
-    var group = up.map(function (_, k) { return k; });
-    function find(k) { while (group[k] !== k) k = group[k]; return k; }
-    for (i = 0; i < up.length; i++) for (j = i + 1; j < up.length; j++) {
-      var a = SPOTS[up[i].i], c = SPOTS[up[j].i];
-      if (Math.hypot(a[0] - c[0], a[1] - c[1]) < 12.5) group[find(i)] = find(j);
-    }
-    var roots = {};
-    for (i = 0; i < up.length; i++) roots[find(i)] = 1;
-    return Object.keys(roots).length > 1;
-  }
-
-  function finishGame() {
-    var t = total();
-    var title = t === 300 ? "PERFECT GAME!" : "TEN FRAMES DONE";
-    Shell.gameOver(t, { title: title, html: cardHTML() +
-      '<div class="np-row" style="margin-top:10px"><span>Strikes</span><b>' + S.strikes + '</b></div>' +
-      '<div class="np-row"><span>Spares</span><b>' + S.spares + '</b></div>',
-      stats: { total: t, strikes: S.strikes, spares: S.spares, frames: JSON.parse(JSON.stringify(S.frames)) } });
-  }
-  function cardHTML() {
-    var sc = scores(S.frames), h = '<table class="np-card10" aria-label="Scorecard"><tr>', i;
-    for (i = 0; i < 10; i++) h += "<th>" + (i + 1) + "</th>";
-    h += "</tr><tr>";
-    // Each roll is its own box with a gap, so a 1 then a 7 never reads as "17" in the pixel font.
-    for (i = 0; i < 10; i++) {
-      var mk = S.frames[i] ? marks(S.frames[i], i) : [];
-      h += '<td class="np-nw"' + (mk.length ? ' aria-label="Frame ' + (i + 1) + ': ' + mk.join(", ") + '"' : "") + ">" +
-        mk.map(function (m) { return '<span class="np-roll">' + m + "</span>"; }).join("") + "</td>";
-    }
-    h += "</tr><tr>";
-    for (i = 0; i < 10; i++) h += "<td>" + (sc[i] == null ? "" : sc[i]) + "</td>";
-    return h + "</tr></table>";
-  }
-
-  function burst(n) {
-    var cols = ["#ffd23f", "#3ff0ff", "#ff3fa4", "#9bff3f", "#a77bff"];
-    if (Shell.reduced) n = Math.ceil(n / 3);
-    for (var i = 0; i < n; i++) {
-      var a = Math.random() * TAU, s = 60 + Math.random() * 160;
-      parts.push({ x: W / 2, y: 230, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 80, life: 1.1, c: cols[i % cols.length] });
     }
   }
-
-  /* ---------------- Input ---------------- */
-  function pointer(type, x, y) {
-    if (type === "down") {
-      if (!canThrow()) return;
-      S.drag = { sx: x, sy: y, ox: x, oy: y, mode: "slide", pos0: S.pos, x: x, y: y };
-      S.kb = false; S.charging = false;
-    } else if (type === "move" && S.drag) {
-      var d = S.drag;
-      d.x = x; d.y = y;
-      if (d.mode === "slide") {
-        if (y > d.oy) { d.oy = y; d.ox = x; }            // lowest point so far starts the flick
-        if (d.oy - y > 16) d.mode = "flick";
-        else S.pos = clamp(d.pos0 + (x - d.sx) * 0.15, -POS_MAX, POS_MAX);
+  // pins
+  for (i = 0; i < S.pins.length; i++) {
+    p = S.pins[i];
+    if (p.st === "gone") continue;
+    const sp = Math.hypot(p.vx, p.vy);
+    if (sp > 0) {
+      const ns = Math.max(0, sp - (260 + sp * 1.4) * dt);
+      p.vx *= ns / sp; p.vy *= ns / sp;
+    }
+    p.x += p.vx * dt; p.y += p.vy * dt;
+    if (Math.abs(p.x) > KICK - PIN_R) { p.x = Math.sign(p.x) * (KICK - PIN_R); p.vx = -p.vx * 0.5; clack(Math.abs(p.vx) * 2); }
+    if (p.y > PIT_Y) { p.st = "gone"; continue; }
+    if (p.y < HEAD_Y - 40) { p.vy = Math.abs(p.vy) * 0.3; }
+    if (p.st === "up" && Math.hypot(p.x - (SPOTS[p.i][0]), p.y - (HEAD_Y + SPOTS[p.i][1])) > 2.5) topple(p);
+  }
+  for (i = 0; i < S.pins.length; i++) {
+    p = S.pins[i];
+    if (p.st === "gone") continue;
+    for (j = i + 1; j < S.pins.length; j++) {
+      q = S.pins[j];
+      if (q.st === "gone") continue;
+      if (p.st === "up" && q.st === "up" && !p.vx && !p.vy && !q.vx && !q.vy) continue;
+      imp = collide(p, pinR(p), PIN_M, q, pinR(q), PIN_M, 0.55);
+      if (imp) {
+        clack(imp);
+        knock(p, Math.hypot(p.vx, p.vy)); knock(q, Math.hypot(q.vx, q.vy));
       }
-    } else if ((type === "up" || type === "cancel") && S.drag) {
-      var dd = S.drag; S.drag = null;
-      if (type === "cancel" || dd.mode !== "flick") return;
-      var f = flick(dd);
-      if (f) throwBall(f.p, f.spin);
     }
   }
-  function flick(d) {
-    var dy = d.oy - d.y, dx = d.x - d.ox;
-    if (dy < 24) return null;
-    return { p: clamp(dy / 210, 0, 1), spin: clamp(dx / Math.max(dy, 60) * 1.5, -1, 1) };
+}
+
+function anyMoving() {
+  for (let i = 0; i < S.pins.length; i++) {
+    const p = S.pins[i];
+    if (p.st !== "gone" && Math.hypot(p.vx, p.vy) > 4) return true;
   }
-  function key(type, code, e) {
-    var act = code === "Space" || code === "Enter" || code === "NumpadEnter";
-    if (type === "down") {
-      keys[code] = true;
-      if (act && !e.repeat && canThrow() && !S.charging) { S.charging = true; S.chargeT = 0; S.power = 0; S.kb = true; S.drag = null; }
+  return false;
+}
+
+/* ---------------- Pin action (presentation only, never changes a score) ---------------- */
+function animatePin(p, dt) {
+  if (p.wob > 0) { p.wobT += dt; p.wob = Math.max(0, p.wob - dt * 0.5); }
+  if (p.st === "up") return;
+  // tip over like an inverted pendulum, with one small bounce off the deck
+  if (p.tilt < LIE || p.tiltV < 0) {
+    p.tiltV += 34 * Math.sin(Math.max(p.tilt, 0.06)) * dt;
+    p.tilt += p.tiltV * dt;
+    if (p.tilt >= LIE) {
+      p.tilt = LIE;
+      if (p.tiltV > 5 && !p.bounced) { p.bounced = true; p.tiltV *= -0.2; }
+      else { p.tiltV = 0; if (p.st === "falling") p.st = "down"; }
+    }
+  }
+  // hop, then land (or keep dropping once it is over the pit)
+  const overPit = p.st === "gone" || p.y > PIT_Y;
+  if (p.vz !== 0 || p.z > 0 || overPit) {
+    p.vz -= GRAV * dt; p.z += p.vz * dt;
+    const floor = overPit ? -40 : 0;
+    if (p.z < floor) { p.z = floor; p.vz = p.vz < -45 ? -p.vz * 0.28 : 0; }
+  }
+  if (p.st === "gone") {
+    p.x = clamp(p.x + p.vx * dt * 0.7, -KICK + 2, KICK - 2);
+    p.y = Math.min(WALL_Y - 9, p.y + Math.max(p.vy, 30) * dt * 0.7);
+  }
+  p.head += p.yawV * dt;
+  p.yawV *= Math.max(0, 1 - 1.8 * dt);
+}
+
+function rakeY() { return HEAD_Y - 12 + clamp(S.pt / SWEEP_T, 0, 1) * 70; }
+
+// Deadwood (and, on a full reset, anything still standing) rides the rake into the pit.
+function animateDead(dt) {
+  const rake = S.phase === "sweep" ? rakeY() : null;
+  for (let i = S.dead.length - 1; i >= 0; i--) {
+    const p = S.dead[i];
+    if (rake != null && p.st !== "gone" && p.y < rake + 2.5) {
+      if (p.st === "up") { p.vx = 0; p.vy = 1; topple(p); p.head = Math.PI / 2 + (Math.random() - 0.5); p.tiltV = 5; p.vz = 0; }
+      p.y = rake + 2.5; p.vx *= 0.5; p.vy = 190;
+    }
+    if (p.st !== "gone" && p.y > PIT_Y) p.st = "gone";
+    animatePin(p, dt);
+    if (p.z <= -30) S.dead.splice(i, 1);
+  }
+}
+
+/* ---------------- Flow ---------------- */
+function setPhase(ph) { S.phase = ph; S.pt = 0; }
+
+function update(dt) {
+  S.t += dt; S.pt += dt;
+  let i;
+  for (i = 0; i < S.pins.length; i++) animatePin(S.pins[i], dt);
+  animateDead(dt);
+  for (i = parts.length - 1; i >= 0; i--) {
+    const q = parts[i]; q.life -= dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vy += 200 * dt; q.rot += q.vr * dt;
+    if (q.life <= 0) parts.splice(i, 1);
+  }
+
+  if (S.phase === "aim") {
+    const mv = (keys.ArrowLeft ? -1 : 0) + (keys.ArrowRight ? 1 : 0);
+    if (mv) { S.pos = clamp(S.pos + mv * 22 * dt, -POS_MAX, POS_MAX); S.kb = true; }
+    const hk = (keys.ArrowUp ? 1 : 0) + (keys.ArrowDown ? -1 : 0);
+    if (hk) { S.spin = clamp(S.spin + hk * 1.1 * dt, -1, 1); S.kb = true; }
+    if (S.charging) {
+      S.chargeT += dt;
+      const ph = (S.chargeT / 1.1) % 2;
+      S.power = ph < 1 ? ph : 2 - ph;
+    }
+    if (!S.announcedBumpers && S.frame === BUMPER_FRAMES && S.ball === 0) {
+      S.announcedBumpers = true;
+      Shell.flash("BUMPERS DOWN", "Gutters are live from here on.", "#ff3fa4", 1300);
+    }
+    return;
+  }
+
+  if (S.phase === "roll" || S.phase === "settle") {
+    const b = S.b;
+    let maxV = Math.max(Math.hypot(b.vx, b.vy), 1);
+    for (i = 0; i < S.pins.length; i++) maxV = Math.max(maxV, Math.hypot(S.pins[i].vx, S.pins[i].vy));
+    const n = clamp(Math.ceil(maxV * dt / 1.6), 2, 30);
+    for (i = 0; i < n; i++) step(dt / n);
+    // the ball sits lower in the gutter and drops off the end of the deck into the pit
+    if (b.y > PIT_Y) { b.vz -= GRAV * dt; b.z = Math.max(PIT_Z + BALL_R, b.z + b.vz * dt); }
+    else b.z += ((b.gutter ? BALL_R - 2.3 : BALL_R) - b.z) * Math.min(1, dt * 20);
+    // rolling rumble
+    if (b.y < PIT_Y) {
+      S.rollSnd -= dt;
+      if (S.rollSnd <= 0) { S.rollSnd = 0.08; Shell.noise(0.1, b.gutter ? 0.1 : 0.16, b.gutter ? 260 : 140, 0.7, 0, 0, "lowpass", 0.02); }
+    }
+    if (S.phase === "roll" && b.y > HEAD_Y - 6) setPhase("settle");
+    if (S.phase === "settle") {
+      const done = (b.y > PIT_Y || b.gutter) && (!anyMoving() && S.pt > 0.35 || S.pt > 2.2);
+      if (done) resolveBall();
+    }
+    return;
+  }
+  if (S.phase === "result") {
+    if (S.pt > 0.55) startSweep();
+    return;
+  }
+  if (S.phase === "sweep") {
+    const k = S.pt / SWEEP_T;
+    if (S.sweepFull) for (i = 0; i < S.pins.length; i++) S.pins[i].drop = Math.max(0, 1 - k);
+    if (k >= 1) {
+      for (i = 0; i < S.pins.length; i++) S.pins[i].drop = 0;
+      S.b = null;
+      if (S.over) { finishGame(); return; }
+      setPhase("aim");
+    }
+  }
+}
+
+function resolveBall() {
+  const b = S.b;
+  let i, p, down = 0;
+  for (i = 0; i < S.pins.length; i++) {
+    p = S.pins[i];
+    if (p.st !== "up") { if (!p.counted) { p.counted = true; down++; } }
+  }
+  const fr = S.frames[S.frame];
+  fr.push(down);
+  const first = S.ball === 0, f = S.frame;
+  const standing = standingCount();
+  const strike = down === 10 && (first || (f === 9 && fr.length === 2 && fr[0] === 10) || (f === 9 && fr.length === 3 && (fr[1] === 10 || fr[0] + fr[1] === 10)));
+  const spare = !strike && standing === 0 && !first;
+  let title, sub = "", col = "#eceae2";
+
+  if (strike) {
+    S.strikes++; S.strikesRow++;
+    if (S.strikesRow === 3) { title = "TURKEY!"; sub = "Three in a row. BE KIND, REWIND... ALL OF THEM."; col = "#ff4b3e"; burst(60); Shell.sfx("best"); }
+    else { title = S.strikesRow > 3 ? S.strikesRow + " IN A ROW!" : "STRIKE!"; sub = "BE KIND, REWIND... ALL OF THEM."; col = "#ffd23f"; burst(30); }
+    Shell.sfx("crowd"); Shell.sfx("score"); Shell.shake(4, 0.3); camShake(1.3, 0.35);
+    if (window.Trophies) { window.Trophies.unlock("tpl-strike"); if (S.strikesRow === 3) window.Trophies.unlock("tpl-turkey"); }
+    if (window.NPRewards && S.strikesRow >= 2) window.NPRewards.streak(S.strikesRow);
+  } else {
+    S.strikesRow = 0;
+    if (spare) {
+      S.spares++; title = "SPARE!"; sub = "Picked it clean."; col = "#3ff0ff"; Shell.sfx("score");
+      if (window.Trophies) { window.Trophies.unlock("tpl-spare"); if (S.splitFrame === f) window.Trophies.unlock("tpl-split"); }
+    }
+    else if (down === 0 && b.gutter) {
+      title = "LATE FEE."; sub = "Gutter ball."; col = "#ff3fa4"; Shell.sfx("miss");
+      if (window.Trophies && f >= BUMPER_FRAMES) window.Trophies.unlock("tpl-latefee");
+    }
+    else if (down === 0) { title = "MISS"; sub = "Not a scratch on them."; col = "#8e93a2"; Shell.sfx("miss"); }
+    else {
+      title = down + (down === 1 ? " PIN" : " PINS");
+      if (first && isSplit()) { title = "SPLIT"; sub = down + " down. Good luck with the rest."; col = "#a77bff"; S.splitFrame = f; }
+      else if (standing > 0) sub = standing + " left standing.";
+      Shell.sfx("tap");
+    }
+  }
+  Shell.flash(title, sub, col, 900);
+
+  // advance frame / ball
+  let rerack = false;
+  if (f < 9) {
+    if (strike || !first) { S.frame++; S.ball = 0; S.frames.push([]); rerack = true; }
+    else S.ball = 1;
+  } else {
+    if (fr.length === 1) { S.ball = 1; rerack = strike; }
+    else if (fr.length === 2) {
+      if (fr[0] === 10 || fr[0] + fr[1] === 10) { S.ball = 2; rerack = strike || spare; }
+      else S.over = true;
+    } else S.over = true;
+  }
+  S.sweepFull = rerack && !S.over;
+  setPhase("result");
+}
+
+function startSweep() {
+  const keep = [];
+  S.dead = [];
+  for (let i = 0; i < S.pins.length; i++) {
+    const p = S.pins[i];
+    // clear the deadwood, leave standing pins where they are (unless the whole rack is being reset)
+    if (!S.sweepFull && p.st === "up") { p.vx = p.vy = 0; p.wob = 0; keep.push(p); }
+    else if (p.z > -30) S.dead.push(p);
+  }
+  if (S.sweepFull) {
+    S.pins = fullRack();
+    for (let i = 0; i < S.pins.length; i++) S.pins[i].drop = 1;
+  } else S.pins = keep;
+  Shell.noise(0.3, 0.12, 400, 0.6, 0, 900);
+  setPhase("sweep");
+}
+
+function isSplit() {
+  const up = [];
+  let i, j;
+  for (i = 0; i < S.pins.length; i++) if (S.pins[i].st === "up") up.push(S.pins[i]);
+  if (up.length < 2) return false;
+  for (i = 0; i < up.length; i++) if (up[i].i === 0) return false; // headpin still up: not a split
+  // group standing pins by neighbor distance; more than one group = split
+  const group = up.map(function (_, k) { return k; });
+  function find(k) { while (group[k] !== k) k = group[k]; return k; }
+  for (i = 0; i < up.length; i++) for (j = i + 1; j < up.length; j++) {
+    const a = SPOTS[up[i].i], c = SPOTS[up[j].i];
+    if (Math.hypot(a[0] - c[0], a[1] - c[1]) < 12.5) group[find(i)] = find(j);
+  }
+  const roots = {};
+  for (i = 0; i < up.length; i++) roots[find(i)] = 1;
+  return Object.keys(roots).length > 1;
+}
+
+function finishGame() {
+  const t = total();
+  const title = t === 300 ? "PERFECT GAME!" : "TEN FRAMES DONE";
+  Shell.gameOver(t, { title: title, html: cardHTML() +
+    '<div class="np-row" style="margin-top:10px"><span>Strikes</span><b>' + S.strikes + '</b></div>' +
+    '<div class="np-row"><span>Spares</span><b>' + S.spares + '</b></div>',
+    stats: { total: t, strikes: S.strikes, spares: S.spares, frames: JSON.parse(JSON.stringify(S.frames)) } });
+}
+function cardHTML() {
+  const sc = scores(S.frames);
+  let h = '<table class="np-card10" aria-label="Scorecard"><tr>', i;
+  for (i = 0; i < 10; i++) h += "<th>" + (i + 1) + "</th>";
+  h += "</tr><tr>";
+  // Each roll is its own box with a gap, so a 1 then a 7 never reads as "17".
+  for (i = 0; i < 10; i++) {
+    const mk = S.frames[i] ? marks(S.frames[i], i) : [];
+    h += '<td class="np-nw"' + (mk.length ? ' aria-label="Frame ' + (i + 1) + ': ' + mk.join(", ") + '"' : "") + ">" +
+      mk.map(function (m) { return '<span class="np-roll">' + m + "</span>"; }).join("") + "</td>";
+  }
+  h += "</tr><tr>";
+  for (i = 0; i < 10; i++) h += "<td>" + (sc[i] == null ? "" : sc[i]) + "</td>";
+  return h + "</tr></table>";
+}
+
+function burst(n) {
+  const cols = ["#ffd23f", "#3ff0ff", "#ff3fa4", "#9bff3f", "#ff9214", "#ffffff"];
+  if (Shell.reduced) n = Math.ceil(n / 3);
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * TAU, s = 60 + Math.random() * 160;
+    parts.push({ x: W / 2, y: 230, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 80, life: 1.1, c: cols[i % cols.length],
+                 rot: Math.random() * TAU, vr: (Math.random() - 0.5) * 14 });
+  }
+}
+
+/* ---------------- Input ---------------- */
+function pointer(type, x, y) {
+  if (type === "down") {
+    if (!canThrow()) return;
+    S.drag = { sx: x, sy: y, ox: x, oy: y, mode: "slide", pos0: S.pos, x: x, y: y };
+    S.kb = false; S.charging = false;
+  } else if (type === "move" && S.drag) {
+    const d = S.drag;
+    d.x = x; d.y = y;
+    if (d.mode === "slide") {
+      if (y > d.oy) { d.oy = y; d.ox = x; }            // lowest point so far starts the flick
+      if (d.oy - y > 16) d.mode = "flick";
+      else S.pos = clamp(d.pos0 + (x - d.sx) * 0.15, -POS_MAX, POS_MAX);
+    }
+  } else if ((type === "up" || type === "cancel") && S.drag) {
+    const dd = S.drag; S.drag = null;
+    if (type === "cancel" || dd.mode !== "flick") return;
+    const f = flick(dd);
+    if (f) throwBall(f.p, f.spin);
+  }
+}
+function flick(d) {
+  const dy = d.oy - d.y, dx = d.x - d.ox;
+  if (dy < 24) return null;
+  return { p: clamp(dy / 210, 0, 1), spin: clamp(dx / Math.max(dy, 60) * 1.5, -1, 1) };
+}
+function key(type, code, e) {
+  const act = code === "Space" || code === "Enter" || code === "NumpadEnter";
+  if (type === "down") {
+    keys[code] = true;
+    if (act && !e.repeat && canThrow() && !S.charging) { S.charging = true; S.chargeT = 0; S.power = 0; S.kb = true; S.drag = null; }
+  } else {
+    keys[code] = false;
+    if (act && S.charging) { S.charging = false; throwBall(S.power, S.spin); S.power = 0; }
+  }
+}
+
+/* =====================================================================================
+   3D presentation
+   ===================================================================================== */
+
+function rng(seed) {
+  return function () {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function mkCanvas(w, h) { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; }
+// A small, blurry copy of a painted texture: what the lacquer reflects is a soft glow, not a mirror image.
+function softCanvas(src, w, h) {
+  const c = mkCanvas(w, h), g = c.getContext("2d");
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
+  g.drawImage(src, 0, 0, w, h);
+  return c;
+}
+
+/* ---------------- Painted textures (all drawn here, no image files besides the logo) ---------------- */
+
+// The studio logo on a square transparent canvas. If the PNG is missing, a plain lettered badge stands in.
+function logoCanvas(img) {
+  const c = mkCanvas(512, 512), g = c.getContext("2d");
+  if (img) {
+    const s = Math.min(512 / img.naturalWidth, 512 / img.naturalHeight);
+    const w = img.naturalWidth * s, h = img.naturalHeight * s;
+    g.drawImage(img, (512 - w) / 2, (512 - h) / 2, w, h);
+    return c;
+  }
+  g.fillStyle = "#12224f"; g.beginPath(); g.arc(256, 256, 236, 0, TAU); g.fill();
+  g.lineWidth = 14; g.strokeStyle = "#f6e8c8"; g.stroke();
+  g.lineWidth = 6; g.strokeStyle = "#c22a2a"; g.beginPath(); g.arc(256, 256, 214, 0, TAU); g.stroke();
+  g.fillStyle = "#f6e8c8"; g.textAlign = "center"; g.textBaseline = "middle";
+  g.font = 'italic 900 78px Georgia, "Times New Roman", serif';
+  g.fillText("Nostalgia", 256, 196); g.fillText("Pro", 256, 282);
+  g.font = "900 44px " + HUD_FONT; g.fillText("GAMES", 256, 372);
+  return c;
+}
+
+function woodCanvas() {
+  const c = mkCanvas(512, 512), g = c.getContext("2d"), rnd = rng(11);
+  const bw = 512 / 39;
+  for (let i = 0; i < 39; i++) {
+    g.fillStyle = "hsl(" + (35 + rnd() * 6) + "," + (62 + rnd() * 12) + "%," + (69 + rnd() * 9) + "%)";
+    g.fillRect(Math.floor(i * bw), 0, Math.ceil(bw) + 1, 512);
+    for (let k = 0; k < 4; k++) {                          // grain runs the length of the lane
+      g.fillStyle = "rgba(120,70,20," + (0.04 + rnd() * 0.07) + ")";
+      g.fillRect(i * bw + rnd() * bw, 0, 1, 512);
+    }
+    if (rnd() < 0.35) { g.fillStyle = "rgba(255,240,210," + (0.08 + rnd() * 0.08) + ")"; g.fillRect(i * bw + rnd() * bw, 0, 2, 512); }
+  }
+  for (let i = 1; i < 39; i++) {
+    g.fillStyle = i % 5 === 0 ? "rgba(105,60,20,.5)" : "rgba(125,78,34,.26)";
+    g.fillRect(Math.round(i * bw), 0, 1, 512);
+  }
+  return c;
+}
+
+function ballCanvas(logo) {
+  const c = mkCanvas(1024, 512), g = c.getContext("2d"), rnd = rng(5);
+  const bg = g.createLinearGradient(0, 0, 0, 512);
+  bg.addColorStop(0, "#7d3ff2"); bg.addColorStop(0.5, "#4a1fb8"); bg.addColorStop(1, "#2a0f78");
+  g.fillStyle = bg; g.fillRect(0, 0, 1024, 512);
+  // pearl swirls, wrapped so the seam does not show
+  for (let i = 0; i < 46; i++) {
+    const x = rnd() * 1024, y = 40 + rnd() * 432, r = 30 + rnd() * 90, a0 = rnd() * TAU, len = 1 + rnd() * 2.4;
+    g.lineWidth = 3 + rnd() * 12;
+    g.strokeStyle = ["rgba(196,150,255,.30)", "rgba(120,200,255,.22)", "rgba(255,130,220,.20)", "rgba(40,10,110,.35)"][i % 4];
+    for (let k = -1; k <= 1; k++) { g.beginPath(); g.arc(x + k * 1024, y, r, a0, a0 + len); g.stroke(); }
+  }
+  // the logo, once on each side of the ball (u = .25 faces the bowler at rest)
+  // each row is widened by 1 / cos(latitude) so the logo lands on the sphere undistorted
+  const LS = 236, rowH = logo.height / LS;
+  [256, 768].forEach(function (cx) {
+    for (let r = 0; r < LS; r++) {
+      const y = 256 - LS / 2 + r, lat = (0.5 - (y + 0.5) / 512) * Math.PI, w = LS / Math.max(0.4, Math.cos(lat));
+      g.drawImage(logo, 0, r * rowH, logo.width, rowH, cx - w / 2, y, w, 1);
+    }
+  });
+  // finger holes up top, between the two logos
+  const hy = 100, st = 1.5;
+  g.fillStyle = "#12052e";
+  [[-26, 0], [26, 0], [0, 40]].forEach(function (o) {
+    const sx = o[1] ? 1.25 : st;
+    g.beginPath(); g.ellipse(512 + o[0] * st, hy + o[1], 12 * sx, 12, 0, 0, TAU); g.fill();
+    g.beginPath(); g.ellipse(o[0] * st, hy + o[1], 12 * sx, 12, 0, 0, TAU); g.fill();
+    g.beginPath(); g.ellipse(1024 + o[0] * st, hy + o[1], 12 * sx, 12, 0, 0, TAU); g.fill();
+  });
+  return c;
+}
+
+// A white pin wearing a rental-tape label around its belly. v runs base (bottom of canvas) to head.
+function pinCanvas(color) {
+  const c = mkCanvas(256, 256), g = c.getContext("2d");
+  const Y = function (h) { return 256 - h / PIN_TALL * 256; };
+  g.fillStyle = "#fbfaf4"; g.fillRect(0, 0, 256, 256);
+  g.fillStyle = "#d9d5c8"; g.fillRect(0, Y(0.35), 256, 256 - Y(0.35));          // base ring
+  g.fillStyle = color;                                                            // neck stripes
+  g.fillRect(0, Y(11.75), 256, Y(11.2) - Y(11.75));
+  g.fillRect(0, Y(10.75), 256, Y(10.2) - Y(10.75));
+  // tape label
+  const top = Y(7.1), bot = Y(2.3);
+  g.fillStyle = "#16171d"; g.fillRect(0, top - 2, 256, bot - top + 4);
+  g.fillStyle = "#f4efdf"; g.fillRect(0, top, 256, bot - top);
+  g.fillStyle = color; g.fillRect(0, top + 5, 256, 9);
+  g.fillStyle = "#16171d"; g.fillRect(0, top + 17, 256, 2);
+  g.fillStyle = color; g.fillRect(0, bot - 13, 256, 5);
+  g.fillStyle = "#16171d";
+  g.font = "bold 17px " + HUD_FONT; g.textAlign = "center"; g.textBaseline = "middle";
+  const mid = (top + 19 + bot - 13) / 2 + 1;
+  g.fillText("BE KIND", 64, mid - 10); g.fillText("REWIND", 64, mid + 10);
+  g.fillText("BE KIND", 192, mid - 10); g.fillText("REWIND", 192, mid + 10);
+  return c;
+}
+
+function candyText(g, str, x, y, size, maxW) {
+  const face = '"Arial Black", "Arial Rounded MT Bold", "Trebuchet MS", "DejaVu Sans", Arial, sans-serif';
+  g.font = "900 " + size + "px " + face;
+  const w = g.measureText(str).width;
+  if (maxW && w > maxW) { size = Math.floor(size * maxW / w); g.font = "900 " + size + "px " + face; }
+  g.textAlign = "center"; g.textBaseline = "middle"; g.lineJoin = "round";
+  g.lineWidth = size * 0.36; g.strokeStyle = "#08205f"; g.strokeText(str, x, y + size * 0.06);
+  g.lineWidth = size * 0.17; g.strokeStyle = "#ffffff"; g.strokeText(str, x, y);
+  const gr = g.createLinearGradient(0, y - size * 0.5, 0, y + size * 0.5);
+  gr.addColorStop(0, "#fff06a"); gr.addColorStop(0.55, "#ffc21a"); gr.addColorStop(1, "#ff7a0f");
+  g.fillStyle = gr; g.fillText(str, x, y);
+  g.fillStyle = "rgba(255,255,255,.45)";
+  g.save(); g.beginPath(); g.rect(x - 600, y - size * 0.5, 1200, size * 0.36); g.clip(); g.fillText(str, x, y); g.restore();
+}
+
+// The masking unit above the pins: 70 x 22 inches of marquee.
+function maskCanvas(logo) {
+  const c = mkCanvas(1024, 322), g = c.getContext("2d");
+  const bg = g.createLinearGradient(0, 0, 0, 322);
+  bg.addColorStop(0, "#3d8cff"); bg.addColorStop(0.5, "#1b5fe0"); bg.addColorStop(1, "#0b3aa6");
+  g.fillStyle = bg; g.fillRect(0, 0, 1024, 322);
+  const gl = g.createLinearGradient(0, 0, 0, 150);
+  gl.addColorStop(0, "rgba(255,255,255,.42)"); gl.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = gl; g.beginPath(); g.ellipse(512, -20, 620, 170, 0, 0, TAU); g.fill();
+  g.lineWidth = 16; g.strokeStyle = "#ff9214"; g.strokeRect(8, 8, 1008, 306);
+  g.lineWidth = 4; g.strokeStyle = "#ffe45c"; g.strokeRect(19, 19, 986, 284);
+  g.drawImage(logo, 26, 24, 274, 274);
+  g.drawImage(logo, 724, 24, 274, 274);
+  candyText(g, "TAPE PIN", 512, 112, 78, 400);
+  candyText(g, "LANES", 512, 214, 96, 400);
+  return c;
+}
+
+// One lane's worth of back wall (72 x 150 inches), tiled across the building.
+function wallCanvas(logo) {
+  const c = mkCanvas(512, 1024), g = c.getContext("2d"), rnd = rng(23);
+  const Y = function (z) { return 1024 - z / WALL_H * 1024; };
+  const bg = g.createLinearGradient(0, 0, 0, 1024);
+  bg.addColorStop(0, "#143fae"); bg.addColorStop(0.45, "#2f7bf0"); bg.addColorStop(0.8, "#1b56cf"); bg.addColorStop(1, "#143fae");
+  g.fillStyle = bg; g.fillRect(0, 0, 512, 1024);
+  const cy = Y(69.5);                                      // low enough to clear the scoreboard from the foul line
+  g.save(); g.beginPath(); g.rect(0, 0, 512, Y(52)); g.clip();
+  for (let i = 0; i < 18; i += 2) {                       // sunburst behind the logo
+    g.fillStyle = "rgba(255,255,255,.08)";
+    g.beginPath(); g.moveTo(256, cy);
+    g.arc(256, cy, 900, i / 18 * TAU, (i + 1) / 18 * TAU); g.closePath(); g.fill();
+  }
+  for (let i = 0; i < 26; i++) {                          // candy bubbles
+    const x = rnd() * 512, y = rnd() * Y(52), r = 8 + rnd() * 30;
+    g.lineWidth = 3; g.strokeStyle = "rgba(255,255,255," + (0.08 + rnd() * 0.1) + ")";
+    for (let k = -1; k <= 1; k++) { g.beginPath(); g.arc(x + k * 512, y, r, 0, TAU); g.stroke(); }
+  }
+  g.restore();
+  // trim stripes
+  g.fillStyle = "#ff9214"; g.fillRect(0, Y(50), 512, Y(44) - Y(50));
+  g.fillStyle = "#ffe45c"; g.fillRect(0, Y(50) - 5, 512, 5);
+  g.fillStyle = "#ffffff"; g.fillRect(0, Y(44), 512, 3);
+  g.fillStyle = "#ff9214"; g.fillRect(0, Y(132), 512, Y(128) - Y(132));
+  g.fillStyle = "#ffe45c"; g.fillRect(0, Y(128), 512, 4);
+  // the big logo
+  const lw = 38 / LANE_PITCH * 512, lh = 38 / WALL_H * 1024;
+  g.drawImage(logo, 256 - lw / 2, cy - lh / 2, lw, lh);
+  // behind the masking unit, and the pit curtain under it
+  g.fillStyle = "#0a1a52"; g.fillRect(0, Y(44) + 3, 512, Y(18) - Y(44));
+  const cu = g.createLinearGradient(0, Y(18), 0, 1024);
+  cu.addColorStop(0, "#050816"); cu.addColorStop(1, "#0c1330");
+  g.fillStyle = cu; g.fillRect(0, Y(18), 512, 1024 - Y(18));
+  for (let x = 6; x < 512; x += 22) { g.fillStyle = "rgba(255,255,255,.035)"; g.fillRect(x, Y(18), 8, 1024 - Y(18)); }
+  return c;
+}
+
+function ceilingCanvas() {
+  const c = mkCanvas(256, 256), g = c.getContext("2d");
+  g.fillStyle = "#0b1f5e"; g.fillRect(0, 0, 256, 256);
+  g.shadowColor = "#9fd0ff"; g.shadowBlur = 34;
+  const gr = g.createLinearGradient(0, 40, 0, 216);
+  gr.addColorStop(0, "#ffffff"); gr.addColorStop(1, "#d6ebff");
+  g.fillStyle = gr; g.fillRect(74, 34, 108, 188);
+  g.shadowBlur = 0;
+  return c;
+}
+
+function shadowCanvas() {
+  const c = mkCanvas(64, 64), g = c.getContext("2d");
+  const gr = g.createRadialGradient(32, 32, 2, 32, 32, 31);
+  gr.addColorStop(0, "rgba(20,10,0,.85)"); gr.addColorStop(0.55, "rgba(20,10,0,.45)"); gr.addColorStop(1, "rgba(20,10,0,0)");
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  return c;
+}
+
+// Pin spots and a lighter pin deck, laid over the lane from y = 700 to 760.
+function deckCanvas() {
+  const c = mkCanvas(256, 256), g = c.getContext("2d");
+  const X = function (x) { return (x + LW) / (LW * 2) * 256; }, Y = function (y) { return (760 - y) / 60 * 256; };
+  const gr = g.createLinearGradient(0, Y(712), 0, Y(700));
+  gr.addColorStop(0, "rgba(255,250,235,.16)"); gr.addColorStop(1, "rgba(255,250,235,0)");
+  g.fillStyle = gr; g.fillRect(0, Y(712), 256, Y(700) - Y(712));
+  g.fillStyle = "rgba(255,250,235,.16)"; g.fillRect(0, 0, 256, Y(712));
+  for (let i = 0; i < 10; i++) {
+    const x = X(SPOTS[i][0]), y = Y(HEAD_Y + SPOTS[i][1]);
+    g.fillStyle = "rgba(70,36,10,.30)"; g.beginPath(); g.ellipse(x, y, 14.5, 10, 0, 0, TAU); g.fill();
+    g.lineWidth = 1.5; g.strokeStyle = "rgba(60,30,8,.45)"; g.stroke();
+  }
+  return c;
+}
+
+// A tiny painted room for the glossy highlights on the ball and pins.
+function envFaces() {
+  const side = function () {
+    const c = mkCanvas(64, 64), g = c.getContext("2d");
+    const gr = g.createLinearGradient(0, 0, 0, 64);
+    gr.addColorStop(0, "#ffffff"); gr.addColorStop(0.16, "#dcebff"); gr.addColorStop(0.3, "#3d8cff");
+    gr.addColorStop(0.5, "#1648b8"); gr.addColorStop(0.52, "#b97f3e"); gr.addColorStop(1, "#e9c58a");
+    g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+    return c;
+  };
+  const top = mkCanvas(64, 64), tg = top.getContext("2d");
+  tg.fillStyle = "#2a55b8"; tg.fillRect(0, 0, 64, 64);
+  tg.fillStyle = "#ffffff"; tg.fillRect(8, 6, 14, 52); tg.fillRect(42, 6, 14, 52);
+  const bot = mkCanvas(64, 64), bgx = bot.getContext("2d");
+  bgx.fillStyle = "#e3bd80"; bgx.fillRect(0, 0, 64, 64);
+  return [side(), side(), top, bot, side(), side()];
+}
+
+/* ---------------- Scene ---------------- */
+function buildScene(T, logoImg) {
+  const gl = document.createElement("canvas");
+  gl.setAttribute("aria-hidden", "true");
+  const dpr = window.devicePixelRatio || 1;
+  const renderer = new T.WebGLRenderer({ canvas: gl, antialias: dpr < 2, alpha: false, powerPreference: "high-performance" });
+  renderer.setClearColor(0x0b2a7c, 1);
+  const scene = new T.Scene();
+  const camera = new T.PerspectiveCamera(CAM_FOV, W / H, 6, 3200);
+  const caps = renderer.capabilities;
+  const aniso = Math.min(4, caps.getMaxAnisotropy ? caps.getMaxAnisotropy() : 1);
+
+  function tex(canvas, repeat) {
+    const t = new T.CanvasTexture(canvas);
+    if ("colorSpace" in t && T.SRGBColorSpace) t.colorSpace = T.SRGBColorSpace;
+    if (repeat) { t.wrapS = t.wrapT = T.RepeatWrapping; }
+    t.anisotropy = aniso;
+    return t;
+  }
+
+  const logo = logoCanvas(logoImg);
+  const tLogo = tex(logo), tWood = tex(woodCanvas(), true), tBall = tex(ballCanvas(logo), true);
+  const cMask = maskCanvas(logo), cWall = wallCanvas(logo);
+  const tMask = tex(cMask), tWall = tex(cWall, true), tCeil = tex(ceilingCanvas(), true);
+  const tMaskSoft = tex(softCanvas(cMask, 64, 32)), tWallSoft = tex(softCanvas(cWall, 32, 64), true);
+  const tShadow = tex(shadowCanvas()), tDeck = tex(deckCanvas());
+  tBall.wrapT = T.ClampToEdgeWrapping;
+  const tEnv = new T.CubeTexture(envFaces());
+  if ("colorSpace" in tEnv && T.SRGBColorSpace) tEnv.colorSpace = T.SRGBColorSpace;
+  tEnv.needsUpdate = true;
+
+  // Everything in "world" that stands above the floor gets a twin in "mirror" (flipped through the
+  // lane surface). The lane itself is slightly see-through, so the twins read as its reflection.
+  const world = new T.Group(), mirror = new T.Group();
+  mirror.scale.y = -1;
+  scene.add(world); scene.add(mirror);
+  function both(mesh) { world.add(mesh); const m = mesh.clone(); mirror.add(m); return m; }
+  // The room's reflection is kept soft so the wood still reads as wood; pins and the ball reflect at full strength.
+  function dim(mat, k) { const m = mat.clone(); m.color.multiplyScalar(k); return m; }
+
+  function scaleUV(geo, su, sv) {
+    const uv = geo.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * su, uv.getY(i) * sv);
+    return geo;
+  }
+  // A flat rectangle on the floor, texture "up" pointing down the lane.
+  function floor(x1, x2, y1, y2, z, mat, su, sv) {
+    const g = new T.PlaneGeometry(x2 - x1, y2 - y1);
+    g.rotateX(-Math.PI / 2);
+    if (su) scaleUV(g, su, sv);
+    const m = new T.Mesh(g, mat);
+    m.position.set((x1 + x2) / 2, z, -(y1 + y2) / 2);
+    return m;
+  }
+  function decal(mat, order) { mat.transparent = true; mat.depthWrite = false; mat._order = order; return mat; }
+  function addDecal(mesh) { mesh.renderOrder = mesh.material._order; world.add(mesh); return mesh; }
+
+  /* lights */
+  scene.add(new T.HemisphereLight(0xffffff, 0xb7c6ea, 1.55));
+  const key = new T.DirectionalLight(0xffffff, 2.1);       // from the bowler's left, so the ball's glint lands beside its logo
+  key.position.set(-172, 143, 50); scene.add(key);
+  const gloss = new T.DirectionalLight(0xfff4dc, 1.25);     // low, from down the lane: the long shine on the wood
+  gloss.position.set(25, 62, -200); scene.add(gloss);
+
+  /* lane surfaces */
+  const laneMat = new T.MeshPhongMaterial({ map: tWood, specular: 0x9a9a9a, shininess: 85, transparent: true, opacity: 0.8, depthWrite: false });
+  const approachMat = new T.MeshPhongMaterial({ map: tWood, color: 0xe2a268, specular: 0x8a8a8a, shininess: 70, transparent: true, opacity: 0.86, depthWrite: false });
+  const woodSolid = new T.MeshPhongMaterial({ map: tWood, color: 0xe9e2d6, specular: 0x666666, shininess: 60 });
+  const approachSolid = new T.MeshPhongMaterial({ map: tWood, color: 0xe2a268, specular: 0x555555, shininess: 50 });
+  const lane = floor(-LW, LW, 0, PIT_Y, 0, laneMat, 1, PIT_Y / 83);
+  lane.renderOrder = 1; world.add(lane);
+  const appr = floor(-KICK, KICK, -96, 0, 0, approachMat, KICK / LW, 96 / 83);
+  appr.renderOrder = 1; world.add(appr);
+  world.add(floor(KICK, 420, -96, 0, 0, approachSolid, (420 - KICK) / (LW * 2), 96 / 83));
+  world.add(floor(-420, -KICK, -96, 0, 0, approachSolid, (420 - KICK) / (LW * 2), 96 / 83));
+
+  const gutterMat = new T.MeshPhongMaterial({ color: 0x2a3454, specular: 0x8899bb, shininess: 50, side: T.DoubleSide });
+  const gutterGeo = new T.CylinderGeometry(GUT / 2, GUT / 2, 1, 10, 1, true, -Math.PI / 2, Math.PI);
+  gutterGeo.rotateX(Math.PI / 2);
+  const capMat = new T.MeshPhongMaterial({ color: 0x1f58d6, specular: 0x99aadd, shininess: 60 });
+  const kickMat = new T.MeshPhongMaterial({ color: 0xeef2ff, specular: 0x888888, shininess: 50 });
+  const capLen = HEAD_Y - 36;
+  for (let k = -1; k <= 1; k++) {
+    const cx = k * LANE_PITCH;
+    if (k !== 0) world.add(floor(cx - LW, cx + LW, 0, PIT_Y, 0, woodSolid, 1, PIT_Y / 83));
+    for (let s = -1; s <= 1; s += 2) {
+      const gm = new T.Mesh(gutterGeo, gutterMat);
+      gm.scale.set(1, 2.4 / (GUT / 2), PIT_Y);
+      gm.position.set(cx + s * (LW + GUT / 2), 0, -PIT_Y / 2);
+      world.add(gm);
+    }
+  }
+  for (let d = -2; d <= 1; d++) {                           // the dividers between lanes, and the kickbacks at the deck
+    const dx = d * LANE_PITCH + LANE_PITCH / 2;
+    const cap = new T.Mesh(new T.BoxGeometry(12, 1.4, capLen), capMat);
+    cap.position.set(dx, 0.7, -capLen / 2); world.add(cap);
+    const kb = new T.Mesh(new T.BoxGeometry(12, 18 - PIT_Z, WALL_Y - capLen), kickMat);
+    kb.position.set(dx, (18 + PIT_Z) / 2, -(capLen + WALL_Y) / 2); world.add(kb);
+  }
+  const carpet = new T.MeshLambertMaterial({ color: 0x1746b4 });
+  world.add(floor(114, 420, 0, WALL_Y, 0, carpet));
+  world.add(floor(-420, -114, 0, WALL_Y, 0, carpet));
+  world.add(floor(-114, 114, PIT_Y, WALL_Y, PIT_Z, new T.MeshLambertMaterial({ color: 0x090c18 })));
+
+  /* lane markings */
+  const tri = [];
+  function pushTri(ax, ay, bx, by, cx, cy) { tri.push(ax, 0.05, -ay, bx, 0.05, -by, cx, 0.05, -cy); }
+  for (let k = -3; k <= 3; k++) {
+    const ax = k * 5 * BOARD_W, ay = 180 + (3 - Math.abs(k)) * 8;
+    pushTri(ax, ay + 15, ax - 1.9, ay, ax + 1.9, ay);         // the seven arrows
+    for (let s = 0; s < 8; s++) {                             // approach dots
+      const a0 = s / 8 * TAU, a1 = (s + 1) / 8 * TAU;
+      pushTri(ax, -8, ax + Math.cos(a0) * 0.75, -8 + Math.sin(a0) * 0.75, ax + Math.cos(a1) * 0.75, -8 + Math.sin(a1) * 0.75);
+    }
+  }
+  const markGeo = new T.BufferGeometry();
+  markGeo.setAttribute("position", new T.Float32BufferAttribute(tri, 3));
+  addDecal(new T.Mesh(markGeo, decal(new T.MeshBasicMaterial({ color: 0x7a3a12, opacity: 0.85, side: T.DoubleSide }), 2)));
+  addDecal(floor(-KICK, KICK, 0, 1.6, 0.04, decal(new T.MeshBasicMaterial({ color: 0xe3231a }), 2)));
+  addDecal(floor(-LW, LW, 700, 760, 0.03, decal(new T.MeshBasicMaterial({ map: tDeck }), 2)));
+  // the studio logo printed under the lacquer, stretched so it reads from the foul line
+  addDecal(floor(-17, 17, 232, 452, 0.03, decal(new T.MeshBasicMaterial({ map: tLogo, opacity: 0.62 }), 2)));
+
+  /* oil: a shiny stripe as long as this frame's pattern */
+  const unit = new T.PlaneGeometry(1, 1); unit.rotateX(-Math.PI / 2);
+  const oil = addDecal(new T.Mesh(unit, decal(new T.MeshBasicMaterial({ color: 0xcdeaff, opacity: 0.17, blending: T.AdditiveBlending }), 3)));
+  const oilEnd = addDecal(new T.Mesh(unit, decal(new T.MeshBasicMaterial({ color: 0x12c4ff, opacity: 0.75 }), 3)));
+  const sheen = addDecal(new T.Mesh(unit, decal(new T.MeshBasicMaterial({ color: 0xffffff, opacity: 0.13, blending: T.AdditiveBlending }), 3)));
+  oil.position.y = 0.06; oilEnd.position.y = 0.07; sheen.position.y = 0.08;
+
+  /* back wall, masking units, ceiling */
+  const wallGeo = scaleUV(new T.PlaneGeometry(LANE_PITCH * 5, WALL_H), 5, 1);
+  const wall = new T.Mesh(wallGeo, new T.MeshBasicMaterial({ map: tWall }));
+  wall.position.set(0, WALL_H / 2, -WALL_Y); both(wall).material = dim(new T.MeshBasicMaterial({ map: tWallSoft }), 0.8);
+  const maskSide = new T.MeshPhongMaterial({ color: 0x1b4fc0, specular: 0x555555, shininess: 30 });
+  const maskFront = new T.MeshBasicMaterial({ map: tMask });
+  const maskGeo = new T.BoxGeometry(70, 22, 3);
+  const maskSideDim = dim(maskSide, 0.8), maskFrontDim = dim(new T.MeshBasicMaterial({ map: tMaskSoft }), 0.8);
+  for (let k = -1; k <= 1; k++) {
+    const mu = new T.Mesh(maskGeo, [maskSide, maskSide, maskSide, maskSide, maskFront, maskSide]);
+    mu.position.set(k * LANE_PITCH, 29, -(PIT_Y + 3.5));
+    both(mu).material = [maskSideDim, maskSideDim, maskSideDim, maskSideDim, maskFrontDim, maskSideDim];
+  }
+  const ceilGeo = scaleUV(new T.PlaneGeometry(LANE_PITCH * 11, 1440), 11, 20);
+  ceilGeo.rotateX(Math.PI / 2);
+  const ceil = new T.Mesh(ceilGeo, new T.MeshBasicMaterial({ map: tCeil }));
+  ceil.position.set(0, WALL_H, -280); both(ceil).material = dim(ceil.material, 0.7);
+
+  /* pins */
+  const prof = [[1.0, 0], [1.41, 0.75], [1.96, 2.25], [2.26, 3.375], [2.383, 4.5], [2.28, 5.875], [1.9, 7.25], [1.36, 8.625],
+                [1.06, 9.4], [0.9, 10.1], [0.94, 10.9], [1.06, 11.75], [1.2, 12.6], [1.274, 13.5], [1.16, 14.2], [0.82, 14.72]];
+  const curve = new T.SplineCurve(prof.map(function (p) { return new T.Vector2(p[0], p[1]); }));
+  const pts = [new T.Vector2(0, 0)].concat(curve.getPoints(30)).concat([new T.Vector2(0.4, 14.94), new T.Vector2(0, PIN_TALL)]);
+  function pinUV(geo) {                                      // v follows height, so the painted bands sit where they belong
+    const pos = geo.attributes.position, uv = geo.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setY(i, clamp(pos.getY(i) / PIN_TALL, 0, 1));
+    return geo;
+  }
+  const pinGeo = pinUV(new T.LatheGeometry(pts, 18));
+  const pinMats = PIN_COLORS.map(function (col) {
+    return new T.MeshPhongMaterial({ map: tex(pinCanvas(col), true), specular: 0xb0b0b0, shininess: 90, envMap: tEnv, combine: T.AddOperation, reflectivity: 0.16 });
+  });
+  const shadowMat = decal(new T.MeshBasicMaterial({ map: tShadow, opacity: 0.6 }), 4);
+  function pinSet() {
+    const set = [];
+    for (let i = 0; i < 10; i++) {
+      const mesh = new T.Mesh(pinGeo, pinMats[i % 5]);
+      const twin = both(mesh);
+      const shadow = addDecal(new T.Mesh(unit, shadowMat));
+      mesh.visible = twin.visible = shadow.visible = false;
+      set.push({ mesh: mesh, twin: twin, shadow: shadow });
+    }
+    return set;
+  }
+  const pins = pinSet(), dead = pinSet();
+  // full racks standing on the two neighboring lanes (scenery, one draw call)
+  const farGeo = pinUV(new T.LatheGeometry(pts.filter(function (_, i) { return i % 2 === 0 || i === pts.length - 1; }), 10));
+  const farPins = new T.InstancedMesh(farGeo, pinMats[1], 20);
+  const farM = new T.Matrix4();
+  for (let k = 0; k < 20; k++) {
+    const sp = SPOTS[k % 10];
+    farM.makeTranslation((k < 10 ? -1 : 1) * LANE_PITCH + sp[0], 0, -(HEAD_Y + sp[1]));
+    farPins.setMatrixAt(k, farM);
+  }
+  farPins.instanceMatrix.needsUpdate = true;
+  world.add(farPins);
+
+  /* ball */
+  const ballMat = new T.MeshPhongMaterial({ map: tBall, specular: 0xdddddd, shininess: 240, envMap: tEnv, combine: T.AddOperation, reflectivity: 0.3 });
+  const ball = new T.Mesh(new T.SphereGeometry(BALL_R, 30, 20), ballMat);
+  const ballTwin = both(ball);
+  const ballShadow = addDecal(new T.Mesh(unit, shadowMat));
+
+  /* bumpers + sweep rake */
+  const railGeo = new T.CylinderGeometry(1.3, 1.3, 1, 10); railGeo.rotateX(Math.PI / 2);
+  const railMat = new T.MeshPhongMaterial({ color: 0xffcf1a, specular: 0xffffff, shininess: 90 });
+  const rails = [-1, 1].map(function (s) {
+    const m = new T.Mesh(railGeo, railMat);
+    m.scale.z = DECK_END - 6; m.position.set(s * (LW + 3.55), 3.4, -(DECK_END - 6) / 2 - 1);
+    world.add(m); return m;
+  });
+  const rake = new T.Group();
+  const rakeBar = new T.Mesh(new T.BoxGeometry(KICK * 2 - 1, 9, 1.6), new T.MeshPhongMaterial({ color: 0x26356e, specular: 0x8899cc, shininess: 60 }));
+  rakeBar.position.y = 5;
+  const rakeTrim = new T.Mesh(new T.BoxGeometry(KICK * 2 - 1, 1.6, 1.9), new T.MeshPhongMaterial({ color: 0xff9214, specular: 0xffffff, shininess: 60 }));
+  rakeTrim.position.y = 8.8;
+  rake.add(rakeBar); rake.add(rakeTrim); rake.visible = false; world.add(rake);
+
+  gl.addEventListener("webglcontextlost", function (e) { e.preventDefault(); });
+  gl.addEventListener("webglcontextrestored", function () { if (R) R.dirty = true; });
+
+  return {
+    T: T, gl: gl, renderer: renderer, scene: scene, camera: camera, mirror: mirror, laneMat: laneMat, approachMat: approachMat,
+    pins: pins, dead: dead, ball: ball, ballTwin: ballTwin, ballShadow: ballShadow, oil: oil, oilEnd: oilEnd, sheen: sheen,
+    rails: rails, railZ: 3.4, rake: rake,
+    camPos: new T.Vector3(0, CAM_H, -CAM0), camTgt: new T.Vector3(0, 0, -(CAM0 + CAM_AHEAD)), goalPos: new T.Vector3(), goalTgt: new T.Vector3(),
+    shakeT: 0, shakeDur: 0, shakeMag: 0,
+    ballQ: new T.Quaternion(), restQ: new T.Quaternion().setFromEuler(new T.Euler(-0.5, 0, 0)), lastBall: null, bpx: 0, bpy: 0,
+    qa: new T.Quaternion(), qb: new T.Quaternion(), axis: new T.Vector3(), up: new T.Vector3(0, 1, 0), fwd: new T.Vector3(0, 0, -1), v: new T.Vector3(),
+    hud: null, stage: null, cw: 0, ch: 0, left: null, top: null, pr: 0, dirty: true, lastT: 0,
+    quality: 0, qLock: false, mirrorOn: true, slowSum: 0, slowN: 0, slowHits: 0, warm: 0
+  };
+}
+
+/* ---------------- Quality: start sharp, step down if the phone can't hold the frame rate ---------------- */
+const QUALITY = [{ pr: 2, mirror: true }, { pr: 1.5, mirror: true }, { pr: 1.15, mirror: true }, { pr: 1, mirror: false }];
+
+function setQuality(q) {
+  R.quality = clamp(q, 0, QUALITY.length - 1);
+  const on = QUALITY[R.quality].mirror;
+  if (on !== R.mirrorOn) {
+    R.mirrorOn = on;
+    R.mirror.visible = on;
+    R.laneMat.transparent = R.approachMat.transparent = on;
+    R.laneMat.opacity = on ? 0.8 : 1; R.approachMat.opacity = on ? 0.86 : 1;
+    R.laneMat.depthWrite = R.approachMat.depthWrite = !on;
+    R.laneMat.needsUpdate = R.approachMat.needsUpdate = true;
+  }
+  R.dirty = true;
+}
+function pixelRatio() { return Math.min(window.devicePixelRatio || 1, QUALITY[R.quality].pr); }
+
+function watchFrameRate(ms) {
+  if (R.qLock || R.quality >= QUALITY.length - 1 || ms > 250) return;
+  if (R.warm < 45) { R.warm++; return; }                    // let shaders compile first
+  R.slowSum += ms; R.slowN++;
+  if (R.slowN < 60) return;
+  const avg = R.slowSum / R.slowN;
+  R.slowSum = 0; R.slowN = 0;
+  if (avg > 24) {
+    if (++R.slowHits >= 2) {                                // two slow seconds in a row, not one hiccup
+      R.slowHits = 0;
+      const before = pixelRatio();
+      let q = R.quality + 1;
+      while (q < QUALITY.length - 1 && Math.min(window.devicePixelRatio || 1, QUALITY[q].pr) === before && QUALITY[q].mirror === R.mirrorOn) q++;
+      setQuality(q);
+    }
+  } else R.slowHits = 0;
+}
+
+/* ---------------- Keep the WebGL canvas exactly under the shell's canvas ---------------- */
+function layout() {
+  const hud = R.hud, st = R.stage;
+  const cw = hud.clientWidth, ch = hud.clientHeight;
+  if (!cw || !ch) return false;
+  const hr = hud.getBoundingClientRect(), sr = st.getBoundingClientRect();
+  const left = Math.round((hr.left - sr.left - st.clientLeft + hud.clientLeft + st.scrollLeft) * 100) / 100;
+  const top = Math.round((hr.top - sr.top - st.clientTop + hud.clientTop + st.scrollTop) * 100) / 100;
+  const pr = pixelRatio();
+  if (cw !== R.cw || ch !== R.ch || pr !== R.pr) {
+    R.cw = cw; R.ch = ch; R.pr = pr;
+    R.renderer.setPixelRatio(pr);
+    R.renderer.setSize(cw, ch, false);
+    R.gl.style.width = cw + "px"; R.gl.style.height = ch + "px";
+    R.dirty = true;
+  }
+  if (left !== R.left || top !== R.top) {
+    R.left = left; R.top = top;
+    R.gl.style.left = left + "px"; R.gl.style.top = top + "px";
+  }
+  return true;
+}
+
+function camShake(mag, dur) {
+  if (!R || Shell.reduced) return;
+  R.shakeMag = mag; R.shakeDur = R.shakeT = dur;
+}
+
+/* ---------------- Game state -> meshes ---------------- */
+// How far the base center of a pin tipped by angle a sits above the deck, so its lowest point just touches.
+const PIN_RIM = [[1.0, 0], [1.41, 0.75], [1.96, 2.25], [2.383, 4.5], [1.9, 7.25], [1.274, 13.5], [0.82, 14.72], [0, PIN_TALL]];
+function pinLift(a) {
+  const s = Math.abs(Math.sin(a)), c = Math.cos(a);
+  let m = 0;
+  for (let i = 0; i < PIN_RIM.length; i++) m = Math.max(m, PIN_RIM[i][0] * s - PIN_RIM[i][1] * c);
+  return m;
+}
+
+function placePin(o, p) {
+  const up = p.st === "up";
+  const a = up ? Math.sin(p.wobT * 30) * p.wob : p.tilt;
+  const hd = up ? p.wobDir : p.head;
+  const hx = Math.cos(hd), hy = Math.sin(hd), sn = Math.sin(a), lean = Math.abs(sn);
+  // A lying pin rests on its belly and is centered on its physics spot (its base swings out behind it).
+  let z = p.drop * 30 + p.z + pinLift(a);
+  const off = up ? 0 : 5.8 * sn;
+  if (Math.abs(p.x) > LW + 0.5 && p.y < PIT_Y) z -= Math.min(2.2, (Math.abs(p.x) - LW - 0.5) * 0.8);   // slid into a gutter
+  o.mesh.position.set(p.x - hx * off, z, -(p.y - hy * off));
+  R.axis.set(-hy, 0, -hx);
+  R.qa.setFromAxisAngle(R.axis, a);
+  R.qb.setFromAxisAngle(R.up, p.yaw);
+  o.mesh.quaternion.multiplyQuaternions(R.qa, R.qb);
+  const vis = z > -28;
+  o.mesh.visible = vis;
+  o.twin.visible = vis && R.mirrorOn && p.st !== "gone" && p.z >= 0 && Math.abs(p.x) < LW + 0.5 && p.y < PIT_Y;
+  if (o.twin.visible) { o.twin.position.copy(o.mesh.position); o.twin.quaternion.copy(o.mesh.quaternion); }
+  const sh = o.shadow;
+  sh.visible = vis && p.st !== "gone" && p.y < PIT_Y - 1 && Math.abs(p.x) < LW + 0.5 && z < 30;
+  if (sh.visible) {
+    const k = clamp(1 - (p.drop * 30 + p.z) / 34, 0.3, 1);
+    sh.position.set(p.x, 0.09, -p.y);
+    sh.rotation.y = hd;
+    sh.scale.set((6.4 + 13 * lean) * k, 1, (6.4 + 1.5 * lean) * k);
+  }
+}
+
+function syncScene(state, fdt) {
+  let i;
+  for (i = 0; i < 10; i++) {
+    R.pins[i].mesh.visible = R.pins[i].twin.visible = R.pins[i].shadow.visible = false;
+    R.dead[i].mesh.visible = R.dead[i].twin.visible = R.dead[i].shadow.visible = false;
+  }
+  for (i = 0; i < S.pins.length; i++) placePin(R.pins[S.pins[i].i], S.pins[i]);
+  for (i = 0; i < S.dead.length; i++) placePin(R.dead[S.dead[i].i], S.dead[i]);
+
+  /* ball */
+  const b = S.b, ball = R.ball;
+  if (b) {
+    if (R.lastBall !== b) { R.lastBall = b; R.bpx = b.x; R.bpy = b.y; }
+    const dx = b.x - R.bpx, dy = b.y - R.bpy, d = Math.hypot(dx, dy);
+    R.bpx = b.x; R.bpy = b.y;
+    if (d > 1e-4) {                                          // roll without slipping
+      R.axis.set(-dy / d, 0, -dx / d);
+      R.qa.setFromAxisAngle(R.axis, d / BALL_R);
+      R.ballQ.premultiply(R.qa);
+    }
+    if (!b.gutter && b.y < HEAD_Y && d > 1e-4) {            // the side rotation that makes it hook
+      R.qa.setFromAxisAngle(R.fwd, b.spin * 11 * fdt);
+      R.ballQ.premultiply(R.qa);
+    }
+    ball.visible = b.y < WALL_Y - 8;
+    ball.position.set(b.x, b.z, -b.y);
+    R.ballTwin.visible = ball.visible && R.mirrorOn && !b.gutter && b.y < PIT_Y;
+    R.ballShadow.visible = ball.visible && b.y < PIT_Y;
+    R.ballShadow.position.set(b.x, b.gutter ? -2.2 : 0.09, -b.y);
+  } else {
+    R.lastBall = null;
+    const show = S.phase === "aim" || S.phase === "sweep";
+    if (state === "title" && !Shell.reduced) { R.qa.setFromAxisAngle(R.up, idleT * 0.7); R.ballQ.multiplyQuaternions(R.restQ, R.qa); }
+    else R.ballQ.slerp(R.restQ, Math.min(1, fdt * 12));
+    ball.visible = show;
+    ball.position.set(S.pos, BALL_R, -START_Y);
+    R.ballTwin.visible = show && R.mirrorOn;
+    R.ballShadow.visible = show;
+    R.ballShadow.position.set(S.pos, 0.09, -START_Y);
+  }
+  ball.quaternion.copy(R.ballQ);
+  R.ballShadow.scale.set(11.5, 1, 11.5);
+  if (R.ballTwin.visible) { R.ballTwin.position.copy(ball.position); R.ballTwin.quaternion.copy(R.ballQ); }
+
+  /* oil */
+  const len = oilLen(), ow = LW * 2 - 6 * BOARD_W, t = (state === "title" || state === "over") ? idleT : S.t;
+  R.oil.scale.set(ow, 1, len); R.oil.position.z = -len / 2;
+  R.oilEnd.scale.set(ow, 1, 4); R.oilEnd.position.z = -(len - 2);
+  const sh0 = (t * 260) % (len + 120) - 60, y1 = Math.max(0, sh0), y2 = Math.min(len, sh0 + 50);
+  R.sheen.visible = y2 > y1 + 1;
+  if (R.sheen.visible) { R.sheen.scale.set(LW * 2 - 10 * BOARD_W, 1, y2 - y1); R.sheen.position.z = -(y1 + y2) / 2; }
+
+  /* bumpers drop into the gutters after frame 3 */
+  const goalZ = bumpersUp() ? 3.4 : -3.6;
+  R.railZ += (goalZ - R.railZ) * Math.min(1, fdt * 5);
+  for (i = 0; i < 2; i++) { R.rails[i].position.y = R.railZ; R.rails[i].visible = R.railZ > -3.2; }
+
+  /* sweep rake */
+  R.rake.visible = state === "playing" && S.phase === "sweep";
+  if (R.rake.visible) R.rake.position.z = -rakeY();
+
+  /* camera: behind the ball at the line, follow it down the lane, then cut in over the pin deck */
+  const gp = R.goalPos, gt = R.goalTgt;
+  let rate = 9;
+  const idle = state === "title" || state === "over";
+  if (!idle && b && (S.phase === "roll" || S.phase === "settle" || S.phase === "result")) {
+    if (S.phase === "roll" && b.y < 300) {
+      const cy = clamp(b.y - 150, CAM0, CAM0 + 320);
+      gp.set(b.x * 0.3, CAM_H, -cy); gt.set(b.x * 0.45, 0, -(cy + CAM_AHEAD));
+      rate = 7;
     } else {
-      keys[code] = false;
-      if (act && S.charging) { S.charging = false; throwBall(S.power, S.spin); S.power = 0; }
+      gp.set(0, DECK_CAM.z, -DECK_CAM.y); gt.set(0, DECK_CAM.tz, -DECK_CAM.ty);
+      rate = 4.2;
     }
+  } else {
+    const sway = idle && !Shell.reduced ? Math.sin(idleT * 0.45) * 5 : 0;
+    gp.set(sway, CAM_H, -CAM0); gt.set(sway * 0.3, 0, -(CAM0 + CAM_AHEAD));
   }
+  const k = 1 - Math.exp(-rate * fdt);
+  R.camPos.lerp(gp, k); R.camTgt.lerp(gt, k);
+  let sx = 0, sy = 0;
+  if (R.shakeT > 0) {
+    R.shakeT -= fdt;
+    const m = R.shakeMag * Math.max(0, R.shakeT / R.shakeDur);
+    sx = (Math.random() * 2 - 1) * m; sy = (Math.random() * 2 - 1) * m;
+  }
+  R.camera.position.set(R.camPos.x + sx, R.camPos.y + sy, R.camPos.z);
+  R.camera.lookAt(R.camTgt.x + sx, R.camTgt.y + sy, R.camTgt.z);
+  R.camera.updateMatrixWorld();
+  S.camY = -R.camPos.z;
+}
 
-  /* ---------------- Drawing ---------------- */
-  function proj(x, y, z) {
-    var d = Math.max(6, y - S.camY), s = F / d;
-    return { x: W / 2 + x * s, y: HZ + (CAMH - z) * s, s: s };
-  }
-  function fr(c, x, y, w, h, col) { c.fillStyle = col; c.fillRect(x, y, w, h); }
-  function quad(c, a, b, d, e, col) {
-    c.fillStyle = col; c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.lineTo(d.x, d.y); c.lineTo(e.x, e.y); c.closePath(); c.fill();
-  }
-  function strip(c, x1, x2, y1, y2, col) {
-    y1 = Math.max(y1, S.camY + 6);
-    if (y2 <= y1) return;
-    quad(c, proj(x1, y1, 0), proj(x2, y1, 0), proj(x2, y2, 0), proj(x1, y2, 0), col);
-  }
+// World point (inches) -> HUD pixels, for the aim guide.
+function toScreen(x, y, z) {
+  R.v.set(x, z, -y).project(R.camera);
+  return { x: (R.v.x * 0.5 + 0.5) * W, y: (-R.v.y * 0.5 + 0.5) * H, ok: R.v.z > -1 && R.v.z < 1 };
+}
 
-  function drawAlley(c, t) {
-    // back wall + masking unit above the pins
-    fr(c, 0, 0, W, H, "#0d0f15");
-    var top = proj(0, PIT_Y + 30, 60), base = proj(0, PIT_Y + 30, 0);
-    fr(c, 0, 0, W, base.y, "#141726");
-    var mL = proj(-KICK - 8, PIT_Y + 20, 46), mR = proj(KICK + 8, PIT_Y + 20, 22);
-    fr(c, mL.x, mL.y, mR.x - mL.x, mR.y - mL.y, "#1d2029");
-    fr(c, mL.x, mR.y - 2, mR.x - mL.x, 2, "#a77bff");
-    var sz = Math.max(6, Math.min(Math.round((mR.y - mL.y) * 0.32), Math.floor((mR.x - mL.x) / 16)));
-    Shell.text(c, "TAPE PIN LANES", (mL.x + mR.x) / 2, mL.y + (mR.y - mL.y) / 2 - sz / 2, sz, "#a77bff", "center", "#a77bff");
-    // pit
-    strip(c, -KICK, KICK, DECK_END, PIT_Y + 30, "#06070a");
-    // kickbacks
-    var kh = 12;
-    quad(c, proj(-KICK, HEAD_Y - 30, 0), proj(-KICK, PIT_Y, 0), proj(-KICK, PIT_Y, kh), proj(-KICK, HEAD_Y - 30, kh), "#2a2236");
-    quad(c, proj(KICK, HEAD_Y - 30, 0), proj(KICK, PIT_Y, 0), proj(KICK, PIT_Y, kh), proj(KICK, HEAD_Y - 30, kh), "#2a2236");
-    // side floor
-    strip(c, -KICK - 60, -KICK, START_Y - 40, PIT_Y, "#121420");
-    strip(c, KICK, KICK + 60, START_Y - 40, PIT_Y, "#121420");
-    // gutters
-    strip(c, -KICK, -LW, 0, DECK_END, "#2b2f3c");
-    strip(c, LW, KICK, 0, DECK_END, "#2b2f3c");
-    strip(c, -KICK + 2, -LW - 2, 0, DECK_END, "#20232e");
-    strip(c, LW + 2, KICK - 2, 0, DECK_END, "#20232e");
-    // approach + lane + deck
-    strip(c, -LW - 6, LW + 6, START_Y - 60, 0, "#5b3d22");
-    strip(c, -LW, LW, 0, DECK_END, "#c99a5f");
-    strip(c, -LW, LW, HEAD_Y - 14, DECK_END, "#d6ad74");
-    var boardW = (LW * 2) / 39;
-    c.lineWidth = 1;
-    for (var bd = 1; bd < 39; bd++) {
-      var bx = -LW + bd * boardW;
-      var a = proj(bx, Math.max(0, S.camY + 6), 0), e = proj(bx, DECK_END, 0);
-      c.strokeStyle = bd % 5 === 0 ? "rgba(90,55,25,.5)" : "rgba(120,80,40,.22)";
-      c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(e.x, e.y); c.stroke();
-    }
-    // foul line
-    strip(c, -LW - 6, LW + 6, 0, 1.5, "#ff4b3e");
-    // approach dots + lane arrows
-    for (var k = -3; k <= 3; k++) {
-      var dp = proj(k * 5 * boardW, -8, 0);
-      if (dp.y < H) fr(c, dp.x - 1.5, dp.y - 1, 3, 2, "#2c1a0c");
-      var ay = 180 + (3 - Math.abs(k)) * 8, ax = k * 5 * boardW;
-      var t1 = proj(ax, ay + 10, 0), t2 = proj(ax - 1.4, ay, 0), t3 = proj(ax + 1.4, ay, 0);
-      c.fillStyle = "#3a2410"; c.beginPath(); c.moveTo(t1.x, t1.y); c.lineTo(t2.x, t2.y); c.lineTo(t3.x, t3.y); c.closePath(); c.fill();
-    }
-    // oil: a shiny stripe as long as this frame's pattern
-    var oil = oilLen();
-    strip(c, -LW + 3 * boardW, LW - 3 * boardW, 0, oil, "rgba(190,230,255,.13)");
-    var sh = (t * 260) % (oil + 120) - 60;
-    strip(c, -LW + 5 * boardW, LW - 5 * boardW, Math.max(0, sh), Math.min(oil, sh + 50), "rgba(255,255,255,.1)");
-    strip(c, -LW + 3 * boardW, LW - 3 * boardW, oil - 4, oil, "rgba(63,240,255,.45)");
-    // bumpers
-    if (bumpersUp()) {
-      strip(c, -LW - 3, -LW - 0.5, 0, DECK_END - 4, "#ffd23f");
-      strip(c, LW + 0.5, LW + 3, 0, DECK_END - 4, "#ffd23f");
-    }
-  }
+/* ---------------- HUD (2D canvas on top) ---------------- */
+function txt(c, s, x, y, size, color, align, shadow) {
+  c.font = "bold " + size + "px " + HUD_FONT;
+  c.textAlign = align || "left"; c.textBaseline = "top";
+  if (shadow) { c.fillStyle = shadow; c.fillText(s, x + 1, y + 1); }
+  c.fillStyle = color; c.fillText(s, x, y);
+}
+function rrect(c, x, y, w, h, r) {
+  c.beginPath(); c.moveTo(x + r, y);
+  c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+}
 
-  function drawPin(c, p) {
-    if (p.st === "gone") return;
-    var lift = p.drop * 30;
-    var base = proj(p.x, p.y, lift), s = base.s;
-    var w = PIN_W * s, h = PIN_H * s;
-    var ang = p.st === "up" ? Math.sin(p.wobT * 30) * p.wob : p.tilt * p.dir;
-    c.save();
-    c.translate(base.x, base.y);
-    if (p.st === "up") { c.fillStyle = "rgba(0,0,0,.28)"; c.beginPath(); c.ellipse(0, 0, w * 0.7, w * 0.22, 0, 0, TAU); c.fill(); }
-    c.rotate(ang);
-    c.fillStyle = "#0b0c10"; c.fillRect(-w / 2 - 1, -h - 1, w + 2, h + 2);
-    c.fillStyle = "#f2f0ea"; c.fillRect(-w / 2, -h, w, h);           // clamshell
-    c.fillStyle = "#1a1b22"; c.fillRect(-w * 0.36, -h * 0.92, w * 0.72, h * 0.84); // tape
-    c.fillStyle = "#eceae2"; c.fillRect(-w * 0.28, -h * 0.8, w * 0.56, h * 0.26);   // spine label
-    c.fillStyle = ["#ff4b3e", "#3ff0ff", "#ff3fa4", "#9bff3f", "#ffd23f"][p.i % 5];
-    c.fillRect(-w * 0.28, -h * 0.62, w * 0.56, Math.max(1, h * 0.06));
-    if (w > 10) { c.fillStyle = "#3a3c48"; c.fillRect(-w * 0.2, -h * 0.4, w * 0.4, h * 0.14); }
+function drawAim(c) {
+  const drag = S.drag, f = drag && drag.mode === "flick" ? flick(drag) : null;
+  const spin = f ? f.spin : S.spin, pw = f ? f.p : (S.charging ? S.power : -1);
+  // straight guide through the oil (the ball barely bites there)
+  const oil = oilLen();
+  for (let y = 20; y < oil; y += 24) {
+    const p = toScreen(S.pos, y, 0.3);
+    if (!p.ok) continue;
+    const r = clamp(2.6 - y / 260, 1.1, 2.6);
+    c.fillStyle = "rgba(8,32,95,.55)"; c.beginPath(); c.arc(p.x, p.y, r + 0.9, 0, TAU); c.fill();
+    c.fillStyle = "#ffffff"; c.beginPath(); c.arc(p.x, p.y, r, 0, TAU); c.fill();
+  }
+  const e = toScreen(S.pos, oil, 0.3);
+  if (e.ok) {
+    c.fillStyle = "#08205f"; c.beginPath(); c.arc(e.x, e.y, 3.6, 0, TAU); c.fill();
+    c.fillStyle = "#3fe0ff"; c.beginPath(); c.arc(e.x, e.y, 2.5, 0, TAU); c.fill();
+  }
+  // hook meter
+  const cx = 300, cy = 470;
+  rrect(c, cx - 46, cy - 6, 92, 12, 6); c.fillStyle = "rgba(8,32,95,.82)"; c.fill();
+  c.lineWidth = 1.5; c.strokeStyle = "#ffffff"; c.stroke();
+  rrect(c, cx - 42, cy - 2, 84, 4, 2); c.fillStyle = "#3d8cff"; c.fill();
+  c.fillStyle = "#ffffff"; c.fillRect(cx - 1, cy - 5, 2, 10);
+  const hx = cx + spin * 40;
+  c.beginPath(); c.arc(hx, cy, 7, 0, TAU);
+  c.fillStyle = Math.abs(spin) > 0.05 ? "#ff9214" : "#ffffff"; c.fill();
+  c.lineWidth = 1.5; c.strokeStyle = "#08205f"; c.stroke();
+  txt(c, Math.abs(spin) < 0.05 ? "HOOK: NONE" : "HOOK " + (spin < 0 ? "<" : ">") + " " + Math.round(Math.abs(spin) * 100) + "%",
+      cx, cy + 11, 9, "#ffffff", "center", "#08205f");
+  // power meter while charging or flicking
+  if (pw >= 0) {
+    const x = 14, top = 300, hgt = 150, pc = clamp(pw, 0, 1);
+    rrect(c, x - 3, top - 3, 20, hgt + 6, 6); c.fillStyle = "rgba(8,32,95,.82)"; c.fill();
+    c.lineWidth = 1.5; c.strokeStyle = "#ffffff"; c.stroke();
+    c.save(); rrect(c, x, top, 14, hgt, 4); c.clip();
+    c.fillStyle = "#12296e"; c.fillRect(x, top, 14, hgt);
+    c.fillStyle = pc > 0.8 ? "#ff3b2e" : pc > 0.45 ? "#ffd21f" : "#3fe0ff";
+    c.fillRect(x, top + hgt * (1 - pc), 14, hgt * pc);
+    c.fillStyle = "rgba(255,255,255,.35)"; c.fillRect(x + 2, top, 3, hgt);
+    c.restore();
+    txt(c, "PWR", x + 7, top + hgt + 7, 9, "#ffffff", "center", "#08205f");
+  }
+}
+
+function drawHUD(c) {
+  const bg = c.createLinearGradient(0, 0, 0, 74);
+  bg.addColorStop(0, "#3d8cff"); bg.addColorStop(0.5, "#1b5fe0"); bg.addColorStop(1, "#0b3aa6");
+  c.fillStyle = bg; c.fillRect(0, 0, W, 74);
+  c.fillStyle = "rgba(255,255,255,.16)"; c.fillRect(0, 0, W, 2);
+  c.fillStyle = "#ff9214"; c.fillRect(0, 74, W, 2);
+  c.fillStyle = "#ffe45c"; c.fillRect(0, 76, W, 1);
+  const sc = scores(S.frames);
+  let x = 4, i;
+  for (i = 0; i < 10; i++) {
+    const w = i === 9 ? 51 : 32, cur = i === S.frame && !S.over;
+    rrect(c, x, 4, w - 1, 38, 3);
+    c.fillStyle = cur ? "#fff3a8" : "#ffffff"; c.fill();
+    c.lineWidth = cur ? 2 : 1; c.strokeStyle = cur ? "#ff9214" : "#08205f"; c.stroke();
+    txt(c, String(i + 1), x + 3, 6, 7, "#6d86c4");
+    const m = S.frames[i] ? marks(S.frames[i], i) : [];
+    for (let k = 0; k < m.length; k++) {
+      const mx = i === 9 ? x + 11 + k * 15 : x + 13 + k * 11;
+      txt(c, m[k], mx, 13, 10, m[k] === "X" ? "#e3231a" : m[k] === "/" ? "#0a66d8" : "#0b1f5c", "center");
+    }
+    if (sc[i] != null) txt(c, String(sc[i]), x + w / 2, 28, 10, "#0b1f5c", "center");
+    x += w + 1;
+  }
+  txt(c, "FRAME " + Math.min(10, S.frame + 1) + "  BALL " + (S.ball + 1), 8, 47, 10, "#ffffff", "left", "#08205f");
+  txt(c, "OIL " + Math.round(oilLen() / 12) + " FT", 8, 60, 10, "#a8ecff", "left", "#08205f");
+  txt(c, bumpersUp() ? "BUMPERS UP" : "GUTTERS LIVE", 86, 60, 10, bumpersUp() ? "#ffe45c" : "#ffc1e0", "left", "#08205f");
+  // pin diagram (standing pins solid, down pins hollow)
+  for (i = 0; i < 10; i++) {
+    const sp = SPOTS[i], px = 292 + sp[0] * 1.45, py = 68 - sp[1] * 0.72;
+    let p = null;
+    for (let j = 0; j < S.pins.length; j++) if (S.pins[j].i === i) p = S.pins[j];
+    c.beginPath(); c.arc(px, py, 2.7, 0, TAU);
+    if (p && p.st === "up") { c.fillStyle = "#ffffff"; c.fill(); }
+    else { c.lineWidth = 1; c.strokeStyle = "rgba(255,255,255,.5)"; c.stroke(); }
+  }
+  txt(c, String(total()), 353, 51, 13, "#ffe45c", "right", "#08205f");
+}
+
+function draw(c, state) {
+  if (!R || !R.hud) return;
+  const now = performance.now();
+  let ms = now - R.lastT;
+  R.lastT = now;
+  if (!(ms > 0)) ms = 0;
+  const sized = layout();
+  if (state === "paused" && !R.dirty) return;              // nothing moves while paused: leave the last frame up
+  if (state === "playing") watchFrameRate(ms);
+  if (sized) {
+    syncScene(state, Math.min(ms, 50) / 1000);
+    R.renderer.render(R.scene, R.camera);
+    R.dirty = false;
+  }
+  c.clearRect(-24, -24, W + 48, H + 48);
+  for (let i = 0; i < parts.length; i++) {
+    const q = parts[i];
+    c.save(); c.translate(q.x, q.y); c.rotate(q.rot);
+    c.globalAlpha = clamp(q.life * 2, 0, 1);
+    c.fillStyle = q.c; c.fillRect(-2.5, -1.5, 5, 3);
     c.restore();
   }
+  drawHUD(c);
+  if (state === "playing" && S.phase === "aim") drawAim(c);
+}
 
-  function drawBall(c, b) {
-    var z = b.gutter ? BALL_R - 2.5 : BALL_R;
-    var p = proj(b.x, b.y, z), r = BALL_R * p.s;
-    if (b.y > PIT_Y + 5) return;
-    var g = proj(b.x, b.y, b.gutter ? -2.5 : 0);
-    c.fillStyle = "rgba(0,0,0,.35)"; c.beginPath(); c.ellipse(g.x, g.y, r * 0.95, r * 0.3, 0, 0, TAU); c.fill();
-    c.fillStyle = "#4b2a8a"; c.beginPath(); c.arc(p.x, p.y, r, 0, TAU); c.fill();
-    c.fillStyle = "#7a52d1"; c.beginPath(); c.arc(p.x - r * 0.15, p.y - r * 0.15, r * 0.78, 0, TAU); c.fill();
-    c.fillStyle = "#a77bff"; c.beginPath(); c.arc(p.x - r * 0.35, p.y - r * 0.4, r * 0.28, 0, TAU); c.fill();
-    var ry = Math.sin(b.roll || 0), vis = Math.cos(b.roll || 0) > -0.2;
-    if (vis && r > 4) {
-      c.fillStyle = "#14082a";
-      var hy = p.y + ry * r * 0.45;
-      c.beginPath(); c.arc(p.x - r * 0.22, hy, r * 0.12, 0, TAU); c.arc(p.x + r * 0.22, hy, r * 0.12, 0, TAU); c.fill();
-      c.beginPath(); c.arc(p.x, hy + r * 0.32, r * 0.14, 0, TAU); c.fill();
-    }
-  }
+/* ---------------- Splash, boot, shell hookup ---------------- */
+function makeSplash() {
+  const el = document.createElement("div");
+  el.id = "npg-splash";
+  el.setAttribute("role", "img");
+  el.setAttribute("aria-label", "Nostalgia Pro Games");
+  el.style.cssText = "position:fixed;left:0;top:0;right:0;bottom:0;z-index:9999;display:flex;flex-direction:column;align-items:center;" +
+    "justify-content:center;gap:18px;padding:24px;box-sizing:border-box;text-align:center;" +
+    "background:radial-gradient(circle at 50% 42%,#21429c 0%,#0f2057 52%,#070d28 100%);" +
+    "font:bold 15px/1.5 " + HUD_FONT.replace(/"/g, "'") + ";color:#ffffff;opacity:1;transition:opacity .35s ease";
+  const img = document.createElement("img");
+  img.alt = "";
+  img.decoding = "async";
+  img.style.cssText = "display:block;width:min(66vw,44vh,340px);height:auto;opacity:0;transform:scale(.86);" +
+    (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? "transition:opacity .2s ease" : "transition:opacity .28s ease,transform .55s cubic-bezier(.2,1.5,.4,1)");
+  el.appendChild(img);
+  document.body.appendChild(el);
+  return { el: el, img: img };
+}
 
-  function drawAim(c) {
-    var drag = S.drag, f = drag && drag.mode === "flick" ? flick(drag) : null;
-    var spin = f ? f.spin : S.spin, pw = f ? f.p : (S.charging ? S.power : -1);
-    if (!f && !S.kb && !drag) spin = S.spin;
-    // straight guide through the oil (the ball barely bites there)
-    var oil = oilLen();
-    for (var y = 20; y < oil; y += 24) {
-      var p = proj(S.pos, y, 0.3);
-      fr(c, p.x - 1.5, p.y - 1, 3, 2, "rgba(236,234,226,.75)");
-    }
-    var e = proj(S.pos, oil, 0.3);
-    fr(c, e.x - 2.5, e.y - 2, 5, 4, "#3ff0ff");
-    // hook meter
-    var cx = 300, cy = 470;
-    fr(c, cx - 44, cy - 4, 88, 8, "#0b0c10");
-    fr(c, cx - 42, cy - 2, 84, 4, "#2c3040");
-    fr(c, cx - 1, cy - 6, 2, 12, "#8e93a2");
-    var hx = cx + spin * 40;
-    fr(c, hx - 4, cy - 7, 8, 14, Math.abs(spin) > 0.05 ? "#a77bff" : "#eceae2");
-    Shell.uiText(c, Math.abs(spin) < 0.05 ? "HOOK: NONE" : "HOOK " + (spin < 0 ? "<" : ">") + " " + Math.round(Math.abs(spin) * 100) + "%", cx, cy + 10, 9, "#eceae2", "center");
-    // power meter while charging or flicking
-    if (pw >= 0) {
-      var x = 16, top = 300, hgt = 150, pc = clamp(pw, 0, 1);
-      fr(c, x - 2, top - 2, 16, hgt + 4, "#0b0c10");
-      fr(c, x, top, 12, hgt, "#23252e");
-      fr(c, x, top + hgt * (1 - pc), 12, hgt * pc, pc > 0.8 ? "#ff4b3e" : pc > 0.45 ? "#ffd23f" : "#3ff0ff");
-      Shell.text(c, "PWR", x + 6, top + hgt + 6, 8, "#8e93a2", "center");
-    }
-  }
+function splashFail(splash, lines) {
+  const el = splash.el;
+  splash.img.style.width = "min(40vw,26vh,180px)";
+  el.setAttribute("role", "alert");
+  el.removeAttribute("aria-label");
+  const p = document.createElement("p");
+  p.style.cssText = "margin:0;max-width:30em";
+  p.textContent = lines;
+  const a = document.createElement("a");
+  a.href = "../"; a.textContent = "Back to the arcade";
+  a.style.cssText = "color:#ffe45c";
+  el.appendChild(p); el.appendChild(a);
+}
 
-  function drawHUD(c) {
-    fr(c, 0, 0, W, 74, "rgba(13,15,21,.94)");
-    fr(c, 0, 74, W, 2, "#2c3040");
-    var sc = scores(S.frames), x = 4, i;
-    for (i = 0; i < 10; i++) {
-      var w = i === 9 ? 51 : 32, cur = i === S.frame && !S.over;
-      fr(c, x, 4, w - 1, 38, cur ? "#2a2240" : "#1d2029");
-      c.strokeStyle = cur ? "#a77bff" : "#2c3040"; c.lineWidth = 1; c.strokeRect(x + 0.5, 4.5, w - 2, 37);
-      Shell.uiText(c, String(i + 1), x + 3, 5, 8, "#8e93a2");
-      var m = S.frames[i] ? marks(S.frames[i], i) : [];
-      for (var k = 0; k < m.length; k++) {
-        var mx = i === 9 ? x + 8 + k * 15 : x + 10 + k * 11;
-        Shell.text(c, m[k], mx, 13, 8, m[k] === "X" ? "#ffd23f" : m[k] === "/" ? "#3ff0ff" : "#eceae2", "center");
-      }
-      if (sc[i] != null) Shell.text(c, String(sc[i]), x + w / 2, 28, 8, "#eceae2", "center");
-      x += w + 1;
+function loadLogo(splash) {
+  return new Promise(function (resolve) {
+    const img = splash.img;
+    let done = false;
+    function fin(ok) {
+      if (done) return; done = true;
+      if (ok) { img.style.opacity = "1"; img.style.transform = "scale(1)"; }
+      else img.style.display = "none";
+      resolve(ok ? img : null);
     }
-    Shell.uiText(c, "FRAME " + Math.min(10, S.frame + 1) + "  BALL " + (S.ball + 1), 8, 48, 10, "#eceae2");
-    Shell.uiText(c, "OIL " + Math.round(oilLen() / 12) + " FT", 8, 60, 10, "#3ff0ff");
-    Shell.uiText(c, bumpersUp() ? "BUMPERS UP" : "GUTTERS LIVE", 82, 60, 10, bumpersUp() ? "#ffd23f" : "#ff3fa4");
-    // pin diagram (standing pins solid, down pins hollow)
-    for (i = 0; i < 10; i++) {
-      var sp = SPOTS[i], px = 296 + sp[0] * 1.45, py = 68 - sp[1] * 0.72;
-      var p = null;
-      for (var j = 0; j < S.pins.length; j++) if (S.pins[j].i === i) p = S.pins[j];
-      var up = p && p.st === "up";
-      if (up) fr(c, px - 2.5, py - 2.5, 5, 5, "#eceae2");
-      else { c.strokeStyle = "#5a5f70"; c.strokeRect(px - 2, py - 2, 4, 4); }
-    }
-    Shell.text(c, String(total()), 352, 50, 8, "#ffd23f", "right");
-  }
+    img.onload = function () { fin(true); };
+    img.onerror = function () { fin(false); };
+    setTimeout(function () { fin(false); }, 6000);
+    img.src = LOGO_URL;
+  });
+}
 
-  function draw(c, state) {
-    var t = (state === "title" || state === "over") ? idleT : S.t;
-    drawAlley(c, t);
-    var objs = S.pins.slice();
-    if (S.b) objs.push({ ball: true, y: S.b.y, b: S.b });
-    else if (S.phase === "aim" || S.phase === "sweep") objs.push({ ball: true, y: START_Y, b: { x: S.pos, y: START_Y, roll: 0 } });
-    objs.sort(function (a, b) { return b.y - a.y; });
-    // sweep rake
-    for (var i = 0; i < objs.length; i++) {
-      if (objs[i].ball) drawBall(c, objs[i].b); else drawPin(c, objs[i]);
-    }
-    if (S.phase === "sweep") {
-      var k = clamp(S.pt / 0.38, 0, 1), ry = HEAD_Y - 12 + k * 70;
-      var a = proj(-KICK, ry, 14), b = proj(KICK, ry, 6);
-      fr(c, a.x, a.y, b.x - a.x, Math.max(3, b.y - a.y), "rgba(29,32,41,.92)");
-    }
-    for (i = 0; i < parts.length; i++) fr(c, parts[i].x, parts[i].y, 3, 3, parts[i].c);
-    drawHUD(c);
-    if (state === "playing" && S.phase === "aim") drawAim(c);
-  }
+function attach() {
+  const hud = document.getElementById("np-canvas"), stage = document.getElementById("np-stage");
+  R.hud = hud; R.stage = stage;
+  if (getComputedStyle(stage).position === "static") stage.style.position = "relative";
+  const gl = R.gl;
+  gl.style.cssText = "position:absolute;left:0;top:0;z-index:0;display:block;margin:0;padding:0;border:0;box-shadow:none;" +
+    "max-width:none;max-height:none;transform:none;image-rendering:auto;pointer-events:none;touch-action:none;" +
+    "border-radius:" + getComputedStyle(hud).borderRadius;
+  stage.insertBefore(gl, hud);
+  // the shell canvas becomes a clear HUD layer over the 3D view
+  hud.style.background = "transparent";
+  if (getComputedStyle(hud).position === "static") hud.style.position = "relative";   // so it stacks above the WebGL canvas
+  const crt = stage.querySelector(".np-crt");
+  if (crt) crt.style.display = "none";                       // glossy lanes, no scanlines
+  R.lastT = performance.now();
+  layout();
+}
 
-  // Hook for automated checks (no effect on play)
-  window.__tapePins = { S: function () { return S; }, rack: fullRack, throwBall: throwBall, scores: scores, step: step, resolve: resolveBall };
-
+function startGame() {
   Shell.init({
     slug: "tape-pin-lanes",
     title: "TAPE PIN LANES",
     accent: "#a77bff",
     width: W, height: H,
     format: function (n) { return String(n); },
-    howTo: "Ten frames, and the pins are stacked VHS tapes. Drag sideways to line up, then flick up to roll. Flick a little left or right to hook it.",
+    howTo: "Ten frames in real 3D, and every pin wears a VHS tape label. Drag sideways to line up, then flick up to roll. Flick a little left or right to hook it.",
     keys: "Keys: left and right move, up and down set the hook, hold Space for power, release to roll. P pause, M mute, R restart.",
     tip: "Watch the shiny oil. The ball only hooks once it's past it.",
     reset: reset,
@@ -649,7 +1394,51 @@
     draw: draw,
     pointer: pointer,
     key: key,
-    idle: function (dt) { idleT += dt; },
+    idle: function (dt) { idleT += dt; animateDead(dt); },
     onPause: function () { keys = {}; S.drag = null; S.charging = false; }
   });
+  attach();
+  // The studio logo heads the score card. The title menu stays clean: the splash is its logo moment.
+  const card = document.querySelector("#np-ov-over .np-card");
+  if (card) {
+    const im = document.createElement("img");
+    im.alt = "Nostalgia Pro Games"; im.width = 96; im.height = 96;
+    im.style.cssText = "display:block;width:clamp(64px,14vh,104px);height:auto;margin:0 auto 6px";
+    im.onerror = function () { if (im.parentNode) im.parentNode.removeChild(im); };
+    im.src = LOGO_URL;
+    card.insertBefore(im, card.firstChild);
+  }
+}
+
+// Hook for automated checks (no effect on play)
+window.__tapePins = { S: function () { return S; }, rack: fullRack, throwBall: throwBall, scores: scores, step: step, resolve: resolveBall,
+                      gfx: function () { return R; } };
+
+(function boot() {
+  const splash = makeSplash();
+  const t0 = performance.now();
+  const q = /[?&]gfx=(high|low)/.exec(location.search);
+  Promise.all([loadLogo(splash), import(THREE_URL).then(null, function (e) { e.npStage = "three"; throw e; })])
+    .then(function (res) {
+      THREE = res[1];
+      try { R = buildScene(THREE, res[0]); } catch (e) { e.npStage = "webgl"; throw e; }
+      if (q) { R.qLock = true; setQuality(q[1] === "low" ? QUALITY.length - 1 : 0); }
+      reset();
+      try { R.renderer.compile(R.scene, R.camera); } catch (e) { /* warm-up only */ }
+      // hold the logo for a beat, then hand over to the title card
+      const hold = Math.max(0, 1300 - (performance.now() - t0));
+      return new Promise(function (r) { setTimeout(r, hold); });
+    })
+    .then(function () {
+      startGame();
+      splash.el.style.opacity = "0";
+      splash.el.style.pointerEvents = "none";
+      setTimeout(function () { if (splash.el.parentNode) splash.el.parentNode.removeChild(splash.el); }, 420);
+    })
+    .catch(function (e) {
+      console.error(e);
+      splashFail(splash, e && e.npStage === "three"
+        ? "Tape Pin Lanes could not load its 3D engine (" + THREE_URL + ")."
+        : "Tape Pin Lanes needs WebGL for its 3D lanes, and this browser has it switched off or does not support it.");
+    });
 })();
