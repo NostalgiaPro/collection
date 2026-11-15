@@ -56,6 +56,7 @@ function reset() {
         b: null, camY: CAM0, strikesRow: 0, strikes: 0, spares: 0, splitMsg: "", lastClack: 0, rollSnd: 0,
         announcedBumpers: false, sweepFull: false, over: false };
   parts.length = 0;
+  ledClear();
 }
 
 function oilLen() { return OIL[S.frame % OIL.length]; }
@@ -373,9 +374,10 @@ function resolveBall() {
   const standing = standingCount();
   const strike = down === 10 && (first || (f === 9 && fr.length === 2 && fr[0] === 10) || (f === 9 && fr.length === 3 && (fr[1] === 10 || fr[0] + fr[1] === 10)));
   const spare = !strike && standing === 0 && !first;
-  let title, sub = "", col = "#eceae2";
+  let title, sub = "", col = "#eceae2", board = null;      // board: what the LED ribbon flashes for this ball
 
   if (strike) {
+    board = "strike";
     S.strikes++; S.strikesRow++;
     if (S.strikesRow === 3) { title = "TURKEY!"; sub = "Three in a row. BE KIND, REWIND... ALL OF THEM."; col = "#ff4b3e"; burst(60); Shell.sfx("best"); }
     else { title = S.strikesRow > 3 ? S.strikesRow + " IN A ROW!" : "STRIKE!"; sub = "BE KIND, REWIND... ALL OF THEM."; col = "#ffd23f"; burst(30); }
@@ -385,17 +387,17 @@ function resolveBall() {
   } else {
     S.strikesRow = 0;
     if (spare) {
-      S.spares++; title = "SPARE!"; sub = "Picked it clean."; col = "#3ff0ff"; Shell.sfx("score");
+      S.spares++; title = "SPARE!"; sub = "Picked it clean."; col = "#3ff0ff"; Shell.sfx("score"); board = "spare";
       if (window.Trophies) { window.Trophies.unlock("tpl-spare"); if (S.splitFrame === f) window.Trophies.unlock("tpl-split"); }
     }
     else if (down === 0 && b.gutter) {
-      title = "LATE FEE."; sub = "Gutter ball."; col = "#ff3fa4"; Shell.sfx("miss");
+      title = "LATE FEE."; sub = "Gutter ball."; col = "#ff3fa4"; Shell.sfx("miss"); board = "gutter";
       if (window.Trophies && f >= BUMPER_FRAMES) window.Trophies.unlock("tpl-latefee");
     }
     else if (down === 0) { title = "MISS"; sub = "Not a scratch on them."; col = "#8e93a2"; Shell.sfx("miss"); }
     else {
       title = down + (down === 1 ? " PIN" : " PINS");
-      if (first && isSplit()) { title = "SPLIT"; sub = down + " down. Good luck with the rest."; col = "#a77bff"; S.splitFrame = f; }
+      if (first && isSplit()) { title = "SPLIT"; sub = down + " down. Good luck with the rest."; col = "#a77bff"; S.splitFrame = f; board = "split"; }
       else if (standing > 0) sub = standing + " left standing.";
       Shell.sfx("tap");
     }
@@ -415,6 +417,7 @@ function resolveBall() {
     } else S.over = true;
   }
   S.sweepFull = rerack && !S.over;
+  ledResult(board, title);
   setPhase("result");
 }
 
@@ -456,6 +459,7 @@ function isSplit() {
 function finishGame() {
   const t = total();
   const title = t === 300 ? "PERFECT GAME!" : "TEN FRAMES DONE";
+  ledFinal(t);
   Shell.gameOver(t, { title: title, html: cardHTML() +
     '<div class="np-row" style="margin-top:10px"><span>Strikes</span><b>' + S.strikes + '</b></div>' +
     '<div class="np-row"><span>Spares</span><b>' + S.spares + '</b></div>',
@@ -693,9 +697,9 @@ function maskCanvas(script) {
 }
 
 // The whole back wall in one piece (360 x 150 inches): a single long blue and orange banner above the
-// masking units, with nothing tiled on it. The wordmark itself is a separate, sharper decal (see bannerBox).
+// masking units. The LED ribbon board (below) hangs in front of the lower part of it.
 const WALL_W = LANE_PITCH * 5;
-const BANNER = { z: 67, h: 39 };                           // center height and letter height of the wordmark, inches
+const BANNER = { z: 67 };                                  // height the wall's spotlight is centered on, inches
 function wallCanvas() {
   const CW = 1024, CH = 512;
   const c = mkCanvas(CW, CH), g = c.getContext("2d"), rnd = rng(23);
@@ -734,10 +738,319 @@ function wallCanvas() {
   for (let x = 3; x < CW; x += 13) { g.fillStyle = "rgba(255,255,255,.035)"; g.fillRect(x, Y(18), 5, CH - Y(18)); }
   return c;
 }
-// Where the wordmark sits on the wall, in inches: centered, and as large as the banner allows.
-function bannerBox(script) {
-  const h = BANNER.h, w = h * script.width / script.height;
-  return { w: w, h: h, z: BANNER.z };
+/* ---------------- LED ribbon board: the full-width strip on the back wall, above the masking units ----------------
+   The board is a real dot matrix. Everything on it is painted into a tiny canvas, one pixel per LED, and a small
+   shader turns each pixel into a glowing dot. It scrolls its programme right to left, and cuts to big animated
+   messages when the game calls for one (ledResult / ledFinal below). */
+const LED_H = 39, LED_Z = 66.5;                            // inches: lit height, and its center height on the wall
+const LED_ROWS = 26, LED_COLS = Math.round(WALL_W / (LED_H / LED_ROWS));
+const LED_SPEED = 42;                                      // scroll speed, LEDs per second
+const LED_BIG = Math.max(1, Math.floor((LED_ROWS - 4) / 7));   // the largest text size that fits (5 x 7 font, in LEDs per font pixel)
+const LED_C = { amber: "#ffb000", yellow: "#ffe838", white: "#ffffff", red: "#ff3322", pink: "#ff4fc0", cyan: "#2fe6ff",
+                lime: "#7dff3a", violet: "#b68cff", orange: "#ff8a1e", blue: "#4a7dff" };
+// Short messages between the plugs. The wordmark leads each group.
+const LED_LINES = [["FREE AT THENOSTALGIAPRO.COM", "amber"], ["BE KIND, REWIND", "pink"], ["NO QUARTERS REQUIRED", "cyan"]];
+// Plugs for the rest of the arcade: [game, one-line tag]. Edit freely, the board lays itself out.
+const LED_PLUGS = [
+  ["SHELF LINKS", "MINI GOLF"],
+  ["BARGAIN BIN BUCKETS", "HOOPS"],
+  ["BLEACHER CARTS", "HOME RUN DERBY"],
+  ["TICKET ROLL ALLEY", "ROLL FOR TICKETS"],
+  ["PAWN SHOP POOL", "RACK 'EM UP"],
+  ["RINK RAT SHOOTOUT", "HOCKEY SHOOTOUT"],
+  ["FOURTH AND COLLECT", "SPLIT THE UPRIGHTS"],
+  ["POWDER DAY HAUL", "HIT THE SLOPES"],
+  ["TABLE RINK RUMBLE", "AIR HOCKEY"],
+  ["FLEA FORTRESS FLYBY", "PLAY IT FREE"],
+  ["CREATURE FEATURE KO", "VHS BOSS RUSH"]
+];
+let LED = null;
+
+// 5 x 7 dot-matrix font, seven rows of five per character
+const LED_FONT = (function () {
+  const src = {
+    A: "01110 10001 10001 11111 10001 10001 10001", B: "11110 10001 10001 11110 10001 10001 11110",
+    C: "01110 10001 10000 10000 10000 10001 01110", D: "11110 10001 10001 10001 10001 10001 11110",
+    E: "11111 10000 10000 11110 10000 10000 11111", F: "11111 10000 10000 11110 10000 10000 10000",
+    G: "01110 10001 10000 10111 10001 10001 01111", H: "10001 10001 10001 11111 10001 10001 10001",
+    I: "01110 00100 00100 00100 00100 00100 01110", J: "00111 00010 00010 00010 00010 10010 01100",
+    K: "10001 10010 10100 11000 10100 10010 10001", L: "10000 10000 10000 10000 10000 10000 11111",
+    M: "10001 11011 10101 10101 10001 10001 10001", N: "10001 11001 10101 10011 10001 10001 10001",
+    O: "01110 10001 10001 10001 10001 10001 01110", P: "11110 10001 10001 11110 10000 10000 10000",
+    Q: "01110 10001 10001 10001 10101 10010 01101", R: "11110 10001 10001 11110 10100 10010 10001",
+    S: "01111 10000 10000 01110 00001 00001 11110", T: "11111 00100 00100 00100 00100 00100 00100",
+    U: "10001 10001 10001 10001 10001 10001 01110", V: "10001 10001 10001 10001 10001 01010 00100",
+    W: "10001 10001 10001 10101 10101 11011 10001", X: "10001 10001 01010 00100 01010 10001 10001",
+    Y: "10001 10001 01010 00100 00100 00100 00100", Z: "11111 00001 00010 00100 01000 10000 11111",
+    "0": "01110 10001 10011 10101 11001 10001 01110", "1": "00100 01100 00100 00100 00100 00100 01110",
+    "2": "01110 10001 00001 00010 00100 01000 11111", "3": "11110 00001 00001 01110 00001 00001 11110",
+    "4": "00010 00110 01010 10010 11111 00010 00010", "5": "11111 10000 11110 00001 00001 10001 01110",
+    "6": "00110 01000 10000 11110 10001 10001 01110", "7": "11111 00001 00010 00100 01000 01000 01000",
+    "8": "01110 10001 10001 01110 10001 10001 01110", "9": "01110 10001 10001 01111 00001 00010 01100",
+    "!": "00100 00100 00100 00100 00100 00000 00100", ".": "00000 00000 00000 00000 00000 01100 01100",
+    ",": "00000 00000 00000 00000 01100 00100 01000", "'": "00100 00100 01000 00000 00000 00000 00000",
+    "-": "00000 00000 00000 11111 00000 00000 00000", ":": "00000 01100 01100 00000 01100 01100 00000",
+    "/": "00001 00001 00010 00100 01000 10000 10000", "&": "01100 10010 10100 01000 10101 10010 01101",
+    "?": "01110 10001 00001 00010 00100 00000 00100", "+": "00000 00100 00100 11111 00100 00100 00000",
+    ">": "10000 01000 00100 00010 00100 01000 10000", "<": "00001 00010 00100 01000 00100 00010 00001",
+    "*": "00000 00100 01110 11111 01110 00100 00000"
+  };
+  const out = {};
+  for (const ch in src) out[ch] = src[ch].split(" ");
+  return out;
+})();
+function ledTextW(str, sx) {
+  let w = 0;
+  for (let i = 0; i < str.length; i++) w += (str[i] === " " ? 4 : 6) * sx;
+  return Math.max(0, w - sx);
+}
+// Paints str with its top-left LED at (x, y); each font pixel is sx by sy LEDs. Returns the x after the last character.
+function ledText(g, str, x, y, sx, sy, color) {
+  g.fillStyle = color;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    if (ch === " ") { x += 4 * sx; continue; }
+    const rows = LED_FONT[ch] || LED_FONT["?"];
+    for (let r = 0; r < 7; r++) {
+      const row = rows[r];
+      for (let c = 0; c < 5; c++) if (row.charCodeAt(c) === 49) g.fillRect(x + c * sx, y + r * sy, sx, sy);
+    }
+    x += 6 * sx;
+  }
+  return x;
+}
+
+// The whole scrolling programme, painted once into one long strip (LED_ROWS tall).
+function ledStrip(script) {
+  const H = LED_ROWS, big = LED_BIG, yBig = Math.floor((H - 7 * big) / 2), GAP = 13, items = [];
+  // The wordmark at board resolution, prepared once. At this size the thin script strokes come out half
+  // lit, so the cream lettering is pushed to full LED brightness, the red edge is kept as a dimmer rim
+  // and the navy outline falls back to dark: the script reads as light on black.
+  const markW = Math.max(8, Math.round(H * script.width / script.height));
+  const markC = mkCanvas(markW, H), mg = markC.getContext("2d", { willReadFrequently: true });
+  mg.imageSmoothingEnabled = true; mg.imageSmoothingQuality = "high";
+  mg.drawImage(script, 0, 0, markW, H);
+  try {
+    const im = mg.getImageData(0, 0, markW, H), d = im.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const m = Math.max(d[i], d[i + 1], d[i + 2]);
+      if (m < 6) continue;
+      const warm = d[i] >= d[i + 2], cream = warm && d[i + 1] > 0.55 * d[i];
+      let k = cream ? (m > 70 ? 255 / m : 0.2) : warm ? 0.6 : 0.1;
+      k = Math.min(k, 255 / m);
+      d[i] = d[i] * k; d[i + 1] = d[i + 1] * k; d[i + 2] = d[i + 2] * k;
+    }
+    mg.putImageData(im, 0, 0);
+  } catch (e) { /* leave it as drawn */ }
+  function mark() {
+    items.push({ w: markW, draw: function (g, x) { g.drawImage(markC, x, 0); } });
+  }
+  function line(str, color) {
+    items.push({ w: ledTextW(str, big), draw: function (g, x) { ledText(g, str, x, yBig, big, big, color); } });
+  }
+  // an ad card: a color bar, a little "FREE" tab with the tag beside it, and the game's name underneath
+  function plug(name, tag, color) {
+    const ns = Math.max(1, big - 1), ts = 1, pad = 7, tab = ledTextW("FREE", ts) + 4;
+    const top = Math.max(1, Math.floor((H - (7 * ts + 3 + 7 * ns)) / 2));
+    const w = pad + Math.max(ledTextW(name, ns), tab + 4 + ledTextW(tag, ts));
+    items.push({ w: w, draw: function (g, x) {
+      g.fillStyle = color; g.fillRect(x, 1, 3, H - 2);
+      g.fillStyle = LED_C.yellow; g.fillRect(x + pad, top - 1, tab, 7 * ts + 2);
+      ledText(g, "FREE", x + pad + 2, top, ts, ts, "#000000");
+      ledText(g, tag, x + pad + tab + 4, top, ts, ts, LED_C.white);
+      ledText(g, name, x + pad, top + 7 * ts + 3, ns, ns, color);
+    } });
+  }
+  const tints = [LED_C.orange, LED_C.lime, LED_C.cyan, LED_C.pink, LED_C.yellow];
+  const per = Math.ceil(LED_PLUGS.length / LED_LINES.length);
+  let n = 0;
+  for (let k = 0; k < LED_LINES.length; k++) {
+    mark();
+    line(LED_LINES[k][0], LED_C[LED_LINES[k][1]] || LED_C.amber);
+    for (let j = 0; j < per && n < LED_PLUGS.length; j++, n++) plug(LED_PLUGS[n][0], LED_PLUGS[n][1], tints[n % tints.length]);
+  }
+  let total = 0;
+  for (let i = 0; i < items.length; i++) total += items[i].w + GAP * 2 + 7;
+  const c = mkCanvas(total, H), g = c.getContext("2d");
+  g.fillStyle = "#000000"; g.fillRect(0, 0, total, H);
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
+  let x = 0;
+  for (let i = 0; i < items.length; i++) {
+    items[i].draw(g, x);
+    x += items[i].w + GAP;
+    ledText(g, "*", x, Math.floor((H - 7) / 2), 1, 1, LED_C.blue);       // a small separator between items
+    x += 7 + GAP;
+  }
+  return { canvas: c, markW: items[0].w };
+}
+
+function ledCreate(script) {
+  const c = mkCanvas(LED_COLS, LED_ROWS), g = c.getContext("2d");
+  g.imageSmoothingEnabled = false;
+  const strip = ledStrip(script), sw = strip.canvas.width;
+  // open with the wordmark sitting in the middle of the board
+  const start = ((-(LED_COLS - strip.markW) / 2) % sw + sw) % sw;
+  return { canvas: c, g: g, strip: strip.canvas, scroll: start, pos: -1, msg: null, queue: [], frame: -1, lastScore: 0, tex: null };
+}
+
+// One LED cell for the shader: a round lens, bright in the middle, dark between neighbors.
+function ledDotCanvas() {
+  const c = mkCanvas(32, 32), g = c.getContext("2d");
+  g.fillStyle = "#000000"; g.fillRect(0, 0, 32, 32);
+  const gr = g.createRadialGradient(16, 16, 0, 16, 16, 15);
+  gr.addColorStop(0, "#ffffff"); gr.addColorStop(0.45, "#f4f4f4"); gr.addColorStop(0.8, "#585858"); gr.addColorStop(1, "#000000");
+  g.fillStyle = gr; g.fillRect(0, 0, 32, 32);
+  return c;
+}
+
+function ledMsg(kind, text, dur, more) {
+  const m = { kind: kind, text: text, dur: dur, t: 0, wait: 0 };
+  if (more) for (const k in more) m[k] = more[k];
+  return m;
+}
+// Cut to a list of messages (or add them after whatever is showing), then return to the scroll.
+function ledPlay(list, append) {
+  const L = LED;
+  if (!L || !list.length) return;
+  if (append && L.msg) { for (let i = 0; i < list.length; i++) L.queue.push(list[i]); return; }
+  L.msg = list[0]; L.msg.t = 0;
+  L.queue = list.slice(1);
+  L.frame = -1;
+}
+function ledClear() {
+  if (!LED) return;
+  LED.msg = null; LED.queue = []; LED.lastScore = 0; LED.pos = -1;
+}
+// A ball has been scored. kind: "strike" | "spare" | "split" | "gutter" | null. The camera is over the pin deck at
+// this moment and the board is out of sight, so the first message holds still for a beat before it animates.
+function ledResult(kind, text) {
+  const L = LED;
+  if (!L) return;
+  const list = [], sc = total(), wait = 1.15;
+  if (kind === "strike") list.push(ledMsg("strike", text, 3.6, { wait: wait }));
+  else if (kind === "spare") list.push(ledMsg("spare", "SPARE", 3.2, { wait: wait }));
+  else if (kind === "split") list.push(ledMsg("split", "SPLIT", 3.2, { wait: wait }));
+  else if (kind === "gutter") list.push(ledMsg("gutter", "GUTTER", 3.2, { wait: wait }));
+  if (!S.over && sc > 0) {
+    list.push(ledMsg("score", "SCORE", list.length ? 2.1 : 3.4, { from: Math.min(L.lastScore, sc), value: sc, wait: list.length ? 0 : wait }));
+  }
+  L.lastScore = sc;
+  ledPlay(list);
+}
+function ledFinal(score) {
+  if (!LED) return;
+  ledPlay([ledMsg("score", "FINAL", 6, { from: Math.min(LED.lastScore, score), value: score, final: true, wait: 0.7 })], true);
+  LED.lastScore = score;
+}
+
+function ledDrawMsg(g, m) {
+  const W = LED_COLS, H = LED_ROWS, big = LED_BIG, calm = Shell.reduced;
+  const t = Math.max(0, m.t - m.wait), yBig = Math.floor((H - 7 * big) / 2), mid = Math.round(W / 2);
+  const step = calm ? 0 : Math.floor(m.t * 24);
+  function fit(str) {                                       // widest lettering that still leaves room either side
+    let sx = big + 1;
+    if (ledTextW(str, sx) > W - 60) sx = big;
+    while (sx > 1 && ledTextW(str, sx) > W - 16) sx--;
+    return sx;
+  }
+  function chase(color, dir) {                              // running lights along the top and bottom edges
+    g.fillStyle = color;
+    for (let x = ((step * dir) % 6 + 6) % 6 - 6; x < W; x += 6) { g.fillRect(x, 0, 3, 1); g.fillRect(W - x - 3, H - 1, 3, 1); }
+  }
+  const sx = fit(m.text), sy = Math.min(sx, big), w = ledTextW(m.text, sx), x0 = Math.round((W - w) / 2);
+
+  if (m.kind === "strike") {
+    if (!calm && m.t >= m.wait && t < 0.6 && Math.floor(t * 12) % 2 === 0) {      // strobe: the whole board flips
+      g.fillStyle = LED_C.yellow; g.fillRect(0, 0, W, H);
+      ledText(g, m.text, x0, yBig, sx, big, "#000000");
+      return;
+    }
+    const span = 6 * big + 5, ph = calm ? 0 : Math.floor((t * 46) % span);
+    for (let k = 0; k < 12; k++) {                          // chevrons racing outward on both sides
+      const off = Math.round(w / 2) + 9 + k * span + ph;
+      if (off > mid + span) break;
+      const col = k % 2 ? LED_C.red : LED_C.orange;
+      ledText(g, ">", mid + off, yBig, big, big, col);
+      ledText(g, "<", mid - off - 5 * big, yBig, big, big, col);
+    }
+    const cyc = [LED_C.yellow, LED_C.white, LED_C.orange];
+    ledText(g, m.text, x0, yBig, sx, big, calm ? LED_C.yellow : cyc[Math.floor(t * 8) % 3]);
+    if (!calm) { g.fillStyle = "#ffffff"; for (let i = 0; i < 18; i++) g.fillRect((Math.random() * W) | 0, (Math.random() * H) | 0, 1, 1); }
+    chase(LED_C.amber, 1);
+    return;
+  }
+  if (m.kind === "spare") {                                 // slides in from the right, then a white glint sweeps across it
+    const k = calm || m.t < m.wait ? 1 : Math.min(1, t / 0.45), e = 1 - Math.pow(1 - k, 3);
+    const x = Math.round(x0 + (1 - e) * W);
+    ledText(g, m.text, x, yBig, sx, big, LED_C.cyan);
+    if (!calm && k >= 1) {
+      const bx = Math.floor(((t - 0.45) * 150) % (W + 80)) - 40;
+      g.save(); g.beginPath(); g.rect(bx, 0, 12, H); g.clip();
+      ledText(g, m.text, x, yBig, sx, big, "#ffffff");
+      g.restore();
+    }
+    chase(LED_C.cyan, -1);
+    return;
+  }
+  if (m.kind === "split") {                                 // the word keeps coming apart down the middle
+    const half = Math.ceil(m.text.length / 2), a = m.text.slice(0, half), b = m.text.slice(half);
+    const gap = calm ? 8 : Math.round(3 + 15 * Math.abs(Math.sin(t * 3.1)));
+    ledText(g, a, x0 - gap, yBig, sx, big, LED_C.violet);
+    ledText(g, b, x0 + ledTextW(a, sx) + sx + gap, yBig, sx, big, LED_C.violet);
+    const cx = x0 + ledTextW(a, sx) + Math.floor(sx / 2);
+    g.fillStyle = "#ffffff";
+    if (gap > 6) for (let r = 1; r < H - 1; r++) g.fillRect(cx + ((r >> 1) % 2 ? 1 : -1), r, 1, 1);
+    chase(LED_C.violet, 1);
+    return;
+  }
+  if (m.kind === "gutter") {                                // blinks, while a ball trundles along the bottom
+    if (calm || m.t < m.wait || t > 1.2 || Math.floor(t * 5) % 2 === 0) ledText(g, m.text, x0, yBig, sx, big, LED_C.pink);
+    g.fillStyle = LED_C.red; g.fillRect(0, H - 1, W, 1);
+    if (!calm) { g.fillStyle = "#ffffff"; g.fillRect(Math.floor((m.t * 95) % (W + 16)) - 8, H - 3, 4, 2); }
+    return;
+  }
+  // score: counts up to the new total
+  const k = calm ? 1 : Math.min(1, t / 0.7), v = Math.round(m.from + (m.value - m.from) * k);
+  const label = m.text + " ", full = ledTextW(label + m.value, big), x = Math.round((W - full) / 2);
+  const xn = ledText(g, label, x, yBig, big, big, LED_C.amber);
+  const done = k >= 1, blink = m.final && done && !calm && Math.floor(m.t * 3) % 2 === 1;
+  ledText(g, String(v), xn, yBig, big, big, !done ? LED_C.yellow : blink ? LED_C.amber : LED_C.white);
+  if (!calm && m.wait === 0 && m.t < 0.3) { g.fillStyle = "#000000"; g.fillRect(Math.round(W * m.t / 0.3), 0, W, H); }   // wipe in
+  chase(LED_C.amber, 1);
+}
+
+function ledDraw() {
+  const L = LED, g = L.g, W = LED_COLS, H = LED_ROWS;
+  g.fillStyle = "#000000"; g.fillRect(0, 0, W, H);
+  if (L.msg) { ledDrawMsg(g, L.msg); return; }
+  const sw = L.strip.width;
+  let sx = L.pos, dx = 0;
+  while (dx < W) {                                          // the strip wraps around
+    const n = Math.min(W - dx, sw - sx);
+    g.drawImage(L.strip, sx, 0, n, H, dx, 0, n, H);
+    dx += n; sx = 0;
+  }
+}
+
+// Advance the board. It only repaints (and re-uploads its tiny texture) when an LED actually changes.
+function ledTick(dt) {
+  const L = LED;
+  if (!L) return;
+  let redraw = false;
+  if (L.msg) {
+    L.msg.t += dt;
+    if (L.msg.t >= L.msg.dur) { L.msg = L.queue.shift() || null; L.frame = -1; redraw = true; }
+  }
+  if (L.msg) {
+    const f = Math.floor(L.msg.t * 30);
+    if (f !== L.frame) { L.frame = f; redraw = true; }
+  } else {
+    const sw = L.strip.width;
+    L.scroll = (L.scroll + dt * (Shell.reduced ? LED_SPEED * 0.5 : LED_SPEED)) % sw;
+    const p = Math.floor(L.scroll);
+    if (p !== L.pos) { L.pos = p; redraw = true; }
+  }
+  if (redraw) { ledDraw(); if (L.tex) L.tex.needsUpdate = true; }
 }
 
 function ceilingCanvas() {
@@ -813,19 +1126,15 @@ function buildScene(T, scriptImg) {
     return t;
   }
 
-  const script = scriptCanvas(scriptImg), banner = bannerBox(script);
+  const script = scriptCanvas(scriptImg);
   // the wordmark as a decal texture: a power-of-two canvas with a clear rim so its edges never smear
   const cScript = mkCanvas(1024, 256);
   cScript.getContext("2d").drawImage(script, 6, 6, 1012, 244);
   const tScript = tex(cScript), tWood = tex(woodCanvas(), true), tBall = tex(ballCanvas(script), true);
   const cMask = maskCanvas(script), cWall = wallCanvas();
   const tMask = tex(cMask), tWall = tex(cWall), tCeil = tex(ceilingCanvas(), true);
-  // what the lane reflects of the wall: the banner and its wordmark as one soft glow
+  // what the lane reflects of the wall: one soft glow
   const cWallSoft = softCanvas(cWall, 128, 64);
-  (function () {
-    const g = cWallSoft.getContext("2d"), kx = 128 / WALL_W, ky = 64 / WALL_H;
-    g.drawImage(script, 64 - banner.w * kx / 2, 64 - (banner.z + banner.h / 2) * ky, banner.w * kx, banner.h * ky);
-  })();
   const tMaskSoft = tex(softCanvas(cMask, 64, 32)), tWallSoft = tex(cWallSoft);
   const tShadow = tex(shadowCanvas()), tDeck = tex(deckCanvas());
   tBall.wrapT = T.ClampToEdgeWrapping;
@@ -935,10 +1244,45 @@ function buildScene(T, scriptImg) {
   /* back wall, masking units, ceiling */
   const wall = new T.Mesh(new T.PlaneGeometry(WALL_W, WALL_H), new T.MeshBasicMaterial({ map: tWall }));
   wall.position.set(0, WALL_H / 2, -WALL_Y); both(wall).material = dim(new T.MeshBasicMaterial({ map: tWallSoft }), 0.8);
-  // the wordmark, once, centered on the banner
-  const sign = new T.Mesh(new T.PlaneGeometry(banner.w, banner.h),
-    new T.MeshBasicMaterial({ map: tScript, transparent: true, depthWrite: false }));
-  sign.position.set(0, banner.z, -(WALL_Y - 0.6)); world.add(sign);
+  /* LED ribbon board: a dark housing across the whole wall with the dot matrix on its face */
+  LED = ledCreate(script);
+  const tLed = new T.CanvasTexture(LED.canvas);             // one texel per LED, never smoothed
+  if ("colorSpace" in tLed && T.SRGBColorSpace) tLed.colorSpace = T.SRGBColorSpace;
+  tLed.minFilter = tLed.magFilter = T.NearestFilter; tLed.generateMipmaps = false;
+  LED.tex = tLed;
+  const tDot = new T.CanvasTexture(ledDotCanvas());         // one LED lens, tiled; its mipmaps fade the dots out cleanly at a distance
+  tDot.wrapS = tDot.wrapT = T.RepeatWrapping; tDot.anisotropy = aniso;
+  const csChunk = T.ShaderChunk && T.ShaderChunk.colorspace_fragment ? "colorspace_fragment" : "encodings_fragment";
+  function ledMat(level) {
+    return new T.ShaderMaterial({
+      uniforms: { tLed: { value: tLed }, tDot: { value: tDot }, grid: { value: new T.Vector2(LED_COLS, LED_ROWS) }, level: { value: level } },
+      vertexShader: "varying vec2 vUv;\nvoid main() {\n  vUv = uv;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n}",
+      fragmentShader: [
+        "uniform sampler2D tLed;", "uniform sampler2D tDot;", "uniform vec2 grid;", "uniform float level;", "varying vec2 vUv;",
+        "void main() {",
+        "  vec2 cell = vUv * grid;",
+        "  vec2 px = 1.0 / grid;",
+        "  vec2 c0 = (floor(cell) + 0.5) * px;",                                   // every fragment of a cell reads that cell's one LED
+        "  vec3 led = texture2D(tLed, c0).rgb;",
+        "  vec3 halo = led;",                                                      // light bleeding from the neighbors: the glow
+        "  halo += texture2D(tLed, c0 + px * vec2( 1.5,  1.5)).rgb + texture2D(tLed, c0 + px * vec2(-1.5,  1.5)).rgb;",
+        "  halo += texture2D(tLed, c0 + px * vec2( 1.5, -1.5)).rgb + texture2D(tLed, c0 + px * vec2(-1.5, -1.5)).rgb;",
+        "  halo += texture2D(tLed, c0 + px * vec2( 3.0,  0.0)).rgb + texture2D(tLed, c0 + px * vec2(-3.0,  0.0)).rgb;",
+        "  halo += texture2D(tLed, c0 + px * vec2( 0.0,  3.0)).rgb + texture2D(tLed, c0 + px * vec2( 0.0, -3.0)).rgb;",
+        "  halo /= 9.0;",
+        "  float lens = texture2D(tDot, cell).r;",
+        "  vec3 col = led * lens * 1.38 + halo * 0.34 + vec3(0.030, 0.034, 0.046) * lens + vec3(0.005, 0.006, 0.010);",
+        "  gl_FragColor = vec4(col * level, 1.0);",
+        "  #include <" + csChunk + ">",
+        "}"
+      ].join("\n")
+    });
+  }
+  const ledHouse = new T.Mesh(new T.BoxGeometry(WALL_W + 4, LED_H + 9, 1), new T.MeshBasicMaterial({ color: 0x05070d }));
+  ledHouse.position.set(0, LED_Z + 3.1, -(WALL_Y - 0.5)); world.add(ledHouse);   // a thin lip below, a deeper hood above
+  const ledFace = new T.Mesh(new T.PlaneGeometry(WALL_W, LED_H), ledMat(1));
+  ledFace.position.set(0, LED_Z, -(WALL_Y - 1.3));
+  both(ledFace).material = ledMat(0.85);                    // and its moving reflection in the lane
   const maskSide = new T.MeshPhongMaterial({ color: 0x1b4fc0, specular: 0x555555, shininess: 30 });
   const maskFront = new T.MeshBasicMaterial({ map: tMask });
   const maskGeo = new T.BoxGeometry(70, 22, 3);
@@ -1133,6 +1477,7 @@ function placePin(o, p) {
 
 function syncScene(state, fdt) {
   let i;
+  ledTick(fdt);
   for (i = 0; i < 10; i++) {
     R.pins[i].mesh.visible = R.pins[i].twin.visible = R.pins[i].shadow.visible = false;
     R.dead[i].mesh.visible = R.dead[i].twin.visible = R.dead[i].shadow.visible = false;
@@ -1465,7 +1810,7 @@ function startGame() {
 
 // Hook for automated checks (no effect on play)
 window.__tapePins = { S: function () { return S; }, rack: fullRack, throwBall: throwBall, scores: scores, step: step, resolve: resolveBall,
-                      gfx: function () { return R; } };
+                      gfx: function () { return R; }, led: function () { return LED; } };
 
 (function boot() {
   const splash = makeSplash();
