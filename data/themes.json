@@ -26,17 +26,6 @@
      "ghostbusters-sega-master-system"
     ]
    }
-  },
-  {
-   "id": "autumn",
-   "name": "Autumn",
-   "start": "11-01",
-   "end": "11-30",
-   "strip": {
-    "kicker": "November",
-    "title": "Planes, Trains and Automobiles (1987)",
-    "year": 1987
-   }
   }
  ]
 }
