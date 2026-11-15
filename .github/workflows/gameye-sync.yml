@@ -74,16 +74,18 @@ jobs:
           sleep 20
           HEAD=$(git rev-parse HEAD)
           # Cancel in-progress pages runs that are not for HEAD
-          gh run list --workflow=pages-build-deployment --status in_progress --limit 10             --json databaseId,headSha | python3 -c '
-import json,sys,subprocess
-for r in json.load(sys.stdin):
-  if r["headSha"] != "'"$HEAD"'":
-    print("cancelling superseded pages run", r["databaseId"], r["headSha"][:7])
-    subprocess.run(["gh","run","cancel",str(r["databaseId"])], check=False)
-'
+          gh run list --workflow=pages-build-deployment --status in_progress --limit 10 \
+            --json databaseId,headSha | python3 -c '
+          import json,sys,subprocess
+          for r in json.load(sys.stdin):
+            if r["headSha"] != "'"$HEAD"'":
+              print("cancelling superseded pages run", r["databaseId"], r["headSha"][:7])
+              subprocess.run(["gh","run","cancel",str(r["databaseId"])], check=False)
+          '
           # Wait up to ~4 minutes for a successful pages deploy of HEAD
           for i in $(seq 1 24); do
-            row=$(gh run list --workflow=pages-build-deployment --commit "$HEAD" --limit 1               --json databaseId,status,conclusion -q '.[0] // empty')
+            row=$(gh run list --workflow=pages-build-deployment --commit "$HEAD" --limit 1 \
+              --json databaseId,status,conclusion -q '.[0] // empty')
             if [ -z "$row" ] || [ "$row" = "null" ]; then
               echo "waiting for pages run to appear ($i)"
               sleep 10
