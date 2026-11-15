@@ -1,9 +1,9 @@
 {
-  "description": "Verified RELEASED fills for shelf games that currently have no date in the RELEASED map in index.html. Each Gameye date was checked against Wikidata and/or Wikipedia North American (or worldwide, when the launch was worldwide) release dates. Do not overwrite dates already in RELEASED. Store each fill under released_key (sitedata nkey + '|' + system) as [month, day, year], the same shape the site already uses: day 0 means month and year only, and [0, 0, year] means year only (released_text() must be extended for that last case).",
-  "verified_count": 26,
-  "day_precision": 21,
-  "month_precision": 3,
-  "year_precision": 2,
+  "description": "Verified RELEASED fills for shelf games that currently have no date in the RELEASED map in index.html. Each Gameye date was checked against Wikidata and/or Wikipedia North American (or worldwide, when the launch was worldwide) release dates. Do not overwrite dates already in RELEASED. Store each fill under released_key (sitedata nkey + '|' + system) as [month, day, year], the same shape the site already uses: day 0 means month and year only, and [0, 0, year] means year only (released_text() must be extended for that last case). Later fills may use a verified Wikipedia, MobyGames, GameFAQs, or official-list date for the owned console and region even when that date disagrees with Gameye. Dates are still never guessed, and dates already in RELEASED are never overwritten.",
+  "verified_count": 61,
+  "day_precision": 43,
+  "month_precision": 10,
+  "year_precision": 8,
   "fills": [
     {
       "slug": "batman-forever-sega-genesis",
@@ -535,6 +535,722 @@
         "Wikipedia 'Tomb Raider (1996 video game)' infobox: MS-DOS, PlayStation {{Video game release|NA|14 November 1996|EU|22 November 1996}}"
       ],
       "note": "This is the original North American PlayStation release date, not a Greatest Hits reprint date. Wikipedia does not give a separate Greatest Hits date."
+    },
+    {
+      "slug": "adventures-of-dino-riki-nes",
+      "title": "Adventures of Dino Riki",
+      "system": "NES",
+      "nkey": "adventures of dino riki",
+      "released_key": "adventures of dino riki|NES",
+      "item_id": 1454,
+      "gameye_date": "1987-02-10",
+      "released": [
+        0,
+        0,
+        1989
+      ],
+      "precision": "year",
+      "year": 1989,
+      "sources": [
+        "Wikipedia 'Adventures of Dino Riki' infobox: NA October 1989 (JP February 10, 1987).",
+        "MobyGames 'Adventures of Dino-Riki' NES releases: United States September 1989 (Hudson Soft USA).",
+        "GameFAQs NES release data: US September 1989 (Hudson Soft, NES-SG-USA)."
+      ],
+      "note": "This is a USA NES copy. Gameye's 1987-02-10 is the Japanese release. Wikipedia gives the North American month as October 1989, while MobyGames and GameFAQs give September 1989, so only the year 1989 is stored."
+    },
+    {
+      "slug": "batman-forever-snes",
+      "title": "Batman Forever",
+      "system": "SNES",
+      "nkey": "batman forever",
+      "released_key": "batman forever|SNES",
+      "item_id": 2934,
+      "gameye_date": "1995-08-07",
+      "released": [
+        9,
+        7,
+        1995
+      ],
+      "precision": "day",
+      "year": 1995,
+      "sources": [
+        "Wikipedia 'Batman Forever (video game)' infobox: SNES, Game Boy, Game Gear, Genesis/Mega Drive {{vgrelease|NA/EU|September 7, 1995|JP|October 27, 1995}}."
+      ],
+      "note": "Gameye has 1995-08-07 for this SNES copy. The Wikipedia NA/EU date of September 7, 1995 covers the SNES version (the same date already used for the Genesis copy in this file)."
+    },
+    {
+      "slug": "final-fight-snes",
+      "title": "Final Fight",
+      "system": "SNES",
+      "nkey": "final fight",
+      "released_key": "final fight|SNES",
+      "item_id": 1794,
+      "gameye_date": "1991-09-01",
+      "released": [
+        0,
+        0,
+        1991
+      ],
+      "precision": "year",
+      "year": 1991,
+      "sources": [
+        "Wikipedia 'Final Fight (video game)' infobox: Super NES {{vgrelease|JP|December 21, 1990|NA|November 10, 1991|PAL|December 10, 1992}}.",
+        "GameFAQs Super Nintendo release data: US September 1991 (Capcom, SNS-FT)."
+      ],
+      "note": "This is a USA SNES copy. Wikipedia gives a North American day of November 10, 1991, but GameFAQs (and Wikidata) only confirm September 1991, so only the year 1991 is stored."
+    },
+    {
+      "slug": "judge-dredd-snes",
+      "title": "Judge Dredd",
+      "system": "SNES",
+      "nkey": "judge dredd",
+      "released_key": "judge dredd|SNES",
+      "item_id": 270,
+      "gameye_date": "1995-10-27",
+      "released": [
+        6,
+        16,
+        1995
+      ],
+      "precision": "day",
+      "year": 1995,
+      "sources": [
+        "Wikipedia 'Judge Dredd (1995 video game)' infobox: Super NES, Genesis, Game Boy, Game Gear {{vgrelease|NA/PAL|June 16, 1995}}."
+      ],
+      "note": "This is a USA SNES copy. Gameye's 1995-10-27 matches the European SNES date on Wikidata, not the North American date."
+    },
+    {
+      "slug": "doom-64-nintendo-64",
+      "title": "Doom 64",
+      "system": "Nintendo 64",
+      "nkey": "doom 64",
+      "released_key": "doom 64|Nintendo 64",
+      "item_id": 235,
+      "gameye_date": "1997-03-31",
+      "released": [
+        4,
+        4,
+        1997
+      ],
+      "precision": "day",
+      "year": 1997,
+      "sources": [
+        "Wikipedia 'Doom 64' infobox: Nintendo 64 {{Video game release|NA|April 4, 1997|PAL|December 2, 1997}}. The article also says Midway shipped the game to retailers on March 27, 1997, and released it on April 4.",
+        "MobyGames 'Doom 64' Nintendo 64 releases: United States April 4, 1997 (Midway Home Entertainment)."
+      ],
+      "note": "Gameye and some listings (GameFAQs, Wikidata) use March 31, 1997. Wikipedia and MobyGames agree on the North American release date of April 4, 1997, so that date is stored."
+    },
+    {
+      "slug": "duke-nukem-zero-hour-nintendo-64",
+      "title": "Duke Nukem: Zero Hour",
+      "system": "Nintendo 64",
+      "nkey": "duke nukem zero hour",
+      "released_key": "duke nukem zero hour|Nintendo 64",
+      "item_id": 1048,
+      "gameye_date": "1999-08-01",
+      "released": [
+        8,
+        31,
+        1999
+      ],
+      "precision": "day",
+      "year": 1999,
+      "sources": [
+        "Wikipedia 'Duke Nukem: Zero Hour' infobox: {{vgrelease|NA|August 31, 1999|EU|September 24, 1999}}, citing a 3D Realms press page."
+      ],
+      "note": "Gameye has 1999-08-01. Wikipedia's North American date is August 31, 1999."
+    },
+    {
+      "slug": "san-francisco-rush-extreme-racing-nintendo-64",
+      "title": "San Francisco Rush: Extreme Racing",
+      "system": "Nintendo 64",
+      "nkey": "san francisco rush extreme racing",
+      "released_key": "san francisco rush extreme racing|Nintendo 64",
+      "item_id": 1154,
+      "gameye_date": "1997-11-08",
+      "released": [
+        11,
+        7,
+        1997
+      ],
+      "precision": "day",
+      "year": 1997,
+      "sources": [
+        "Wikipedia 'San Francisco Rush: Extreme Racing' infobox: Nintendo 64 {{vgrelease|NA|November 7, 1997|EU|December 1997}}."
+      ],
+      "note": "Gameye has 1997-11-08, one day later than the Wikipedia North American date."
+    },
+    {
+      "slug": "nintendo-gamecube-preview-disc-gamecube",
+      "title": "Nintendo GameCube Preview Disc",
+      "system": "GameCube",
+      "nkey": "nintendo gamecube preview disc",
+      "released_key": "nintendo gamecube preview disc|GameCube",
+      "item_id": 42173,
+      "gameye_date": "2003-05-20",
+      "released": [
+        5,
+        0,
+        2003
+      ],
+      "precision": "month",
+      "year": 2003,
+      "sources": [
+        "redump.org disc 6150 'Nintendo GameCube Preview Disc: May 2003' (serial DL-DOL-D87E-USA): internal name 'Nintendo Gamecube Preview Disc, May 2003'.",
+        "IGN (archived) 'Nintendo GameCube Preview Disc' lists a US release date of May 20, 2003."
+      ],
+      "note": "The disc itself is the May 2003 preview disc. IGN and Gameye give May 20, 2003, but Wikidata has May 30, 2003, so this is stored as month and year only."
+    },
+    {
+      "slug": "frogger-2-swampy-s-revenge-game-boy-color",
+      "title": "Frogger 2: Swampy's Revenge",
+      "system": "Game Boy Color",
+      "nkey": "frogger 2 swampy s revenge",
+      "released_key": "frogger 2 swampy s revenge|Game Boy Color",
+      "item_id": 16568,
+      "gameye_date": "2000-09-23",
+      "released": [
+        9,
+        23,
+        2000
+      ],
+      "precision": "day",
+      "year": 2000,
+      "sources": [
+        "GameFAQs Game Boy Color release data for 'Frogger 2: Swampy's Revenge': US September 23, 2000 (Hasbro Interactive, CGB-BH2E-USA).",
+        "MobyGames 'Frogger 2' (the Game Boy Color version) releases: United States September 2000 (Majesco Sales)."
+      ],
+      "note": "Wikipedia 'Frogger 2: Swampy's Revenge' gives NA September 21, 2000 in a combined PlayStation/Game Boy Color/Windows infobox, which is not a Game Boy Color-specific date. The Game Boy Color US date used here is from GameFAQs, and it matches Gameye; MobyGames confirms September 2000."
+    },
+    {
+      "slug": "nickleodeon-teenage-mutant-ninja-turtles-master-splinter-s-training-pack-nintendo-3ds",
+      "title": "Nickleodeon Teenage Mutant Ninja Turtles: Master Splinter's Training Pack",
+      "system": "Nintendo 3DS",
+      "nkey": "nickleodeon teenage mutant ninja turtles master splinter s training pack",
+      "released_key": "nickleodeon teenage mutant ninja turtles master splinter s training pack|Nintendo 3DS",
+      "item_id": 44071,
+      "gameye_date": "2015-11-03",
+      "released": [
+        11,
+        3,
+        2015
+      ],
+      "precision": "day",
+      "year": 2015,
+      "sources": [
+        "GameFAQs 3DS release data: US November 3, 2015 (Activision, CTR-BTNE-USA); EU September 25, 2015.",
+        "MobyGames 'Teenage Mutant Ninja Turtles: Master Splinter's Training Pack': released November 3, 2015 on Nintendo 3DS (Activision)."
+      ],
+      "note": "This is a USA 3DS copy, so the US date is used. The shelf title keeps the 'Nickleodeon' spelling."
+    },
+    {
+      "slug": "nba-jam-extreme-playstation-1",
+      "title": "NBA Jam Extreme",
+      "system": "PlayStation 1",
+      "nkey": "nba jam extreme",
+      "released_key": "nba jam extreme|PlayStation 1",
+      "item_id": 10391,
+      "gameye_date": "1996-10-31",
+      "released": [
+        0,
+        0,
+        1996
+      ],
+      "precision": "year",
+      "year": 1996,
+      "sources": [
+        "Wikipedia 'NBA Jam Extreme' infobox: PlayStation {{vgrelease|NA|November 1, 1996}}.",
+        "GameFAQs PlayStation release data: US October 31, 1996 (Acclaim, SLUS-00388).",
+        "PlayStation Data Center NTSC-U entry for SLUS-00388: Date Released 31 October 1996."
+      ],
+      "note": "GameFAQs and the PlayStation Data Center give October 31, 1996, matching Gameye, but Wikipedia gives November 1, 1996 for the PlayStation. Because the sources disagree on the day, only the year 1996 is stored."
+    },
+    {
+      "slug": "ready-2-rumble-boxing-greatest-hits-playstation-1",
+      "title": "Ready 2 Rumble Boxing [Greatest Hits]",
+      "system": "PlayStation 1",
+      "nkey": "ready 2 rumble boxing",
+      "released_key": "ready 2 rumble boxing|PlayStation 1",
+      "item_id": 124346,
+      "gameye_date": "1999-10-31",
+      "released": [
+        11,
+        15,
+        1999
+      ],
+      "precision": "day",
+      "year": 1999,
+      "sources": [
+        "GameFAQs PlayStation release data: US November 15, 1999 (Midway, SLUS-00857). The Greatest Hits reprint is listed separately as 2000, with no exact day.",
+        "PlayStation Data Center NTSC-U entry for SLUS-00857: Date Released 15 November 1999."
+      ],
+      "note": "This follows the site's other Greatest Hits pages in using the original PlayStation North American date, not a later Greatest Hits reprint date. Wikipedia groups the PlayStation with the N64 and Game Boy Color at November 16, 1999; the PlayStation-specific sources agree on November 15, 1999."
+    },
+    {
+      "slug": "street-fighter-alpha-warriors-dreams-long-box-playstation-1",
+      "title": "Street Fighter Alpha: Warriors' Dreams [Long Box]",
+      "system": "PlayStation 1",
+      "nkey": "street fighter alpha warriors dreams",
+      "released_key": "street fighter alpha warriors dreams|PlayStation 1",
+      "item_id": 86880,
+      "gameye_date": "1995-12-22",
+      "released": [
+        2,
+        8,
+        1996
+      ],
+      "precision": "day",
+      "year": 1996,
+      "sources": [
+        "Wikipedia 'Street Fighter Alpha' infobox: PlayStation {{vgrelease|JP|December 22, 1995|NA|February 8, 1996|UK|May 22, 1996}}."
+      ],
+      "note": "This is a USA long-box PlayStation copy. Gameye's 1995-12-22 is the Japanese PlayStation date, not the North American date."
+    },
+    {
+      "slug": "street-fighter-the-movie-long-box-playstation-1",
+      "title": "Street Fighter The Movie [Long Box]",
+      "system": "PlayStation 1",
+      "nkey": "street fighter the movie",
+      "released_key": "street fighter the movie|PlayStation 1",
+      "item_id": 11185,
+      "gameye_date": "1995-08-10",
+      "released": [
+        9,
+        9,
+        1995
+      ],
+      "precision": "day",
+      "year": 1995,
+      "sources": [
+        "Wikipedia 'Street Fighter: The Movie (console video game)' infobox: PlayStation {{vgrelease|JP|August 11, 1995|NA|September 9, 1995|EU|September 29, 1995}}. The August 23, 1995 North American date on that page is for the Saturn version."
+      ],
+      "note": "This is a USA long-box PlayStation copy. Gameye's 1995-08-10 was not used."
+    },
+    {
+      "slug": "quake-iii-revolution-playstation-2",
+      "title": "Quake III Revolution",
+      "system": "PlayStation 2",
+      "nkey": "quake iii revolution",
+      "released_key": "quake iii revolution|PlayStation 2",
+      "item_id": 4460,
+      "gameye_date": "2001-03-26",
+      "released": [
+        3,
+        27,
+        2001
+      ],
+      "precision": "day",
+      "year": 2001,
+      "sources": [
+        "Wikipedia 'Quake III Arena' infobox: PlayStation 2 (Revolution) {{Video game release|NA|March 27, 2001|EU|April 6, 2001}}."
+      ],
+      "note": "Gameye has 2001-03-26, one day earlier than the Wikipedia North American date."
+    },
+    {
+      "slug": "espn-nfl-primetime-2002-xbox",
+      "title": "ESPN NFL Primetime 2002",
+      "system": "Xbox",
+      "nkey": "espn nfl primetime 2002",
+      "released_key": "espn nfl primetime 2002|Xbox",
+      "item_id": 37548,
+      "gameye_date": "2001-12-02",
+      "released": [
+        1,
+        22,
+        2002
+      ],
+      "precision": "day",
+      "year": 2002,
+      "sources": [
+        "Wikipedia 'ESPN NFL PrimeTime 2002' infobox: Xbox {{vgrelease|NA|January 22, 2002}}. The January 22 date is Xbox-specific; the PlayStation 2 date on that page is October 30, 2001, and the Windows date is March 8, 2002."
+      ],
+      "note": "Gameye has 2001-12-02, which was not confirmed as the Xbox North American date."
+    },
+    {
+      "slug": "grand-theft-auto-iii-the-xbox-collection-xbox",
+      "title": "Grand Theft Auto III [The Xbox Collection]",
+      "system": "Xbox",
+      "nkey": "grand theft auto iii",
+      "released_key": "grand theft auto iii|Xbox",
+      "item_id": 70270,
+      "gameye_date": "2003-10-31",
+      "released": [
+        11,
+        4,
+        2003
+      ],
+      "precision": "day",
+      "year": 2003,
+      "sources": [
+        "Wikipedia 'Grand Theft Auto III' infobox: Xbox {{Video game release|NA|4 November 2003|PAL|2 January 2004}}."
+      ],
+      "note": "This follows the site's other Xbox Collection pages (Vice City) in using the original Xbox North American date. Gameye's 2003-10-31 was not used."
+    },
+    {
+      "slug": "mortal-kombat-deadly-alliance-platinum-hits-xbox",
+      "title": "Mortal Kombat: Deadly Alliance [Platinum Hits]",
+      "system": "Xbox",
+      "nkey": "mortal kombat deadly alliance",
+      "released_key": "mortal kombat deadly alliance|Xbox",
+      "item_id": 98022,
+      "gameye_date": "2002-11-18",
+      "released": [
+        11,
+        22,
+        2002
+      ],
+      "precision": "day",
+      "year": 2002,
+      "sources": [
+        "Wikipedia 'Mortal Kombat: Deadly Alliance' infobox: GameCube, PlayStation 2, Xbox {{vgrelease|NA|November 22, 2002|PAL|February 14, 2003}}."
+      ],
+      "note": "This follows the site's other Platinum Hits / Greatest Hits pages in using the original Xbox North American date, not a later Platinum Hits reprint date. Gameye has 2002-11-18."
+    },
+    {
+      "slug": "star-wars-republic-commando-platinum-hits-xbox",
+      "title": "Star Wars: Republic Commando [Platinum Hits]",
+      "system": "Xbox",
+      "nkey": "star wars republic commando",
+      "released_key": "star wars republic commando|Xbox",
+      "item_id": 72873,
+      "gameye_date": "2005-02-28",
+      "released": [
+        3,
+        1,
+        2005
+      ],
+      "precision": "day",
+      "year": 2005,
+      "sources": [
+        "Wikipedia 'Star Wars: Republic Commando' infobox: Windows, Xbox {{vgrelease|NA|March 1, 2005|EU|March 4, 2005}}."
+      ],
+      "note": "This follows the site's other Platinum Hits pages in using the original Xbox North American date. Gameye has 2005-02-28, one day earlier."
+    },
+    {
+      "slug": "xbox-music-mixer-xbox",
+      "title": "Xbox Music Mixer",
+      "system": "Xbox",
+      "nkey": "xbox music mixer",
+      "released_key": "xbox music mixer|Xbox",
+      "item_id": 22702,
+      "gameye_date": "2003-12-01",
+      "released": [
+        10,
+        27,
+        2003
+      ],
+      "precision": "day",
+      "year": 2003,
+      "sources": [
+        "Wikipedia 'Xbox Music Mixer' infobox: {{vgrelease|NA|October 27, 2003|EU|November 28, 2003}}."
+      ],
+      "note": "Gameye has 2003-12-01, which was not confirmed."
+    },
+    {
+      "slug": "official-xbox-magazine-demo-disc-59-xbox-360",
+      "title": "Official Xbox Magazine Demo Disc 59",
+      "system": "Xbox 360",
+      "nkey": "official xbox magazine demo disc 59",
+      "released_key": "official xbox magazine demo disc 59|Xbox 360",
+      "item_id": 58516,
+      "gameye_date": "2006-07-01",
+      "released": [
+        7,
+        0,
+        2006
+      ],
+      "precision": "month",
+      "year": 2006,
+      "sources": [
+        "Video Game History Foundation Library: Official Xbox Magazine, Issue 59, publication July 2006, United States (Future US)."
+      ],
+      "note": "Gameye has 2006-07-01, a first-of-month date. The library record confirms the July 2006 issue but not the day, so this is stored as month and year only."
+    },
+    {
+      "slug": "perfect-dark-zero-limited-collector-s-edition-xbox-360",
+      "title": "Perfect Dark Zero [Limited Collector's Edition]",
+      "system": "Xbox 360",
+      "nkey": "perfect dark zero",
+      "released_key": "perfect dark zero|Xbox 360",
+      "item_id": 55361,
+      "gameye_date": "2006-09-08",
+      "released": [
+        11,
+        22,
+        2005
+      ],
+      "precision": "day",
+      "year": 2005,
+      "sources": [
+        "Wikipedia 'Perfect Dark Zero' infobox: {{Video game release|NA|November 22, 2005|EU|December 2, 2005}} (Xbox 360 launch window).",
+        "MobyGames 'Perfect Dark Zero (Limited Collector's Edition)': released November 22, 2005 on Xbox 360 (Microsoft)."
+      ],
+      "note": "The Limited Collector's Edition was a launch SKU announced by Microsoft in September 2005, not a later reprint. Gameye's 2006-09-08 looks like a misplaced announcement date and was not used."
+    },
+    {
+      "slug": "gex-trilogy-xbox-series-x-s",
+      "title": "GEX Trilogy",
+      "system": "Xbox Series X/S",
+      "nkey": "gex trilogy",
+      "released_key": "gex trilogy|Xbox Series X/S",
+      "item_id": 168729,
+      "gameye_date": "2025-10-31",
+      "released": [
+        6,
+        16,
+        2025
+      ],
+      "precision": "day",
+      "year": 2025,
+      "sources": [
+        "Official Xbox store listing 'Gex Trilogy' (9nj3sksbw8ww): Release date 6/16/2025, Optimized for Xbox Series X|S.",
+        "Xbox Wire, 'Next Week on Xbox: New Games for June 16 to 20' (June 13, 2025): Gex Trilogy \u2013 June 16."
+      ],
+      "note": "Gameye has 2025-10-31, which may refer to a later physical Limited Run shipment. The Xbox Series X/S platform release date is June 16, 2025."
+    },
+    {
+      "slug": "adventures-of-batman-robin-sega-genesis",
+      "title": "Adventures of Batman & Robin",
+      "system": "Sega Genesis",
+      "nkey": "adventures of batman robin",
+      "released_key": "adventures of batman robin|Sega Genesis",
+      "item_id": 8855,
+      "gameye_date": "1995-06-20",
+      "released": [
+        5,
+        0,
+        1995
+      ],
+      "precision": "month",
+      "year": 1995,
+      "sources": [
+        "Wikipedia 'The Adventures of Batman & Robin (video game)' infobox: Genesis/Mega Drive {{vgrelease|NA|May 1995|EU|July 14, 1995}}. The June 1995 North American date on that page is for the Game Gear version."
+      ],
+      "note": "Gameye has 1995-06-20, which was not confirmed for the Genesis. Wikipedia only confirms May 1995 for the North American Genesis release, so this is stored as month and year only."
+    },
+    {
+      "slug": "adventures-of-rocky-and-bullwinkle-and-friends-sega-genesis",
+      "title": "Adventures of Rocky and Bullwinkle and Friends",
+      "system": "Sega Genesis",
+      "nkey": "adventures of rocky and bullwinkle and friends",
+      "released_key": "adventures of rocky and bullwinkle and friends|Sega Genesis",
+      "item_id": 3928,
+      "gameye_date": "1993-01-01",
+      "released": [
+        9,
+        0,
+        1993
+      ],
+      "precision": "month",
+      "year": 1993,
+      "sources": [
+        "Wikipedia 'The Adventures of Rocky and Bullwinkle and Friends (video game)' infobox: September 1993 (Genesis)."
+      ],
+      "note": "Gameye has 1993-01-01, treated as a year-only placeholder. Wikipedia gives September 1993 for the Genesis, so this is stored as month and year only."
+    },
+    {
+      "slug": "barkley-shut-up-and-jam-sega-genesis",
+      "title": "Barkley Shut Up and Jam!",
+      "system": "Sega Genesis",
+      "nkey": "barkley shut up and jam",
+      "released_key": "barkley shut up and jam|Sega Genesis",
+      "item_id": 3967,
+      "gameye_date": "1994-06-01",
+      "released": [
+        3,
+        0,
+        1994
+      ],
+      "precision": "month",
+      "year": 1994,
+      "sources": [
+        "Wikipedia 'Barkley Shut Up and Jam!' infobox: Genesis {{vgrelease|NA|March 1994|EU|March 8, 1994}}. The June 1994 North American date on that page is for the Super NES version."
+      ],
+      "note": "Gameye has 1994-06-01, which matches the SNES month, not the Genesis date. Wikipedia only confirms March 1994 for the North American Genesis release, so this is stored as month and year only."
+    },
+    {
+      "slug": "batman-revenge-of-the-joker-sega-genesis",
+      "title": "Batman: Revenge of the Joker",
+      "system": "Sega Genesis",
+      "nkey": "batman revenge of the joker",
+      "released_key": "batman revenge of the joker|Sega Genesis",
+      "item_id": 3971,
+      "gameye_date": "1992-11-06",
+      "released": [
+        11,
+        0,
+        1992
+      ],
+      "precision": "month",
+      "year": 1992,
+      "sources": [
+        "Wikipedia 'Batman: Return of the Joker' infobox: Genesis {{vgrelease|NA|November 1992}}. The Genesis version was released in North America as Batman: Revenge of the Joker."
+      ],
+      "note": "Gameye has 1992-11-06. Wikipedia only confirms November 1992 for the North American Genesis release, so this is stored as month and year only."
+    },
+    {
+      "slug": "judge-dredd-sega-genesis",
+      "title": "Judge Dredd",
+      "system": "Sega Genesis",
+      "nkey": "judge dredd",
+      "released_key": "judge dredd|Sega Genesis",
+      "item_id": 4153,
+      "gameye_date": "1995-08-01",
+      "released": [
+        6,
+        16,
+        1995
+      ],
+      "precision": "day",
+      "year": 1995,
+      "sources": [
+        "Wikipedia 'Judge Dredd (1995 video game)' infobox: Super NES, Genesis, Game Boy, Game Gear {{vgrelease|NA/PAL|June 16, 1995}}."
+      ],
+      "note": "Gameye has 1995-08-01, a first-of-month date that was not confirmed for the Genesis."
+    },
+    {
+      "slug": "jungle-strike-sega-genesis",
+      "title": "Jungle Strike",
+      "system": "Sega Genesis",
+      "nkey": "jungle strike",
+      "released_key": "jungle strike|Sega Genesis",
+      "item_id": 509,
+      "gameye_date": "1993-08-01",
+      "released": [
+        0,
+        0,
+        1993
+      ],
+      "precision": "year",
+      "year": 1993,
+      "sources": [
+        "Wikipedia 'Jungle Strike' infobox: 1993: Genesis."
+      ],
+      "note": "Gameye has 1993-08-01. GameFAQs lists a US Genesis date of December 16, 1993, which disagrees with Gameye and is more precise than Wikipedia, so only the year 1993 is stored."
+    },
+    {
+      "slug": "quake-iii-arena-sega-dreamcast",
+      "title": "Quake III Arena",
+      "system": "Sega Dreamcast",
+      "nkey": "quake iii arena",
+      "released_key": "quake iii arena|Sega Dreamcast",
+      "item_id": 2723,
+      "gameye_date": "2000-10-22",
+      "released": [
+        10,
+        19,
+        2000
+      ],
+      "precision": "day",
+      "year": 2000,
+      "sources": [
+        "Wikipedia 'Quake III Arena' infobox: Dreamcast {{Video game release|NA|October 19, 2000|EU|December 8, 2000}}."
+      ],
+      "note": "Gameye has 2000-10-22, three days later than the Wikipedia North American date."
+    },
+    {
+      "slug": "black-dawn-sega-saturn",
+      "title": "Black Dawn",
+      "system": "Sega Saturn",
+      "nkey": "black dawn",
+      "released_key": "black dawn|Sega Saturn",
+      "item_id": 9305,
+      "gameye_date": "1996-01-06",
+      "released": [
+        0,
+        0,
+        1996
+      ],
+      "precision": "year",
+      "year": 1996,
+      "sources": [
+        "Wikipedia 'Black Dawn (video game)' infobox: Saturn {{vgrelease|NA|1996|JP|April 25, 1997|EU|1997}}.",
+        "MobyGames 'Black Dawn' Sega Saturn releases: United States December 1996 (Virgin Interactive Entertainment)."
+      ],
+      "note": "Gameye has 1996-01-06, which was not confirmed. Wikipedia only confirms the year 1996 for the North American Saturn release (MobyGames gives December 1996), so only the year is stored."
+    },
+    {
+      "slug": "christmas-nights-into-dreams-sega-saturn",
+      "title": "Christmas Nights Into Dreams",
+      "system": "Sega Saturn",
+      "nkey": "christmas nights into dreams",
+      "released_key": "christmas nights into dreams|Sega Saturn",
+      "item_id": 71972,
+      "gameye_date": "1996-11-22",
+      "released": [
+        11,
+        22,
+        1996
+      ],
+      "precision": "day",
+      "year": 1996,
+      "sources": [
+        "Japanese Wikipedia '\u30af\u30ea\u30b9\u30de\u30b9\u30ca\u30a4\u30c4': limited release from November 22, 1996 to January 31, 1997.",
+        "GameFAQs Saturn release data: JP November 22, 1996 (Sega, 610-6431); US December 12, 1996.",
+        "MobyGames 'Christmas NiGHTS into Dreams...': released November 22, 1996 on Sega Saturn (Sega)."
+      ],
+      "note": "This is a Japan-region copy, so the Japanese date is used rather than the later North American magazine-bundle date."
+    },
+    {
+      "slug": "dilbert-s-desktop-games-pc",
+      "title": "Dilbert's Desktop Games",
+      "system": "PC",
+      "nkey": "dilbert s desktop games",
+      "released_key": "dilbert s desktop games|PC",
+      "item_id": 68031,
+      "gameye_date": "1997-09-30",
+      "released": [
+        10,
+        0,
+        1997
+      ],
+      "precision": "month",
+      "year": 1997,
+      "sources": [
+        "Wikipedia 'Dilbert's Desktop Games' infobox: {{vgrelease|NA|October 1997}}, citing a contemporary GameSpot listing ('Released: 10/97')."
+      ],
+      "note": "Gameye has 1997-09-30. Wikipedia only confirms October 1997 for North America, so this is stored as month and year only."
+    },
+    {
+      "slug": "driver-sold-out-pc",
+      "title": "Driver [Sold Out]",
+      "system": "PC",
+      "nkey": "driver",
+      "released_key": "driver|PC",
+      "item_id": 20153,
+      "gameye_date": "2005-07-01",
+      "released": [
+        10,
+        1,
+        1999
+      ],
+      "precision": "day",
+      "year": 1999,
+      "sources": [
+        "Wikipedia 'Driver (video game)' infobox: Microsoft Windows {{vgrelease|NA/UK|1 October 1999}}."
+      ],
+      "note": "This is a United Kingdom Sold Out budget reprint. No source confirmed Gameye's July 1, 2005 as the Sold Out date, so this follows the site's other budget/Greatest Hits pages in using the original PC release date. The original Windows date is given as NA/UK, which fits this UK copy."
+    },
+    {
+      "slug": "scrabble-champion-edition-pc",
+      "title": "Scrabble Champion Edition",
+      "system": "PC",
+      "nkey": "scrabble champion edition",
+      "released_key": "scrabble champion edition|PC",
+      "item_id": 107026,
+      "gameye_date": "2008-05-01",
+      "released": [
+        0,
+        0,
+        2006
+      ],
+      "precision": "year",
+      "year": 2006,
+      "sources": [
+        "GameFAQs PC release data for 'Scrabble: Champion Edition': US 2006 (Hasbro).",
+        "Wikidata Q135128171 'Scrabble: Champion Edition': publication date 2006, platform Microsoft Windows, publisher Encore, Inc."
+      ],
+      "note": "Gameye has 2008-05-01, which was not confirmed. Wikipedia has no article; GameFAQs and Wikidata only confirm the year 2006, so only the year is stored."
     }
   ]
 }
