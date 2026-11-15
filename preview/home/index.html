@@ -454,6 +454,27 @@ a.score:hover::after,a.score:focus-visible::after{opacity:1}
 .ht-ch{font-family:"Press Start 2P",monospace;font-weight:400;font-size:12px;line-height:1.5}
 .ht-cs{font-size:14px;line-height:1.4;color:var(--dim)}
 .ht-card:hover .ht-ch{color:var(--hot)}
+/* cards drawn from /data/new-this-week.json: each source gets its own accent */
+.ht-t-game{--a:var(--hp-gold)}
+.ht-t-site{--a:var(--hp-blue)}
+.ht-t-substack{--a:var(--hot)}
+.ht-t-x{--a:var(--text)}
+.ht-t-other{--a:var(--dim)}
+.ht-card[class*="ht-t-"] .ht-ck{color:var(--a)}
+.ht-nolink:hover .ht-cm{transform:none}
+.ht-nolink:hover .ht-ch{color:inherit}
+/* no picture: a plain sleeve with the source's mark, so everything still stands on the shelf */
+.ht-sleeve{display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,var(--a) 0 8px,var(--hp-well) 8px calc(100% - 8px),var(--a) calc(100% - 8px))}
+.ht-sleeve .ht-px{width:54%;height:auto;aspect-ratio:1 / 1}
+/* a post from X with no picture: a pull quote card instead of art */
+.ht-card.ht-quote{align-items:stretch}
+.ht-quote .ht-ctxt{position:relative;flex:1 1 auto;justify-content:flex-end;gap:8px;min-height:112px;padding:38px 14px 13px 16px;
+  background:var(--hp-well);border:1px solid var(--line);border-left:4px solid var(--a);border-radius:3px 3px 0 0;box-shadow:var(--hp-drop)}
+.ht-quote .ht-ctxt::before{content:"\201C";position:absolute;left:13px;top:4px;
+  font-family:"IBM Plex Sans",Georgia,serif;font-weight:600;font-size:46px;line-height:1;color:var(--a)}
+.ht-quote .ht-ck{position:absolute;right:12px;top:14px}
+.ht-quote .ht-cs{font-size:16px;line-height:1.4;color:var(--text)}
 
 /* --- Monthly / seasonal slot: /theme.js fills #themeSlot with .npstrip. Marquee look. --- */
 #themeSlot:empty{display:none}
@@ -586,6 +607,9 @@ html.np-twa .ht-shop{grid-template-columns:minmax(0,1fr)}
 /* --- YouTube on the living-room set, with today's listings next to it --- */
 .hp-tune{display:grid;grid-template-columns:minmax(0,1fr);gap:22px;align-items:start}
 .ytlatest{margin:0}
+.ttlatest{margin:0}
+.hp-tv.hp-tv-tall{width:100%;max-width:360px;justify-self:center;padding-left:8px;padding-right:8px}   /* TikTok is vertical: a phone-shaped set */
+.ytbox.hp-ttbox{aspect-ratio:325 / 578}
 .hp-tv{
   display:flex;flex-direction:column;padding:10px 10px 0;
   background:linear-gradient(180deg,var(--panel),var(--bg));border:2px solid var(--line);border-radius:16px 16px 10px 10px;
@@ -820,7 +844,7 @@ footer p a{color:var(--text)}
   .ht-acttxt b,.ht-act-arcade .ht-acttxt b{font-size:12px}
   .hp-band{margin-top:46px;padding-top:38px;padding-bottom:42px}
   .ht-row{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .ht-card:last-child{grid-column:1 / -1}
+  .ht-card:last-child:nth-child(odd){grid-column:1 / -1}
   .hp .npstrip{padding:34px 22px 20px}
   .hp .npstrip .row{margin-left:-22px;margin-right:-22px;padding-left:22px;padding-right:22px;scroll-padding:0 22px}
   .npss{margin-top:46px;padding:26px 24px 24px}
@@ -866,8 +890,12 @@ footer p a{color:var(--text)}
   .ht-act-shelves .ht-acttxt>b{flex:0 0 auto}
   .hp-shelflinks{flex:0 0 auto;width:100%;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px}
   .hp-shelflinks a{min-height:32px;padding:4px 8px;gap:8px;font-size:14.5px}
-  .ht-row{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .ht-row{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:30px}
   .ht-card,.ht-card:last-child{grid-column:auto;margin-bottom:12px;padding:0 18px 0 8px;gap:16px}
+  .ht-card:last-child:nth-child(odd){grid-column:auto}
+  .ht-card:last-child:nth-child(3n+1){grid-column:1 / -1}
+  .ht-card:last-child:nth-child(3n+2){grid-column:span 2}
+  .ht-quote .ht-ctxt{min-height:144px}
   .ht-cm{width:108px;height:144px}
   .ht-ch{font-size:13px}
   .hp .npstrip{padding:36px 26px 24px}
@@ -897,10 +925,21 @@ footer p a{color:var(--text)}
   .o1-nav .shelflink.o1-pill.o1-shop{justify-content:center;padding:11px 14px 9px;border-radius:var(--hp-r)}
   .o1-nav .shelflink.o1-pill.o1-shop::after{content:none}
 }
+@media (min-width:700px) and (max-width:959px){
+  /* in between: YouTube across the top, TikTok under it with Today / On this day beside it */
+  .hp-tune:has(.todaybar.on){grid-template-columns:360px minmax(0,1fr);grid-template-areas:"yt yt" "tt guide";gap:26px 32px}
+  .hp-tune:has(.todaybar.on) .ytlatest{grid-area:yt}
+  .hp-tune:has(.todaybar.on) .ttlatest{grid-area:tt}
+  .hp-tune:has(.todaybar.on) .hp-guide{grid-area:guide}
+}
 @media (min-width:960px){
-  .hp-tune{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:40px}
-  .hp-tune:not(:has(.todaybar.on)){grid-template-columns:minmax(0,820px);justify-content:center}
-  .hp-guide{padding-top:6px}
+  /* YouTube on the left with Today / On this day under it, TikTok standing tall on the right */
+  .hp-tune{grid-template-columns:minmax(0,1fr) 360px;grid-template-areas:"yt tt" "guide tt";grid-template-rows:auto 1fr;gap:28px 40px}
+  .ytlatest{grid-area:yt}
+  .ttlatest{grid-area:tt}
+  .hp-guide{grid-area:guide;flex-direction:row;gap:36px}
+  .hp-guide .todaybar{flex:1 1 0;min-width:0}
+  .hp-tv.hp-tv-tall{padding-left:14px;padding-right:14px}
 }
 @media (min-width:1040px){
   .ht-shop{grid-template-columns:minmax(0,1fr) 280px;gap:40px}
@@ -1086,6 +1125,13 @@ body.y1996 .hp-news-date{color:#000;font-family:"Times New Roman",Times,serif;fo
   .hp-news-cta{transition:none}
   .hp-news-cta:active{transform:none}
 }
+body.npskin .ht-card{--a:var(--hot)}
+body.y1996 .ht-card[class*="ht-t-"] .ht-ck{color:#800000}
+body.y1996 .ht-sleeve{background:#000080}
+body.y1996 .ht-quote .ht-ctxt{background:#fff;border:2px inset #fff;border-radius:0;box-shadow:none}
+body.y1996 .ht-quote .ht-cs{color:#000}
+body.y1996 .ht-quote .ht-ctxt::before{color:#000080}
+
 @media (prefers-reduced-motion:reduce){
   .ht-card,.ht-act,.ht-cm,.btn,.ytbtn,.npmerch-btn,.npmerch-items img,.shelflink,.shelfhead .caret,a.score,a.score::after{transition:none}
   .ht-act:hover,.ht-act:active,.btn:active,.ht-card:hover .ht-cm,.npmerch-items a:hover img,.npmerch-btn:active,.ytfacade:hover .ytbtn{transform:none}
@@ -1349,12 +1395,147 @@ const ANNOUNCEMENTS = [
     <div class="hp-band hp-band-slat">
       <section class="ht-new" aria-labelledby="htNewH">
         <div class="hp-sign"><h2 class="ht-sh" id="htNewH">New this week</h2></div>
-        <div class="ht-row">
-          <a class="ht-card " href="/arcade/fourth-and-collect/"><picture class="ht-cm"><source srcset="/arcade/covers/08-fourth-and-collect.webp" type="image/webp"><img src="/arcade/covers/08-fourth-and-collect.jpg" alt="" width="360" height="480" loading="lazy" decoding="async"></picture><span class="ht-ctxt"><span class="ht-ck">New in the arcade</span><b class="ht-ch">Fourth and Collect</b><span class="ht-cs">Field goal kicking. Split the uprights from farther and farther back. Watch the wind flag.</span></span></a>
-          <a class="ht-card ht-rev" href="/reviews.html#r-60"><span class="ht-cm"><img id="htRevImg" src="/images/reviews/60-sony-playstation-2.webp" alt="" width="600" height="798" loading="lazy" decoding="async"></span><span class="ht-ctxt"><span class="ht-ck" id="htRevKick">Review No. 60 &middot; Oct 26, 2026</span><b class="ht-ch">Sony PlayStation 2</b><span class="ht-cs">PlayStation 2. I rate it a 4.5 out of 5.</span></span></a>
+        <!-- Filled from /data/new-this-week.json by the script right under this section.
+             The Daily Shelf card below is the evergreen fallback: it stays if the file is missing or nothing in it is fresh. -->
+        <div class="ht-row" id="htRow">
           <a class="ht-card ht-daily" href="/daily.html"><span class="ht-cm ht-dailypix" aria-hidden="true"><i style="--c:#ff4b3e"></i><i style="--c:#5a8fd6"></i><i style="--c:#e0a33a"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#3fbf6a"></i><i style="--c:#3a3f52"></i><i style="--c:#e0a33a"></i><i style="--c:#8f6fd6"></i><i style="--c:#ff4b3e"></i><i style="--c:#5a8fd6"></i><i style="--c:#3a3f52"></i><i style="--c:#3fbf6a"></i><i style="--c:#e0a33a"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i></span><span class="ht-ctxt"><span class="ht-ck" id="htDailyKick">Daily Shelf</span><b class="ht-ch">Guess the game</b><span class="ht-cs">One pixelated photo off my shelf a day. Six guesses.</span></span></a>
         </div>
       </section>
+      <script>
+/* ============================================================================
+   NEW THIS WEEK: the row above is drawn from /data/new-this-week.json
+
+   The file looks like this:
+     {"items":[{"type":"substack","title":"...","text":"...","url":"...","image":"","date":"2026-11-11"}]}
+
+     type   x | substack | site | game   (sets the small label on the card)
+     title  required
+     text   optional, a short line
+     url    optional. A full https link opens in a new tab, a /slash link stays on the site.
+     image  optional, a /slash path or https link. With no image the card gets a plain
+            sleeve, and a post from X gets a pull quote card instead.
+     date   required, YYYY-MM-DD
+
+   Newest first, six at most. An item shows for 7 days after its date and then
+   drops off by itself (dated Nov 8: still there Nov 15, gone Nov 16). A date
+   that has not come yet stays hidden until that day. Days are counted in
+   Arizona time (UTC-7 all year).
+
+   Anything still set to TODO is treated as blank: a TODO url makes a card
+   with no link, a TODO text is left off.
+
+   If the file will not load, or nothing in it is fresh, the Daily Shelf card
+   that is already in the page stays put, so the row is never empty.
+   ============================================================================ */
+(function(){
+  var SRC = "/data/new-this-week.json", MAX = 6, DAYS = 7;
+  var LABEL = { x: "On X", substack: "On Substack", site: "On the site", game: "The game" };
+  var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var MARK = {                       /* 8 x 8 pixel marks for cards with no picture */
+    substack: ["........","wwwwwwww","wrwwwwrw","wwrwwrww","wwwrrwww","wwwwwwww","wwwwwwww","........"],
+    site:     ["........",".r.b..y.",".r.bg.y.",".r.bg.y.",".r.bg.y.","wwwwwwww","........","........"],
+    game:     ["........",".rryybb.",".rryybb.",".rryybb.",".rryybb.","wwwwwwww",".w....w.","........"],
+    x:        ["........",".w....w.","..w..w..","...ww...","...ww...","..w..w..",".w....w.","........"],
+    other:    ["........","...rr...","..rrrr..",".rrrrrr.","..rrrr..","...rr...","........","........"]
+  };
+  var FILL = { w: "#eceae2", r: "#ff4b3e", b: "#5a8fd6", g: "#3fbf6a", y: "#ffd23f" };
+
+  var row = document.getElementById("htRow");
+  if (!row || !window.fetch) return;
+
+  var DAY = 864e5;
+  var az = new Date(Date.now() - 7 * 3600e3);      /* Arizona wall clock, read with the UTC getters */
+  var today = Math.floor(Date.UTC(az.getUTCFullYear(), az.getUTCMonth(), az.getUTCDate()) / DAY);
+
+  function val(v){ v = (v == null ? "" : String(v)).trim(); return /^TODO/i.test(v) ? "" : v; }
+  function link(v){ v = val(v); return /^(https?:\/\/|\/(?!\/))/i.test(v) ? v : ""; }
+  function dayOf(v){
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(val(v));
+    if (!m) return null;
+    var t = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    if (t.getUTCMonth() !== +m[2] - 1 || t.getUTCDate() !== +m[3]) return null;   /* not a real day */
+    return { n: Math.floor(t.getTime() / DAY), label: MON[+m[2] - 1] + " " + (+m[3]) };
+  }
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function sleeve(type){
+    var NS = "http://www.w3.org/2000/svg", box = el("span", "ht-cm ht-sleeve"), svg = null;
+    box.setAttribute("aria-hidden", "true");
+    if (type === "game"){                 /* same mark as the Play Nostalgia Pro cart, when it is on the page */
+      var cart = document.querySelector(".ht-act-play .ht-px");
+      if (cart) svg = cart.cloneNode(true);
+    }
+    if (!svg){
+      svg = document.createElementNS(NS, "svg");
+      svg.setAttribute("class", "ht-px");
+      svg.setAttribute("viewBox", "0 0 8 8");
+      svg.setAttribute("shape-rendering", "crispEdges");
+      (MARK[type] || MARK.other).forEach(function(line, y){
+        line.split("").forEach(function(c, x){
+          if (!FILL[c]) return;
+          var r = document.createElementNS(NS, "rect");
+          r.setAttribute("x", x); r.setAttribute("y", y);
+          r.setAttribute("width", 1); r.setAttribute("height", 1);
+          r.setAttribute("fill", FILL[c]);
+          if (c === "w" || c === "r") r.setAttribute("class", c);
+          svg.appendChild(r);
+        });
+      });
+    }
+    box.appendChild(svg);
+    return box;
+  }
+  function card(e){
+    var it = e.it, type = LABEL[e.type] ? e.type : "other";
+    var href = link(it.url), img = link(it.image), text = val(it.text);
+    var c = el(href ? "a" : "div", "ht-card ht-t-" + type + (href ? "" : " ht-nolink"));
+    if (href){
+      c.href = href;
+      if (/^https?:/i.test(href)){ c.target = "_blank"; c.rel = "noopener"; }
+    }
+    if (type === "x" && !img){
+      c.className += " ht-quote";
+    } else if (img){
+      var art = el("span", "ht-cm"), pic = el("img");
+      pic.alt = ""; pic.loading = "lazy"; pic.decoding = "async";
+      pic.onerror = function(){ if (art.parentNode) art.parentNode.replaceChild(sleeve(type), art); };
+      pic.src = img;
+      art.appendChild(pic);
+      c.appendChild(art);
+    } else {
+      c.appendChild(sleeve(type));
+    }
+    var t = el("span", "ht-ctxt");
+    t.appendChild(el("span", "ht-ck", (LABEL[type] ? LABEL[type] + " \u00b7 " : "") + e.d.label));
+    t.appendChild(el("b", "ht-ch", e.title));
+    if (text) t.appendChild(el("span", "ht-cs", text));
+    c.appendChild(t);
+    return c;
+  }
+
+  fetch(SRC, { cache: "no-cache" }).then(function(r){ return r.ok ? r.json() : null; }).then(function(data){
+    var fresh = [];
+    ((data && Array.isArray(data.items)) ? data.items : []).forEach(function(it, i){
+      if (!it) return;
+      var title = val(it.title), d = dayOf(it.date);
+      if (!title || !d) return;
+      var age = today - d.n;
+      if (age < 0 || age > DAYS) return;
+      fresh.push({ it: it, d: d, i: i, title: title, type: String(it.type || "").toLowerCase() });
+    });
+    if (!fresh.length) return;                       /* nothing fresh: the Daily Shelf card stays */
+    fresh.sort(function(a, b){ return (b.d.n - a.d.n) || (a.i - b.i); });
+    var out = document.createDocumentFragment();
+    fresh.slice(0, MAX).forEach(function(e){ out.appendChild(card(e)); });
+    row.textContent = "";
+    row.appendChild(out);
+  }).catch(function(){});                            /* file missing or broken: the Daily Shelf card stays */
+})();
+      </script>
       <div id="themeSlot"></div>
     </div>
 
@@ -1403,7 +1584,7 @@ const ANNOUNCEMENTS = [
       </div>
     </div>
 
-    <!-- YOUTUBE + TODAY / ON THIS DAY -->
+    <!-- YOUTUBE + TIKTOK + TODAY / ON THIS DAY -->
     <div class="hp-band">
       <div class="hp-tune">
     <section class="ytlatest hp-tv" aria-labelledby="ytH">
@@ -1416,6 +1597,46 @@ const ANNOUNCEMENTS = [
         </button>
       </div>
     </section>
+    <!-- TikTok: same idea as YouTube. Nothing loads from TikTok until the visitor presses play. -->
+    <section class="ttlatest hp-tv hp-tv-tall" aria-labelledby="ttH">
+      <div class="ythead"><h2 id="ttH">Latest on TikTok</h2><a href="https://www.tiktok.com/@rc.the.nostalgia.pro" target="_blank" rel="noopener">All videos</a></div>
+      <div class="ytbox hp-ttbox" id="ttBox">
+        <button class="ytfacade" id="ttPlay" type="button" aria-label="See my latest TikToks">
+          <span class="ytbtn" aria-hidden="true"></span>
+          <span class="ytlbl">See my latest TikToks</span>
+          <span class="ytnote">TikTok loads when you press play</span>
+        </button>
+      </div>
+    </section>
+    <script>
+/* ============================================================================
+   TIKTOK: leave TIKTOK_VIDEO_ID empty to show my profile with my newest videos.
+   To feature one video instead, paste its id between the quotes. The id is the
+   long number at the end of the video's link:
+     https://www.tiktok.com/@rc.the.nostalgia.pro/video/1234567890123456789
+   ============================================================================ */
+const TIKTOK_VIDEO_ID = "";
+
+(function(){
+  var box = document.getElementById("ttBox"), btn = document.getElementById("ttPlay");
+  if (!box || !btn) return;
+  var id = String(TIKTOK_VIDEO_ID || "").trim(), one = /^\d+$/.test(id);
+  if (one){
+    btn.setAttribute("aria-label", "Play my latest TikTok");
+    btn.querySelector(".ytlbl").textContent = "Play my latest TikTok";
+  }
+  btn.addEventListener("click", function(){
+    var f = document.createElement("iframe");
+    f.src = one ? "https://www.tiktok.com/player/v1/" + id + "?autoplay=1"
+                : "https://www.tiktok.com/embed/@rc.the.nostalgia.pro";
+    f.title = one ? "My latest TikTok" : "My latest TikToks";
+    f.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-write; web-share";
+    f.setAttribute("allowfullscreen", "");
+    box.textContent = "";
+    box.appendChild(f);
+  });
+})();
+    </script>
         <div class="hp-guide">
     <div class="todaybar" id="todaybar"></div>
     <div class="todaybar otdbar" id="otdbar"></div>

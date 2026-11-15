@@ -1,5 +1,5 @@
 /* Bump this string whenever you upload new files, or phones keep the old ones. */
-const CACHE = "nostalgiapro-v61";
+const CACHE = "nostalgiapro-v62";
 
 const PAGES = [
   "/", "/index.html", "/anniversaries.html", "/consoles.html", "/reviews.html",
@@ -39,6 +39,11 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET" || new URL(req.url).origin !== location.origin) return;
+  /* Homepage "New this week" must stay fresh. Network only, never written to cache. */
+  if (new URL(req.url).pathname === "/data/new-this-week.json") {
+    e.respondWith(fetch(req));
+    return;
+  }
   e.respondWith(
     fetch(req)
       .then(res => {

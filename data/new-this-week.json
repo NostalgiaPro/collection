@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "type": "game",
+      "title": "Holiday Rush is out",
+      "text": "Update 2 for my $1 game. A December Saturday at the mall.",
+      "url": "https://thenostalgiapro.itch.io/nostalgia-pro-the-game",
+      "image": "/images/np-the-game-share.png",
+      "date": "2026-11-15"
+    },
+    {
+      "type": "site",
+      "title": "Every game has a photo now",
+      "text": "All 850 games on the shelf have real photos.",
+      "url": "/shelf.html",
+      "image": "/images/doom-the-dark-ages-xbox-series-x-s.webp",
+      "date": "2026-11-14"
+    },
+    {
+      "type": "substack",
+      "title": "Just Text on a Screen",
+      "text": "Why have people given up on being decent to each other?",
+      "url": "https://nostalgiapro.substack.com/p/just-text-on-a-screen",
+      "image": "",
+      "date": "2026-11-11"
+    },
+    {
+      "type": "substack",
+      "title": "The Arcade I Left Behind",
+      "text": "Nearly two years ago, I was let go from a job and left a Street Fighter II arcade behind. This is how it got there, and how I finally got it back.",
+      "url": "https://nostalgiapro.substack.com/p/the-arcade-i-left-behind",
+      "image": "",
+      "date": "2026-11-10"
+    },
+    {
+      "type": "x",
+      "title": "I can't support GTA VI",
+      "text": "Digital only is ridiculous. The price is ridiculous. The $80 version doesn't even get you the whole game.",
+      "url": "https://x.com/NostalgiaPro/status/2120291424289882483",
+      "image": "",
+      "date": "2026-11-10"
+    },
+    {
+      "type": "substack",
+      "title": "Honest and Unpopular Reviews No. 62 - Halo 2 (Xbox)",
+      "text": "The game that sold me on an Xbox before I owned one.",
+      "url": "https://nostalgiapro.substack.com/p/honest-and-unpopular-reviews-no-62",
+      "image": "/images/halo-2-xbox.webp",
+      "date": "2026-11-09"
+    }
+  ]
+}
