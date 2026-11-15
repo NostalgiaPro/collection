@@ -29,8 +29,10 @@ const LANE_PITCH = 72;                                   // center to center of 
 const WALL_Y = PIT_Y + 30, WALL_H = 150, PIT_Z = -7;
 const CAM0 = -150, CAM_H = 40, CAM_AHEAD = 285, CAM_FOV = 30.2;   // aim camera = the old 2D projection
 const DECK_CAM = { y: 566, z: 60, ty: 741, tz: 7 };      // the pin-deck view
+const LANE_MARK = 150;                                   // length of the wordmark printed on the lane, inches
 
-const LOGO_URL = "np_games_logo.png";
+const LOGO_URL = "np_games_logo.png";                     // the full studio logo: splash and score card only
+const SCRIPT_URL = "np_games_script.png";                 // the script wordmark: every decal inside the alley
 const THREE_URL = "../shared/three.module.min.js";
 const HUD_FONT = 'Verdana, Geneva, Tahoma, "DejaVu Sans", Arial, sans-serif';
 const PIN_COLORS = ["#ff4b3e", "#16b9e8", "#ff3fa4", "#58c322", "#ffb81f"];
@@ -543,24 +545,40 @@ function softCanvas(src, w, h) {
   return c;
 }
 
-/* ---------------- Painted textures (all drawn here, no image files besides the logo) ---------------- */
+/* ---------------- Painted textures (all drawn here, no image files besides the wordmark) ---------------- */
 
-// The studio logo on a square transparent canvas. If the PNG is missing, a plain lettered badge stands in.
-function logoCanvas(img) {
-  const c = mkCanvas(512, 512), g = c.getContext("2d");
-  if (img) {
-    const s = Math.min(512 / img.naturalWidth, 512 / img.naturalHeight);
-    const w = img.naturalWidth * s, h = img.naturalHeight * s;
-    g.drawImage(img, (512 - w) / 2, (512 - h) / 2, w, h);
+// The "Nostalgia Pro Games" script wordmark, trimmed to its ink. Every decal inside the alley uses this
+// (the full logo with the mascot is kept for the splash and the score card). If the PNG is missing,
+// plain lettering stands in.
+function scriptCanvas(img) {
+  if (img && img.naturalWidth > 0) {
+    const k = Math.min(1, 1024 / img.naturalWidth);
+    const w = Math.max(1, Math.round(img.naturalWidth * k)), h = Math.max(1, Math.round(img.naturalHeight * k));
+    const c = mkCanvas(w, h), g = c.getContext("2d");
+    g.drawImage(img, 0, 0, w, h);
+    try {                                                    // crop any transparent margin so sizes below mean the ink itself
+      const d = g.getImageData(0, 0, w, h).data;
+      let x0 = w, x1 = -1, y0 = h, y1 = -1;
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        if (d[(y * w + x) * 4 + 3] > 24) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+      }
+      if (x1 > x0 && y1 > y0 && (x0 > 0 || y0 > 0 || x1 < w - 1 || y1 < h - 1)) {
+        const t = mkCanvas(x1 - x0 + 1, y1 - y0 + 1);
+        t.getContext("2d").drawImage(c, x0, y0, t.width, t.height, 0, 0, t.width, t.height);
+        return t;
+      }
+    } catch (e) { /* keep the untrimmed image */ }
     return c;
   }
-  g.fillStyle = "#12224f"; g.beginPath(); g.arc(256, 256, 236, 0, TAU); g.fill();
-  g.lineWidth = 14; g.strokeStyle = "#f6e8c8"; g.stroke();
-  g.lineWidth = 6; g.strokeStyle = "#c22a2a"; g.beginPath(); g.arc(256, 256, 214, 0, TAU); g.stroke();
-  g.fillStyle = "#f6e8c8"; g.textAlign = "center"; g.textBaseline = "middle";
-  g.font = 'italic 900 78px Georgia, "Times New Roman", serif';
-  g.fillText("Nostalgia", 256, 196); g.fillText("Pro", 256, 282);
-  g.font = "900 44px " + HUD_FONT; g.fillText("GAMES", 256, 372);
+  const c = mkCanvas(900, 300), g = c.getContext("2d");
+  g.textAlign = "center"; g.textBaseline = "middle"; g.lineJoin = "round";
+  g.font = 'italic 900 150px Georgia, "Times New Roman", serif';
+  g.lineWidth = 30; g.strokeStyle = "#b3202a"; g.strokeText("Nostalgia Pro", 450, 118);
+  g.lineWidth = 20; g.strokeStyle = "#12224f"; g.strokeText("Nostalgia Pro", 450, 118);
+  g.fillStyle = "#f6e8c8"; g.fillText("Nostalgia Pro", 450, 118);
+  g.font = "900 54px " + HUD_FONT;
+  g.lineWidth = 10; g.strokeStyle = "#f6e8c8"; g.strokeText("GAMES", 450, 250);
+  g.fillStyle = "#12224f"; g.fillText("GAMES", 450, 250);
   return c;
 }
 
@@ -583,7 +601,7 @@ function woodCanvas() {
   return c;
 }
 
-function ballCanvas(logo) {
+function ballCanvas(script) {
   const c = mkCanvas(1024, 512), g = c.getContext("2d"), rnd = rng(5);
   const bg = g.createLinearGradient(0, 0, 0, 512);
   bg.addColorStop(0, "#7d3ff2"); bg.addColorStop(0.5, "#4a1fb8"); bg.addColorStop(1, "#2a0f78");
@@ -595,13 +613,13 @@ function ballCanvas(logo) {
     g.strokeStyle = ["rgba(196,150,255,.30)", "rgba(120,200,255,.22)", "rgba(255,130,220,.20)", "rgba(40,10,110,.35)"][i % 4];
     for (let k = -1; k <= 1; k++) { g.beginPath(); g.arc(x + k * 1024, y, r, a0, a0 + len); g.stroke(); }
   }
-  // the logo, once on each side of the ball (u = .25 faces the bowler at rest)
-  // each row is widened by 1 / cos(latitude) so the logo lands on the sphere undistorted
-  const LS = 236, rowH = logo.height / LS;
+  // the script wordmark, once on each side of the ball (u = .25 faces the bowler at rest)
+  // each row is widened by 1 / cos(latitude) so it lands on the sphere undistorted
+  const SW = 256, SH = Math.round(SW * script.height / script.width), rowH = script.height / SH;
   [256, 768].forEach(function (cx) {
-    for (let r = 0; r < LS; r++) {
-      const y = 256 - LS / 2 + r, lat = (0.5 - (y + 0.5) / 512) * Math.PI, w = LS / Math.max(0.4, Math.cos(lat));
-      g.drawImage(logo, 0, r * rowH, logo.width, rowH, cx - w / 2, y, w, 1);
+    for (let r = 0; r < SH; r++) {
+      const y = 256 - Math.round(SH / 2) + r, lat = (0.5 - (y + 0.5) / 512) * Math.PI, w = SW / Math.max(0.4, Math.cos(lat));
+      g.drawImage(script, 0, r * rowH, script.width, rowH, cx - w / 2, y, w, 1);
     }
   });
   // finger holes up top, between the two logos
@@ -655,8 +673,8 @@ function candyText(g, str, x, y, size, maxW) {
   g.save(); g.beginPath(); g.rect(x - 600, y - size * 0.5, 1200, size * 0.36); g.clip(); g.fillText(str, x, y); g.restore();
 }
 
-// The masking unit above the pins: 70 x 22 inches of marquee.
-function maskCanvas(logo) {
+// The masking unit above the pins: 70 x 22 inches of marquee. Script wordmark on the left, the game on the right.
+function maskCanvas(script) {
   const c = mkCanvas(1024, 322), g = c.getContext("2d");
   const bg = g.createLinearGradient(0, 0, 0, 322);
   bg.addColorStop(0, "#3d8cff"); bg.addColorStop(0.5, "#1b5fe0"); bg.addColorStop(1, "#0b3aa6");
@@ -666,49 +684,60 @@ function maskCanvas(logo) {
   g.fillStyle = gl; g.beginPath(); g.ellipse(512, -20, 620, 170, 0, 0, TAU); g.fill();
   g.lineWidth = 16; g.strokeStyle = "#ff9214"; g.strokeRect(8, 8, 1008, 306);
   g.lineWidth = 4; g.strokeStyle = "#ffe45c"; g.strokeRect(19, 19, 986, 284);
-  g.drawImage(logo, 26, 24, 274, 274);
-  g.drawImage(logo, 724, 24, 274, 274);
-  candyText(g, "TAPE PIN", 512, 112, 78, 400);
-  candyText(g, "LANES", 512, 214, 96, 400);
+  let sw = 590, sh = sw * script.height / script.width;
+  if (sh > 236) { sh = 236; sw = sh * script.width / script.height; }
+  g.drawImage(script, 334 - sw / 2, 161 - sh / 2, sw, sh);
+  candyText(g, "TAPE PIN", 818, 116, 62, 330);
+  candyText(g, "LANES", 818, 208, 84, 330);
   return c;
 }
 
-// One lane's worth of back wall (72 x 150 inches), tiled across the building.
-function wallCanvas(logo) {
-  const c = mkCanvas(512, 1024), g = c.getContext("2d"), rnd = rng(23);
-  const Y = function (z) { return 1024 - z / WALL_H * 1024; };
-  const bg = g.createLinearGradient(0, 0, 0, 1024);
+// The whole back wall in one piece (360 x 150 inches): a single long blue and orange banner above the
+// masking units, with nothing tiled on it. The wordmark itself is a separate, sharper decal (see bannerBox).
+const WALL_W = LANE_PITCH * 5;
+const BANNER = { z: 67, h: 39 };                           // center height and letter height of the wordmark, inches
+function wallCanvas() {
+  const CW = 1024, CH = 512;
+  const c = mkCanvas(CW, CH), g = c.getContext("2d"), rnd = rng(23);
+  const kx = CW / WALL_W, ky = CH / WALL_H;
+  const Y = function (z) { return CH - z * ky; };
+  const bg = g.createLinearGradient(0, 0, 0, CH);
   bg.addColorStop(0, "#143fae"); bg.addColorStop(0.45, "#2f7bf0"); bg.addColorStop(0.8, "#1b56cf"); bg.addColorStop(1, "#143fae");
-  g.fillStyle = bg; g.fillRect(0, 0, 512, 1024);
-  const cy = Y(69.5);                                      // low enough to clear the scoreboard from the foul line
-  g.save(); g.beginPath(); g.rect(0, 0, 512, Y(52)); g.clip();
-  for (let i = 0; i < 18; i += 2) {                       // sunburst behind the logo
-    g.fillStyle = "rgba(255,255,255,.08)";
-    g.beginPath(); g.moveTo(256, cy);
-    g.arc(256, cy, 900, i / 18 * TAU, (i + 1) / 18 * TAU); g.closePath(); g.fill();
+  g.fillStyle = bg; g.fillRect(0, 0, CW, CH);
+  const cy = Y(BANNER.z), top = Y(46.5);
+  g.save(); g.beginPath(); g.rect(0, 0, CW, top); g.clip();
+  const glow = g.createRadialGradient(CW / 2, cy, 10, CW / 2, cy, 330);  // one soft spotlight behind the wordmark
+  glow.addColorStop(0, "rgba(140,200,255,.55)"); glow.addColorStop(1, "rgba(140,200,255,0)");
+  g.fillStyle = glow; g.fillRect(0, 0, CW, top);
+  for (let i = 0; i < 28; i += 2) {                       // one sunburst for the whole banner
+    g.fillStyle = "rgba(255,255,255,.07)";
+    g.beginPath(); g.moveTo(CW / 2, cy);
+    g.arc(CW / 2, cy, 1400, i / 28 * TAU, (i + 1) / 28 * TAU); g.closePath(); g.fill();
   }
-  for (let i = 0; i < 26; i++) {                          // candy bubbles
-    const x = rnd() * 512, y = rnd() * Y(52), r = 8 + rnd() * 30;
-    g.lineWidth = 3; g.strokeStyle = "rgba(255,255,255," + (0.08 + rnd() * 0.1) + ")";
-    for (let k = -1; k <= 1; k++) { g.beginPath(); g.arc(x + k * 512, y, r, 0, TAU); g.stroke(); }
+  for (let i = 0; i < 90; i++) {                          // candy bubbles scattered end to end
+    const x = rnd() * CW, y = rnd() * top, r = 2 + rnd() * 6.5;
+    g.lineWidth = 1.6; g.strokeStyle = "rgba(255,255,255," + (0.07 + rnd() * 0.1) + ")";
+    g.beginPath(); g.ellipse(x, y, r * kx, r * ky, 0, 0, TAU); g.stroke();
   }
   g.restore();
-  // trim stripes
-  g.fillStyle = "#ff9214"; g.fillRect(0, Y(50), 512, Y(44) - Y(50));
-  g.fillStyle = "#ffe45c"; g.fillRect(0, Y(50) - 5, 512, 5);
-  g.fillStyle = "#ffffff"; g.fillRect(0, Y(44), 512, 3);
-  g.fillStyle = "#ff9214"; g.fillRect(0, Y(132), 512, Y(128) - Y(132));
-  g.fillStyle = "#ffe45c"; g.fillRect(0, Y(128), 512, 4);
-  // the big logo
-  const lw = 38 / LANE_PITCH * 512, lh = 38 / WALL_H * 1024;
-  g.drawImage(logo, 256 - lw / 2, cy - lh / 2, lw, lh);
-  // behind the masking unit, and the pit curtain under it
-  g.fillStyle = "#0a1a52"; g.fillRect(0, Y(44) + 3, 512, Y(18) - Y(44));
-  const cu = g.createLinearGradient(0, Y(18), 0, 1024);
+  // trim stripes run the full width, top and bottom of the banner
+  g.fillStyle = "#ff9214"; g.fillRect(0, Y(46.5), CW, Y(41) - Y(46.5));
+  g.fillStyle = "#ffe45c"; g.fillRect(0, Y(46.5) - 3, CW, 3);
+  g.fillStyle = "#ffffff"; g.fillRect(0, Y(41), CW, 2);
+  g.fillStyle = "#ff9214"; g.fillRect(0, Y(132), CW, Y(128) - Y(132));
+  g.fillStyle = "#ffe45c"; g.fillRect(0, Y(128), CW, 3);
+  // behind the masking units, and the pit curtain under them
+  g.fillStyle = "#0a1a52"; g.fillRect(0, Y(41) + 2, CW, Y(18) - Y(41));
+  const cu = g.createLinearGradient(0, Y(18), 0, CH);
   cu.addColorStop(0, "#050816"); cu.addColorStop(1, "#0c1330");
-  g.fillStyle = cu; g.fillRect(0, Y(18), 512, 1024 - Y(18));
-  for (let x = 6; x < 512; x += 22) { g.fillStyle = "rgba(255,255,255,.035)"; g.fillRect(x, Y(18), 8, 1024 - Y(18)); }
+  g.fillStyle = cu; g.fillRect(0, Y(18), CW, CH - Y(18));
+  for (let x = 3; x < CW; x += 13) { g.fillStyle = "rgba(255,255,255,.035)"; g.fillRect(x, Y(18), 5, CH - Y(18)); }
   return c;
+}
+// Where the wordmark sits on the wall, in inches: centered, and as large as the banner allows.
+function bannerBox(script) {
+  const h = BANNER.h, w = h * script.width / script.height;
+  return { w: w, h: h, z: BANNER.z };
 }
 
 function ceilingCanvas() {
@@ -765,7 +794,7 @@ function envFaces() {
 }
 
 /* ---------------- Scene ---------------- */
-function buildScene(T, logoImg) {
+function buildScene(T, scriptImg) {
   const gl = document.createElement("canvas");
   gl.setAttribute("aria-hidden", "true");
   const dpr = window.devicePixelRatio || 1;
@@ -784,11 +813,20 @@ function buildScene(T, logoImg) {
     return t;
   }
 
-  const logo = logoCanvas(logoImg);
-  const tLogo = tex(logo), tWood = tex(woodCanvas(), true), tBall = tex(ballCanvas(logo), true);
-  const cMask = maskCanvas(logo), cWall = wallCanvas(logo);
-  const tMask = tex(cMask), tWall = tex(cWall, true), tCeil = tex(ceilingCanvas(), true);
-  const tMaskSoft = tex(softCanvas(cMask, 64, 32)), tWallSoft = tex(softCanvas(cWall, 32, 64), true);
+  const script = scriptCanvas(scriptImg), banner = bannerBox(script);
+  // the wordmark as a decal texture: a power-of-two canvas with a clear rim so its edges never smear
+  const cScript = mkCanvas(1024, 256);
+  cScript.getContext("2d").drawImage(script, 6, 6, 1012, 244);
+  const tScript = tex(cScript), tWood = tex(woodCanvas(), true), tBall = tex(ballCanvas(script), true);
+  const cMask = maskCanvas(script), cWall = wallCanvas();
+  const tMask = tex(cMask), tWall = tex(cWall), tCeil = tex(ceilingCanvas(), true);
+  // what the lane reflects of the wall: the banner and its wordmark as one soft glow
+  const cWallSoft = softCanvas(cWall, 128, 64);
+  (function () {
+    const g = cWallSoft.getContext("2d"), kx = 128 / WALL_W, ky = 64 / WALL_H;
+    g.drawImage(script, 64 - banner.w * kx / 2, 64 - (banner.z + banner.h / 2) * ky, banner.w * kx, banner.h * ky);
+  })();
+  const tMaskSoft = tex(softCanvas(cMask, 64, 32)), tWallSoft = tex(cWallSoft);
   const tShadow = tex(shadowCanvas()), tDeck = tex(deckCanvas());
   tBall.wrapT = T.ClampToEdgeWrapping;
   const tEnv = new T.CubeTexture(envFaces());
@@ -823,7 +861,7 @@ function buildScene(T, logoImg) {
 
   /* lights */
   scene.add(new T.HemisphereLight(0xffffff, 0xb7c6ea, 1.55));
-  const key = new T.DirectionalLight(0xffffff, 2.1);       // from the bowler's left, so the ball's glint lands beside its logo
+  const key = new T.DirectionalLight(0xffffff, 2.1);       // from the bowler's left, so the ball's glint lands clear of its wordmark
   key.position.set(-172, 143, 50); scene.add(key);
   const gloss = new T.DirectionalLight(0xfff4dc, 1.25);     // low, from down the lane: the long shine on the wood
   gloss.position.set(25, 62, -200); scene.add(gloss);
@@ -884,8 +922,8 @@ function buildScene(T, logoImg) {
   addDecal(new T.Mesh(markGeo, decal(new T.MeshBasicMaterial({ color: 0x7a3a12, opacity: 0.85, side: T.DoubleSide }), 2)));
   addDecal(floor(-KICK, KICK, 0, 1.6, 0.04, decal(new T.MeshBasicMaterial({ color: 0xe3231a }), 2)));
   addDecal(floor(-LW, LW, 700, 760, 0.03, decal(new T.MeshBasicMaterial({ map: tDeck }), 2)));
-  // the studio logo printed under the lacquer, stretched so it reads from the foul line
-  addDecal(floor(-17, 17, 232, 452, 0.03, decal(new T.MeshBasicMaterial({ map: tLogo, opacity: 0.62 }), 2)));
+  // the script wordmark printed under the lacquer, stretched down the lane so it reads from the foul line
+  addDecal(floor(-18.5, 18.5, 250, 250 + LANE_MARK, 0.03, decal(new T.MeshBasicMaterial({ map: tScript, opacity: 0.7 }), 2)));
 
   /* oil: a shiny stripe as long as this frame's pattern */
   const unit = new T.PlaneGeometry(1, 1); unit.rotateX(-Math.PI / 2);
@@ -895,9 +933,12 @@ function buildScene(T, logoImg) {
   oil.position.y = 0.06; oilEnd.position.y = 0.07; sheen.position.y = 0.08;
 
   /* back wall, masking units, ceiling */
-  const wallGeo = scaleUV(new T.PlaneGeometry(LANE_PITCH * 5, WALL_H), 5, 1);
-  const wall = new T.Mesh(wallGeo, new T.MeshBasicMaterial({ map: tWall }));
+  const wall = new T.Mesh(new T.PlaneGeometry(WALL_W, WALL_H), new T.MeshBasicMaterial({ map: tWall }));
   wall.position.set(0, WALL_H / 2, -WALL_Y); both(wall).material = dim(new T.MeshBasicMaterial({ map: tWallSoft }), 0.8);
+  // the wordmark, once, centered on the banner
+  const sign = new T.Mesh(new T.PlaneGeometry(banner.w, banner.h),
+    new T.MeshBasicMaterial({ map: tScript, transparent: true, depthWrite: false }));
+  sign.position.set(0, banner.z, -(WALL_Y - 0.6)); world.add(sign);
   const maskSide = new T.MeshPhongMaterial({ color: 0x1b4fc0, specular: 0x555555, shininess: 30 });
   const maskFront = new T.MeshBasicMaterial({ map: tMask });
   const maskGeo = new T.BoxGeometry(70, 22, 3);
@@ -1361,6 +1402,18 @@ function loadLogo(splash) {
   });
 }
 
+function loadImage(url) {
+  return new Promise(function (resolve) {
+    const img = new Image();
+    let done = false;
+    function fin(ok) { if (done) return; done = true; resolve(ok ? img : null); }
+    img.onload = function () { fin(true); };
+    img.onerror = function () { fin(false); };
+    setTimeout(function () { fin(false); }, 6000);
+    img.src = url;
+  });
+}
+
 function attach() {
   const hud = document.getElementById("np-canvas"), stage = document.getElementById("np-stage");
   R.hud = hud; R.stage = stage;
@@ -1418,10 +1471,10 @@ window.__tapePins = { S: function () { return S; }, rack: fullRack, throwBall: t
   const splash = makeSplash();
   const t0 = performance.now();
   const q = /[?&]gfx=(high|low)/.exec(location.search);
-  Promise.all([loadLogo(splash), import(THREE_URL).then(null, function (e) { e.npStage = "three"; throw e; })])
+  Promise.all([loadLogo(splash), import(THREE_URL).then(null, function (e) { e.npStage = "three"; throw e; }), loadImage(SCRIPT_URL)])
     .then(function (res) {
       THREE = res[1];
-      try { R = buildScene(THREE, res[0]); } catch (e) { e.npStage = "webgl"; throw e; }
+      try { R = buildScene(THREE, res[2]); } catch (e) { e.npStage = "webgl"; throw e; }
       if (q) { R.qLock = true; setQuality(q[1] === "low" ? QUALITY.length - 1 : 0); }
       reset();
       try { R.renderer.compile(R.scene, R.camera); } catch (e) { /* warm-up only */ }
