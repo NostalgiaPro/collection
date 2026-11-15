@@ -175,6 +175,62 @@ header.o1{padding-top:0}
 .ht-tmpanel button[aria-pressed="true"]{background:var(--hot);border-color:var(--hot)}
 .ht-tmpanel button[aria-pressed="true"] b,.ht-tmpanel button[aria-pressed="true"] span{color:var(--hp-on-hot)}
 
+/* --- Announcements: the news spot right under the photo strip.
+       Filled from the ANNOUNCEMENTS list in the page (see the script under #hpNews). --- */
+.hp-news{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin:-16px 0 0}
+.hp-news:empty{display:none}
+.hp-news:not(:empty) ~ .o1-hero{margin-top:24px}   /* with news showing, the hero sits under it instead of over the strip */
+.hp-news-item{
+  position:relative;display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:16px;overflow:hidden;
+  background:var(--bg2);border:2px solid var(--hot);border-radius:var(--hp-r);
+  box-shadow:0 20px 38px -22px var(--hot),0 10px 24px rgba(0,0,0,.45);
+}
+@supports (color:color-mix(in srgb,red,blue)){
+  .hp-news-item{background:
+    repeating-linear-gradient(135deg,rgba(255,255,255,.03) 0 12px,transparent 12px 24px),
+    linear-gradient(100deg,color-mix(in srgb,var(--hot) 26%,var(--bg2)),var(--bg2) 64%)}
+}
+.hp-news-tag{
+  justify-self:start;padding:7px 9px 6px;background:var(--hot);color:var(--hp-on-hot);
+  font-family:"Press Start 2P",monospace;font-size:9px;line-height:1.2;letter-spacing:.02em;text-transform:uppercase;
+  clip-path:polygon(0 3px,3px 3px,3px 0,calc(100% - 3px) 0,calc(100% - 3px) 3px,100% 3px,100% calc(100% - 3px),calc(100% - 3px) calc(100% - 3px),calc(100% - 3px) 100%,3px 100%,3px calc(100% - 3px),0 calc(100% - 3px));
+}
+.hp-news-body{min-width:0}
+.hp-news-title{margin:0;font-family:"Press Start 2P",monospace;font-weight:400;font-size:13px;line-height:1.55;color:var(--text);
+  text-shadow:0 2px 0 rgba(0,0,0,.6)}
+.hp-news-text{margin:8px 0 0;font-size:15px;line-height:1.45;color:var(--dim)}
+@supports (color:color-mix(in srgb,red,blue)){
+  .hp-news-text{color:color-mix(in srgb,var(--text) 86%,var(--dim))}
+}
+.hp-news-cta{
+  display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:13px 18px 11px;white-space:nowrap;
+  background:var(--hot);color:var(--hp-on-hot);text-decoration:none;
+  border:2px solid var(--hot);border-bottom:4px solid rgba(0,0,0,.35);border-radius:var(--hp-r);
+  font-family:"Press Start 2P",monospace;font-size:12px;line-height:1.3;
+  transition:background .15s,color .15s,transform .1s;
+}
+.hp-news-cta span{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:11px;line-height:1}
+.hp-news-cta:hover{background:var(--bg);color:var(--hot);border-color:var(--hot)}
+.hp-news-cta:active{transform:translateY(2px)}
+.hp-news-cta:focus-visible{outline:3px solid var(--text);outline-offset:3px}
+/* any items after the first one stack under it, a little quieter */
+.hp-news-item + .hp-news-item{padding-top:13px;padding-bottom:13px;border-color:var(--line);box-shadow:none}
+.hp-news-item + .hp-news-item .hp-news-title{font-size:11px}
+@media (min-width:700px){
+  .hp-news{margin-top:-30px}
+  .hp-news:not(:empty) ~ .o1-hero{margin-top:30px}
+  .hp-news-item{grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:22px;padding:18px 22px 18px 0}
+  .hp-news-item.hp-news-notag{grid-template-columns:minmax(0,1fr) auto;padding-left:22px}
+  .hp-news-tag{align-self:stretch;display:flex;align-items:center;margin:-18px 0;padding:0 16px;font-size:10px;clip-path:none}
+  .hp-news-title{font-size:16px}
+  .hp-news-text{margin-top:7px;font-size:16px}
+  .hp-news-cta{padding:14px 24px 12px;font-size:13px}
+  .hp-news-item + .hp-news-item{padding-top:13px;padding-bottom:13px}
+  .hp-news-item + .hp-news-item .hp-news-tag{margin:-13px 0}
+  .hp-news-item + .hp-news-item .hp-news-title{font-size:12px}
+  .hp-news-item + .hp-news-item .hp-news-cta{min-height:0;padding:10px 16px 8px;font-size:11px}
+}
+
 /* --- Hero --- */
 .o1-hero{position:relative;margin-top:-30px;text-align:center}
 .o1 .wordmark{
@@ -390,7 +446,6 @@ a.score:hover::after,a.score:focus-visible::after{opacity:1}
 .hp .npstrip .row{gap:12px;margin:14px -14px 0;padding:0 14px 10px;scroll-padding:0 14px;scrollbar-width:none}
 .hp .npstrip .row::-webkit-scrollbar{display:none}
 .hp .npstrip .row img{border-color:rgba(255,255,255,.08);border-radius:3px;box-shadow:0 8px 16px rgba(0,0,0,.5)}
-.hp .npstrip .row b{text-wrap:balance}
 
 /* --- Substack: the subscription card that fell out of the magazine --- */
 .npss{
@@ -793,11 +848,7 @@ footer p a{color:var(--text)}
   .ht-cm{width:108px;height:144px}
   .ht-ch{font-size:13px}
   .hp .npstrip{padding:36px 26px 24px}
-  /* Keep the 1987 shelf as one scrolling row (don't wrap a leftover game). */
-  .hp .npstrip .row{flex-wrap:nowrap;overflow-x:auto;margin:16px 0 0;padding:0 0 8px;gap:16px}
-  .hp .npstrip .row a,.hp .npstrip .row img{width:132px}
-  .hp .npstrip .row img{height:176px}
-  .hp .npstrip .row b{text-wrap:balance}
+  .hp .npstrip .row{flex-wrap:wrap;overflow:visible;margin:16px 0 0;padding:0;gap:16px 14px}
   .npss{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);grid-template-areas:"head list" "form list" "start list";
     grid-template-rows:auto auto 1fr;gap:18px 40px;padding:30px 32px 28px}
   .hp-ss-head{grid-area:head}
@@ -989,6 +1040,25 @@ body.y1996 .todaybar .lbl{background:none;color:#ffff00;padding:0;font-family:"T
 body.y1996 .shelfhead{border-radius:0;box-shadow:none}
 body.y1996 ol.games{border-radius:0}
 
+body.npskin .hp-news-item,body.npskin .hp-news-cta{border-radius:var(--e-radius,4px)}
+body.npskin .hp-news-item{box-shadow:var(--e-panel-shadow,none)}
+body.npskin .hp-news-title,body.npskin .hp-news-cta{font-family:var(--e-head,inherit);font-weight:700}
+body.npskin .hp-news-title{font-size:18px;text-shadow:none}
+body.npskin .hp-news-tag{font-family:var(--e-label,inherit);clip-path:none}
+body.era-1984 .hp-news-item{background:#000;border:3px double var(--text)}
+body.era-1984 .hp-news,body.era-1999 .hp-news,body.era-2004 .hp-news{margin-top:0}
+body.y1996 .hp-news{margin-top:0}
+body.y1996 .hp-news-item{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0;box-shadow:none}
+body.y1996 .hp-news-title{font-family:"Times New Roman",Times,serif;font-size:20px;color:#000080}
+body.y1996 .hp-news-text{color:#000}
+body.y1996 .hp-news-tag{background:#000080;color:#ffff00;font-family:"Times New Roman",Times,serif;font-size:13px;font-weight:700}
+body.y1996 .hp-news-cta{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0;font-family:"Times New Roman",Times,serif;font-size:18px}
+body.y1996 .hp-news-cta:hover{border-style:inset;color:#000080}
+@media (prefers-reduced-motion:reduce){
+  .hp-news-cta{transition:none}
+  .hp-news-cta:active{transform:none}
+}
+
 @media (prefers-reduced-motion:reduce){
   .ht-card,.ht-act,.ht-cm,.btn,.ytbtn,.npmerch-btn,.npmerch-items img,.shelflink,.shelfhead .caret,a.score,a.score::after{transition:none}
   .ht-act:hover,.ht-act:active,.btn:active,.ht-card:hover .ht-cm,.npmerch-items a:hover img,.npmerch-btn:active,.ytfacade:hover .ytbtn{transform:none}
@@ -1091,6 +1161,65 @@ body.y1996 ol.games{border-radius:0}
       </div>
     </div>
     <div class="ht-tm ht-tm-a"><button type="button" class="ht-tmbtn" aria-expanded="false" aria-controls="htTmPanel"><svg class="ht-px" viewBox="0 0 8 7" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="0" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="0" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="0" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="2" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="6" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="6" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="6" width="1" height="1" fill="#eceae2" class="w"/></svg><span>Time Machine</span><b class="ht-tmcur">Now</b></button><div class="ht-tmpanel" id="htTmPanel" hidden role="group" aria-label="Pick an era"></div></div>
+
+    <!-- ANNOUNCEMENTS: the news spot, directly under the strip. To change what it says, edit the
+         ANNOUNCEMENTS list in the script right below. Nothing else needs touching. -->
+    <div class="hp-news" id="hpNews" role="region" aria-label="News"></div>
+    <script>
+/* ============================================================================
+   ANNOUNCEMENTS: edit this list to change the news spot under the photo strip.
+
+   One { ... } per announcement, top one first. Each can have:
+     tag    small label on the banner, like "New"                 (optional)
+     title  the big line                                           (required)
+     text   one or two plain sentences                             (optional)
+     href   where the button goes, starting with a slash: "/play/" (optional)
+     cta    the words on the button, like "Play it"                (optional)
+
+   One item shows as the featured banner. Add more and they stack under it,
+   in this order. Empty the list ( [] ) and the whole spot disappears.
+   ============================================================================ */
+const ANNOUNCEMENTS = [
+  {
+    tag:   "New",
+    title: "Nostalgia Pro: The Game",
+    text:  "My browser game has a new add-on called Holiday Rush. It's a December Saturday at the mall with a doorbuster line and a food court.",
+    href:  "/play/",
+    cta:   "Play it"
+  }
+];
+
+(function(){
+  var box = document.getElementById("hpNews");
+  if (!box || !Array.isArray(ANNOUNCEMENTS)) return;
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  ANNOUNCEMENTS.forEach(function(a){
+    if (!a || !a.title) return;
+    var item = el("div", "hp-news-item");
+    if (a.tag) item.appendChild(el("span", "hp-news-tag", a.tag));
+    else item.classList.add("hp-news-notag");
+    var body = el("div", "hp-news-body");
+    body.appendChild(el("p", "hp-news-title", a.title));
+    if (a.text) body.appendChild(el("p", "hp-news-text", a.text));
+    item.appendChild(body);
+    if (a.href && a.cta){
+      var link = el("a", "hp-news-cta", a.cta);
+      link.href = a.href;
+      link.setAttribute("aria-label", a.cta + ": " + a.title);
+      var arrow = el("span", "", "\u25B6");
+      arrow.setAttribute("aria-hidden", "true");
+      link.appendChild(arrow);
+      item.appendChild(link);
+    }
+    box.appendChild(item);
+  });
+})();
+    </script>
 
     <!-- HERO -->
     <div class="o1-hero">
@@ -1268,8 +1397,9 @@ body.y1996 ol.games{border-radius:0}
 
 <!-- ============================================================================
      LIVE DATA + APP SCRIPT IS PASTED BELOW.
-     Data blobs are verbatim from the live index.html. Path fixes applied
-     in the logic only so links and photos work from /preview/home/:
+     The single <script> from the live index.html (the one that starts with
+     const RAW = `## NES ). Data blobs are verbatim. The following path fixes
+     were applied in the logic only so links and photos work from /preview/home/:
 
        - function gamePage(g){ return "game/" + slug(g) + ".html"; }
           ->                    return "/game/" + slug(g) + ".html";
