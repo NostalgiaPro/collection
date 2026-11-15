@@ -40,7 +40,7 @@ NP.CONFIG = {
 
   // DLC packs that are on, in the order their hooks run, for example ['dlc1']. A pack is on only when its id is here
   // AND its file (js/dlc/<id>.js) is loaded. The demo ignores this list. node build.js --dlc dlc1 writes it for you.
-  DLC: ['dlc2']
+  DLC: ['dlc1', 'dlc2']
 };
 
 // Which site are we on? Used for analytics tags and for platform rules.
