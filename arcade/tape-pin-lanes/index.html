@@ -7,7 +7,10 @@
 <meta name="description" content="Ten fast frames where the pins are stacked VHS tapes. A free game in the Nostalgia Pro Arcade.">
 <title>Tape Pin Lanes | Nostalgia Pro Arcade</title>
 <link rel="canonical" href="https://thenostalgiapro.com/arcade/tape-pin-lanes/">
-<link rel="stylesheet" href="../shared-b2/shell.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="preload" href="np_games_logo.png" as="image">
+<link rel="preload" href="np_games_script.png" as="image">
+<link rel="modulepreload" href="../shared/three.module.min.js">
 <script>
 /* GoatCounter page view, same counter as /play/ (code "nostalgiapro"): one small image request, no cookies, no third-party script. */
 (function(){try{if(!/^https?:$/.test(location.protocol))return;var i=new Image();i.referrerPolicy="no-referrer";i.src="https://nostalgiapro.goatcounter.com/count?p="+encodeURIComponent(location.pathname)+"&t="+encodeURIComponent(document.title)+"&r="+encodeURIComponent(document.referrer||"")+"&rnd="+Math.random().toString(36).slice(2);}catch(e){}})();
@@ -15,12 +18,13 @@
 </head>
 <body>
 <noscript><p style="padding:24px;font-family:monospace;color:#eceae2;background:#101219">Tape Pin Lanes needs JavaScript turned on. <a href="../" style="color:#3ff0ff">Back to the arcade</a></p></noscript>
-<script src="../shared-b2/config.js"></script>
-<script src="../shared-b2/shell.js"></script>
+<script src="../shared/config.js"></script>
+<script src="../shared/shell.js"></script>
 <script src="../shared/trophy-list.js"></script>
 <script src="../shared/trophies.js"></script>
 <script src="../shared/rewards.js"></script>
 <script src="../shared/hiscores.js"></script>
-<script src="game.js"></script>
+<!-- game.js is an ES module: it imports the self-hosted three.js from ../shared/three.module.min.js -->
+<script type="module" src="game.js"></script>
 </body>
 </html>
