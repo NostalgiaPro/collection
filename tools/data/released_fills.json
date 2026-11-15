@@ -1,0 +1,540 @@
+{
+  "description": "Verified RELEASED fills for shelf games that currently have no date in the RELEASED map in index.html. Each Gameye date was checked against Wikidata and/or Wikipedia North American (or worldwide, when the launch was worldwide) release dates. Do not overwrite dates already in RELEASED. Store each fill under released_key (sitedata nkey + '|' + system) as [month, day, year], the same shape the site already uses: day 0 means month and year only, and [0, 0, year] means year only (released_text() must be extended for that last case).",
+  "verified_count": 26,
+  "day_precision": 21,
+  "month_precision": 3,
+  "year_precision": 2,
+  "fills": [
+    {
+      "slug": "batman-forever-sega-genesis",
+      "title": "Batman Forever",
+      "system": "Sega Genesis",
+      "nkey": "batman forever",
+      "released_key": "batman forever|Sega Genesis",
+      "item_id": 430,
+      "gameye_date": "1995-09-07",
+      "released": [
+        9,
+        7,
+        1995
+      ],
+      "precision": "day",
+      "year": 1995,
+      "sources": [
+        "Wikipedia 'Batman Forever (video game)' infobox: SNES, Game Boy, Game Gear, Genesis/Mega Drive {{vgrelease|NA/EU|September 7, 1995|JP|October 27, 1995}}, citing a GamePro September 1995 ad ('THE REAL GAME BEGINS THURSDAY, SEPTEMBER 7TH')."
+      ],
+      "note": "The same Wikipedia page also covers the SNES version, which Gameye dated 1995-08-07. That SNES Gameye date does not match this September 7 NA/EU date, so the SNES copy is not in this file."
+    },
+    {
+      "slug": "batman-returns-snes",
+      "title": "Batman Returns",
+      "system": "SNES",
+      "nkey": "batman returns",
+      "released_key": "batman returns|SNES",
+      "item_id": 1460,
+      "gameye_date": "1993-04-01",
+      "released": [
+        4,
+        0,
+        1993
+      ],
+      "precision": "month",
+      "year": 1993,
+      "sources": [
+        "Wikipedia 'Batman Returns (SNES video game)' infobox: NA April 1993",
+        "Wikidata Q113494450 P577 April 1993, place North America (Q49), platform SNES (Q183259)"
+      ],
+      "note": "Gameye has 1993-04-01. Wikipedia and Wikidata only confirm April 1993, not the 1st, so this is stored as month and year only."
+    },
+    {
+      "slug": "battlefield-2-pc",
+      "title": "Battlefield 2",
+      "system": "PC",
+      "nkey": "battlefield 2",
+      "released_key": "battlefield 2|PC",
+      "item_id": 722,
+      "gameye_date": "2005-06-21",
+      "released": [
+        6,
+        21,
+        2005
+      ],
+      "precision": "day",
+      "year": 2005,
+      "sources": [
+        "Wikipedia 'Battlefield 2' infobox: NA June 21, 2005",
+        "Wikidata Q206653 P577 2005-06-21, place North America (Q49)"
+      ],
+      "note": ""
+    },
+    {
+      "slug": "chessmaster-6000-pc",
+      "title": "Chessmaster 6000",
+      "system": "PC",
+      "nkey": "chessmaster 6000",
+      "released_key": "chessmaster 6000|PC",
+      "item_id": 43567,
+      "gameye_date": "1998-09-30",
+      "released": [
+        0,
+        0,
+        1998
+      ],
+      "precision": "year",
+      "year": 1998,
+      "sources": [
+        "Wikipedia 'Chessmaster 6000' infobox: released = 1998 (Win); 2000 (Mac)"
+      ],
+      "note": "Gameye has 1998-09-30. Wikipedia only confirms the year 1998 for Windows, so this is stored as year only. tools/build_game_pages.py released_text() currently cannot render a year-only value; it has to be extended to treat [0, 0, year] as just the year."
+    },
+    {
+      "slug": "cool-spot-sega-genesis",
+      "title": "Cool Spot",
+      "system": "Sega Genesis",
+      "nkey": "cool spot",
+      "released_key": "cool spot|Sega Genesis",
+      "item_id": 706,
+      "gameye_date": "1993-04-16",
+      "released": [
+        4,
+        0,
+        1993
+      ],
+      "precision": "month",
+      "year": 1993,
+      "sources": [
+        "Wikipedia 'Cool Spot' infobox: Genesis {{vgrelease|NA|April 1993|EU|June 1993}}"
+      ],
+      "note": "Gameye has 1993-04-16. Wikipedia only confirms April 1993 for the Genesis in North America, not the 16th, so this is stored as month and year only."
+    },
+    {
+      "slug": "doom-snes",
+      "title": "Doom",
+      "system": "SNES",
+      "nkey": "doom",
+      "released_key": "doom|SNES",
+      "item_id": 2682,
+      "gameye_date": "1995-09-01",
+      "released": [
+        9,
+        1,
+        1995
+      ],
+      "precision": "day",
+      "year": 1995,
+      "sources": [
+        "Wikipedia 'List of Doom ports': 'The SNES version of Doom was developed by Sculptured Software, published by Williams Entertainment, and released on September 1, 1995.'",
+        "Wikidata Q189784 P577 1995-09-01, place North America (Q49), platform SNES (Q183259)"
+      ],
+      "note": ""
+    },
+    {
+      "slug": "doom-sega-saturn",
+      "title": "Doom",
+      "system": "Sega Saturn",
+      "nkey": "doom",
+      "released_key": "doom|Sega Saturn",
+      "item_id": 10583,
+      "gameye_date": "1997-03-26",
+      "released": [
+        3,
+        26,
+        1997
+      ],
+      "precision": "day",
+      "year": 1997,
+      "sources": [
+        "Wikipedia 'Doom (1993 video game)' infobox: Saturn {{vgrelease|NA|March 26, 1997|EU|1997}}"
+      ],
+      "note": ""
+    },
+    {
+      "slug": "doom-3-bfg-edition-xbox-one-re-release-on-xbox-360-case-xbox-360",
+      "title": "Doom 3: BFG Edition [Xbox One Re-release on Xbox 360 case]",
+      "system": "Xbox 360",
+      "nkey": "doom 3 bfg edition",
+      "released_key": "doom 3 bfg edition|Xbox 360",
+      "item_id": 72919,
+      "gameye_date": "2012-10-16",
+      "released": [
+        10,
+        16,
+        2012
+      ],
+      "precision": "day",
+      "year": 2012,
+      "sources": [
+        "Wikipedia 'Doom 3' infobox includes NA October 16, 2012 for the BFG Edition among the release dates."
+      ],
+      "note": "Wikidata Q16267527 has 2012-10-15 with no place qualifier, one day earlier. The fill follows the Wikipedia North American date, which matches Gameye."
+    },
+    {
+      "slug": "doom-collector-s-edition-xbox-one",
+      "title": "DOOM [Collector's Edition]",
+      "system": "Xbox One",
+      "nkey": "doom",
+      "released_key": "doom|Xbox One",
+      "item_id": 35870,
+      "gameye_date": "2016-05-13",
+      "released": [
+        5,
+        13,
+        2016
+      ],
+      "precision": "day",
+      "year": 2016,
+      "sources": [
+        "Wikipedia 'Doom (2016 video game)' infobox: PS4, Windows, Xbox One | May 13, 2016"
+      ],
+      "note": "This is the original Xbox One release date, not a Collector's Edition-specific date."
+    },
+    {
+      "slug": "doom-eternal-xbox-one",
+      "title": "DOOM Eternal",
+      "system": "Xbox One",
+      "nkey": "doom eternal",
+      "released_key": "doom eternal|Xbox One",
+      "item_id": 51000,
+      "gameye_date": "2020-03-20",
+      "released": [
+        3,
+        20,
+        2020
+      ],
+      "precision": "day",
+      "year": 2020,
+      "sources": [
+        "Wikipedia 'Doom Eternal' infobox: PS4, Stadia, Win, Xbox One | March 20, 2020",
+        "Wikidata Q55662649 P577 2020-03-20, place worldwide (Q13780930)"
+      ],
+      "note": ""
+    },
+    {
+      "slug": "doom-the-dark-ages-xbox-series-x-s",
+      "title": "Doom: The Dark Ages",
+      "system": "Xbox Series X/S",
+      "nkey": "doom the dark ages",
+      "released_key": "doom the dark ages|Xbox Series X/S",
+      "item_id": 151595,
+      "gameye_date": "2025-05-15",
+      "released": [
+        5,
+        15,
+        2025
+      ],
+      "precision": "day",
+      "year": 2025,
+      "sources": [
+        "Wikipedia 'Doom: The Dark Ages' infobox: released = May 15, 2025; lead says PlayStation 5, Windows, and Xbox Series X/S on May 15, 2025",
+        "Wikidata Q126091569 P577 2025-05-15, place worldwide (Q13780930)"
+      ],
+      "note": ""
+    },
+    {
+      "slug": "fable-ii-xbox-360",
+      "title": "Fable II",
+      "system": "Xbox 360",
+      "nkey": "fable ii",
+      "released_key": "fable ii|Xbox 360",
+      "item_id": 778,
+      "gameye_date": "2008-10-21",
+      "released": [
+        10,
+        21,
+        2008
+      ],
+      "precision": "day",
+      "year": 2008,
+      "sources": [
+        "Wikipedia 'Fable II' infobox: {{vgrelease|NA|21 October 2008|AUS|23 October 2008|EU|24 October 2008}}"
+      ],
+      "note": "Wikidata Q984024 has 2008-07-08 with no place or platform qualifier, which does not match the Wikipedia NA date and was not used."
+    },
+    {
+      "slug": "grand-theft-auto-vice-city-the-xbox-collection-xbox",
+      "title": "Grand Theft Auto: Vice City [The Xbox Collection]",
+      "system": "Xbox",
+      "nkey": "grand theft auto vice city",
+      "released_key": "grand theft auto vice city|Xbox",
+      "item_id": 68500,
+      "gameye_date": "2003-11-04",
+      "released": [
+        11,
+        4,
+        2003
+      ],
+      "precision": "day",
+      "year": 2003,
+      "sources": [
+        "Wikipedia 'Grand Theft Auto: Vice City' lists the Xbox North American date as November 4, 2003 (same date Gameye has)."
+      ],
+      "note": "This is the original North American Xbox release date, not a later Xbox Collection reprint date."
+    },
+    {
+      "slug": "hot-shots-golf-3-playstation-2",
+      "title": "Hot Shots Golf 3",
+      "system": "PlayStation 2",
+      "nkey": "hot shots golf 3",
+      "released_key": "hot shots golf 3|PlayStation 2",
+      "item_id": 6873,
+      "gameye_date": "2002-03-12",
+      "released": [
+        3,
+        12,
+        2002
+      ],
+      "precision": "day",
+      "year": 2002,
+      "sources": [
+        "Wikipedia 'Everybody's Golf 3' (the NA title is Hot Shots Golf 3) infobox: {{vgrelease|JP|26 July 2001|NA|12 March 2002}}"
+      ],
+      "note": ""
+    },
+    {
+      "slug": "justice-league-task-force-sega-genesis",
+      "title": "Justice League Task Force",
+      "system": "Sega Genesis",
+      "nkey": "justice league task force",
+      "released_key": "justice league task force|Sega Genesis",
+      "item_id": 4156,
+      "gameye_date": "1995-01-01",
+      "released": [
+        0,
+        0,
+        1995
+      ],
+      "precision": "year",
+      "year": 1995,
+      "sources": [
+        "Wikipedia 'Justice League Task Force (video game)' infobox: Mega Drive/Genesis {{vgrelease|NA|1995|EU|June 1995}}; Super NES {{vgrelease|NA|June 1995|EU|1995}}"
+      ],
+      "note": "Gameye has 1995-01-01, which is treated as year-only unless a January 1 release is confirmed. Wikipedia only confirms the year 1995 for the Genesis in North America (the June 1995 date is the Super NES NA date). Stored as year only. tools/build_game_pages.py released_text() has to be extended to treat [0, 0, year] as just the year."
+    },
+    {
+      "slug": "killer-instinct-gold-nintendo-64",
+      "title": "Killer Instinct Gold",
+      "system": "Nintendo 64",
+      "nkey": "killer instinct gold",
+      "released_key": "killer instinct gold|Nintendo 64",
+      "item_id": 245,
+      "gameye_date": "1996-11-25",
+      "released": [
+        11,
+        25,
+        1996
+      ],
+      "precision": "day",
+      "year": 1996,
+      "sources": [
+        "Wikipedia 'Killer Instinct Gold' infobox: {{vgrelease|NA|November 25, 1996|...}}",
+        "Wikidata Q13743368 P577 1996-11-25, place North America (Q49), platform Nintendo 64 (Q184839)"
+      ],
+      "note": ""
+    },
+    {
+      "slug": "legend-of-zelda-ocarina-of-time-nintendo-switch-2",
+      "title": "Legend of Zelda: Ocarina of Time",
+      "system": "Nintendo Switch 2",
+      "nkey": "legend of zelda ocarina of time",
+      "released_key": "legend of zelda ocarina of time|Nintendo Switch 2",
+      "item_id": 191283,
+      "gameye_date": "2026-11-05",
+      "released": [
+        11,
+        5,
+        2026
+      ],
+      "precision": "day",
+      "year": 2026,
+      "sources": [
+        "Wikipedia 'The Legend of Zelda: Ocarina of Time (2026 video game)' infobox: released = November 5, 2026",
+        "Wikidata Q140140365 P577 2026-11-05 (no place qualifier)"
+      ],
+      "note": "This is the Switch 2 version's date, not the 1998 Nintendo 64 date."
+    },
+    {
+      "slug": "marvel-super-heroes-vs-street-fighter-playstation-1",
+      "title": "Marvel Super Heroes vs. Street Fighter",
+      "system": "PlayStation 1",
+      "nkey": "marvel super heroes vs street fighter",
+      "released_key": "marvel super heroes vs street fighter|PlayStation 1",
+      "item_id": 10926,
+      "gameye_date": "1999-02-23",
+      "released": [
+        2,
+        23,
+        1999
+      ],
+      "precision": "day",
+      "year": 1999,
+      "sources": [
+        "Wikipedia 'Marvel Super Heroes vs. Street Fighter' infobox: PlayStation {{vgrelease|NA|February 23, 1999|JP|February 25, 1999}}"
+      ],
+      "note": ""
+    },
+    {
+      "slug": "max-payne-3-xbox-360",
+      "title": "Max Payne 3",
+      "system": "Xbox 360",
+      "nkey": "max payne 3",
+      "released_key": "max payne 3|Xbox 360",
+      "item_id": 10366,
+      "gameye_date": "2012-05-15",
+      "released": [
+        5,
+        15,
+        2012
+      ],
+      "precision": "day",
+      "year": 2012,
+      "sources": [
+        "Wikipedia 'Max Payne 3' infobox: NA May 15, 2012",
+        "Wikidata Q736040 P577 2012-05-15, place North America (Q49), platforms PlayStation 3 (Q10683) and Xbox 360 (Q48263)"
+      ],
+      "note": "The later May 29, 2012 date on the same pages is the Windows North American date, not Xbox 360."
+    },
+    {
+      "slug": "paper-mario-the-thousand-year-door-player-s-choice-gamecube",
+      "title": "Paper Mario: The Thousand-Year Door [Player's Choice]",
+      "system": "GameCube",
+      "nkey": "paper mario the thousand year door",
+      "released_key": "paper mario the thousand year door|GameCube",
+      "item_id": 78432,
+      "gameye_date": "2004-10-11",
+      "released": [
+        10,
+        11,
+        2004
+      ],
+      "precision": "day",
+      "year": 2004,
+      "sources": [
+        "Wikipedia 'Paper Mario: The Thousand-Year Door' infobox: NA October 11, 2004",
+        "Wikidata Q1075255 P577 2004-10-11, place United States (Q30) and North America (Q49), platform GameCube (Q182172)"
+      ],
+      "note": "This is the original North American GameCube release date, not a Player's Choice reprint date. Wikipedia and Wikidata do not give a separate Player's Choice date."
+    },
+    {
+      "slug": "star-fox-nintendo-switch-2",
+      "title": "Star Fox",
+      "system": "Nintendo Switch 2",
+      "nkey": "star fox",
+      "released_key": "star fox|Nintendo Switch 2",
+      "item_id": 184186,
+      "gameye_date": "2026-06-25",
+      "released": [
+        6,
+        25,
+        2026
+      ],
+      "precision": "day",
+      "year": 2026,
+      "sources": [
+        "Wikipedia 'Star Fox (2026 video game)' infobox: released = June 25, 2026"
+      ],
+      "note": "This is the Switch 2 version's date, not the 1993 SNES date."
+    },
+    {
+      "slug": "star-wars-the-old-republic-pc",
+      "title": "Star Wars: The Old Republic",
+      "system": "PC",
+      "nkey": "star wars the old republic",
+      "released_key": "star wars the old republic|PC",
+      "item_id": 2094,
+      "gameye_date": "2011-12-20",
+      "released": [
+        12,
+        20,
+        2011
+      ],
+      "precision": "day",
+      "year": 2011,
+      "sources": [
+        "Wikipedia 'Star Wars: The Old Republic' infobox: {{vgrelease|NA/EU|December 20, 2011|AUS|March 1, 2012}}",
+        "Wikidata Q737308 P577 2011-12-20, places North America (Q49) and Europe (Q46)"
+      ],
+      "note": ""
+    },
+    {
+      "slug": "super-mario-odyssey-nintendo-switch",
+      "title": "Super Mario Odyssey",
+      "system": "Nintendo Switch",
+      "nkey": "super mario odyssey",
+      "released_key": "super mario odyssey|Nintendo Switch",
+      "item_id": 38610,
+      "gameye_date": "2017-10-27",
+      "released": [
+        10,
+        27,
+        2017
+      ],
+      "precision": "day",
+      "year": 2017,
+      "sources": [
+        "Wikipedia 'Super Mario Odyssey' infobox: released = October 27, 2017 (worldwide launch wording in the lead: 'was released on October 27, 2017')",
+        "Wikidata Q28234671 P577 2017-10-27, place worldwide (Q13780930), platform Nintendo Switch (Q19610114)"
+      ],
+      "note": ""
+    },
+    {
+      "slug": "teenage-mutant-ninja-turtles-the-hyperstone-heist-sega-genesis",
+      "title": "Teenage Mutant Ninja Turtles: The Hyperstone Heist",
+      "system": "Sega Genesis",
+      "nkey": "teenage mutant ninja turtles the hyperstone heist",
+      "released_key": "teenage mutant ninja turtles the hyperstone heist|Sega Genesis",
+      "item_id": 1849,
+      "gameye_date": "1992-12-05",
+      "released": [
+        12,
+        0,
+        1992
+      ],
+      "precision": "month",
+      "year": 1992,
+      "sources": [
+        "Wikipedia 'Teenage Mutant Ninja Turtles: The Hyperstone Heist' infobox: {{vgrelease|NA|December 1992|JP|22 December 1992|EU|April 1993}}"
+      ],
+      "note": "Gameye has 1992-12-05. Wikipedia only confirms December 1992 for North America, not the 5th, so this is stored as month and year only."
+    },
+    {
+      "slug": "tom-clancy-s-ghost-recon-future-soldier-signature-edition-xbox-360",
+      "title": "Tom Clancy's Ghost Recon: Future Soldier Signature Edition",
+      "system": "Xbox 360",
+      "nkey": "tom clancy s ghost recon future soldier signature edition",
+      "released_key": "tom clancy s ghost recon future soldier signature edition|Xbox 360",
+      "item_id": 58679,
+      "gameye_date": "2012-05-22",
+      "released": [
+        5,
+        22,
+        2012
+      ],
+      "precision": "day",
+      "year": 2012,
+      "sources": [
+        "Wikipedia 'Tom Clancy's Ghost Recon: Future Soldier' infobox: PlayStation 3, Xbox 360 {{Video game release|NA|May 22, 2012|PAL|May 24, 2012|UK|May 25, 2012|JP|July 5, 2012}}"
+      ],
+      "note": "This is the original North American Xbox 360 release date, not a Signature Edition-specific date. Wikipedia does not give a separate Signature Edition date."
+    },
+    {
+      "slug": "tomb-raider-greatest-hits-playstation-1",
+      "title": "Tomb Raider [Greatest Hits]",
+      "system": "PlayStation 1",
+      "nkey": "tomb raider",
+      "released_key": "tomb raider|PlayStation 1",
+      "item_id": 59147,
+      "gameye_date": "1996-11-14",
+      "released": [
+        11,
+        14,
+        1996
+      ],
+      "precision": "day",
+      "year": 1996,
+      "sources": [
+        "Wikipedia 'Tomb Raider (1996 video game)' infobox: MS-DOS, PlayStation {{Video game release|NA|14 November 1996|EU|22 November 1996}}"
+      ],
+      "note": "This is the original North American PlayStation release date, not a Greatest Hits reprint date. Wikipedia does not give a separate Greatest Hits date."
+    }
+  ]
+}

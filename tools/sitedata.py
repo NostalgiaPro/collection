@@ -51,6 +51,52 @@ def nkey(t):
     return re.sub(r"[^a-z0-9]+", " ", t).strip()
 
 
+# Gameye facts copied onto each shelf game, with the value a game gets when
+# game_facts.json has nothing for it. A blank string means Gameye has no value.
+FACT_DEFAULTS = {
+    "publisher": "",
+    "developer": "",
+    "players": "",
+    "players_possibly_online": False,
+    "co_op": "",
+    "region": "",
+    "region_abbr": "",
+}
+
+_loaded = {}
+
+
+def load_facts():
+    """tools/data/game_facts.json, the "games" object: slug -> facts.
+    Read from disk once, then reused."""
+    if "facts" not in _loaded:
+        p = os.path.join(DATA, "game_facts.json")
+        games = {}
+        if os.path.exists(p):
+            with open(p, encoding="utf-8") as f:
+                games = json.load(f).get("games") or {}
+        _loaded["facts"] = games
+    return _loaded["facts"]
+
+
+def load_released_fills():
+    """tools/data/released_fills.json as slug -> [month, day, year], for shelf
+    games that have no date in RELEASED. Day 0 means month and year only,
+    month 0 means year only. Read from disk once, then reused."""
+    if "fills" not in _loaded:
+        p = os.path.join(DATA, "released_fills.json")
+        fills = {}
+        if os.path.exists(p):
+            with open(p, encoding="utf-8") as f:
+                rows = json.load(f).get("fills") or []
+            for x in rows:
+                r = x.get("released")
+                if x.get("slug") and isinstance(r, list) and len(r) == 3:
+                    fills[x["slug"]] = r
+        _loaded["fills"] = fills
+    return _loaded["fills"]
+
+
 def load_shelf():
     src = read("index.html")
     raw = _template(src, "RAW")
@@ -61,6 +107,8 @@ def load_shelf():
     reviewed = _json_const(src, "REVIEWED")
     ranked = _json_const(src, "RANKED")
     released = _json_const(src, "RELEASED")
+    facts = load_facts()
+    fills = load_released_fills()
     m = re.search(r"const VIDEOS = \{([\s\S]*?)\n\};", src)
     videos = dict(re.findall(r'"([^"]+)":"([^"]+)"', m.group(1))) if m else {}
     colors = dict((k, v) for k, v in re.findall(r'"([^"]+)":\s*\["(#[0-9a-fA-F]+)"', src.split("const COLORS = {", 1)[1].split("};", 1)[0]))
@@ -96,6 +144,13 @@ def load_shelf():
         g["ranks"] = ranked.get(k) or []         # [[list title, position], ...]
         g["video"] = videos.get(k + "|" + cur["name"])
         g["released"] = released.get(k + "|" + cur["name"])
+        # A verified fill only applies when RELEASED has no date for this game.
+        # A date that came from RELEASED is never replaced.
+        if not g["released"] and g["slug"] in fills:
+            g["released"] = list(fills[g["slug"]])
+        row = facts.get(g["slug"]) or {}
+        for field, blank in FACT_DEFAULTS.items():
+            g[field] = row.get(field, blank)
         cur["games"].append(g)
         games.append(g)
     return systems, games

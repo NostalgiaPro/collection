@@ -5,10 +5,13 @@
 
 Reads everything from the site itself (the shelf, beaten and no-ending
 lists in index.html, tools/data/reviews.json, lists.html) and RC's X posts in
-tools/data/x_posts.json. Safe to run again any time: it rewrites every
-page, deletes pages for games no longer on the shelf, and rewrites the
-game section of sitemap.xml. Run it after changing the shelf, ticking
-games beaten, adding a list, or adding posts."""
+tools/data/x_posts.json. Publisher, developer, players, co-op and region come
+from tools/data/game_facts.json, and release dates missing from index.html
+come from tools/data/released_fills.json (both joined in sitedata.py). Safe
+to run again any time: it rewrites every page, deletes pages for games no
+longer on the shelf, and rewrites the game section of sitemap.xml. Run it
+after changing the shelf, ticking games beaten, adding a list, or adding
+posts."""
 import json, os, re, sys
 from datetime import date
 
@@ -77,10 +80,67 @@ CSS = """  .crumb{font-family:"Silkscreen",monospace;font-size:10px;letter-spaci
 
 
 def released_text(r):
+    """[month, day, year] as text. Day 0 is month and year only ("April 1993"),
+    month 0 is the year only ("1998")."""
     if not r:
         return None
     m, d, y = r
+    if not m:
+        return str(y) if y else None
     return f"{MONTHS[m-1]} {d}, {y}" if d else f"{MONTHS[m-1]} {y}"
+
+
+def release_year(r):
+    """The year out of a [month, day, year] release value, or None."""
+    return r[-1] if r and r[-1] else None
+
+
+def _has(v):
+    """True when a fact has a value. Blank facts are "" (or missing)."""
+    return v is not None and v != ""
+
+
+def describe(g, cond, status, total, review):
+    """The meta description: the game, its year, publisher and developer when
+    known, then my copy. Any part with no value is left out."""
+    year = release_year(g.get("released"))
+    pub, dev = g.get("publisher"), g.get("developer")
+    lead = f"{g['title']} for the {g['system']}"
+    if year:
+        lead += f", released in {year}"
+        if _has(pub):
+            lead += f" by {pub}"
+    elif _has(pub):
+        lead += f", published by {pub}"
+    if _has(dev):
+        lead += f", developed by {dev}"
+    if not lead.endswith("."):   # names like "Mindscape, Inc." already end the sentence
+        lead += "."
+    desc = f"{lead} {cond}. {status}{' (100%)' if g.get('completed') else ''}. One of {total} games in my collection."
+    if review:
+        desc += f" Reviewed {review[1]:g}/5."
+    return desc
+
+
+def fact_rows(g):
+    """The Gameye rows for the facts list. A row is only written when its value is there."""
+    out = []
+    if _has(g.get("publisher")):
+        out.append(f'      <li><b>PUBLISHER</b><span>{esc(g["publisher"])}</span></li>\n')
+    if _has(g.get("developer")):
+        out.append(f'      <li><b>DEVELOPER</b><span>{esc(g["developer"])}</span></li>\n')
+    if _has(g.get("players")):
+        players = str(g["players"])
+        if g.get("players_possibly_online") is True:
+            players += " (possibly online)"
+        out.append(f'      <li><b>PLAYERS</b><span>{esc(players)}</span></li>\n')
+    if isinstance(g.get("co_op"), bool):
+        out.append(f'      <li><b>CO-OP</b><span>{"Yes" if g["co_op"] else "No"}</span></li>\n')
+    region = g.get("region")
+    us = g.get("region_abbr") == "USA" or region == "United States of America"
+    if _has(region) and not us:
+        out.append(f'      <li><b>REGION</b><span>{esc(region)}</span></li>\n')
+    return "".join(out)
 
 
 def list_mentions(lists, matcher):
@@ -149,10 +209,12 @@ def page(g, total, photo, review, mentions, posts, ranks=(), overrated=()):
     cond = COND.get(g["cond"].lower(), g["cond"])
     status = ("Beaten" if g["beaten"] else "No ending" if g["endless"] else "Not beaten yet")
     path = f"/game/{g['slug']}.html"
-    title = f"{g['title']} ({g['system']}) | The Nostalgia Pro"
-    desc = f"{g['title']} for the {g['system']}. {cond}. {status}{' (100%)' if g.get('completed') else ''}. One of {total} games in my collection."
-    if review:
-        desc += f" Reviewed {review[1]:g}/5."
+    year = release_year(g.get("released"))
+    if year:
+        title = f"{g['title']} ({g['system']}, {year}) | The Nostalgia Pro"
+    else:
+        title = f"{g['title']} ({g['system']}) | The Nostalgia Pro"
+    desc = describe(g, cond, status, total, review)
     ink = "#0b0d12"
     h = [head(title, desc, path, photo, "980px", CSS, image_alt=f"{g['title']} for the {g['system']}")]
     h.append(f'<body>\n' + BODY_JS + '<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>\n')
@@ -175,6 +237,7 @@ def page(g, total, photo, review, mentions, posts, ranks=(), overrated=()):
     rel = released_text(g.get("released"))
     if rel:
         h.append(f'      <li><b>RELEASED</b><span>{rel}</span></li>\n')
+    h.append(fact_rows(g))
     if review:
         h.append(f'      <li><b>MY REVIEW</b><span><a href="/reviews.html#r-{review[0]}" style="color:inherit">'
                  f'{review[1]:g} out of 5 &middot; Honest and Unpopular Reviews No. {review[0]}</a></span></li>\n')
@@ -290,6 +353,11 @@ def main():
           f"{sum(1 for g in games if sd.photo_for(g['slug']))} with photos, "
           f"{sum(1 for g in games if ranks.get(g['slug']) or overrated.get(g['slug']))} with rankings, "
           f"{sum(1 for g in games if youtube_id(g.get('video')))} with an embedded short")
+    print(f"{sum(1 for g in games if released_text(g.get('released')))} with a release date, "
+          f"{sum(1 for g in games if _has(g.get('publisher')))} with a publisher, "
+          f"{sum(1 for g in games if _has(g.get('developer')))} with a developer, "
+          f"{sum(1 for g in games if _has(g.get('players')))} with players, "
+          f"{sum(1 for g in games if _has(g.get('region')) and g.get('region_abbr') != 'USA' and g.get('region') != 'United States of America')} non-US copies")
     if missed:
         print(f"{len(missed)} ranked names with no game page (not on the shelf, or more than one console fits)")
     # the "From my shelf" box on onthisday.html follows the same shelf
