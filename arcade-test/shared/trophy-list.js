@@ -230,6 +230,26 @@
       T(177, "sr-eleven", "Ten Second Tape", "Run the quarter mile in under 10.5 seconds without a red light.", "sealed"),
       T(178, "sr-tour", "Grand Tour", "Win on all three circuits.", "slabbed")
     ] },
+    // Marble Drop (3D marble matcher). Slots 179-184; never reuse them.
+    { slug: "marble-drop", name: "Marble Drop", status: "live", trophies: [
+      T(179, "md-gap", "Gap Shot", "Shoot through a gap in the chain and pop a match.", "loose"),
+      T(180, "md-chain3", "Chain Reaction", "Pop a 3-deep chain reaction.", "boxed"),
+      T(181, "md-close", "Close Call", "Clear a stop after the chain almost reaches the drain.", "boxed"),
+      T(182, "md-clean", "Clean Stop", "Clear a stop without losing a life.", "sealed"),
+      T(183, "md-powers", "Fully Powered", "Use Slow, Rewind, Kaboom and a Wild marble in one town.", "sealed"),
+      T(184, "md-town", "Town Saved", "Clear all 7 stops and save the town.", "slabbed")
+    ] },
+    // Pinball Rings (3D pinball). Slots 185-192; never reuse them.
+    { slug: "pinball-rings", name: "Pinball Rings", status: "live", trophies: [
+      T(185, "pr-skill", "Skill Shot", "Nail the skill shot off the plunger.", "loose"),
+      T(186, "pr-combo4", "Four-Way Combo", "String a 4-way combo.", "loose"),
+      T(187, "pr-multiball", "Ring Rush", "Start Ring Rush multiball.", "boxed"),
+      T(188, "pr-jackpot", "Jackpot", "Collect a jackpot during Ring Rush.", "boxed"),
+      T(189, "pr-mission3", "Mission Control", "Complete 3 missions in one game.", "sealed"),
+      T(190, "pr-rings100", "Hundred Rings", "Collect 100 rings in one game.", "sealed", { goal: { stat: "ringsGame", at: 100, unit: "rings", one: "ring" } }),
+      T(191, "pr-super", "Super Jackpot", "Collect the Super Jackpot.", "sealed"),
+      T(192, "pr-10m", "Ten Million", "Score 10,000,000 points in one game.", "slabbed", { goal: { stat: "score", at: 10000000, unit: "PTS", fromBest: true }, end: function (s) { return s.score >= 10000000; } })
+    ] },
     // Circuit Box (3D wiring puzzle), test path only for now. Slots 193-202; never reuse them.
     // Claude's first draft used 179-188, which collide with live Marble Drop (179-184)
     // and Pinball Rings (185-192), so the trophies were moved up; ids are unchanged.
