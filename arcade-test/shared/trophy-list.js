@@ -264,6 +264,15 @@
       T(200, "cb-firsttry", "One and Done", "Clear circuit 10 or later on the first flip of the breaker.", "sealed"),
       T(201, "cb-all", "Fully Wired", "Clear every circuit.", "slabbed"),
       T(202, "cb-perfect", "Mint in Box", "Three stars on every circuit.", "slabbed")
+    ] },
+    // Monster Truck Rally (3D), test path only for now. Slots 203-208; never reuse them.
+    { slug: "monster-truck-rally", name: "Monster Truck Rally", status: "live", trophies: [
+      T(203, "mtr-crush", "Car Crusher", "Flatten a junk car.", "loose"),
+      T(204, "mtr-wrecking", "Wrecking Crew", "Crush every car on a course.", "boxed"),
+      T(205, "mtr-backflip", "Stuck the Flip", "Land a flip.", "loose"),
+      T(206, "mtr-bigair", "Big Air", "Stay in the air for 1.8 seconds or more.", "boxed"),
+      T(207, "mtr-clean5", "Five Clean", "Stick 5 clean landings in a row.", "sealed"),
+      T(208, "mtr-champion", "Rally Champion", "Finish all eight courses.", "slabbed")
     ] }
   ];
 
