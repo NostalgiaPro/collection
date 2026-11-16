@@ -1361,32 +1361,88 @@ function endCap(T, p, poly) {
   return g;
 }
 
-/* ---------------- Players: jointed figures posed from a short list of numbers ----------------
-   A pose is: hips x y z, hips turn, shoulders turn, lean, left hand x y z, right hand x y z,
-   left foot x y z, right foot x y z, head turn (all in the player's own space, life-size feet and degrees).
-   Elbows and knees are solved from where the hands and feet are. */
-const PIT_KEYS = [0, 0.45, 0.82, 1.0, 1.6];               // set, leg lift, stride, release, follow through
-const PIT_POSES = [
-  [0, 3.05, 0, 0, 0, 4, 0.12, 4.15, 0.55, -0.12, 4.1, 0.5, 0.38, 0.2, 0, -0.38, 0.2, 0, 0],
-  [-0.05, 3.05, -0.1, -50, -70, 0, -0.25, 4.5, 0.35, -0.4, 4.45, 0.3, 0.15, 2.0, 0.75, -0.3, 0.2, -0.05, 0],
-  [0, 2.8, 1.1, -35, -55, -4, 0.55, 4.3, 2.4, -1.0, 5.5, -0.3, 0.45, 0.2, 2.9, -0.35, 0.2, 0, 0],
-  [0.05, 2.75, 1.6, 10, 20, 22, 0.45, 3.8, 1.9, -0.76, 6.04, 3.79, 0.45, 0.2, 2.9, -0.4, 0.4, 0.4, 0],
-  [0.1, 2.7, 1.9, 30, 50, 38, 0.35, 3.7, 2.2, 0.97, 2.58, 4.16, 0.45, 0.2, 2.9, -0.8, 1.0, 1.2, 0]
-];
-// The batter adds two numbers: which way the bat points around (0 = at the plate, + = toward the pitcher) and how far up.
-const BAT_KEYS = [0, 0.5, 1];                             // stance, contact, finish
-const BAT_POSES = [
-  [0, 2.8, 0, 0, -8, 14, -0.85, 4.7, 0.75, 0, 0, 0, 1.05, 0.2, 0.15, -0.95, 0.2, 0, 72, -150, 62],
-  [0.15, 2.7, 0.05, 40, 62, 16, 0.55, 3.6, 1.2, 0, 0, 0, 1.15, 0.2, 0.15, -0.9, 0.28, 0.1, 78, 12, -8],
-  [0.25, 2.75, 0.1, 70, 105, 4, 0.85, 5.05, -0.87, 0, 0, 0, 1.15, 0.2, 0.15, -0.85, 0.3, 0.2, 84, 215, 22]
-];
-const poseA = [], poseB = [];
+/* ---------------- Players ----------------
+   Each player is built from sculpted parts: a lofted torso with a broad chest and a narrow waist, baggy knickers,
+   limbs turned on a lathe with real muscle and cloth profiles, fists with fingers, a modelled head with a face,
+   and an old-time pillbox cap. Every frame the parts are placed from a pose, a short list of numbers (PK below).
+   Elbows and knees are solved from where the hands and feet are.
+   Player space is life-size feet, facing +z, with the player's own left at +x. */
+const UNI = { royal: "#1f4fc8", royalDk: "#163a96", navy: "#0d1a46", white: "#ffffff", tan: "#d8c59c", tanDk: "#a8926a",
+              red: "#c81d25", redDk: "#8e1218", sani: "#f2efe6", gold: "#f5b81e" };
+// Pose channels. x y z: hips. hip / sh: which way the hips and the shoulders face (deg, + turns toward the
+// player's left). lean: forward bend. l / r: hands (l is the bottom hand on the bat for the batter).
+// lf / rf: ankles, lfa / rfa: which way each foot points. head: where the face points (deg, like hip).
+// nod: chin down. roll: shoulders tilt (+ drops the right shoulder). doff: cap lifted off.
+// phi / el: the bat, around and up. lel / rel: elbows lifted out. f: the free left hand, onbat: left hand
+// on the bat (1) or free (0), brim: left hand on the brim of the cap.
+const PK = ["x", "y", "z", "hip", "sh", "lean", "lx", "ly", "lz", "rx", "ry", "rz", "lfx", "lfy", "lfz", "rfx", "rfy", "rfz",
+            "head", "nod", "roll", "doff", "phi", "el", "lfa", "rfa", "lel", "rel", "fx", "fy", "fz", "onbat", "brim"];
+const PX = {};
+PK.forEach(function (k, i) { PX[k] = i; });
+function pose(o, base) {
+  const a = base ? base.slice() : new Array(PK.length).fill(0);
+  if (!base) { a[PX.y] = 3.2; a[PX.lfy] = a[PX.rfy] = 0.33; a[PX.onbat] = 1; }
+  for (const k in o) a[PX[k]] = o[k];
+  return a;
+}
 
+/* The batter. Between pitches he stands square to the stands behind the plate with the bat on his shoulder and a
+   hand on his hip (SWAG), lifts his cap to the crowd, then digs into a wide stance with the bat cocked high behind
+   his head. A leg kick and stride ride along with the pitch, and the swing runs from wherever he is at the tap.
+   The bat's heading (phi) only ever increases through a swing: from behind his head (-225), down through the slot,
+   level through the ball (12) and round to the finish over his front shoulder (220). */
+const B_SWAG = pose({ x: 0, y: 3.12, z: 0.1, hip: -52, sh: -72, lean: -4, lx: -0.97, ly: 4.0, lz: -0.69, phi: -252, el: 57,
+                      lfx: 0.75, lfz: 0.55, rfx: -0.75, rfz: -0.45, lfa: -40, rfa: -65, head: -55, nod: -6, lel: 0.9, rel: 0.2,
+                      fx: 0.5, fy: 3.32, fz: 0.62, onbat: 0 });
+const B_LOOK = pose({ hip: -54, sh: -76, head: -80, nod: 2 }, B_SWAG);             // turned full to the stands behind the plate
+const B_STANCE = pose({ x: 0.05, y: 2.86, z: 0.15, hip: -8, sh: -22, lean: 15, lx: -0.62, ly: 5.55, lz: 0.42, phi: -225, el: 28,
+                        lfx: 1.42, lfz: 0.18, rfx: -1.3, rfz: 0.08, lfa: 22, rfa: -5, head: 80, nod: 8, lel: 0.45, rel: 1, onbat: 1 });
+const B_LIFT = pose({ x: -0.08, y: 2.98, hip: -16, sh: -32, lx: -0.82, ly: 5.6, lz: 0.34, phi: -214, el: 30, lfx: 0.5, lfy: 1.05, lfz: 0.24, lfa: 0, head: 82 }, B_STANCE);
+const B_STRIDE = pose({ x: 0.26, y: 2.78, z: 0.15, hip: -8, sh: -28, lean: 15, lx: -0.78, ly: 5.38, lz: 0.42, phi: -206, el: 30, lfx: 1.78, lfy: 0.33, lfz: 0.22, lfa: 24, head: 82 }, B_STANCE);
+const B_CONTACT = pose({ x: 0.36, y: 2.78, z: 0.2, hip: 52, sh: 66, lean: 15, roll: 12, lx: 0.6, ly: 3.45, lz: 1.1, phi: 12, el: -8,
+                         rfx: -1.12, rfy: 0.5, rfz: 0.14, rfa: 50, lfa: 32, head: 76, nod: 12, lel: 0.05, rel: 0 }, B_STRIDE);
+const B_EXTEND = pose({ x: 0.45, y: 2.9, hip: 85, sh: 115, lean: 10, roll: 5, lx: 1.35, ly: 3.9, lz: 0.9, phi: 95, el: 6,
+                        rfx: -0.95, rfy: 0.62, rfz: 0.25, rfa: 80, head: 70, nod: 6 }, B_CONTACT);
+const B_FINISH = pose({ x: 0.42, y: 3.02, z: 0.15, hip: 95, sh: 140, lean: 0, roll: -6, lx: 0.1, ly: 5.25, lz: -0.55, phi: 220, el: 22,
+                        rfx: -0.55, rfy: 0.7, rfz: 0.4, rfa: 95, head: 55, nod: -10, lel: 0.6, rel: 0.3 }, B_EXTEND);
+const LOAD_KEYS = [0, 0.15, 0.5, 0.85];                   // fraction of the pitch's flight
+const LOAD_POSES = [B_STANCE, B_STANCE, B_LIFT, B_STRIDE];
+const SWING_KEYS = [0, 0.07, 0.15, 0.36];                 // seconds after the tap: start, contact, extension, finish
+const SWING_POSES = [null, B_CONTACT, B_EXTEND, B_FINISH]; // the first is wherever he was when he swung
+
+/* The pitcher: an old-school full windup. k runs 0 to 1 through the windup and reaches the release at exactly 1,
+   where the pitch leaves his hand (R.rel). */
+const P_SET = pose({ x: 0, y: 3.22, z: -0.3, lean: 4, lx: 0.14, ly: 4.3, lz: 0.42, rx: -0.06, ry: 4.32, rz: 0.45,
+                     lfx: 0.42, lfz: -0.25, rfx: -0.42, rfz: -0.3, lfa: 8, rfa: -8, nod: 4, lel: 0.1, rel: 0.1 });
+const P_UP = pose({ y: 3.24, z: -0.45, lean: -6, lx: 0.12, ly: 6.5, lz: -0.1, rx: -0.08, ry: 6.55, rz: -0.05, lfx: 0.48, lfy: 0.38, lfz: -0.8, lfa: 0, nod: -4, lel: 1, rel: 1 }, P_SET);
+const P_PIVOT = pose({ x: -0.05, y: 3.2, z: -0.3, hip: -60, sh: -70, lean: 0, lx: -0.1, ly: 4.7, lz: 0.32, rx: -0.2, ry: 4.65, rz: 0.2,
+                       lfx: 0.35, lfy: 0.6, lfz: -0.35, lfa: -40, rfx: -0.1, rfz: -0.25, rfa: -90, head: 10, nod: 2, lel: 0.4, rel: 0.4 }, P_SET);
+const P_LIFT = pose({ x: 0.05, y: 3.24, hip: -90, sh: -100, lean: -4, lx: -0.45, ly: 4.85, lz: 0.25, rx: -0.5, ry: 4.8, rz: 0.05,
+                      lfx: -0.55, lfy: 1.75, lfz: 0.3, lfa: -70, head: 8, lel: 0.3, rel: 0.3 }, P_PIVOT);
+const P_STRIDE = pose({ x: 0.05, y: 2.78, z: 1.0, hip: -55, sh: -95, lean: 2, lx: 0.5, ly: 4.95, lz: 1.9, rx: 0.12, ry: 5.5, rz: -1.35,
+                        lfx: 0.35, lfy: 0.33, lfz: 2.9, lfa: -25, rfx: 0, rfy: 0.42, rfz: -0.28, rfa: -85, head: 2, nod: 0, lel: 0.6, rel: 1 }, P_LIFT);
+const P_RELEASE = pose({ x: 0, y: 2.72, z: 1.55, hip: 5, sh: 30, lean: 28, roll: -10, lx: 0.62, ly: 4.15, lz: 1.95, rx: -0.8, ry: 6.0, rz: 3.55,
+                         rfx: -0.15, rfy: 0.6, rfz: 0.05, rfa: -55, head: 0, nod: 12, lel: 0.5, rel: 0.6 }, P_STRIDE);
+const P_FOLLOW = pose({ x: 0.1, y: 2.58, z: 2.1, hip: 35, sh: 70, lean: 45, roll: 0, lx: 0.75, ly: 3.85, lz: 1.75, rx: 0.9, ry: 2.65, rz: 3.6,
+                        rfx: -0.4, rfy: 1.35, rfz: 1.3, rfa: -10, nod: 16, lel: 0.4, rel: 0.1 }, P_RELEASE);
+const P_FIELD = pose({ x: 0.05, y: 2.95, z: 2.35, hip: 0, sh: 0, lean: 16, lx: 0.45, ly: 4.0, lz: 3.25, rx: -0.4, ry: 3.85, rz: 3.15,
+                       lfx: 0.55, lfy: 0.33, lfz: 2.85, lfa: 0, rfx: -0.75, rfy: 0.33, rfz: 2.6, rfa: 0, head: 0, nod: 6, lel: 0.3, rel: 0.3 }, P_FOLLOW);
+const PIT_KEYS = [0, 0.22, 0.42, 0.6, 0.84, 1.0, 1.4, 2.0];   // set, arms up, pivot, leg lift, stride, release, follow through, fielding
+const PIT_POSES = [P_SET, P_UP, P_PIVOT, P_LIFT, P_STRIDE, P_RELEASE, P_FOLLOW, P_FIELD];
+const PIT_RELEASE = 5;
+
+const poseA = pose({}), poseB = pose({}), poseC = pose({});
+function sstep(a, b, x) { const u = clamp((x - a) / (b - a), 0, 1); return u * u * (3 - 2 * u); }
+// Smooth (Catmull-Rom) path through the key poses: no corners at the keys, and it passes through each one exactly.
 function poseAt(keysK, poses, k, out) {
+  const n = keysK.length;
   let i = 0;
-  while (i < keysK.length - 2 && k > keysK[i + 1]) i++;
-  const u = clamp((k - keysK[i]) / (keysK[i + 1] - keysK[i]), 0, 1), a = poses[i], b = poses[i + 1];
-  for (let n = 0; n < a.length; n++) out[n] = a[n] + (b[n] - a[n]) * u;
+  while (i < n - 2 && k > keysK[i + 1]) i++;
+  const u = clamp((k - keysK[i]) / (keysK[i + 1] - keysK[i]), 0, 1), u2 = u * u, u3 = u2 * u;
+  const p0 = poses[Math.max(0, i - 1)], p1 = poses[i], p2 = poses[i + 1], p3 = poses[Math.min(n - 1, i + 2)];
+  for (let j = 0; j < p1.length; j++) {
+    out[j] = 0.5 * (2 * p1[j] + (p2[j] - p0[j]) * u + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * u2 + (3 * p1[j] - p0[j] - 3 * p2[j] + p3[j]) * u3);
+  }
   return out;
 }
 function mixPose(a, b, u, out) {
@@ -1394,40 +1450,365 @@ function mixPose(a, b, u, out) {
   return out;
 }
 
-function makePlayer(T, G, o) {
-  const root = new T.Group();
-  root.scale.setScalar(PS);
-  const skin = new T.MeshLambertMaterial({ color: o.skin });
-  const jersey = new T.MeshPhongMaterial({ map: o.jersey, specular: 0x333333, shininess: 18 });
-  const sleeve = new T.MeshLambertMaterial({ color: o.sleeve });
-  const pants = new T.MeshLambertMaterial({ color: o.pants });
-  const sock = new T.MeshLambertMaterial({ color: o.sock });
-  const hat = new T.MeshPhongMaterial({ color: o.hat, specular: o.helmet ? 0xffffff : 0x1a1a1a, shininess: o.helmet ? 120 : 20, envMap: G.env, combine: T.AddOperation, reflectivity: o.helmet ? 0.22 : 0.04 });
-  const shoeM = new T.MeshPhongMaterial({ color: 0x14161c, specular: 0x666666, shininess: 40 });
-  function ball(mat, sx, sy, sz, parent) { const m = new T.Mesh(G.sphere, mat); m.scale.set(sx, sy || sx, sz || sx); (parent || root).add(m); return m; }
-
-  const hips = ball(pants, 0.6, 0.44, 0.47);
-  const upper = new T.Group(); root.add(upper);
-  const torso = new T.Mesh(G.torso, jersey); torso.scale.z = 0.72; upper.add(torso);
-  const belt = new T.Mesh(G.belt, hat); belt.scale.set(0.56, 0.17, 0.42); belt.position.y = 0.04; upper.add(belt);
-  const neck = new T.Mesh(G.cyl, skin); neck.scale.set(0.2, 0.36, 0.2); neck.position.y = 2.05; upper.add(neck);
-  const head = new T.Group(); head.position.y = 2.7; upper.add(head);
-  ball(skin, 0.48, 0.52, 0.5, head);
-  const dome = new T.Mesh(G.dome, hat); dome.scale.setScalar(o.helmet ? 0.57 : 0.53); dome.position.y = 0.03; head.add(dome);
-  const brim = ball(hat, o.helmet ? 0.44 : 0.4, 0.055, 0.4, head); brim.position.set(0, 0.1, 0.52);
-  if (o.helmet) { const flap = ball(hat, 0.2, 0.3, 0.27, head); flap.position.set(0.47, -0.14, 0.04); }
-  else { const hair = ball(new T.MeshLambertMaterial({ color: 0x4a2a14 }), 0.47, 0.3, 0.42, head); hair.position.set(0, -0.12, -0.12); }
-
-  function limb(m1, m2, r1, r2, endMat, endR) {
-    const L = { up: new T.Mesh(G.cyl, m1), lo: new T.Mesh(G.cyl, m2), j0: ball(m1, r1 * 1.08), j1: ball(m2, r2 * 1.1), end: ball(endMat, endR), r1: r1, r2: r2 };
-    root.add(L.up); root.add(L.lo);
-    return L;
+/* Uniform paint (all drawn here). Royal blue jersey, tan knickers, navy belt, red socks, striped pillbox cap. */
+// Light diagonal weave for the knickers.
+function hatch(g, w, h, step, col, a) {
+  g.save(); g.globalAlpha = a; g.strokeStyle = col; g.lineWidth = 1;
+  g.beginPath();
+  for (let x = -h; x < w + h; x += step) { g.moveTo(x, 0); g.lineTo(x + h, h); g.moveTo(x + h, 0); g.lineTo(x, h); }
+  g.stroke(); g.restore();
+}
+// The chest wordmark, at its true shape (it is squeezed into the texture later, so it looks right on the body).
+function wordmarkCanvas() {
+  const c = mkCanvas(1000, 340), g = c.getContext("2d"), txt = "Nostalgia Pro";
+  g.lineJoin = "round"; g.lineCap = "round"; g.textAlign = "center"; g.textBaseline = "alphabetic";
+  let fs = 190;
+  g.font = 'italic 900 ' + fs + 'px Georgia, "Times New Roman", "Noto Serif", serif';
+  const w = g.measureText(txt).width;
+  if (w > 880) { fs = Math.floor(fs * 880 / w); g.font = 'italic 900 ' + fs + 'px Georgia, "Times New Roman", "Noto Serif", serif'; }
+  g.save(); g.translate(500, 200); g.rotate(-0.09);
+  // the tail swash under the lettering, like the old ball club scripts
+  g.beginPath(); g.moveTo(-420, 62); g.quadraticCurveTo(0, 128, 455, 22);
+  g.strokeStyle = UNI.white; g.lineWidth = 46; g.stroke();
+  g.lineWidth = 34; g.strokeText(txt, 0, 0);
+  g.strokeStyle = UNI.white; g.lineWidth = 30; g.strokeText(txt, 0, 0);
+  g.strokeStyle = UNI.navy; g.lineWidth = 22; g.beginPath(); g.moveTo(-420, 62); g.quadraticCurveTo(0, 128, 455, 22); g.stroke();
+  g.fillStyle = UNI.navy; g.fillText(txt, 0, 0);
+  g.lineWidth = 7; g.strokeText(txt, 0, 0);               // a touch heavier so it holds up small
+  g.restore();
+  return c;
+}
+// The jersey round the torso: u = .5 is the chest, the seam runs down the back. v runs from the waist (y 0) to the neck (y 2.55).
+// The torso is about 5.5 ft round and 2.55 ft tall, so one foot is ~93 px across but ~200 px down: lettering is
+// drawn squeezed by that ratio so it comes out the right shape on the body.
+function torsoCanvas(o) {
+  const c = mkCanvas(512, 512), g = c.getContext("2d");
+  const row = function (y) { return (2.55 - y) / 2.55 * 512; }, PXF = 512 / o.round;   // px per foot across
+  const bg = g.createLinearGradient(0, 0, 0, 512);
+  bg.addColorStop(0, UNI.royal); bg.addColorStop(0.75, UNI.royal); bg.addColorStop(1, UNI.royalDk);
+  g.fillStyle = bg; g.fillRect(0, 0, 512, 512);
+  hatch(g, 512, 512, 7, "#ffffff", 0.05);
+  // wordmark across the chest
+  const wm = wordmarkCanvas(), ww = o.wordW * PXF, wh = ww * wm.height / wm.width * 200 / PXF;
+  g.drawImage(wm, 256 - ww / 2, row(o.chestY) - wh / 2, ww, wh);
+  if (o.num) {                                              // the number on the back, split across the seam
+    const n = mkCanvas(200, 260), ng = n.getContext("2d");
+    ng.font = '900 230px "Arial Black", Arial, sans-serif'; ng.textAlign = "center"; ng.textBaseline = "middle"; ng.lineJoin = "round";
+    ng.lineWidth = 24; ng.strokeStyle = UNI.navy; ng.strokeText(o.num, 100, 136);
+    ng.fillStyle = UNI.white; ng.fillText(o.num, 100, 136);
+    const nw = 0.62 * PXF, nh = 0.78 * 200;
+    [0, 512].forEach(function (x) { g.drawImage(n, x - nw / 2, row(1.18) - nh / 2, nw, nh); });
   }
-  const glove = new T.MeshLambertMaterial({ color: 0x8a5a33 });
-  const arm = [limb(sleeve, skin, 0.21, 0.165, o.glove ? glove : skin, o.glove ? 0.34 : 0.19), limb(sleeve, skin, 0.21, 0.165, skin, 0.19)];
-  const leg = [limb(pants, pants, 0.31, 0.235, sock, 0.21), limb(pants, pants, 0.31, 0.235, sock, 0.21)];
-  const shoe = [ball(shoeM, 0.25, 0.19, 0.5), ball(shoeM, 0.25, 0.19, 0.5)];
-  return { root: root, hips: hips, upper: upper, head: head, arm: arm, leg: leg, shoe: shoe };
+  // neck, collar and a short buttoned placket
+  g.fillStyle = o.skin; g.fillRect(0, 0, 512, row(2.12));
+  g.fillStyle = UNI.navy; g.fillRect(0, row(2.12), 512, row(1.98) - row(2.12));
+  g.fillRect(256 - 7, row(2.0), 14, row(1.55) - row(2.0));
+  g.fillStyle = UNI.white;
+  [1.88, 1.74, 1.61].forEach(function (y) { g.beginPath(); g.arc(256, row(y), 3.5, 0, TAU); g.fill(); });
+  g.fillRect(0, row(1.985), 512, 2);
+  return c;
+}
+// The knickers round the hips, with the navy belt (loops and a buckle) on top.
+function pelvisCanvas() {
+  const c = mkCanvas(256, 128), g = c.getContext("2d"), row = function (y) { return (0.2 - y) / 1.02 * 128; };
+  g.fillStyle = UNI.tan; g.fillRect(0, 0, 256, 128);
+  hatch(g, 256, 128, 6, UNI.tanDk, 0.35);
+  g.fillStyle = UNI.navy; g.fillRect(0, row(0.17), 256, row(0.02) - row(0.17));
+  g.fillStyle = UNI.tan;
+  [20, 70, 186, 236].forEach(function (x) { g.fillRect(x - 3, row(0.2), 6, row(0.0) - row(0.2)); });
+  g.fillStyle = "#c9ccd2"; g.fillRect(128 - 9, row(0.16), 18, row(0.03) - row(0.16));
+  g.fillStyle = UNI.navy; g.fillRect(128 - 4, row(0.13), 8, row(0.06) - row(0.13));
+  g.fillStyle = "rgba(0,0,0,0.25)"; g.fillRect(127, row(0.02), 2, 40);  // fly seam
+  return c;
+}
+// A limb: bands from the top of the bone (row 0) down to the joint below. [from, to, color, pattern]
+function bandCanvas(bands) {
+  const c = mkCanvas(64, 128), g = c.getContext("2d");
+  bands.forEach(function (b) {
+    const y0 = Math.round(b[0] * 128), y1 = Math.round(b[1] * 128);
+    g.fillStyle = b[2]; g.fillRect(0, y0, 64, y1 - y0);
+    if (b[3] === "hatch") { g.save(); g.beginPath(); g.rect(0, y0, 64, y1 - y0); g.clip(); hatch(g, 64, 128, 6, UNI.tanDk, 0.35); g.restore(); }
+    if (b[3] === "stirrup") { g.fillStyle = UNI.red; g.fillRect(0, y0, 18, y1 - y0); g.fillRect(32, y0, 18, y1 - y0); }
+  });
+  return c;
+}
+// Pillbox cap: royal with thin white hoops, a navy band, the flat top, NP on the front (u = .5).
+function capCanvas() {
+  const c = mkCanvas(512, 256), g = c.getContext("2d");
+  g.fillStyle = UNI.royal; g.fillRect(0, 0, 512, 256);
+  g.fillStyle = UNI.white;
+  for (let y = 60; y < 216; y += 30) g.fillRect(0, y, 512, 8);
+  g.fillStyle = UNI.navy; g.fillRect(0, 216, 512, 40);        // the band round the bottom
+  g.fillStyle = UNI.royal; g.fillRect(0, 0, 512, 44);          // the top
+  g.save(); g.translate(256, 140); g.scale(0.62, 1);
+  g.font = 'bold 118px Georgia, "Times New Roman", "Noto Serif", serif'; g.textAlign = "center"; g.textBaseline = "middle"; g.lineJoin = "round";
+  g.lineWidth = 26; g.strokeStyle = UNI.navy; g.strokeText("NP", 0, 0);
+  g.fillStyle = UNI.white; g.fillText("NP", 0, 0);
+  g.restore();
+  return c;
+}
+
+/* Geometry builders */
+function mat4(T, x, y, z, sx, sy, sz, rx, ry, rz) {
+  return new T.Matrix4().compose(new T.Vector3(x, y, z), new T.Quaternion().setFromEuler(new T.Euler(rx || 0, ry || 0, rz || 0)), new T.Vector3(sx, sy == null ? sx : sy, sz == null ? sx : sz));
+}
+// Many small pieces baked into one mesh (one draw call). Each piece: geometry, matrix, color, optional fixed uv.
+function mergeParts(T, parts) {
+  const pos = [], nor = [], col = [], uv = [], idx = [];
+  const v = new T.Vector3(), n = new T.Vector3(), nm = new T.Matrix3(), c = new T.Color();
+  let base = 0;
+  parts.forEach(function (p) {
+    const g = p.g, P = g.attributes.position, N = g.attributes.normal, U = g.attributes.uv;
+    nm.getNormalMatrix(p.m); c.set(p.c == null ? 0xffffff : p.c);
+    for (let i = 0; i < P.count; i++) {
+      v.fromBufferAttribute(P, i).applyMatrix4(p.m); pos.push(v.x, v.y, v.z);
+      n.fromBufferAttribute(N, i).applyMatrix3(nm).normalize(); nor.push(n.x, n.y, n.z);
+      col.push(c.r, c.g, c.b);
+      if (p.uv) uv.push(p.uv[0], p.uv[1]); else if (U) uv.push(U.getX(i), U.getY(i)); else uv.push(0, 0);
+    }
+    if (g.index) for (let i = 0; i < g.index.count; i++) idx.push(base + g.index.getX(i));
+    else for (let i = 0; i < P.count; i++) idx.push(base + i);
+    base += P.count;
+  });
+  const out = new T.BufferGeometry();
+  out.setAttribute("position", new T.Float32BufferAttribute(pos, 3));
+  out.setAttribute("normal", new T.Float32BufferAttribute(nor, 3));
+  out.setAttribute("color", new T.Float32BufferAttribute(col, 3));
+  out.setAttribute("uv", new T.Float32BufferAttribute(uv, 2));
+  out.setIndex(idx);
+  out.computeBoundingSphere();
+  return out;
+}
+// A rounded box: a sphere pushed out toward its corners (p < 1 is squarer).
+function blobGeo(T, p, ws, hs) {
+  const g = new T.SphereGeometry(1, ws || 16, hs || 12), P = g.attributes.position;
+  for (let i = 0; i < P.count; i++) {
+    const f = function (v) { return Math.sign(v) * Math.pow(Math.abs(v), p); };
+    P.setXYZ(i, f(P.getX(i)), f(P.getY(i)), f(P.getZ(i)));
+  }
+  g.computeVertexNormals();
+  return g;
+}
+// A body section lofted through rings [y, half width, front depth, back depth]. Squarish where p < 1.
+// u = .5 at the front, the seam at the back; v from the lowest ring to the highest.
+function loftGeo(T, rings, n, p) {
+  const pos = [], uv = [], idx = [], y0 = rings[0][0], y1 = rings[rings.length - 1][0];
+  for (let j = 0; j < rings.length; j++) {
+    const r = rings[j];
+    for (let i = 0; i <= n; i++) {
+      const a = i / n * TAU, s = Math.sin(a), c = -Math.cos(a);
+      const sx = Math.sign(s) * Math.pow(Math.abs(s), p), sz = Math.sign(c) * Math.pow(Math.abs(c), p);
+      pos.push(r[1] * sx, r[0], (c > 0 ? r[2] : r[3]) * sz);
+      uv.push(1 - i / n, (r[0] - y0) / (y1 - y0));          // so lettering reads the right way round from the front
+    }
+  }
+  for (let j = 0; j < rings.length - 1; j++) for (let i = 0; i < n; i++) {
+    const a = j * (n + 1) + i, b = a + 1, c = a + n + 1, d = c + 1;
+    idx.push(a, c, b, b, c, d);
+  }
+  const g = new T.BufferGeometry();
+  g.setAttribute("position", new T.Float32BufferAttribute(pos, 3));
+  g.setAttribute("uv", new T.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx); g.computeVertexNormals();
+  const N = g.attributes.normal;                            // one smooth normal across the seam
+  for (let j = 0; j < rings.length; j++) {
+    const a = j * (n + 1), b = a + n;
+    const x = N.getX(a) + N.getX(b), y = N.getY(a) + N.getY(b), z = N.getZ(a) + N.getZ(b), l = Math.hypot(x, y, z) || 1;
+    N.setXYZ(a, x / l, y / l, z / l); N.setXYZ(b, x / l, y / l, z / l);
+  }
+  g.computeBoundingSphere();
+  return g;
+}
+// A round shape turned on a lathe along +y from a profile [y, radius]. v runs 1 at y = 0 to 0 at y = L0
+// (or, with up set, 0 at the bottom to 1 at the top). k scales the radius.
+function latheGeo(T, prof, L0, k, n, up) {
+  const pos = [], nor = [], uv = [], idx = [], m = prof.length;
+  for (let j = 0; j < m; j++) {
+    const y = prof[j][0], r = prof[j][1] * k;
+    const pa = prof[Math.max(0, j - 1)], pb = prof[Math.min(m - 1, j + 1)];
+    let dy = pb[0] - pa[0], dr = (pb[1] - pa[1]) * k;
+    const l = Math.hypot(dy, dr) || 1; dy /= l; dr /= l;
+    for (let i = 0; i <= n; i++) {
+      const a = i / n * TAU, s = Math.sin(a), c = -Math.cos(a);
+      pos.push(r * s, y, r * c); nor.push(dy * s, -dr, dy * c);
+      uv.push(1 - i / n, up ? clamp(y / L0, 0, 1) : 1 - clamp(y / L0, 0, 1));
+    }
+  }
+  for (let j = 0; j < m - 1; j++) for (let i = 0; i < n; i++) {
+    const a = j * (n + 1) + i, b = a + 1, c = a + n + 1, d = c + 1;
+    idx.push(a, c, b, b, c, d);
+  }
+  const g = new T.BufferGeometry();
+  g.setAttribute("position", new T.Float32BufferAttribute(pos, 3));
+  g.setAttribute("normal", new T.Float32BufferAttribute(nor, 3));
+  g.setAttribute("uv", new T.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx); g.computeBoundingSphere();
+  return g;
+}
+// A tube along a curve that swells and tapers (the mustache, the smirk).
+function tubeGeo(T, pts, rf, n, m) {
+  const curve = new T.CatmullRomCurve3(pts.map(function (p) { return new T.Vector3(p[0], p[1], p[2]); }));
+  const fr = curve.computeFrenetFrames(n, false), pos = [], nor = [], idx = [], P = new T.Vector3(), N = new T.Vector3();
+  for (let i = 0; i <= n; i++) {
+    curve.getPointAt(i / n, P);
+    const r = rf(i / n);
+    for (let j = 0; j <= m; j++) {
+      const a = j / m * TAU;
+      N.copy(fr.normals[i]).multiplyScalar(Math.cos(a)).addScaledVector(fr.binormals[i], Math.sin(a));
+      pos.push(P.x + N.x * r, P.y + N.y * r, P.z + N.z * r); nor.push(N.x, N.y, N.z);
+    }
+  }
+  for (let i = 0; i < n; i++) for (let j = 0; j < m; j++) {
+    const a = i * (m + 1) + j, b = a + 1, c = a + m + 1, d = c + 1;
+    idx.push(a, b, c, b, d, c);
+  }
+  const g = new T.BufferGeometry();
+  g.setAttribute("position", new T.Float32BufferAttribute(pos, 3));
+  g.setAttribute("normal", new T.Float32BufferAttribute(nor, 3));
+  g.setIndex(idx);
+  return g;
+}
+
+// Head, face, hair, mustache and sideburns in one mesh (vertex colors). Head space: center of the head, facing +z.
+function headGeo(T, o) {
+  const S = new T.SphereGeometry(1, 18, 13), s = new T.SphereGeometry(1, 10, 7), box = blobGeo(T, 0.55, 16, 12), parts = [];
+  function add(g, c, x, y, z, sx, sy, sz, rx, ry, rz) { parts.push({ g: g, c: c, m: mat4(T, x, y, z, sx, sy, sz, rx, ry, rz) }); }
+  const skin = o.skin, shade = o.shade, hair = o.hair, J = o.slugger ? 1 : 0.88;
+  add(S, skin, 0, 0.06, -0.02, 0.43, 0.48, 0.47);                            // cranium
+  add(box, skin, 0, -0.19, 0.06, 0.42 * J, 0.29, 0.42);                       // big square jaw
+  add(box, skin, 0, -0.37, 0.27, 0.2 * J, 0.12, 0.13);                        // chin
+  add(s, skin, 0, 0.165, 0.37, 0.36, 0.075, 0.12);                           // heavy brow
+  [-1, 1].forEach(function (sg) {
+    add(s, shade, sg * 0.43, -0.02, -0.04, 0.065, 0.14, 0.095);           // ears
+    add(s, skin, sg * 0.25, -0.04, 0.36, 0.11, 0.08, 0.07);                // cheekbones
+    add(s, 0xffffff, sg * 0.155, 0.075, 0.425, 0.072, 0.05, 0.045);        // eyes
+    add(s, 0x16100c, sg * 0.15, 0.072, 0.455, 0.04, 0.046, 0.025);
+    add(s, skin, sg * 0.155, 0.112, 0.43, 0.085, 0.045, 0.055);             // heavy lids: a confident squint
+    const up = sg > 0 ? 0.03 : 0;                                            // one eyebrow cocked
+    add(s, hair, sg * 0.16, 0.19 + up, 0.43, 0.13, 0.04, 0.05, 0, 0, sg * (sg > 0 ? 0.24 : -0.08));
+    add(s, hair, sg * 0.41, -0.1, 0.06, 0.07, 0.27, 0.12, 0.1);            // long thick sideburns
+    add(s, shade, sg * 0.05, -0.135, 0.485, 0.045, 0.035, 0.04);          // nostrils
+  });
+  add(s, skin, 0, -0.01, 0.47, 0.07, 0.15, 0.09, -0.25);                     // a strong straight nose
+  add(s, shade, 0, -0.105, 0.52, 0.075, 0.062, 0.07);
+  add(new T.SphereGeometry(1, 18, 8, 0, TAU, 0, Math.PI * 0.5), hair, 0, 0.05, -0.03, 0.448, 0.5, 0.49, -0.5);   // hair, slicked back
+  add(s, hair, 0, -0.06, -0.35, 0.36, 0.25, 0.16);                           // at the nape
+  if (o.mustache) {                                          // a huge handlebar, curled right round at the tips
+    const rf = function (u) { return (0.085 - 0.07 * u) * sstep(0, 0.05, u) * (1 - sstep(0.93, 1, u)) + 0.008; };
+    const pts = [[0, -0.17, 0.53], [0.12, -0.2, 0.505], [0.26, -0.19, 0.45], [0.38, -0.14, 0.38], [0.47, -0.05, 0.31], [0.505, 0.05, 0.28],
+                 [0.47, 0.125, 0.28], [0.41, 0.11, 0.3], [0.405, 0.05, 0.31], [0.44, 0.03, 0.305]];
+    [-1, 1].forEach(function (sg) {
+      add(tubeGeo(T, pts.map(function (p) { return [sg * p[0], p[1], p[2]]; }), rf, 34, 8), hair, 0, 0, 0, 1);
+    });
+  } else add(s, hair, 0, -0.17, 0.49, 0.17, 0.035, 0.05);                    // a trim mustache
+  // the smirk: one corner up
+  add(tubeGeo(T, [[-0.11, -0.27, 0.425], [0, -0.29, 0.448], [0.09, -0.278, 0.44], [0.15, -0.245, 0.41]], function (u) { return 0.017 * Math.sin(Math.PI * clamp(u, 0.04, 0.96)); }, 12, 6), 0x6e231c, 0, 0, 0, 1);
+  add(s, shade, 0.01, -0.315, 0.43, 0.09, 0.025, 0.035);                     // lower lip
+  return mergeParts(T, parts);
+}
+
+// Old-time pillbox cap: a straight-sided drum with a flat top and a short bill, sat a little back on the head.
+function capGeo(T) {
+  const drum = latheGeo(T, [[0, 0.455], [0.04, 0.46], [0.3, 0.45], [0.345, 0.44], [0.36, 0.41], [0.365, 0.2], [0.365, 0]], 0.365, 1, 24, true);
+  const tilt = -0.12, base = mat4(T, 0, 0.16, -0.03, 1, 1, 1.06, tilt);
+  return mergeParts(T, [
+    { g: drum, m: base },
+    { g: new T.SphereGeometry(1, 16, 6, 0, TAU, 0, Math.PI / 2), m: mat4(T, 0, 0.18, 0.41, 0.34, 0.03, 0.19, tilt + 0.16), uv: [0.05, 0.08] }   // bill
+  ]);
+}
+// A cleat, ankle at the origin, flat sole 0.33 below it, with a raised heel.
+function shoeGeo(T) {
+  const foot = new T.SphereGeometry(1, 14, 9), heel = new T.SphereGeometry(1, 10, 7);
+  [foot, heel].forEach(function (g) {
+    const P = g.attributes.position, N = g.attributes.normal;
+    for (let i = 0; i < P.count; i++) if (P.getY(i) < -0.75) { P.setY(i, -0.75); N.setXYZ(i, 0, -1, 0); }
+  });
+  return mergeParts(T, [
+    { g: foot, m: mat4(T, 0, -0.1875, 0.2, 0.19, 0.19, 0.48) },
+    { g: heel, m: mat4(T, 0, -0.17, -0.06, 0.17, 0.215, 0.2) }
+  ]);
+}
+// A fist closed round a bat handle: the handle runs along x through the origin, the wrist is down -y.
+function fistGeo(T, k) {
+  const parts = [], box = blobGeo(T, 0.6, 12, 10), s = new T.SphereGeometry(1, 10, 7);
+  parts.push({ g: box, m: mat4(T, 0, -0.06, -0.075, 0.175 * k, 0.15 * k, 0.07 * k) });            // back of the hand
+  parts.push({ g: s, m: mat4(T, 0, -0.17 * k, -0.04, 0.11 * k, 0.08 * k, 0.085 * k) });           // wrist
+  [-0.105, -0.035, 0.035, 0.105].forEach(function (x, i) {                                      // four fingers wrapped round
+    const f = new T.TorusGeometry(0.072 * k, 0.037 * k, 6, 10, Math.PI * (1.42 - i * 0.03));
+    parts.push({ g: f, m: mat4(T, x * k, 0, 0, 1, 1, 1, 0, Math.PI / 2, 0) });
+  });
+  parts.push({ g: s, m: mat4(T, 0.1 * k, -0.06 * k, 0.07 * k, 0.05 * k, 0.1 * k, 0.045 * k, 0.5, 0, -0.9) });   // thumb
+  return mergeParts(T, parts);
+}
+// A leather glove: a padded mitt with a thumb and a cuff.
+function gloveGeo(T) {
+  const box = blobGeo(T, 0.7, 14, 10), s = new T.SphereGeometry(1, 12, 8);
+  return mergeParts(T, [
+    { g: box, m: mat4(T, 0, 0.06, -0.02, 0.2, 0.25, 0.09), c: 0x8a5228 },
+    { g: s, m: mat4(T, 0, 0.06, 0.06, 0.15, 0.19, 0.03), c: 0xb07440 },                  // the pocket
+    { g: s, m: mat4(T, 0.17, -0.02, 0.03, 0.07, 0.15, 0.07, 0, 0, -0.45), c: 0x7a4620 },  // thumb
+    { g: s, m: mat4(T, 0, -0.16, -0.02, 0.13, 0.07, 0.1), c: 0x5e3416 }                   // cuff
+  ]);
+}
+
+// Builds and paints one player. o: skin, shade, hair, build ("slugger" or "lean"), mustache, glove, num.
+function makePlayer(T, tex, script, env, o) {
+  const big = o.build === "slugger", root = new T.Group();
+  root.scale.setScalar(PS);
+  const ak = big ? 1 : 0.84, lk = big ? 1 : 0.88, tw = big ? 1 : 0.84, td = big ? 1 : 0.84;
+  const torsoRings = [[0, 0.5, 0.36, 0.38], [0.18, 0.52, 0.38, 0.4], [0.45, 0.6, 0.46, 0.44], [0.8, 0.78, 0.6, 0.5], [1.15, 0.92, 0.7, 0.55],
+                      [1.45, 1.0, 0.68, 0.58], [1.7, 0.98, 0.52, 0.55], [1.88, 0.72, 0.4, 0.46], [2.0, 0.42, 0.32, 0.36], [2.1, 0.33, 0.3, 0.31],
+                      [2.3, 0.3, 0.27, 0.28], [2.55, 0.28, 0.25, 0.26]]
+    .map(function (r) { return [r[0], r[1] * tw, r[2] * td, r[3] * td]; });
+  const pelvisRings = [[-0.82, 0.3, 0.24, 0.26], [-0.7, 0.64, 0.4, 0.46], [-0.45, 0.7, 0.46, 0.56], [-0.2, 0.66, 0.46, 0.55], [0.02, 0.58, 0.44, 0.46], [0.2, 0.56, 0.42, 0.44]]
+    .map(function (r) { return [r[0], r[1] * lk, r[2] * lk, r[3] * lk]; });
+
+  const lam = function (m) { return new T.MeshLambertMaterial({ map: tex(m) }); };
+  const jersey = new T.MeshPhongMaterial({ map: tex(torsoCanvas({ skin: o.skin, chestY: 1.2, wordW: big ? 1.72 : 1.5, round: big ? 5.6 : 4.8, num: o.num })), specular: 0x222222, shininess: 12 });
+  const knick = lam(pelvisCanvas()), tan = lam(bandCanvas([[0, 1, UNI.tan, "hatch"]])), sleeveM = new T.MeshLambertMaterial({ color: UNI.royal });
+  const upperArm = lam(bandCanvas([[0, 0.45, UNI.royal], [0.45, 0.5, UNI.navy], [0.5, 0.52, UNI.white], [0.52, 1, o.skin]]));
+  const shin = lam(bandCanvas([[0, 0.24, UNI.tan, "hatch"], [0.24, 0.27, UNI.tanDk], [0.27, 0.84, UNI.red], [0.84, 1, UNI.sani, "stirrup"]]));
+  const skin = new T.MeshLambertMaterial({ color: o.skin }), vc = new T.MeshLambertMaterial({ vertexColors: true });
+  const capMat = new T.MeshPhongMaterial({ map: tex(capCanvas()), side: T.DoubleSide, specular: 0x222222, shininess: 10 });
+  const shoeM = new T.MeshPhongMaterial({ color: 0x14161b, specular: 0x777777, shininess: 50 });
+  const ball = new T.SphereGeometry(1, 14, 10);
+  function mesh(g, m, parent) { const x = new T.Mesh(g, m); (parent || root).add(x); return x; }
+
+  const hips = new T.Group(); root.add(hips);
+  mesh(loftGeo(T, pelvisRings, 22, 0.85), knick, hips);
+  const upper = new T.Group(); root.add(upper);
+  mesh(loftGeo(T, torsoRings, 26, 0.8), jersey, upper);
+  const head = new T.Group(); head.position.set(0, big ? 2.74 : 2.68, big ? 0.07 : 0.05); head.scale.setScalar(big ? 1.12 : 1.04); upper.add(head);
+  mesh(headGeo(T, { slugger: big, skin: o.skin, shade: o.shade, hair: o.hair, mustache: o.mustache }), vc, head);
+  const helmet = mesh(capGeo(T), capMat, head);
+
+  // limb profiles [along the bone, radius]: a short royal sleeve over a big biceps, forearms thick at the elbow,
+  // baggy knickers that billow over the knee and gather into high red socks
+  const UA = [[-0.06, 0], [-0.045, 0.12], [-0.01, 0.2], [0.08, 0.25], [0.3, 0.26], [0.5, 0.255], [0.56, 0.24], [0.6, 0.2], [0.7, 0.215], [0.84, 0.205],
+              [0.98, 0.17], [1.1, 0.15], [1.16, 0.12], [1.2, 0.07], [1.22, 0]];
+  const FA = [[-0.07, 0], [-0.05, 0.11], [-0.015, 0.16], [0.08, 0.2], [0.25, 0.215], [0.45, 0.19], [0.7, 0.15], [0.9, 0.115], [1.0, 0.1], [1.04, 0.08], [1.07, 0]];
+  const TH = [[-0.12, 0], [-0.1, 0.14], [-0.05, 0.24], [0.05, 0.3], [0.3, 0.32], [0.7, 0.315], [1.05, 0.3], [1.3, 0.285], [1.45, 0.27], [1.52, 0.2], [1.56, 0]];
+  const SH = [[-0.1, 0], [-0.08, 0.15], [-0.03, 0.24], [0.06, 0.285], [0.2, 0.29], [0.3, 0.255], [0.36, 0.2], [0.4, 0.18], [0.62, 0.19], [0.9, 0.145],
+              [1.2, 0.11], [1.36, 0.1], [1.42, 0.07], [1.45, 0]];
+  const gUA = latheGeo(T, UA, 1.12, ak, 16), gFA = latheGeo(T, FA, 1.08, ak, 14), gTH = latheGeo(T, TH, 1.42, lk, 16), gSH = latheGeo(T, SH, 1.4, lk, 14);
+  const gFist = fistGeo(T, big ? 1.12 : 0.95), gShoe = shoeGeo(T);
+  const hv = { x: new T.Vector3(), y: new T.Vector3(), z: new T.Vector3(), m: new T.Matrix4() };
+  const arm = [0, 1].map(function (s) {
+    const L = { up: mesh(gUA, upperArm), lo: mesh(gFA, skin), delt: mesh(ball, sleeveM), j1: mesh(ball, skin), l1: 1.12, l2: 1.08, hv: hv };
+    L.delt.scale.set(0.24 * ak, 0.29 * ak, 0.24 * ak);
+    L.j1.scale.setScalar(0.155 * ak);
+    L.end = mesh(s === 0 && o.glove ? gloveGeo(T) : gFist, s === 0 && o.glove ? vc : skin);
+    return L;
+  });
+  const leg = [0, 1].map(function () {
+    const L = { up: mesh(gTH, tan), lo: mesh(gSH, shin), j1: mesh(ball, tan), j0: mesh(ball, tan), l1: 1.42, l2: 1.4 };
+    L.j1.scale.setScalar(0.27 * lk); L.j0.scale.setScalar(0.28 * lk);
+    return L;
+  });
+  const shoe = [mesh(gShoe, shoeM), mesh(gShoe, shoeM)];
+  shoe.forEach(function (m) { m.rotation.order = "YXZ"; m.scale.setScalar(lk); });
+  return { root: root, hips: hips, upper: upper, head: head, helmet: helmet, arm: arm, leg: leg, shoe: shoe, batter: !!o.mustache,
+           shoulder: [0.96 * tw, 1.72, -0.02], hipJ: [0.38 * lk, -0.22, 0], grip: new T.Vector3() };
 }
 
 // Elbow or knee: the joint between A and B for bones l1 and l2, bent toward "pole".
@@ -1442,38 +1823,72 @@ function bend(A, B, pole, l1, l2, out) {
   t.q.normalize();
   out.copy(A).addScaledVector(t.d, a).addScaledVector(t.q, hgt);
 }
-function bone(mesh, A, B, r) {
+// Stand a limb mesh (modelled along +y, nominal length l0) between A and B.
+function bone(mesh, A, B, l0) {
   const t = TV;
   t.d.subVectors(B, A);
   const l = t.d.length() || 1e-4;
   mesh.position.copy(A);
   mesh.quaternion.setFromUnitVectors(t.up, t.d.multiplyScalar(1 / l));
-  mesh.scale.set(r, l, r);
+  mesh.scale.set(1, l / l0, 1);
 }
-function setLimb(L, A, B, pole, l1, l2) {
+// grip: the line the fist closes round (the bat), or null to close it across the bend of the arm.
+function setLimb(L, A, B, pole, grip) {
   const t = TV;
-  bend(A, B, pole, l1, l2, t.e);
-  bone(L.up, A, t.e, L.r1); bone(L.lo, t.e, B, L.r2);
-  L.j0.position.copy(A); L.j1.position.copy(t.e); L.end.position.copy(B);
+  bend(A, B, pole, L.l1, L.l2, t.e);
+  bone(L.up, A, t.e, L.l1); bone(L.lo, t.e, B, L.l2);
+  L.j1.position.copy(t.e);
+  if (L.j0) L.j0.position.copy(A);
+  if (L.delt) {                                             // the shoulder cap rides along the upper arm
+    L.delt.quaternion.copy(L.up.quaternion);
+    L.delt.position.copy(A).addScaledVector(TV.d.subVectors(t.e, A).normalize(), 0.05);
+  }
+  if (L.end) {                                              // the hand: fingers closed round the grip line, wrist toward the elbow
+    const h = L.hv;
+    h.y.subVectors(B, t.e).normalize();
+    if (grip) h.x.copy(grip); else h.x.subVectors(t.e, A).cross(h.y);
+    h.x.addScaledVector(h.y, -h.x.dot(h.y));
+    if (h.x.lengthSq() < 1e-6) h.x.set(1, 0, 0).addScaledVector(h.y, -h.y.x);
+    h.x.normalize(); h.z.crossVectors(h.x, h.y);
+    h.m.makeBasis(h.x, h.y, h.z);
+    L.end.quaternion.setFromRotationMatrix(h.m);
+    L.end.position.copy(B);
+  }
 }
+const BRIM_PT = [0.34, 0.26, 0.36];                          // where the hand takes the cap, in cap space
 function applyPose(P, v) {
-  const t = TV, hy = v[3] * DEG, uy = v[4] * DEG, ch = Math.cos(hy), sh = Math.sin(hy), cu = Math.cos(uy), su = Math.sin(uy);
-  P.hips.position.set(v[0], v[1], v[2]); P.hips.rotation.y = hy;
-  P.upper.position.set(v[0], v[1], v[2]); P.upper.rotation.set(v[5] * DEG, uy, 0, "YXZ");
+  const t = TV, hy = v[PX.hip] * DEG, uy = v[PX.sh] * DEG, ch = Math.cos(hy), sh = Math.sin(hy), cu = Math.cos(uy), su = Math.sin(uy);
+  P.hips.position.set(v[0], v[1], v[2]); P.hips.rotation.set(0, hy, 0);
+  P.upper.position.set(v[0], v[1], v[2]); P.upper.rotation.set(v[PX.lean] * DEG, uy, v[PX.roll] * DEG, "YXZ");
   P.upper.updateMatrix();
-  P.head.rotation.y = (v[18] - v[4]) * DEG;
+  P.head.rotation.set((v[PX.nod] - v[PX.lean] * 0.7) * DEG, (v[PX.head] - v[PX.sh]) * DEG, 0, "YXZ");
+  const d = v[PX.doff];                                     // lifted and tipped toward the crowd
+  P.helmet.position.set(0, d * 0.3, d * 0.12); P.helmet.rotation.set(d * 0.3, 0, -d * 0.14);
+  // the batter's hands close round the bat
+  const phi = v[PX.phi] * DEG, el = v[PX.el] * DEG;
+  P.grip.set(Math.sin(phi) * Math.cos(el), Math.sin(el), Math.cos(phi) * Math.cos(el));
+  // the left hand: on the bat, free, or on the brim
+  const on = v[PX.onbat], br = v[PX.brim];
+  t.b.set(v[PX.fx] + (v[PX.lx] - v[PX.fx]) * on, v[PX.fy] + (v[PX.ly] - v[PX.fy]) * on, v[PX.fz] + (v[PX.lz] - v[PX.fz]) * on);
+  if (br > 0) {
+    P.head.updateMatrix(); P.helmet.updateMatrix();
+    t.q.fromArray(BRIM_PT).applyMatrix4(P.helmet.matrix).applyMatrix4(P.head.matrix).applyMatrix4(P.upper.matrix);
+    t.b.lerp(t.q, br);
+  }
   for (let s = 0; s < 2; s++) {                             // 0 = left, 1 = right
-    const sg = s ? -1 : 1, px = sg * 0.5, pz = -0.5;
-    t.a.set(sg * 0.8, 1.88, 0).applyMatrix4(P.upper.matrix);
-    t.b.set(v[6 + s * 3], v[7 + s * 3], v[8 + s * 3]);
-    t.p.set(px * cu + pz * su, -0.8, -px * su + pz * cu);   // elbows hang down, out and a little back
-    setLimb(P.arm[s], t.a, t.b, t.p, 1.15, 1.12);
-    t.a.set(v[0] + sg * 0.4 * ch, v[1] - 0.08, v[2] - sg * 0.4 * sh);
-    t.b.set(v[12 + s * 3], v[13 + s * 3] + 0.14, v[14 + s * 3]);
+    const sg = s ? -1 : 1, lift = v[s ? PX.rel : PX.lel], px = sg * (0.5 + 0.7 * lift), pz = -0.5 - 0.2 * lift;
+    t.a.set(sg * P.shoulder[0], P.shoulder[1], P.shoulder[2]).applyMatrix4(P.upper.matrix);
+    if (s) t.b.set(v[PX.rx], v[PX.ry], v[PX.rz]);
+    t.p.set(px * cu + pz * su, -0.8 + 0.85 * lift, -px * su + pz * cu);   // elbows hang down, out and back, or lift out
+    const onBat = P.batter && (s === 1 || (on > 0.5 && br < 0.5));
+    setLimb(P.arm[s], t.a, t.b, t.p, onBat ? P.grip : null);
+    t.a.set(v[0] + sg * P.hipJ[0] * ch, v[1] + P.hipJ[1], v[2] - sg * P.hipJ[0] * sh);
+    t.b.set(v[PX.lfx + s * 3], v[PX.lfy + s * 3], v[PX.lfz + s * 3]);
     t.p.set(sh + sg * 0.25 * ch, 0.2, ch - sg * 0.25 * sh); // knees point where the hips face
-    setLimb(P.leg[s], t.a, t.b, t.p, 1.5, 1.48);
-    P.shoe[s].position.set(t.b.x + sh * 0.26, v[13 + s * 3], t.b.z + ch * 0.26);
-    P.shoe[s].rotation.y = hy * 0.6;
+    setLimb(P.leg[s], t.a, t.b, t.p);
+    const f = P.shoe[s];
+    f.position.copy(t.b);
+    f.rotation.set(clamp((t.b.y - 0.36) * 1.4, 0, 1.0), v[s ? PX.rfa : PX.lfa] * DEG, 0);   // toe down when the heel comes up
   }
 }
 
@@ -1752,15 +2167,10 @@ function buildScene(T, scriptImg) {
   [-28, 28].forEach(function (x) { const leg = new T.Mesh(new T.BoxGeometry(2.2, 22, 2.2), poleMat); leg.position.set(x, SIGN.y0 - 10, -1); signArm.add(leg); });
   scene.add(sign);
 
-  /* players */
-  const G = { sphere: new T.SphereGeometry(1, 16, 12), env: tEnv };
-  G.cyl = new T.CylinderGeometry(0.86, 1, 1, 10, 1, true); G.cyl.translate(0, 0.5, 0);
-  G.torso = new T.LatheGeometry([[0.5, -0.12], [0.56, 0.2], [0.6, 0.75], [0.7, 1.3], [0.76, 1.72], [0.63, 1.98], [0.3, 2.1], [0.2, 2.22]].map(function (p) { return new T.Vector2(p[0], p[1]); }), 18);
-  G.belt = new T.CylinderGeometry(1, 0.98, 1, 16);
-  G.dome = new T.SphereGeometry(1, 18, 9, 0, TAU, 0, Math.PI * 0.56);
-  const batter = makePlayer(T, G, { jersey: tex(jerseyCanvas(script, "#f7f5ee", "#1d2a5a", "1", "#e3231a")), sleeve: 0xf2f0e8, pants: 0xd9dbe2, sock: 0x1d2a5a, skin: 0xe0a070, hat: 0x1d2a5a, helmet: true });
+  /* players: the old-time slugger at the plate and the pitcher on the mound, in the same club colors */
+  const batter = makePlayer(T, tex, script, tEnv, { build: "slugger", skin: "#e3a77c", shade: "#cf8a64", hair: "#141010", mustache: true, num: "1" });
   batter.root.rotation.y = Math.PI / 2; scene.add(batter.root);
-  const pitcher = makePlayer(T, G, { jersey: tex(jerseyCanvas(script, "#ff6a2a", null, "", "#fff")), sleeve: 0xff6a2a, pants: 0xf2f0e8, sock: 0xff6a2a, skin: 0xc98a5a, hat: 0x0b1f5e, glove: true });
+  const pitcher = makePlayer(T, tex, script, tEnv, { build: "lean", skin: "#c98a5a", shade: "#b5744e", hair: "#1e140c", glove: true });
   pitcher.root.position.set(0, MOUND_H, MOUND_Z); scene.add(pitcher.root);
   const batGeo = new T.LatheGeometry([[0, 0], [0.13, 0.01], [0.13, 0.09], [0.07, 0.14], [0.066, 1.0], [0.1, 1.7], [0.155, 2.25], [0.16, 2.85], [0.12, 2.98], [0, 3.02]].map(function (p) { return new T.Vector2(p[0], p[1]); }), 12);
   const bat = new T.Mesh(batGeo, new T.MeshPhongMaterial({ color: 0xd9a05a, specular: 0xffffff, shininess: 70, envMap: tEnv, combine: T.AddOperation, reflectivity: 0.08 }));
@@ -1783,7 +2193,7 @@ function buildScene(T, scriptImg) {
   const ballShadow = add(new T.Mesh(unit, shadowMat.clone())); ballShadow.material._order = 4; ballShadow.renderOrder = 4;
 
   // where the pitcher lets go: his throwing hand at the release pose
-  applyPose(pitcher, PIT_POSES[3]);
+  applyPose(pitcher, PIT_POSES[PIT_RELEASE]);
   pitcher.root.updateMatrixWorld(true);
   const rel = new T.Vector3(); pitcher.arm[1].end.getWorldPosition(rel);
 
@@ -1867,6 +2277,67 @@ function toScreen(x, y, z) {
   return { x: (R.v.x * 0.5 + 0.5) * W, y: (-R.v.y * 0.5 + 0.5) * H, ok: R.v.z > -1 && R.v.z < 1 };
 }
 
+/* ---------------- The batter's routine ---------------- */
+const bLast = pose({}), bSnap = pose({});
+const B_SWAG_OUT = pose({ phi: 108 }, B_SWAG);             // the same rest, reached the long way round after a swing
+// Like mixPose, but the bat's heading takes the short way round.
+function mixPoseA(a, b, u, out) {
+  const pa = a[PX.phi];
+  let dp = b[PX.phi] - pa;
+  dp -= Math.round(dp / 360) * 360;
+  mixPose(a, b, u, out);
+  out[PX.phi] = pa + dp * u;
+  return out;
+}
+// Bat on the shoulder, hand on the hip. kind 1 doffs the helmet to the stands behind the plate,
+// kind 0 just touches the brim. tau: seconds into it.
+function swagPose(tau, kind, out) {
+  let turn, hand, lift;
+  if (kind) {
+    turn = sstep(0, 0.2, tau) * (1 - sstep(0.6, 0.86, tau));
+    hand = sstep(0.02, 0.2, tau) * (1 - sstep(0.6, 0.8, tau));
+    lift = sstep(0.18, 0.34, tau) * (1 - sstep(0.46, 0.62, tau));
+  } else {
+    turn = 0.25 * sstep(0, 0.15, tau) * (1 - sstep(0.3, 0.5, tau));
+    hand = sstep(0, 0.16, tau) * (1 - sstep(0.34, 0.5, tau));
+    lift = 0.22 * sstep(0.12, 0.22, tau) * (1 - sstep(0.24, 0.36, tau));
+  }
+  mixPose(B_SWAG, B_LOOK, turn, out);
+  out[PX.brim] = hand; out[PX.doff] = lift; out[PX.nod] += lift * 12;
+  return out;
+}
+function batterPose(idle, calm, out) {
+  const ph = S.phase;
+  let wag = 0;
+  if (idle) swagPose((idleT % 8) - 3, 1, out);              // title and score card: he tips his helmet now and then
+  else if (ph === "ready" || ph === "windup") {
+    // the full doff for the first pitch and after a home run, a touch of the brim otherwise, then into the stance
+    if (ph === "ready") V.swagKind = S.thrown === 0 || S.streak > 0 ? 1 : 0;
+    const tau = ph === "ready" ? S.pt : 0.4 + S.pt, settle = V.swagKind ? sstep(0.62, 1.08, tau) : sstep(0.4, 0.95, tau);
+    mixPose(swagPose(tau, V.swagKind, poseC), B_STANCE, settle, out);
+    wag = settle;
+  } else if (S.swing < 0 && ph === "pitch" && S.pitch) {    // the leg kick and stride, timed to the pitch
+    const u = S.pitch.t / S.pitch.T;
+    poseAt(LOAD_KEYS, LOAD_POSES, u, out);
+    wag = 1 - sstep(0.05, 0.25, u);
+  } else if (S.swing >= 0 && S.pitch) {                     // the swing, from wherever he was when he let it go
+    if (V.swingId !== S.thrown || !(S.swing >= V.swingLast)) { V.swingId = S.thrown; V.preU = clamp((S.pitch.t - S.swing) / S.pitch.T, 0, 1); }
+    V.swingLast = S.swing;
+    SWING_POSES[0] = poseAt(LOAD_KEYS, LOAD_POSES, V.preU, poseC);
+    poseAt(SWING_KEYS, SWING_POSES, S.swing, out);
+    const r = sstep(0.62, 1.1, S.swing);
+    if (r > 0) mixPose(out, B_SWAG_OUT, r, out);
+  } else {                                                  // took the pitch: back out of the stride
+    poseAt(LOAD_KEYS, LOAD_POSES, 1, poseC);
+    mixPose(poseC, B_SWAG, sstep(0.05, 0.5, S.pt), out);
+  }
+  if (!calm) {
+    out[PX.phi] += Math.sin(R.clock * 3) * 7 * wag; out[PX.el] += Math.sin(R.clock * 1.7) * 4 * wag;
+    out[PX.y] += Math.sin(R.clock * 2.4) * 0.025 * Math.max(wag, idle ? 1 : 0);
+  }
+  return out;
+}
+
 /* ---------------- Game state -> meshes ---------------- */
 function syncScene(state, fdt) {
   const idle = state === "title" || state === "over";
@@ -1892,32 +2363,33 @@ function syncScene(state, fdt) {
   R.signArm.position.z = -(fence(V.signA) + SIGN.k);
   R.signBox.rotation.x = calm ? 0 : Math.sin(R.clock * 26) * 0.2 * V.signHit;
 
-  /* pitcher */
+  /* pitcher: k runs through the windup to the release at 1, then the follow through */
   let k = -1;
   if (!idle) {
     if (ph === "windup") k = S.pt / 0.8;
-    else if (ph === "pitch" && S.pitch) k = 1 + S.pitch.t / 0.33;
-    else if (ph === "contact") k = 1.6;
+    else if (ph === "pitch" && S.pitch) k = 1 + S.pitch.t / 0.4;
+    else if (ph === "contact" || ph === "flight") k = V.pk + fdt / 0.4;
   }
-  if (k >= 0) { V.pk = k; V.pb = Math.min(1, V.pb + fdt * 12); } else V.pb = Math.max(0, V.pb - fdt * 2.6);
+  if (k >= 0) { V.pk = k; V.pb = Math.min(1, V.pb + fdt * 12); } else V.pb = Math.max(0, V.pb - fdt * 2.2);
   poseAt(PIT_KEYS, PIT_POSES, V.pk, poseA);
-  mixPose(PIT_POSES[0], poseA, V.pb * V.pb * (3 - 2 * V.pb), poseB);
-  if (!calm) poseB[1] += Math.sin(R.clock * 2.1) * 0.02 * (1 - V.pb);
+  mixPose(P_SET, poseA, V.pb * V.pb * (3 - 2 * V.pb), poseB);
+  if (!calm) { const br = Math.sin(R.clock * 2.1) * 0.025 * (1 - V.pb); poseB[PX.y] += br; poseB[PX.ly] += br * 1.4; poseB[PX.ry] += br * 1.4; }
   applyPose(R.pitcher, poseB);
 
   /* batter */
-  let s = -1;
-  if (!idle && S.swing >= 0) s = Math.min(1, S.swing / 0.13);
-  if (s >= 0) { V.bs = s; V.bb = 1; } else V.bb = Math.max(0, V.bb - fdt * 3.2);
-  poseAt(BAT_KEYS, BAT_POSES, V.bs, poseA);
-  const bbk = V.bb * V.bb * (3 - 2 * V.bb);
-  mixPose(BAT_POSES[0], poseA, bbk, poseB);
-  if (!calm) { poseB[20] += Math.sin(R.clock * 3) * 3 * (1 - bbk); poseB[19] += Math.sin(R.clock * 1.7) * 4 * (1 - bbk); poseB[1] += Math.sin(R.clock * 2.4) * 0.025 * (1 - bbk); }
-  const phi = poseB[19] * DEG, el = poseB[20] * DEG, bdx = Math.sin(phi) * Math.cos(el), bdy = Math.sin(el), bdz = Math.cos(phi) * Math.cos(el);
-  poseB[9] = poseB[6] + bdx * 0.3; poseB[10] = poseB[7] + bdy * 0.3; poseB[11] = poseB[8] + bdz * 0.3;   // top hand, up the handle
+  batterPose(idle, calm, poseB);
+  const bKey = idle ? "idle" : ph === "ready" ? "ready" : "go";
+  if (bKey !== V.bKey) {                                    // a cut in his routine: ease over from where he was
+    if (V.bKey && bKey !== "go") { mixPose(bLast, bLast, 0, bSnap); V.bFade = 1; }
+    V.bKey = bKey;
+  }
+  if (V.bFade > 0) { V.bFade = Math.max(0, V.bFade - fdt / 0.25); mixPoseA(poseB, bSnap, sstep(0, 1, V.bFade), poseB); }
+  mixPose(poseB, poseB, 0, bLast);
+  const phi = poseB[PX.phi] * DEG, el = poseB[PX.el] * DEG, bdx = Math.sin(phi) * Math.cos(el), bdy = Math.sin(el), bdz = Math.cos(phi) * Math.cos(el);
+  poseB[PX.rx] = poseB[PX.lx] + bdx * 0.3; poseB[PX.ry] = poseB[PX.ly] + bdy * 0.3; poseB[PX.rz] = poseB[PX.lz] + bdz * 0.3;   // top hand, up the handle
   applyPose(R.batter, poseB);
   TV.d.set(bdx, bdy, bdz);
-  R.bat.position.set(poseB[6] - bdx * 0.32, poseB[7] - bdy * 0.32, poseB[8] - bdz * 0.32);
+  R.bat.position.set(poseB[PX.lx] - bdx * 0.32, poseB[PX.ly] - bdy * 0.32, poseB[PX.lz] - bdz * 0.32);
   R.bat.quaternion.setFromUnitVectors(TV.up, TV.d);
   const st = idle ? 0 : S.stance;
   R.batter.root.position.set(BAT_X + st * 1.0, 0, BAT_Z);
