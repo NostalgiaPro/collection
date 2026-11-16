@@ -368,55 +368,238 @@ function fx(what, r, short) {
   if (list.length) ledPlay(list);
 }
 
-/* ---------------- Sound: the house band and the stingers ----------------
+/* ---------------- Sound: the house tune and the stingers ----------------
    The shell still plays every sound effect the 2D game had, exactly when it did. On top of that the game brings
-   its own small synth: an original sixteen-bar loop in F (chip lead, square bass, a running arpeggio, drums) and a
-   handful of stingers for the big moments. All of it is made in code with the Web Audio API, no audio files. It
-   starts only after the first tap or key press, goes quiet with the shell's mute button (the same
-   "npArcade.muted" setting), has its own remembered MUSIC ON / OFF switch, and rolls none of the game's dice. */
+   its own small synth: an original looping tune (startMusic below) and a handful of stingers for the big moments.
+   All of it is made in code with the Web Audio API, no audio files. It starts only after the first tap or key press,
+   goes quiet with the shell's mute button (the same "npArcade.muted" setting), has its own remembered MUSIC ON / OFF
+   switch, and rolls none of the game's dice. */
 const MUSIC_VOL = 0.16, SFX_VOL = 0.2;
-const BPM = 132, STEP = 60 / BPM / 4, SONG_STEPS = 256;    // sixteen bars of sixteenth notes, about 29 seconds
 const MUSIC_KEY = "npArcade.music";
-const AHEAD = 0.6;
-// bass note, then the three notes the arpeggio walks (MIDI numbers)
-const CHORDS = { F: [41, 65, 69, 72], C: [36, 64, 67, 72], Dm: [38, 62, 65, 69], Bb: [34, 62, 65, 70], Gm: [43, 62, 67, 70], Am: [45, 64, 69, 72] };
-// one chord per bar
-const PROG = "F C Dm Bb F C Bb C Dm Bb F C Gm Bb C C".split(" ");
-// the tune, a bar a line: step in the bar, note (b = flat), length in steps
-const LEAD_BARS = [
-  "0C5-2 2F5-2 4A5-3 7G5-1 8F5-2 10A5-2 12C6-4",
-  "0E5-2 2G5-2 4C6-3 7Bb5-1 8A5-2 10G5-2 12E5-4",
-  "0F5-2 2A5-2 4D6-4 8C6-2 10A5-2 12F5-2 14A5-2",
-  "0Bb5-3 3A5-1 4G5-2 6F5-2 8D5-4 12F5-2 14G5-2",
-  "0A5-1 1A5-1 2C6-2 4A5-2 6F5-2 8G5-1 9A5-1 10G5-2 12F5-4",
-  "0G5-2 2E5-2 4C5-2 6E5-2 8G5-3 11A5-1 12Bb5-4",
-  "0D6-2 2C6-2 4Bb5-2 6A5-2 8G5-2 10F5-2 12D5-2 14F5-2",
-  "0E5-4 4G5-2 6C6-2 8E6-6 14C6-2",
-  "0D5-2 3D5-1 4F5-2 6A5-2 8D6-3 11C6-1 12A5-4",
-  "0Bb5-2 3Bb5-1 4D6-2 6F6-2 8D6-3 11C6-1 12Bb5-4",
-  "0A5-2 2C6-2 4F6-4 8E6-2 10C6-2 12A5-4",
-  "0G5-2 2Bb5-2 4C6-2 6E6-2 8G6-4 12E6-2 14C6-2",
-  "0D6-3 3Bb5-1 4G5-2 6Bb5-2 8D6-2 10G6-2 12F6-2 14D6-2",
-  "0F6-3 3D6-1 4Bb5-2 6D6-2 8F6-2 10D6-2 12C6-4",
-  "0C6-1 1D6-1 2E6-2 4G6-2 6E6-2 8C6-2 10G5-2 12E5-2 14G5-2",
-  "0C6-2 2E6-2 4G6-2 6C7-2 8Bb6-2 10G6-2 12E6-2 14C6-2"
-];
 function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
-const LEAD = (function () {
-  const out = new Array(SONG_STEPS).fill(null), semis = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
-  LEAD_BARS.forEach(function (bar, b) {
-    bar.split(" ").forEach(function (tok) {
-      const m = /^(\d+)([A-G])(b?)(\d)-(\d+)$/.exec(tok);
-      if (m) out[b * 16 + Number(m[1])] = [12 * (Number(m[4]) + 1) + semis[m[2]] - (m[3] ? 1 : 0), Number(m[5])];
+
+/* The house tune: "Ticket Rush", an original chiptune loop in F major at 144 BPM. A two-bar fanfare plays once,
+   then a 32-bar loop (about 53 seconds) runs through four sections so it never sits on one phrase for long:
+     A    the hook on a 25% pulse lead, a bouncing octave bass, a running arpeggio and a backbeat
+     A2   the hook again, then it turns off through Gm and Am and climbs to a half cadence
+     B    the lift: four on the floor, claps, sixteenth hats, the lead doubled an octave up, a soft pad, an Eb turn
+     R    the breakdown: half-time drums, long lead notes with vibrato over a triangle arpeggio, then a riser and a
+          snare roll that throw it back to the top
+   Self-contained: it knows nothing about the game, so it can be lifted out whole (an arcade radio, a jukebox).
+   startMusic(ctx, dest) starts it on any audio context, into any node, and returns stop(). stop() fades it out and
+   returns the step it got to; pass that back as opts.step to pick the tune up where it left off. opts.delay holds the
+   first note back that many seconds. opts.ahead (seconds) schedules that much in one go and nothing after it, for
+   rendering offline. */
+function startMusic(ctx, dest, opts) {
+  opts = opts || {};
+  const BPM = 144, STEP = 60 / BPM / 4, AHEAD = opts.ahead || 0.5;
+  const SEMI = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+  function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  // bass root, then the three chord notes the arpeggio and the pad use (MIDI numbers)
+  const CH = { F: [41, 65, 69, 72], C: [36, 64, 67, 72], Dm: [38, 62, 65, 69], Bb: [34, 62, 65, 70],
+               Gm: [43, 62, 67, 70], Am: [45, 64, 69, 72], Eb: [39, 63, 67, 70] };
+  // The song, a bar a line: section, chord (two names = half a bar each), and the lead (step in the bar, note
+  // with b for flat, length in steps). Section I plays once; the loop runs from the first A bar to the end.
+  const SONG = [
+    ["I", "F",    "0C5-2 2F5-2 4A5-2 6C6-2 8F6-6"],
+    ["I", "C",    "0E6-2 2D6-2 4C6-2 6Bb5-2 8G5-2 10A5-2 12Bb5-2 14B5-2"],
+    ["A", "F",    "0C6-2 2A5-1 3C6-3 6D6-2 8C6-2 10A5-2 12F5-4"],
+    ["A", "C",    "0G5-2 2E5-1 3G5-3 6A5-2 8G5-2 10E5-2 12C5-4"],
+    ["A", "Dm",   "0D5-2 2F5-1 3A5-3 6D6-2 8C6-2 10A5-2 12F5-2 14A5-2"],
+    ["A", "Bb",   "0Bb5-3 3A5-3 6G5-2 8F5-2 10D5-2 12F5-4"],
+    ["A", "F",    "0C6-2 2A5-1 3C6-3 6D6-2 8F6-3 11E6-1 12C6-4"],
+    ["A", "C",    "0E6-2 2D6-1 3C6-3 6G5-2 8C6-2 10D6-2 12E6-4"],
+    ["A", "Bb C", "0D6-2 2C6-2 4Bb5-2 6A5-2 8G5-2 10A5-2 12Bb5-2 14E5-2"],
+    ["A", "F",    "0F5-6 6E5-1 7F5-1 8A5-2 10C6-2 12F6-2"],
+    ["A2", "F",   "0C6-2 2A5-1 3C6-3 6D6-2 8C6-2 10A5-2 12F5-4"],
+    ["A2", "C",   "0G5-2 2E5-1 3G5-3 6A5-2 8G5-2 10E5-2 12C5-4"],
+    ["A2", "Dm",  "0D5-2 2F5-1 3A5-3 6D6-2 8C6-2 10A5-2 12F5-2 14A5-2"],
+    ["A2", "Bb",  "0Bb5-3 3A5-3 6G5-2 8F5-2 10D5-2 12F5-2 14G5-2"],
+    ["A2", "Gm",  "0G5-2 2Bb5-1 3D6-3 6G6-2 8F6-2 10D6-2 12Bb5-4"],
+    ["A2", "Am",  "0A5-2 2C6-1 3E6-3 6A6-2 8G6-2 10E6-2 12C6-4"],
+    ["A2", "Bb",  "0D6-3 3C6-3 6Bb5-2 8A5-2 10Bb5-2 12C6-2 14D6-2"],
+    ["A2", "C",   "0E6-4 4G6-4 8E6-2 10C6-2 12D6-2 14E6-2"],
+    ["B", "Bb",   "0F6-1 1F6-1 2D6-2 4F6-2 6G6-2 8F6-3 11D6-1 12Bb5-4"],
+    ["B", "C",    "0E6-1 1E6-1 2C6-2 4E6-2 6G6-2 8E6-3 11C6-1 12G5-4"],
+    ["B", "Am",   "0E6-2 2C6-2 4A5-2 6C6-2 8E6-2 10A6-2 12G6-2 14E6-2"],
+    ["B", "Dm",   "0F6-4 4E6-2 6D6-2 8A5-4 12D6-2 14E6-2"],
+    ["B", "Bb",   "0F6-1 1F6-1 2D6-2 4F6-2 6G6-2 8A6-3 11G6-1 12F6-4"],
+    ["B", "C",    "0G6-1 1G6-1 2E6-2 4G6-2 6Bb6-2 8A6-2 10G6-2 12E6-4"],
+    ["B", "Eb",   "0G6-2 2Eb6-2 4Bb5-2 6Eb6-2 8G6-2 10Bb6-2 12G6-2 14Eb6-2"],
+    ["B", "C",    "0E6-2 2F6-2 4G6-6 10E6-2 12C6-2 14Bb5-2"],
+    ["R", "Dm",   "0A5-6 6F5-2 8D6-8"],
+    ["R", "Bb",   "0D6-4 4C6-4 8Bb5-6 14A5-2"],
+    ["R", "F",    "0A5-6 6C6-2 8F6-8"],
+    ["R", "C",    "0E6-6 6D6-2 8C6-4 12G5-4"],
+    ["R", "Dm",   "0A5-4 4D6-4 8F6-4 12E6-4"],
+    ["R", "Bb",   "0D6-6 6F6-2 8Bb6-8"],
+    ["R", "Gm",   "0A6-4 4G6-4 8F6-4 12D6-4"],
+    ["R", "C",    "0E6-2 2E6-2 4F6-2 6F6-2 8G6-2 10G6-2 12A6-1 13Bb6-1 14B6-1 15C7-1"]
+  ];
+  const N = SONG.length * 16, LOOP = 2 * 16;
+  const LEAD = new Array(N).fill(null), POS = [];             // POS: which bar of its section each bar is
+  SONG.forEach(function (row, b) {
+    POS.push(b && SONG[b - 1][0] === row[0] ? POS[b - 1] + 1 : 0);
+    row[2].split(" ").forEach(function (tok) {
+      const m = /^(\d+)([A-G])([#b]?)(\d)-(\d+)$/.exec(tok);
+      if (m) LEAD[b * 16 + Number(m[1])] = [12 * (Number(m[4]) + 1) + SEMI[m[2]] + (m[3] === "#" ? 1 : m[3] === "b" ? -1 : 0), Number(m[5])];
     });
   });
-  return out;
-})();
-const ARP = [0, 1, 2, 3, 2, 1, 0, 1];                      // which chord tone each sixteenth plays (3 = root an octave up)
-const BASS_HITS = { 0: 0, 3: 0, 6: 12, 8: 0, 11: 0, 14: 12 };   // step in the bar -> octave jump
+  const GROOVE = { 0: 0, 3: 12, 6: 0, 8: 0, 10: 12, 12: 7, 14: 12 };   // the bouncing bass: step in the bar -> semitones up
+  const ARP_A = [0, 1, 2, 1], ARP_B = [0, 1, 2, 3], ARP_R = [0, 2, 1, 3, 2, 1, 3, 2];   // 3 = the bottom note an octave up
+
+  // the rig: every voice ends up in out, which is all stop() has to fade
+  const out = ctx.createGain(); out.connect(dest);
+  function filt(type, f, q, to) { const n = ctx.createBiquadFilter(); n.type = type; n.frequency.value = f; n.Q.value = q; n.connect(to); return n; }
+  const leadBus = filt("lowpass", 4200, 0.7, out), bassBus = filt("lowpass", 950, 1.4, out);
+  const arpBus = filt("lowpass", 2600, 0.7, out), padBus = filt("lowpass", 1500, 0.8, out);
+  const send = ctx.createGain(), echo = ctx.createDelay(1), back = ctx.createGain(), wet = filt("lowpass", 2200, 0.7, out);
+  send.gain.value = 0.24; echo.delayTime.value = STEP * 3; back.gain.value = 0.3;    // a dotted-eighth echo
+  leadBus.connect(send); arpBus.connect(send); send.connect(echo); echo.connect(back); back.connect(echo); echo.connect(wet);
+  // chip pulse waves (the 50% one is the plain square)
+  function pulse(duty) {
+    const re = new Float32Array(32), im = new Float32Array(32);
+    for (let k = 1; k < 32; k++) re[k] = 2 * Math.sin(Math.PI * k * duty) / (Math.PI * k);
+    return ctx.createPeriodicWave(re, im);
+  }
+  const P25 = pulse(0.25), P12 = pulse(0.125);
+  let seed = 0x5EEDC0DE;
+  function rnd() { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return (seed >>> 0) / 4294967296; }
+  const nb = ctx.createBuffer(1, Math.floor(ctx.sampleRate), ctx.sampleRate), nd = nb.getChannelData(0);
+  for (let i = 0; i < nd.length; i++) nd[i] = rnd() * 2 - 1;
+
+  // One note: a quick attack, held for part of its length, then it dies away. det detunes in cents, vib adds a
+  // vibrato that eases in (depth in cents), f1 slides the pitch.
+  function tone(to, wave, f, t, dur, vol, hold, det, vib, f1) {
+    const o = ctx.createOscillator(), g = ctx.createGain(), h = t + Math.max(0.008, dur * (hold == null ? 0.5 : hold));
+    if (typeof wave === "string") o.type = wave; else o.setPeriodicWave(wave);
+    o.frequency.setValueAtTime(f, t);
+    if (f1) o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
+    if (det) o.detune.setValueAtTime(det, t);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.005);
+    g.gain.setValueAtTime(vol, h); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(to); o.start(t); o.stop(t + dur + 0.03);
+    if (vib) {
+      const l = ctx.createOscillator(), lg = ctx.createGain();
+      l.frequency.value = 5.6;
+      lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(vib, t + Math.min(0.3, dur * 0.6));
+      l.connect(lg); lg.connect(o.detune); l.start(t); l.stop(t + dur + 0.03);
+    }
+  }
+  // A soft chord note for the pad: two saws a few cents apart, slow in and slow out.
+  function pad(f, t, dur, vol) {
+    [-7, 7].forEach(function (det) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = "sawtooth"; o.frequency.setValueAtTime(f, t); o.detune.setValueAtTime(det, t);
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.09);
+      g.gain.setValueAtTime(vol, t + Math.max(0.1, dur - 0.12)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(padBus); o.start(t); o.stop(t + dur + 0.03);
+    });
+  }
+  // A burst of filtered noise. f1 sweeps the filter, atk is how long it takes to swell.
+  function noise(t, dur, vol, type, f, q, f1, atk) {
+    const s = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain();
+    s.buffer = nb; s.loop = true;
+    fl.type = type; fl.frequency.setValueAtTime(f, t); fl.Q.value = q || 0.7;
+    if (f1) fl.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + (atk || 0.003));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(fl); fl.connect(g); g.connect(out); s.start(t, rnd() * 0.5); s.stop(t + dur + 0.02);
+  }
+  // the kit
+  function kick(t, v) { tone(out, "sine", 160, t, 0.2, 0.62 * v, 0.06, 0, 0, 42); noise(t, 0.012, 0.07 * v, "highpass", 3000); }
+  function snare(t, v) { noise(t, 0.14, 0.28 * v, "bandpass", 2000, 0.6); tone(out, "triangle", 220, t, 0.07, 0.17 * v, 0.1, 0, 0, 140); }
+  function clap(t) { [0, 0.011, 0.022].forEach(function (o) { noise(t + o, o < 0.02 ? 0.02 : 0.12, 0.13, "bandpass", 1300, 1.4); }); }
+  function hat(t, v, open) { noise(t, open ? 0.11 : 0.03, (open ? 0.08 : 0.045) * v, "highpass", open ? 6500 : 8500); }
+  function crash(t) { noise(t, 1.1, 0.11, "highpass", 5200, 0.5); noise(t, 0.8, 0.05, "bandpass", 3200, 0.4); }
+  function tom(t, f) { tone(out, "sine", f, t, 0.18, 0.42, 0.1, 0, 0, f * 0.55); }
+
+  // everything that sounds on sixteenth-note i of the song, starting at time t
+  function playStep(i, t) {
+    const bar = i >> 4, s = i & 15, row = SONG[bar], sec = row[0], k = POS[bar];
+    const names = row[1].split(" "), ch = CH[names.length > 1 && s >= 8 ? names[1] : names[0]];
+    const change = s === 0 || (names.length > 1 && s === 8), last = sec === "I" ? k === 1 : k === 7;
+    // lead
+    const n = LEAD[i];
+    if (n) {
+      const f = mtof(n[0]), d = n[1] * STEP * 0.92, vib = n[1] >= 4 ? 16 : 0;
+      if (sec === "B") { tone(leadBus, P25, f, t, d, 0.12, 0.7, 0, vib); tone(leadBus, P12, f * 2, t, d, 0.035, 0.5); }
+      else if (sec === "R") { tone(leadBus, "square", f, t, d, 0.075, 0.8, 0, vib); tone(leadBus, "triangle", f / 2, t, d, 0.1, 0.8); }
+      else { tone(leadBus, P25, f, t, d, 0.12, 0.7, 0, vib); tone(leadBus, P25, f, t, d, 0.055, 0.7, 9); }
+    }
+    // bass
+    const root = ch[0] + 12;
+    let bn = null, bl = 1.6;
+    if (sec === "I") { if (k === 0 ? s % 4 === 0 : !(s & 1)) bn = root + (k === 1 && (s >> 1) & 1 ? 12 : 0); }
+    else if (sec === "B" || (sec === "R" && k >= 6)) { if (!(s & 1)) bn = root + ((s >> 1) & 1 ? 12 : 0); }
+    else if (sec === "R" && k < 4) {
+      if (s === 0) { bn = root; bl = 7.5; } else if (s === 8) { bn = root; bl = 5.5; } else if (s === 14) { bn = root + 12; bl = 2; }
+    } else if (s in GROOVE) bn = root + GROOVE[s];
+    if (bn != null) { const f = mtof(bn), d = STEP * bl; tone(bassBus, "square", f, t, d, 0.1, 0.6); tone(bassBus, "triangle", f, t, d, 0.14, 0.6); }
+    // arpeggio
+    if (sec !== "I" || k === 1) {
+      let ai, oct = 0, vol = 0.026, wave = "square";
+      if (sec === "B") { ai = ARP_B[s & 3]; oct = 12; vol = 0.022; }
+      else if (sec === "R") { ai = ARP_R[s & 7]; wave = "triangle"; vol = 0.065; oct = k >= 4 ? 12 : 0; }
+      else { ai = ARP_A[s & 3]; oct = sec === "A2" && s >= 8 ? 12 : 0; }
+      tone(arpBus, wave, mtof((ai === 3 ? ch[1] + 12 : ch[1 + ai]) + oct), t, STEP * 0.85, vol, 0.3);
+    }
+    // pad, under the lift and the breakdown
+    if ((sec === "B" || sec === "R") && change) {
+      const dur = (names.length > 1 ? 8 : 16) * STEP;
+      for (let j = 1; j < 4; j++) pad(mtof(ch[j]), t, dur, sec === "R" ? 0.022 : 0.016);
+    }
+    // drums
+    if (s === 0 && k === 0 && sec !== "I") crash(t);
+    if (sec === "I") {
+      if (s % 4 === 0) kick(t, k === 0 ? 0.8 : 1);
+      if (!(s & 1)) hat(t, 0.6, false);
+      if (k === 1 && s >= 8) snare(t, 0.35 + 0.08 * (s - 8));
+    } else if (sec === "R" && k < 4) {                       // half time
+      if (s === 0) kick(t, 1);
+      if (s === 8) snare(t, 0.7);
+      if (s % 4 === 2) hat(t, 0.5, false);
+    } else if (sec === "R" && k === 7) {                     // the roll back to the top
+      if (s % 4 === 0) kick(t, 1);
+      snare(t, 0.3 + 0.045 * s);
+    } else {
+      const four = sec === "B" || sec === "R" && k === 6;
+      if (four ? s % 4 === 0 : s === 0 || s === 8 || (k & 1 && s === 11) || (sec === "A2" && s === 6)) kick(t, 1);
+      if ((s === 4 || s === 12) && !(last && s === 12)) { snare(t, 1); if (sec === "B") clap(t); }
+      if (sec === "B") hat(t, s % 4 === 2 ? 1 : 0.55, s % 4 === 2);
+      else if (!(s & 1)) hat(t, 0.8, s === 14);
+      if (last && s >= 12) tom(t, [220, 185, 156, 131][s - 12]);
+    }
+    if (sec === "R" && k === 6 && s === 0) noise(t, STEP * 32, 0.07, "bandpass", 300, 1.2, 7000, STEP * 30);   // the riser
+  }
+
+  // The scheduler: keep the next half second queued. pos counts every step played; song() maps it into the song,
+  // where the fanfare plays once and the rest loops.
+  function song(p) { return p < N ? p : LOOP + (p - LOOP) % (N - LOOP); }
+  const start = opts.step >= 0 && opts.step < N ? opts.step | 0 : 0;
+  let pos = start, nextT = ctx.currentTime + (opts.delay == null ? 0.05 : opts.delay), stopped = false;
+  function tick() {
+    if (stopped) return;
+    const now = ctx.currentTime;
+    if (nextT < now) nextT = now + 0.03;                    // only after a stall longer than the queue
+    while (nextT < now + AHEAD) { playStep(song(pos), nextT); pos++; nextT += STEP; }
+  }
+  tick();
+  const timer = opts.ahead ? 0 : setInterval(tick, 90);
+  let at = start;
+  return function stop() {
+    if (stopped) return at;
+    stopped = true; clearInterval(timer);
+    const now = ctx.currentTime;
+    at = song(Math.max(start, pos - Math.max(0, Math.ceil((nextT - now) / STEP))));   // the step that was sounding
+    out.gain.cancelScheduledValues(now); out.gain.setValueAtTime(out.gain.value, now); out.gain.linearRampToValueAtTime(0, now + 0.12);
+    setTimeout(function () { try { out.disconnect(); } catch (e) { /* already gone */ } }, 600);
+    return at;
+  };
+}
 
 const Juke = (function () {
-  let live = null, dead = false, muted = false, going = false, fresh = true, step = 0, nextT = 0, timer = 0;
+  let live = null, dead = false, muted = false, going = false, fresh = true, timer = 0, stopMusic = null, songAt = 0;
   let musicOn = (function () { try { return localStorage.getItem(MUSIC_KEY) !== "0"; } catch (e) { return true; } })();
   const buttons = [];
 
@@ -426,17 +609,10 @@ const Juke = (function () {
     const comp = c.createDynamicsCompressor();
     comp.threshold.value = -14; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.2;
     A.out.connect(comp); comp.connect(c.destination);
-    A.music = c.createGain(); A.music.gain.value = 0;
+    A.music = c.createGain(); A.music.gain.value = 0;       // the tune plays into this; the fades in and out live here
     A.duck = c.createGain();                                // the band steps back for a jackpot
     A.music.connect(A.duck); A.duck.connect(A.out);
     A.sfx = c.createGain(); A.sfx.gain.value = SFX_VOL; A.sfx.connect(A.out);
-    function filter(type, f, q, dest) { const n = c.createBiquadFilter(); n.type = type; n.frequency.value = f; n.Q.value = q; n.connect(dest); return n; }
-    A.lead = filter("lowpass", 3600, 0.8, A.music);
-    A.bass = filter("lowpass", 1100, 1.4, A.music);
-    A.arp = filter("bandpass", 1800, 0.5, A.music);
-    const send = c.createGain(), echo = c.createDelay(1), back = c.createGain(), damp = filter("lowpass", 2200, 0.7, A.music);
-    send.gain.value = 0.28; echo.delayTime.value = STEP * 3; back.gain.value = 0.3;    // a dotted-eighth echo on the lead
-    A.lead.connect(send); send.connect(echo); echo.connect(back); back.connect(echo); echo.connect(damp);
     const len = Math.floor(c.sampleRate * 2);
     A.noise = c.createBuffer(1, len, c.sampleRate);
     const d = A.noise.getChannelData(0);
@@ -464,28 +640,6 @@ const Juke = (function () {
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     s.connect(f); f.connect(g); g.connect(dest);
     s.start(t, vrand() * 1.5); s.stop(t + dur + 0.05);
-  }
-
-  // The band: everything that sounds on sixteenth-note i of the loop, starting at time t.
-  function playStep(A, i, t) {
-    const bar = i >> 4, s = i & 15, ch = CHORDS[PROG[bar]], second = bar >= 8, n = LEAD[i];
-    if (n) {
-      const f = mtof(n[0]), d = n[1] * STEP * 0.9;
-      osc(A, A.lead, "square", f, t, d, 0.15);
-      osc(A, A.lead, "square", f * 1.007, t, d, 0.07);       // a second voice a hair sharp: the chorused arcade lead
-    }
-    const ap = ARP[s & 7], an = ap === 3 ? ch[1] + 12 : ch[1 + ap];
-    osc(A, A.arp, "triangle", mtof(an + (second ? 12 : 0)), t, STEP * 0.85, 0.075, 0, 0.3);
-    if (s in BASS_HITS) osc(A, A.bass, "square", mtof(ch[0] + 12 + BASS_HITS[s]), t, STEP * 1.5, 0.15, 0, 0.6);
-    if (s === 0 || s === 8 || (second && (s === 4 || s === 12)) || s === 10 && bar % 2) osc(A, A.music, "sine", 160, t, 0.18, 0.62, 45, 0.06);
-    const fill = (bar === 7 || bar === 15) && s >= 12;
-    if (s === 4 || s === 12 || fill) {
-      const v = fill ? 0.5 + 0.12 * (s - 12) : 1;
-      hiss(A, A.music, t, 0.12, 0.3 * v, "bandpass", 2300, 0.7);
-      osc(A, A.music, "triangle", 230, t, 0.06, 0.18 * v, 150, 0.1);
-    }
-    if (s % 4 === 2) hiss(A, A.music, t, 0.09, 0.09, "highpass", 6500, 0.7);    // open hat on the off-beat
-    else if (!(s & 1)) hiss(A, A.music, t, 0.03, 0.045, "highpass", 8000, 0.7);
   }
 
   function duck(A, t, secs) {
@@ -541,11 +695,18 @@ const Juke = (function () {
         live = rig(new AC());
         muted = shellMuted();
         live.out.gain.value = muted ? 0 : 1;
-        if (!timer) timer = setInterval(pump, 120);         // keeps the band fed if the picture ever stalls
+        if (!timer) timer = setInterval(pump, 120);         // keeps the switches followed if the picture ever stalls
       }
       if (live.c.state !== "running") { const p = live.c.resume(); if (p && p.catch) p.catch(function () {}); }
     } catch (e) { live = null; dead = true; }
   }
+  // Stop the tune (if it is playing) and remember where it got to, so a resume picks it up from there.
+  function halt() {
+    if (!stopMusic) return;
+    try { songAt = stopMusic(); } catch (e) { /* sound is never worth a crash */ }
+    stopMusic = null;
+  }
+  // Called every frame: follow the mute button, and start or stop the tune with the game.
   function pump() {
     const A = live;
     if (!A || !window.Shell) return;
@@ -554,18 +715,18 @@ const Juke = (function () {
     const want = musicOn && !muted && c.state === "running" && Shell.state() === "playing";
     if (want && !going) {
       going = true;
-      nextT = Math.max(nextT, now + (fresh ? 0.42 : 0.08));  // a fresh game lets the shell's start jingle go first
+      const delay = fresh ? 0.42 : 0.08;                    // a fresh game lets the shell's start jingle go first
       A.music.gain.cancelScheduledValues(now);
-      if (fresh) { A.music.gain.setValueAtTime(0, now); A.music.gain.setTargetAtTime(MUSIC_VOL, nextT - 0.04, 0.012); }
+      if (fresh) { A.music.gain.setValueAtTime(0, now); A.music.gain.setTargetAtTime(MUSIC_VOL, now + delay - 0.04, 0.012); }
       else A.music.gain.setTargetAtTime(MUSIC_VOL, now, 0.03);
+      halt();
+      try { stopMusic = startMusic(c, A.music, { step: fresh ? 0 : songAt, delay: delay }); } catch (e) { stopMusic = null; }
       fresh = false;
     } else if (!want && going) {
       going = false;
       A.music.gain.cancelScheduledValues(now); A.music.gain.setTargetAtTime(0, now, 0.06);
+      halt();
     }
-    if (!going) return;
-    if (nextT < now) nextT = now + 0.03;
-    while (nextT < now + AHEAD) { playStep(A, step, nextT); step = (step + 1) % SONG_STEPS; nextT += STEP; }
   }
   function sfx(name, x, delay) {
     const A = live;
@@ -594,10 +755,15 @@ const Juke = (function () {
   }
   return {
     unlock: unlock, pump: pump, sfx: sfx, button: button,
-    newGame: function () { unlock(); step = 0; fresh = true; going = false; if (live) live.music.gain.setTargetAtTime(0, live.c.currentTime, 0.03); pump(); },
+    newGame: function () {
+      unlock(); halt(); songAt = 0; fresh = true; going = false;
+      if (live) live.music.gain.setTargetAtTime(0, live.c.currentTime, 0.03);
+      pump();
+    },
     toggleMusic: function () { unlock(); setMusic(!musicOn); },
-    peek: function () { return { made: !!live, state: live ? live.c.state : "none", going: going, step: step, muted: muted, musicOn: musicOn }; },
-    render: function (c, steps, t0) { const A = rig(c); A.music.gain.value = MUSIC_VOL; for (let i = 0; i < steps; i++) playStep(A, i % SONG_STEPS, (t0 || 0.05) + i * STEP); return A; },
+    peek: function () { return { made: !!live, state: live ? live.c.state : "none", going: going, playing: !!stopMusic, songAt: songAt, muted: muted, musicOn: musicOn }; },
+    // for checks: the tune on any context (an OfflineAudioContext, say), secs seconds of it queued in one go
+    render: function (c, secs, t0) { const A = rig(c); A.music.gain.value = MUSIC_VOL; A.stopMusic = startMusic(c, A.music, { delay: t0 == null ? 0.05 : t0, ahead: secs || 30 }); return A; },
     cue: cue
   };
 })();
@@ -1982,7 +2148,7 @@ function startGame() {
 // Hook for automated checks (no effect on play). The first four are the 2D game's.
 window.__ticketRoll = { S: function () { return S; }, roll: roll, landing: landing, settle: settle,
                         gfx: function () { return R; }, led: function () { return LED; }, view: function () { return V; },
-                        juke: Juke, boardPos: boardPos, lanePos: lanePos, cam: CAM, near: NEAR };
+                        juke: Juke, music: startMusic, boardPos: boardPos, lanePos: lanePos, cam: CAM, near: NEAR };
 
 (function boot() {
   const splash = makeSplash();
