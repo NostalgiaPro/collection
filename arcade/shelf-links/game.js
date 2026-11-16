@@ -273,6 +273,7 @@ function shoot(angle, power) {
   S.mode = "roll";
   S.rest = 0;
   Shell.sfx("hit");
+  Juke.sfx("putt", power);
 }
 
 function relLabel(d, strokes) {
@@ -298,17 +299,18 @@ function finishHole(sunk) {
   }
   if (!sunk) {
     Shell.flash("PICKED UP", "Max " + MAX_STROKES + " strokes. On to the next one.", "#8e93a2", 1300);
-    Shell.sfx("miss");
+    Shell.sfx("miss"); Juke.sfx("pickup");
     V.pick = 0.001;
   } else if (S.strokes === 1) {
     Shell.flash("ACE!", "Is it on the shelf? It is now.", "#ffd23f", 1800);
     if (window.Trophies) window.Trophies.unlock("sl-ace");
-    Shell.sfx("best"); Shell.sfx("crowd");
+    Shell.sfx("best"); Shell.sfx("crowd"); Juke.sfx("ace");
     burst(h.cup[0], h.cup[1], Shell.reduced ? 30 : 90);
     Shell.shake(4, 0.35); camShake(5, 0.4);
   } else {
     const col = d < 0 ? "#9bff3f" : d === 0 ? "#3ff0ff" : "#ff3fa4";
     Shell.flash(relLabel(d, S.strokes), S.strokes + (S.strokes === 1 ? " stroke" : " strokes"), col, 1200);
+    Juke.sfx(d < 0 ? "birdie" : d === 0 ? "par" : "bogey", d);
     if (d < 0) { Shell.sfx("score"); burst(h.cup[0], h.cup[1], Shell.reduced ? 10 : 30); }
   }
   if (window.Trophies && sunk) {
@@ -324,6 +326,7 @@ function nextHole() {
   if (S.hole >= HOLES.length - 1) {
     let total = 0;
     for (let i = 0; i < S.card.length; i++) total += S.card[i];
+    Juke.sfx("over", total - TOTAL_PAR);
     Shell.gameOver(total - TOTAL_PAR, { title: "ROUND OVER", html: scorecard(total),
       stats: { holes: S.card.length, total: total, rel: total - TOTAL_PAR, splashes: S.splashes, card: S.card.slice(), par: HOLES.map(function (x) { return x.par; }) } });
     return;
@@ -334,6 +337,7 @@ function nextHole() {
   S.mode = "slide";
   V.h = 16;                                                 // the ball is set down on the new tee
   Shell.sfx("whoosh");
+  Juke.sfx("next");
 }
 
 function scorecard(total) {
@@ -390,16 +394,16 @@ function update(dt) {
   // physics runs even at rest so moving pieces can nudge the ball
   const ev = advance(h, b, S.holeT, dt);
   if (b.impact) {
-    if (b.impact > 60) Shell.sfx("click");
+    if (b.impact > 60) { Shell.sfx("click"); Juke.sfx("knock", b.impact); }
     if (b.impact > 150 && V.h <= 0) V.vh = Math.min(62, b.impact * 0.11);   // a hard knock pops the ball off the felt (looks only)
     b.impact = 0;
   }
-  if (b.boosted) { if (!S.boostSnd) { Shell.sfx("boost"); S.boostSnd = true; } b.boosted = false; }
+  if (b.boosted) { if (!S.boostSnd) { Shell.sfx("boost"); Juke.sfx("boost"); S.boostSnd = true; } b.boosted = false; }
   else S.boostSnd = false;
 
   if (ev === "sunk") {
     b.vx = b.vy = 0; b.x = h.cup[0]; b.y = h.cup[1];
-    Shell.sfx("cup");
+    Shell.sfx("cup"); Juke.sfx("cup");
     finishHole(true);
     return;
   }
@@ -407,7 +411,7 @@ function update(dt) {
     if (ev === "water") {
       S.strokes++;
       S.splashes++;
-      Shell.sfx("splash");
+      Shell.sfx("splash"); Juke.sfx("splash");
       splash(b.x, b.y);
       Shell.flash("SPLASH", "Spilled soda. +1 stroke.", "#ff4b3e", 1000);
     }
@@ -532,6 +536,365 @@ function key(type, code, e) {
     }
   }
 }
+
+/* =====================================================================================
+   Sound
+   ===================================================================================== */
+const MUSIC_VOL = 0.16, SFX_VOL = 0.22;                    // turn the tune or the stingers up and down here
+const MUSIC_KEY = "npArcade.music", MUTE_KEY = "npArcade.muted";
+
+/* The house tune: "Back Nine Breeze", an original 16-bar loop in F major at 96 BPM with a lazy swing: a marimba
+   carrying the tune, a walking bass, soft electric piano comping on the off-beats, brushes and a shaker, and a
+   couple of birds over the course. Self-contained: it knows nothing about the game, so it can be lifted out
+   whole (a radio station, a jukebox). startMusic(ctx, dest) starts it on any audio context, into any node, and
+   returns stop(). stop() fades it out and returns the step it got to; pass that back as opts.step to pick the
+   tune up where it left off. opts.delay holds the downbeat back that many seconds. */
+function startMusic(ctx, dest, opts) {
+  opts = opts || {};
+  const BPM = 96, STEP = 60 / BPM / 4, SWING = STEP * 0.36, N = 16 * 16, AHEAD = 0.5;
+  const SEMI = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+  function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  function parse(bars) {
+    const out = new Array(N).fill(null);
+    bars.forEach(function (bar, b) {
+      bar.split(" ").forEach(function (tok) {
+        const m = /^(\d+)([A-G])([#b]?)(\d)-(\d+)$/.exec(tok);
+        if (m) out[b * 16 + Number(m[1])] = [12 * (Number(m[4]) + 1) + SEMI[m[2]] + (m[3] === "#" ? 1 : m[3] === "b" ? -1 : 0), Number(m[5])];
+      });
+    });
+    return out;
+  }
+  // bass root, then the three notes the piano comps with (MIDI numbers); one chord a bar. The third flag is minor.
+  const CH = { F: [41, 60, 65, 69, 0], Dm: [38, 62, 65, 69, 1], Gm: [43, 62, 67, 70, 1], C: [48, 60, 64, 67, 0], C7: [48, 58, 64, 67, 0],
+               Bb: [46, 62, 65, 70, 0], Bbm: [46, 61, 65, 70, 1], D7: [38, 60, 66, 69, 0] };
+  const PROG = "F Dm Gm C F Dm Gm C Bb Bbm F D7 Gm C7 F C7".split(" ");
+  const LEAD = parse([
+    "0A5-2 2C6-2 4A5-2 6F5-2 8G5-4 12A5-4",
+    "0F5-2 2A5-2 4D6-4 8C6-2 10A5-2 12F5-4",
+    "0G5-2 2Bb5-2 4D6-2 6Bb5-2 8A5-2 10G5-2 12F5-2 14E5-2",
+    "0G5-6 6E5-2 8C5-4 12E5-2 14G5-2",
+    "0A5-2 2C6-2 4F6-4 8E6-2 10C6-2 12A5-4",
+    "0D6-2 2C6-2 4A5-2 6F5-2 8A5-4 12D6-4",
+    "0Bb5-3 3A5-1 4G5-2 6D5-2 8E5-2 10G5-2 12Bb5-2 14C6-2",
+    "0C6-6 8E5-2 10G5-2 12C6-2",
+    "0D6-4 4F6-2 6D6-2 8Bb5-4 12F5-4",
+    "0Db6-4 4F6-2 6Db6-2 8Bb5-6 14Ab5-2",
+    "0C6-2 2A5-2 4F5-2 6A5-2 8C6-4 12F6-4",
+    "0F#5-2 2A5-2 4C6-2 6D6-2 8C6-4 12A5-4",
+    "0Bb5-2 2D6-2 4G6-4 8F6-2 10D6-2 12Bb5-4",
+    "0E6-2 2D6-2 4C6-2 6Bb5-2 8G5-4 12E5-4",
+    "0F5-2 2A5-2 4C6-2 6F6-2 8E6-2 10C6-2 12A5-4",
+    "0G5-4 4Bb5-4 8E6-4 12C6-4"
+  ]);
+
+  // the rig: every voice ends up in out, which is all stop() has to fade
+  const out = ctx.createGain(); out.connect(dest);
+  function filt(type, f, q, to) { const n = ctx.createBiquadFilter(); n.type = type; n.frequency.value = f; n.Q.value = q; n.connect(to); return n; }
+  const malletBus = filt("lowpass", 5000, 0.7, out), bassBus = filt("lowpass", 700, 1.1, out), keysBus = filt("lowpass", 2200, 0.7, out);
+  const send = ctx.createGain(), echo = ctx.createDelay(1), back = ctx.createGain(), wet = filt("lowpass", 2400, 0.7, out);
+  send.gain.value = 0.22; echo.delayTime.value = STEP * 3; back.gain.value = 0.28;
+  malletBus.connect(send); send.connect(echo); echo.connect(back); back.connect(echo); echo.connect(wet);
+  let seed = 0x5EEDF00D;
+  function rnd() { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return (seed >>> 0) / 4294967296; }
+  const nb = ctx.createBuffer(1, Math.floor(ctx.sampleRate), ctx.sampleRate), nd = nb.getChannelData(0);
+  for (let i = 0; i < nd.length; i++) nd[i] = rnd() * 2 - 1;
+  function tone(to, type, f0, t, dur, vol, f1, hold) {
+    const o = ctx.createOscillator(), g = ctx.createGain(), h = t + Math.max(0.008, dur * (hold == null ? 0.5 : hold));
+    o.type = type; o.frequency.setValueAtTime(f0, t);
+    if (f1) o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.005);
+    g.gain.setValueAtTime(vol, h); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(to); o.start(t); o.stop(t + dur + 0.03);
+  }
+  function noise(to, t, dur, vol, type, f, q) {
+    const s = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain();
+    s.buffer = nb; fl.type = type; fl.frequency.value = f; fl.Q.value = q || 0.7;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(fl); fl.connect(g); g.connect(to); s.start(t, rnd() * 0.5); s.stop(t + dur + 0.02);
+  }
+  // a marimba bar: the warm body and a bright click from the mallet
+  function mallet(m, t, vol) {
+    const f = mtof(m);
+    tone(malletBus, "sine", f, t, 0.42, vol, 0, 0.02);
+    tone(malletBus, "sine", f * 4, t, 0.05, vol * 0.22, 0, 0.1);
+    tone(malletBus, "triangle", f * 2, t, 0.12, vol * 0.12, 0, 0.1);
+  }
+
+  function playStep(i, t) {
+    const bar = i >> 4, s = i & 15, ch = CH[PROG[bar]], n = LEAD[i];
+    const tt = s % 4 === 2 ? t + SWING : t;                  // the off-beat eighths lean late: the swing
+    if (n) mallet(n[0], tt, 0.22);
+    if (s % 4 === 0) {                                      // walking bass, one note a beat, stepping into the next chord
+      const beat = s >> 2, next = CH[PROG[(bar + 1) % 16]][0];
+      const m = beat === 0 ? ch[0] : beat === 1 ? ch[0] + (ch[4] ? 3 : 4) : beat === 2 ? ch[0] + 7 : next - 1;
+      tone(bassBus, "triangle", mtof(m), t, STEP * 3.4, 0.42, 0, 0.18);
+      tone(bassBus, "sine", mtof(m) * 2, t, 0.05, 0.08, 0, 0.1);
+    }
+    if (s === 6 || s === 14 || (s === 0 && bar % 4 === 0)) {   // piano comping on the off-beats
+      for (let k = 1; k <= 3; k++) { tone(keysBus, "triangle", mtof(ch[k]), tt, STEP * 1.6, 0.05, 0, 0.3); tone(keysBus, "sine", mtof(ch[k] + 12), tt, STEP * 1.2, 0.015, 0, 0.2); }
+    }
+    if (s === 0 || s === 8) tone(out, "sine", 105, t, 0.16, 0.42, 48, 0.05);                    // soft kick
+    if (s === 4 || s === 12) { noise(out, t, 0.035, 0.16, "bandpass", 2800, 2); tone(out, "triangle", 1500, t, 0.025, 0.05, 0, 0.2); }   // rim click
+    if (s % 2 === 0) noise(out, tt, 0.05, s % 4 === 0 ? 0.045 : 0.03, "highpass", 6500);        // shaker
+    if ((bar === 3 || bar === 11) && s >= 13) {             // a bird over the course
+      tone(out, "sine", 2600, t, 0.07, 0.035, 3500, 0.3); tone(out, "sine", 3000, t + 0.08, 0.06, 0.03, 3900, 0.3);
+    }
+  }
+
+  let step = (((opts.step | 0) % N) + N) % N, nextT = ctx.currentTime + (opts.delay == null ? 0.05 : opts.delay), stopped = false, queued = 0;
+  function tick() {
+    if (stopped) return;
+    const now = ctx.currentTime;
+    if (nextT < now) nextT = now + 0.03;
+    while (nextT < now + AHEAD) { playStep(step, nextT); step = (step + 1) % N; nextT += STEP; queued++; }
+  }
+  tick();
+  const timer = setInterval(tick, 90);
+  let at = step;
+  return function stop() {
+    if (stopped) return at;
+    stopped = true; clearInterval(timer);
+    const now = ctx.currentTime;
+    at = ((step - Math.min(queued, Math.max(0, Math.ceil((nextT - now) / STEP)))) % N + N) % N;
+    out.gain.cancelScheduledValues(now); out.gain.setValueAtTime(out.gain.value, now); out.gain.linearRampToValueAtTime(0, now + 0.12);
+    setTimeout(function () { try { out.disconnect(); } catch (e) { /* already gone */ } }, 600);
+    return at;
+  };
+}
+
+/* The rest of the sound: the mixer, the stingers, and the switches. The shell still plays every sound effect it
+   always did, exactly when it did; these stingers sit on top of them. Nothing is created until the first tap,
+   click or key press. The shell's mute button (the "npArcade.muted" setting) silences all of it; the music has
+   its own switch (the "npArcade.music" setting, shared across the arcade), as a button on the title and pause
+   cards and on the N key. The tune plays while a game is on and steps out for the title, pause and score cards.
+   None of this rolls the game's dice or touches its state. */
+const Juke = (function () {
+  let live = null, dead = false, muted = false, stopMusic = null, songAt = 0, fresh = true, timer = 0, hooked = false, lastState = "";
+  let musicOn = (function () { try { return localStorage.getItem(MUSIC_KEY) !== "0"; } catch (e) { return true; } })();
+  let ownMute = (function () { try { return localStorage.getItem(MUTE_KEY) === "1"; } catch (e) { return false; } })();
+  const buttons = [], muteButtons = [];
+  let seed = 0x2545F491;
+  function rnd() { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return (seed >>> 0) / 4294967296; }
+  function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+
+  // Everything between the instruments and the speaker.
+  function rig(c) {
+    const A = { c: c };
+    A.out = c.createGain();                                 // follows the mute button
+    const comp = c.createDynamicsCompressor();
+    comp.threshold.value = -14; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.2;
+    A.out.connect(comp); comp.connect(c.destination);
+    A.duck = c.createGain();                                // the tune steps back for a moment under the big stingers
+    A.duck.connect(A.out);
+    A.music = c.createGain(); A.music.gain.value = MUSIC_VOL; A.music.connect(A.duck);
+    A.sfx = c.createGain(); A.sfx.gain.value = SFX_VOL; A.sfx.connect(A.out);
+    const len = Math.floor(c.sampleRate * 2);
+    A.noise = c.createBuffer(1, len, c.sampleRate);
+    const d = A.noise.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = rnd() * 2 - 1;
+    return A;
+  }
+  // One note: a quick attack, held for part of its length, then it dies away. f1 slides the pitch.
+  function osc(A, dest, type, f0, t, dur, vol, f1, hold) {
+    const o = A.c.createOscillator(), g = A.c.createGain(), h = t + Math.max(0.008, dur * (hold == null ? 0.55 : hold));
+    o.type = type; o.frequency.setValueAtTime(f0, t);
+    if (f1) o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.006);
+    g.gain.setValueAtTime(vol, h);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(dest);
+    o.start(t); o.stop(t + dur + 0.03);
+  }
+  // A burst of filtered noise. f1 sweeps the filter.
+  function hiss(A, dest, t, dur, vol, type, f0, q, f1, atk) {
+    const s = A.c.createBufferSource(), f = A.c.createBiquadFilter(), g = A.c.createGain();
+    s.buffer = A.noise; s.loop = true;
+    f.type = type; f.frequency.setValueAtTime(f0, t); f.Q.value = q || 0.7;
+    if (f1) f.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + (atk || 0.004));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(dest);
+    s.start(t, rnd() * 1.5); s.stop(t + dur + 0.05);
+  }
+  function duck(A, t, secs) {
+    A.duck.gain.cancelScheduledValues(t);
+    A.duck.gain.setTargetAtTime(0.45, t, 0.03);
+    A.duck.gain.setTargetAtTime(1, t + secs, 0.25);
+  }
+  // The stingers. x is a detail of the moment (how hard, how many, how far under par).
+  function cue(A, name, t, x) {
+    const d = A.sfx;
+    function mallet(m, at, v) {                             // a marimba bar, to match the tune
+      osc(A, d, "sine", mtof(m), at, 0.42, v, 0, 0.02);
+      osc(A, d, "sine", mtof(m) * 4, at, 0.05, v * 0.25, 0, 0.1);
+    }
+    if (name === "tap") {                                   // a button on the cards
+      osc(A, d, "sine", 1047, t, 0.07, 0.22, 0, 0.3); osc(A, d, "sine", 1568, t + 0.05, 0.08, 0.18, 0, 0.3);
+    } else if (name === "putt") {                           // the putter face meeting the ball, crisper the harder the stroke
+      const k = clamp(x || 0, 0, 1);
+      osc(A, d, "sine", 1500 - 300 * k, t, 0.07, 0.3 + 0.4 * k, 850, 0.05);
+      osc(A, d, "triangle", 620, t, 0.05, 0.12 + 0.15 * k, 400, 0.1);
+      hiss(A, d, t, 0.03, 0.18 + 0.2 * k, "bandpass", 3200, 1.5);
+    } else if (name === "knock") {                          // off a rail, a box or a spinner
+      const k = Math.min(1, (x || 0) / 500);
+      osc(A, d, "triangle", 480 + 200 * k, t, 0.09, 0.12 + 0.28 * k, 300, 0.1);
+      hiss(A, d, t, 0.025, 0.1 + 0.18 * k, "bandpass", 1800, 2);
+    } else if (name === "cup") {                            // the drop, and the rattle off the bottom of the cup
+      osc(A, d, "sine", 320, t, 0.12, 0.5, 140, 0.05);
+      [0.07, 0.15, 0.21, 0.255, 0.29, 0.315].forEach(function (o, i) {
+        const f = 1700 + rnd() * 600, v = 1 - i / 7;
+        osc(A, d, "sine", f, t + o, 0.07, 0.26 * v, 0, 0.1); osc(A, d, "sine", f * 2.71, t + o, 0.04, 0.07 * v, 0, 0.1);
+      });
+    } else if (name === "ace") {                            // hole in one: a run up the chord, a held one on top, a sparkle
+      const up = [65, 69, 72, 77, 81, 84, 89], te = t + 0.35 + up.length * 0.06;
+      up.forEach(function (m, i) { osc(A, d, "square", mtof(m), t + 0.35 + i * 0.06, 0.1, 0.18, 0, 0.5); });
+      [77, 81, 84, 89].forEach(function (m) { osc(A, d, "triangle", mtof(m), te, 0.8, 0.17, 0, 0.3); });
+      for (let i = 0; i < 10; i++) mallet(i % 2 ? 96 : 93, te + 0.25 + i * 0.05, 0.09);
+      duck(A, t, 2.2);
+    } else if (name === "birdie") {                         // under par: up the chord on the marimba, higher for an eagle
+      const up = (x || 0) <= -2 ? [72, 76, 79, 84, 88] : [72, 76, 79, 84];
+      up.forEach(function (m, i) { mallet(m, t + 0.3 + i * 0.09, 0.26); });
+      duck(A, t, 1.0);
+    } else if (name === "par") {                            // par: two notes, job done
+      mallet(67, t + 0.3, 0.24); mallet(72, t + 0.42, 0.24);
+    } else if (name === "bogey") {                          // over par: a step or two down
+      ((x || 0) >= 2 ? [67, 63, 60] : [67, 63]).forEach(function (m, i) { osc(A, d, "triangle", mtof(m), t + 0.3 + i * 0.16, 0.22, 0.24, 0, 0.4); });
+    } else if (name === "pickup") {                         // out of strokes
+      osc(A, d, "triangle", 392, t, 0.5, 0.26, 180, 0.6);
+    } else if (name === "splash") {                         // into the soda: a fizz and some bubbles
+      hiss(A, d, t, 0.45, 0.38, "bandpass", 1400, 0.7, 500, 0.01);
+      hiss(A, d, t + 0.05, 0.7, 0.1, "highpass", 5000, 0.7, 0, 0.05);
+      for (let i = 0; i < 7; i++) { const f = 380 + rnd() * 500; osc(A, d, "sine", f, t + 0.05 + i * 0.05 + rnd() * 0.03, 0.06, 0.13, f * 1.8, 0.2); }
+    } else if (name === "boost") {                          // onto the belt
+      osc(A, d, "sawtooth", 220, t, 0.22, 0.1, 880, 0.8); osc(A, d, "square", 440, t, 0.22, 0.08, 1320, 0.8);
+    } else if (name === "next") {                           // off to the next tee
+      osc(A, d, "triangle", 784, t, 0.12, 0.22, 0, 0.4); osc(A, d, "triangle", 1175, t + 0.1, 0.2, 0.22, 0, 0.4);
+    } else if (name === "over") {                           // round over (x: strokes against par)
+      const good = (x || 0) <= 0, up = good ? [65, 69, 72, 77, 81] : [65, 69, 72, 74, 72], te = t + up.length * 0.1;
+      up.forEach(function (m, i) { mallet(m, t + i * 0.1, 0.24); });
+      (good ? [77, 81, 84] : [65, 69, 72]).forEach(function (m) { osc(A, d, "triangle", mtof(m), te, 1.0, 0.14, 0, 0.4); });
+      duck(A, t, 1.6);
+    }
+  }
+
+  function isMuted() {
+    const b = document.getElementById("np-mute");
+    if (b) return b.getAttribute("aria-pressed") === "true";
+    return ownMute;
+  }
+  // Browsers only let sound start from a tap, a click or a key press, so this is called from those and nowhere else.
+  function unlock() {
+    if (dead) return;
+    try {
+      if (!live) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) { dead = true; return; }
+        live = rig(new AC());
+        muted = isMuted();
+        live.out.gain.value = muted ? 0 : 1;
+        if (!timer) timer = setInterval(pump, 150);         // keeps the switches followed if the picture ever stalls
+      }
+      if (live.c.state !== "running") { const p = live.c.resume(); if (p && p.catch) p.catch(function () {}); }
+    } catch (e) { live = null; dead = true; }
+  }
+  // Called every frame: follow the mute button, and start or stop the tune with the game.
+  function pump() {
+    const A = live;
+    if (!A || !window.Shell || !Shell.state) return;
+    const c = A.c, now = c.currentTime, m = isMuted(), st = Shell.state();
+    if (m !== muted) { muted = m; A.out.gain.setTargetAtTime(m ? 0 : 1, now, 0.02); }
+    if (!hooked && st === "playing" && (lastState === "title" || lastState === "over")) { songAt = 0; fresh = true; }
+    lastState = st;
+    const want = musicOn && !muted && c.state === "running" && st === "playing";
+    if (want && !stopMusic) {
+      try { stopMusic = startMusic(c, A.music, { step: songAt, delay: fresh ? 0.42 : 0.06 }); } catch (e) { stopMusic = null; }
+      fresh = false;                                        // a fresh game lets the shell's start jingle go first
+    } else if (!want && stopMusic) {
+      songAt = stopMusic(); stopMusic = null;               // paused: the tune picks up where it stopped
+    }
+  }
+  function sfx(name, x, delay) {
+    const A = live;
+    if (!A || muted || A.c.state === "closed") return;
+    try { cue(A, name, A.c.currentTime + 0.01 + (delay || 0), x); } catch (e) { /* sound is never worth a crash */ }
+  }
+  function newGame() {
+    unlock();
+    songAt = 0; fresh = true;
+    if (stopMusic) { stopMusic(); stopMusic = null; }
+    pump();
+  }
+
+  function label() {
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].textContent = musicOn ? "MUSIC: ON" : "MUSIC: OFF";
+      buttons[i].setAttribute("aria-pressed", musicOn ? "true" : "false");
+    }
+    for (let i = 0; i < muteButtons.length; i++) {
+      muteButtons[i].textContent = ownMute ? "SOUND: OFF" : "SOUND: ON";
+      muteButtons[i].setAttribute("aria-pressed", ownMute ? "false" : "true");
+    }
+  }
+  function setMusic(on) {
+    musicOn = !!on;
+    try { localStorage.setItem(MUSIC_KEY, musicOn ? "1" : "0"); } catch (e) { /* private mode */ }
+    label(); pump();
+  }
+  function setMute(on) {
+    ownMute = !!on;
+    try { localStorage.setItem(MUTE_KEY, ownMute ? "1" : "0"); } catch (e) { /* private mode */ }
+    label(); pump();
+  }
+  // A switch in the shell's own button style, for the title card and the pause card.
+  function makeButton(parent, before, attr, flip) {
+    if (!parent) return null;
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "np-btn"; b.setAttribute(attr, "");
+    b.style.cssText = "width:100%;margin-top:8px";
+    b.addEventListener("click", function (e) { e.stopPropagation(); unlock(); flip(); sfx("tap"); });   // never a "tap to start"
+    parent.insertBefore(b, before || null);
+    return b;
+  }
+  function addButtons(parent, before) {
+    const b = makeButton(parent, before, "data-np-music", function () { setMusic(!musicOn); });
+    if (b) buttons.push(b);
+    // the shell has its own mute button; if a page ever comes without one, the game brings a sound switch
+    if (!document.getElementById("np-mute")) {
+      const s = makeButton(parent, before, "data-np-sound", function () { setMute(!ownMute); });
+      if (s) muteButtons.push(s);
+    }
+    label();
+  }
+  // A blip for every other button and link on the cards.
+  function menuTap(e) {
+    const el = e.target && e.target.closest ? e.target.closest("button, a, [role=button]") : null;
+    if (el && !el.hasAttribute("data-np-music") && !el.hasAttribute("data-np-sound")) sfx("tap");
+  }
+  // Wire everything to the page and the shell. Called once, after Shell.init.
+  function hook() {
+    ["pointerup", "touchend", "mousedown", "click", "keydown"].forEach(function (ev) { document.addEventListener(ev, unlock, true); });
+    document.addEventListener("click", menuTap);
+    if (typeof Shell.onStart === "function") { Shell.onStart(newGame); hooked = true; }
+    if (typeof Shell.onRestart === "function") Shell.onRestart(newGame);
+    if (typeof Shell.onResume === "function") Shell.onResume(unlock);
+    document.addEventListener("keydown", function (e) {
+      const el = e.target, typing = el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName || ""));   // not while initials are being typed
+      if (e.code === "KeyN" && !typing && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) { unlock(); setMusic(!musicOn); }
+    });
+    const titleCard = document.querySelector("#np-ov-title .np-card"), pauseActions = document.querySelector("#np-ov-pause .np-actions");
+    if (titleCard) addButtons(titleCard, titleCard.querySelector(".np-tip"));
+    if (pauseActions) addButtons(pauseActions, pauseActions.querySelector("a"));
+  }
+  return {
+    hook: hook, unlock: unlock, pump: pump, sfx: sfx, newGame: newGame,
+    toggleMusic: function () { unlock(); setMusic(!musicOn); },
+    // for checks: what the engine is doing right now
+    peek: function () { return { made: !!live, state: live ? live.c.state : "none", playing: !!stopMusic, songAt: songAt, muted: muted, musicOn: musicOn }; },
+    cue: cue, rig: rig
+  };
+})();
 
 /* =====================================================================================
    3D presentation
@@ -1653,6 +2016,7 @@ function drawHUD(c, state) {
 }
 
 function draw(c, state) {
+  Juke.pump();
   if (!R || !R.hud) return;
   const now = performance.now();
   let ms = now - R.lastT;
@@ -1777,7 +2141,7 @@ function startGame() {
     lowerIsBetter: true,
     format: fmt,
     howTo: "Nine holes of mini golf in real 3D, built out of game boxes, shelves and tape decks. Drag back from anywhere, then let go to putt.",
-    keys: "Keys: arrows aim, hold Space to charge, release to putt. P pause, M mute, R restart.",
+    keys: "Keys: arrows aim, hold Space to charge, release to putt. P pause, M mute, N music, R restart.",
     tip: "Max 6 strokes a hole. Spilled soda costs you one.",
     reset: reset,
     update: update,
@@ -1789,6 +2153,7 @@ function startGame() {
     onResume: function () { paused = false; }
   });
   attach();
+  Juke.hook();                                              // sound: nothing starts until the first tap
   // The studio logo heads the score card. The title menu stays clean: the splash is its logo moment.
   const card = document.querySelector("#np-ov-over .np-card");
   if (card) {
@@ -1803,7 +2168,7 @@ function startGame() {
 
 // Hook for automated course checks (no effect on play)
 window.__shelfLinks = { S: function () { return S; }, HOLES: HOLES, advance: advance, R: BR, V_MIN: V_MIN, V_MAX: V_MAX, MAX_PULL: MAX_PULL, STOP: STOP,
-                        shoot: shoot, gfx: function () { return R; }, view: function () { return V; }, toScreen: courseToScreen, toCourse: screenToCourse };
+                        shoot: shoot, gfx: function () { return R; }, view: function () { return V; }, toScreen: courseToScreen, toCourse: screenToCourse, juke: Juke, music: startMusic };
 
 (function boot() {
   const splash = makeSplash();

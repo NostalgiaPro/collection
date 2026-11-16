@@ -130,6 +130,7 @@ function throwBall(p, spin) {
   S.phase = "roll"; S.pt = 0;
   S.drag = null; S.charging = false;
   Shell.sfx("whoosh");
+  Juke.sfx("release", clamp(p, 0, 1));
 }
 
 /* ---------------- Physics ---------------- */
@@ -205,7 +206,7 @@ function step(dt) {
         p = S.pins[i];
         if (p.st === "gone" || p.st === "down" && p.drop > 0) continue;
         imp = collide(b, BALL_R, BALL_M, p, pinR(p), PIN_M, 0.62);
-        if (imp) { b.hitPins = true; clack(imp); knock(p, Math.hypot(p.vx, p.vy)); }
+        if (imp) { if (!b.hitPins) Juke.sfx("crash", imp); b.hitPins = true; clack(imp); knock(p, Math.hypot(p.vx, p.vy)); }
       }
     }
   }
@@ -320,6 +321,7 @@ function update(dt) {
     if (!S.announcedBumpers && S.frame === BUMPER_FRAMES && S.ball === 0) {
       S.announcedBumpers = true;
       Shell.flash("BUMPERS DOWN", "Gutters are live from here on.", "#ff3fa4", 1300);
+      Juke.sfx("bumpers");
     }
     return;
   }
@@ -382,22 +384,23 @@ function resolveBall() {
     if (S.strikesRow === 3) { title = "TURKEY!"; sub = "Three in a row. BE KIND, REWIND... ALL OF THEM."; col = "#ff4b3e"; burst(60); Shell.sfx("best"); }
     else { title = S.strikesRow > 3 ? S.strikesRow + " IN A ROW!" : "STRIKE!"; sub = "BE KIND, REWIND... ALL OF THEM."; col = "#ffd23f"; burst(30); }
     Shell.sfx("crowd"); Shell.sfx("score"); Shell.shake(4, 0.3); camShake(1.3, 0.35);
+    Juke.sfx("strike", S.strikesRow);
     if (window.Trophies) { window.Trophies.unlock("tpl-strike"); if (S.strikesRow === 3) window.Trophies.unlock("tpl-turkey"); }
     if (window.NPRewards && S.strikesRow >= 2) window.NPRewards.streak(S.strikesRow);
   } else {
     S.strikesRow = 0;
     if (spare) {
-      S.spares++; title = "SPARE!"; sub = "Picked it clean."; col = "#3ff0ff"; Shell.sfx("score"); board = "spare";
+      S.spares++; title = "SPARE!"; sub = "Picked it clean."; col = "#3ff0ff"; Shell.sfx("score"); board = "spare"; Juke.sfx("spare");
       if (window.Trophies) { window.Trophies.unlock("tpl-spare"); if (S.splitFrame === f) window.Trophies.unlock("tpl-split"); }
     }
     else if (down === 0 && b.gutter) {
-      title = "LATE FEE."; sub = "Gutter ball."; col = "#ff3fa4"; Shell.sfx("miss"); board = "gutter";
+      title = "LATE FEE."; sub = "Gutter ball."; col = "#ff3fa4"; Shell.sfx("miss"); board = "gutter"; Juke.sfx("gutter");
       if (window.Trophies && f >= BUMPER_FRAMES) window.Trophies.unlock("tpl-latefee");
     }
-    else if (down === 0) { title = "MISS"; sub = "Not a scratch on them."; col = "#8e93a2"; Shell.sfx("miss"); }
+    else if (down === 0) { title = "MISS"; sub = "Not a scratch on them."; col = "#8e93a2"; Shell.sfx("miss"); Juke.sfx("miss"); }
     else {
       title = down + (down === 1 ? " PIN" : " PINS");
-      if (first && isSplit()) { title = "SPLIT"; sub = down + " down. Good luck with the rest."; col = "#a77bff"; S.splitFrame = f; board = "split"; }
+      if (first && isSplit()) { title = "SPLIT"; sub = down + " down. Good luck with the rest."; col = "#a77bff"; S.splitFrame = f; board = "split"; Juke.sfx("split"); }
       else if (standing > 0) sub = standing + " left standing.";
       Shell.sfx("tap");
     }
@@ -460,6 +463,7 @@ function finishGame() {
   const t = total();
   const title = t === 300 ? "PERFECT GAME!" : "TEN FRAMES DONE";
   ledFinal(t);
+  Juke.sfx("over", t === 300 ? 1 : 0);
   Shell.gameOver(t, { title: title, html: cardHTML() +
     '<div class="np-row" style="margin-top:10px"><span>Strikes</span><b>' + S.strikes + '</b></div>' +
     '<div class="np-row"><span>Spares</span><b>' + S.spares + '</b></div>',
@@ -527,6 +531,353 @@ function key(type, code, e) {
     if (act && S.charging) { S.charging = false; throwBall(S.power, S.spin); S.power = 0; }
   }
 }
+
+/* =====================================================================================
+   Sound
+   ===================================================================================== */
+const MUSIC_VOL = 0.16, SFX_VOL = 0.22;                    // turn the tune or the stingers up and down here
+const MUSIC_KEY = "npArcade.music", MUTE_KEY = "npArcade.muted";
+
+/* The house tune: "Cosmic Lanes", an original 16-bar synthwave loop in A minor at 112 BPM (octave-pumping
+   saw bass, a sixteenth-note arpeggio, a doubled saw lead with an echo, gated snare, and a tom fill that
+   rolls down the toms like a ball down the lane). Self-contained: it knows nothing about the game, so it can
+   be lifted out whole (a radio station, a jukebox). startMusic(ctx, dest) starts it on any audio context,
+   into any node, and returns stop(). stop() fades it out and returns the step it got to; pass that back as
+   opts.step to pick the tune up where it left off. opts.delay holds the downbeat back that many seconds. */
+function startMusic(ctx, dest, opts) {
+  opts = opts || {};
+  const BPM = 112, STEP = 60 / BPM / 4, N = 16 * 16, AHEAD = 0.5;
+  const SEMI = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+  function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  // the tune, a bar a line: step in the bar, note, length in steps
+  function parse(bars) {
+    const out = new Array(N).fill(null);
+    bars.forEach(function (bar, b) {
+      bar.split(" ").forEach(function (tok) {
+        const m = /^(\d+)([A-G])([#b]?)(\d)-(\d+)$/.exec(tok);
+        if (m) out[b * 16 + Number(m[1])] = [12 * (Number(m[4]) + 1) + SEMI[m[2]] + (m[3] === "#" ? 1 : m[3] === "b" ? -1 : 0), Number(m[5])];
+      });
+    });
+    return out;
+  }
+  // bass note, then the three notes the arpeggio walks (MIDI numbers); one chord a bar
+  const CH = { Am: [45, 69, 72, 76], F: [41, 69, 72, 77], C: [48, 67, 72, 76], G: [43, 67, 71, 74], Dm: [38, 69, 74, 77],
+               E: [40, 68, 71, 76], Em: [40, 67, 71, 76], Esus: [40, 69, 71, 76] };
+  const PROG = "Am F C G Am F Dm E F G Em Am F G Esus E".split(" ");
+  const LEAD = parse([
+    "4E5-2 6A5-2 8C6-3 11B5-1 12A5-4",
+    "0A5-2 2G5-2 4F5-2 6E5-2 8F5-4 12C5-4",
+    "0E5-2 2G5-2 4C6-4 8B5-2 10C6-2 12G5-4",
+    "0D5-3 3G5-1 4B5-4 8A5-2 10G5-2 12D5-4",
+    "4E5-2 6A5-2 8C6-3 11B5-1 12A5-2 14C6-2",
+    "0D6-3 3C6-1 4A5-4 8F5-2 10A5-2 12C6-4",
+    "0D6-2 2C6-2 4A5-2 6F5-2 8D5-4 12F5-2 14A5-2",
+    "0G#5-4 4B5-4 8E6-6 14D6-1 15B5-1",
+    "0C6-2 2A5-1 3C6-1 4F6-4 8E6-2 10C6-2 12A5-4",
+    "0B5-2 2G5-1 3B5-1 4D6-4 8C6-2 10B5-2 12G5-4",
+    "0E6-3 3D6-1 4B5-2 6G5-2 8E5-2 10G5-2 12B5-4",
+    "0C6-3 3B5-1 4A5-4 8E5-2 10A5-2 12C6-4",
+    "0F6-2 2E6-2 4C6-2 6A5-2 8C6-2 10F6-2 12A6-4",
+    "0G6-3 3F6-1 4D6-2 6B5-2 8D6-4 12G5-4",
+    "0A5-4 4B5-4 8E6-4 12D6-2 14B5-2",
+    "0G#5-6 6B5-2 8E5-4"
+  ]);
+
+  // the rig: every voice ends up in out, which is all stop() has to fade
+  const out = ctx.createGain(); out.connect(dest);
+  function filt(type, f, q, to) { const n = ctx.createBiquadFilter(); n.type = type; n.frequency.value = f; n.Q.value = q; n.connect(to); return n; }
+  const leadBus = filt("lowpass", 2600, 0.8, out), bassBus = filt("lowpass", 620, 2.2, out), arpBus = filt("lowpass", 1800, 0.7, out);
+  const send = ctx.createGain(), echo = ctx.createDelay(1), back = ctx.createGain(), wet = filt("lowpass", 2000, 0.7, out);
+  send.gain.value = 0.3; echo.delayTime.value = STEP * 3; back.gain.value = 0.34;   // a dotted-eighth echo
+  leadBus.connect(send); arpBus.connect(send); send.connect(echo); echo.connect(back); back.connect(echo); echo.connect(wet);
+  let seed = 0x1F2E3D4C;
+  function rnd() { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return (seed >>> 0) / 4294967296; }
+  const nb = ctx.createBuffer(1, Math.floor(ctx.sampleRate), ctx.sampleRate), nd = nb.getChannelData(0);
+  for (let i = 0; i < nd.length; i++) nd[i] = rnd() * 2 - 1;
+  // one note: quick attack, held for part of its length, then it dies away; f1 slides the pitch, det detunes in cents
+  function tone(to, type, f0, t, dur, vol, f1, hold, det) {
+    const o = ctx.createOscillator(), g = ctx.createGain(), h = t + Math.max(0.008, dur * (hold == null ? 0.5 : hold));
+    o.type = type; o.frequency.setValueAtTime(f0, t);
+    if (det) o.detune.value = det;
+    if (f1) o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.006);
+    g.gain.setValueAtTime(vol, h); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(to); o.start(t); o.stop(t + dur + 0.03);
+  }
+  // a burst of filtered noise: hats, snares
+  function noise(to, t, dur, vol, type, f, q) {
+    const s = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain();
+    s.buffer = nb; fl.type = type; fl.frequency.value = f; fl.Q.value = q || 0.7;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(fl); fl.connect(g); g.connect(to); s.start(t, rnd() * 0.5); s.stop(t + dur + 0.02);
+  }
+
+  // everything that sounds on sixteenth-note i of the loop, starting at time t
+  function playStep(i, t) {
+    const bar = i >> 4, s = i & 15, ch = CH[PROG[bar]], second = bar >= 8, n = LEAD[i];
+    if (n) {                                                // the lead: two saws a few cents apart
+      const d = n[1] * STEP * 0.9;
+      tone(leadBus, "sawtooth", mtof(n[0]), t, d, 0.07, 0, 0.7, -8);
+      tone(leadBus, "sawtooth", mtof(n[0]), t, d, 0.07, 0, 0.7, 8);
+    }
+    if (!(s & 1)) tone(bassBus, "sawtooth", mtof(ch[0] + ((s >> 1) & 1 ? 12 : 0)), t, STEP * 1.8, 0.26, 0, 0.6);   // octave eighths
+    tone(arpBus, "square", mtof(ch[1 + [0, 1, 2, 1][s & 3]] + (second && (s & 8) ? 12 : 0)), t, STEP * 0.9, 0.032, 0, 0.3);
+    if (s === 0 || s === 8 || (second && (s === 4 || s === 12))) tone(out, "sine", 140, t, 0.2, 0.7, 40, 0.06);     // kick, four on the floor in the second half
+    if (s === 4 || s === 12) { noise(out, t, 0.18, 0.26, "bandpass", 1700, 0.5); tone(out, "triangle", 190, t, 0.09, 0.16, 120, 0.1); }
+    if (s % 4 === 2) noise(out, t, 0.04, 0.07, "highpass", 8000);
+    else if ((s & 1) && second) noise(out, t, 0.025, 0.03, "highpass", 9000);
+    if ((bar === 7 || bar === 15) && s >= 8) {              // the fill: down the toms
+      const f = [196, 196, 165, 165, 147, 131, 110, 98][s - 8];
+      tone(out, "sine", f, t, 0.16, 0.4, f * 0.6, 0.1);
+    }
+  }
+
+  // the scheduler: keep the next half second queued
+  let step = (((opts.step | 0) % N) + N) % N, nextT = ctx.currentTime + (opts.delay == null ? 0.05 : opts.delay), stopped = false, queued = 0;
+  function tick() {
+    if (stopped) return;
+    const now = ctx.currentTime;
+    if (nextT < now) nextT = now + 0.03;                    // only after a stall longer than the queue
+    while (nextT < now + AHEAD) { playStep(step, nextT); step = (step + 1) % N; nextT += STEP; queued++; }
+  }
+  tick();
+  const timer = setInterval(tick, 90);
+  let at = step;
+  return function stop() {
+    if (stopped) return at;
+    stopped = true; clearInterval(timer);
+    const now = ctx.currentTime;
+    at = ((step - Math.min(queued, Math.max(0, Math.ceil((nextT - now) / STEP)))) % N + N) % N;   // the step that was sounding
+    out.gain.cancelScheduledValues(now); out.gain.setValueAtTime(out.gain.value, now); out.gain.linearRampToValueAtTime(0, now + 0.12);
+    setTimeout(function () { try { out.disconnect(); } catch (e) { /* already gone */ } }, 600);
+    return at;
+  };
+}
+
+/* The rest of the sound: the mixer, the stingers, and the switches. The shell still plays every sound effect it
+   always did, exactly when it did; these stingers sit on top of them. Nothing is created until the first tap,
+   click or key press. The shell's mute button (the "npArcade.muted" setting) silences all of it; the music has
+   its own switch (the "npArcade.music" setting, shared across the arcade), as a button on the title and pause
+   cards and on the N key. The tune plays while a game is on and steps out for the title, pause and score cards.
+   None of this rolls the game's dice or touches its state. */
+const Juke = (function () {
+  let live = null, dead = false, muted = false, stopMusic = null, songAt = 0, fresh = true, timer = 0, hooked = false, lastState = "";
+  let musicOn = (function () { try { return localStorage.getItem(MUSIC_KEY) !== "0"; } catch (e) { return true; } })();
+  let ownMute = (function () { try { return localStorage.getItem(MUTE_KEY) === "1"; } catch (e) { return false; } })();
+  const buttons = [], muteButtons = [];
+  let seed = 0x2545F491;
+  function rnd() { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return (seed >>> 0) / 4294967296; }
+  function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+
+  // Everything between the instruments and the speaker.
+  function rig(c) {
+    const A = { c: c };
+    A.out = c.createGain();                                 // follows the mute button
+    const comp = c.createDynamicsCompressor();
+    comp.threshold.value = -14; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.2;
+    A.out.connect(comp); comp.connect(c.destination);
+    A.duck = c.createGain();                                // the tune steps back for a moment under the big stingers
+    A.duck.connect(A.out);
+    A.music = c.createGain(); A.music.gain.value = MUSIC_VOL; A.music.connect(A.duck);
+    A.sfx = c.createGain(); A.sfx.gain.value = SFX_VOL; A.sfx.connect(A.out);
+    const len = Math.floor(c.sampleRate * 2);
+    A.noise = c.createBuffer(1, len, c.sampleRate);
+    const d = A.noise.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = rnd() * 2 - 1;
+    return A;
+  }
+  // One note: a quick attack, held for part of its length, then it dies away. f1 slides the pitch.
+  function osc(A, dest, type, f0, t, dur, vol, f1, hold) {
+    const o = A.c.createOscillator(), g = A.c.createGain(), h = t + Math.max(0.008, dur * (hold == null ? 0.55 : hold));
+    o.type = type; o.frequency.setValueAtTime(f0, t);
+    if (f1) o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.006);
+    g.gain.setValueAtTime(vol, h);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(dest);
+    o.start(t); o.stop(t + dur + 0.03);
+  }
+  // A burst of filtered noise. f1 sweeps the filter.
+  function hiss(A, dest, t, dur, vol, type, f0, q, f1, atk) {
+    const s = A.c.createBufferSource(), f = A.c.createBiquadFilter(), g = A.c.createGain();
+    s.buffer = A.noise; s.loop = true;
+    f.type = type; f.frequency.setValueAtTime(f0, t); f.Q.value = q || 0.7;
+    if (f1) f.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + (atk || 0.004));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(dest);
+    s.start(t, rnd() * 1.5); s.stop(t + dur + 0.05);
+  }
+  function duck(A, t, secs) {
+    A.duck.gain.cancelScheduledValues(t);
+    A.duck.gain.setTargetAtTime(0.45, t, 0.03);
+    A.duck.gain.setTargetAtTime(1, t + secs, 0.25);
+  }
+  // The stingers. x is a detail of the moment (how hard, how many, how far under par).
+  function cue(A, name, t, x) {
+    const d = A.sfx;
+    if (name === "tap") {                                   // a button on the cards: a two-blip chirp
+      osc(A, d, "square", 988, t, 0.045, 0.16, 0, 0.4); osc(A, d, "square", 1480, t + 0.045, 0.06, 0.14, 0, 0.4);
+    } else if (name === "release") {                        // the ball lands on the lane, heavier the harder it was thrown
+      osc(A, d, "sine", 120, t, 0.2, 0.45 + 0.35 * (x || 0), 46, 0.05);
+      hiss(A, d, t, 0.12, 0.22, "lowpass", 380, 0.7);
+    } else if (name === "crash") {                          // first contact with the rack: the pins go everywhere
+      const k = Math.min(1, (x || 0) / 400), n = 5 + Math.round(k * 9);
+      osc(A, d, "sine", 170, t, 0.14, 0.45 + 0.4 * k, 70, 0.05);
+      osc(A, d, "square", 1250, t, 0.035, 0.2, 0, 0.3);
+      hiss(A, d, t, 0.28, 0.3 + 0.35 * k, "bandpass", 2600, 0.8, 1400);
+      for (let i = 0; i < n; i++) {
+        const o = rnd() * (0.18 + 0.32 * k) * (i / n + 0.2), f = 900 + rnd() * 1300;
+        hiss(A, d, t + o, 0.045, 0.16 + rnd() * 0.22, "bandpass", f * 2.4, 3);
+        osc(A, d, "triangle", f, t + o, 0.06, 0.08 + rnd() * 0.08, f * 0.8, 0.2);
+      }
+    } else if (name === "strike") {                         // strike: a run up the chord and a held one on top; three in a row goes an octave higher
+      const big = x >= 3, up = big ? [69, 73, 76, 81, 85, 88, 93] : [69, 73, 76, 81, 85], te = t + up.length * 0.06;
+      up.forEach(function (m, i) { osc(A, d, "square", mtof(m), t + i * 0.06, 0.1, 0.2, 0, 0.5); });
+      [81, 85, 88].forEach(function (m) { osc(A, d, "triangle", mtof(m + (big ? 12 : 0)), te, 0.6, 0.2, 0, 0.3); osc(A, d, "sawtooth", mtof(m), te, 0.5, 0.04, 0, 0.3); });
+      if (big) for (let i = 0; i < 8; i++) osc(A, d, "square", mtof(i % 2 ? 100 : 97), te + 0.3 + i * 0.045, 0.045, 0.11, 0, 0.6);
+      duck(A, t, big ? 1.8 : 1.3);
+    } else if (name === "spare") {                          // spare: a chime up and a bell
+      [76, 83, 88].forEach(function (m, i) { osc(A, d, "triangle", mtof(m), t + i * 0.08, 0.35, 0.24, 0, 0.2); });
+      osc(A, d, "sine", mtof(100), t + 0.16, 0.6, 0.09, 0, 0.1);
+      duck(A, t, 0.9);
+    } else if (name === "split") {                          // split: one note pulled two ways
+      osc(A, d, "square", 466, t, 0.4, 0.17, 300, 0.7); osc(A, d, "square", 466, t, 0.4, 0.17, 720, 0.7);
+      osc(A, d, "triangle", 233, t + 0.42, 0.2, 0.2, 0, 0.3);
+    } else if (name === "gutter") {                         // late fee: three steps down and a low thud
+      [[294, 277], [262, 247], [220, 165]].forEach(function (p, i) { osc(A, d, "triangle", p[0], t + i * 0.2, i === 2 ? 0.55 : 0.18, 0.3, p[1], 0.6); });
+      osc(A, d, "sine", 90, t + 0.4, 0.3, 0.4, 45, 0.1);
+    } else if (name === "miss") {                           // missed the lot: a sad little slide
+      osc(A, d, "triangle", 330, t, 0.28, 0.26, 196, 0.4);
+    } else if (name === "bumpers") {                        // bumpers going down: two quick alerts
+      [0, 0.16].forEach(function (o) { osc(A, d, "square", 659, t + o, 0.07, 0.2, 0, 0.6); osc(A, d, "square", 880, t + o + 0.07, 0.07, 0.2, 0, 0.6); });
+    } else if (name === "over") {                           // ten frames done (x: a perfect game gets the big one)
+      const up = x ? [69, 73, 76, 81, 85, 88, 93, 97] : [69, 72, 76, 79, 81], te = t + up.length * 0.09;
+      up.forEach(function (m, i) { osc(A, d, "square", mtof(m), t + i * 0.09, 0.13, 0.18, 0, 0.5); });
+      (x ? [81, 85, 88, 93] : [69, 73, 76, 81]).forEach(function (m) { osc(A, d, "triangle", mtof(m), te, 1.0, 0.15, 0, 0.4); });
+      if (x) for (let i = 0; i < 10; i++) osc(A, d, "square", mtof(i % 2 ? 105 : 100), te + 0.2 + i * 0.05, 0.05, 0.1, 0, 0.6);
+      duck(A, t, 1.6);
+    }
+  }
+
+  function isMuted() {
+    const b = document.getElementById("np-mute");
+    if (b) return b.getAttribute("aria-pressed") === "true";
+    return ownMute;
+  }
+  // Browsers only let sound start from a tap, a click or a key press, so this is called from those and nowhere else.
+  function unlock() {
+    if (dead) return;
+    try {
+      if (!live) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) { dead = true; return; }
+        live = rig(new AC());
+        muted = isMuted();
+        live.out.gain.value = muted ? 0 : 1;
+        if (!timer) timer = setInterval(pump, 150);         // keeps the switches followed if the picture ever stalls
+      }
+      if (live.c.state !== "running") { const p = live.c.resume(); if (p && p.catch) p.catch(function () {}); }
+    } catch (e) { live = null; dead = true; }
+  }
+  // Called every frame: follow the mute button, and start or stop the tune with the game.
+  function pump() {
+    const A = live;
+    if (!A || !window.Shell || !Shell.state) return;
+    const c = A.c, now = c.currentTime, m = isMuted(), st = Shell.state();
+    if (m !== muted) { muted = m; A.out.gain.setTargetAtTime(m ? 0 : 1, now, 0.02); }
+    if (!hooked && st === "playing" && (lastState === "title" || lastState === "over")) { songAt = 0; fresh = true; }
+    lastState = st;
+    const want = musicOn && !muted && c.state === "running" && st === "playing";
+    if (want && !stopMusic) {
+      try { stopMusic = startMusic(c, A.music, { step: songAt, delay: fresh ? 0.42 : 0.06 }); } catch (e) { stopMusic = null; }
+      fresh = false;                                        // a fresh game lets the shell's start jingle go first
+    } else if (!want && stopMusic) {
+      songAt = stopMusic(); stopMusic = null;               // paused: the tune picks up where it stopped
+    }
+  }
+  function sfx(name, x, delay) {
+    const A = live;
+    if (!A || muted || A.c.state === "closed") return;
+    try { cue(A, name, A.c.currentTime + 0.01 + (delay || 0), x); } catch (e) { /* sound is never worth a crash */ }
+  }
+  function newGame() {
+    unlock();
+    songAt = 0; fresh = true;
+    if (stopMusic) { stopMusic(); stopMusic = null; }
+    pump();
+  }
+
+  function label() {
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].textContent = musicOn ? "MUSIC: ON" : "MUSIC: OFF";
+      buttons[i].setAttribute("aria-pressed", musicOn ? "true" : "false");
+    }
+    for (let i = 0; i < muteButtons.length; i++) {
+      muteButtons[i].textContent = ownMute ? "SOUND: OFF" : "SOUND: ON";
+      muteButtons[i].setAttribute("aria-pressed", ownMute ? "false" : "true");
+    }
+  }
+  function setMusic(on) {
+    musicOn = !!on;
+    try { localStorage.setItem(MUSIC_KEY, musicOn ? "1" : "0"); } catch (e) { /* private mode */ }
+    label(); pump();
+  }
+  function setMute(on) {
+    ownMute = !!on;
+    try { localStorage.setItem(MUTE_KEY, ownMute ? "1" : "0"); } catch (e) { /* private mode */ }
+    label(); pump();
+  }
+  // A switch in the shell's own button style, for the title card and the pause card.
+  function makeButton(parent, before, attr, flip) {
+    if (!parent) return null;
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "np-btn"; b.setAttribute(attr, "");
+    b.style.cssText = "width:100%;margin-top:8px";
+    b.addEventListener("click", function (e) { e.stopPropagation(); unlock(); flip(); sfx("tap"); });   // never a "tap to start"
+    parent.insertBefore(b, before || null);
+    return b;
+  }
+  function addButtons(parent, before) {
+    const b = makeButton(parent, before, "data-np-music", function () { setMusic(!musicOn); });
+    if (b) buttons.push(b);
+    // the shell has its own mute button; if a page ever comes without one, the game brings a sound switch
+    if (!document.getElementById("np-mute")) {
+      const s = makeButton(parent, before, "data-np-sound", function () { setMute(!ownMute); });
+      if (s) muteButtons.push(s);
+    }
+    label();
+  }
+  // A blip for every other button and link on the cards.
+  function menuTap(e) {
+    const el = e.target && e.target.closest ? e.target.closest("button, a, [role=button]") : null;
+    if (el && !el.hasAttribute("data-np-music") && !el.hasAttribute("data-np-sound")) sfx("tap");
+  }
+  // Wire everything to the page and the shell. Called once, after Shell.init.
+  function hook() {
+    ["pointerup", "touchend", "mousedown", "click", "keydown"].forEach(function (ev) { document.addEventListener(ev, unlock, true); });
+    document.addEventListener("click", menuTap);
+    if (typeof Shell.onStart === "function") { Shell.onStart(newGame); hooked = true; }
+    if (typeof Shell.onRestart === "function") Shell.onRestart(newGame);
+    if (typeof Shell.onResume === "function") Shell.onResume(unlock);
+    document.addEventListener("keydown", function (e) {
+      const el = e.target, typing = el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName || ""));   // not while initials are being typed
+      if (e.code === "KeyN" && !typing && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) { unlock(); setMusic(!musicOn); }
+    });
+    const titleCard = document.querySelector("#np-ov-title .np-card"), pauseActions = document.querySelector("#np-ov-pause .np-actions");
+    if (titleCard) addButtons(titleCard, titleCard.querySelector(".np-tip"));
+    if (pauseActions) addButtons(pauseActions, pauseActions.querySelector("a"));
+  }
+  return {
+    hook: hook, unlock: unlock, pump: pump, sfx: sfx, newGame: newGame,
+    toggleMusic: function () { unlock(); setMusic(!musicOn); },
+    // for checks: what the engine is doing right now
+    peek: function () { return { made: !!live, state: live ? live.c.state : "none", playing: !!stopMusic, songAt: songAt, muted: muted, musicOn: musicOn }; },
+    cue: cue, rig: rig
+  };
+})();
 
 /* =====================================================================================
    3D presentation
@@ -1670,6 +2021,7 @@ function drawHUD(c) {
 }
 
 function draw(c, state) {
+  Juke.pump();
   if (!R || !R.hud) return;
   const now = performance.now();
   let ms = now - R.lastT;
@@ -1785,7 +2137,7 @@ function startGame() {
     width: W, height: H,
     format: function (n) { return String(n); },
     howTo: "Ten frames in real 3D, and every pin wears a VHS tape label. Drag sideways to line up, then flick up to roll. Flick a little left or right to hook it.",
-    keys: "Keys: left and right move, up and down set the hook, hold Space for power, release to roll. P pause, M mute, R restart.",
+    keys: "Keys: left and right move, up and down set the hook, hold Space for power, release to roll. P pause, M mute, N music, R restart.",
     tip: "Watch the shiny oil. The ball only hooks once it's past it.",
     reset: reset,
     update: update,
@@ -1796,6 +2148,7 @@ function startGame() {
     onPause: function () { keys = {}; S.drag = null; S.charging = false; }
   });
   attach();
+  Juke.hook();                                              // sound: nothing starts until the first tap
   // The studio logo heads the score card. The title menu stays clean: the splash is its logo moment.
   const card = document.querySelector("#np-ov-over .np-card");
   if (card) {
@@ -1810,7 +2163,7 @@ function startGame() {
 
 // Hook for automated checks (no effect on play)
 window.__tapePins = { S: function () { return S; }, rack: fullRack, throwBall: throwBall, scores: scores, step: step, resolve: resolveBall,
-                      gfx: function () { return R; }, led: function () { return LED; } };
+                      gfx: function () { return R; }, led: function () { return LED; }, juke: Juke, music: startMusic };
 
 (function boot() {
   const splash = makeSplash();
