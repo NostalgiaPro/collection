@@ -1,5 +1,5 @@
 /* Bump this string whenever you upload new files, or phones keep the old ones. */
-const CACHE = "nostalgiapro-v80";
+const CACHE = "nostalgiapro-v81";
 
 const PAGES = [
   "/", "/index.html", "/anniversaries.html", "/consoles.html", "/reviews.html",
