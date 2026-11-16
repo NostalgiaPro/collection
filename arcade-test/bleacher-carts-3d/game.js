@@ -13,6 +13,10 @@
 const W = 360, H = 540, TAU = Math.PI * 2, DEG = Math.PI / 180;
 const BASE_PITCHES = 20;
 const PERFECT = 0.026, GOOD = 0.056, WEAK = 0.09, TIP = 0.12;
+// The tap starts the swing; the bat reaches the hitting zone SWING_T later. Timing is judged on where the ball is
+// at that moment (0 = crossing the front of the plate), and the hit happens when bat and ball actually meet:
+// a little out in front of the plate on an early swing, a little deep on a late one (MEET of the timing error).
+const SWING_T = 0.17, MEET = 0.35;
 
 /* ---------------- Ballpark (feet) ---------------- */
 const PS = 1.6;                                           // player scale
@@ -24,7 +28,6 @@ const SIDE_P = 70, SIDE_A0 = 45 + Math.acos(SIDE_P / 330) / DEG;         // the 
 const SIDE_WALL = 9, SIDE_Y = 11, SIDE_TOP = 58, SIDE_D = 64, SIDE_ROWS = 12;
 const SIDE_TREAD = (SIDE_D - 1.2) / SIDE_ROWS, SIDE_RISE = (SIDE_TOP - SIDE_Y) / SIDE_ROWS;
 const SB = { r: 462, half: 73, y0: 74, y1: 110.5 };       // the scoreboard: dead center, |angle| < 9
-const SIGN = { k: 46, y0: 57, y1: 77, half: 39 };         // the sliding shelf sign, riding over the bleachers
 const BALL_R = 0.42, ZONE_Y = 4.9, PLATE_Z = -1, MOUND_H = 1.3, MOUND_Z = -60.5;
 const HIT0 = { y: 5.0, z: -1.3 };                         // where bat meets ball
 const BRK_FT = 0.113;                                     // one 2D pixel of curveball break, in feet
@@ -41,7 +44,7 @@ const CONF_COLS = ["#ffd23f", "#3ff0ff", "#ff3fa4", "#9bff3f", "#ff9214", "#ffff
 let S = {}, keys = {}, idleT = 0, parts = [];
 let THREE = null, R = null, TV = null;                    // R holds everything the renderer owns
 // V is how things are being shown (camera, poses, the ball's flight through the park). It never feeds the rules.
-const V = { flight: null, hitT: 0, landT: 0, tick: -1, signA: 0, signHit: 0, sbFlash: 0, pk: 0, pb: 0, bs: 0, bb: 0, cheer: 0, spark: 0, lastTotal: 0 };
+const V = { flight: null, hitT: 0, landT: 0, tick: -1, sbFlash: 0, pk: 0, pb: 0, bs: 0, bb: 0, cheer: 0, spark: 0, lastTotal: 0 };
 
 function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
 // The picture rolls its own dice (shake, sparkle), so the rules see exactly the random numbers the 2D game would.
@@ -55,14 +58,13 @@ function zone(theta) {
   if (a < 24) return side + " center";
   return side + " field";
 }
-function billboardAngle(t) { return 28 * Math.sin(t * 0.45); }
 
 function reset() {
   S = { t: 0, phase: "ready", pt: 0, left: BASE_PITCHES, thrown: 0, total: 0, longest: 0, hrs: 0,
         streak: 0, features: 0, bonusEarned: 0, stance: 0, drag: null,
-        pitch: null, swing: -1, swingAt: 0, hit: null, result: null, msg: "" };
+        pitch: null, swing: -1, swingAt: 0, meet: null, hit: null, result: null, msg: "" };
   parts.length = 0;
-  V.flight = null; V.landT = 0; V.sbFlash = 0; V.signHit = 0; V.pb = 0; V.bb = 0; V.cheer = 0; V.spark = 0; V.lastTotal = 0;
+  V.flight = null; V.landT = 0; V.sbFlash = 0; V.pb = 0; V.bb = 0; V.cheer = 0; V.spark = 0; V.lastTotal = 0;
   ledClear();
 }
 
@@ -84,12 +86,12 @@ function newPitch() {
 function swing() {
   if (S.phase !== "pitch" || S.swing >= 0) return;
   S.swing = 0;
-  const p = S.pitch, e = p.t - p.T;
+  const p = S.pitch, e = p.t + SWING_T - p.T;             // where the ball will be when the bat gets there
   S.swingAt = e;
   Shell.sfx("whoosh");
   const a = Math.abs(e);
   if (a > TIP) { S.result = { kind: "whiff", e: e }; return; }
-  contact(e);
+  S.meet = { e: e, at: SWING_T - (1 - MEET) * e };        // seconds after the tap that bat and ball meet
 }
 
 function contact(e) {
@@ -106,9 +108,7 @@ function contact(e) {
   const hr = !foul && d >= fd;
   let target = null;
   if (hr) {
-    const bb = billboardAngle(S.t + 0.6);
     if (Math.abs(theta) < 9 && d >= 452) target = "scoreboard";
-    else if (Math.abs(theta - bb) < 7 && d >= fd + 18 && d <= fd + 75) target = "billboard";
     else if (d >= fd + 85) target = "clear";
   }
   const peak = launch < 10 ? 4 : Math.tan(launch * Math.PI / 180) * d * 0.42;
@@ -119,6 +119,10 @@ function contact(e) {
   if (perfect) { Shell.shake(4, 0.25); camShake(0.7, 0.25); }
   // presentation only: the path this ball will be drawn along
   V.flight = planFlight(S.hit); V.hitT = S.t; V.landT = 0; V.spark = 0.22; V.tick = -1;
+  // the ball leaves from where the bat actually met it, easing onto the planned path
+  const at = { set: function (x, y, z) { this.x = x; this.y = y; this.z = z; } };
+  pitchPos(S.pitch, S.pitch.t, at);
+  V.flight.off = { x: at.x, y: at.y - HIT0.y, z: at.z - HIT0.z };
   Juke.sfx("thump", perfect);
 }
 
@@ -136,14 +140,12 @@ function finishHit() {
     if (window.Trophies) {
       Trophies.unlock("bc-hr");
       if (h.d >= 470) Trophies.unlock("bc-moon");
-      if (h.target === "billboard") Trophies.unlock("bc-sign");
       if (h.target === "scoreboard") Trophies.unlock("bc-board");
     }
     sub = h.d + " FT to " + zone(h.theta);
     col = "#ffd23f";
     board.push(ledMsg("flash", title, 1.5), ledMsg("count", "", 1.3, { from: 0, value: h.d, suffix: " FT" }));
     if (h.target === "scoreboard") bonus.push("Off the scoreboard! Bonus pitch.");
-    if (h.target === "billboard") bonus.push("Hit the shelf sign! Bonus pitch.");
     if (h.target === "clear") bonus.push("Cleared the bleachers! Bonus pitch.");
     if (h.target) { S.left++; S.bonusEarned++; board.push(ledMsg("slide", "BONUS PITCH", 1.5, { color: "lime", keep: true })); }
     if (S.streak % 3 === 0) {
@@ -158,7 +160,6 @@ function finishHit() {
     board.push(ledMsg("count", "TOTAL", 2.2, { from: V.lastTotal, value: S.total, suffix: " FT", keep: true }));
     V.lastTotal = S.total;
     if (h.target === "scoreboard") { V.sbFlash = 1; camShake(1.2, 0.3); Juke.sfx("board"); }
-    if (h.target === "billboard") { V.signHit = 1; camShake(1.2, 0.3); Juke.sfx("sign"); }
     Juke.sfx("homer", h.d >= 470); Juke.sfx("roar");
     if (h.target) Juke.sfx("bonus", 0, 0.6);
     if (S.streak % 3 === 0) Juke.sfx("feature", 0, h.target ? 1.15 : 0.6);
@@ -190,7 +191,7 @@ function strike(swung) {
 }
 
 function nextPitch() {
-  S.pitch = null; S.swing = -1; S.hit = null; S.result = null;
+  S.pitch = null; S.swing = -1; S.meet = null; S.hit = null; S.result = null;
   if (S.left <= 0) {
     ledFinal(S.total);
     Shell.gameOver(S.total, { title: "DERBY OVER", html:
@@ -218,6 +219,7 @@ function update(dt) {
   } else if (S.phase === "pitch") {
     const p = S.pitch;
     p.t += dt;
+    if (S.meet && S.swing >= S.meet.at) { const e = S.meet.e; S.meet = null; contact(e); }
     if (S.result && S.result.kind === "hit") { setPhase("contact"); return; }
     if (p.t > p.T + 0.14) {
       Shell.noise(0.06, 0.7, 500, 0.8, 0, 0, "lowpass"); // into the mitt
@@ -396,7 +398,7 @@ const Juke = (function () {
     } else if (name === "board") {                          // off the scoreboard: a clang
       [1, 2.76, 5.4, 8.93].forEach(function (k, i) { osc(A, d, "sine", 392 * k, t, 1.0 - i * 0.18, 0.3 / (i + 1), 0, 0.03); });
       hiss(A, d, t, 0.06, 0.4, "highpass", 4000, 0.7);
-    } else if (name === "sign") {                           // off the shelf sign: a boing and a ding
+    } else if (name === "sign") {                           // a boing and a ding (not used by the 3D park)
       osc(A, d, "sine", 260, t, 0.16, 0.4, 520, 0.6); osc(A, d, "sine", 520, t + 0.15, 0.2, 0.3, 330, 0.5);
       osc(A, d, "triangle", 1319, t + 0.02, 0.5, 0.18, 0, 0.1);
     } else if (name === "wall") {                           // died at the wall: a thud
@@ -532,7 +534,7 @@ function ground(r, a) {
 }
 
 // The line a batted ball is drawn along. The distance, the direction and the timing are the rules' own;
-// the arc is raised just enough to carry the wall and come down on the seat (or the sign) it was scored for.
+// the arc is raised just enough to carry the wall and come down on the seat it was scored for.
 function planFlight(h) {
   const a = h.theta, aa = Math.abs(a), cs = Math.cos(a * DEG);
   const f = { a: a, sx: Math.sin(a * DEG), sz: -cs, roll: h.launch < 10, travel: h.target === "scoreboard" ? Math.min(h.d, 462) : h.d,
@@ -542,7 +544,6 @@ function planFlight(h) {
     return f;
   }
   if (h.target === "scoreboard") { f.rEnd = (SB.r - 0.8) / cs; f.yEnd = 82 + clamp((h.d - 452) / 30, 0, 1) * 20; f.hard = true; }
-  else if (h.target === "billboard") { f.rEnd = fence(a) + SIGN.k - 1.4; f.yEnd = (SIGN.y0 + SIGN.y1) / 2 + 1; f.hard = true; }
   else {
     f.rEnd = f.travel;
     const g = ground(f.rEnd, a);
@@ -569,6 +570,7 @@ function flightPos(f, u, out) {
   if (f.roll) { r = Math.min(f.travel * u, f.rEnd); y = BALL_R + Math.abs(Math.sin(u * 13)) * 2.4 * (1 - u) * (1 - u); }
   else { r = f.rEnd * u; y = HIT0.y + (f.yEnd - HIT0.y) * u + 4 * f.arc * u * (1 - u); }
   out.set(f.sx * r, y, f.sz * r + HIT0.z * (1 - u));
+  if (f.off) { const k = (1 - u) * (1 - u); out.x += f.off.x * k; out.y += f.off.y * k; out.z += f.off.z * k; }
   return r;
 }
 // A pitch, t seconds after release. It crosses the front of the plate at t = T, exactly as the timing windows expect.
@@ -879,26 +881,6 @@ function paintBoard(g, script) {
     g.shadowColor = "#ff9a00"; g.shadowBlur = 14; g.fillStyle = "#ffc21a"; g.fillText(cells[i][1], x + 98, 186); g.shadowBlur = 0;
   }
 }
-// The sliding target sign.
-function signCanvas() {
-  const c = mkCanvas(1024, 256), g = c.getContext("2d");
-  g.fillStyle = "#0b0c18"; g.fillRect(0, 0, 1024, 256);
-  const bg = g.createLinearGradient(0, 0, 0, 256);
-  bg.addColorStop(0, "#ff6cbb"); bg.addColorStop(1, "#ff2f96");
-  rrectPath(g, 14, 14, 996, 228, 26); g.fillStyle = bg; g.fill();
-  g.lineWidth = 6; g.strokeStyle = "#ffffff"; g.stroke();
-  for (let i = 0; i < 30; i++) {                          // marquee bulbs, top and bottom
-    g.fillStyle = i % 2 ? "#fff6c8" : "#ffd21f";
-    g.beginPath(); g.arc(46 + i * 32.1, 36, 7, 0, TAU); g.fill(); g.beginPath(); g.arc(46 + i * 32.1, 220, 7, 0, TAU); g.fill();
-  }
-  g.font = '900 86px "Arial Black", Arial, sans-serif'; g.textAlign = "center"; g.textBaseline = "middle"; g.lineJoin = "round";
-  const str = "IS IT ON THE SHELF?", tw = g.measureText(str).width;
-  if (tw > 930) g.font = "900 " + Math.floor(86 * 930 / tw) + 'px "Arial Black", Arial, sans-serif';
-  g.lineWidth = 12; g.strokeStyle = "#ffffff"; g.strokeText(str, 512, 130);
-  g.fillStyle = "#0b1f5e"; g.fillText(str, 512, 130);
-  return c;
-}
-
 // A jersey, wrapped once around the body: u = 0 is the chest, u = .5 the back. Wordmark on both, number on the back.
 function jerseyCanvas(script, base, stripe, num, numCol) {
   const c = mkCanvas(512, 256), g = c.getContext("2d");
@@ -984,7 +966,7 @@ const LED_BIG = Math.max(1, Math.floor((LED_ROWS - 4) / 7));   // the largest te
 const LED_C = { amber: "#ffb000", yellow: "#ffe838", white: "#ffffff", red: "#ff3322", pink: "#ff4fc0", cyan: "#2fe6ff",
                 lime: "#7dff3a", violet: "#b68cff", orange: "#ff8a1e", blue: "#4a7dff" };
 // Short messages between the plugs. The wordmark leads each group.
-const LED_LINES = [["FREE AT THENOSTALGIAPRO.COM", "amber"], ["IS IT ON THE SHELF?", "pink"], ["NO QUARTERS REQUIRED", "cyan"]];
+const LED_LINES = [["FREE AT THENOSTALGIAPRO.COM", "amber"], ["NO QUARTERS REQUIRED", "cyan"]];
 // Plugs for the rest of the arcade: [game, one-line tag]. Edit freely, the board lays itself out.
 const LED_PLUGS = [
   ["TAPE PIN LANES", "3D BOWLING"],
@@ -1374,9 +1356,9 @@ const UNI = { royal: "#1f4fc8", royalDk: "#163a96", navy: "#0d1a46", white: "#ff
 // lf / rf: ankles, lfa / rfa: which way each foot points. head: where the face points (deg, like hip).
 // nod: chin down. roll: shoulders tilt (+ drops the right shoulder). doff: cap lifted off.
 // phi / el: the bat, around and up. lel / rel: elbows lifted out. f: the free left hand, onbat: left hand
-// on the bat (1) or free (0), brim: left hand on the brim of the cap.
+// on the bat (1) or free (0), brim: left hand on the brim of the cap. lez / rez: front / back elbow swung toward the plate.
 const PK = ["x", "y", "z", "hip", "sh", "lean", "lx", "ly", "lz", "rx", "ry", "rz", "lfx", "lfy", "lfz", "rfx", "rfy", "rfz",
-            "head", "nod", "roll", "doff", "phi", "el", "lfa", "rfa", "lel", "rel", "fx", "fy", "fz", "onbat", "brim"];
+            "head", "nod", "roll", "doff", "phi", "el", "lfa", "rfa", "lel", "rel", "fx", "fy", "fz", "onbat", "brim", "lez", "rez"];
 const PX = {};
 PK.forEach(function (k, i) { PX[k] = i; });
 function pose(o, base) {
@@ -1387,28 +1369,37 @@ function pose(o, base) {
 }
 
 /* The batter. Between pitches he stands square to the stands behind the plate with the bat on his shoulder and a
-   hand on his hip (SWAG), lifts his cap to the crowd, then digs into a wide stance with the bat cocked high behind
-   his head. A leg kick and stride ride along with the pitch, and the swing runs from wherever he is at the tap.
-   The bat's heading (phi) only ever increases through a swing: from behind his head (-225), down through the slot,
-   level through the ball (12) and round to the finish over his front shoulder (220). */
+   hand on his hip (SWAG), lifts his cap to the crowd, then settles into a tall old-time stance with the bat cocked
+   over his back shoulder. A small leg kick and stride ride along with the pitch, and the swing runs from wherever he
+   is at the tap. The bat's heading (phi) only ever increases through a swing: up over the back shoulder (-110),
+   down through the slot, level through the ball (12) and round to the finish over his front shoulder (220). */
 const B_SWAG = pose({ x: 0, y: 3.12, z: 0.1, hip: -52, sh: -72, lean: -4, lx: -0.97, ly: 4.0, lz: -0.69, phi: -252, el: 57,
                       lfx: 0.75, lfz: 0.55, rfx: -0.75, rfz: -0.45, lfa: -40, rfa: -65, head: -55, nod: -6, lel: 0.9, rel: 0.2,
                       fx: 0.5, fy: 3.32, fz: 0.62, onbat: 0 });
 const B_LOOK = pose({ hip: -54, sh: -76, head: -80, nod: 2 }, B_SWAG);             // turned full to the stands behind the plate
-const B_STANCE = pose({ x: 0.05, y: 2.86, z: 0.15, hip: -8, sh: -22, lean: 15, lx: -0.62, ly: 5.55, lz: 0.42, phi: -225, el: 28,
-                        lfx: 1.42, lfz: 0.18, rfx: -1.3, rfz: 0.08, lfa: 22, rfa: -5, head: 80, nod: 8, lel: 0.45, rel: 1, onbat: 1 });
-const B_LIFT = pose({ x: -0.08, y: 2.98, hip: -16, sh: -32, lx: -0.82, ly: 5.6, lz: 0.34, phi: -214, el: 30, lfx: 0.5, lfy: 1.05, lfz: 0.24, lfa: 0, head: 82 }, B_STANCE);
-const B_STRIDE = pose({ x: 0.26, y: 2.78, z: 0.15, hip: -8, sh: -28, lean: 15, lx: -0.78, ly: 5.38, lz: 0.42, phi: -206, el: 30, lfx: 1.78, lfy: 0.33, lfz: 0.22, lfa: 24, head: 82 }, B_STANCE);
-const B_CONTACT = pose({ x: 0.36, y: 2.78, z: 0.2, hip: 52, sh: 66, lean: 15, roll: 12, lx: 0.6, ly: 3.45, lz: 1.1, phi: 12, el: -8,
-                         rfx: -1.12, rfy: 0.5, rfz: 0.14, rfa: 50, lfa: 32, head: 76, nod: 12, lel: 0.05, rel: 0 }, B_STRIDE);
-const B_EXTEND = pose({ x: 0.45, y: 2.9, hip: 85, sh: 115, lean: 10, roll: 5, lx: 1.35, ly: 3.9, lz: 0.9, phi: 95, el: 6,
-                        rfx: -0.95, rfy: 0.62, rfz: 0.25, rfa: 80, head: 70, nod: 6 }, B_CONTACT);
-const B_FINISH = pose({ x: 0.42, y: 3.02, z: 0.15, hip: 95, sh: 140, lean: 0, roll: -6, lx: 0.1, ly: 5.25, lz: -0.55, phi: 220, el: 22,
-                        rfx: -0.55, rfy: 0.7, rfz: 0.4, rfa: 95, head: 55, nod: -10, lel: 0.6, rel: 0.3 }, B_EXTEND);
-const LOAD_KEYS = [0, 0.15, 0.5, 0.85];                   // fraction of the pitch's flight
+// The stance: tall and square to the plate (hips and shoulders both facing it, shoulders level), feet shoulder width
+// with the weight a little on the back foot, knees soft over the toes, a small hip hinge. Hands together on the
+// handle just in front of and below the back shoulder, the bat up at 45 degrees with the barrel over and behind that
+// shoulder, the back elbow out behind at a little under shoulder height, the front arm across the chest with its
+// elbow down toward the plate. Head turned full to the pitcher, eyes level.
+const B_STANCE = pose({ x: -0.1, y: 3.16, z: 0.12, hip: 0, sh: 0, lean: 9, roll: 0, lx: -0.85, ly: 4.55, lz: 0.9, phi: -132, el: 45,
+                        lfx: 0.95, lfz: 0.14, rfx: -1.0, rfz: 0.1, lfa: 4, rfa: 0, head: 90, nod: -3, lel: 0, rel: 0.75, lez: 1.1, rez: 0.6, onbat: 1 });
+const B_LIFT = pose({ x: -0.2, y: 3.18, hip: -6, sh: -8, lx: -0.95, ly: 4.6, lz: 0.85, phi: -128, el: 47, lfx: 0.6, lfy: 0.6, lfz: 0.15, lfa: 0 }, B_STANCE);
+const B_STRIDE = pose({ x: 0.1, y: 3.08, z: 0.14, hip: -3, sh: -6, lean: 10, lx: -0.92, ly: 4.55, lz: 0.88, phi: -124, el: 45, lfx: 1.38, lfy: 0.33, lfz: 0.18, lfa: 18 }, B_STANCE);
+const B_CONTACT = pose({ x: 0.32, y: 2.96, z: 0.18, hip: 52, sh: 66, lean: 13, roll: 12, lx: 0.6, ly: 3.45, lz: 1.1, phi: 12, el: -8,
+                         rfx: -0.92, rfy: 0.5, rfz: 0.14, rfa: 50, lfa: 30, head: 78, nod: 12, lel: 0.05, rel: 0, lez: 0, rez: 0 }, B_STRIDE);
+const B_EXTEND = pose({ x: 0.4, y: 3.02, hip: 85, sh: 115, lean: 9, roll: 5, lx: 1.35, ly: 3.9, lz: 0.9, phi: 95, el: 6,
+                        rfx: -0.78, rfy: 0.62, rfz: 0.25, rfa: 80, head: 70, nod: 6 }, B_CONTACT);
+const B_FINISH = pose({ x: 0.38, y: 3.12, z: 0.15, hip: 95, sh: 140, lean: 0, roll: -6, lx: 0.1, ly: 5.25, lz: -0.55, phi: 220, el: 22,
+                        rfx: -0.45, rfy: 0.7, rfz: 0.4, rfa: 95, head: 55, nod: -10, lel: 0.6, rel: 0.3 }, B_EXTEND);
+// The launch: front foot down, hips starting to open, hands dropping into the slot with the bat flattening behind.
+const B_LAUNCH = pose({ x: 0.22, y: 3.02, hip: 22, sh: 14, lean: 11, roll: 6, lx: -0.35, ly: 4.35, lz: 0.85, phi: -45, el: 12,
+                        lfx: 1.38, lfy: 0.33, lfz: 0.18, lfa: 22, rfx: -0.98, rfy: 0.4, rfz: 0.12, rfa: 20, head: 82, nod: 6, lel: 0.1, rel: 0.3, lez: 0.4 }, B_STRIDE);
+const LOAD_KEYS = [0, 0.12, 0.42, 0.7];                   // fraction of the pitch's flight: still, leg lift, stride down
 const LOAD_POSES = [B_STANCE, B_STANCE, B_LIFT, B_STRIDE];
-const SWING_KEYS = [0, 0.07, 0.15, 0.36];                 // seconds after the tap: start, contact, extension, finish
-const SWING_POSES = [null, B_CONTACT, B_EXTEND, B_FINISH]; // the first is wherever he was when he swung
+// Seconds after the tap: start, launch, contact (moved per swing to when bat and ball meet), extension, finish.
+const SWING_KEYS = [0, 0.09, SWING_T, SWING_T + 0.09, SWING_T + 0.3];
+const SWING_POSES = [null, B_LAUNCH, pose({}, B_CONTACT), B_EXTEND, B_FINISH];   // the first is wherever he was when he swung
 
 /* The pitcher: an old-school full windup. k runs 0 to 1 through the windup and reaches the release at exactly 1,
    where the pitch leaves his hand (R.rel). */
@@ -1876,7 +1867,7 @@ function applyPose(P, v) {
     t.b.lerp(t.q, br);
   }
   for (let s = 0; s < 2; s++) {                             // 0 = left, 1 = right
-    const sg = s ? -1 : 1, lift = v[s ? PX.rel : PX.lel], px = sg * (0.5 + 0.7 * lift), pz = -0.5 - 0.2 * lift;
+    const sg = s ? -1 : 1, lift = v[s ? PX.rel : PX.lel], px = sg * (0.5 + 0.7 * lift), pz = -0.5 - 0.2 * lift + v[s ? PX.rez : PX.lez];
     t.a.set(sg * P.shoulder[0], P.shoulder[1], P.shoulder[2]).applyMatrix4(P.upper.matrix);
     if (s) t.b.set(v[PX.rx], v[PX.ry], v[PX.rz]);
     t.p.set(px * cu + pz * su, -0.8 + 0.85 * lift, -px * su + pz * cu);   // elbows hang down, out and back, or lift out
@@ -1929,7 +1920,7 @@ function buildScene(T, scriptImg) {
   const tMown = tex(mownCanvas(script)), tGrass = tex(grassCanvas(), true), tDirt = tex(dirtCanvas(), true), tInfield = tex(infieldCanvas()), tChalk = tex(chalkCanvas());
   const tWall = tex(wallCanvas(script), true), tSideWall = tex(sideWallCanvas(script), true), tSeat = tex(seatCanvas(), true);
   const tSky = tex(skyCanvas()), tSkyline = tex(skylineCanvas(), true), tLamp = tex(lampCanvas()), tGlow = tex(glowCanvas()), tShadow = tex(shadowCanvas());
-  const tSign = tex(signCanvas()), tBall = tex(ballCanvas(script), true), tCart = tex(cartCanvas(script));
+  const tBall = tex(ballCanvas(script), true), tCart = tex(cartCanvas(script));
   tBall.wrapT = T.ClampToEdgeWrapping;
   const cBoard = mkCanvas(1024, 256), tBoard = tex(cBoard);
   const tEnv = new T.CubeTexture(envFaces());
@@ -2158,15 +2149,6 @@ function buildScene(T, scriptImg) {
   [-52, 52].forEach(function (x) { const leg = new T.Mesh(new T.BoxGeometry(5, SB.y0 - 40, 5), boardSide); leg.position.set(x, (SB.y0 + 40) / 2, -4); board.add(leg); });
   scene.add(board);
 
-  /* the sliding shelf sign */
-  const sign = new T.Group();
-  const signArm = new T.Group(); sign.add(signArm);
-  const signSide = new T.MeshLambertMaterial({ color: 0x0b0c18 });
-  const signBox = new T.Mesh(roundBox(T, SIGN.half * 2, SIGN.y1 - SIGN.y0, 2.4, 0.8), [signSide, signSide, signSide, signSide, new T.MeshBasicMaterial({ map: tSign }), signSide]);
-  signBox.position.y = (SIGN.y0 + SIGN.y1) / 2; signArm.add(signBox);
-  [-28, 28].forEach(function (x) { const leg = new T.Mesh(new T.BoxGeometry(2.2, 22, 2.2), poleMat); leg.position.set(x, SIGN.y0 - 10, -1); signArm.add(leg); });
-  scene.add(sign);
-
   /* players: the old-time slugger at the plate and the pitcher on the mound, in the same club colors */
   const batter = makePlayer(T, tex, script, tEnv, { build: "slugger", skin: "#e3a77c", shade: "#cf8a64", hair: "#141010", mustache: true, num: "1" });
   batter.root.rotation.y = Math.PI / 2; scene.add(batter.root);
@@ -2202,7 +2184,7 @@ function buildScene(T, scriptImg) {
 
   return {
     T: T, gl: gl, renderer: renderer, scene: scene, camera: camera, script: script,
-    cBoard: cBoard, tBoard: tBoard, boardFace: boardFace, boardKey: "", sign: sign, signArm: signArm, signBox: signBox,
+    cBoard: cBoard, tBoard: tBoard, boardFace: boardFace, boardKey: "",
     batter: batter, pitcher: pitcher, bat: bat, batShadow: batShadow, ball: ball, cart: cart, ballShadow: ballShadow, rel: rel,
     fans: fans, crowdU: crowdU,
     camPos: new T.Vector3(0, CAM.y, CAM.z), camTgt: new T.Vector3(0, CAM.ty, CAM.tz), bp: new T.Vector3(), v: new T.Vector3(), v2: new T.Vector3(),
@@ -2306,6 +2288,26 @@ function swagPose(tau, kind, out) {
   out[PX.brim] = hand; out[PX.doff] = lift; out[PX.nod] += lift * 12;
   return out;
 }
+// Set the swing up so the bat arrives on the ball: the contact key moves to the moment they meet, and the bat is
+// pointed at where the ball will be then (pulled out front when early, dragged deep when late). A miss uses the
+// textbook contact. tap: the pitch's clock when he swung.
+const AIM_G = [0.6, 3.45, 1.1];                             // the bottom hand at a textbook contact, batter space
+function aimSwing(tap) {
+  const m = S.meet, c = SWING_POSES[2];
+  mixPose(B_CONTACT, B_CONTACT, 0, c);
+  const at = m ? m.at : SWING_T;
+  SWING_KEYS[1] = at * 0.53; SWING_KEYS[2] = at; SWING_KEYS[3] = at + 0.09; SWING_KEYS[4] = at + 0.3;
+  if (!m) return;
+  const v = R.v2;
+  pitchPos(S.pitch, tap + at, v);
+  R.batter.root.updateMatrixWorld(true); R.batter.root.worldToLocal(v);
+  let dx = v.x - AIM_G[0], dy = v.y - AIM_G[1], dz = v.z - AIM_G[2];
+  const n = Math.hypot(dx, dy, dz) || 1; dx /= n; dy /= n; dz /= n;
+  c[PX.lx] = v.x - dx * 2.45; c[PX.ly] = v.y - dy * 2.45; c[PX.lz] = v.z - dz * 2.45;
+  c[PX.phi] = Math.atan2(dx, dz) / DEG; c[PX.el] = Math.asin(clamp(dy, -1, 1)) / DEG;
+  const turn = clamp(-m.e * 180, -16, 16);                  // early: further round; late: still closed
+  c[PX.sh] += turn; c[PX.hip] += turn * 0.7;
+}
 function batterPose(idle, calm, out) {
   const ph = S.phase;
   let wag = 0;
@@ -2321,19 +2323,26 @@ function batterPose(idle, calm, out) {
     poseAt(LOAD_KEYS, LOAD_POSES, u, out);
     wag = 1 - sstep(0.05, 0.25, u);
   } else if (S.swing >= 0 && S.pitch) {                     // the swing, from wherever he was when he let it go
-    if (V.swingId !== S.thrown || !(S.swing >= V.swingLast)) { V.swingId = S.thrown; V.preU = clamp((S.pitch.t - S.swing) / S.pitch.T, 0, 1); }
+    if (V.swingId !== S.thrown || !(S.swing >= V.swingLast)) {
+      V.swingId = S.thrown; V.preU = clamp((S.pitch.t - S.swing) / S.pitch.T, 0, 1);
+      aimSwing(S.pitch.t - S.swing);
+    }
     V.swingLast = S.swing;
     SWING_POSES[0] = poseAt(LOAD_KEYS, LOAD_POSES, V.preU, poseC);
     poseAt(SWING_KEYS, SWING_POSES, S.swing, out);
-    const r = sstep(0.62, 1.1, S.swing);
+    const r = sstep(SWING_KEYS[4] + 0.2, SWING_KEYS[4] + 0.65, S.swing);
     if (r > 0) mixPose(out, B_SWAG_OUT, r, out);
   } else {                                                  // took the pitch: back out of the stride
     poseAt(LOAD_KEYS, LOAD_POSES, 1, poseC);
     mixPose(poseC, B_SWAG, sstep(0.05, 0.5, S.pt), out);
   }
   if (!calm) {
-    out[PX.phi] += Math.sin(R.clock * 3) * 7 * wag; out[PX.el] += Math.sin(R.clock * 1.7) * 4 * wag;
-    out[PX.y] += Math.sin(R.clock * 2.4) * 0.025 * Math.max(wag, idle ? 1 : 0);
+    // a small bat waggle and a slow rock between the feet while he waits
+    const c = R.clock;
+    out[PX.phi] += Math.sin(c * 3.1) * 6 * wag; out[PX.el] += Math.sin(c * 2.2) * 4 * wag;
+    out[PX.lx] += Math.sin(c * 3.1 + 0.6) * 0.04 * wag; out[PX.ly] += Math.sin(c * 2.2 + 0.4) * 0.03 * wag;
+    out[PX.x] -= (0.5 + 0.5 * Math.sin(c * 1.4)) * 0.07 * wag; out[PX.hip] -= Math.sin(c * 1.4) * 2 * wag;
+    out[PX.y] += Math.sin(c * 2.4) * 0.025 * Math.max(wag, idle ? 1 : 0);
   }
   return out;
 }
@@ -2352,16 +2361,6 @@ function syncScene(state, fdt) {
   if (bk !== R.boardKey) { R.boardKey = bk; paintBoard(R.cBoard.getContext("2d"), R.script); R.tBoard.needsUpdate = true; }
   if (V.sbFlash > 0) V.sbFlash = Math.max(0, V.sbFlash - fdt * 1.8);
   R.boardFace.color.setScalar(1 + (V.sbFlash > 0 && !calm ? (Math.sin(R.clock * 44) > 0 ? 0.9 : 0.15) * V.sbFlash : 0));
-
-  /* the shelf sign: it slides along with the rules' own clock, and waits where the rules saw it while a ball is in the air */
-  let goal = billboardAngle(t);
-  if (air && S.t >= V.hitT + 0.6) goal = h.target === "billboard" ? h.theta : billboardAngle(V.hitT + 0.6);
-  V.signA += (goal - V.signA) * Math.min(1, fdt * 7);
-  if (!(Math.abs(V.signA) <= 60)) V.signA = goal;
-  if (V.signHit > 0) V.signHit = Math.max(0, V.signHit - fdt * 1.4);
-  R.sign.rotation.y = -V.signA * DEG;
-  R.signArm.position.z = -(fence(V.signA) + SIGN.k);
-  R.signBox.rotation.x = calm ? 0 : Math.sin(R.clock * 26) * 0.2 * V.signHit;
 
   /* pitcher: k runs through the windup to the release at 1, then the follow through */
   let k = -1;
@@ -2386,7 +2385,7 @@ function syncScene(state, fdt) {
   if (V.bFade > 0) { V.bFade = Math.max(0, V.bFade - fdt / 0.25); mixPoseA(poseB, bSnap, sstep(0, 1, V.bFade), poseB); }
   mixPose(poseB, poseB, 0, bLast);
   const phi = poseB[PX.phi] * DEG, el = poseB[PX.el] * DEG, bdx = Math.sin(phi) * Math.cos(el), bdy = Math.sin(el), bdz = Math.cos(phi) * Math.cos(el);
-  poseB[PX.rx] = poseB[PX.lx] + bdx * 0.3; poseB[PX.ry] = poseB[PX.ly] + bdy * 0.3; poseB[PX.rz] = poseB[PX.lz] + bdz * 0.3;   // top hand, up the handle
+  poseB[PX.rx] = poseB[PX.lx] + bdx * 0.36; poseB[PX.ry] = poseB[PX.ly] + bdy * 0.36; poseB[PX.rz] = poseB[PX.lz] + bdz * 0.36;   // top hand, up the handle
   applyPose(R.batter, poseB);
   TV.d.set(bdx, bdy, bdz);
   R.bat.position.set(poseB[PX.lx] - bdx * 0.32, poseB[PX.ly] - bdy * 0.32, poseB[PX.lz] - bdz * 0.32);
@@ -2492,7 +2491,7 @@ function drawWorld(c) {
     }
   }
   if (V.spark > 0 && ph === "contact" && !Shell.reduced) {
-    const p = toScreen(0.4, HIT0.y, HIT0.z), k = 1 - V.spark / 0.22, rr = 8 + k * 26;
+    const o = (V.flight && V.flight.off) || { x: 0, y: 0, z: 0 }, p = toScreen(0.4 + o.x, HIT0.y + o.y, HIT0.z + o.z), k = 1 - V.spark / 0.22, rr = 8 + k * 26;
     c.save(); c.translate(p.x, p.y); c.globalAlpha = 1 - k;
     c.fillStyle = "#fff6c8"; c.beginPath();
     for (let i = 0; i < 16; i++) { const a = i / 16 * TAU, q = i % 2 ? rr * 0.42 : rr; c.lineTo(Math.cos(a) * q, Math.sin(a) * q); }
@@ -2674,7 +2673,7 @@ function startGame() {
     format: function (n) { return n + " FT"; },
     howTo: "20 pitches in real 3D. Tap anywhere to swing. Early pulls it, late goes the other way, right on time sends it. Only home runs count.",
     keys: "Keys: Space swings. Left and right shift your stance before the pitch. P pause, M mute, N music, R restart.",
-    tip: "Hit the scoreboard, the shelf sign, or clear the bleachers for a bonus pitch.",
+    tip: "Hit the scoreboard or clear the bleachers for a bonus pitch.",
     reset: reset,
     update: update,
     draw: draw,
