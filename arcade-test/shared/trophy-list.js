@@ -215,6 +215,20 @@
       T(166, "cb4k-deep", "From 4000", "Make the 4000 spot with a gold ball.", "sealed"),
       T(167, "cb4k-buzzer", "Beat The Horn", "Score a buzzer beater.", "sealed"),
       T(168, "cb4k-ot", "Free Basketball", "Reach overtime.", "slabbed")
+    ] },
+    // Shift Racing (3D street racer), test path only for now. Slots 169-178; never reuse them.
+    // Claude's first draft used 127-136, which are reserved unused numbers; ids are unchanged.
+    { slug: "shift-racing", name: "Shift Racing", status: "live", trophies: [
+      T(169, "sr-perfect", "Money Shift", "Hit a perfect shift in the green.", "loose"),
+      T(170, "sr-launch", "Hole Shot", "Get a perfect launch.", "loose"),
+      T(171, "sr-redlight", "Red Light Rental", "Jump the green at the drag strip.", "loose", { secret: true }),
+      T(172, "sr-podium", "Podium Finish", "Finish a circuit race in the top 3.", "boxed", end(function (s) { return s.mode === "circuit" && s.place <= 3; })),
+      T(173, "sr-win", "Checkered Flag", "Win a circuit race.", "boxed"),
+      T(174, "sr-dragwin", "Win Light", "Beat Vic Volume on the quarter mile.", "boxed"),
+      T(175, "sr-tenrow", "Ten in a Row", "Hit 10 perfect shifts in a row.", "sealed"),
+      T(176, "sr-clean", "Never Missed a Gear", "Finish a circuit race with every shift perfect (8 or more).", "sealed", end(function (s) { return s.mode === "circuit" && s.clean; })),
+      T(177, "sr-eleven", "Ten Second Tape", "Run the quarter mile in under 10.5 seconds without a red light.", "sealed"),
+      T(178, "sr-tour", "Grand Tour", "Win on all three circuits.", "slabbed")
     ] }
   ];
 
