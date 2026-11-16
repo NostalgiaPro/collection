@@ -188,6 +188,45 @@
       T(190, "pr-rings100", "Hundred Rings", "Collect 100 rings in one game.", "sealed", { goal: { stat: "ringsGame", at: 100, unit: "rings", one: "ring" } }),
       T(191, "pr-super", "Super Jackpot", "Collect the Super Jackpot.", "sealed"),
       T(192, "pr-10m", "Ten Million", "Score 10,000,000 points in one game.", "slabbed", { goal: { stat: "score", at: 10000000, unit: "PTS", fromBest: true }, end: function (s) { return s.score >= 10000000; } })
+    ] },
+    { slug: "flea-fortress-flyby", name: "Flea Fortress Flyby", status: "live", trophies: [
+      T(148, "fff-under", "Under the Counter", "Fly under an electric force field.", "loose"),
+      T(149, "fff-tanks", "Topped Off", "Shoot 6 fuel tanks in one run.", "loose", { goal: { stat: "tanks", at: 6, margin: 2, unit: "fuel tanks", one: "fuel tank" }, end: function (s) { return s.tanks >= 6; } }),
+      T(150, "fff-ears", "No Reception", "Shoot 3 rabbit ear TVs in one run.", "loose", { goal: { stat: "ears", at: 3, margin: 1, unit: "rabbit ear TVs", one: "rabbit ear TV" }, end: function (s) { return s.ears >= 3; } }),
+      T(151, "fff-discs", "Flying Disc Clearance", "Shoot 15 flying discs in one run.", "boxed", { goal: { stat: "discs", at: 15, margin: 4, unit: "flying discs", one: "flying disc" }, end: function (s) { return s.discs >= 15; } }),
+      T(152, "fff-boss", "Haggle Over", "Beat the Haggletron at the far end of the fortress.", "boxed", end(function (s) { return s.beaten >= 1; })),
+      T(153, "fff-fumes", "Running on Fumes", "Beat the Haggletron with less than 20% fuel left.", "sealed"),
+      T(154, "fff-clean", "Never Opened", "Beat the Haggletron without losing a ship on that fortress.", "sealed"),
+      T(155, "fff-loop", "Second Lap of the Lot", "Beat the Haggletron twice in one run.", "slabbed", end(function (s) { return s.beaten >= 2; }))
+    ] },
+    { slug: "clutch-ball-4000", name: "Clutch Ball 4000", status: "live", trophies: [
+      T(162, "cb4k-swish", "Nothing But Neon", "Make a swish.", "loose"),
+      T(163, "cb4k-hyper", "Hyperdrive", "Reach the x4 combo.", "boxed"),
+      T(164, "cb4k-lap", "Perfect Lap", "Make all five spots in one lap.", "boxed"),
+      T(165, "cb4k-zap", "Drone Zapper", "Put a ball through the bonus drone.", "boxed"),
+      T(166, "cb4k-deep", "From 4000", "Make the 4000 spot with a gold ball.", "sealed"),
+      T(167, "cb4k-buzzer", "Beat The Horn", "Score a buzzer beater.", "sealed"),
+      T(168, "cb4k-ot", "Free Basketball", "Reach overtime.", "slabbed")
+    ] },
+    { slug: "circuit-box", name: "Circuit Box", status: "live", trophies: [
+      T(193, "cb-first", "Plugged In", "Clear any circuit.", "loose"),
+      T(194, "cb-stars", "Under Par", "Get three stars on a circuit.", "loose"),
+      T(195, "cb-bounce", "Bank Shot", "Light up a target with a beam that bounced off a mirror.", "boxed"),
+      T(196, "cb-wind", "Second Wind", "Clear a circuit powered by a wind turbine.", "boxed"),
+      T(197, "cb-gears", "Gear Head", "Clear a circuit with at least three gears turning.", "boxed"),
+      T(198, "cb-quiet", "Don't Wake Dad", "Clear a circuit with an alarm clock on the board and keep it quiet.", "sealed"),
+      T(199, "cb-goldberg", "Contraption", "Clear Rube Goldberg.", "sealed"),
+      T(200, "cb-firsttry", "One and Done", "Clear circuit 10 or later on the first flip of the breaker.", "sealed"),
+      T(201, "cb-all", "Fully Wired", "Clear every circuit.", "slabbed"),
+      T(202, "cb-perfect", "Mint in Box", "Three stars on every circuit.", "slabbed")
+    ] },
+    { slug: "monster-truck-rally", name: "Monster Truck Rally", status: "live", trophies: [
+      T(203, "mtr-crush", "Car Crusher", "Flatten a junk car.", "loose"),
+      T(204, "mtr-wrecking", "Wrecking Crew", "Crush every car on a course.", "boxed"),
+      T(205, "mtr-backflip", "Stuck the Flip", "Land a flip.", "loose"),
+      T(206, "mtr-bigair", "Big Air", "Stay in the air for 1.8 seconds or more.", "boxed"),
+      T(207, "mtr-clean5", "Five Clean", "Stick 5 clean landings in a row.", "sealed"),
+      T(208, "mtr-champion", "Rally Champion", "Finish all eight courses.", "slabbed")
     ] }
   ];
 

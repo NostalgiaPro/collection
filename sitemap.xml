@@ -158,13 +158,13 @@
   </url>
   <url>
     <loc>https://thenostalgiapro.com/arcade/shelf-links/</loc>
-    <lastmod>2026-10-28</lastmod>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://thenostalgiapro.com/arcade/bargain-bin-buckets/</loc>
-    <lastmod>2026-10-28</lastmod>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -176,7 +176,7 @@
   </url>
   <url>
     <loc>https://thenostalgiapro.com/arcade/tape-pin-lanes/</loc>
-    <lastmod>2026-10-28</lastmod>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -194,7 +194,7 @@
   </url>
   <url>
     <loc>https://thenostalgiapro.com/arcade/pawn-shop-pool/</loc>
-    <lastmod>2026-11-15</lastmod>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -206,13 +206,13 @@
   </url>
   <url>
     <loc>https://thenostalgiapro.com/arcade/powder-day-haul/</loc>
-    <lastmod>2026-10-29</lastmod>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://thenostalgiapro.com/arcade/table-rink-rumble/</loc>
-    <lastmod>2026-10-29</lastmod>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -243,6 +243,60 @@
   <url>
     <loc>https://thenostalgiapro.com/arcade/pinball-rings/</loc>
     <lastmod>2026-11-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://thenostalgiapro.com/arcade/circuit-box/</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://thenostalgiapro.com/arcade/clutch-ball-4000/</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://thenostalgiapro.com/arcade/flea-fortress-flyby/</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://thenostalgiapro.com/arcade/gem-shop/</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://thenostalgiapro.com/arcade/mini-golf-classic/</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://thenostalgiapro.com/arcade/monster-truck-rally/</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://thenostalgiapro.com/arcade/paintball-blitz/</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://thenostalgiapro.com/arcade/pool-hall-hustle/</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://thenostalgiapro.com/arcade/vector-siege/</loc>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>

@@ -9,7 +9,7 @@
   var ACCENT = {
     "shelf-links": "#9bff3f", "bargain-bin-buckets": "#ff3fa4", "bleacher-carts": "#ffd23f", "tape-pin-lanes": "#a77bff",
     "ticket-roll-alley": "#3ff0ff", "fourth-and-collect": "#9bff3f", "pawn-shop-pool": "#ff4b3e", "rink-rat-shootout": "#3ff0ff",
-    "powder-day-haul": "#a77bff", "table-rink-rumble": "#ff3fa4", "battle-karts": "#ff9214", "shift-racing": "#39ff6a", "marble-drop": "#ffd23f", "pinball-rings": "#ff3fa4", "creature-feature-ko": "#ff8a1f", meta: "#ff4b3e", game: "#ffd23f"
+    "powder-day-haul": "#a77bff", "table-rink-rumble": "#ff3fa4", "battle-karts": "#ff9214", "shift-racing": "#39ff6a", "marble-drop": "#ffd23f", "pinball-rings": "#ff3fa4", "creature-feature-ko": "#ff8a1f", "flea-fortress-flyby": "#ff9b3f", "clutch-ball-4000": "#3ff0ff", "circuit-box": "#ffd23f", "gem-shop": "#ff4fc0", "mini-golf-classic": "#ff3fa4", "monster-truck-rally": "#ff9214", "paintball-blitz": "#ff3fa4", "pool-hall-hustle": "#3ff0ff", "vector-siege": "#2ff3ff", meta: "#ff4b3e", game: "#ffd23f"
   };
   var $ = function (id) { return document.getElementById(id); };
   var filter = "all", seen = 0, lastFocus = null;

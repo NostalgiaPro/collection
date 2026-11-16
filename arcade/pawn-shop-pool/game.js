@@ -67,13 +67,38 @@ function rackBalls() {
   return b;
 }
 
+// The back room is indoors, so it never rains here. shared/extras.js is shared with other games and still offers
+// "rain", so the pick is made again until it is something else, and a ?scene=rain override in the address is ignored.
+function indoorScenery() {
+  let sc = X.scenery();
+  for (let i = 0; i < 60 && sc && sc.id === "rain"; i++) sc = X.scenery();
+  if (!sc || sc.id !== "rain") return sc;
+  // still rain: the address is forcing it. Pick from any scenery list extras.js exposes, leaving rain out.
+  const pool = [];
+  Object.keys(X).forEach(function (k) {
+    const v = X[k];
+    if (!v || typeof v !== "object") return;
+    const list = Array.isArray(v) ? v : Object.keys(v).map(function (n) { return v[n]; });
+    list.forEach(function (o) { if (o && typeof o === "object" && typeof o.id === "string" && typeof o.name === "string" && "line" in o && o.id !== "rain" && pool.indexOf(o) < 0) pool.push(o); });
+  });
+  if (pool.length) return pool[Math.floor(Math.random() * pool.length)];
+  // no list to pick from: pick again with the override taken out of the address for a moment, then put the address back
+  const url = location.href;
+  try {
+    history.replaceState(history.state, "", url.replace(/([?&])scene=rain(&|#|$)/i, function (m, a, b) { return b === "&" ? a : b; }));
+    for (let i = 0; i < 60 && sc.id === "rain"; i++) sc = X.scenery();
+  } catch (e) { /* history not available */ }
+  finally { try { history.replaceState(history.state, "", url); } catch (e) { /* history not available */ } }
+  return sc;
+}
+
 function reset() {
   S = { t: 0, time: 0, penalty: 0, bonus: 0, rack: 1, phase: "aim", pt: 0, balls: rackBalls(),
         cue: { n: 0, x: HEAD.x, y: HEAD.y, vx: 0, vy: 0, in: false, sink: 0 },
         aim: -Math.PI / 2, power: 0, charging: false, chargeT: 0, drag: null, kb: false,
         shot: null, shots: 0, scratches: 0, combos: 0, bestCombo: 0, potted: 0, breakPots: 0, rackShots: 0, over: false };
   parts.length = 0;
-  if (X) S.x = { sc: X.scenery(), fever: new X.Fever(15), sched: new X.Scheduler(25, 55, 2), rare: null, rares: 0, events: 0, intro: false };
+  if (X) S.x = { sc: indoorScenery(), fever: new X.Fever(15), sched: new X.Scheduler(25, 55, 2), rare: null, rares: 0, events: 0, intro: false };
   V.strike = null; V.mood = ""; V.moodT = 0; V.nextWatch = 0; V.closed = false; V.warned = 0; V.fever = false; V.guide = null;
   ledClear();
   if (RD) RD.fresh = true;
@@ -99,7 +124,7 @@ function step(dt) {
     b = a[i]; if (b.in) continue;
     const sp = Math.hypot(b.vx, b.vy);
     if (sp > 0) {
-      const ns = Math.max(0, sp - (FR_C + FR_K * sp) * (S.x && S.x.sc.id === "rain" ? 1.2 : 1) * dt);
+      const ns = Math.max(0, sp - (FR_C + FR_K * sp) * dt);
       if (ns < 3) { b.vx = b.vy = 0; } else { b.vx *= ns / sp; b.vy *= ns / sp; }
     }
     b.x += b.vx * dt; b.y += b.vy * dt;
@@ -2269,7 +2294,7 @@ function syncScene(state, fdt) {
   const tint = S.x ? S.x.sc.id : "";
   if (tint !== RD.tint) {
     RD.tint = tint;
-    const sky = { rain: 0xc8d4ff, fog: 0xe6e6ee, sun: 0xfff0c8, golden: 0xffd9a0, twilight: 0xe0c8ff, suburbs: 0xfff1d6 }[tint] || 0xfff1d6;
+    const sky = { fog: 0xe6e6ee, sun: 0xfff0c8, golden: 0xffd9a0, twilight: 0xe0c8ff, suburbs: 0xfff1d6 }[tint] || 0xfff1d6;
     RD.hemi.color.setHex(sky);
     RD.scene.fog = tint === "fog" ? new RD.T.Fog(0x8a8478, 900, 2600) : null;
   }
