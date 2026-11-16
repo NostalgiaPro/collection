@@ -168,6 +168,15 @@
       T(176, "sr-clean", "Never Missed a Gear", "Finish a circuit race with every shift perfect (8 or more).", "sealed", end(function (s) { return s.mode === "circuit" && s.clean; })),
       T(177, "sr-eleven", "Ten Second Tape", "Run the quarter mile in under 10.5 seconds without a red light.", "sealed"),
       T(178, "sr-tour", "Grand Tour", "Win on all three circuits.", "slabbed")
+    ] },
+    // Marble Drop (3D marble matcher). Slots 179-184; never reuse them.
+    { slug: "marble-drop", name: "Marble Drop", status: "live", trophies: [
+      T(179, "md-gap", "Gap Shot", "Shoot through a gap in the chain and pop a match.", "loose"),
+      T(180, "md-chain3", "Chain Reaction", "Pop a 3-deep chain reaction.", "boxed"),
+      T(181, "md-close", "Close Call", "Clear a stop after the chain almost reaches the drain.", "boxed"),
+      T(182, "md-clean", "Clean Stop", "Clear a stop without losing a life.", "sealed"),
+      T(183, "md-powers", "Fully Powered", "Use Slow, Rewind, Kaboom and a Wild marble in one town.", "sealed"),
+      T(184, "md-town", "Town Saved", "Clear all 7 stops and save the town.", "slabbed")
     ] }
   ];
 
