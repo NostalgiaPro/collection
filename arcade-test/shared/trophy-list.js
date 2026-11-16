@@ -273,6 +273,62 @@
       T(206, "mtr-bigair", "Big Air", "Stay in the air for 1.8 seconds or more.", "boxed"),
       T(207, "mtr-clean5", "Five Clean", "Stick 5 clean landings in a row.", "sealed"),
       T(208, "mtr-champion", "Rally Champion", "Finish all eight courses.", "slabbed")
+    ] },
+    // Gem Shop, Mini Golf Classic, Paintball Blitz, Pool Hall Hustle, Vector Siege.
+    // Hooks already live in each game.js; slots 209-252 are new. Never reuse them.
+    { slug: "gem-shop", name: "Gem Shop", status: "live", trophies: [
+      T(209, "gs-open", "Open for Business", "Clear the first tray.", "loose"),
+      T(210, "gs-bomb", "Blast Sale", "Set off a bomb gem.", "loose"),
+      T(211, "gs-prism", "Cut Prism", "Create a prism gem.", "boxed"),
+      T(212, "gs-combo", "Special on Special", "Swap two special gems into each other.", "boxed"),
+      T(213, "gs-chain5", "Five Deep Cascade", "Make a 5-gem cascade.", "boxed"),
+      T(214, "gs-mine", "Struck the Mine", "Buy The Mine.", "boxed"),
+      T(215, "gs-wipe", "Clean Sweep", "Swap two prisms and clear the whole tray.", "sealed"),
+      T(216, "gs-level10", "Ten Trays Deep", "Clear level 10.", "sealed"),
+      T(217, "gs-tycoon", "The Whole Store", "Upgrade every shop building to its top tier.", "slabbed"),
+      T(218, "gs-bell", "Anybody Home?", "Ring the shop bell 5 times.", "loose", { secret: true })
+    ] },
+    { slug: "mini-golf-classic", name: "Mini Golf Classic", status: "live", trophies: [
+      T(219, "mgc-ace", "Ace in the Cup", "Get a hole-in-one.", "loose"),
+      T(220, "mgc-loop", "Loop the Loop", "Ride the loop-de-loop on Loop-de-Loop.", "loose"),
+      T(221, "mgc-leap", "Made the Leap", "Clear the jump on Lighthouse Leap.", "boxed"),
+      T(222, "mgc-volcano", "Peak Form", "Make par or better on Volcano Peak.", "boxed"),
+      T(223, "mgc-moat", "Over the Moat", "Sink the cup on Castle Moat.", "boxed"),
+      T(224, "mgc-dry", "Kept it Dry", "Finish a round with no water splashes.", "sealed"),
+      T(225, "mgc-under", "Under Par", "Finish a round under par.", "sealed"),
+      T(226, "mgc-18", "The Full Eighteen", "Finish all 18 holes.", "slabbed")
+    ] },
+    { slug: "paintball-blitz", name: "Paintball Blitz", status: "live", trophies: [
+      T(227, "pbz-first-splat", "First Splat", "Tag an opponent.", "loose"),
+      T(228, "pbz-hot-streak", "Hot Barrel", "Tag 8 opponents in a row without getting hit.", "boxed"),
+      T(229, "pbz-capture", "Flag in Hand", "Capture an arena.", "boxed"),
+      T(230, "pbz-untouched", "Not a Splatter", "Capture an arena without getting tagged out.", "sealed"),
+      T(231, "pbz-quick-grab", "Quick Grab", "Capture an arena in under 40 seconds.", "sealed"),
+      T(232, "pbz-sharpshooter", "Paint by Numbers", "Finish a run with 40 or more shots at 35% accuracy or better.", "sealed"),
+      T(233, "pbz-champion", "Field Champ", "Capture the last arena and win the match.", "slabbed")
+    ] },
+    { slug: "pool-hall-hustle", name: "Pool Hall Hustle", status: "live", trophies: [
+      T(234, "phh-first-ball", "First on the Felt", "Pot your first ball.", "loose"),
+      T(235, "phh-bank", "Bank Shot", "Make a bank shot.", "loose"),
+      T(236, "phh-combo", "Combo Shot", "Make a combo shot.", "boxed"),
+      T(237, "phh-break-pot", "Opened the Rack", "Pot a ball on the break.", "boxed"),
+      T(238, "phh-run5", "Five Ball Run", "Pot 5 balls in a row.", "boxed"),
+      T(239, "phh-rack", "Cleared the Rack", "Win a rack.", "boxed"),
+      T(240, "phh-break-and-run", "Break and Run", "Win a rack off the break without the rival taking a turn.", "sealed"),
+      T(241, "phh-golden-break", "Golden Break", "Sink the 9 on the break.", "sealed"),
+      T(242, "phh-match", "Table Winner", "Win a match of 8-ball or 9-ball.", "sealed"),
+      T(243, "phh-comeback", "From Behind", "Win the match after losing the first rack.", "sealed"),
+      T(244, "phh-sweep", "Table Sweep", "Win the match without losing a rack.", "slabbed")
+    ] },
+    { slug: "vector-siege", name: "Vector Siege", status: "live", trophies: [
+      T(245, "vs-early", "Send It Early", "Call up 5 waves early.", "loose"),
+      T(246, "vs-wave10", "Wave Ten", "Clear wave 10.", "boxed"),
+      T(247, "vs-boss", "Boss Down", "Defeat a boss.", "boxed"),
+      T(248, "vs-chroma", "Color Matched", "Get 50 kills with a Chroma tower set to the matching color.", "sealed"),
+      T(249, "vs-max", "Maxed Out", "Upgrade a tower to its max level.", "sealed"),
+      T(250, "vs-flawless", "No Leaks", "Reach wave 15 without a single leak.", "sealed"),
+      T(251, "vs-victory", "Siege Broken", "Clear all 30 waves.", "slabbed"),
+      T(252, "vs-hard", "Dial-Up Dash", "Clear all 30 waves on Dial-Up Dash.", "slabbed")
     ] }
   ];
 
