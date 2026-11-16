@@ -52,7 +52,8 @@ const SPOTS = [
   { a: 31, r: 6.9, pts: 3, name: "RIGHT WING" },
   { a: 47, r: 4.4, pts: 2, name: "RIGHT BLOCK" }
 ];
-const METER_T = 0.95;                                    // seconds for the meter to run from empty to full
+const METER_T = 1.4;                                     // seconds for the meter to run from empty to full
+const FRINGE = 0.06, AUTO_LEAD = 0.4;                    // just outside the green still rattles in now and then; the shot leads a moving hoop part way by itself
 const SPAWN_T = 0.16, DASH_AT = 0.4;
 const TIER_NAMES = ["", "CHARGED x2", "SUPERCHARGED x3", "HYPERDRIVE x4"];
 const TIER_COLS = ["#ffffff", "#3ff0ff", "#ff3fd8", "#ffd23f"];
@@ -126,10 +127,10 @@ function hoopXAt(dt) { return S.hoopAmp * Math.sin(S.hoopPh + hoopOmega() * dt);
 // The green part of the meter for the spot he is on.
 function zone() {
   const k = (SPOTS[S.at].r - 4.3) / 4.0;
-  let h = 0.085 - 0.022 * k;
-  if (S.clutch) h *= 0.85;
-  if (S.magnetT > 0) h *= 1.7;
-  return { c: 0.5 + 0.32 * k, h: Math.min(0.16, h) };
+  let h = (0.085 - 0.022 * k) * 1.5;
+  if (S.clutch) h *= 0.92;
+  if (S.magnetT > 0) h *= 1.5;
+  return { c: 0.5 + 0.32 * k, h: Math.min(0.24, h) };
 }
 function tierOf(n) { return n >= 10 ? 3 : n >= 6 ? 2 : n >= 3 ? 1 : 0; }
 function nextKind() {
@@ -162,11 +163,12 @@ function shoot(p, lead) {
   const e = p - z.c, ae = Math.abs(e), perfect = ae < z.h * 0.45;
   let depth;
   if (perfect) depth = 0;
-  else if (ae <= z.h) { const u = (ae - z.h * 0.45) / (z.h * 0.55); depth = mag ? e * 0.5 : e > 0 ? 0.1 + 0.025 * u : -(0.055 + 0.02 * u); }   // the outer green rattles in off the iron
+  else if (ae <= z.h) { const u = (ae - z.h * 0.45) / (z.h * 0.55); depth = mag ? e * 0.5 : e > 0 ? 0.1 + 0.025 * u : -(0.04 + 0.015 * u); }   // the outer green rattles in off the iron
+  else if (ae < z.h + FRINGE && Math.random() < 0.9 - 0.65 * (ae - z.h) / FRINGE) depth = e > 0 ? 0.12 : -0.08;   // a near miss: off the iron and in
   else depth = e > 0 ? Math.min(0.33, 0.2 + (ae - z.h) * 3) : -(0.2 + (ae - z.h) * 4.2);   // long ones die on the back iron, short ones fall off the front
   // aim: at where the hoop is now, plus the lead; a near miss gets pulled most of the way in
-  let side = S.hoopX + lead - hx;
-  if (Math.abs(side) < (mag ? 0.65 : 0.45)) side *= mag ? 0.08 : 0.22;
+  let side = S.hoopX + lead + AUTO_LEAD * (hx - S.hoopX) - hx;
+  if (Math.abs(side) < (mag ? 1.0 : 0.7)) side *= mag ? 0.05 : 0.15;
   const tx = hx + ux * (depth + AIM_DEEP) + side, tz = uz * (depth + AIM_DEEP);
   const f = plan(from, tx, tz, RIM_Y);
   const b = { x: from.x, y: from.y, z: from.z, vx: f.vx, vy: f.vy, vz: f.vz, kind: S.cur, spot: i, base: sp.pts, lap: S.lapId,
@@ -949,6 +951,23 @@ function jerseyCanvas(script) {
   return c;
 }
 
+// The shorts, wrapped around each leg (and the hips): side stripes, a hem band at the top of the canvas (the
+// waistband on the hips, the hem on the legs, which run down from the hip), the number on the front of the left leg.
+function shortsCanvas(num) {
+  const c = mkCanvas(256, 128), g = c.getContext("2d");
+  const bg = g.createLinearGradient(0, 0, 0, 128);
+  bg.addColorStop(0, "#3a168f"); bg.addColorStop(1, "#5a2be0");
+  g.fillStyle = bg; g.fillRect(0, 0, 256, 128);
+  [64, 192].forEach(function (x) { g.fillStyle = "#3ff0ff"; g.fillRect(x - 9, 0, 18, 128); g.fillStyle = "#ff3fd8"; g.fillRect(x - 3, 0, 6, 128); });
+  g.fillStyle = "#14082e"; g.fillRect(0, 0, 256, 12); g.fillStyle = "#3ff0ff"; g.fillRect(0, 12, 256, 3);
+  if (num) {                                                // the leg runs downward, so the number is painted turned around
+    g.save(); g.translate(0, 58); g.rotate(Math.PI);
+    g.font = '900 38px "Arial Black", Arial, sans-serif'; g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillStyle = "#3ff0ff"; g.fillText("40", -26, 0); g.fillText("40", 230, 0);
+    g.restore();
+  }
+  return c;
+}
 // The net: white cord in diamonds, clear between.
 function netCanvas() {
   const c = mkCanvas(256, 128), g = c.getContext("2d");
@@ -1430,104 +1449,278 @@ function sweep(T, path, segs, uOf) {
   g.setIndex(idx);
   return g;
 }
-// A tube between two points (for the seated fans' arms and legs).
-function cylBetween(T, a, b, r0, r1, seg) {
-  const d = new T.Vector3().subVectors(b, a), l = d.length();
-  const g = new T.CylinderGeometry(r1, r0, l, seg, 1, false);
-  g.translate(0, l / 2, 0);
-  const q = new T.Quaternion().setFromUnitVectors(new T.Vector3(0, 1, 0), d.normalize());
-  g.applyMatrix4(new T.Matrix4().compose(a, q, new T.Vector3(1, 1, 1)));
+/* ---------------- People: shaped bodies ----------------
+   Every body part is its own shaped surface, not a tube: rings of points swept along the part, each ring with
+   its own width, front depth and back depth, so a biceps swells in front and a triceps behind, a calf bulges at
+   the back, a chest is wider than it is deep and a wrist is flat. The ends are rounded so the joints run into
+   each other. The shooter's parts are posed one by one; the fans in the stands are the same kind of body,
+   seated, merged into two instanced meshes. */
+
+// A smooth curve through rows [t, a, b, c, ...], Catmull-Rom along t.
+function spline(keys) {
+  const n = keys.length;
+  return function (t) {
+    if (t <= keys[0][0]) return keys[0].slice(1);
+    if (t >= keys[n - 1][0]) return keys[n - 1].slice(1);
+    let i = 1; while (keys[i][0] < t) i++;
+    const p0 = keys[Math.max(0, i - 2)], p1 = keys[i - 1], p2 = keys[i], p3 = keys[Math.min(n - 1, i + 1)];
+    const h = p2[0] - p1[0], u = (t - p1[0]) / h, u2 = u * u, u3 = u2 * u, out = [];
+    for (let k = 1; k < p1.length; k++) {
+      const m1 = (p2[k] - p0[k]) / Math.max(1e-6, p2[0] - p0[0]) * h, m2 = (p3[k] - p1[k]) / Math.max(1e-6, p3[0] - p1[0]) * h;
+      out.push((2 * u3 - 3 * u2 + 1) * p1[k] + (u3 - 2 * u2 + u) * m1 + (-2 * u3 + 3 * u2) * p2[k] + (u3 - u2) * m2);
+    }
+    return out;
+  };
+}
+// A body part along +y from 0 to len, its front toward +z. keys: [t, half width, front depth, back depth], t 0 to 1.
+// o: segs, rings, sq (below 1 squares the cross-section off), cap0 / cap1 (rounding at each end, 0 leaves it open),
+// capN (rings in a rounded end), bump(t, angle, y) (a fractional swell anywhere on the surface).
+function shapeGeo(T, len, keys, o) {
+  o = o || {};
+  const segs = o.segs || 12, rings = o.rings || 8, sq = o.sq || 1, capN = o.capN || 3, f = spline(keys), rows = [];
+  const c0 = o.cap0 == null ? 0.85 : o.cap0, c1 = o.cap1 == null ? 0.85 : o.cap1;
+  if (c0 > 0) {
+    const p = f(0), cr = Math.min(p[0], p[1], p[2]) * c0;
+    for (let i = capN; i >= 1; i--) { const a = i / capN * Math.PI / 2, k = Math.max(0.05, Math.cos(a)); rows.push([-Math.sin(a) * cr, p[0] * k, p[1] * k, p[2] * k, 0]); }
+  }
+  for (let i = 0; i <= rings; i++) { const t = i / rings, p = f(t); rows.push([t * len, p[0], p[1], p[2], t]); }
+  if (c1 > 0) {
+    const p = f(1), cr = Math.min(p[0], p[1], p[2]) * c1;
+    for (let i = 1; i <= capN; i++) { const a = i / capN * Math.PI / 2, k = Math.max(0.05, Math.cos(a)); rows.push([len + Math.sin(a) * cr, p[0] * k, p[1] * k, p[2] * k, 1]); }
+  }
+  const C = segs + 1, pos = [], uv = [], idx = [];
+  for (let r = 0; r < rows.length; r++) {
+    const rw = rows[r];
+    for (let j = 0; j <= segs; j++) {
+      const ph = j / segs * TAU, s = Math.sin(ph), c = Math.cos(ph);
+      const s2 = Math.sign(s) * Math.pow(Math.abs(s), sq), c2 = Math.sign(c) * Math.pow(Math.abs(c), sq);
+      const b = o.bump ? 1 + o.bump(rw[4], ph, rw[0]) : 1;
+      pos.push(rw[1] * s2 * b, rw[0], (c2 >= 0 ? rw[2] : rw[3]) * c2 * b);
+      uv.push(j / segs, rw[4]);
+    }
+  }
+  for (let r = 0; r < rows.length - 1; r++) for (let j = 0; j < segs; j++) {
+    const a = r * C + j, b = a + 1, c = a + C, d = c + 1;
+    idx.push(a, b, c, b, d, c);
+  }
+  const g = new T.BufferGeometry();
+  g.setAttribute("position", new T.Float32BufferAttribute(pos, 3));
+  g.setAttribute("uv", new T.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  const n = g.attributes.normal;                            // one smooth normal across the seam
+  for (let r = 0; r < rows.length; r++) {
+    const i0 = r * C, i1 = r * C + segs;
+    const x = n.getX(i0) + n.getX(i1), y = n.getY(i0) + n.getY(i1), z = n.getZ(i0) + n.getZ(i1), l = Math.hypot(x, y, z) || 1;
+    n.setXYZ(i0, x / l, y / l, z / l); n.setXYZ(i1, x / l, y / l, z / l);
+  }
   return g;
 }
-// Many geometries into one (position and normal only).
+function tint(T, g, r, gg, b) {
+  const n = g.attributes.position.count, a = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) { a[i * 3] = r; a[i * 3 + 1] = gg; a[i * 3 + 2] = b; }
+  g.setAttribute("color", new T.BufferAttribute(a, 3));
+  return g;
+}
+// Many geometries into one: position, normal and color (white where a part has none).
 function mergeGeos(T, list) {
-  const pos = [], nor = [];
+  const pos = [], nor = [], col = [];
   list.forEach(function (g0) {
-    const g = g0.index ? g0.toNonIndexed() : g0, p = g.attributes.position.array, n = g.attributes.normal.array;
-    for (let i = 0; i < p.length; i++) { pos.push(p[i]); nor.push(n[i]); }
+    const g = g0.index ? g0.toNonIndexed() : g0, p = g.attributes.position.array, n = g.attributes.normal.array, c = g.attributes.color ? g.attributes.color.array : null;
+    for (let i = 0; i < p.length; i++) { pos.push(p[i]); nor.push(n[i]); col.push(c ? c[i] : 1); }
   });
   const g = new T.BufferGeometry();
   g.setAttribute("position", new T.Float32BufferAttribute(pos, 3));
   g.setAttribute("normal", new T.Float32BufferAttribute(nor, 3));
+  g.setAttribute("color", new T.Float32BufferAttribute(col, 3));
   g.computeBoundingSphere();
   return g;
 }
-// A seated fan at life size, facing +z, sitting on y = 0: shirt (torso and upper arms), skin (neck, head,
-// forearms, hands), pants (thighs and shins).
+// The axes of a part running from A to B: y along it, z turned toward "hint" (fb if hint runs along the part).
+function frameAxes(A, B, hint, fb, X, Y, Z) {
+  Y.subVectors(B, A);
+  const l = Y.length() || 1e-4;
+  Y.multiplyScalar(1 / l);
+  Z.copy(hint).addScaledVector(Y, -hint.dot(Y));
+  if (Z.lengthSq() < 1e-8) { Z.copy(fb).addScaledVector(Y, -fb.dot(Y)); }
+  if (Z.lengthSq() < 1e-8) { Z.set(Math.abs(Y.x) < 0.9 ? 1 : 0, Math.abs(Y.x) < 0.9 ? 0 : 1, 0); Z.addScaledVector(Y, -Z.dot(Y)); }
+  Z.normalize(); X.crossVectors(Y, Z);
+  return l;
+}
+let PT = null;                                              // scratch vectors for posing
+function orient(obj, A, B, hint, fb, L0) {
+  const l = frameAxes(A, B, hint, fb, PT.x, PT.y, PT.z);
+  PT.m.makeBasis(PT.x, PT.y, PT.z);
+  obj.quaternion.setFromRotationMatrix(PT.m);
+  obj.position.copy(A);
+  obj.scale.set(1, L0 ? l / L0 : 1, 1);
+}
+// A head: wider at the cheekbones than the jaw, a chin, a rounder back of the skull.
+function headGeo(T, rx, ry, rz, ws, hs) {
+  const g = new T.SphereGeometry(1, ws, hs), p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    if (y < 0) { const k = Math.pow(-y, 1.5); x *= 1 - 0.3 * k; if (z < 0) z *= 1 - 0.4 * k; }
+    if (z > 0 && y < -0.55) z *= 1.06;
+    if (z < 0 && y > -0.3) z *= 1.06;
+    if (z > 0.55 && Math.abs(y) < 0.45) z *= 0.96;
+    p.setXYZ(i, x * rx, y * ry, z * rz);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+// Short hair, a tight fade: down over the back of the head, up off the forehead.
+function hairGeo(T, rx, ry, rz, ws, hs) {
+  const g = new T.SphereGeometry(1, ws, hs, 0, TAU, 0, Math.PI * 0.5), p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    if (y < 0.25 && z < 0) y -= 0.32 * -z * (1 - y / 0.25);
+    if (y < 0.35 && z > 0.45) y += 0.3 * (z - 0.45) * (1 - y / 0.35);
+    p.setXYZ(i, x * rx * 1.05, y * ry * 1.04, z * rz * 1.05);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+// A hand at the wrist: fingers along +y, the back of the hand toward +z. side: +1 puts the thumb on +x (left hand).
+function handGeo(T, side) {
+  const parts = [];
+  const palm = roundBox(T, 0.27, 0.3, 0.1, 0.045); palm.translate(0, 0.19, 0); parts.push(palm);
+  const L = [0.24, 0.27, 0.26, 0.2], X = [0.095, 0.032, -0.032, -0.095];
+  for (let i = 0; i < 4; i++) {
+    const f = shapeGeo(T, L[i], [[0, 0.034, 0.028, 0.03], [1, 0.026, 0.021, 0.023]], { segs: 6, rings: 2, capN: 2, cap0: 0.9, cap1: 0.9 });
+    f.rotateX(-0.28 - i * 0.04); f.translate(side * X[i], 0.33, -0.005); parts.push(f);
+  }
+  const th = shapeGeo(T, 0.2, [[0, 0.045, 0.04, 0.042], [1, 0.031, 0.027, 0.028]], { segs: 6, rings: 2, capN: 2 });
+  th.rotateX(-0.45); th.rotateZ(-side * 0.75); th.translate(side * 0.12, 0.07, -0.035); parts.push(th);
+  return mergeGeos(T, parts);
+}
+// A high-top at the ankle, toe along +z: the upper and the collar (the glowing sole is its own piece).
+function shoeGeo(T) {
+  const up = new T.SphereGeometry(1, 18, 12), p = up.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i) * 0.175, z = p.getZ(i) * 0.5;
+    let y = p.getY(i) * 0.17;
+    if (z > 0.1) y -= Math.max(0, y) * Math.min(1, (z - 0.1) / 0.35) * 0.45;   // the toe box slopes down
+    if (y < -0.07) y = -0.07 + (y + 0.07) * 0.3;                               // flat underneath
+    p.setXYZ(i, x, y, z);
+  }
+  up.computeVertexNormals(); up.translate(0, -0.1, 0.22);
+  const collar = shapeGeo(T, 0.32, [[0, 0.175, 0.17, 0.2], [1, 0.155, 0.145, 0.17]], { segs: 16, rings: 2, cap0: 0, cap1: 0 });
+  collar.translate(0, -0.14, -0.01);
+  return mergeGeos(T, [up, collar]);
+}
+// Every part of the shooter, in his own units (the pose numbers' feet).
+function bodyGeos(T) {
+  const G = {};
+  G.torso = shapeGeo(T, 2.25, [[0, 0.55, 0.4, 0.42], [0.14, 0.52, 0.38, 0.4], [0.32, 0.5, 0.37, 0.38], [0.49, 0.57, 0.42, 0.4], [0.64, 0.66, 0.46, 0.43],
+                              [0.77, 0.71, 0.45, 0.46], [0.86, 0.72, 0.4, 0.44], [0.92, 0.66, 0.33, 0.36], [0.965, 0.48, 0.26, 0.3], [1, 0.27, 0.2, 0.22]],
+    { segs: 22, rings: 20, sq: 0.85, cap0: 0, cap1: 0.5, bump: function (t, ph) {
+      const y = t * 2.25 - 0.18, c = Math.cos(ph), a = Math.abs(Math.atan2(Math.sin(ph), c));   // a: 0 at the front, pi at the back
+      let b = 0;
+      if (c > 0) b += 0.08 * Math.exp(-Math.pow((y - 1.38) / 0.17, 2)) * Math.exp(-Math.pow((a - 0.6) / 0.38, 2));    // chest
+      if (c < 0) b += 0.06 * Math.exp(-Math.pow((y - 1.6) / 0.2, 2)) * Math.exp(-Math.pow((a - 2.45) / 0.35, 2));    // shoulder blades
+      if (c > 0) b -= 0.03 * Math.exp(-Math.pow((y - 0.7) / 0.25, 2)) * Math.exp(-Math.pow(a / 0.3, 2));             // a line down the stomach
+      return b;
+    } });
+  G.torso.translate(0, -0.18, 0);
+  G.pelvis = shapeGeo(T, 1.0, [[0, 0.3, 0.24, 0.27], [0.25, 0.53, 0.39, 0.45], [0.7, 0.57, 0.41, 0.46], [1, 0.56, 0.41, 0.44]], { segs: 20, rings: 6, cap0: 0.9, cap1: 0 });
+  G.pelvis.translate(0, -0.78, 0);
+  G.neck = shapeGeo(T, 0.42, [[0, 0.3, 0.18, 0.28], [0.4, 0.21, 0.18, 0.21], [1, 0.19, 0.17, 0.18]], { segs: 14, rings: 5, cap0: 0, cap1: 0.6 });
+  G.neck.translate(0, 1.95, -0.03);
+  const rx = 0.25, ry = 0.36, rz = 0.31;
+  const nose = new T.SphereGeometry(1, 8, 6); nose.scale(0.045, 0.085, 0.06); nose.translate(0, -0.05, rz * 0.93);
+  const ears = [-1, 1].map(function (s) { const e = new T.SphereGeometry(1, 8, 6); e.scale(0.035, 0.08, 0.055); e.translate(s * rx * 0.96, -0.02, -0.02); return e; });
+  G.head = mergeGeos(T, [headGeo(T, rx, ry, rz, 24, 18), nose, ears[0], ears[1]]);
+  G.hair = hairGeo(T, rx, ry, rz, 24, 8);
+  G.visor = new T.SphereGeometry(1, 18, 2, Math.PI / 2 - 1.0, 2.0, 1.36, 0.32); G.visor.scale(rx * 1.08, ry * 1.05, rz * 1.08);
+  G.band = new T.TorusGeometry(1, 0.055, 6, 32); G.band.rotateX(Math.PI / 2); G.band.scale(rx * 0.92, 1, rz * 0.92); G.band.translate(0, ry * 0.5, 0);
+  G.uarm = shapeGeo(T, 1.15, [[0, 0.23, 0.23, 0.23], [0.12, 0.25, 0.24, 0.23], [0.35, 0.2, 0.21, 0.2], [0.52, 0.19, 0.23, 0.2], [0.8, 0.17, 0.17, 0.17], [1, 0.14, 0.135, 0.145]], { segs: 14, rings: 9, cap0: 1, cap1: 0.9 });
+  G.farm = shapeGeo(T, 1.12, [[0, 0.145, 0.145, 0.155], [0.18, 0.18, 0.175, 0.165], [0.5, 0.145, 0.13, 0.125], [1, 0.11, 0.08, 0.08]], { segs: 12, rings: 8, cap0: 0.9, cap1: 0.7 });
+  G.thigh = shapeGeo(T, 1.5, [[0, 0.3, 0.3, 0.3], [0.15, 0.31, 0.32, 0.31], [0.45, 0.27, 0.3, 0.27], [0.8, 0.2, 0.22, 0.19], [1, 0.16, 0.18, 0.15]], { segs: 14, rings: 9, cap0: 0.9, cap1: 0.9 });
+  G.shin = shapeGeo(T, 1.48, [[0, 0.155, 0.16, 0.15], [0.22, 0.17, 0.15, 0.23], [0.45, 0.14, 0.13, 0.17], [0.85, 0.1, 0.1, 0.1], [1, 0.1, 0.1, 0.1]], { segs: 12, rings: 9 });
+  G.sock = shapeGeo(T, 0.42, [[0, 0.12, 0.125, 0.125], [1, 0.125, 0.125, 0.13]], { segs: 14, rings: 1, cap0: 0, cap1: 0 });
+  G.shortL = shapeGeo(T, 0.85, [[0, 0.37, 0.37, 0.39], [1, 0.36, 0.37, 0.37]], { segs: 18, rings: 2, cap0: 0, cap1: 0 });
+  G.wrist = shapeGeo(T, 0.17, [[0, 0.125, 0.095, 0.095], [1, 0.125, 0.095, 0.095]], { segs: 12, rings: 1, cap0: 0, cap1: 0 });
+  G.hand = [handGeo(T, 1), handGeo(T, -1)];
+  G.shoe = shoeGeo(T);
+  G.sole = roundBox(T, 0.38, 0.085, 1.06, 0.035); G.sole.translate(0, -0.205, 0.21);
+  return G;
+}
+// A seated fan at life size (meters), facing +z, sitting on y = 0: the shirt (torso and upper arms, white for
+// the instance color) and the rest (head, hair, neck, forearms, hands, legs, shoes), colored so the instance's
+// skin tone lands on the skin and darkens the hair, pants and shoes.
 function fanGeos(T) {
-  const v = function (x, y, z) { return new T.Vector3(x, y, z); };
-  const torso = new T.LatheGeometry([[0.13, 0.44], [0.15, 0.55], [0.165, 0.75], [0.19, 0.93], [0.17, 1.0], [0.07, 1.04]].map(function (p) { return new T.Vector2(p[0], p[1]); }), 8);
-  torso.scale(1, 1, 0.68);
-  const shirt = [torso], skin = [], pants = [];
-  const head = new T.SphereGeometry(0.105, 8, 6); head.scale(1, 1.15, 1.05); head.translate(0, 1.2, 0.01);
-  skin.push(head, cylBetween(T, v(0, 1.0, 0), v(0, 1.11, 0.01), 0.048, 0.045, 6));
+  const V3 = function (x, y, z) { return new T.Vector3(x, y, z); }, fwd = V3(0, 0, 1);
+  function at(geo, A, B, hint, L0) {
+    const X = V3(), Y = V3(), Z = V3(), l = frameAxes(A, B, hint, fwd, X, Y, Z), m = new T.Matrix4();
+    m.makeBasis(X, Y.multiplyScalar(l / L0), Z); m.setPosition(A);
+    geo.applyMatrix4(m);
+    return geo;
+  }
+  const lo = { segs: 6, rings: 2, capN: 1 }, lo1 = { segs: 6, rings: 1, capN: 1 }, shirt = [], body = [], pants = [0.22, 0.24, 0.36];
+  const torso = shapeGeo(T, 0.6, [[0, 0.165, 0.12, 0.13], [0.45, 0.15, 0.115, 0.115], [0.75, 0.19, 0.13, 0.12], [0.9, 0.185, 0.11, 0.12], [1, 0.09, 0.07, 0.08]], { segs: 8, rings: 4, sq: 0.85, cap0: 0, cap1: 0.5, capN: 1 });
+  torso.translate(0, 0.44, 0); shirt.push(torso);
+  const neck = shapeGeo(T, 0.13, [[0, 0.055, 0.05, 0.055], [1, 0.048, 0.045, 0.048]], { segs: 7, rings: 1, cap0: 0, cap1: 0 });
+  neck.translate(0, 0.99, 0); body.push(neck);
+  const head = headGeo(T, 0.074, 0.11, 0.094, 7, 5); head.translate(0, 1.2, 0.01); body.push(head);
+  const hair = hairGeo(T, 0.074, 0.11, 0.094, 7, 2); hair.translate(0, 1.2, 0.01); body.push(tint(T, hair, 0.1, 0.08, 0.07));
   [-1, 1].forEach(function (s) {
-    const sh = v(s * 0.2, 0.96, 0), el = v(s * 0.23, 0.7, 0.06), hd = v(s * 0.13, 0.6, 0.3);
-    shirt.push(cylBetween(T, sh, el, 0.052, 0.045, 6));
-    skin.push(cylBetween(T, el, hd, 0.042, 0.035, 6));
-    const hand = new T.SphereGeometry(0.042, 6, 4); hand.translate(hd.x, hd.y, hd.z); skin.push(hand);
-    const hp = v(s * 0.1, 0.46, 0.02), kn = v(s * 0.11, 0.48, 0.44), an = v(s * 0.11, 0.05, 0.47);
-    pants.push(cylBetween(T, hp, kn, 0.08, 0.065, 6), cylBetween(T, kn, an, 0.058, 0.045, 6));
+    const sh = V3(s * 0.185, 0.97, -0.01), el = V3(s * 0.21, 0.71, 0.05), wr = V3(s * 0.13, 0.62, 0.3);
+    shirt.push(at(shapeGeo(T, 0.27, [[0, 0.055, 0.05, 0.05], [0.4, 0.05, 0.055, 0.05], [1, 0.042, 0.04, 0.04]], lo), sh, el, V3().subVectors(wr, el), 0.27));
+    body.push(at(shapeGeo(T, 0.27, [[0, 0.042, 0.04, 0.04], [0.2, 0.046, 0.046, 0.043], [1, 0.033, 0.025, 0.025]], lo1), el, wr, V3().subVectors(sh, el), 0.27));
+    const hand = new T.SphereGeometry(1, 5, 3); hand.scale(0.034, 0.022, 0.052); hand.translate(wr.x * 0.95, 0.605, 0.355); body.push(hand);
+    const hp = V3(s * 0.1, 0.47, 0.02), kn = V3(s * 0.11, 0.5, 0.45), an = V3(s * 0.11, 0.07, 0.49);
+    body.push(tint(T, at(shapeGeo(T, 0.43, [[0, 0.08, 0.08, 0.08], [0.4, 0.072, 0.078, 0.07], [1, 0.055, 0.058, 0.05]], lo1), hp, kn, V3().subVectors(kn, an), 0.43), pants[0], pants[1], pants[2]));
+    body.push(tint(T, at(shapeGeo(T, 0.43, [[0, 0.052, 0.055, 0.05], [0.25, 0.055, 0.05, 0.068], [1, 0.035, 0.035, 0.035]], lo1), kn, an, V3().subVectors(kn, hp), 0.43), pants[0], pants[1], pants[2]));
+    const shoe = new T.SphereGeometry(1, 6, 3); shoe.scale(0.045, 0.035, 0.1); shoe.translate(s * 0.11, 0.035, 0.53); body.push(tint(T, shoe, 0.75, 0.75, 0.78));
   });
-  return { shirt: mergeGeos(T, shirt), skin: mergeGeos(T, skin), pants: mergeGeos(T, pants) };
+  return { shirt: mergeGeos(T, shirt), body: mergeGeos(T, body) };
 }
 
-/* ---------------- The shooter: a jointed figure posed from a short list of numbers ----------------
-   A pose is: hips x y z, hips turn, shoulders turn, lean, left hand x y z, right hand x y z, left foot x y z,
-   right foot x y z, head turn (all in his own space, feet and degrees, facing +z). Elbows and knees are solved
-   from where the hands and feet are. Left is +x. He shoots right handed. */
-const P_SET = [0, 2.95, 0, -8, -10, 4, -0.58, 4.0, 0.72, -1.12, 3.5, 0.5, 0.52, 0.2, 0.1, -0.52, 0.2, -0.1, 0];       // triple threat, ball on the right hip
-const P_LOAD = [0, 2.6, 0.05, 0, 0, 3, 0.12, 6.0, 0.8, -0.3, 5.6, 0.68, 0.56, 0.2, 0.1, -0.56, 0.2, -0.1, 0];        // set point, ball over his head
-const P_REL = [0, 3.05, 0, 0, 0, -3, 0.45, 6.5, 0.5, -0.2, 6.95, 0.62, 0.4, 0.25, 0.1, -0.4, 0.2, 0, 0];
-const P_FOLLOW = [0, 3.0, 0, 0, 0, -1, 0.5, 6.2, 0.75, -0.18, 6.7, 1.2, 0.4, 0.25, 0.1, -0.4, 0.2, 0, 0];
-const P_LAND = [0, 2.7, 0.05, 0, 0, 7, 0.8, 4.0, 0.55, -0.8, 4.0, 0.55, 0.56, 0.2, 0.1, -0.56, 0.2, -0.1, 0];
-const P_EMPTY = [0, 2.98, 0, 0, 0, 3, 0.95, 3.05, 0.25, -0.95, 3.05, 0.25, 0.55, 0.2, 0.05, -0.55, 0.2, -0.05, 0];
-const P_DASH = [0, 2.8, 0.1, 0, 0, 14, 0.95, 3.3, -0.35, -0.95, 3.5, 0.5, 0.45, 0.35, 0.6, -0.45, 0.25, -0.5, 0];
-const P_DRIB = [0, 2.82, 0, -12, -16, 10, 0.75, 3.9, 0.8, -1.0, 3.6, 0.8, 0.62, 0.2, 0.25, -0.55, 0.2, -0.2, 0];
-const BALL_SET = [-0.92, 3.78, 0.62], BALL_LOAD = [-0.22, 6.0, 0.86];                // where the ball sits in those two poses
-const poseA = [], poseB = [];
+/* ---------------- The shooter: posed from a short list of numbers ----------------
+   A pose is: hips x y z, hips turn, shoulders turn, lean, left palm x y z, right palm x y z, left foot x y z,
+   right foot x y z, head turn, left wrist flex, right wrist flex, shooting elbow forward (0 to 1). All in his own
+   space (feet and degrees), facing +z, left is +x; he shoots right handed. The wrist sits a hand's width back from
+   the palm; elbows and knees are solved from where the wrists and ankles go. Wrist flex: + bends the fingers
+   toward the palm (the flick), - cocks the hand back. */
+const BALL_SET = [-0.92, 3.78, 0.62], BALL_LOAD = [-0.22, 6.0, 0.86];   // the ball on his right hip, and at his set point over his head
+function onBall(ball, n) { const l = Math.hypot(n[0], n[1], n[2]), r = 0.43; return [ball[0] + n[0] / l * r, ball[1] + n[1] / l * r, ball[2] + n[2] / l * r]; }
+const P_SET = [0, 2.95, 0, -8, -14, 4].concat(onBall(BALL_SET, [0.25, 0.9, 0.3]), onBall(BALL_SET, [-0.55, -0.45, -0.35]), [0.52, 0.2, 0.1, -0.52, 0.2, -0.1, 0, 0, 0, 0]);
+const P_LOAD = [0, 2.58, 0.05, 0, 0, 3].concat(onBall(BALL_LOAD, [1, 0.15, -0.1]), onBall(BALL_LOAD, [-0.15, -0.8, -0.45]), [0.56, 0.2, 0.1, -0.56, 0.2, -0.1, 0, 0, -15, 1]);
+const P_REL = [0, 3.05, 0, 0, 0, -3, 0.45, 6.45, 0.5, -0.18, 6.95, 0.62, 0.4, 0.25, 0.1, -0.4, 0.2, 0, 0, 0, -25, 1];
+const P_FOLLOW = [0, 3.0, 0, 0, 0, -1, 0.55, 6.15, 0.7, -0.15, 6.7, 1.15, 0.4, 0.25, 0.1, -0.4, 0.2, 0, 0, 10, 80, 1];
+const P_LAND = [0, 2.7, 0.05, 0, 0, 7, 0.85, 3.6, 0.5, -0.85, 3.8, 0.6, 0.56, 0.2, 0.1, -0.56, 0.2, -0.1, 0, 0, 30, 0.4];
+const P_EMPTY = [0, 2.98, 0, 0, 0, 3, 0.95, 2.85, 0.2, -0.95, 2.85, 0.2, 0.55, 0.2, 0.05, -0.55, 0.2, -0.05, 0, 0, 0, 0];
+const P_DASH = [0, 2.8, 0.1, 0, 0, 14, 0.95, 3.2, -0.45, -0.95, 3.4, 0.55, 0.45, 0.35, 0.6, -0.45, 0.25, -0.5, 0, 0, 0, 0];
+const P_DRIB = [0, 2.82, 0, -12, -16, 10, 0.75, 3.7, 0.8, -1.0, 3.6, 0.8, 0.62, 0.2, 0.25, -0.55, 0.2, -0.2, 0, 0, 0, 0];
+const poseB = [];
 function mixPose(a, b, u, out) { for (let n = 0; n < a.length; n++) out[n] = a[n] + (b[n] - a[n]) * u; return out; }
 
 function makePlayer(T, G, o) {
   const root = new T.Group();
   root.scale.setScalar(PS);
-  const skin = new T.MeshPhongMaterial({ color: o.skin, specular: 0x332222, shininess: 22 });
+  const skin = new T.MeshPhongMaterial({ color: o.skin, specular: 0x3a2a22, shininess: 28 });
   const jersey = new T.MeshPhongMaterial({ map: o.jersey, specular: 0x444466, shininess: 30 });
-  const shorts = new T.MeshPhongMaterial({ color: 0x4a22b8, specular: 0x5555aa, shininess: 40 });
-  const sock = new T.MeshLambertMaterial({ color: 0xf2f2f8 });
-  const shoeM = new T.MeshPhongMaterial({ color: 0xf4f6ff, specular: 0xffffff, shininess: 80, envMap: G.env, combine: T.AddOperation, reflectivity: 0.12 });
+  const shortsA = new T.MeshPhongMaterial({ map: o.shorts[0], specular: 0x5555aa, shininess: 40, side: T.DoubleSide });
+  const shortsB = new T.MeshPhongMaterial({ map: o.shorts[1], specular: 0x5555aa, shininess: 40, side: T.DoubleSide });
+  const sock = new T.MeshLambertMaterial({ color: 0xf2f2f8, side: T.DoubleSide });
+  const shoeM = new T.MeshPhongMaterial({ color: 0xf4f6ff, specular: 0xffffff, shininess: 80, envMap: G.env, combine: T.AddOperation, reflectivity: 0.12, side: T.DoubleSide });
   const glowM = new T.MeshBasicMaterial({ color: 0x3ff0ff });
   const hairM = new T.MeshLambertMaterial({ color: 0x1c120c });
-  const visorM = new T.MeshPhongMaterial({ color: 0x0a0a14, specular: 0xffffff, shininess: 140, envMap: G.env, combine: T.AddOperation, reflectivity: 0.5 });
-  function ball(mat, sx, sy, sz, parent) { const m = new T.Mesh(G.sphere, mat); m.scale.set(sx, sy || sx, sz || sx); (parent || root).add(m); return m; }
-
-  const hips = ball(shorts, 0.6, 0.44, 0.47);
+  const visorM = new T.MeshPhongMaterial({ color: 0x0a0a14, specular: 0xffffff, shininess: 140, envMap: G.env, combine: T.AddOperation, reflectivity: 0.5, side: T.DoubleSide });
+  function add(geo, mat, parent) { const m = new T.Mesh(geo, mat); (parent || root).add(m); return m; }
+  const hips = new T.Group(); root.add(hips);
+  add(G.pelvis, shortsB, hips);
   const upper = new T.Group(); root.add(upper);
-  const torso = new T.Mesh(G.torso, jersey); torso.scale.z = 0.72; upper.add(torso);
-  const band = new T.Mesh(G.belt, shorts); band.scale.set(0.58, 0.2, 0.44); band.position.y = 0.0; upper.add(band);
-  const neck = new T.Mesh(G.cyl, skin); neck.scale.set(0.2, 0.42, 0.2); neck.position.y = 2.0; upper.add(neck);
-  const head = new T.Group(); head.position.y = 2.62; upper.add(head);
-  ball(skin, 0.4, 0.46, 0.43, head);
-  const hair = new T.Mesh(G.dome, hairM); hair.scale.set(0.42, 0.44, 0.45); hair.position.set(0, 0.06, -0.02); head.add(hair);
-  const hb = new T.Mesh(G.band, glowM); hb.scale.set(0.415, 0.415, 0.415); hb.rotation.x = Math.PI / 2; hb.position.y = 0.17; head.add(hb);
-  const visor = new T.Mesh(G.visor, visorM); visor.position.set(0, 0.02, 0.33); head.add(visor);
-  [-1, 1].forEach(function (s) { const ear = ball(skin, 0.07, 0.11, 0.06, head); ear.position.set(s * 0.4, 0, 0); });
-
-  function limb(m1, m2, r1, r2, endMat, endR) {
-    const L = { up: new T.Mesh(G.cyl, m1), lo: new T.Mesh(G.cyl, m2), j0: ball(m1, r1 * 1.08), j1: ball(m2, r2 * 1.1), end: ball(endMat, endR), r1: r1, r2: r2 };
-    root.add(L.up); root.add(L.lo);
-    return L;
-  }
-  const arm = [limb(skin, skin, 0.2, 0.16, skin, 0.19), limb(skin, skin, 0.2, 0.16, skin, 0.19)];
-  // a neon wristband on the shooting hand
-  const wrist = new T.Mesh(G.cyl, glowM); root.add(wrist);
-  const leg = [limb(skin, skin, 0.29, 0.21, sock, 0.2), limb(skin, skin, 0.29, 0.21, sock, 0.2)];
-  const short = [new T.Mesh(G.cyl, shorts), new T.Mesh(G.cyl, shorts)];
-  root.add(short[0]); root.add(short[1]);
-  const shoe = [ball(shoeM, 0.26, 0.21, 0.52), ball(shoeM, 0.26, 0.21, 0.52)];
-  const sole = [new T.Mesh(G.sphere, glowM), new T.Mesh(G.sphere, glowM)];
-  sole.forEach(function (m) { m.scale.set(0.27, 0.05, 0.53); root.add(m); });
-  return { root: root, hips: hips, upper: upper, head: head, arm: arm, leg: leg, short: short, shoe: shoe, sole: sole, glow: glowM, wrist: wrist };
+  add(G.torso, jersey, upper); add(G.neck, skin, upper);
+  const head = new T.Group(); head.position.set(0, 2.6, 0.04); upper.add(head);
+  add(G.head, skin, head); add(G.hair, hairM, head); add(G.visor, visorM, head); add(G.band, glowM, head);
+  const arm = [0, 1].map(function (s) { return { up: add(G.uarm, skin), lo: add(G.farm, skin), hand: add(G.hand[s], skin) }; });
+  const leg = [0, 1].map(function (s) {
+    return { th: add(G.thigh, skin), sh: add(G.shin, skin), sock: add(G.sock, sock), shoe: add(G.shoe, shoeM), sole: add(G.sole, glowM), shorts: add(G.shortL, s ? shortsB : shortsA) };
+  });
+  const wrist = add(G.wrist, glowM);
+  return { root: root, hips: hips, upper: upper, head: head, arm: arm, leg: leg, wrist: wrist, glow: glowM };
 }
 
 // Elbow or knee: the joint between A and B for bones l1 and l2, bent toward "pole".
@@ -1542,50 +1735,61 @@ function bend(A, B, pole, l1, l2, out) {
   t.q.normalize();
   out.copy(A).addScaledVector(t.d, a).addScaledVector(t.q, hgt);
 }
-function bone(mesh, A, B, r) {
-  const t = TV;
-  t.d.subVectors(B, A);
-  const l = t.d.length() || 1e-4;
-  mesh.position.copy(A);
-  mesh.quaternion.setFromUnitVectors(t.up, t.d.multiplyScalar(1 / l));
-  mesh.scale.set(r, l, r);
-}
-function setLimb(L, A, B, pole, l1, l2) {
-  const t = TV;
-  bend(A, B, pole, l1, l2, t.e);
-  bone(L.up, A, t.e, L.r1); bone(L.lo, t.e, B, L.r2);
-  L.j0.position.copy(A); L.j1.position.copy(t.e); L.end.position.copy(B);
-}
-function applyPose(P, v) {
+// Put every part where the pose says. ball: where the ball is (his space), so the palms turn to it.
+function applyPose(P, v, ball) {
   const t = TV, hy = v[3] * DEG, uy = v[4] * DEG, ch = Math.cos(hy), sh = Math.sin(hy), cu = Math.cos(uy), su = Math.sin(uy);
   P.hips.position.set(v[0], v[1], v[2]); P.hips.rotation.y = hy;
   P.upper.position.set(v[0], v[1], v[2]); P.upper.rotation.set(v[5] * DEG, uy, 0, "YXZ");
   P.upper.updateMatrix();
   P.head.rotation.y = (v[18] - v[4]) * DEG;
-  for (let s = 0; s < 2; s++) {                             // 0 = left, 1 = right
-    const sg = s ? -1 : 1, px = sg * 0.5, pz = -0.5;
-    t.a.set(sg * 0.78, 1.86, 0).applyMatrix4(P.upper.matrix);
-    t.b.set(v[6 + s * 3], v[7 + s * 3], v[8 + s * 3]);
-    t.p.set(px * cu + pz * su, -0.8, -px * su + pz * cu);   // elbows hang down, out and a little back
-    setLimb(P.arm[s], t.a, t.b, t.p, 1.15, 1.12);
-    t.a.set(v[0] + sg * 0.36 * ch, v[1] - 0.08, v[2] - sg * 0.36 * sh);
-    t.b.set(v[12 + s * 3], v[13 + s * 3] + 0.14, v[14 + s * 3]);
-    t.p.set(sh + sg * 0.2 * ch, 0.2, ch - sg * 0.2 * sh);   // knees point where the hips face
-    setLimb(P.leg[s], t.a, t.b, t.p, 1.5, 1.48);
-    // the shorts: wide over the top of the thigh
-    t.q.copy(P.leg[s].j1.position).sub(t.a).multiplyScalar(0.42).add(t.a);
-    t.c.copy(t.a); t.c.y += 0.18;
-    bone(P.short[s], t.c, t.q, 0.37);
-    P.shoe[s].position.set(t.b.x + sh * 0.26, v[13 + s * 3] + 0.02, t.b.z + ch * 0.26);
-    P.shoe[s].rotation.y = hy * 0.6;
-    P.sole[s].position.set(P.shoe[s].position.x, P.shoe[s].position.y - 0.17, P.shoe[s].position.z);
-    P.sole[s].rotation.y = P.shoe[s].rotation.y;
+  t.fwd.set(su, 0, cu);
+  for (let s = 0; s < 2; s++) {
+    const sg = s ? -1 : 1, L = P.arm[s];
+    t.a.set(sg * 0.66, 1.84, -0.02).applyMatrix4(P.upper.matrix);                        // shoulder
+    t.b.set(v[6 + s * 3], v[7 + s * 3], v[8 + s * 3]);                                   // palm
+    t.c.subVectors(t.b, t.a); t.c.multiplyScalar(-0.24 / (t.c.length() || 1)).add(t.b);  // wrist
+    t.p.set(sg * 0.5 * cu - 0.5 * su, -0.8, -sg * 0.5 * su - 0.5 * cu);                   // elbows hang down, out and a little back
+    if (s === 1 && v[21] > 0) t.p.lerp(t.g.set(su * 0.7 - cu * 0.2, -0.45, cu * 0.7 + su * 0.2), v[21]);   // the shooting elbow tucks under the ball
+    bend(t.a, t.c, t.p, 1.15, 1.12, t.e);
+    orient(L.up, t.a, t.e, t.h.subVectors(t.c, t.e), t.fwd, 1.15);                      // biceps toward the bend
+    orient(L.lo, t.e, t.c, t.h.subVectors(t.a, t.e), t.fwd, 1.12);
+    // the hand: fingers on along the forearm, palm to the ball (or to the hoop, or in to the leg), then the wrist
+    const Y = PT.hy.subVectors(t.c, t.e).normalize();
+    if (ball) PT.ht.set(ball[0], ball[1], ball[2]);
+    else if (s === 1 && v[21] > 0.5) PT.ht.copy(t.c).add(t.fwd);
+    else PT.ht.set(0, t.c.y, t.c.z);
+    const Z = PT.hz.subVectors(t.c, PT.ht);
+    Z.addScaledVector(Y, -Z.dot(Y));
+    if (Z.lengthSq() < 1e-8) { Z.copy(t.fwd).negate(); Z.addScaledVector(Y, -Z.dot(Y)); }
+    Z.normalize();
+    const f = v[19 + s] * DEG, cf = Math.cos(f), sf = Math.sin(f);
+    PT.hy2.copy(Y).multiplyScalar(cf).addScaledVector(Z, -sf);
+    PT.hz2.copy(Z).multiplyScalar(cf).addScaledVector(Y, sf);
+    PT.hx.crossVectors(PT.hy2, PT.hz2);
+    PT.m.makeBasis(PT.hx, PT.hy2, PT.hz2);
+    L.hand.quaternion.setFromRotationMatrix(PT.m); L.hand.position.copy(t.c);
+    if (s === 1) {                                         // the wristband, just up the forearm from the hand
+      t.g.subVectors(t.e, t.c).normalize();
+      t.h.copy(t.c).addScaledVector(t.g, 0.05); t.k.copy(t.c).addScaledVector(t.g, 0.22);
+      orient(P.wrist, t.h, t.k, PT.hz, t.fwd, 0.17);
+    }
   }
-  // the wristband sits on the right forearm, just short of the hand
-  const L = P.arm[1];
-  t.c.copy(L.j1.position).sub(L.end.position).multiplyScalar(0.12).add(L.end.position);
-  t.q.copy(L.j1.position).sub(L.end.position).multiplyScalar(0.3).add(L.end.position);
-  bone(P.wrist, t.c, t.q, 0.185);
+  t.g.set(sh, 0, ch);                                       // which way the hips face
+  for (let s = 0; s < 2; s++) {
+    const sg = s ? -1 : 1, L = P.leg[s];
+    t.a.set(v[0] + sg * 0.36 * ch, v[1] - 0.1, v[2] - sg * 0.36 * sh);                // hip joint
+    t.b.set(v[12 + s * 3], v[13 + s * 3] + 0.05, v[14 + s * 3]);                       // ankle
+    t.p.set(sh + sg * 0.2 * ch, 0.2, ch - sg * 0.2 * sh);                               // knees point where the hips face
+    bend(t.a, t.b, t.p, 1.5, 1.48, t.e);
+    orient(L.th, t.a, t.e, t.h.subVectors(t.e, t.b), t.g, 1.5);                         // quads to the front
+    orient(L.sh, t.e, t.b, t.h.subVectors(t.e, t.a), t.g, 1.48);                        // shin to the front, calf behind
+    t.c.subVectors(t.e, t.a).normalize(); t.h.copy(t.a); t.h.y += 0.12; t.k.copy(t.h).addScaledVector(t.c, 0.85);
+    orient(L.shorts, t.h, t.k, t.g, t.g, 0.85);
+    t.c.subVectors(t.e, t.b).normalize(); t.k.copy(t.b).addScaledVector(t.c, 0.42);
+    orient(L.sock, t.b, t.k, t.g, t.g, 0.42);
+    L.shoe.position.copy(t.b); L.shoe.rotation.set(0, hy + sg * 0.1, 0);
+    L.sole.position.copy(t.b); L.sole.rotation.copy(L.shoe.rotation);
+  }
 }
 
 /* ---------------- Scene ---------------- */
@@ -1600,7 +1804,9 @@ function buildScene(T, scriptImg) {
   const camera = new T.PerspectiveCamera(48, W / H, 0.3, 200);
   const caps = renderer.capabilities;
   const aniso = Math.min(4, caps.getMaxAnisotropy ? caps.getMaxAnisotropy() : 1);
-  TV = { a: new T.Vector3(), b: new T.Vector3(), c: new T.Vector3(), d: new T.Vector3(), e: new T.Vector3(), p: new T.Vector3(), q: new T.Vector3(), up: new T.Vector3(0, 1, 0) };
+  const V3 = function () { return new T.Vector3(); };
+  TV = { a: V3(), b: V3(), c: V3(), d: V3(), e: V3(), g: V3(), h: V3(), k: V3(), p: V3(), q: V3(), fwd: V3(), up: new T.Vector3(0, 1, 0) };
+  PT = { x: V3(), y: V3(), z: V3(), hx: V3(), hy: V3(), hz: V3(), ht: V3(), hy2: V3(), hz2: V3(), m: new T.Matrix4() };
 
   function tex(canvas, repeat) {
     const t = new T.CanvasTexture(canvas);
@@ -1688,23 +1894,21 @@ function buildScene(T, scriptImg) {
         const u = (d - p0.len) / Math.max(1e-6, p1.len - p0.len), nx = p0.nx + (p1.nx - p0.nx) * u, nz = p0.nz + (p1.nz - p0.nz) * u;
         const x = p0.x + (p1.x - p0.x) * u + nx * k, z = p0.z + (p1.z - p0.z) * u + nz * k;
         if (rnd() < 0.86 && z < 13) seatsAt.push(x, y, z, Math.atan2(-nx, -nz));
-        d += 0.6 + rnd() * 0.1;
+        d += 0.66 + rnd() * 0.1;
       }
     }
   }
-  const nFans = seatsAt.length / 4, fanMats = [cheering(new T.MeshLambertMaterial({ color: 0xffffff })), cheering(new T.MeshLambertMaterial({ color: 0xffffff })), cheering(new T.MeshLambertMaterial({ color: 0xffffff }))];
-  const fans = [new T.InstancedMesh(fg.shirt, fanMats[0], nFans), new T.InstancedMesh(fg.skin, fanMats[1], nFans), new T.InstancedMesh(fg.pants, fanMats[2], nFans)];
+  const nFans = seatsAt.length / 4, fanMats = [cheering(new T.MeshLambertMaterial({ vertexColors: true })), cheering(new T.MeshLambertMaterial({ vertexColors: true }))];
+  const fans = [new T.InstancedMesh(fg.shirt, fanMats[0], nFans), new T.InstancedMesh(fg.body, fanMats[1], nFans)];   // the front rows come first, so a partial count keeps them
   (function () {
     const m = new T.Matrix4(), q = new T.Quaternion(), sc = new T.Vector3(), col = new T.Color(), v = new T.Vector3(), up = new T.Vector3(0, 1, 0);
-    const pantsCols = ["#1b1640", "#2a2f55", "#14121f", "#3a2a1a", "#2b3a66"];
     for (let i = 0; i < nFans; i++) {
       const z = 0.94 + rnd() * 0.12;
       sc.set(z, z, z); q.setFromAxisAngle(up, seatsAt[i * 4 + 3]);
       m.compose(v.set(seatsAt[i * 4], seatsAt[i * 4 + 1], seatsAt[i * 4 + 2]), q, sc);
-      for (let k = 0; k < 3; k++) fans[k].setMatrixAt(i, m);
+      for (let k = 0; k < 2; k++) fans[k].setMatrixAt(i, m);
       fans[0].setColorAt(i, col.set(FAN_COLS[Math.floor(rnd() * FAN_COLS.length)]));
       fans[1].setColorAt(i, col.set(SKIN_COLS[Math.floor(rnd() * SKIN_COLS.length)]));
-      fans[2].setColorAt(i, col.set(pantsCols[Math.floor(rnd() * pantsCols.length)]));
     }
     fans.forEach(function (f) { f.instanceMatrix.needsUpdate = true; f.instanceColor.needsUpdate = true; f.frustumCulled = false; scene.add(f); });
   })();
@@ -1799,14 +2003,8 @@ function buildScene(T, scriptImg) {
   refl(hoop);
 
   /* the shooter */
-  const G = { sphere: new T.SphereGeometry(1, 16, 12), env: tEnv };
-  G.cyl = new T.CylinderGeometry(0.86, 1, 1, 12, 1, true); G.cyl.translate(0, 0.5, 0);
-  G.torso = new T.LatheGeometry([[0.48, -0.12], [0.54, 0.2], [0.56, 0.7], [0.66, 1.25], [0.74, 1.66], [0.64, 1.92], [0.32, 2.06], [0.2, 2.16]].map(function (p) { return new T.Vector2(p[0], p[1]); }), 20);
-  G.belt = new T.CylinderGeometry(1, 0.98, 1, 18);
-  G.dome = new T.SphereGeometry(1, 18, 9, 0, TAU, 0, Math.PI * 0.55);
-  G.band = new T.TorusGeometry(1, 0.11, 6, 28);
-  G.visor = roundBox(T, 0.62, 0.15, 0.16, 0.06);
-  const shooter = makePlayer(T, G, { jersey: tex(jerseyCanvas(script)), skin: 0x8a5232 });
+  const G = bodyGeos(T); G.env = tEnv;
+  const shooter = makePlayer(T, G, { jersey: tex(jerseyCanvas(script)), shorts: [tex(shortsCanvas(true)), tex(shortsCanvas(false))], skin: 0x8a5232 });
   scene.add(refl(shooter.root));
   const shadowMat = decal(new T.MeshBasicMaterial({ map: tShadow, opacity: 0.6 }), 3);
   const unit = new T.PlaneGeometry(1, 1); unit.rotateX(-Math.PI / 2);
@@ -1854,20 +2052,20 @@ function buildScene(T, scriptImg) {
 
   return {
     T: T, gl: gl, renderer: renderer, scene: scene, camera: camera, script: script, floorMat: floorMat, seats: seats, seatMats: [seatMat, new T.MeshLambertMaterial({ map: tSeatP, side: T.DoubleSide })],
-    fans: fans, crowdU: crowdU, hoop: hoop, rimMat: rimMat, rimGlow: rimGlow, net: net, netGeo: netGeo, netBase: netBase, cClock: cClock, tClock: tClock, hoopPool: hoopPool,
+    fans: fans, nFans: nFans, crowdU: crowdU, hoop: hoop, rimMat: rimMat, rimGlow: rimGlow, net: net, netGeo: netGeo, netBase: netBase, cClock: cClock, tClock: tClock, hoopPool: hoopPool,
     shooter: shooter, pShadow: pShadow, footGlow: footGlow, handBall: handBall, pool: pool, ballMats: ballMats, tport: tport,
     drone: drone, dRing: dRing, rotors: rotors, boom: boom, halo: halo, halo2: halo2,
     camPos: new T.Vector3(0, 3, 12), camTgt: new T.Vector3(0, 2.4, 0), camReady: false, v: new T.Vector3(), v2: new T.Vector3(), handPos: new T.Vector3(),
     qa: new T.Quaternion(), axis: new T.Vector3(),
     shakeT: 0, shakeDur: 0, shakeMag: 0, clock: 0,
     hud: null, stage: null, cw: 0, ch: 0, left: null, top: null, pr: 0, dirty: true, lastT: 0,
-    quality: 0, qLock: false, reflectOn: true, crowdOn: true, slowSum: 0, slowN: 0, slowHits: 0, warm: 0
+    quality: 0, qLock: false, reflectOn: true, crowdOn: 1, slowSum: 0, slowN: 0, slowHits: 0, warm: 0
   };
 }
 
 /* ---------------- Quality: start sharp, step down if the phone can't hold the frame rate ---------------- */
-// pr = pixel ratio cap, refl = the glossy floor's reflections, crowd = the 3D fans (painted ones stand in)
-const QUALITY = [{ pr: 2, refl: true, crowd: true }, { pr: 1.5, refl: true, crowd: true }, { pr: 1.15, refl: false, crowd: true }, { pr: 1, refl: false, crowd: false }];
+// pr = pixel ratio cap, refl = the glossy floor's reflections, crowd = how much of the 3D crowd is seated (front rows first; painted fans fill the rest)
+const QUALITY = [{ pr: 2, refl: true, crowd: 1 }, { pr: 1.5, refl: true, crowd: 1 }, { pr: 1.15, refl: false, crowd: 0.55 }, { pr: 1, refl: false, crowd: 0 }];
 
 function setQuality(q) {
   R.quality = clamp(q, 0, QUALITY.length - 1);
@@ -1879,8 +2077,9 @@ function setQuality(q) {
   }
   if (Q.crowd !== R.crowdOn) {
     R.crowdOn = Q.crowd;
-    for (let i = 0; i < R.fans.length; i++) R.fans[i].visible = Q.crowd;
-    R.seats.material = R.seatMats[Q.crowd ? 0 : 1];
+    const n = Math.round(R.nFans * Q.crowd);
+    for (let i = 0; i < R.fans.length; i++) { R.fans[i].count = n; R.fans[i].visible = n > 0; }
+    R.seats.material = R.seatMats[Q.crowd >= 1 ? 0 : 1];
   }
   R.dirty = true;
 }
@@ -1988,7 +2187,7 @@ function syncScene(state, fdt) {
     // dribbling at the top of the key
     const u = (idleT * 1.9) % 1, by = 0.38 + 3.0 * Math.abs(Math.cos(Math.PI * u));
     mixPose(P_DRIB, P_DRIB, 0, pose);
-    pose[10] = Math.max(3.25, by + 0.42); pose[1] += calm ? 0 : Math.sin(idleT * 3.8) * 0.04;
+    pose[9] = -1.02; pose[10] = Math.max(3.15, by + 0.43); pose[11] = 0.85; pose[1] += calm ? 0 : Math.sin(idleT * 3.8) * 0.04;
     ballLocal = [-1.02, by, 0.85];
   } else if (S.dash) {
     const u = S.dash.t / S.dash.dur, st = calm ? 0 : Math.sin(u * TAU * 1.5);
@@ -2000,20 +2199,21 @@ function syncScene(state, fdt) {
   } else if (!S.hand && S.relT < DASH_AT + 0.2) {
     // up, out of the hand, follow through, land
     const t = S.relT;
-    if (t < 0.08) mixPose(P_LOAD, P_REL, t / 0.08, pose);
-    else if (t < 0.3) mixPose(P_REL, P_FOLLOW, (t - 0.08) / 0.22, pose);
-    else mixPose(P_FOLLOW, P_LAND, ease((t - 0.3) / 0.15), pose);
+    if (t < 0.09) mixPose(P_LOAD, P_REL, ease(t / 0.09), pose);                 // up through the legs, the arm extends
+    else if (t < 0.3) mixPose(P_REL, P_FOLLOW, ease((t - 0.09) / 0.17), pose);  // the wrist flicks, hold the follow-through
+    else mixPose(P_FOLLOW, P_LAND, ease((t - 0.3) / 0.16), pose);              // land soft on bent knees
     jump = Math.max(0, JUMP0 + 1.21 * t - 4.9 * t * t);
   } else if (S.charging) {
     const u = ease(S.chargeT / 0.2);
     mixPose(P_SET, P_LOAD, u, pose);
+    if (!calm) { const dip = Math.sin(Math.min(1, S.chargeT / 0.5) * Math.PI) * 0.08; pose[1] -= dip; pose[7] -= dip * 0.5; pose[10] -= dip * 0.5; }   // a little dip in the knees as he gathers
     ballLocal = mixPose(BALL_SET, BALL_LOAD, u, []);
   } else if (S.hand || S.spawn !== null) {
     if (S.hand && S.holdT > 2.4 && !calm) {
       // waiting on you: he dribbles
       const u = ((S.holdT - 2.4) * 1.9) % 1, by = 0.38 + 3.0 * Math.abs(Math.cos(Math.PI * u));
       mixPose(P_DRIB, P_DRIB, 0, pose);
-      pose[10] = Math.max(3.25, by + 0.42);
+      pose[9] = -1.02; pose[10] = Math.max(3.15, by + 0.43); pose[11] = 0.85;
       ballLocal = [-1.02, by, 0.85];
     } else {
       mixPose(P_SET, P_SET, 0, pose);
@@ -2024,7 +2224,8 @@ function syncScene(state, fdt) {
   } else {
     mixPose(P_LAND, P_EMPTY, ease((S.relT - DASH_AT) / 0.3), pose);
   }
-  applyPose(P, pose);
+  if (V.dbgPose) { mixPose(V.dbgPose.p, V.dbgPose.p, 0, pose); ballLocal = V.dbgPose.ball || null; jump = V.dbgPose.jump || 0; }   // checks only
+  applyPose(P, pose, ballLocal);
   P.root.position.set(sp.x, jump, sp.z);
   P.root.rotation.set(0, V.yaw, tilt, "YXZ");
   P.root.updateMatrixWorld(true);
@@ -2127,6 +2328,7 @@ function syncScene(state, fdt) {
   const kk = 1 - Math.exp(-rate * fdt);
   R.camPos.x += (cx - R.camPos.x) * kk; R.camPos.y += (cy - R.camPos.y) * kk; R.camPos.z += (cz - R.camPos.z) * kk;
   R.camTgt.x += (tx - R.camTgt.x) * kk; R.camTgt.y += (ty - R.camTgt.y) * kk; R.camTgt.z += (tz - R.camTgt.z) * kk;
+  if (V.dbgCam) { R.camPos.fromArray(V.dbgCam, 0); R.camTgt.fromArray(V.dbgCam, 3); }   // checks only
   let sx = 0, sy = 0;
   if (R.shakeT > 0) {
     R.shakeT -= fdt;
@@ -2193,12 +2395,13 @@ function drawWorld(c, state) {
     const gh = toScreen(gx, RIM_Y, 0), g0 = toScreen(gx + RIM_R, RIM_Y, 0), gr = Math.abs(g0.x - gh.x);
     c.setLineDash([4, 4]); c.lineWidth = 2; c.strokeStyle = "rgba(255,63,216,.85)";
     c.beginPath(); c.ellipse(gh.x, gh.y, gr * 1.1, gr * 0.38, 0, 0, TAU); c.stroke(); c.setLineDash([]);
-    const aim = toScreen(S.hoopX + S.lead, RIM_Y, 0), r0 = toScreen(S.hoopX + S.lead + RIM_R, RIM_Y, 0), rr = Math.abs(r0.x - aim.x);
+    const ax = S.hoopX + S.lead + AUTO_LEAD * (gx - S.hoopX);
+    const aim = toScreen(ax, RIM_Y, 0), r0 = toScreen(ax + RIM_R, RIM_Y, 0), rr = Math.abs(r0.x - aim.x);
     c.lineWidth = 2; c.strokeStyle = S.charging ? "#ffd23f" : "rgba(63,240,255,.75)";
     c.beginPath(); c.ellipse(aim.x, aim.y, rr * 1.1, rr * 0.38, 0, 0, TAU); c.stroke();
     if (Math.abs(S.lead) > 0.05) {
       const h0 = toScreen(S.hoopX, RIM_Y, 0);
-      c.strokeStyle = "rgba(255,210,63,.8)"; c.beginPath(); c.moveTo(h0.x, h0.y + 10); c.lineTo(aim.x, aim.y + 10); c.stroke();
+      c.strokeStyle = "rgba(255,210,63,.8)"; c.beginPath(); c.moveTo(h0.x, h0.y + 10); c.lineTo(aim.x, aim.y + 10); c.stroke();   // the lead you added
     }
   }
   // float text, rising from the rim
@@ -2220,6 +2423,7 @@ function drawMeter(c) {
   c.save(); rrect(c, x, top, 16, hgt, 4); c.clip();
   c.fillStyle = "#170f45"; c.fillRect(x, top, 16, hgt);
   const zy0 = top + hgt * (1 - (z.c + z.h)), zy1 = top + hgt * (1 - (z.c - z.h));
+  c.fillStyle = "rgba(255,210,63,.22)"; c.fillRect(x, top + hgt * (1 - (z.c + z.h + FRINGE)), 16, hgt * (z.h * 2 + FRINGE * 2));   // the rattle zone
   c.fillStyle = "rgba(155,255,63,.55)"; c.fillRect(x, zy0, 16, zy1 - zy0);
   c.fillStyle = "rgba(220,255,180,.8)"; c.fillRect(x, top + hgt * (1 - (z.c + z.h * 0.45)), 16, hgt * z.h * 0.9);
   if (S.charging) {
@@ -2472,6 +2676,7 @@ function startGame() {
 window.__clutch = { S: function () { return S; }, shoot: shoot, zone: zone, plan: plan, relPoint: relPoint, spotXZ: spotXZ, stepBall: stepBall,
                     gfx: function () { return R; }, led: function () { return LED; }, snd: Snd, startMusic: startMusic, view: function () { return V; },
                     setQuality: function (q) { if (R) { R.qLock = true; setQuality(q); } },
+                    poses: { SET: P_SET, LOAD: P_LOAD, REL: P_REL, FOLLOW: P_FOLLOW, LAND: P_LAND, EMPTY: P_EMPTY, DASH: P_DASH, DRIB: P_DRIB, BALL_SET: BALL_SET, BALL_LOAD: BALL_LOAD },
                     tick: function (sec) { for (let t = 0; t < sec && Shell.state() === "playing"; t += 1 / 60) update(1 / 60); } };
 
 (function boot() {
