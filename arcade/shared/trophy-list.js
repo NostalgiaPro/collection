@@ -145,6 +145,15 @@
       T(115, "trr-fast", "Quick Flip", "Win a match in 60 seconds or less.", "sealed", { goal: { stat: "fastest", at: 60, low: true, margin: 15, unit: "seconds", one: "second" } }),
       T(116, "trr-comeback", "Buyer's Remorse, Reversed", "Win a match after trailing by 3 or more.", "sealed"),
       T(117, "trr-streak5", "Five Booth Run", "Win 5 matches in a row.", "slabbed", { goal: { stat: "wins", at: 5, margin: 2, unit: "wins", one: "win" } })
+    ] },
+    // Battle Karts (3D kart battler). Slots 156-161; never reuse them.
+    { slug: "battle-karts", name: "Battle Karts", status: "live", trophies: [
+      T(156, "bk-win", "Checkered Flag", "Win a race.", "loose"),
+      T(157, "bk-hits5", "Bumper Crop", "Land 5 hits in one race.", "boxed", { goal: { stat: "hits", at: 5, unit: "hits", one: "hit" }, end: function (s) { return s.hits >= 5; } }),
+      T(158, "bk-turbo", "Orange Sparks", "Fire an orange mini-turbo off a long drift.", "loose"),
+      T(159, "bk-block", "Bubble Wrap", "Block a hit with the Bubble Shield.", "boxed"),
+      T(160, "bk-clean", "Not a Scratch", "Win a race without getting hit.", "sealed"),
+      T(161, "bk-tour", "Grand Tour", "Win on all three tracks.", "slabbed")
     ] }
   ];
 
