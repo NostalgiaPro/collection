@@ -20,6 +20,9 @@
 <meta name="twitter:description" content="You vs a goalie who has seen every trick. Three 30-second periods. No ads, no login.">
 <meta name="twitter:image" content="https://thenostalgiapro.com/arcade/rink-rat-shootout/og.jpg">
 <link rel="stylesheet" href="../shared/shell.css">
+<link rel="preload" href="np_games_logo.png" as="image">
+<link rel="preload" href="np_games_script.png" as="image">
+<link rel="modulepreload" href="../shared/three.module.min.js">
 <script>
 /* GoatCounter page view, same counter as /play/ (code "nostalgiapro"): one small image request, no cookies, no third-party script. */
 (function(){try{if(!/^https?:$/.test(location.protocol))return;var i=new Image();i.referrerPolicy="no-referrer";i.src="https://nostalgiapro.goatcounter.com/count?p="+encodeURIComponent(location.pathname)+"&t="+encodeURIComponent(document.title)+"&r="+encodeURIComponent(document.referrer||"")+"&rnd="+Math.random().toString(36).slice(2);}catch(e){}})();
@@ -34,6 +37,8 @@
 <script src="../shared/rewards.js"></script>
 <script src="../shared/hiscores.js"></script>
 <script src="../shared/extras.js"></script>
-<script src="game.js"></script>
+<!-- game.js is an ES module: it imports the self-hosted three.js from ../shared/three.module.min.js.
+     If WebGL or three.js is unavailable it loads game-2d.js (the classic 2D game) instead. -->
+<script type="module" src="game.js"></script>
 </body>
 </html>
