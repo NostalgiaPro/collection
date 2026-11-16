@@ -205,6 +205,16 @@
       T(159, "bk-block", "Bubble Wrap", "Block a hit with the Bubble Shield.", "boxed"),
       T(160, "bk-clean", "Not a Scratch", "Win a race without getting hit.", "sealed"),
       T(161, "bk-tour", "Grand Tour", "Win on all three tracks.", "slabbed")
+    ] },
+    // Clutch Ball 4000 (3D neon hoops), test path only for now. Slots 162-168; never reuse them.
+    { slug: "clutch-ball-4000", name: "Clutch Ball 4000", status: "live", trophies: [
+      T(162, "cb4k-swish", "Nothing But Neon", "Make a swish.", "loose"),
+      T(163, "cb4k-hyper", "Hyperdrive", "Reach the x4 combo.", "boxed"),
+      T(164, "cb4k-lap", "Perfect Lap", "Make all five spots in one lap.", "boxed"),
+      T(165, "cb4k-zap", "Drone Zapper", "Put a ball through the bonus drone.", "boxed"),
+      T(166, "cb4k-deep", "From 4000", "Make the 4000 spot with a gold ball.", "sealed"),
+      T(167, "cb4k-buzzer", "Beat The Horn", "Score a buzzer beater.", "sealed"),
+      T(168, "cb4k-ot", "Free Basketball", "Reach overtime.", "slabbed")
     ] }
   ];
 
