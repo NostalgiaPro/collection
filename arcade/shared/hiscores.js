@@ -28,7 +28,8 @@
     "table-rink-rumble":   [["CPU", 43], ["ACE", 35], ["JMS", 32], ["ZAP", 26], ["NPR", 23], ["BOB", 21], ["MAX", 15], ["MOM", 13], ["DAD", 12], ["AAA", 11]],
     "battle-karts":        [["ACE", 8200], ["ZAP", 7400], ["JMS", 6700], ["ROX", 6000], ["NPR", 5400], ["BOB", 4700], ["MAX", 3900], ["MOM", 3100], ["CPU", 2300], ["AAA", 1500]],
     "shift-racing":        [["ACE", 9200], ["ZAP", 8100], ["JMS", 7200], ["REV", 6400], ["NPR", 5600], ["BOB", 4800], ["MAX", 4000], ["MOM", 3200], ["CPU", 2400], ["AAA", 1500]],
-    "marble-drop":         [["ACE", 9800], ["ZAP", 8600], ["JMS", 7500], ["KIT", 6400], ["NPR", 5400], ["BOB", 4500], ["MAX", 3600], ["MOM", 2700], ["CPU", 1800], ["AAA", 900]]
+    "marble-drop":         [["ACE", 9800], ["ZAP", 8600], ["JMS", 7500], ["KIT", 6400], ["NPR", 5400], ["BOB", 4500], ["MAX", 3600], ["MOM", 2700], ["CPU", 1800], ["AAA", 900]],
+    "pinball-rings":       [["ACE", 12500000], ["ZAP", 8200000], ["JMS", 5400000], ["RIN", 3600000], ["NPR", 2100000], ["BOB", 1250000], ["MAX", 780000], ["MOM", 450000], ["CPU", 260000], ["AAA", 140000]]
   };
 
   function rd(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

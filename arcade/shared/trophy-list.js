@@ -177,6 +177,17 @@
       T(182, "md-clean", "Clean Stop", "Clear a stop without losing a life.", "sealed"),
       T(183, "md-powers", "Fully Powered", "Use Slow, Rewind, Kaboom and a Wild marble in one town.", "sealed"),
       T(184, "md-town", "Town Saved", "Clear all 7 stops and save the town.", "slabbed")
+    ] },
+    // Pinball Rings (3D pinball). Slots 185-192; never reuse them.
+    { slug: "pinball-rings", name: "Pinball Rings", status: "live", trophies: [
+      T(185, "pr-skill", "Skill Shot", "Nail the skill shot off the plunger.", "loose"),
+      T(186, "pr-combo4", "Four-Way Combo", "String a 4-way combo.", "loose"),
+      T(187, "pr-multiball", "Ring Rush", "Start Ring Rush multiball.", "boxed"),
+      T(188, "pr-jackpot", "Jackpot", "Collect a jackpot during Ring Rush.", "boxed"),
+      T(189, "pr-mission3", "Mission Control", "Complete 3 missions in one game.", "sealed"),
+      T(190, "pr-rings100", "Hundred Rings", "Collect 100 rings in one game.", "sealed", { goal: { stat: "ringsGame", at: 100, unit: "rings", one: "ring" } }),
+      T(191, "pr-super", "Super Jackpot", "Collect the Super Jackpot.", "sealed"),
+      T(192, "pr-10m", "Ten Million", "Score 10,000,000 points in one game.", "slabbed", { goal: { stat: "score", at: 10000000, unit: "PTS", fromBest: true }, end: function (s) { return s.score >= 10000000; } })
     ] }
   ];
 
