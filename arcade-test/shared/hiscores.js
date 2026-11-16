@@ -27,7 +27,8 @@
     "rink-rat-shootout":   [["ZAP", 40], ["ACE", 34], ["JMS", 29], ["BOB", 25], ["MAX", 21], ["NPR", 18], ["MOM", 15], ["KID", 12], ["CPU", 9], ["AAA", 6]],
     "powder-day-haul":     [["RAD", 12800], ["ACE", 11500], ["ZAP", 10300], ["JMS", 9200], ["NPR", 8200], ["BOB", 7200], ["MOM", 6300], ["SKI", 5300], ["CPU", 4200], ["AAA", 3000]],
     "flea-fortress-flyby": [["ACE", 60000], ["ZAP", 48000], ["UFO", 39000], ["JMS", 31000], ["NPR", 25000], ["BOB", 20000], ["MOM", 15500], ["DAD", 11500], ["CPU", 8000], ["AAA", 5000]],
-    "table-rink-rumble":   [["CPU", 43], ["ACE", 35], ["JMS", 32], ["ZAP", 26], ["NPR", 23], ["BOB", 21], ["MAX", 15], ["MOM", 13], ["DAD", 12], ["AAA", 11]]
+    "table-rink-rumble":   [["CPU", 43], ["ACE", 35], ["JMS", 32], ["ZAP", 26], ["NPR", 23], ["BOB", 21], ["MAX", 15], ["MOM", 13], ["DAD", 12], ["AAA", 11]],
+    "battle-karts":        [["ACE", 8200], ["ZAP", 7400], ["JMS", 6700], ["ROX", 6000], ["NPR", 5400], ["BOB", 4700], ["MAX", 3900], ["MOM", 3100], ["CPU", 2300], ["AAA", 1500]]
   };
 
   function rd(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
