@@ -32,10 +32,11 @@ const PUCK_T = 5, GRIP_Y = 34;                            // puck thickness; whe
 const BOARD = { w: X1 - X0 + RAIL_T * 2, house: 38, face: 30, depth: 6, z: Y0 - RAIL_T - CZ + 3, lean: -0.62 };   // the LED dasher board on the far rail, leaning back to face you
 const OPP_Z = Y0 - RAIL_T - CZ - 0.95 * FT;              // where the collector stands
 const HIP_Y = 3.02;                                       // his hips, feet above the carpet
-const ARM = 1.15 + 1.12;                                  // his arm, shoulder to fist, feet
+const ARM = 1.08 + 1.04;                                  // his arm, shoulder to wrist, feet
 const WALL_Z = -560;
 const CAM_FOV = 36, CAM_PITCH = 48 * DEG;
 const HUD_H = 50;
+const LIGHT = { hemi: 1.42, key: 1.85, fill: 1.3 };   // the room's lights; the overhead key is kept below the point where darker skin tones wash out
 const SAFE = { x1: 3, x2: W - 3, y1: HUD_H + 2, y2: H - 3 };   // where the table and the collector have to fit on screen
 
 const LOGO_URL = "np_games_logo.png";                     // the full studio logo: splash and score card only
@@ -445,77 +446,140 @@ function seeMatch(won) {
   }
 }
 
-/* ---------------- Sound: the house band and a few extra stingers ----------------
-   The shell still plays every sound effect the 2D game had, exactly when it did. On top of that the game brings
-   its own small synth: an original sixteen-bar loop in A minor (lead, bass, arpeggio, chord stabs, drums) and a
-   handful of stingers for goals and matches. All of it is made in code with the Web Audio API, no audio files.
-   Nothing is created until the first tap, click or key press. The band goes quiet with the shell's mute button
-   (the same "npArcade.muted" setting) and has its own MUSIC: ON / OFF button (remembered as "npArcade.music").
-   It rolls none of the game's dice. */
-const MUSIC_VOL = 0.16, SFX_VOL = 0.2;                     // turn the band or the stingers up and down here
-const BPM = 136, STEP = 60 / BPM / 4, SONG_STEPS = 256;    // sixteen bars of sixteenth notes, about half a minute
-const MUSIC_KEY = "npArcade.music";
-const AHEAD = 0.6;                                         // seconds of music kept queued, so a slow frame never makes the band stumble
-// bass note, then the three notes the arpeggio walks (MIDI numbers)
-const CHORDS = { Am: [33, 57, 60, 64], F: [41, 57, 60, 65], C: [36, 55, 60, 64], G: [43, 55, 59, 62], E: [40, 56, 59, 64], Em: [40, 55, 59, 64] };
-// one chord per half bar
-const PROG = "Am Am F F C C G G Am Am F F C C E E F F G G Em Em Am Am F F G G Am F E E".split(" ");
-// the tune, a bar a line: step in the bar, note, length in steps
-const LEAD_BARS = [
-  "0A4-2 2C5-2 4E5-3 7D5-1 8E5-2 10A5-4 14G5-2",
-  "0F5-3 3E5-1 4C5-2 6A4-2 8C5-4 12F5-2 14E5-2",
-  "0E5-2 2G5-2 4C6-3 7B5-1 8G5-2 10E5-2 12G5-4",
-  "0D5-3 3B4-1 4D5-2 6G5-2 8B5-6 14A5-2",
-  "0A5-2 2E5-2 4A5-2 6C6-2 8B5-2 10A5-2 12E5-4",
-  "0F5-2 2A5-2 4C6-4 8A5-2 10F5-2 12C5-4",
-  "0E5-2 2G5-2 4E5-2 6C5-2 8D5-2 10E5-2 12G5-4",
-  "0G#5-4 4B5-4 8E5-3 11G#5-1 12B5-4",
-  "0C6-3 3A5-1 4F5-2 6A5-2 8C6-4 12D6-4",
-  "0B5-3 3G5-1 4D5-2 6G5-2 8B5-4 12D6-4",
-  "0E6-4 4B5-2 6G5-2 8E5-4 12G5-2 14B5-2",
-  "0A5-6 6G5-1 7E5-1 8C5-4 12E5-4",
-  "0A5-2 2C6-2 4A5-2 6F5-2 8A5-2 10C6-2 12F6-4",
-  "0G5-2 2B5-2 4D6-2 6B5-2 8G5-2 10D6-2 12G6-4",
-  "0E6-3 3C6-1 4A5-4 8F5-2 10A5-2 12C6-4",
-  "0B5-2 2G#5-2 4E5-2 6G#5-2 8B5-4 12E6-2 14D6-2"
-];
-function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
-const LEAD = (function () {
-  const out = new Array(SONG_STEPS).fill(null), semis = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
-  LEAD_BARS.forEach(function (bar, b) {
+/* ---------------- Music: the house band, on its own ----------------
+   startMusic(ctx, dest) plays the game's original loop: sixteen bars in A minor at 136 BPM (square lead with a
+   dotted-eighth echo, bouncing saw bass, a triangle arpeggio, chord stabs in the second half, drums), all made in
+   code with the Web Audio API, no audio files. It schedules into any AudioContext you hand it (an
+   OfflineAudioContext gets the whole loop at once) and plays into "dest", any AudioNode. It knows nothing about
+   the game, so the arcade radio can call it as it is. It returns stop(fadeSeconds), which fades it out and lets go
+   of every node it made. */
+function startMusic(ctx, dest) {
+  const BPM = 136, STEP = 60 / BPM / 4, STEPS = 256, VOL = 0.16, AHEAD = 0.8;
+  // bass note, then the three notes the arpeggio walks (MIDI numbers)
+  const CHORDS = { Am: [33, 57, 60, 64], F: [41, 57, 60, 65], C: [36, 55, 60, 64], G: [43, 55, 59, 62], E: [40, 56, 59, 64], Em: [40, 55, 59, 64] };
+  // one chord per half bar
+  const PROG = "Am Am F F C C G G Am Am F F C C E E F F G G Em Em Am Am F F G G Am F E E".split(" ");
+  // the tune, a bar a line: step in the bar, note, length in steps
+  const BARS = [
+    "0A4-2 2C5-2 4E5-3 7D5-1 8E5-2 10A5-4 14G5-2", "0F5-3 3E5-1 4C5-2 6A4-2 8C5-4 12F5-2 14E5-2",
+    "0E5-2 2G5-2 4C6-3 7B5-1 8G5-2 10E5-2 12G5-4", "0D5-3 3B4-1 4D5-2 6G5-2 8B5-6 14A5-2",
+    "0A5-2 2E5-2 4A5-2 6C6-2 8B5-2 10A5-2 12E5-4", "0F5-2 2A5-2 4C6-4 8A5-2 10F5-2 12C5-4",
+    "0E5-2 2G5-2 4E5-2 6C5-2 8D5-2 10E5-2 12G5-4", "0G#5-4 4B5-4 8E5-3 11G#5-1 12B5-4",
+    "0C6-3 3A5-1 4F5-2 6A5-2 8C6-4 12D6-4", "0B5-3 3G5-1 4D5-2 6G5-2 8B5-4 12D6-4",
+    "0E6-4 4B5-2 6G5-2 8E5-4 12G5-2 14B5-2", "0A5-6 6G5-1 7E5-1 8C5-4 12E5-4",
+    "0A5-2 2C6-2 4A5-2 6F5-2 8A5-2 10C6-2 12F6-4", "0G5-2 2B5-2 4D6-2 6B5-2 8G5-2 10D6-2 12G6-4",
+    "0E6-3 3C6-1 4A5-4 8F5-2 10A5-2 12C6-4", "0B5-2 2G#5-2 4E5-2 6G#5-2 8B5-4 12E6-2 14D6-2"
+  ];
+  const LEAD = new Array(STEPS).fill(null), semis = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+  BARS.forEach(function (bar, b) {
     bar.split(" ").forEach(function (tok) {
       const m = /^(\d+)([A-G])(#?)(\d)-(\d+)$/.exec(tok);
-      if (m) out[b * 16 + Number(m[1])] = [12 * (Number(m[4]) + 1) + semis[m[2]] + (m[3] ? 1 : 0), Number(m[5])];
+      if (m) LEAD[b * 16 + Number(m[1])] = [12 * (Number(m[4]) + 1) + semis[m[2]] + (m[3] ? 1 : 0), Number(m[5])];
     });
   });
-  return out;
-})();
-// The picture's own dice (sparkle on the board, the crowd-less hiss of the band), so the rules see the random numbers the 2D game would.
+  function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  let seed = 0x1F2E3D4C;
+  function rnd() { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return (seed >>> 0) / 4294967296; }
+
+  // the band's own little mixer: everything it makes hangs off "bus", so stop() only has to fade and drop that
+  const bus = ctx.createGain(); bus.gain.value = 0; bus.connect(dest);
+  function filter(type, f, q, to) { const n = ctx.createBiquadFilter(); n.type = type; n.frequency.value = f; n.Q.value = q; n.connect(to); return n; }
+  const lead = filter("lowpass", 3400, 0.7, bus), bass = filter("lowpass", 820, 1.3, bus), stab = filter("bandpass", 1500, 0.9, bus);
+  const send = ctx.createGain(), echo = ctx.createDelay(1), back = ctx.createGain(), damp = filter("lowpass", 2400, 0.7, bus);
+  send.gain.value = 0.28; echo.delayTime.value = STEP * 3; back.gain.value = 0.3;      // a dotted-eighth echo on the lead
+  lead.connect(send); send.connect(echo); echo.connect(back); back.connect(echo); echo.connect(damp);
+  const len = Math.floor(ctx.sampleRate * 2), noise = ctx.createBuffer(1, len, ctx.sampleRate), nd = noise.getChannelData(0);
+  for (let i = 0; i < len; i++) nd[i] = rnd() * 2 - 1;
+
+  function osc(to, type, f0, t, dur, vol, f1, hold) {
+    const o = ctx.createOscillator(), g = ctx.createGain(), h = t + Math.max(0.008, dur * (hold == null ? 0.55 : hold));
+    o.type = type; o.frequency.setValueAtTime(f0, t);
+    if (f1) o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.006);
+    g.gain.setValueAtTime(vol, h); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(to); o.start(t); o.stop(t + dur + 0.03);
+  }
+  function hiss(to, t, dur, vol, type, f0, q) {
+    const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    s.buffer = noise; s.loop = true;
+    f.type = type; f.frequency.setValueAtTime(f0, t); f.Q.value = q || 0.7;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(to); s.start(t, rnd() * 1.5); s.stop(t + dur + 0.05);
+  }
+  // everything that sounds on sixteenth-note i of the loop, starting at time t
+  function playStep(i, t) {
+    const bar = i >> 4, s = i & 15, ch = CHORDS[PROG[i >> 3]], second = bar >= 8, n = LEAD[i];
+    if (n) osc(lead, "square", mtof(n[0]), t, n[1] * STEP * 0.92, 0.19);
+    if (!(s & 1)) {
+      const k = s >> 1;                                     // eighth notes: bouncing octave bass, a walking arpeggio, hats
+      osc(bass, "sawtooth", mtof(ch[0] + (k & 1 ? 12 : 0)), t, STEP * 1.7, 0.3);
+      osc(bus, "triangle", mtof(ch[1 + [0, 1, 2, 1][k & 3]] + 12), t, STEP * 1.4, 0.07);
+      hiss(bus, t, s === 14 ? 0.14 : 0.04, s % 4 === 2 ? 0.1 : 0.055, "highpass", 7200, 0.7);
+    }
+    if (second && (s === 2 || s === 6 || s === 10 || s === 14)) for (let j = 1; j < 4; j++) osc(stab, "square", mtof(ch[j]), t, STEP * 0.9, 0.045, 0, 0.3);
+    const fill = bar === 7 ? s >= 12 : bar === 15 ? s >= 8 && (s % 2 === 0 || s >= 12) : false;
+    if (fill || s === 4 || s === 12) {
+      const v = fill ? 0.55 + 0.45 * (s - 8) / 7 : 1;
+      hiss(bus, t, 0.13, 0.32 * v, "bandpass", 2000, 0.6);
+      osc(bus, "triangle", 210, t, 0.07, 0.2 * v, 140, 0.1);
+    }
+    if (second ? s % 4 === 0 : s === 0 || s === 8 || s === 11) osc(bus, "sine", 150, t, 0.16, 0.62, 42, 0.08);
+  }
+
+  let step = 0, nextT = ctx.currentTime + 0.06, timer = 0, stopped = false;
+  const offline = typeof OfflineAudioContext !== "undefined" && ctx instanceof OfflineAudioContext;
+  if (offline) {                                            // a render: lay the whole loop down at once
+    bus.gain.value = VOL;
+    for (let i = 0; i < STEPS; i++) playStep(i, nextT + i * STEP);
+  } else {
+    bus.gain.setValueAtTime(0, ctx.currentTime);
+    bus.gain.setTargetAtTime(VOL, nextT - 0.02, 0.015);
+    const feed = function () {
+      if (stopped) return;
+      const now = ctx.currentTime;
+      if (nextT < now) nextT = now + 0.03;                  // only after a stall longer than the queue
+      while (nextT < now + AHEAD) { playStep(step, nextT); step = (step + 1) % STEPS; nextT += STEP; }
+    };
+    feed();
+    timer = setInterval(feed, 100);
+  }
+  return function stop(fade) {
+    if (stopped) return;
+    stopped = true;
+    if (timer) clearInterval(timer);
+    const now = ctx.currentTime, f = Math.max(0.01, fade == null ? 0.12 : fade);
+    try { bus.gain.cancelScheduledValues(now); bus.gain.setValueAtTime(bus.gain.value, now); bus.gain.linearRampToValueAtTime(0, now + f); } catch (e) { /* closed context */ }
+    setTimeout(function () { try { bus.disconnect(); } catch (e) { /* already gone */ } }, (f + AHEAD + 0.3) * 1000);
+  };
+}
+
+/* ---------------- Sound: the stingers, the mute button and the music switch ----------------
+   The shell still plays every sound effect the 2D game had, exactly when it did. On top of that the game brings a
+   handful of stingers for goals and matches, and runs the house band (startMusic above) while a game is on.
+   Nothing is created until the first tap, click or key press. Everything goes quiet with the shell's mute button
+   (the same "npArcade.muted" setting), and the band has its own MUSIC: ON / OFF button (remembered as
+   "npArcade.music"). It rolls none of the game's dice. */
+const SFX_VOL = 0.2;                                       // turn the stingers up and down here (the band's level is in startMusic)
+const MUSIC_KEY = "npArcade.music";
+function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+// The picture's own dice (sparkle on the board, the hiss in the stingers), so the rules see the random numbers the 2D game would.
 const vrand = (function () { let s = 0x2545F491; return function () { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return (s >>> 0) / 4294967296; }; })();
 
 const Juke = (function () {
-  let live = null, dead = false, muted = false, going = false, fresh = true, step = 0, nextT = 0, timer = 0;
+  let live = null, dead = false, muted = false, stopBand = null, waitBand = 0, fresh = true;
   let musicOn = (function () { try { return localStorage.getItem(MUSIC_KEY) !== "0"; } catch (e) { return true; } })();
   const buttons = [];
 
-  // Everything between the instruments and the speaker, on any audio context (the real one, or an offline one for checks).
+  // Everything between the stingers (and the band) and the speaker.
   function rig(c) {
     const A = { c: c };
     A.out = c.createGain();                                 // follows the mute button
     const comp = c.createDynamicsCompressor();
     comp.threshold.value = -14; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.2;
     A.out.connect(comp); comp.connect(c.destination);
-    A.music = c.createGain(); A.music.gain.value = 0;
-    A.duck = c.createGain();                                // the band steps back for a moment under the big stingers
-    A.music.connect(A.duck); A.duck.connect(A.out);
+    A.duck = c.createGain();                                // the band plays into this; it steps back under the big stingers
+    A.duck.connect(A.out);
     A.sfx = c.createGain(); A.sfx.gain.value = SFX_VOL; A.sfx.connect(A.out);
-    function filter(type, f, q, dest) { const n = c.createBiquadFilter(); n.type = type; n.frequency.value = f; n.Q.value = q; n.connect(dest); return n; }
-    A.lead = filter("lowpass", 3400, 0.7, A.music);
-    A.bass = filter("lowpass", 820, 1.3, A.music);
-    A.stab = filter("bandpass", 1500, 0.9, A.music);
-    const send = c.createGain(), echo = c.createDelay(1), back = c.createGain(), damp = filter("lowpass", 2400, 0.7, A.music);
-    send.gain.value = 0.28; echo.delayTime.value = STEP * 3; back.gain.value = 0.3;    // a dotted-eighth echo on the lead
-    A.lead.connect(send); send.connect(echo); echo.connect(back); back.connect(echo); echo.connect(damp);
     const len = Math.floor(c.sampleRate * 2);
     A.noise = c.createBuffer(1, len, c.sampleRate);
     const d = A.noise.getChannelData(0);
@@ -534,41 +598,17 @@ const Juke = (function () {
     o.connect(g); g.connect(dest);
     o.start(t); o.stop(t + dur + 0.03);
   }
-  // A burst of filtered noise: hats, snares, the slap of the puck into the slot.
-  function hiss(A, dest, t, dur, vol, type, f0, q, f1, atk) {
+  // A burst of filtered noise: the slap of the puck into the slot.
+  function hiss(A, dest, t, dur, vol, type, f0, q) {
     const s = A.c.createBufferSource(), f = A.c.createBiquadFilter(), g = A.c.createGain();
     s.buffer = A.noise; s.loop = true;
     f.type = type; f.frequency.setValueAtTime(f0, t); f.Q.value = q || 0.7;
-    if (f1) f.frequency.exponentialRampToValueAtTime(f1, t + dur);
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(vol, t + (atk || 0.004));
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.004);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     s.connect(f); f.connect(g); g.connect(dest);
     s.start(t, vrand() * 1.5); s.stop(t + dur + 0.05);
   }
-
-  // The band: everything that sounds on sixteenth-note i of the loop, starting at time t.
-  function playStep(A, i, t) {
-    const bar = i >> 4, s = i & 15, ch = CHORDS[PROG[i >> 3]], second = bar >= 8, n = LEAD[i];
-    if (n) osc(A, A.lead, "square", mtof(n[0]), t, n[1] * STEP * 0.92, 0.19);
-    if (!(s & 1)) {
-      const k = s >> 1;                                     // eighth notes: bouncing octave bass, a walking arpeggio, hats
-      osc(A, A.bass, "sawtooth", mtof(ch[0] + (k & 1 ? 12 : 0)), t, STEP * 1.7, 0.3);
-      osc(A, A.music, "triangle", mtof(ch[1 + [0, 1, 2, 1][k & 3]] + 12), t, STEP * 1.4, 0.07);
-      hiss(A, A.music, t, s === 14 ? 0.14 : 0.04, s % 4 === 2 ? 0.1 : 0.055, "highpass", 7200, 0.7);
-    }
-    if (second && (s === 2 || s === 6 || s === 10 || s === 14)) {   // offbeat chord stabs in the second half
-      for (let j = 1; j < 4; j++) osc(A, A.stab, "square", mtof(ch[j]), t, STEP * 0.9, 0.045, 0, 0.3);
-    }
-    const fill = bar === 7 ? s >= 12 : bar === 15 ? s >= 8 && (s % 2 === 0 || s >= 12) : false;
-    if (fill || s === 4 || s === 12) {
-      const v = fill ? 0.55 + 0.45 * (s - 8) / 7 : 1;
-      hiss(A, A.music, t, 0.13, 0.32 * v, "bandpass", 2000, 0.6);
-      osc(A, A.music, "triangle", 210, t, 0.07, 0.2 * v, 140, 0.1);
-    }
-    if (second ? s % 4 === 0 : s === 0 || s === 8 || s === 11) osc(A, A.music, "sine", 150, t, 0.16, 0.62, 42, 0.08);
-  }
-
   function duck(A, t, secs) {
     A.duck.gain.cancelScheduledValues(t);
     A.duck.gain.setTargetAtTime(0.45, t, 0.03);
@@ -601,7 +641,7 @@ const Juke = (function () {
       osc(A, d, "square", 1320, t + 0.32, 0.07, 0.22, 0, 0.5); osc(A, d, "square", 1760, t + 0.4, 0.16, 0.22, 0, 0.5);
     } else if (name === "rare") {                           // rare find: a little bell
       osc(A, d, "sine", 1568, t, 0.5, 0.22, 0, 0.05); osc(A, d, "sine", 2349, t + 0.06, 0.6, 0.16, 0, 0.05);
-    } else if (name === "face") {                           // a new collector sits down: two quick whistle chirps
+    } else if (name === "face") {                           // a new collector steps up: two quick whistle chirps
       osc(A, d, "sine", 2300, t, 0.09, 0.14, 2500, 0.6); osc(A, d, "sine", 2300, t + 0.13, 0.2, 0.14, 2600, 0.6);
     }
   }
@@ -621,32 +661,27 @@ const Juke = (function () {
         live = rig(new AC());
         muted = shellMuted();
         live.out.gain.value = muted ? 0 : 1;
-        if (!timer) timer = setInterval(pump, 120);         // keeps the band fed if the picture ever stalls
+        setInterval(pump, 150);                             // follows the mute button even while the picture is paused
       }
       if (live.c.state !== "running") { const p = live.c.resume(); if (p && p.catch) p.catch(function () {}); }
     } catch (e) { live = null; dead = true; }
   }
-  // Called every frame: follow the mute button, and keep the next stretch of music queued while a game is on.
+  // Called every frame: follow the mute button, and keep the band playing exactly while a game is on.
   function pump() {
     const A = live;
     if (!A || !window.Shell) return;
     const c = A.c, now = c.currentTime, m = shellMuted();
     if (m !== muted) { muted = m; A.out.gain.setTargetAtTime(m ? 0 : 1, now, 0.02); }
     const want = musicOn && !muted && c.state === "running" && Shell.state() === "playing";
-    if (want && !going) {
-      going = true;
-      nextT = Math.max(nextT, now + (fresh ? 0.42 : 0.08));  // a fresh game lets the shell's start jingle go first
-      A.music.gain.cancelScheduledValues(now);
-      if (fresh) { A.music.gain.setValueAtTime(0, now); A.music.gain.setTargetAtTime(MUSIC_VOL, nextT - 0.04, 0.012); }
-      else A.music.gain.setTargetAtTime(MUSIC_VOL, now, 0.03);
+    if (want && !stopBand && !waitBand) {
+      // a fresh game lets the shell's start jingle go first
+      const go = function () { waitBand = 0; if (!stopBand && musicOn && !muted && Shell.state() === "playing") stopBand = startMusic(c, A.duck); };
+      if (fresh) waitBand = setTimeout(go, 360); else go();
       fresh = false;
-    } else if (!want && going) {
-      going = false;                                        // whatever is already queued dies under a quick fade
-      A.music.gain.cancelScheduledValues(now); A.music.gain.setTargetAtTime(0, now, 0.06);
+    } else if (!want) {
+      if (waitBand) { clearTimeout(waitBand); waitBand = 0; }
+      if (stopBand) { stopBand(0.15); stopBand = null; }
     }
-    if (!going) return;
-    if (nextT < now) nextT = now + 0.03;                    // only after a stall longer than the queue
-    while (nextT < now + AHEAD) { playStep(A, step, nextT); step = (step + 1) % SONG_STEPS; nextT += STEP; }
   }
   function sfx(name, delay) {
     const A = live;
@@ -676,12 +711,11 @@ const Juke = (function () {
   }
   return {
     unlock: unlock, pump: pump, sfx: sfx, button: button,
-    newGame: function () { unlock(); step = 0; fresh = true; going = false; if (live) live.music.gain.setTargetAtTime(0, live.c.currentTime, 0.03); pump(); },
+    newGame: function () { unlock(); fresh = true; if (stopBand) { stopBand(0.05); stopBand = null; } if (waitBand) { clearTimeout(waitBand); waitBand = 0; } pump(); },
     toggleMusic: function () { unlock(); setMusic(!musicOn); },
-    // for checks: what the engine is doing right now, and the whole loop played into any audio context
-    peek: function () { return { made: !!live, state: live ? live.c.state : "none", going: going, step: step, muted: muted, musicOn: musicOn }; },
-    render: function (c, steps, t0) { const A = rig(c); A.music.gain.value = MUSIC_VOL; for (let i = 0; i < steps; i++) playStep(A, i % SONG_STEPS, (t0 || 0.05) + i * STEP); return A; },
-    cue: cue
+    // for checks: what the engine is doing right now, and the stingers played into any audio context
+    peek: function () { return { made: !!live, state: live ? live.c.state : "none", band: !!stopBand, muted: muted, musicOn: musicOn }; },
+    cueInto: function (c, name, t) { const A = rig(c); cue(A, name, t); return A; }
   };
 })();
 
@@ -828,25 +862,136 @@ function puckCanvas(script) {
   return c;
 }
 
-// A T-shirt, wrapped once around the body: u = 0 is the chest, u = .5 the back. The wordmark on both.
-function shirtCanvas(script, base, kind) {
-  const c = mkCanvas(512, 256), g = c.getContext("2d"), rnd = rng(base.length * 7 + kind.length);
-  g.fillStyle = base; g.fillRect(0, 0, 512, 256);
-  if (kind === "polo") { g.fillStyle = "rgba(20,40,110,.18)"; for (let y = 10; y < 256; y += 22) g.fillRect(0, y, 512, 6); }
-  if (kind === "aloha") {                                  // a loud flea market print
-    for (let i = 0; i < 70; i++) {
-      const x = rnd() * 512, y = rnd() * 256, r = 7 + rnd() * 9, col = ["#ffe45c", "#ff7ac6", "#ffffff", "#ff9214"][i % 4];
+/* ---------------- The collector's clothes, painted ----------------
+   Every piece wraps around a lathe-turned body part: u runs around it with the front at u = .5 (canvas middle),
+   v runs up it. Folds are painted as soft dark and light creases on top of the shapes the geometry already has. */
+// A soft crease: one path laid down wide and faint, then narrower and stronger.
+function crease(g, pts, w, col, alpha) {
+  g.save(); g.lineCap = "round"; g.lineJoin = "round"; g.strokeStyle = col;
+  for (let k = 3; k >= 1; k--) {
+    g.globalAlpha = alpha * (0.3 + (3 - k) * 0.35); g.lineWidth = w * k;
+    g.beginPath(); g.moveTo(pts[0], pts[1]);
+    for (let i = 2; i + 3 < pts.length; i += 4) g.quadraticCurveTo(pts[i], pts[i + 1], pts[i + 2], pts[i + 3]);
+    g.stroke();
+  }
+  g.restore();
+}
+function clothBase(g, w, h, L, rnd) {
+  g.fillStyle = L.shirt; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < w * h / 90; i++) { g.fillStyle = rnd() < 0.5 ? "rgba(255,255,255,.035)" : "rgba(0,0,0,.05)"; g.fillRect(rnd() * w, rnd() * h, 2, 2); }   // the knit
+  if (L.kind === "polo") { g.fillStyle = "rgba(20,40,110,.16)"; for (let y = 8; y < h; y += h / 14) g.fillRect(0, y, w, h / 40); }
+  if (L.kind === "aloha") {                                // a loud flea market print
+    const n = Math.round(w * h / 3600);
+    for (let i = 0; i < n; i++) {
+      const x = rnd() * w, y = rnd() * h, r = (7 + rnd() * 9) * w / 512, col = ["#ffe45c", "#ff7ac6", "#ffffff", "#ff9214"][i % 4];
+      g.fillStyle = "rgba(10,90,60,.55)"; g.beginPath(); g.ellipse(x + r, y + r * 0.6, r * 0.9, r * 0.3, 0.6, 0, TAU); g.fill();
       for (let p = 0; p < 5; p++) { const a = p / 5 * TAU; g.fillStyle = col; g.beginPath(); g.ellipse(x + Math.cos(a) * r * 0.6, y + Math.sin(a) * r * 0.6, r * 0.5, r * 0.32, a, 0, TAU); g.fill(); }
       g.fillStyle = "#7a3a12"; g.beginPath(); g.arc(x, y, r * 0.22, 0, TAU); g.fill();
     }
   }
-  const sh = g.createLinearGradient(0, 0, 0, 256);
-  sh.addColorStop(0, "rgba(255,255,255,.12)"); sh.addColorStop(1, "rgba(0,0,40,.16)");
-  g.fillStyle = sh; g.fillRect(0, 0, 512, 256);
-  [0, 256, 512].forEach(function (x) {
-    if (kind === "aloha") { g.fillStyle = "rgba(8,32,95,.75)"; rrectPath(g, x - 80, 64, 160, 60, 14); g.fill(); }
-    drawScript(g, script, x, 94, 150, 58);
+}
+// Where height y (feet) sits on a lathe's v, as a canvas row.
+function profileRow(prof, y, h) {
+  for (let i = 1; i < prof.length; i++) if (y <= prof[i][1]) { const f = (y - prof[i - 1][1]) / (prof[i][1] - prof[i - 1][1]); return (1 - (i - 1 + f) / (prof.length - 1)) * h; }
+  return 0;
+}
+// The shirt body. The wordmark sits big on the chest so it reads at phone size, smaller across the back.
+function shirtCanvas(script, L) {
+  const w = 1024, h = 512, c = mkCanvas(w, h), g = c.getContext("2d"), rnd = rng(L.shirt.length * 7 + L.kind.length);
+  clothBase(g, w, h, L, rnd);
+  const dark = L.shirt === "#23252f" ? "#000000" : "#000000", light = "#ffffff";
+  const chest = profileRow(BODY.torso, 1.42, h), waist = profileRow(BODY.torso, 0.35, h), pit = profileRow(BODY.torso, 1.66, h);
+  // folds: from under each arm down and in toward the belt, front and back
+  [256, 768].forEach(function (side, k) {
+    const sg = k ? 1 : -1;
+    for (let j = 0; j < 3; j++) {
+      const off = j * 26;
+      crease(g, [side + sg * (8 + off), pit + off * 0.6, side - sg * (40 - off), (pit + waist) / 2, side - sg * (120 - off * 0.5), waist + 20 + off], 5, dark, 0.13);
+      crease(g, [side + sg * (18 + off), pit + off * 0.6 - 4, side - sg * (30 - off), (pit + waist) / 2 - 6, side - sg * (110 - off * 0.5), waist + 12 + off], 3, light, 0.08);
+    }
   });
+  // the hem bunches up over the belt
+  for (let i = 0; i < 26; i++) {
+    const x = rnd() * w, y = h - 20 - rnd() * 70, l = 30 + rnd() * 60;
+    crease(g, [x, y, x + l * 0.5, y - 10 - rnd() * 10, x + l, y + 4], 4, dark, 0.12);
+    crease(g, [x + 4, y - 6, x + l * 0.5 + 4, y - 16, x + l + 4, y - 2], 2, light, 0.08);
+  }
+  // collar: ribbed band round the neck (a placket and buttons on the polo)
+  g.fillStyle = "rgba(0,0,0,.18)"; g.fillRect(0, 0, w, 22);
+  g.fillStyle = "rgba(255,255,255,.12)"; for (let x = 0; x < w; x += 6) g.fillRect(x, 0, 2, 22);
+  if (L.kind === "polo") {
+    g.fillStyle = "rgba(20,40,110,.35)"; g.fillRect(500, 18, 4, 90); g.fillRect(520, 18, 4, 90);
+    g.fillStyle = "#fbfaf4"; [44, 76].forEach(function (y) { g.beginPath(); g.arc(512, y, 6, 0, TAU); g.fill(); });
+  }
+  // light from above, a little shade toward the hem
+  const sh = g.createLinearGradient(0, 0, 0, h);
+  sh.addColorStop(0, "rgba(255,255,255,.1)"); sh.addColorStop(0.6, "rgba(0,0,0,0)"); sh.addColorStop(1, "rgba(0,0,40,.18)");
+  g.fillStyle = sh; g.fillRect(0, 0, w, h);
+  // the logo: a navy plate keeps it readable on any shirt color or print
+  g.fillStyle = "rgba(8,32,95,.82)"; rrectPath(g, 512 - 214, chest - 92, 428, 172, 34); g.fill();
+  g.lineWidth = 5; g.strokeStyle = "rgba(255,228,92,.9)"; g.stroke();
+  drawScript(g, script, 512, chest - 6, 392, 152);
+  [0, 1024].forEach(function (x) { drawScript(g, script, x, chest - 20, 260, 100); });
+  return c;
+}
+// A short sleeve: same cloth, radial folds, a stitched hem.
+function sleeveCanvas(L) {
+  const w = 256, h = 256, c = mkCanvas(w, h), g = c.getContext("2d"), rnd = rng(L.shirt.length * 3 + 1);
+  clothBase(g, w, h, L, rnd);
+  for (let i = 0; i < 9; i++) { const x = i * 29 + rnd() * 10; crease(g, [x, 30, x + 8, 120, x - 6, 240], 4, "#000000", 0.12); crease(g, [x + 7, 30, x + 15, 120, x + 1, 240], 2, "#ffffff", 0.08); }
+  g.fillStyle = "rgba(0,0,0,.2)"; g.fillRect(0, 0, w, 26);
+  g.fillStyle = "rgba(255,255,255,.4)"; for (let x = 0; x < w; x += 10) g.fillRect(x, 30, 6, 2);
+  return c;
+}
+// Trousers: denim (weave, fading down the front of each leg, orange side seams) or plain twill, with creases where the knee bends and where the hem breaks over the shoe.
+function pantsCanvas(L) {
+  const w = 256, h = 512, c = mkCanvas(w, h), g = c.getContext("2d"), rnd = rng(L.pants.length * 11);
+  g.fillStyle = L.pants; g.fillRect(0, 0, w, h);
+  if (L.jeans) {
+    for (let y = -w; y < h; y += 3) { g.strokeStyle = "rgba(255,255,255,.05)"; g.lineWidth = 1; g.beginPath(); g.moveTo(0, y); g.lineTo(w, y + w * 0.5); g.stroke(); }
+    const f = g.createLinearGradient(0, 0, w, 0);
+    f.addColorStop(0.25, "rgba(255,255,255,0)"); f.addColorStop(0.5, "rgba(200,220,255,.2)"); f.addColorStop(0.75, "rgba(255,255,255,0)");
+    g.fillStyle = f; g.fillRect(0, 0, w, h);
+  } else for (let i = 0; i < 1500; i++) { g.fillStyle = "rgba(0,0,0,.05)"; g.fillRect(rnd() * w, rnd() * h, 3, 1); }
+  [64, 192].forEach(function (x) {
+    g.fillStyle = "rgba(0,0,0,.25)"; g.fillRect(x - 2, 0, 4, h);
+    if (L.jeans) { g.fillStyle = "#e0902a"; for (let y = 0; y < h; y += 12) g.fillRect(x + 3, y, 2, 7); }
+  });
+  for (let i = 0; i < 7; i++) {                            // knee creases (top and bottom of the canvas are the knee on thigh and shin)
+    const x = 70 + rnd() * 116, y = 14 + rnd() * 50;
+    crease(g, [x - 30, y, x, y + 10, x + 30, y - 2], 4, "#000000", 0.18); crease(g, [x - 26, y - 6, x + 2, y + 2, x + 30, y - 8], 2, "#ffffff", 0.1);
+    const y2 = h - 14 - rnd() * 50;
+    crease(g, [x - 30, y2, x, y2 - 10, x + 30, y2 + 2], 4, "#000000", 0.16);
+  }
+  return c;
+}
+// The cap crown: six panels and a two-letter monogram on the front.
+function capCanvas(L) {
+  const w = 512, h = 256, c = mkCanvas(w, h), g = c.getContext("2d");
+  g.fillStyle = L.cap || "#333"; g.fillRect(0, 0, w, h);
+  for (let k = 0; k < 6; k++) { g.fillStyle = "rgba(0,0,0,.22)"; g.fillRect(k * w / 6 + w / 12 - 2, 0, 4, h); }
+  const sh = g.createLinearGradient(0, 0, 0, h); sh.addColorStop(0, "rgba(255,255,255,.2)"); sh.addColorStop(1, "rgba(0,0,0,.15)");
+  g.fillStyle = sh; g.fillRect(0, 0, w, h);
+  g.font = "900 92px " + HUD_FONT; g.textAlign = "center"; g.textBaseline = "middle"; g.lineJoin = "round";
+  g.lineWidth = 14; g.strokeStyle = "#08205f"; g.strokeText("NP", 128, 168);
+  g.fillStyle = L.capInk || "#ffffff"; g.fillText("NP", 128, 168);
+  return c;
+}
+// A sneaker upper: laces up the front, a star and a stripe on each side, a heel tab. An original design.
+function shoeCanvas(L) {
+  const w = 256, h = 128, c = mkCanvas(w, h), g = c.getContext("2d");
+  g.fillStyle = L.shoe; g.fillRect(0, 0, w, h);
+  g.fillStyle = "rgba(0,0,0,.1)"; for (let x = 0; x < w; x += 4) g.fillRect(x, 0, 1, h);
+  g.fillStyle = "#f4f4f4"; g.fillRect(44, 22, 40, 44);                       // tongue and laces at the front (u = .25)
+  g.strokeStyle = "#9aa0aa"; g.lineWidth = 3;
+  for (let y = 26; y < 64; y += 9) { g.beginPath(); g.moveTo(46, y); g.lineTo(82, y + 6); g.moveTo(82, y); g.lineTo(46, y + 6); g.stroke(); }
+  [0, 128, 256].forEach(function (x) {                                      // the sides (u = 0 and .5)
+    g.fillStyle = L.shoeInk; g.fillRect(x - 40, 70, 80, 9);
+    g.save(); g.translate(x, 50); g.beginPath();
+    for (let i = 0; i < 10; i++) { const r = i % 2 ? 7 : 16, a = -Math.PI / 2 + i * Math.PI / 5; g.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
+    g.closePath(); g.fillStyle = L.shoeInk; g.fill(); g.lineWidth = 2; g.strokeStyle = "rgba(0,0,0,.35)"; g.stroke(); g.restore();
+  });
+  g.fillStyle = L.shoeInk; g.fillRect(184, 20, 16, 40);                      // heel tab (u = .75)
   return c;
 }
 
@@ -1122,7 +1267,7 @@ function ledCreate(script) {
   const strip = ledStrip(script), sw = strip.canvas.width;
   // open with the wordmark sitting in the middle of the board
   const start = ((-(LED_COLS - strip.markW) / 2) % sw + sw) % sw;
-  return { canvas: c, g: g, strip: strip.canvas, scroll: start, pos: -1, msg: null, queue: [], frame: -1, tex: null };
+  return { canvas: c, g: g, strip: strip.canvas, scroll: start, start: start, pos: -1, msg: null, queue: [], frame: -1, tex: null };
 }
 
 // One LED cell for the shader: a round lens, bright in the middle, dark between neighbors.
@@ -1318,82 +1463,266 @@ function roundBox(T, w, h, d, r) {
   return g;
 }
 
-/* ---------------- The collector: a jointed figure posed from a short list of numbers ----------------
-   Same build as the ballplayers in Bleacher Carts (real proportions: hips, a shaped torso, upper and lower
-   limbs with elbows and knees). A pose is: hips x y z, hips turn, shoulders turn, lean, left hand x y z,
-   right hand x y z, left foot x y z, right foot x y z, head turn, head tilt (all in his own space, life-size
-   feet and degrees, facing +z). Elbows and knees are solved from where the hands and feet are. */
+/* ---------------- The collector: a sculpted, jointed figure ----------------
+   Life-size in feet, facing +z. The body is turned on a lathe (hips, waist, ribs, chest and shoulder blades, the
+   trapezius sloping into a neck) and the limbs are tapered and muscled (shoulder, bicep and forearm; thigh, knee
+   and shin), so nothing is a tube. He has a neck, a jaw and chin, cheeks, a nose, ears, eyes with lids, irises and
+   a glint, brows that move, and a mouth that changes shape. His hands have a palm, four two-jointed fingers and a
+   thumb that curl to grip, rest flat or make a fist, and he wears sneakers. His clothes carry folds in the shape
+   itself (the shirt bunches at the belt, the sleeves ripple at the hem, the jeans break over the shoes) and in the
+   painted cloth, with the wordmark big on his chest.
+   A pose is: hips x y z, hips turn, shoulders turn, lean, left wrist x y z, right wrist x y z, left foot x y z,
+   right foot x y z, head turn, head tilt. Elbows and knees are solved from where the wrists and feet are; the
+   hands and the face are set on top (HANDS, FACE). Five collectors, five original looks. */
 const LOOKS = [
-  { shirt: "#e8402f", kind: "plain", pants: 0x2d4a86, skin: 0xe0a070, hair: 0x4a2a14, cap: 0x1d2a5a, capBack: true, glasses: false },   // The Box Lot Guy
-  { shirt: "#23252f", kind: "plain", pants: 0x3a3f52, skin: 0xb07a4c, hair: 0x15100c, cap: 0, capBack: false, glasses: false },       // The Reseller
-  { shirt: "#f4f1e6", kind: "polo", pants: 0x9a8a62, skin: 0xf1c7a0, hair: 0xb08a4a, cap: 0, capBack: false, glasses: true },         // The Mint Sealed Purist
-  { shirt: "#14a6a0", kind: "aloha", pants: 0xd9cfb4, skin: 0x7b4f2c, hair: 0x111111, cap: 0xf4f4f4, capBack: false, glasses: false }, // The Flea Market Shark
-  { shirt: "#ffb81f", kind: "plain", pants: 0x2d4a86, skin: 0xd9a273, hair: 0xa8a8a8, cap: 0x2b7a3a, capBack: false, glasses: true }  // The Estate Sale Early Bird
+  { shirt: "#e8402f", kind: "tee", pants: "#2d4a86", jeans: true, skin: 0xe0a070, hair: 0x4a2a14, style: "short", cap: "#1d2a5a", capInk: "#ffe45c", capBack: true, glasses: false, face: "", shoe: "#f2f2f2", shoeInk: "#e8402f", iris: 0x5a3a1a },      // The Box Lot Guy
+  { shirt: "#23252f", kind: "tee", pants: "#3a3f52", jeans: true, skin: 0xb07a4c, hair: 0x15100c, style: "buzz", cap: "", glasses: false, face: "beard", shoe: "#1b1d26", shoeInk: "#ffffff", iris: 0x2a1a0e },                                     // The Reseller
+  { shirt: "#f4f1e6", kind: "polo", pants: "#b8a77a", jeans: false, skin: 0xf1c7a0, hair: 0xb08a4a, style: "part", cap: "", glasses: true, face: "", shoe: "#8a5a32", shoeInk: "#f4f1e6", iris: 0x3a6a9a },                                      // The Mint Sealed Purist
+  { shirt: "#14a6a0", kind: "aloha", pants: "#e3d8bc", jeans: false, skin: 0x7b4f2c, hair: 0x111111, style: "short", cap: "#f4f4f4", capInk: "#0f7c78", capBack: false, glasses: false, face: "goatee", shoe: "#ffffff", shoeInk: "#14a6a0", iris: 0x1e120a }, // The Flea Market Shark
+  { shirt: "#ffb81f", kind: "tee", pants: "#2d4a86", jeans: true, skin: 0xd9a273, hair: 0xa8a8a8, style: "short", cap: "#2b7a3a", capInk: "#ffffff", capBack: false, glasses: true, face: "mustache", shoe: "#c9ccd4", shoeInk: "#2b7a3a", iris: 0x4a5a3a }  // The Estate Sale Early Bird
 ];
+// Lathe profiles: [radius, height]. The torso and hips are in feet; limbs are one unit long (stretched to the bone)
+// with radius 1 meaning the limb's own thickness.
+const BODY = {
+  torso: [[0.5, -0.2], [0.55, -0.02], [0.52, 0.3], [0.5, 0.55], [0.56, 0.9], [0.65, 1.22], [0.72, 1.5], [0.74, 1.7], [0.67, 1.88], [0.46, 2.02], [0.25, 2.1]],
+  pelvis: [[0.1, -0.68], [0.34, -0.62], [0.52, -0.44], [0.58, -0.2], [0.57, 0.02], [0.53, 0.12]],
+  upperArm: [[0.92, 0], [1.04, 0.1], [1.1, 0.32], [1.02, 0.6], [0.84, 0.88], [0.74, 1]],
+  foreArm: [[0.86, 0], [1.0, 0.14], [1.02, 0.3], [0.86, 0.62], [0.64, 0.92], [0.6, 1]],
+  thigh: [[1, 0], [1.03, 0.18], [0.96, 0.5], [0.82, 0.84], [0.74, 1]],
+  calf: [[0.76, 0], [0.8, 0.3], [0.78, 0.65], [0.8, 0.92], [0.86, 1]],
+  sleeve: [[0, -0.06], [0.95, -0.04], [1.16, 0], [1.24, 0.25], [1.3, 0.5], [1.36, 0.58]],
+  neck: [[0.22, 0], [0.19, 0.22], [0.2, 0.4], [0.25, 0.5]]
+};
+const ARM_R = [0.205, 0.17], LEG_R = [0.29, 0.2];
+const ARM_L = [1.08, 1.04], SHOULDER_X = 0.7, SHOULDER_Y = 1.84;   // upper arm and forearm (feet), where the shoulder joints sit in the torso
+function bump(y, a, b) { return y <= a || y >= b ? 0 : Math.sin(Math.PI * (y - a) / (b - a)); }
 
-function makePerson(T, G, shirtTex) {
-  const root = new T.Group();
-  root.scale.setScalar(FT);
-  const M = {
-    skin: new T.MeshLambertMaterial({ color: 0xe0a070 }),
-    shirt: new T.MeshPhongMaterial({ map: shirtTex, specular: 0x222222, shininess: 12 }),
-    sleeve: new T.MeshLambertMaterial({ color: 0xe8402f }),
-    pants: new T.MeshLambertMaterial({ color: 0x2d4a86 }),
-    shoe: new T.MeshPhongMaterial({ color: 0xf2f2f2, specular: 0x666666, shininess: 30 }),
-    hair: new T.MeshLambertMaterial({ color: 0x4a2a14 }),
-    cap: new T.MeshPhongMaterial({ color: 0x1d2a5a, specular: 0x333333, shininess: 30, envMap: G.env, combine: T.AddOperation, reflectivity: 0.04 }),
-    eye: new T.MeshBasicMaterial({ color: 0x17110c }),
-    lens: new T.MeshPhongMaterial({ color: 0x101018, specular: 0xffffff, shininess: 120 }),
-    belt: new T.MeshPhongMaterial({ color: 0x24160c, specular: 0x333333, shininess: 30 })
-  };
-  function ball(mat, sx, sy, sz, parent) { const m = new T.Mesh(G.sphere, mat); m.scale.set(sx, sy || sx, sz || sx); (parent || root).add(m); return m; }
-
-  const hips = ball(M.pants, 0.6, 0.44, 0.47);
-  const upper = new T.Group(); root.add(upper);
-  const torso = new T.Mesh(G.torso, M.shirt); torso.scale.z = 0.72; upper.add(torso);
-  const belt = new T.Mesh(G.belt, M.belt); belt.scale.set(0.56, 0.17, 0.42); belt.position.y = 0.04; upper.add(belt);
-  const neck = new T.Mesh(G.cyl, M.skin); neck.scale.set(0.2, 0.36, 0.2); neck.position.y = 2.05; upper.add(neck);
-  const head = new T.Group(); head.position.y = 2.7; upper.add(head);
-  ball(M.skin, 0.48, 0.52, 0.5, head);
-  ball(M.skin, 0.09, 0.14, 0.08, head).position.set(0.47, 0, -0.02);              // ears
-  ball(M.skin, 0.09, 0.14, 0.08, head).position.set(-0.47, 0, -0.02);
-  ball(M.skin, 0.08, 0.1, 0.1, head).position.set(0, -0.06, 0.5);                // nose
-  ball(M.eye, 0.065, 0.075, 0.04, head).position.set(0.17, 0.04, 0.455);           // eyes
-  ball(M.eye, 0.065, 0.075, 0.04, head).position.set(-0.17, 0.04, 0.455);
-  ball(M.hair, 0.12, 0.025, 0.04, head).position.set(0.17, 0.15, 0.45);            // brows
-  ball(M.hair, 0.12, 0.025, 0.04, head).position.set(-0.17, 0.15, 0.45);
-  const mouth = ball(M.eye, 0.12, 0.03, 0.04, head); mouth.position.set(0, -0.24, 0.44);
-  const glasses = new T.Group(); head.add(glasses);
-  ball(M.lens, 0.14, 0.1, 0.03, glasses).position.set(0.17, 0.04, 0.5);
-  ball(M.lens, 0.14, 0.1, 0.03, glasses).position.set(-0.17, 0.04, 0.5);
-  ball(M.lens, 0.08, 0.02, 0.02, glasses).position.set(0, 0.06, 0.53);
-  const hairTop = new T.Mesh(G.dome, M.hair); hairTop.scale.set(0.52, 0.56, 0.53); hairTop.position.set(0, 0.06, -0.02); head.add(hairTop);
-  ball(M.hair, 0.47, 0.32, 0.42, head).position.set(0, -0.08, -0.14);             // the back of his hair
-  const cap = new T.Group(); head.add(cap);
-  const dome = new T.Mesh(G.dome, M.cap); dome.scale.set(0.53, 0.6, 0.54); dome.position.y = 0.08; cap.add(dome);
-  const brim = ball(M.cap, 0.36, 0.04, 0.34, cap); brim.position.set(0, 0.22, 0.5);
-  ball(M.cap, 0.06, 0.04, 0.06, cap).position.set(0, 0.68, 0);                     // the button on top
-
-  function limb(m1, m2, r1, r2, endMat, endR, sleeve) {
-    const L = { up: new T.Mesh(G.cyl, m1), lo: new T.Mesh(G.cyl, m2), j0: ball(sleeve || m1, r1 * (sleeve ? 1.26 : 1.08)), j1: ball(m2, r2 * 1.1), end: ball(endMat, endR), r1: r1, r2: r2 };
-    root.add(L.up); root.add(L.lo);
-    if (sleeve) { L.sl = new T.Mesh(G.cyl, sleeve); root.add(L.sl); }   // a T-shirt sleeve over the top of the upper arm
-    return L;
+// Turn a profile on the lathe (the seam at the back), then let "shape" push each point in or out: shape(r, y, phi, front) -> r.
+function turned(T, prof, segs, shape) {
+  const g = new T.LatheGeometry(prof.map(function (p) { return new T.Vector2(p[0], p[1]); }), segs, Math.PI);
+  if (shape) {
+    const pos = g.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i), r = Math.hypot(x, z);
+      if (r < 1e-6) continue;
+      const phi = Math.atan2(x, z), k = shape(r, y, phi, z / r) / r;
+      pos.setXYZ(i, x * k, y, z * k);
+    }
+    g.computeVertexNormals();
   }
-  const arm = [limb(M.skin, M.skin, 0.19, 0.165, M.skin, 0.19, M.sleeve), limb(M.skin, M.skin, 0.19, 0.165, M.skin, 0.19, M.sleeve)];
-  const leg = [limb(M.pants, M.pants, 0.31, 0.235, M.pants, 0.2), limb(M.pants, M.pants, 0.31, 0.235, M.pants, 0.2)];
-  const shoe = [ball(M.shoe, 0.25, 0.19, 0.5), ball(M.shoe, 0.25, 0.19, 0.5)];
-  root.traverse(function (o) { if (o.isMesh) o.castShadow = true; });
-  return { root: root, hips: hips, upper: upper, head: head, arm: arm, leg: leg, shoe: shoe, M: M, glasses: glasses, hairTop: hairTop, cap: cap, brim: brim };
+  return g;
+}
+function figureGeometry(T) {
+  const G = {};
+  G.sphere = new T.SphereGeometry(1, 20, 14);
+  G.torso = turned(T, BODY.torso, 28, function (r, y, phi, front) {
+    let k = 1 + 0.15 * bump(y, 0.95, 1.8) * Math.max(0, front)            // chest
+               + 0.07 * bump(y, 1.1, 1.85) * Math.max(0, -front)           // shoulder blades
+               - 0.05 * bump(y, 0.2, 0.9) * (1 - Math.abs(front));         // a waist from the side
+    if (y < 0.45) k *= 1 + 0.03 * Math.sin(phi * 9 + y * 6) * (0.45 - y) / 0.65;   // the shirt bunches above the belt
+    if (y > 1.4 && y < 1.85) k *= 1 + 0.015 * Math.sin(y * 34) * (1 - Math.abs(front));   // pull lines under the arms
+    return r * k;
+  });
+  G.pelvis = turned(T, BODY.pelvis, 22, function (r, y, phi, front) { return r * (1 + 0.06 * bump(y, -0.5, 0.05) * Math.max(0, -front)); });
+  G.upperArm = turned(T, BODY.upperArm, 14, function (r, y, phi, front) { return r * (1 + 0.08 * bump(y, 0.15, 0.6) * Math.max(0, front)); });
+  G.foreArm = turned(T, BODY.foreArm, 14, function (r, y, phi, front) { return r * (1 + 0.07 * bump(y, 0.05, 0.5) * Math.max(0, -front)); });
+  G.thigh = turned(T, BODY.thigh, 16, function (r, y, phi) { return r * (1 + (y > 0.82 ? 0.03 * Math.sin(phi * 6) * (y - 0.82) / 0.18 : 0)); });
+  G.calf = turned(T, BODY.calf, 16, function (r, y, phi) {
+    return r * (1 + (y > 0.78 ? 0.05 * Math.sin(phi * 5 + y * 18) * (y - 0.78) / 0.22 : 0) + (y < 0.15 ? 0.025 * Math.sin(phi * 7) * (0.15 - y) / 0.15 : 0));
+  });
+  G.sleeve = turned(T, BODY.sleeve, 16, function (r, y, phi) { return r * (1 + (y > 0.2 ? 0.05 * Math.sin(phi * 6) * (y - 0.2) / 0.38 : 0)); });
+  G.neck = turned(T, BODY.neck, 14);
+  G.dome = new T.SphereGeometry(1, 20, 9, 0, TAU, 0, Math.PI * 0.44);           // a head of hair
+  G.crown = new T.SphereGeometry(1, 20, 9, 0, TAU, 0, Math.PI * 0.5);           // a cap crown
+  G.lid = new T.SphereGeometry(1, 12, 6, 0, TAU, 0, Math.PI * 0.5);             // an eyelid: the top half of a ball that rolls down over the eye
+  G.beard = new T.SphereGeometry(1, 18, 8, 0, TAU, Math.PI * 0.5, Math.PI * 0.5);
+  G.brim = new T.CylinderGeometry(1, 1, 1, 20, 1, false, -Math.PI / 2, Math.PI);
+  G.smile = new T.TorusGeometry(0.075, 0.016, 6, 14, Math.PI * 0.7);
+  G.rim = new T.TorusGeometry(0.075, 0.011, 6, 18);
+  function cap(r, l) { return new T.CapsuleGeometry(r, l, 3, 8).translate(0, l / 2, 0); }
+  G.fingerA = cap(0.036, 0.1); G.fingerB = cap(0.032, 0.07);
+  G.thumbA = cap(0.042, 0.08); G.thumbB = cap(0.037, 0.06);
+  G.bar = cap(0.016, 1);                                                       // a thin rod: lips, glasses arms
+  G.sole = roundBox(T, 0.36, 0.09, 0.98, 0.04);
+  G.belt = new T.CylinderGeometry(1, 1, 1, 22, 1, true);
+  G.buckle = roundBox(T, 0.16, 0.12, 0.04, 0.02);
+  return G;
 }
 
-function setLook(P, i, shirts) {
-  const L = LOOKS[i];
-  P.M.shirt.map = shirts[i]; P.M.shirt.needsUpdate = true;
-  P.M.sleeve.color.set(L.shirt); P.M.pants.color.setHex(L.pants); P.M.skin.color.setHex(L.skin); P.M.hair.color.setHex(L.hair);
-  P.cap.visible = !!L.cap; P.hairTop.visible = !L.cap;
-  if (L.cap) P.M.cap.color.setHex(L.cap);
-  P.brim.position.z = L.capBack ? -0.5 : 0.52;
+function makeHand(T, G, M, sg) {
+  const g = new T.Group(), fingers = [];
+  const palm = new T.Mesh(G.sphere, M.skin); palm.scale.set(0.15, 0.17, 0.068); palm.position.y = 0.15; g.add(palm);
+  const knuck = new T.Mesh(G.sphere, M.skin); knuck.scale.set(0.15, 0.06, 0.07); knuck.position.set(0, 0.28, 0.006); g.add(knuck);
+  const len = [0.84, 0.97, 1.06, 1];                                           // pinky to index
+  for (let i = 0; i < 4; i++) {
+    const a = new T.Group(); a.position.set((-0.105 + i * 0.07) * sg, 0.29, 0); g.add(a);
+    const p = new T.Mesh(G.fingerA, M.skin); p.scale.y = len[i]; a.add(p);
+    const b = new T.Group(); b.position.y = 0.12 * len[i]; a.add(b);
+    const d = new T.Mesh(G.fingerB, M.skin); d.scale.y = len[i]; b.add(d);
+    fingers.push({ a: a, b: b });
+  }
+  const ta = new T.Group(); ta.position.set(0.12 * sg, 0.07, -0.03); g.add(ta);
+  ta.add(new T.Mesh(G.thumbA, M.skin));
+  const tb = new T.Group(); tb.position.y = 0.1; ta.add(tb);
+  tb.add(new T.Mesh(G.thumbB, M.skin));
+  return { g: g, fingers: fingers, ta: ta, tb: tb, sg: sg };
+}
+// c1, c2: how far the knuckles and the finger tips curl (radians); th: the thumb, 0 out to 1 across.
+function curlHand(H, c1, c2, th) {
+  for (let i = 0; i < 4; i++) { H.fingers[i].a.rotation.set(-c1, 0, (i - 1.5) * 0.06 * H.sg * (1 - c1 / 1.8)); H.fingers[i].b.rotation.x = -c2; }
+  H.ta.rotation.set(-0.3 - th * 0.7, 0, -H.sg * (0.75 - th * 0.55));
+  H.tb.rotation.x = -th * 0.9;
+}
+
+function makeShoe(T, G, M) {
+  const g = new T.Group();
+  const sole = new T.Mesh(G.sole, M.sole); sole.position.set(0, 0.045, 0.1); g.add(sole);
+  const up = new T.Mesh(G.sphere, M.shoeUp); up.scale.set(0.17, 0.16, 0.42); up.position.set(0, 0.17, 0.06); g.add(up);
+  const toe = new T.Mesh(G.sphere, M.sole); toe.scale.set(0.165, 0.1, 0.17); toe.position.set(0, 0.12, 0.4); g.add(toe);
+  const heel = new T.Mesh(G.sphere, M.shoeUp); heel.scale.set(0.16, 0.15, 0.14); heel.position.set(0, 0.18, -0.24); g.add(heel);
+  const collar = new T.Mesh(G.sphere, M.shoeIn); collar.scale.set(0.15, 0.04, 0.17); collar.position.set(0, 0.31, -0.1); g.add(collar);
+  return g;
+}
+
+function makePerson(T, G, LT) {
+  const root = new T.Group();
+  root.scale.setScalar(FT);
+  const env = { envMap: LT.env, combine: T.AddOperation };
+  const M = {
+    skin: new T.MeshPhongMaterial({ color: 0xe0a070, specular: 0x2a2018, shininess: 16 }),
+    lip: new T.MeshPhongMaterial({ color: 0xb0604a, specular: 0x332222, shininess: 30 }),
+    shirt: new T.MeshLambertMaterial({ map: LT.looks[0].shirt }),
+    sleeve: new T.MeshLambertMaterial({ map: LT.looks[0].sleeve, side: T.DoubleSide }),
+    shoulder: new T.MeshLambertMaterial({ color: 0xe8402f }),
+    pants: new T.MeshLambertMaterial({ map: LT.looks[0].pants }),
+    shoeUp: new T.MeshPhongMaterial({ map: LT.looks[0].shoe, specular: 0x555555, shininess: 30 }),
+    sole: new T.MeshPhongMaterial({ color: 0xf6f6f2, specular: 0x666666, shininess: 30 }),
+    shoeIn: new T.MeshLambertMaterial({ color: 0x1b1d26 }),
+    hair: new T.MeshPhongMaterial({ color: 0x4a2a14, specular: 0x333333, shininess: 22 }),
+    crown: new T.MeshPhongMaterial(Object.assign({ map: LT.looks[0].cap, specular: 0x333333, shininess: 30, reflectivity: 0.03 }, env)),
+    cap: new T.MeshPhongMaterial({ color: 0x1d2a5a, specular: 0x333333, shininess: 30 }),
+    white: new T.MeshPhongMaterial({ color: 0xfbfaf6, specular: 0xffffff, shininess: 90 }),
+    iris: new T.MeshPhongMaterial({ color: 0x5a3a1a, specular: 0xffffff, shininess: 90 }),
+    pupil: new T.MeshBasicMaterial({ color: 0x0a0806 }),
+    glint: new T.MeshBasicMaterial({ color: 0xffffff }),
+    mouth: new T.MeshBasicMaterial({ color: 0x3a0e0c }),
+    tongue: new T.MeshLambertMaterial({ color: 0xc8505a }),
+    frame: new T.MeshPhongMaterial({ color: 0x15161c, specular: 0xffffff, shininess: 80 }),
+    lens: new T.MeshPhongMaterial({ color: 0x9fc4ff, specular: 0xffffff, shininess: 140, transparent: true, opacity: 0.22, depthWrite: false }),
+    belt: new T.MeshPhongMaterial({ color: 0x24160c, specular: 0x333333, shininess: 30 }),
+    metal: new T.MeshPhongMaterial({ color: 0xc9b46a, specular: 0xffffff, shininess: 90 })
+  };
+  function mesh(geo, mat, parent, x, y, z, sx, sy, sz) {
+    const m = new T.Mesh(geo, mat); m.position.set(x || 0, y || 0, z || 0);
+    m.scale.set(sx == null ? 1 : sx, sy == null ? (sx == null ? 1 : sx) : sy, sz == null ? (sx == null ? 1 : sx) : sz);
+    (parent || root).add(m); return m;
+  }
+
+  /* hips (they turn with the legs) and the body above them */
+  const hips = new T.Group(); root.add(hips);
+  mesh(G.pelvis, M.pants, hips, 0, 0, 0, 1, 1, 0.72);
+  mesh(G.belt, M.belt, hips, 0, 0.05, 0, 0.555, 0.12, 0.41);
+  mesh(G.buckle, M.metal, hips, 0, 0.05, 0.41);
+  const upper = new T.Group(); root.add(upper);
+  const chest = new T.Group(); upper.add(chest);
+  mesh(G.torso, M.shirt, chest, 0, 0, 0, 0.9, 1, 0.62);
+  mesh(G.sphere, M.shoulder, chest, SHOULDER_X - 0.03, SHOULDER_Y + 0.02, 0, 0.26, 0.24, 0.27);   // shoulders under the shirt
+  mesh(G.sphere, M.shoulder, chest, -SHOULDER_X + 0.03, SHOULDER_Y + 0.02, 0, 0.26, 0.24, 0.27);
+  mesh(G.neck, M.skin, upper, 0, 1.92, 0.02, 1, 1, 0.92);
+  mesh(G.sphere, M.skin, upper, 0, 2.02, 0.12, 0.13, 0.07, 0.08);              // the Adam's apple and the throat
+
+  /* the head */
+  const head = new T.Group(); head.position.set(0, 2.44, 0.03); head.scale.setScalar(1.08); upper.add(head);
+  mesh(G.sphere, M.skin, head, 0, 0.12, -0.02, 0.39, 0.43, 0.44);               // cranium
+  mesh(G.sphere, M.skin, head, 0, -0.12, 0.05, 0.33, 0.27, 0.36);               // jaw
+  mesh(G.sphere, M.skin, head, 0, -0.3, 0.27, 0.13, 0.1, 0.11);                 // chin
+  mesh(G.sphere, M.skin, head, 0.18, -0.04, 0.24, 0.11, 0.09, 0.11);            // cheeks
+  mesh(G.sphere, M.skin, head, -0.18, -0.04, 0.24, 0.11, 0.09, 0.11);
+  const bridge = mesh(G.sphere, M.skin, head, 0, 0.04, 0.4, 0.055, 0.12, 0.06); bridge.rotation.x = -0.28;   // nose
+  mesh(G.sphere, M.skin, head, 0, -0.06, 0.46, 0.075, 0.07, 0.075);
+  mesh(G.sphere, M.skin, head, 0.055, -0.08, 0.42, 0.045, 0.04, 0.04);
+  mesh(G.sphere, M.skin, head, -0.055, -0.08, 0.42, 0.045, 0.04, 0.04);
+  mesh(G.sphere, M.skin, head, 0.385, 0.05, -0.02, 0.06, 0.12, 0.09);           // ears
+  mesh(G.sphere, M.skin, head, -0.385, 0.05, -0.02, 0.06, 0.12, 0.09);
+  const eyes = [], brows = [];
+  [1, -1].forEach(function (sg) {
+    const e = new T.Group(); e.position.set(sg * 0.15, 0.09, 0.36); head.add(e);
+    mesh(G.sphere, M.white, e, 0, 0, 0, 0.075, 0.06, 0.05);
+    const look = new T.Group(); e.add(look);
+    mesh(G.sphere, M.iris, look, 0, 0, 0.045, 0.036, 0.036, 0.012);
+    mesh(G.sphere, M.pupil, look, 0, 0, 0.053, 0.018, 0.018, 0.008);
+    mesh(G.sphere, M.glint, look, 0.012, 0.013, 0.058, 0.007, 0.007, 0.004);
+    const lid = mesh(G.lid, M.skin, e, 0, 0, 0, 0.082, 0.068, 0.06);
+    eyes.push({ look: look, lid: lid });
+    brows.push(mesh(G.sphere, M.hair, head, sg * 0.15, 0.2, 0.39, 0.1, 0.026, 0.035));
+  });
+  // the mouth: a closed line, a smile, a frown, an open grin with teeth and tongue, gritted teeth
+  const mouth = new T.Group(); mouth.position.set(0, -0.2, 0.395); head.add(mouth);
+  const lowerLip = mesh(G.sphere, M.lip, mouth, 0, -0.03, -0.005, 0.07, 0.022, 0.025);
+  const mLine = mesh(G.bar, M.lip, mouth, -0.075, 0, 0.012, 1, 0.15, 1); mLine.rotation.z = -Math.PI / 2;
+  const mSmile = mesh(G.smile, M.lip, mouth, 0, 0.055, 0.004); mSmile.rotation.z = -Math.PI / 2 - Math.PI * 0.35;
+  const mFrown = mesh(G.smile, M.lip, mouth, 0, -0.07, 0.004); mFrown.rotation.z = Math.PI / 2 - Math.PI * 0.35;
+  const mOpen = new T.Group(); mouth.add(mOpen);
+  mesh(G.sphere, M.mouth, mOpen, 0, -0.02, 0, 0.1, 0.065, 0.03);
+  mesh(G.sphere, M.white, mOpen, 0, 0.022, 0.012, 0.085, 0.022, 0.02);
+  mesh(G.sphere, M.tongue, mOpen, 0, -0.06, 0.01, 0.06, 0.022, 0.02);
+  const mGrit = new T.Group(); mouth.add(mGrit);
+  mesh(G.sphere, M.white, mGrit, 0, 0, 0.006, 0.1, 0.034, 0.022);
+  const gl = mesh(G.bar, M.mouth, mGrit, -0.09, 0, 0.026, 0.5, 0.18, 0.5); gl.rotation.z = -Math.PI / 2;
+  const moods = { line: [mLine, lowerLip], smile: [mSmile, lowerLip], frown: [mFrown, lowerLip], grin: [mOpen], grit: [mGrit] };
+  // hair: a full head, a buzz or a side part, with sideburns and the back of the head; a beard, a goatee or a mustache
+  const hair = { top: mesh(G.dome, M.hair, head, 0, 0.12, -0.03, 0.41, 0.46, 0.47), back: mesh(G.sphere, M.hair, head, 0, 0.06, -0.15, 0.38, 0.36, 0.33) };
+  hair.part = mesh(G.sphere, M.hair, head, -0.1, 0.49, 0.1, 0.24, 0.08, 0.3); hair.part.rotation.z = 0.25;
+  hair.burns = [mesh(G.sphere, M.hair, head, 0.365, 0.03, 0.08, 0.025, 0.08, 0.045), mesh(G.sphere, M.hair, head, -0.365, 0.03, 0.08, 0.025, 0.08, 0.045)];
+  const beard = mesh(G.beard, M.hair, head, 0, -0.1, 0.05, 0.35, 0.3, 0.385);
+  const goatee = mesh(G.sphere, M.hair, head, 0, -0.31, 0.31, 0.08, 0.08, 0.06);
+  const stache = new T.Group(); head.add(stache);
+  [1, -1].forEach(function (sg) { const m = mesh(G.sphere, M.hair, stache, sg * 0.055, -0.135, 0.43, 0.075, 0.026, 0.03); m.rotation.z = -sg * 0.22; });
+  // the cap: a paneled crown with the monogram, a button and a brim
+  const cap = new T.Group(); cap.position.set(0, 0.15, -0.02); head.add(cap);
+  mesh(G.crown, M.crown, cap, 0, 0, 0, 0.415, 0.42, 0.465);
+  mesh(G.sphere, M.cap, cap, 0, 0.42, 0, 0.05, 0.03, 0.05);
+  const brim = mesh(G.brim, M.cap, cap, 0, 0.0, 0.36, 0.34, 0.025, 0.3); brim.rotation.x = 0.14;
+  // glasses
+  const glasses = new T.Group(); head.add(glasses);
+  [1, -1].forEach(function (sg) {
+    mesh(G.rim, M.frame, glasses, sg * 0.15, 0.09, 0.43);
+    const ln = mesh(G.sphere, M.lens, glasses, sg * 0.15, 0.09, 0.428, 0.072, 0.072, 0.01); ln.renderOrder = 9;
+    const arm = mesh(G.bar, M.frame, glasses, sg * 0.225, 0.1, 0.43, 0.7, 0.42, 0.7); arm.rotation.set(-Math.PI / 2, 0, 0); arm.rotation.y = sg * 0.3;
+  });
+  const nb = mesh(G.bar, M.frame, glasses, -0.04, 0.1, 0.44, 0.7, 0.08, 0.7); nb.rotation.z = -Math.PI / 2;
+
+  /* arms, hands, legs and shoes */
+  function limb(geoUp, geoLo, matUp, matLo, r1, r2, sleeve) {
+    const L = { up: mesh(geoUp, matUp), lo: mesh(geoLo, matLo), j1: mesh(G.sphere, matLo, root, 0, 0, 0, r1 * 0.75), r1: r1, r2: r2 };
+    if (sleeve) L.sl = mesh(G.sleeve, sleeve);
+    return L;
+  }
+  const arm = [limb(G.upperArm, G.foreArm, M.skin, M.skin, ARM_R[0], ARM_R[1], M.sleeve), limb(G.upperArm, G.foreArm, M.skin, M.skin, ARM_R[0], ARM_R[1], M.sleeve)];
+  const hand = [makeHand(T, G, M, 1), makeHand(T, G, M, -1)];
+  root.add(hand[0].g); root.add(hand[1].g);
+  const leg = [limb(G.thigh, G.calf, M.pants, M.pants, LEG_R[0], LEG_R[1]), limb(G.thigh, G.calf, M.pants, M.pants, LEG_R[0], LEG_R[1])];
+  const shoe = [makeShoe(T, G, M), makeShoe(T, G, M)];
+  root.add(shoe[0]); root.add(shoe[1]);
+  root.traverse(function (o) { if (o.isMesh) o.castShadow = o.material !== M.lens; });
+  return { root: root, hips: hips, upper: upper, chest: chest, head: head, arm: arm, hand: hand, leg: leg, shoe: shoe, M: M, LT: LT,
+           eyes: eyes, brows: brows, moods: moods, hair: hair, beard: beard, goatee: goatee, stache: stache, cap: cap, glasses: glasses };
+}
+
+function setLook(P, i) {
+  const L = LOOKS[i], T = P.LT.looks[i], M = P.M;
+  M.shirt.map = T.shirt; M.sleeve.map = T.sleeve; M.pants.map = T.pants; M.shoeUp.map = T.shoe; M.crown.map = T.cap;
+  M.skin.color.setHex(L.skin); M.skin.emissive.setHex(L.skin).multiplyScalar(0.1); M.hair.color.setHex(L.hair); M.iris.color.setHex(L.iris);
+  M.lip.color.setHex(L.skin).lerp(new P.LT.Color(0xa0303a), 0.35).multiplyScalar(0.82);
+  if (L.cap) M.cap.color.set(L.cap);
+  M.shoulder.color.set(L.kind === "aloha" ? "#18958f" : L.shirt);
+  P.cap.visible = !!L.cap;
+  P.cap.rotation.y = L.capBack ? Math.PI : 0;
+  P.hair.top.visible = !L.cap;
+  P.hair.part.visible = !L.cap && L.style === "part";
+  const buzz = L.style === "buzz" ? 0.97 : 1;
+  P.hair.top.scale.set(0.41 * buzz, 0.46 * buzz, 0.47 * buzz); P.hair.back.scale.set(0.38 * buzz, 0.36 * buzz, 0.33 * buzz);
+  P.beard.visible = L.face === "beard"; P.goatee.visible = L.face === "goatee"; P.stache.visible = L.face === "beard" || L.face === "goatee" || L.face === "mustache";
   P.glasses.visible = !!L.glasses;
 }
 
@@ -1409,6 +1738,7 @@ function bend(A, B, pole, l1, l2, out) {
   t.q.normalize();
   out.copy(A).addScaledVector(t.d, a).addScaledVector(t.q, hgt);
 }
+// Stretch a one-unit limb piece from A to B.
 function bone(mesh, A, B, r) {
   const t = TV;
   t.d.subVectors(B, A);
@@ -1421,73 +1751,147 @@ function setLimb(L, A, B, pole, l1, l2) {
   const t = TV;
   bend(A, B, pole, l1, l2, t.e);
   bone(L.up, A, t.e, L.r1); bone(L.lo, t.e, B, L.r2);
-  if (L.sl) { t.q.copy(t.e).sub(A).multiplyScalar(0.46).add(A); bone(L.sl, A, t.q, L.r1 * 1.3); }
-  L.j0.position.copy(A); L.j1.position.copy(t.e); L.end.position.copy(B);
+  if (L.sl) {                                               // the sleeve covers the top of the upper arm, starting just above the shoulder
+    t.d.subVectors(t.e, A);
+    t.q.copy(A).addScaledVector(t.d, 0.02); t.p.copy(A).addScaledVector(t.d, 0.46);
+    bone(L.sl, t.q, t.p, L.r1);
+  }
+  L.j1.position.copy(t.e);
 }
+// Point a hand: wrist at B, fingers along Y (or straight on from the forearm), the back of the hand toward N.
+function setHand(H, B, Y, N, spec) {
+  const t = TV;
+  t.y.copy(Y).normalize();
+  t.z.copy(N).addScaledVector(t.y, -N.dot(t.y));
+  if (t.z.lengthSq() < 1e-6) t.z.set(0, 0, 1);
+  t.z.normalize();
+  t.x.crossVectors(t.y, t.z);
+  t.m.makeBasis(t.x, t.y, t.z);
+  H.g.quaternion.setFromRotationMatrix(t.m);
+  H.g.position.copy(B);
+  curlHand(H, spec.c1, spec.c2, spec.th);
+}
+// HANDS[s]: Y (null = carry on from the forearm), N (back of the hand), c1 c2 th (curl)
 function applyPose(P, v) {
   const t = TV, hy = v[3] * DEG, uy = v[4] * DEG, ch = Math.cos(hy), sh = Math.sin(hy), cu = Math.cos(uy), su = Math.sin(uy);
   P.hips.position.set(v[0], v[1], v[2]); P.hips.rotation.y = hy;
   P.upper.position.set(v[0], v[1], v[2]); P.upper.rotation.set(v[5] * DEG, uy, 0, "YXZ");
   P.upper.updateMatrix();
-  P.head.rotation.set((v[19] || 0) * DEG, (v[18] - v[4]) * DEG, 0, "YXZ");
+  P.head.rotation.set((v[19] || 0) * DEG, (v[18] - v[4]) * DEG, FACE.roll * DEG, "YXZ");
   for (let s = 0; s < 2; s++) {                             // 0 = left, 1 = right
-    const sg = s ? -1 : 1, px = sg * 0.5, pz = -0.5;
-    t.a.set(sg * 0.8, 1.88, 0).applyMatrix4(P.upper.matrix);
+    const sg = s ? -1 : 1, px = sg * 0.5, pz = -0.5, hs = HANDS[s];
+    t.a.set(sg * SHOULDER_X, SHOULDER_Y, 0).applyMatrix4(P.upper.matrix);
     t.b.set(v[6 + s * 3], v[7 + s * 3], v[8 + s * 3]);
     t.p.set(px * cu + pz * su, -0.8, -px * su + pz * cu);   // elbows hang down, out and a little back
-    setLimb(P.arm[s], t.a, t.b, t.p, 1.15, 1.12);
-    t.a.set(v[0] + sg * 0.4 * ch, v[1] - 0.08, v[2] - sg * 0.4 * sh);
-    t.b.set(v[12 + s * 3], v[13 + s * 3] + 0.14, v[14 + s * 3]);
-    t.p.set(sh + sg * 0.25 * ch, 0.2, ch - sg * 0.25 * sh); // knees point where the hips face
+    setLimb(P.arm[s], t.a, t.b, t.p, ARM_L[0], ARM_L[1]);
+    if (hs.Y) t.f.copy(hs.Y); else t.f.subVectors(t.b, t.e);
+    setHand(P.hand[s], t.b, t.f, hs.N, hs);
+    t.a.set(v[0] + sg * 0.33 * ch, v[1] - 0.12, v[2] - sg * 0.33 * sh);
+    t.b.set(v[12 + s * 3], v[13 + s * 3] + 0.34, v[14 + s * 3]);
+    t.p.set(sh + sg * 0.22 * ch, 0.15, ch - sg * 0.22 * sh); // knees point where the hips face
     setLimb(P.leg[s], t.a, t.b, t.p, 1.5, 1.48);
-    P.shoe[s].position.set(t.b.x + sh * 0.26, v[13 + s * 3], t.b.z + ch * 0.26);
-    P.shoe[s].rotation.y = hy * 0.6;
+    P.shoe[s].position.set(t.b.x, v[13 + s * 3], t.b.z - 0.06);
+    P.shoe[s].rotation.y = hy * 0.6 + sg * 0.14;
   }
+  // the face
+  P.brows.forEach(function (b, i) {
+    const sg = i ? -1 : 1;
+    b.rotation.z = sg * FACE.brow * 0.4;
+    b.position.y = 0.2 + FACE.browUp * 0.045 - Math.max(0, FACE.brow) * 0.012;
+  });
+  const lid = Math.max(FACE.lid, FACE.blink);
+  P.eyes.forEach(function (e) { e.lid.rotation.x = -0.6 + lid * 2.15; e.look.position.set(FACE.lookX * 0.02, FACE.lookY * 0.014, 0); });
+  for (const k in P.moods) { const on = k === FACE.mouth; P.moods[k].forEach(function (m) { m.visible = on || (m === P.moods.line[1] && (FACE.mouth === "smile" || FACE.mouth === "frown" || FACE.mouth === "line")); }); }
+  P.chest.scale.set(1 + FACE.breath * 0.6, 1 + FACE.breath, 1 + FACE.breath * 1.2);
 }
-// How far his right shoulder is from his right fist for a given lean and shoulder turn (feet).
+// How far his right shoulder is from his right wrist for a given lean and shoulder turn (feet).
 function shoulderGap(L, U, hx, hy, hz, hip) {
-  const l = L * DEG, u = U * DEG, y1 = 1.88 * Math.cos(l), z1 = 1.88 * Math.sin(l), x1 = -0.8;
+  const l = L * DEG, u = U * DEG, y1 = SHOULDER_Y * Math.cos(l), z1 = SHOULDER_Y * Math.sin(l), x1 = -SHOULDER_X;
   const sx = x1 * Math.cos(u) + z1 * Math.sin(u), sz = -x1 * Math.sin(u) + z1 * Math.cos(u);
   return Math.hypot(hx - sx, hy - (hip + y1), hz - sz);
 }
 
-// Pose the collector for this frame: his right fist on his mallet, his left hand on top of the dasher board,
-// leaning as far over the table as his mallet needs, watching the puck. Reactions after a goal ride on top.
+/* Pose him for this frame. In play: knees bent in a ready stance, right hand gripping his mallet, left hand flat on
+   top of the dasher board, leaning as far over the table as his mallet needs, eyes on the puck, jaw set. When he
+   hits the puck hard he snaps into it and grits his teeth. When he scores: a fist pump and an open grin. When you
+   score: a slump, a head shake and a worried frown. When you take the match: a facepalm. Behind the title and score
+   cards: an idle, breathing, shifting his weight, blinking, glancing around with a smirk. */
 const POSE = new Array(20).fill(0);
+const FACE = { brow: 0, browUp: 0, lid: 0, blink: 0, mouth: "line", lookX: 0, lookY: 0, roll: 0, breath: 0 };
+const HANDS = [{ Y: null, N: null, c1: 0, c2: 0, th: 0 }, { Y: null, N: null, c1: 0, c2: 0, th: 0 }];
 function poseOpponent(fdt, idle) {
-  const P = R.opp, c = S.c, k = S.k, calm = Shell.reduced, v = POSE;
+  const P = R.opp, c = S.c, k = S.k, calm = Shell.reduced, v = POSE, t = R.clock, X3 = R.T.Vector3;
+  if (!HANDS[0].N) for (let i = 0; i < 2; i++) { HANDS[i].N = new X3(0, 1, 0); HANDS[i].Yv = new X3(); }
   const want = clamp((c.x - CX) * 0.55, -92, 92);
   V.oppX += (want - V.oppX) * Math.min(1, fdt * 5 || 1);
   P.root.position.x = V.oppX;
-  const hx = (c.x - CX - V.oppX) / FT, hy = (TABLE_H + GRIP_Y) / FT, hz = (c.y - CZ - OPP_Z) / FT;
+  // where his right hand has to be: on top of his mallet's knob
+  const hx = (c.x - CX - V.oppX) / FT, kyTop = (TABLE_H + 27) / FT, hz = (c.y - CZ - OPP_Z) / FT;
   const reach = clamp((hz - 1.0) / 2.0, 0, 1);
-  const uy = clamp(6 + reach * 24 - hx * 8, -12, 38);
-  let hip = HIP_Y - 0.1 * reach, lean = 8;
-  for (let L = 6; L <= 66; L += 2) { lean = L; if (shoulderGap(L, uy, hx, hy, hz, hip) <= ARM * 0.97) break; }
-  lean = Math.max(lean, 12 + 18 * reach);
-  // reactions: a slump when you score, a fist pump when he does, bigger at the end of a match
+  const fx = hx + 0.55, fzz = hz - 0.8, fl = Math.hypot(fx, fzz) || 1;            // roughly the way his forearm points, seen from above
+  const wx = hx - fx / fl * 0.17, wy = kyTop + 0.15, wz = hz - fzz / fl * 0.17;
+  const uyBase = clamp(6 + reach * 24 - hx * 8, -12, 38);
+  // what he is doing
+  if (!idle && S.snd && S.snd.cpu !== V.lastHit) { if (V.lastHit != null) V.strike = 0.4; V.lastHit = S.snd.cpu; }
+  V.strike = Math.max(0, (V.strike || 0) - fdt);
   let kind = V.reactKind, amt = clamp(V.react, 0, 1);
   if (!idle && S.phase === "lost") { kind = "cheer"; amt = 1; }
-  else if (!idle && S.phase === "next") { kind = "slump"; amt = 1; }
+  else if (!idle && S.phase === "next") { kind = "facepalm"; amt = 1; }
+  const st = calm ? 0 : V.strike / 0.4;
+  const uy = uyBase + 12 * st;
+  let hip = HIP_Y - 0.1 - 0.12 * reach - (idle || calm ? 0 : 0.02 * Math.sin(t * 6)), lean = 8;
+  for (let L = 6; L <= 66; L += 2) { lean = L; if (shoulderGap(L, uy, wx, wy, wz, hip) <= ARM * 0.97) break; }
+  lean = Math.max(lean, 12 + 18 * reach) + 7 * st;
   if (kind === "slump") lean += 10 * amt;
+  if (kind === "facepalm") lean += 6;
   const r = Math.min(1, fdt * 9 || 1);
   V.lean += (lean - V.lean) * r; V.uy += (uy - V.uy) * r;
-  const breathe = calm ? 0 : Math.sin(R.clock * 2.2) * 0.02;
-  v[0] = 0; v[1] = hip + breathe; v[2] = 0; v[3] = V.uy * 0.45; v[4] = V.uy; v[5] = V.lean;
-  // left hand flat on top of the board
-  const bx = clamp(1.05, (-BOARD.w / 2 + 14 - V.oppX) / FT, (BOARD.w / 2 - 14 - V.oppX) / FT);
-  v[6] = bx; v[7] = R.boardTop.y; v[8] = R.boardTop.z;
-  if (kind === "cheer" && amt > 0) {                        // the fist goes up
-    const pump = calm ? 0 : Math.abs(Math.sin(R.clock * 11)) * 0.35;
-    const u = Math.min(1, amt * 2.5);
-    v[6] += (0.75 - v[6]) * u; v[7] += (HIP_Y + 2.75 + pump - v[7]) * u; v[8] += (0.35 - v[8]) * u;
+  // idle life: breathing, a slow weight shift, blinking, glances
+  const breath = calm ? 0 : Math.sin(t * 2.2);
+  const shift = idle && !calm ? Math.sin(t * 0.8) : 0;
+  V.blinkT = (V.blinkT == null ? 2 : V.blinkT) - fdt;
+  if (V.blinkT <= 0) { V.blinkT = 2 + vrand() * 3.5; V.blinkOn = 0.15; }
+  V.blinkOn = Math.max(0, (V.blinkOn || 0) - fdt);
+  FACE.blink = calm ? 0 : V.blinkOn > 0 ? 1 : 0;
+  FACE.breath = breath * 0.012;
+  v[0] = shift * 0.06; v[1] = hip + breath * 0.012; v[2] = 0;
+  v[3] = V.uy * 0.45 + shift * 5; v[4] = V.uy; v[5] = V.lean;
+  // right hand: fingers wrapped over the front of the knob
+  const h1 = HANDS[1];
+  h1.Yv.set(fx / fl * 0.7, -0.75, fzz / fl * 0.7); h1.Y = h1.Yv; h1.N.set(0, 1, 0.25); h1.c1 = 1.25; h1.c2 = 1.05; h1.th = 0.85;
+  v[9] = wx; v[10] = wy; v[11] = wz;
+  // left hand: flat on top of the board, fingers draped over its front edge
+  const h0 = HANDS[0];
+  const bx = clamp(1.0, (-BOARD.w / 2 + 16 - V.oppX) / FT, (BOARD.w / 2 - 16 - V.oppX) / FT);
+  v[6] = bx; v[7] = R.boardTop.y + 0.05; v[8] = R.boardTop.z - 0.2;
+  h0.Yv.set(-0.15, -0.25, 1); h0.Y = h0.Yv; h0.N.set(0, 1, 0); h0.c1 = 0.3; h0.c2 = 0.55; h0.th = 0.15;
+  if (kind === "cheer" && amt > 0) {                        // the fist goes up and pumps
+    const pump = calm ? 0 : Math.abs(Math.sin(t * 11)) * 0.32, u = Math.min(1, amt * 2.5);
+    v[6] += (0.8 - v[6]) * u; v[7] += (HIP_Y + 2.6 + pump - v[7]) * u; v[8] += (0.3 - v[8]) * u;
+    if (u > 0.5) { h0.Y = null; h0.N.set(0, 0, 1); h0.c1 = 1.65; h0.c2 = 1.7; h0.th = 1; }
+  } else if (kind === "facepalm") {                         // palm over his eyes
+    const e = R.eul; e.set(v[5] * DEG, v[4] * DEG, 0, "YXZ");
+    TV.g.set(0, 2.62, 0.48).applyEuler(e); TV.g.x += v[0]; TV.g.y += v[1]; TV.g.z += v[2];
+    h0.Yv.set(-0.55, 0.8, 0.15).normalize(); h0.Y = h0.Yv; h0.N.set(0, 0.1, 1);
+    v[6] = TV.g.x - h0.Yv.x * 0.2; v[7] = TV.g.y - h0.Yv.y * 0.2; v[8] = TV.g.z - h0.Yv.z * 0.2 + 0.04;
+    h0.c1 = 0.15; h0.c2 = 0.15; h0.th = 0.2;
   }
-  v[9] = hx; v[10] = hy; v[11] = hz;
-  v[12] = 0.42; v[13] = 0.2; v[14] = 0.05 - reach * 0.15;
-  v[15] = -0.42; v[16] = 0.2; v[17] = -0.3;
+  // feet planted a little wider than his hips, knees bent
+  v[12] = 0.5; v[13] = 0; v[14] = 0.05 - reach * 0.15;
+  v[15] = -0.5; v[16] = 0; v[17] = -0.3;
+  // head and eyes: on the puck in play, wandering when idle
   const px = (k.x - CX - V.oppX) / FT, pz = (k.y - CZ - OPP_Z) / FT;
-  v[18] = clamp(Math.atan2(px, Math.max(0.5, pz)) / DEG, -45, 45);
-  v[19] = clamp(-8 - V.lean * 1.05, -60, 10) + (kind === "slump" ? 30 * amt : kind === "cheer" ? -14 * amt : 0);
+  let yaw = clamp(Math.atan2(px, Math.max(0.5, pz)) / DEG, -45, 45), tilt = clamp(-8 - V.lean * 1.05, -60, 10);
+  if (idle && !calm) { yaw = 18 * Math.sin(t * 0.37) + 8 * Math.sin(t * 1.1); tilt = -V.lean - 14 + 5 * Math.sin(t * 0.5); }
+  FACE.roll = 0; FACE.lookX = clamp(yaw / 40, -1, 1) * 0.6; FACE.lookY = idle ? 0.6 : -0.5;
+  // the face for the moment
+  if (kind === "cheer" && amt > 0) { FACE.mouth = "grin"; FACE.brow = -0.15; FACE.browUp = 1; FACE.lid = 0; tilt -= 14 * amt; FACE.roll = calm ? 0 : 6 * Math.sin(t * 5); }
+  else if (kind === "slump" && amt > 0) { FACE.mouth = "frown"; FACE.brow = -0.8; FACE.browUp = 0.6; FACE.lid = 0.15; tilt += 24 * amt; if (!calm) yaw += 16 * Math.sin(t * 13) * Math.min(1, amt * 1.6); }
+  else if (kind === "facepalm") { FACE.mouth = "frown"; FACE.brow = -0.6; FACE.browUp = 0.3; FACE.lid = 0.7; tilt += 18; yaw *= 0.3; }
+  else if (st > 0) { FACE.mouth = "grit"; FACE.brow = 1; FACE.browUp = 0; FACE.lid = 0.3; }
+  else if (idle) { FACE.mouth = "smile"; FACE.brow = 0.05; FACE.browUp = 0.25; FACE.lid = 0.05; }
+  else { FACE.mouth = "line"; FACE.brow = 0.6; FACE.browUp = 0; FACE.lid = 0.2; }
+  v[18] = yaw; v[19] = tilt;
   applyPose(P, v);
 }
 
@@ -1505,7 +1909,8 @@ function buildScene(T, scriptImg) {
   const camera = new T.PerspectiveCamera(CAM_FOV, W / H, 20, 6000);
   const caps = renderer.capabilities;
   const aniso = Math.min(4, caps.getMaxAnisotropy ? caps.getMaxAnisotropy() : 1);
-  TV = { a: new T.Vector3(), b: new T.Vector3(), d: new T.Vector3(), e: new T.Vector3(), p: new T.Vector3(), q: new T.Vector3(), up: new T.Vector3(0, 1, 0) };
+  TV = { a: new T.Vector3(), b: new T.Vector3(), d: new T.Vector3(), e: new T.Vector3(), p: new T.Vector3(), q: new T.Vector3(), up: new T.Vector3(0, 1, 0),
+        f: new T.Vector3(), g: new T.Vector3(), x: new T.Vector3(), y: new T.Vector3(), z: new T.Vector3(), m: new T.Matrix4() };
 
   function tex(canvas, repeat) {
     const t = new T.CanvasTexture(canvas);
@@ -1521,14 +1926,15 @@ function buildScene(T, scriptImg) {
   const script = scriptCanvas(scriptImg);
   const tIce = tex(iceCanvas(script)), tPuck = tex(puckCanvas(script)), tCarpet = tex(carpetCanvas(), true), tPanel = tex(panelCanvas(), true);
   const tShadow = tex(shadowCanvas()), tGlow = tex(glowCanvas()), tSign = tex(signCanvas(script));
-  const shirts = LOOKS.map(function (L) { return tex(shirtCanvas(script, L.shirt, L.kind), true); });
+  // the collectors' clothes, one set per look
+  const lookTex = LOOKS.map(function (L) { return { shirt: tex(shirtCanvas(script, L)), sleeve: tex(sleeveCanvas(L)), pants: tex(pantsCanvas(L)), cap: tex(capCanvas(L)), shoe: tex(shoeCanvas(L)) }; });
   const tEnv = new T.CubeTexture(envFaces());
   if ("colorSpace" in tEnv && T.SRGBColorSpace) tEnv.colorSpace = T.SRGBColorSpace;
   tEnv.needsUpdate = true;
 
   /* lights: a warm rec room, a light over the table from his side so his arm throws a shadow on the ice */
-  const hemi = new T.HemisphereLight(0xfff6ea, 0x6a5a8a, 1.3); scene.add(hemi);
-  const key = new T.DirectionalLight(0xfff2dc, 2.3);
+  const hemi = new T.HemisphereLight(0xfff6ea, 0x6a5a8a, LIGHT.hemi); scene.add(hemi);
+  const key = new T.DirectionalLight(0xfff2dc, LIGHT.key);
   key.position.set(-150, 1150, -330); key.target.position.set(0, 0, -70);
   key.castShadow = true;
   key.shadow.mapSize.set(1024, 1024);
@@ -1537,7 +1943,7 @@ function buildScene(T, scriptImg) {
   sc.updateProjectionMatrix();
   key.shadow.bias = -0.0008; key.shadow.normalBias = 0.8; key.shadow.radius = 2.5;
   scene.add(key); scene.add(key.target);
-  const fill = new T.DirectionalLight(0xe6eeff, 1.15);      // from your side, so his face and shirt never go flat
+  const fill = new T.DirectionalLight(0xe6eeff, LIGHT.fill);      // from your side, so his face and shirt never go flat
   fill.position.set(160, 520, 760); scene.add(fill);
 
   /* the room */
@@ -1712,12 +2118,7 @@ function buildScene(T, scriptImg) {
   const topW = new T.Vector3(0, BOARD.house + 0.5, -BOARD.depth / 2 + 2).applyMatrix4(board.matrixWorld);
 
   /* the collector */
-  const G = { sphere: new T.SphereGeometry(1, 16, 12), env: tEnv };
-  G.cyl = new T.CylinderGeometry(0.86, 1, 1, 10, 1, true); G.cyl.translate(0, 0.5, 0);
-  G.torso = new T.LatheGeometry([[0.5, -0.12], [0.56, 0.2], [0.6, 0.75], [0.7, 1.3], [0.76, 1.72], [0.63, 1.98], [0.3, 2.1], [0.2, 2.22]].map(function (p) { return new T.Vector2(p[0], p[1]); }), 18);
-  G.belt = new T.CylinderGeometry(1, 0.98, 1, 16);
-  G.dome = new T.SphereGeometry(1, 18, 9, 0, TAU, 0, Math.PI * 0.42);         // a cap crown or a head of hair: stops above the eyes
-  const person = makePerson(T, G, shirts[0]);
+  const person = makePerson(T, figureGeometry(T), { looks: lookTex, env: tEnv, Color: T.Color });
   person.root.position.set(0, -TABLE_H, OPP_Z); scene.add(person.root);
   const personShadow = add(new T.Mesh(unit, decal(new T.MeshBasicMaterial({ map: tShadow, opacity: 0.5 }), 2)));
   personShadow.scale.set(170, 1, 120); personShadow.position.set(0, -TABLE_H + 0.6, OPP_Z);
@@ -1726,7 +2127,7 @@ function buildScene(T, scriptImg) {
   gl.addEventListener("webglcontextrestored", function () { if (R) R.dirty = true; });
 
   const out = {
-    T: T, gl: gl, renderer: renderer, scene: scene, camera: camera, script: script, shirts: shirts,
+    T: T, gl: gl, renderer: renderer, scene: scene, camera: camera, script: script, eul: new T.Euler(),
     hemi: hemi, key: key, fill: fill, iceMat: iceMat, mirror: mirror, mals: mals, puck: puck, drop: drop, lights: lights,
     puddles: puddles, fog: fog, opp: person, personShadow: personShadow,
     boardTop: { y: (topW.y + TABLE_H) / FT, z: (topW.z - OPP_Z) / FT },
@@ -1892,7 +2293,7 @@ function syncScene(state, fdt) {
 
   /* his look changes with each new collector */
   const li = Math.min(S.match, LOOKS.length - 1);
-  if (li !== V.look && S.phase !== "next") { V.look = li; setLook(R.opp, li, R.shirts); }
+  if (li !== V.look && S.phase !== "next") { V.look = li; setLook(R.opp, li); }
 
   /* puck */
   const k = S.k, showPuck = S.phase === "face" || S.phase === "play";
@@ -1946,7 +2347,7 @@ function syncScene(state, fdt) {
   }
   R.fog.visible = sc === "fog";
   const dark = S.x && S.x.dark > 0 ? 0.32 : 1;
-  R.hemi.intensity = 1.3 * dark; R.key.intensity = 2.3 * dark; R.fill.intensity = 1.15 * dark;
+  R.hemi.intensity = LIGHT.hemi * dark; R.key.intensity = LIGHT.key * dark; R.fill.intensity = LIGHT.fill * dark;
 
   /* the collector */
   poseOpponent(fdt, idle);
@@ -2207,7 +2608,10 @@ function startGame() {
 
 // Hook for automated checks (no effect on play)
 window.__table = { S: function () { return S; }, update: update, OPP: OPP, gfx: function () { return R; }, led: function () { return LED; },
-                   view: function () { return V; }, toScreen: toScreen, toTable: toTable, pointer: pointer, juke: Juke, song: { lead: LEAD, prog: PROG, step: STEP } };
+                   view: function () { return V; }, toScreen: toScreen, toTable: toTable, pointer: pointer, juke: Juke, startMusic: startMusic };
+
+// The house band, for the arcade radio (or anything else that wants it): import { startMusic } from this module.
+export { startMusic };
 
 (function boot() {
   const splash = makeSplash();
