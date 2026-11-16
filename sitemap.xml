@@ -222,6 +222,12 @@
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
+  <url>
+    <loc>https://thenostalgiapro.com/arcade/shift-racing/</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
   <!-- game pages: written by tools/build_game_pages.py -->
   <url>
     <loc>https://thenostalgiapro.com/console/game-boy-color.html</loc>
