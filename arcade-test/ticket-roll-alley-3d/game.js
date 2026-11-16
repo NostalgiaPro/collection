@@ -6,8 +6,8 @@
    flow, and carries the HUD.
 
    The rules, the controls, the scoring, the ticket jar and the prize counter are the 2D game's,
-   unchanged: the same code rolls every ball, decides every landing and scores every cup. Only
-   the picture is new. The lane and the board keep the 2D game's own units:
+   with one tuning change: power reaches further (REACH and MAX_POWER below), so a full-power roll
+   carries to the 100 cups instead of overshooting into the back net. The lane and the board keep the 2D game's own units:
      lane  (x, y): x across (-10..10), y up the ramp (0 = launch, 100 = the hump)
      board (u, w): u across (-10..10), w up the board (0 = the 10 trough, 44 = the back net)
    lanePos() and boardPos() below turn those into three.js space. */
@@ -20,6 +20,10 @@ const BW = 10, BOARD_TOP = 44, GAP = 6;
 const C = { u: 0, w: 13 }, RINGS = [3.5, 7, 10.5];             // 40 / 30 / 20, anything else on the board is 10
 const CUPS = [{ u: 0, w: 27, r: 2.6, pts: 50 }, { u: -7.6, w: 37, r: 2.2, pts: 100 }, { u: 7.6, w: 37, r: 2.2, pts: 100 }];
 const LIP = 1.4, WARMUP_GAMES = 3;
+// Power tuning. REACH sets how far up the board the energy left after the hump carries the ball: a full-power
+// roll (MAX_POWER) lands in the 100 row instead of sailing into the back net. The 2D game used 16 here.
+// MAX_POWER is the top of the power meter for both the flick and the held key (the key used to stop at 1.0).
+const REACH = 11.76, MAX_POWER = 1.1;
 const PRIZES = [
   ["Rubber band for a cart box", 10],
   ["Cracked jewel case", 25],
@@ -65,7 +69,7 @@ function roll(p, ang) {
 // Where the ball lands on the board once it leaves the hump.
 function landing(b) {
   var vh = b.vy;
-  var w = vh * vh / (2 * A * HUMP) * 16 - 2;   // energy left after the hump sets how high it flies
+  var w = vh * vh / (2 * A * HUMP) * REACH - 2;   // energy left after the hump sets how high it flies
   var ratio = clamp(b.vx / Math.max(vh, 60), -0.4, 0.4);
   var u = b.x + ratio * (GAP + Math.max(0, w) * 0.5);
   var note = "";
@@ -123,7 +127,7 @@ function update(dt) {
     if (S.charging) {
       S.chargeT += dt;
       var ph = (S.chargeT / 1.2) % 2;
-      S.power = ph < 1 ? ph : 2 - ph;
+      S.power = (ph < 1 ? ph : 2 - ph) * MAX_POWER;
     }
     return;
   }
@@ -1599,7 +1603,7 @@ function toScreen(x, y, z) {
 }
 
 /* ---------------- Camera ---------------- */
-// Aim: from behind the launch mat, the whole ramp and the board in view. Near: in close over the board for the drop.
+// From behind the launch mat, the whole ramp and the board in view, for the whole game.
 const CAM = { x: 0, y: 27, z: 38, ty: 12, tz: -60, fov: 54 };
 const TITLE_CAM = { y: 33, z: 52, ty: 19, tz: -60 };            // the title and score cards: pulled back to show the marquee
 const NEAR = { y: 34, z: -30, lift: 4 };
@@ -1717,28 +1721,14 @@ function syncScene(state, fdt) {
   const waiting = idle && state === "title" ? BALLS - 1 : Math.max(0, BALLS - S.ball - 1);
   if (waiting !== V.tray) { V.tray = waiting; for (let i = 0; i < BALLS; i++) R.trayBalls[i].visible = i < waiting; }
 
-  /* camera: behind the launch mat to aim, in over the board while the ball flies and drops */
+  /* camera: stays behind the launch mat the whole roll (no zoom), so the next roll is ready right away */
   const gp = R.goalPos, gt = R.goalTgt;
-  let rate = 3.2;
-  let near = 0;
-  if (!idle) {
-    if (ph === "fly" || ph === "settle") near = 1;
-    else if (ph === "lane" && V.near) near = clamp((b.y - 30) / 70, 0, 1) * 0.7;
-    else if (ph === "post" && V.near && S.pt < 0.42) near = 1;
-  }
-  const lu = !idle && S.land && (ph === "fly" || ph === "settle" || ph === "post") ? S.land.u : (b ? b.x : 0);
+  const rate = 3.0;
   const sway = idle && !calm ? Math.sin(idleT * 0.4) * 2.2 : 0;
-  // aim pose
   if (idle) { gp.set(sway, TITLE_CAM.y, TITLE_CAM.z); gt.set(sway * 0.3, TITLE_CAM.ty, TITLE_CAM.tz); }
   else { gp.set(CAM.x, CAM.y, CAM.z); gt.set(0, CAM.ty, CAM.tz); }
-  if (near > 0) {
-    boardPos(lu * 0.35, 19, NEAR.lift, R.v2);
-    R.v.set(lu * 0.25, NEAR.y, NEAR.z);
-    gp.lerp(R.v, near); gt.lerp(R.v2, near);
-    rate = near >= 1 ? 3.6 : 3.0;
-  } else if (ph === "post" || ph === "aim") rate = 3.0;
-  if (R.debugCam) { gp.fromArray(R.debugCam, 0); gt.fromArray(R.debugCam, 3); rate = 1000; }
-  const k = 1 - Math.exp(-rate * fdt);
+  const k = R.debugCam ? 1 : 1 - Math.exp(-rate * fdt);
+  if (R.debugCam) { gp.fromArray(R.debugCam, 0); gt.fromArray(R.debugCam, 3); }
   R.camPos.lerp(gp, k); R.camTgt.lerp(gt, k);
   let sx = 0, sy = 0;
   if (R.shakeT > 0) {
