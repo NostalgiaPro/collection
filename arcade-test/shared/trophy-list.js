@@ -229,6 +229,19 @@
       T(176, "sr-clean", "Never Missed a Gear", "Finish a circuit race with every shift perfect (8 or more).", "sealed", end(function (s) { return s.mode === "circuit" && s.clean; })),
       T(177, "sr-eleven", "Ten Second Tape", "Run the quarter mile in under 10.5 seconds without a red light.", "sealed"),
       T(178, "sr-tour", "Grand Tour", "Win on all three circuits.", "slabbed")
+    ] },
+    // Circuit Box (3D wiring puzzle), test path only for now. Slots 179-188; never reuse them.
+    { slug: "circuit-box", name: "Circuit Box", status: "live", trophies: [
+      T(179, "cb-first", "Plugged In", "Clear any circuit.", "loose"),
+      T(180, "cb-stars", "Under Par", "Get three stars on a circuit.", "loose"),
+      T(181, "cb-bounce", "Bank Shot", "Light up a target with a beam that bounced off a mirror.", "boxed"),
+      T(182, "cb-wind", "Second Wind", "Clear a circuit powered by a wind turbine.", "boxed"),
+      T(183, "cb-gears", "Gear Head", "Clear a circuit with at least three gears turning.", "boxed"),
+      T(184, "cb-quiet", "Don't Wake Dad", "Clear a circuit with an alarm clock on the board and keep it quiet.", "sealed"),
+      T(185, "cb-goldberg", "Contraption", "Clear Rube Goldberg.", "sealed"),
+      T(186, "cb-firsttry", "One and Done", "Clear circuit 10 or later on the first flip of the breaker.", "sealed"),
+      T(187, "cb-all", "Fully Wired", "Clear every circuit.", "slabbed"),
+      T(188, "cb-perfect", "Mint in Box", "Three stars on every circuit.", "slabbed")
     ] }
   ];
 
