@@ -1382,19 +1382,19 @@ const B_LOOK = pose({ hip: -54, sh: -76, head: -80, nod: 2 }, B_SWAG);          
 // handle just in front of and below the back shoulder, the bat up at 45 degrees with the barrel over and behind that
 // shoulder, the back elbow out behind at a little under shoulder height, the front arm across the chest with its
 // elbow down toward the plate. Head turned full to the pitcher, eyes level.
-const B_STANCE = pose({ x: -0.1, y: 3.16, z: 0.12, hip: 0, sh: 0, lean: 9, roll: 0, lx: -0.85, ly: 4.55, lz: 0.9, phi: -132, el: 45,
-                        lfx: 0.95, lfz: 0.14, rfx: -1.0, rfz: 0.1, lfa: 4, rfa: 0, head: 90, nod: -3, lel: 0, rel: 0.75, lez: 1.1, rez: 0.6, onbat: 1 });
-const B_LIFT = pose({ x: -0.2, y: 3.18, hip: -6, sh: -8, lx: -0.95, ly: 4.6, lz: 0.85, phi: -128, el: 47, lfx: 0.6, lfy: 0.6, lfz: 0.15, lfa: 0 }, B_STANCE);
-const B_STRIDE = pose({ x: 0.1, y: 3.08, z: 0.14, hip: -3, sh: -6, lean: 10, lx: -0.92, ly: 4.55, lz: 0.88, phi: -124, el: 45, lfx: 1.38, lfy: 0.33, lfz: 0.18, lfa: 18 }, B_STANCE);
+const B_STANCE = pose({ x: -0.1, y: 3.16, z: 0.12, hip: 0, sh: 0, lean: 9, roll: 0, lx: -0.58, ly: 4.36, lz: 1.2, phi: -104, el: 56,
+                        lfx: 0.95, lfz: 0.14, rfx: -1.0, rfz: 0.1, lfa: 4, rfa: 0, head: 90, nod: -3, lel: 0, rel: 0.12, lez: 1.0, rez: 0.4, onbat: 1 });
+const B_LIFT = pose({ x: -0.2, y: 3.18, hip: -6, sh: -8, lx: -0.7, ly: 4.42, lz: 1.12, phi: -108, el: 58, lfx: 0.6, lfy: 0.6, lfz: 0.15, lfa: 0 }, B_STANCE);
+const B_STRIDE = pose({ x: 0.1, y: 3.08, z: 0.14, hip: -3, sh: -6, lean: 10, lx: -0.68, ly: 4.38, lz: 1.14, phi: -106, el: 56, lfx: 1.38, lfy: 0.33, lfz: 0.18, lfa: 18 }, B_STANCE);
 const B_CONTACT = pose({ x: 0.32, y: 2.96, z: 0.18, hip: 52, sh: 66, lean: 13, roll: 12, lx: 0.6, ly: 3.45, lz: 1.1, phi: 12, el: -8,
                          rfx: -0.92, rfy: 0.5, rfz: 0.14, rfa: 50, lfa: 30, head: 78, nod: 12, lel: 0.05, rel: 0, lez: 0, rez: 0 }, B_STRIDE);
 const B_EXTEND = pose({ x: 0.4, y: 3.02, hip: 85, sh: 115, lean: 9, roll: 5, lx: 1.35, ly: 3.9, lz: 0.9, phi: 95, el: 6,
                         rfx: -0.78, rfy: 0.62, rfz: 0.25, rfa: 80, head: 70, nod: 6 }, B_CONTACT);
-const B_FINISH = pose({ x: 0.38, y: 3.12, z: 0.15, hip: 95, sh: 140, lean: 0, roll: -6, lx: 0.1, ly: 5.25, lz: -0.55, phi: 220, el: 22,
+const B_FINISH = pose({ x: 0.38, y: 3.12, z: 0.15, hip: 95, sh: 140, lean: 0, roll: -6, lx: 0.25, ly: 4.85, lz: -0.45, phi: 220, el: 22,
                         rfx: -0.45, rfy: 0.7, rfz: 0.4, rfa: 95, head: 55, nod: -10, lel: 0.6, rel: 0.3 }, B_EXTEND);
 // The launch: front foot down, hips starting to open, hands dropping into the slot with the bat flattening behind.
-const B_LAUNCH = pose({ x: 0.22, y: 3.02, hip: 22, sh: 14, lean: 11, roll: 6, lx: -0.35, ly: 4.35, lz: 0.85, phi: -45, el: 12,
-                        lfx: 1.38, lfy: 0.33, lfz: 0.18, lfa: 22, rfx: -0.98, rfy: 0.4, rfz: 0.12, rfa: 20, head: 82, nod: 6, lel: 0.1, rel: 0.3, lez: 0.4 }, B_STRIDE);
+const B_LAUNCH = pose({ x: 0.22, y: 3.02, hip: 22, sh: 14, lean: 11, roll: 6, lx: -0.3, ly: 3.92, lz: 1.15, phi: -92, el: 32,
+                        lfx: 1.38, lfy: 0.33, lfz: 0.18, lfa: 22, rfx: -0.98, rfy: 0.4, rfz: 0.12, rfa: 20, head: 82, nod: 6, lel: 0.1, rel: 0.05, lez: 0.4, rez: 0.4 }, B_STRIDE);
 const LOAD_KEYS = [0, 0.12, 0.42, 0.7];                   // fraction of the pitch's flight: still, leg lift, stride down
 const LOAD_POSES = [B_STANCE, B_STANCE, B_LIFT, B_STRIDE];
 // Seconds after the tap: start, launch, contact (moved per swing to when bat and ball meet), extension, finish.
@@ -1661,8 +1661,10 @@ function tubeGeo(T, pts, rf, n, m) {
 }
 
 // Head, face, hair, mustache and sideburns in one mesh (vertex colors). Head space: center of the head, facing +z.
+// o.hi: the batter's finer build (more facets, a rounder jaw); the pitcher keeps the original.
 function headGeo(T, o) {
-  const S = new T.SphereGeometry(1, 18, 13), s = new T.SphereGeometry(1, 10, 7), box = blobGeo(T, 0.55, 16, 12), parts = [];
+  const S = o.hi ? new T.SphereGeometry(1, 34, 24) : new T.SphereGeometry(1, 18, 13), s = o.hi ? new T.SphereGeometry(1, 16, 12) : new T.SphereGeometry(1, 10, 7);
+  const box = o.hi ? blobGeo(T, 0.74, 28, 20) : blobGeo(T, 0.55, 16, 12), parts = [];
   function add(g, c, x, y, z, sx, sy, sz, rx, ry, rz) { parts.push({ g: g, c: c, m: mat4(T, x, y, z, sx, sy, sz, rx, ry, rz) }); }
   const skin = o.skin, shade = o.shade, hair = o.hair, J = o.slugger ? 1 : 0.88;
   add(S, skin, 0, 0.06, -0.02, 0.43, 0.48, 0.47);                            // cranium
@@ -1682,8 +1684,9 @@ function headGeo(T, o) {
   });
   add(s, skin, 0, -0.01, 0.47, 0.07, 0.15, 0.09, -0.25);                     // a strong straight nose
   add(s, shade, 0, -0.105, 0.52, 0.075, 0.062, 0.07);
-  add(new T.SphereGeometry(1, 18, 8, 0, TAU, 0, Math.PI * 0.5), hair, 0, 0.05, -0.03, 0.448, 0.5, 0.49, -0.5);   // hair, slicked back
-  add(s, hair, 0, -0.06, -0.35, 0.36, 0.25, 0.16);                           // at the nape
+  add(new T.SphereGeometry(1, o.hi ? 28 : 18, o.hi ? 12 : 8, 0, TAU, 0, Math.PI * 0.5), hair, 0, 0.05, -0.03, 0.448, 0.5, 0.49, -0.5);   // hair, slicked back
+  if (o.hi) add(s, hair, 0, -0.02, -0.36, 0.3, 0.15, 0.12);                  // at the nape, trimmed short under the helmet
+  else add(s, hair, 0, -0.06, -0.35, 0.36, 0.25, 0.16);                      // at the nape
   if (o.mustache) {                                          // a huge handlebar, curled right round at the tips
     const rf = function (u) { return (0.085 - 0.07 * u) * sstep(0, 0.05, u) * (1 - sstep(0.93, 1, u)) + 0.008; };
     const pts = [[0, -0.17, 0.53], [0.12, -0.2, 0.505], [0.26, -0.19, 0.45], [0.38, -0.14, 0.38], [0.47, -0.05, 0.31], [0.505, 0.05, 0.28],
@@ -1708,8 +1711,8 @@ function capGeo(T) {
   ]);
 }
 // A cleat, ankle at the origin, flat sole 0.33 below it, with a raised heel.
-function shoeGeo(T) {
-  const foot = new T.SphereGeometry(1, 14, 9), heel = new T.SphereGeometry(1, 10, 7);
+function shoeGeo(T, hi) {
+  const foot = hi ? new T.SphereGeometry(1, 22, 14) : new T.SphereGeometry(1, 14, 9), heel = hi ? new T.SphereGeometry(1, 16, 10) : new T.SphereGeometry(1, 10, 7);
   [foot, heel].forEach(function (g) {
     const P = g.attributes.position, N = g.attributes.normal;
     for (let i = 0; i < P.count; i++) if (P.getY(i) < -0.75) { P.setY(i, -0.75); N.setXYZ(i, 0, -1, 0); }
@@ -1720,12 +1723,15 @@ function shoeGeo(T) {
   ]);
 }
 // A fist closed round a bat handle: the handle runs along x through the origin, the wrist is down -y.
-function fistGeo(T, k) {
-  const parts = [], box = blobGeo(T, 0.6, 12, 10), s = new T.SphereGeometry(1, 10, 7);
+function fistGeo(T, k, hi) {
+  const parts = [], box = hi ? blobGeo(T, 0.78, 18, 14) : blobGeo(T, 0.6, 12, 10), s = hi ? new T.SphereGeometry(1, 16, 11) : new T.SphereGeometry(1, 10, 7);
   parts.push({ g: box, m: mat4(T, 0, -0.06, -0.075, 0.175 * k, 0.15 * k, 0.07 * k) });            // back of the hand
   parts.push({ g: s, m: mat4(T, 0, -0.17 * k, -0.04, 0.11 * k, 0.08 * k, 0.085 * k) });           // wrist
+  if (hi) [-0.105, -0.035, 0.035, 0.105].forEach(function (x) {                                  // knuckles
+    parts.push({ g: s, m: mat4(T, x * k, 0.035 * k, -0.075 * k, 0.04 * k, 0.034 * k, 0.04 * k) });
+  });
   [-0.105, -0.035, 0.035, 0.105].forEach(function (x, i) {                                      // four fingers wrapped round
-    const f = new T.TorusGeometry(0.072 * k, 0.037 * k, 6, 10, Math.PI * (1.42 - i * 0.03));
+    const f = new T.TorusGeometry(0.072 * k, 0.037 * k, hi ? 10 : 6, hi ? 16 : 10, Math.PI * (1.42 - i * 0.03));
     parts.push({ g: f, m: mat4(T, x * k, 0, 0, 1, 1, 1, 0, Math.PI / 2, 0) });
   });
   parts.push({ g: s, m: mat4(T, 0.1 * k, -0.06 * k, 0.07 * k, 0.05 * k, 0.1 * k, 0.045 * k, 0.5, 0, -0.9) });   // thumb
@@ -1802,6 +1808,297 @@ function makePlayer(T, tex, script, env, o) {
            shoulder: [0.96 * tw, 1.72, -0.02], hipJ: [0.38 * lk, -0.22, 0], grip: new T.Vector3() };
 }
 
+/* ---------------- Mighty Casey: the batter ----------------
+   The same skeleton, poses and swing as before (so the stance, the timing and every animation are untouched); only
+   what he looks like is new. He wears the 1990 Stockton Ports home whites (navy pinstripes, a royal / gold / royal
+   V-neck and sleeve trim, the royal and gold waistband) with the Nostalgia Pro script across the chest where PORTS
+   was, and a glossy royal batting helmet with NP on the front. The body is smoother: rounder cross-sections, more
+   facets, and muscles sculpted onto one side of each limb (biceps, forearm, calf) that stay put as he moves. */
+const P90 = { white: "#f4f2ea", tee: "#fbfbf7", pin: "rgba(24,40,112,0.86)", royal: "#1f4fc8", royalDk: "#163c9c",
+              gold: "#f3b81c", navy: "#0d1a46" };
+
+// White with navy pinstripes, every `step` px.
+function pinstripe(g, w, h, step, lw) {
+  g.fillStyle = P90.white; g.fillRect(0, 0, w, h);
+  g.fillStyle = P90.pin;
+  for (let x = step / 2; x < w; x += step) g.fillRect(Math.round(x - lw / 2), 0, lw, h);
+}
+// Soft cloth folds: horizontal shading bands [from, to (fractions of the height), strength].
+function folds(g, w, h, list) {
+  list.forEach(function (f) {
+    const y0 = f[0] * h, y1 = f[1] * h, gr = g.createLinearGradient(0, y0, 0, y1);
+    gr.addColorStop(0, "rgba(18,28,72,0)"); gr.addColorStop(0.5, "rgba(18,28,72," + f[2] + ")"); gr.addColorStop(1, "rgba(18,28,72,0)");
+    g.fillStyle = gr; g.fillRect(0, y0, w, y1 - y0);
+  });
+}
+// Royal, gold, royal: the 1990 trim, as a band from row a to row b.
+function trimBand(g, w, a, b) {
+  const k = (b - a) / 3;
+  g.fillStyle = P90.royal; g.fillRect(0, a, w, b - a);
+  g.fillStyle = P90.gold; g.fillRect(0, a + k, w, k);
+}
+
+// The jersey round the torso (u = .5 the chest, the seam down the back, v from the waist at y 0 to the neck at 2.55).
+// One foot is N / round px across but N / 2.55 px down, so the lettering is drawn squeezed to come out right on the body.
+function caseyTorsoCanvas(o, script) {
+  const N = 1024, c = mkCanvas(N, N), g = c.getContext("2d");
+  const row = function (y) { return (2.55 - y) / 2.55 * N; }, PXF = N / o.round, PYF = N / 2.55;
+  pinstripe(g, N, N, 16, 2.6);
+  folds(g, N, N, [[0.78, 1, 0.14], [0.62, 0.72, 0.05]]);
+  // the Nostalgia Pro script where PORTS was, big across the chest
+  let ww = o.wordW, wh = ww * script.height / script.width;
+  if (wh > 0.62) { wh = 0.62; ww = wh * script.width / script.height; }
+  g.save();
+  g.shadowColor = "rgba(255,255,255,.95)"; g.shadowBlur = 10;           // a clean white edge so the stripes never touch it
+  g.drawImage(script, N / 2 - ww * PXF / 2, row(o.chestY) - wh * PYF / 2, ww * PXF, wh * PYF);
+  g.restore();
+  g.drawImage(script, N / 2 - ww * PXF / 2, row(o.chestY) - wh * PYF / 2, ww * PXF, wh * PYF);
+  if (o.num) {                                              // the number on the back in royal and gold, split across the seam
+    const n = mkCanvas(220, 280), ng = n.getContext("2d");
+    ng.font = '900 230px "Arial Black", Arial, sans-serif'; ng.textAlign = "center"; ng.textBaseline = "middle"; ng.lineJoin = "round";
+    ng.lineWidth = 30; ng.strokeStyle = P90.gold; ng.strokeText(o.num, 110, 146);
+    ng.lineWidth = 12; ng.strokeStyle = "#ffffff"; ng.strokeText(o.num, 110, 146);
+    ng.fillStyle = P90.royal; ng.fillText(o.num, 110, 146);
+    const nw = 0.66 * PXF, nh = 0.8 * PYF;
+    [0, N].forEach(function (x) { g.drawImage(n, x - nw / 2, row(1.2) - nh / 2, nw, nh); });
+  }
+  // neck, the white undershirt in the V, and the royal / gold / royal V-neck trim
+  const vw = N * 0.1, top = row(2.0), apex = row(1.6);
+  g.fillStyle = o.skin; g.fillRect(0, 0, N, row(2.1));
+  g.fillStyle = P90.tee; g.fillRect(0, row(2.1), N, top - row(2.1));
+  g.beginPath(); g.moveTo(N / 2 - vw, top); g.lineTo(N / 2, apex); g.lineTo(N / 2 + vw, top); g.closePath(); g.fill();
+  g.fillStyle = "rgba(0,0,0,.08)"; g.fillRect(0, row(2.1), N, 4);
+  g.lineJoin = "miter"; g.lineCap = "butt";
+  [[34, P90.royal], [20, P90.gold], [8, P90.royal]].forEach(function (s) {
+    g.lineWidth = s[0]; g.strokeStyle = s[1];
+    g.beginPath(); g.moveTo(-10, top); g.lineTo(N / 2 - vw, top); g.lineTo(N / 2, apex); g.lineTo(N / 2 + vw, top); g.lineTo(N + 10, top); g.stroke();
+  });
+  return c;
+}
+// Pinstriped pants round the hips with the royal and gold waistband on top (no belt on the 1990 pants).
+function caseyPantsCanvas() {
+  const c = mkCanvas(512, 256), g = c.getContext("2d"), row = function (y) { return (0.2 - y) / 1.02 * 256; };
+  pinstripe(g, 512, 256, 11, 2);
+  folds(g, 512, 256, [[0.55, 0.85, 0.08]]);
+  trimBand(g, 512, row(0.2), row(0.02));
+  g.fillStyle = "rgba(0,0,0,.18)"; g.fillRect(0, row(0.02), 512, 3);
+  g.fillStyle = "rgba(10,20,60,.35)"; g.fillRect(255, row(0.02), 2, 70);    // fly seam
+  return c;
+}
+// Plain pinstripe cloth, for the shoulder caps and the knee and hip joints.
+function pinCanvas() { const c = mkCanvas(128, 64), g = c.getContext("2d"); pinstripe(g, 128, 64, 8, 1.6); return c; }
+// Upper arm, shoulder (row 0) to elbow: the pinstriped short sleeve, the trim at its hem, then the arm.
+function caseySleeveCanvas(skin) {
+  const c = mkCanvas(128, 256), g = c.getContext("2d"), H = 256;
+  pinstripe(g, 128, H, 8, 1.6);
+  folds(g, 128, H, [[0.22, 0.4, 0.1]]);
+  trimBand(g, 128, 0.43 * H, 0.52 * H);
+  g.fillStyle = skin; g.fillRect(0, 0.52 * H, 128, H);
+  g.fillStyle = "rgba(0,0,0,.12)"; g.fillRect(0, 0.52 * H, 128, 3);
+  return c;
+}
+// Thigh: pinstripe, blousing toward the knee.
+function caseyThighCanvas() {
+  const c = mkCanvas(128, 256), g = c.getContext("2d");
+  pinstripe(g, 128, 256, 6.4, 1.4);
+  folds(g, 128, 256, [[0.1, 0.3, 0.06], [0.62, 0.78, 0.1], [0.82, 1, 0.12]]);
+  return c;
+}
+// Shin, knee (row 0) down to the ankle: the pant leg gathered below the knee, then royal stirrups with two gold
+// stripes, cut high on each side to show the white sanitaries. u = .5 is the front of the leg.
+function caseyShinCanvas() {
+  const W = 128, H = 256, c = mkCanvas(W, H), g = c.getContext("2d");
+  pinstripe(g, W, H, 6.4, 1.4);
+  folds(g, W, H, [[0.1, 0.24, 0.16]]);
+  g.fillStyle = P90.royal; g.fillRect(0, 0.25 * H, W, H);
+  g.fillStyle = "rgba(10,18,50,.45)"; g.fillRect(0, 0.245 * H, W, 4);       // the cuff tucked over the sock
+  g.fillStyle = P90.gold; g.fillRect(0, 0.31 * H, W, 0.028 * H); g.fillRect(0, 0.37 * H, W, 0.028 * H);
+  g.fillStyle = P90.tee;                                                     // the sanitaries, through the stirrup's side cuts
+  [0.25, 0.75].forEach(function (u) {
+    const cx = u * W, hw = 0.13 * W, t = 0.6 * H;
+    g.beginPath(); g.moveTo(cx - hw, H); g.lineTo(cx - hw, t + hw * 1.2);
+    g.quadraticCurveTo(cx - hw, t, cx, t); g.quadraticCurveTo(cx + hw, t, cx + hw, t + hw * 1.2); g.lineTo(cx + hw, H); g.closePath(); g.fill();
+  });
+  g.fillStyle = P90.royal; g.fillRect(0, 0.965 * H, W, H);
+  return c;
+}
+// The batting helmet's paint. u runs round the head (.5 the front), v down from the crown (row = t / .95 pi).
+function helmetCanvas() {
+  const W = 1024, H = 512, c = mkCanvas(W, H), g = c.getContext("2d");
+  const gr = g.createLinearGradient(0, 0, 0, H);
+  gr.addColorStop(0, "#2b62e0"); gr.addColorStop(0.55, P90.royal); gr.addColorStop(1, P90.royalDk);
+  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  // NP on the front: gold with a white edge and a navy keyline, like the lettering on the 1990 cap
+  g.save(); g.translate(W / 2, 0.285 * H);
+  g.font = 'bold 116px Georgia, "Times New Roman", "Noto Serif", serif'; g.textAlign = "center"; g.textBaseline = "middle"; g.lineJoin = "round";
+  g.lineWidth = 22; g.strokeStyle = P90.navy; g.strokeText("NP", 0, 4);
+  g.lineWidth = 12; g.strokeStyle = "#ffffff"; g.strokeText("NP", 0, 4);
+  g.fillStyle = P90.gold; g.fillText("NP", 0, 4);
+  g.restore();
+  // the ear hole in the flap (left ear)
+  const ex = (0.5 + 1.66 / TAU) * W, ey = 0.583 * H;
+  g.fillStyle = "#24344f"; g.beginPath(); g.ellipse(ex, ey, 30, 34, 0, 0, TAU); g.fill();
+  g.fillStyle = "#070b18"; g.beginPath(); g.ellipse(ex, ey, 22, 26, 0, 0, TAU); g.fill();
+  return c;
+}
+
+// A batting helmet in head space (head center, facing +z, the player's left at +x): a dome over the crown, a skirt
+// lower at the back, an ear flap over the left ear (the side that faces the pitcher), a short bill and a rolled rim.
+const HELM = { c: [0, 0.07, -0.05], rx: 0.52, ry: 0.53, rz: 0.56 };
+function helmetEdge(az) {                                   // how far down from the crown the shell comes, as an angle
+  let t = 0.44 + 0.204 * (1 - Math.cos(az)) / 2;
+  const d = Math.abs(az - 1.85);
+  if (d < 0.62) t += 0.215 * Math.pow(Math.cos(d / 0.62 * Math.PI / 2), 0.55);   // the ear flap
+  const e = Math.abs(az + 1.62);
+  if (e < 0.5) t -= 0.035 * Math.cos(e / 0.5 * Math.PI / 2);                       // a little arch over the right ear
+  return t * Math.PI;
+}
+function helmetPt(az, t, out) {
+  let hr, y;
+  if (t <= Math.PI / 2) { hr = Math.sin(t); y = HELM.c[1] + HELM.ry * Math.cos(t); }
+  else { const h = t - Math.PI / 2; hr = 1 - 0.13 * h * h; y = HELM.c[1] - HELM.ry * h; }
+  return out.set(HELM.c[0] + HELM.rx * hr * Math.sin(az), y, HELM.c[2] + HELM.rz * hr * Math.cos(az));
+}
+function helmetGeos(T) {
+  const NA = 64, NT = 24, pos = [], uv = [], idx = [], v = new T.Vector3();
+  for (let i = 0; i <= NA; i++) {
+    const az = -Math.PI + i / NA * TAU, te = helmetEdge(az);
+    for (let j = 0; j <= NT; j++) {
+      const t = Math.max(1e-3, j / NT) * te;
+      helmetPt(az, t, v); pos.push(v.x, v.y, v.z);
+      uv.push(0.5 + az / TAU, 1 - t / (0.95 * Math.PI));
+    }
+  }
+  for (let i = 0; i < NA; i++) for (let j = 0; j < NT; j++) {
+    const a = i * (NT + 1) + j, b = a + 1, c = a + NT + 1, d = c + 1;
+    idx.push(a, b, c, b, d, c);
+  }
+  const shell = new T.BufferGeometry();
+  shell.setAttribute("position", new T.Float32BufferAttribute(pos, 3));
+  shell.setAttribute("uv", new T.Float32BufferAttribute(uv, 2));
+  shell.setIndex(idx); shell.computeVertexNormals();
+  const N = shell.attributes.normal;                        // one smooth normal across the seam at the back
+  for (let j = 0; j <= NT; j++) {
+    const a = j, b = NA * (NT + 1) + j;
+    const x = N.getX(a) + N.getX(b), y = N.getY(a) + N.getY(b), z = N.getZ(a) + N.getZ(b), l = Math.hypot(x, y, z) || 1;
+    N.setXYZ(a, x / l, y / l, z / l); N.setXYZ(b, x / l, y / l, z / l);
+  }
+  shell.computeBoundingSphere();
+  const edge = [];
+  for (let i = 0; i < 96; i++) { const az = -Math.PI + i / 96 * TAU; edge.push(helmetPt(az, helmetEdge(az), new T.Vector3())); }
+  const rim = new T.TubeGeometry(new T.CatmullRomCurve3(edge, true), 160, 0.022, 6, true);
+  const bill = new T.SphereGeometry(1, 28, 6, 0, TAU, 0, Math.PI / 2);
+  bill.applyMatrix4(mat4(T, 0, 0.158, 0.47, 0.37, 0.034, 0.23, 0.16));
+  return { shell: shell, rim: rim, bill: bill };
+}
+
+// A limb turned on a lathe (latheGeo) and then sculpted. lumps: [from, to (along the bone), front (+1) or back (-1),
+// how much it swells, how wide it spreads (higher is narrower)]. shape(y) gives [width, depth] scales.
+function sculptGeo(T, prof, L0, k, n, lumps, shape) {
+  const g = latheGeo(T, prof, L0, k, n), P = g.attributes.position, m = prof.length;
+  for (let i = 0; i < P.count; i++) {
+    const x = P.getX(i), y = P.getY(i), z = P.getZ(i), r = Math.hypot(x, z);
+    if (r < 1e-6) continue;
+    const cz = z / r;
+    let f = 1;
+    for (let q = 0; q < lumps.length; q++) {
+      const L = lumps[q], w = Math.sin(Math.PI * clamp((y - L[0]) / (L[1] - L[0]), 0, 1)), d = Math.max(0, cz * L[2]);
+      f += L[3] * w * w * Math.pow(d, L[4]);
+    }
+    const s = shape ? shape(y) : [1, 1];
+    P.setXYZ(i, x * f * s[0], y, z * f * s[1]);
+  }
+  g.computeVertexNormals();
+  const N = g.attributes.normal;
+  for (let j = 0; j < m; j++) {
+    const a = j * (n + 1), b = a + n;
+    const x = N.getX(a) + N.getX(b), y = N.getY(a) + N.getY(b), z = N.getZ(a) + N.getZ(b), l = Math.hypot(x, y, z) || 1;
+    N.setXYZ(a, x / l, y / l, z / l); N.setXYZ(b, x / l, y / l, z / l);
+  }
+  g.computeBoundingSphere();
+  return g;
+}
+// Smooth (Catmull-Rom) in-between rings for a loft, so the body has no ridges where the rings were.
+function smoothRings(rings, per) {
+  const out = [];
+  for (let i = 0; i < rings.length - 1; i++) {
+    const p0 = rings[Math.max(0, i - 1)], p1 = rings[i], p2 = rings[i + 1], p3 = rings[Math.min(rings.length - 1, i + 2)];
+    for (let k = 0; k < per; k++) {
+      const u = k / per, u2 = u * u, u3 = u2 * u, r = [];
+      for (let j = 0; j < p1.length; j++) r.push(0.5 * (2 * p1[j] + (p2[j] - p0[j]) * u + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * u2 + (3 * p1[j] - p0[j] - 3 * p2[j] + p3[j]) * u3));
+      out.push(r);
+    }
+  }
+  out.push(rings[rings.length - 1].slice());
+  return out;
+}
+
+// Builds Casey. Same rig as makePlayer's slugger (bone lengths, shoulders, hips, head), so every pose lands the same.
+function makeCasey(T, tex, script, env, o) {
+  const root = new T.Group();
+  root.scale.setScalar(PS);
+  const torsoRings = smoothRings([[0, 0.5, 0.36, 0.38], [0.18, 0.52, 0.38, 0.4], [0.45, 0.6, 0.47, 0.45], [0.8, 0.78, 0.62, 0.52], [1.15, 0.92, 0.72, 0.57],
+                                  [1.45, 1.0, 0.7, 0.6], [1.7, 0.98, 0.54, 0.57], [1.88, 0.74, 0.42, 0.48], [2.0, 0.44, 0.33, 0.37], [2.1, 0.33, 0.3, 0.31],
+                                  [2.3, 0.3, 0.27, 0.28], [2.55, 0.28, 0.25, 0.26]], 4);
+  const pelvisRings = smoothRings([[-0.82, 0.3, 0.24, 0.26], [-0.7, 0.64, 0.41, 0.47], [-0.45, 0.71, 0.47, 0.58], [-0.2, 0.67, 0.47, 0.56], [0.02, 0.59, 0.45, 0.47], [0.2, 0.57, 0.43, 0.45]], 3);
+
+  const cloth = function (canvas, sh) { return new T.MeshPhongMaterial({ map: tex(canvas), specular: 0x262626, shininess: sh || 9 }); };
+  const jersey = cloth(caseyTorsoCanvas({ skin: o.skin, chestY: 1.24, wordW: 1.66, round: 5.6, num: o.num }, script), 11);
+  const pants = cloth(caseyPantsCanvas()), thigh = cloth(caseyThighCanvas()), shin = cloth(caseyShinCanvas()), pin = cloth(pinCanvas());
+  const sleeve = cloth(caseySleeveCanvas(o.skin));
+  const skin = new T.MeshPhongMaterial({ color: o.skin, specular: 0x2b1d14, shininess: 16 });
+  const face = new T.MeshPhongMaterial({ vertexColors: true, specular: 0x24180f, shininess: 14 });
+  const shoeM = new T.MeshPhongMaterial({ color: 0x111317, specular: 0x8a8a8a, shininess: 70 });
+  const hg = helmetGeos(T);
+  const helmetM = new T.MeshPhongMaterial({ map: tex(helmetCanvas()), specular: 0xffffff, shininess: 95, envMap: env, combine: T.AddOperation, reflectivity: 0.1 });
+  const trimM = new T.MeshPhongMaterial({ color: P90.royalDk, specular: 0xbbbbbb, shininess: 80, envMap: env, combine: T.AddOperation, reflectivity: 0.08 });
+  const insideM = new T.MeshLambertMaterial({ color: 0x0b1226, side: T.BackSide });
+  const ball = new T.SphereGeometry(1, 22, 16);
+  function mesh(g, m, parent) { const x = new T.Mesh(g, m); (parent || root).add(x); return x; }
+
+  const hips = new T.Group(); root.add(hips);
+  mesh(loftGeo(T, pelvisRings, 40, 0.92), pants, hips);
+  const upper = new T.Group(); root.add(upper);
+  mesh(loftGeo(T, torsoRings, 48, 0.9), jersey, upper);
+  const head = new T.Group(); head.position.set(0, 2.74, 0.07); head.scale.setScalar(1.12); upper.add(head);
+  mesh(headGeo(T, { hi: true, slugger: true, skin: o.skin, shade: o.shade, hair: o.hair, mustache: true }), face, head);
+  const helmet = new T.Group(); head.add(helmet);
+  mesh(hg.shell, helmetM, helmet); mesh(hg.shell, insideM, helmet); mesh(hg.rim, trimM, helmet); mesh(hg.bill, trimM, helmet);
+
+  // Limb profiles [along the bone, radius] as before, now with muscle on one side: biceps and triceps, the forearm
+  // thick below the elbow and flat at the wrist, a little shape in the pant legs, and a big calf in the stirrup.
+  const UA = [[-0.06, 0], [-0.045, 0.12], [-0.01, 0.2], [0.08, 0.25], [0.3, 0.26], [0.5, 0.255], [0.56, 0.24], [0.6, 0.2], [0.7, 0.212], [0.84, 0.2],
+              [0.98, 0.168], [1.1, 0.15], [1.16, 0.12], [1.2, 0.07], [1.22, 0]];
+  const FA = [[-0.07, 0], [-0.05, 0.11], [-0.015, 0.16], [0.08, 0.2], [0.25, 0.212], [0.45, 0.185], [0.7, 0.148], [0.9, 0.118], [1.0, 0.104], [1.04, 0.08], [1.07, 0]];
+  const TH = [[-0.12, 0], [-0.1, 0.14], [-0.05, 0.24], [0.05, 0.3], [0.3, 0.32], [0.7, 0.315], [1.05, 0.305], [1.3, 0.29], [1.45, 0.27], [1.52, 0.2], [1.56, 0]];
+  const SH = [[-0.1, 0], [-0.08, 0.15], [-0.03, 0.24], [0.06, 0.285], [0.2, 0.29], [0.3, 0.25], [0.36, 0.19], [0.42, 0.17], [0.62, 0.175], [0.9, 0.14],
+              [1.2, 0.108], [1.36, 0.1], [1.42, 0.07], [1.45, 0]];
+  const gUA = sculptGeo(T, UA, 1.12, 1, 28, [[0.55, 1.06, 1, 0.17, 2], [0.42, 1.02, -1, 0.11, 2]], function (y) { return [0.95, 1]; });
+  const gFA = sculptGeo(T, FA, 1.08, 1, 24, [[0.0, 0.55, 1, 0.13, 1.6], [0.0, 0.5, -1, 0.08, 2]],
+    function (y) { const w = sstep(0.55, 0.98, y); return [1 + 0.1 * w, 1 - 0.28 * w]; });
+  const gTH = sculptGeo(T, TH, 1.42, 1, 28, [[0.1, 1.0, 1, 0.06, 2], [0.15, 1.0, -1, 0.07, 2]]);
+  const gSH = sculptGeo(T, SH, 1.4, 1, 26, [[0.3, 0.9, -1, 0.3, 2.2], [0.45, 1.25, 1, -0.07, 2]], function (y) { return [1, 1 - 0.12 * sstep(1.0, 1.35, y)]; });
+  const gFist = fistGeo(T, 1.12, true), gShoe = shoeGeo(T, true);
+  const hv = { x: new T.Vector3(), y: new T.Vector3(), z: new T.Vector3(), m: new T.Matrix4() };
+  function orient(s) { return { x: new T.Vector3(), y: new T.Vector3(), z: new T.Vector3(), f: new T.Vector3(), m: new T.Matrix4(), s: s }; }
+  const arm = [0, 1].map(function () {
+    const L = { up: mesh(gUA, sleeve), lo: mesh(gFA, skin), delt: mesh(ball, pin), j1: mesh(ball, skin), l1: 1.12, l2: 1.08, hv: hv, o: orient(-1) };
+    L.delt.scale.set(0.245, 0.29, 0.245);
+    L.j1.scale.setScalar(0.15);
+    L.end = mesh(gFist, skin);
+    return L;
+  });
+  const leg = [0, 1].map(function () {
+    const L = { up: mesh(gTH, thigh), lo: mesh(gSH, shin), j1: mesh(ball, pin), j0: mesh(ball, pin), l1: 1.42, l2: 1.4, o: orient(1) };
+    L.j1.scale.setScalar(0.27); L.j0.scale.setScalar(0.28);
+    return L;
+  });
+  const shoe = [mesh(gShoe, shoeM), mesh(gShoe, shoeM)];
+  shoe.forEach(function (m) { m.rotation.order = "YXZ"; });
+  return { root: root, hips: hips, upper: upper, head: head, helmet: helmet, arm: arm, leg: leg, shoe: shoe, batter: true,
+           shoulder: [0.96, 1.72, -0.02], hipJ: [0.38, -0.22, 0], grip: new T.Vector3() };
+}
+
 // Elbow or knee: the joint between A and B for bones l1 and l2, bent toward "pole".
 function bend(A, B, pole, l1, l2, out) {
   const t = TV;
@@ -1823,11 +2120,28 @@ function bone(mesh, A, B, l0) {
   mesh.quaternion.setFromUnitVectors(t.up, t.d.multiplyScalar(1 / l));
   mesh.scale.set(1, l / l0, 1);
 }
+// Like bone, but turned about its own length so the limb's front (+z) faces o.f: the inside of the elbow for
+// an arm, the kneecap for a leg. Muscles sculpted on one side then stay on that side through every pose.
+function boneO(mesh, A, B, l0, o) {
+  o.y.subVectors(B, A);
+  const l = o.y.length() || 1e-4;
+  o.y.multiplyScalar(1 / l);
+  o.z.copy(o.f).addScaledVector(o.y, -o.f.dot(o.y));
+  if (o.z.lengthSq() < 1e-8) o.z.set(0, 0, 1).addScaledVector(o.y, -o.y.z);
+  o.z.normalize(); o.x.crossVectors(o.y, o.z);
+  o.m.makeBasis(o.x, o.y, o.z);
+  mesh.quaternion.setFromRotationMatrix(o.m);
+  mesh.position.copy(A);
+  mesh.scale.set(1, l / l0, 1);
+}
 // grip: the line the fist closes round (the bat), or null to close it across the bend of the arm.
 function setLimb(L, A, B, pole, grip) {
   const t = TV;
   bend(A, B, pole, L.l1, L.l2, t.e);
-  bone(L.up, A, t.e, L.l1); bone(L.lo, t.e, B, L.l2);
+  if (L.o) {                                                // the batter's sculpted limbs keep their front facing the right way
+    L.o.f.copy(pole).multiplyScalar(L.o.s);
+    boneO(L.up, A, t.e, L.l1, L.o); boneO(L.lo, t.e, B, L.l2, L.o);
+  } else { bone(L.up, A, t.e, L.l1); bone(L.lo, t.e, B, L.l2); }
   L.j1.position.copy(t.e);
   if (L.j0) L.j0.position.copy(A);
   if (L.delt) {                                             // the shoulder cap rides along the upper arm
@@ -2150,7 +2464,7 @@ function buildScene(T, scriptImg) {
   scene.add(board);
 
   /* players: the old-time slugger at the plate and the pitcher on the mound, in the same club colors */
-  const batter = makePlayer(T, tex, script, tEnv, { build: "slugger", skin: "#e3a77c", shade: "#cf8a64", hair: "#141010", mustache: true, num: "1" });
+  const batter = makeCasey(T, tex, script, tEnv, { skin: "#e3a77c", shade: "#cf8a64", hair: "#141010", num: "1" });
   batter.root.rotation.y = Math.PI / 2; scene.add(batter.root);
   const pitcher = makePlayer(T, tex, script, tEnv, { build: "lean", skin: "#c98a5a", shade: "#b5744e", hair: "#1e140c", glove: true });
   pitcher.root.position.set(0, MOUND_H, MOUND_Z); scene.add(pitcher.root);
