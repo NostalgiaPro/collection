@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b2a9a">
+<title>Nostalgia Pro Arcade (hub v2 test)</title>
+<meta name="description" content="Free retro sports and arcade games from Nostalgia Pro. No ads, no login, high scores stay on your device.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="hub-v2.css">
+<!-- Hidden test page. No GoatCounter pixel here on purpose; the live hub keeps its own counter snippet. -->
+</head>
+<body>
+<a class="skip" href="#games">Skip to games</a>
+<div class="page">
+
+<header class="hd">
+  <a class="hd-made" href="https://thenostalgiapro.com/" aria-label="Nostalgia Pro home">
+    <span>Made by:</span>
+    <img src="img/np-logo-120.webp" width="120" height="119" alt="">
+  </a>
+  <a class="hd-logo" href="./" aria-label="Nostalgia Pro Games arcade">
+    <img src="img/np-script.webp" width="900" height="373" alt="Nostalgia Pro Games">
+    <span class="hd-sub">ARCADE</span>
+  </a>
+  <nav class="hd-nav" aria-label="Site">
+    <a href="https://thenostalgiapro.com/" data-site="COLLECTION_URL">COLLECTION</a>
+    <a href="/arcade/trophies/">TROPHIES</a>
+    <a href="https://nostalgiapro-shop.fourthwall.com/" data-site="MERCH_URL">MERCH</a>
+    <a href="https://tally.so/r/rDDJJl" data-site="FEEDBACK_URL" target="_blank" rel="noopener">FEEDBACK</a>
+    <a class="hd-red" href="/privacy.html">PRIVACY</a>
+  </nav>
+</header>
+
+<nav class="tabs" aria-label="Game categories" role="tablist">
+  <button type="button" role="tab" class="tab" data-cat="sports" aria-selected="false">SPORTS</button>
+  <button type="button" role="tab" class="tab" data-cat="arcade" aria-selected="false">ARCADE</button>
+  <button type="button" role="tab" class="tab" data-cat="puzzles" aria-selected="false">PUZZLES</button>
+  <button type="button" role="tab" class="tab" data-cat="mp" aria-selected="false">MULTI-PLAYER</button>
+  <a class="tab tab-link" href="/arcade/trophies/">TROPHIES</a>
+  <button type="button" role="tab" class="tab tab-all" data-cat="all" aria-selected="true"><span>ALL</span>GAMES</button>
+</nav>
+
+<div class="main">
+  <aside class="left">
+    <section class="welcome" aria-labelledby="wel-h">
+      <h2 id="wel-h">WELCOME<span id="welName"></span>!</h2>
+      <p>Free games, no ads and no login. Your high scores and trophies stay right here on this device.</p>
+      <a class="badge-ask" href="/arcade/trophies/"><b>HOW FULL<br>IS YOUR<br>SHELF?</b><i>CLICK HERE</i></a>
+    </section>
+
+    <section class="tag" aria-labelledby="tag-h">
+      <h2 id="tag-h" class="tag-h">NAME TAG</h2>
+      <form id="tagForm" class="tag-form" autocomplete="off">
+        <label for="tagIn">Initials &#9656;</label>
+        <input id="tagIn" name="initials" maxlength="3" inputmode="text" autocapitalize="characters" spellcheck="false" placeholder="AAA">
+        <p class="tag-note">3 letters, saved on this device only. They fill in when you set a high score.</p>
+        <button class="pill pill-blue" type="submit">SAVE</button>
+        <p class="tag-msg" id="tagMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div class="tag-shelf">
+        <p class="tag-sh"><b id="tagTro">0/0</b> trophies on your shelf</p>
+        <h3>YOUR BESTS</h3>
+        <ol id="myBests" class="my-bests"><li class="none">Play a game to post your first best.</li></ol>
+      </div>
+      <div class="tag-new">
+        <p>Want to see every trophy?</p>
+        <a class="pill pill-grey" href="/arcade/trophies/">TROPHY SHELF</a>
+      </div>
+    </section>
+  </aside>
+
+  <div class="center">
+    <section class="banner" id="banner" aria-roledescription="carousel" aria-label="Featured games">
+      <div class="banner-slides" id="bannerSlides"></div>
+      <div class="banner-dots" id="bannerDots" role="group" aria-label="Choose featured game"></div>
+    </section>
+    <div class="promos">
+      <a class="promo promo-game" href="https://thenostalgiapro.itch.io/nostalgia-pro-the-game" target="_blank" rel="noopener">
+        <span class="promo-tag">$1 ON ITCH.IO</span>
+        <img src="img/np-game-480.jpg" width="480" height="270" alt="" loading="lazy">
+        <b class="promo-big">NOSTALGIA PRO:<br>THE GAME</b>
+        <span class="promo-click">&#9654; click here</span>
+      </a>
+      <a class="promo promo-shelf" href="/arcade/trophies/">
+        <span class="promo-box"><b>Click Here<br>To Look</b></span>
+        <b class="promo-big">THE TROPHY<br>SHELF</b>
+        <span class="promo-sub">Loose, Boxed, Sealed, Slabbed</span>
+      </a>
+    </div>
+    <a class="more" href="#games">more &#9654;</a>
+  </div>
+
+  <aside class="right">
+    <section class="box" aria-labelledby="top-h">
+      <h2 id="top-h" class="bar">TOP 10 GAMES</h2>
+      <ol class="top10" id="top10"></ol>
+      <p class="top-note" id="topNote"></p>
+    </section>
+    <section class="box" aria-labelledby="fg-h">
+      <h2 id="fg-h" class="bar">FEATURED GAMES</h2>
+      <ul class="fg" id="featGames"></ul>
+    </section>
+  </aside>
+</div>
+
+
+<section class="prizes" aria-labelledby="pz-h">
+  <div class="bar bar-wide"><h2 id="pz-h">PRIZES</h2><a href="/arcade/trophies/">more prizes &#9654;</a></div>
+  <ul class="pz">
+    <li>
+      <div class="pz-art"><span class="tro tro-loose"></span><span class="tro tro-boxed"></span></div>
+      <p>Every game has its own trophies to unlock, in four tiers that start with <b>Loose</b> and <b>Boxed</b>.</p>
+      <a href="/arcade/trophies/">&#9654; click here</a>
+    </li>
+    <li>
+      <div class="pz-art"><span class="tro tro-sealed"></span><span class="tro tro-slabbed"></span></div>
+      <p><b>Sealed</b> and <b>Slabbed</b> are the higher tiers. Slabbed is worth the most on your shelf.</p>
+      <a href="/arcade/trophies/">&#9654; click here</a>
+    </li>
+    <li>
+      <div class="pz-art pz-count"><b id="pzGot">0</b><span>of <i id="pzTotal">0</i></span></div>
+      <p>Trophies on your shelf so far. They live on this device, so there is nothing to sign up for.</p>
+      <a href="/arcade/trophies/">&#9654; click here</a>
+    </li>
+    <li>
+      <div class="pz-art"><img src="img/np-game-480.jpg" width="480" height="270" alt="" loading="lazy"></div>
+      <p>Nostalgia Pro: The Game. One Saturday, $100, every yard sale in town. Get it for $1.</p>
+      <a href="https://thenostalgiapro.itch.io/nostalgia-pro-the-game" target="_blank" rel="noopener">&#9654; click here</a>
+    </li>
+  </ul>
+</section>
+
+<section class="games" id="games" aria-labelledby="games-h">
+  <div class="bar bar-wide"><h2 id="games-h">ALL GAMES</h2><span id="gamesCount"></span></div>
+  <p class="games-note" id="gamesNote" hidden></p>
+  <ul class="grid" id="grid"></ul>
+</section>
+
+<section class="sponsors" aria-labelledby="sp-h">
+  <h2 id="sp-h"><b>OUR</b> SPONSORS</h2>
+  <ul class="sp">
+    <li><a class="sp-np" href="/arcade/"><img src="img/np-logo-120.webp" width="120" height="119" alt=""><span>NP<br>GAMES</span></a></li>
+    <li><a class="sp-game" href="https://thenostalgiapro.itch.io/nostalgia-pro-the-game" target="_blank" rel="noopener"><span>NOSTALGIA PRO</span><b>THE GAME</b><i>$1</i></a></li>
+    <li><a class="sp-sub" href="https://nostalgiapro.substack.com/" target="_blank" rel="noopener"><span>Substack</span></a></li>
+    <li><a class="sp-yt" href="https://www.youtube.com/@TheNostalgiaPro" target="_blank" rel="noopener"><span class="sp-play" aria-hidden="true"></span><span>YouTube</span></a></li>
+    <li><a class="sp-tt" href="https://www.tiktok.com/@rc.the.nostalgia.pro" target="_blank" rel="noopener"><span>TikTok</span></a></li>
+    <li><a class="sp-merch" href="https://nostalgiapro-shop.fourthwall.com/" data-site="MERCH_URL" target="_blank" rel="noopener"><span>MERCH</span><b>SHOP</b></a></li>
+  </ul>
+</section>
+
+<footer class="ft">
+  <nav class="ft-nav" aria-label="Footer">
+    <a href="https://thenostalgiapro.com/" data-site="SITE_URL">COLLECTION</a>
+    <a href="/arcade/trophies/">TROPHIES</a>
+    <a href="https://nostalgiapro-shop.fourthwall.com/" data-site="MERCH_URL">MERCH</a>
+    <a href="https://nostalgiapro-shop.fourthwall.com/pages/donate" data-donate target="_blank" rel="noopener">SUPPORT</a>
+    <a href="https://tally.so/r/rDDJJl" data-site="FEEDBACK_URL" target="_blank" rel="noopener">FEEDBACK</a>
+    <a href="/play/">NP: THE GAME DEMO</a>
+  </nav>
+  <p class="ft-warn">HEADS UP: HIGH SCORES, NAME TAGS AND TROPHIES ARE SAVED ON THIS DEVICE ONLY.<br><span>Clearing your browser data clears them too. Back them up from the <a href="/arcade/trophies/">Trophy Shelf</a>.</span></p>
+  <p class="ft-priv"><a href="/privacy.html">Privacy Notice</a></p>
+  <p class="ft-copy">All games are original parodies. No ads, no logins.</p>
+  <a class="ft-friend" href="https://thenostalgiapro.com/"><img src="img/np-logo-240.webp" width="240" height="238" alt="" loading="lazy"><span>VISIT THE COLLECTION AT THENOSTALGIAPRO.COM</span></a>
+</footer>
+</div>
+
+<script src="/arcade/shared/config.js"></script>
+<script src="/arcade/shared/trophy-list.js"></script>
+<script src="/arcade/shared/trophies.js"></script>
+<script src="hub-v2.js"></script>
+</body>
+</html>
