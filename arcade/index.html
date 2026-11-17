@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#101219">
+<meta name="theme-color" content="#0b2a9a">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,10 +12,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="canonical" href="https://thenostalgiapro.com/arcade/">
 <title>Nostalgia Pro Arcade | Free retro sports and arcade games</title>
-<meta name="description" content="Free retro sports and arcade games from Nostalgia Pro. Mini golf, arcade basketball, home run derby and more. No ads, no login, high scores stay on your device.">
-<link rel="stylesheet" href="hub.css">
-<link rel="stylesheet" href="seasonal.css">
-<link rel="stylesheet" href="/growth.css">
+<meta name="description" content="Free retro sports and arcade games from Nostalgia Pro. No ads, no login, high scores stay on your device.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="hub-v2.css">
 <script>
 /* GoatCounter page view, same counter as /play/ (code "nostalgiapro"): one small image request, no cookies, no third-party script. */
 (function(){try{if(!/^https?:$/.test(location.protocol))return;var i=new Image();i.referrerPolicy="no-referrer";i.src="https://nostalgiapro.goatcounter.com/count?p="+encodeURIComponent(location.pathname)+"&t="+encodeURIComponent(document.title)+"&r="+encodeURIComponent(document.referrer||"")+"&rnd="+Math.random().toString(36).slice(2);}catch(e){}})();
@@ -23,738 +24,162 @@
 </head>
 <body>
 <a class="skip" href="#games">Skip to games</a>
+<div class="page">
 
-<header class="top">
-  <div class="wrap">
-    <a class="badge" href="https://thenostalgiapro.com/" aria-label="Nostalgia Pro home">NP</a>
-    <a class="brand" href="https://thenostalgiapro.com/">Nostalgia Pro<b>Arcade</b></a>
-    <nav class="nav" aria-label="Site">
-      <a class="nav-home" href="https://thenostalgiapro.com/" data-site="COLLECTION_URL">Collection</a>
-      <a href="trophies/" class="tro-link">Trophy Shelf</a>
-      <a class="nav-merch" href="https://nostalgiapro-shop.fourthwall.com/" data-site="MERCH_URL">Merch</a>
-      <a class="nav-fb" href="https://tally.so/r/rDDJJl" data-site="FEEDBACK_URL" target="_blank" rel="noopener">Feedback</a>
-      <a class="support" href="https://nostalgiapro-shop.fourthwall.com/pages/donate" data-donate target="_blank" rel="noopener">Support</a>
-    </nav>
-  </div>
+<header class="hd">
+  <a class="hd-made" href="https://thenostalgiapro.com/" aria-label="Nostalgia Pro home">
+    <span>Made by:</span>
+    <img src="img/np-logo-120.webp" width="120" height="119" alt="">
+  </a>
+  <a class="hd-logo" href="./" aria-label="Nostalgia Pro Games arcade">
+    <img src="img/np-script.webp" width="900" height="373" alt="Nostalgia Pro Games">
+    <span class="hd-sub">ARCADE</span>
+  </a>
+  <nav class="hd-nav" aria-label="Site">
+    <a href="https://thenostalgiapro.com/" data-site="COLLECTION_URL">COLLECTION</a>
+    <a href="/arcade/trophies/">TROPHIES</a>
+    <a href="https://nostalgiapro-shop.fourthwall.com/" data-site="MERCH_URL">MERCH</a>
+    <a href="https://tally.so/r/rDDJJl" data-site="FEEDBACK_URL" target="_blank" rel="noopener">FEEDBACK</a>
+    <a class="hd-red" href="/privacy.html">PRIVACY</a>
+  </nav>
 </header>
 
-<main id="games" class="wrap">
-  <!-- Seasonal / featured slot. Filled by seasonal.js from its date config. -->
-  <section id="featured" class="feat" aria-label="Featured game"></section>
+<nav class="tabs" aria-label="Game categories" role="tablist">
+  <button type="button" role="tab" class="tab" data-cat="sports" aria-selected="false">SPORTS</button>
+  <button type="button" role="tab" class="tab" data-cat="arcade" aria-selected="false">ARCADE</button>
+  <button type="button" role="tab" class="tab" data-cat="puzzles" aria-selected="false">PUZZLES</button>
+  <button type="button" role="tab" class="tab" data-cat="mp" aria-selected="false">MULTI-PLAYER</button>
+  <a class="tab tab-link" href="/arcade/trophies/">TROPHIES</a>
+  <button type="button" role="tab" class="tab tab-all" data-cat="all" aria-selected="true"><span>ALL</span>GAMES</button>
+</nav>
 
-  <section class="hero" aria-labelledby="title">
-    <div class="marquee"><h1 id="title">NOSTALGIA PRO <span>ARCADE</span></h1></div>
-    <p class="tagline"><b>Free games. No ads. No login. No quarters required.</b></p>
-  </section>
+<div class="main">
+  <aside class="left">
+    <section class="welcome" aria-labelledby="wel-h">
+      <h2 id="wel-h">WELCOME<span id="welName"></span>!</h2>
+      <p>Free games, no ads and no login. Your high scores and trophies stay right here on this device.</p>
+      <a class="badge-ask" href="/arcade/trophies/"><b>HOW FULL<br>IS YOUR<br>SHELF?</b><i>CLICK HERE</i></a>
+    </section>
 
-  <div data-np-gp="arcade"></div>
+    <section class="tag" aria-labelledby="tag-h">
+      <h2 id="tag-h" class="tag-h">NAME TAG</h2>
+      <form id="tagForm" class="tag-form" autocomplete="off">
+        <label for="tagIn">Initials &#9656;</label>
+        <input id="tagIn" name="initials" maxlength="3" inputmode="text" autocapitalize="characters" spellcheck="false" placeholder="AAA">
+        <p class="tag-note">3 letters, saved on this device only. They fill in when you set a high score.</p>
+        <button class="pill pill-blue" type="submit">SAVE</button>
+        <p class="tag-msg" id="tagMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div class="tag-shelf">
+        <p class="tag-sh"><b id="tagTro">0/0</b> trophies on your shelf</p>
+        <h3>YOUR BESTS</h3>
+        <ol id="myBests" class="my-bests"><li class="none">Play a game to post your first best.</li></ol>
+      </div>
+      <div class="tag-new">
+        <p>Want to see every trophy?</p>
+        <a class="pill pill-grey" href="/arcade/trophies/">TROPHY SHELF</a>
+      </div>
+    </section>
+  </aside>
 
-  <ul class="chips" role="group" aria-label="Filter games">
-    <li><button class="chip" type="button" data-filter="all" aria-pressed="true">All</button></li>
-    <li><button class="chip" type="button" data-filter="ready" aria-pressed="false">Ready to play</button></li>
-    <li><button class="chip" type="button" data-filter="court" aria-pressed="false">Field &amp; court</button></li>
-    <li><button class="chip" type="button" data-filter="lanes" aria-pressed="false">Links &amp; lanes</button></li>
-    <li><button class="chip" type="button" data-filter="table" aria-pressed="false">Table games</button></li>
-    <li><button class="chip" type="button" data-filter="ice" aria-pressed="false">Ice &amp; snow</button></li>
-  </ul>
-
-  <ul class="grid" id="grid">
-
-    <!-- 1. SHELF LINKS -->
-    <li data-genre="lanes" data-ready>
-      <article class="cab" style="--c:#9bff3f" aria-labelledby="g-shelf-links">
-        <div class="cab-marquee"><h2 id="g-shelf-links">SHELF LINKS</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/01-shelf-links.webp" type="image/webp"><img src="covers/01-shelf-links.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#12141c"/>
-            <rect x="14" y="4" width="36" height="40" fill="#6b4426"/>
-            <rect x="17" y="7" width="30" height="34" fill="#1d6a44"/>
-            <rect x="17" y="11" width="30" height="4" fill="#1f7149"/><rect x="17" y="19" width="30" height="4" fill="#1f7149"/><rect x="17" y="27" width="30" height="4" fill="#1f7149"/><rect x="17" y="35" width="30" height="4" fill="#1f7149"/>
-            <rect x="21" y="22" width="10" height="4" fill="#ff3fa4"/><rect x="22" y="23" width="3" height="2" fill="#eceae2"/>
-            <rect x="36" y="18" width="9" height="4" fill="#3ff0ff"/>
-            <rect x="30" y="10" width="4" height="4" fill="#050607"/>
-            <rect x="32" y="4" width="1" height="8" fill="#d8d6cf"/><rect x="33" y="4" width="4" height="3" fill="#ff4b3e"/>
-            <rect x="31" y="31" width="1" height="1" fill="#eceae2"/><rect x="31" y="28" width="1" height="1" fill="#eceae2"/>
-            <rect x="30" y="35" width="3" height="3" fill="#f6f4ee"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Mini golf</p>
-        <p class="cab-hook">Nine holes of mini golf built out of game boxes, shelves and tape decks. Drag to putt.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="shelf-links" data-fmt="golf">---</b></span></div>
-        <a class="play" href="shelf-links/" aria-label="Play Shelf Links">PLAY</a>
-      </article>
-    </li>
-
-    <!-- 2. BARGAIN BIN BUCKETS -->
-    <li data-genre="court" data-ready>
-      <article class="cab" style="--c:#ff3fa4" aria-labelledby="g-buckets">
-        <div class="cab-marquee"><h2 id="g-buckets">BARGAIN BIN BUCKETS</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/02-bargain-bin-buckets.webp" type="image/webp"><img src="covers/02-bargain-bin-buckets.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#151826"/>
-            <path d="M0 48 L22 30 L42 30 L64 48Z" fill="#3a2616"/>
-            <rect x="20" y="5" width="24" height="16" fill="#0b0c10"/><rect x="21" y="6" width="22" height="14" fill="#d9dde6"/>
-            <rect x="27" y="10" width="10" height="7" fill="none" stroke="#ff4b3e" stroke-width="1"/>
-            <rect x="26" y="18" width="12" height="2" fill="#ff6a2a"/>
-            <rect x="27" y="20" width="1" height="5" fill="#eceae2"/><rect x="30" y="20" width="1" height="6" fill="#eceae2"/><rect x="33" y="20" width="1" height="6" fill="#eceae2"/><rect x="36" y="20" width="1" height="5" fill="#eceae2"/>
-            <rect x="12" y="28" width="1" height="1" fill="#8e93a2"/><rect x="14" y="22" width="1" height="1" fill="#8e93a2"/><rect x="18" y="16" width="1" height="1" fill="#8e93a2"/>
-            <rect x="9" y="33" width="8" height="8" fill="#e0662a"/><rect x="10" y="34" width="4" height="2" fill="#e8d9a8"/>
-            <rect x="28" y="40" width="8" height="6" fill="#06120a"/><rect x="29" y="42" width="6" height="2" fill="#5dff7a"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Arcade basketball</p>
-        <p class="cab-hook">60 seconds, a rack of balls, and a hoop that keeps backing up.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="bargain-bin-buckets" data-fmt="pts">---</b></span></div>
-        <a class="play" href="bargain-bin-buckets/" aria-label="Play Bargain Bin Buckets">PLAY</a>
-      </article>
-    </li>
-
-    <!-- 3. BLEACHER CARTS -->
-    <li data-genre="court" data-ready>
-      <article class="cab" style="--c:#ffd23f" aria-labelledby="g-bleacher">
-        <div class="cab-marquee"><h2 id="g-bleacher">BLEACHER CARTS</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/03-bleacher-carts.webp" type="image/webp"><img src="covers/03-bleacher-carts.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#0b1020"/>
-            <rect x="0" y="12" width="64" height="9" fill="#1a1d2b"/>
-            <rect x="3" y="13" width="2" height="2" fill="#ff4b3e"/><rect x="9" y="15" width="2" height="2" fill="#3ff0ff"/><rect x="15" y="13" width="2" height="2" fill="#ffd23f"/><rect x="21" y="17" width="2" height="2" fill="#ff3fa4"/><rect x="40" y="13" width="2" height="2" fill="#9bff3f"/><rect x="47" y="16" width="2" height="2" fill="#a77bff"/><rect x="54" y="14" width="2" height="2" fill="#eceae2"/><rect x="60" y="17" width="2" height="2" fill="#ffd23f"/>
-            <rect x="0" y="21" width="64" height="2" fill="#ffd23f"/>
-            <rect x="0" y="23" width="64" height="25" fill="#1c5e33"/>
-            <path d="M32 26 L48 38 L32 48 L16 38Z" fill="#7a5434"/><path d="M32 30 L42 38 L32 45 L22 38Z" fill="#1f6638"/>
-            <rect x="31" y="31" width="3" height="2" fill="#eceae2"/>
-            <rect x="40" y="4" width="6" height="4" fill="#8d8f99"/><rect x="41" y="6" width="4" height="1" fill="#ffd23f"/>
-            <rect x="36" y="9" width="1" height="1" fill="#8e93a2"/><rect x="33" y="13" width="1" height="1" fill="#8e93a2"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Home run derby</p>
-        <p class="cab-hook">20 pitches. Time your swing and knock carts into the cheap seats.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="bleacher-carts" data-fmt="ft">---</b></span></div>
-        <a class="play" href="bleacher-carts/" aria-label="Play Bleacher Carts">PLAY</a>
-      </article>
-    </li>
-
-    <!-- 4. TAPE PIN LANES -->
-    <li data-genre="lanes" data-ready>
-      <article class="cab" style="--c:#a77bff" aria-labelledby="g-tape">
-        <div class="cab-marquee"><h2 id="g-tape">TAPE PIN LANES</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/04-tape-pin-lanes.webp" type="image/webp"><img src="covers/04-tape-pin-lanes.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#12141c"/>
-            <path d="M24 2 L40 2 L52 48 L12 48Z" fill="#b98a55"/><path d="M26 2 L38 2 L46 48 L18 48Z" fill="#cf9f66"/>
-            <rect x="27" y="5" width="3" height="5" fill="#101219"/><rect x="31" y="5" width="3" height="5" fill="#101219"/><rect x="35" y="5" width="3" height="5" fill="#101219"/>
-            <rect x="29" y="11" width="3" height="5" fill="#101219"/><rect x="33" y="11" width="3" height="5" fill="#101219"/>
-            <rect x="31" y="17" width="3" height="5" fill="#101219"/>
-            <rect x="27" y="7" width="3" height="1" fill="#eceae2"/><rect x="31" y="7" width="3" height="1" fill="#eceae2"/><rect x="35" y="7" width="3" height="1" fill="#eceae2"/><rect x="29" y="13" width="3" height="1" fill="#eceae2"/><rect x="33" y="13" width="3" height="1" fill="#eceae2"/><rect x="31" y="19" width="3" height="1" fill="#eceae2"/>
-            <rect x="28" y="38" width="8" height="8" fill="#a77bff"/><rect x="30" y="40" width="2" height="2" fill="#101219"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Ten-pin bowling</p>
-        <p class="cab-hook">Ten fast frames where the pins are stacked VHS tapes. Curve it, strike it.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="tape-pin-lanes" data-fmt="num">---</b></span></div>
-        <a class="play" href="tape-pin-lanes/" aria-label="Play Tape Pin Lanes">PLAY</a>
-      </article>
-    </li>
-
-    <!-- 5. TICKET ROLL ALLEY -->
-    <li data-genre="lanes" data-ready>
-      <article class="cab" style="--c:#3ff0ff" aria-labelledby="g-ticket">
-        <div class="cab-marquee"><h2 id="g-ticket">TICKET ROLL ALLEY</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/05-ticket-roll-alley.webp" type="image/webp"><img src="covers/05-ticket-roll-alley.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#12141c"/>
-            <path d="M20 4 L44 4 L50 48 L14 48Z" fill="#23413f"/>
-            <circle cx="32" cy="12" r="7" fill="#3ff0ff" opacity=".35"/><circle cx="32" cy="12" r="4" fill="#101219"/>
-            <rect x="21" y="5" width="4" height="4" fill="#101219"/><rect x="39" y="5" width="4" height="4" fill="#101219"/>
-            <rect x="21" y="5" width="4" height="1" fill="#ffd23f"/><rect x="39" y="5" width="4" height="1" fill="#ffd23f"/>
-            <rect x="18" y="26" width="28" height="3" fill="#2f5b57"/>
-            <rect x="29" y="38" width="6" height="6" fill="#eceae2"/>
-            <rect x="52" y="20" width="8" height="4" fill="#ff3fa4"/><rect x="54" y="24" width="8" height="4" fill="#ff3fa4"/><rect x="52" y="28" width="8" height="4" fill="#ff3fa4"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Boardwalk ball roll</p>
-        <p class="cab-hook">Nine balls, one ramp, and the 100-point cup in the corner.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="ticket-roll-alley" data-fmt="pts">---</b></span></div>
-        <a class="play" href="ticket-roll-alley/" aria-label="Play Ticket Roll Alley">PLAY</a>
-      </article>
-    </li>
-
-    <!-- 6. PAWN SHOP POOL -->
-    <li data-ready data-genre="table">
-      <article class="cab" style="--c:#ff4b3e" aria-labelledby="g-pool">
-        <div class="cab-marquee"><h2 id="g-pool">PAWN SHOP POOL</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/06-pawn-shop-pool.webp" type="image/webp"><img src="covers/06-pawn-shop-pool.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#12141c"/>
-            <rect x="6" y="8" width="52" height="34" fill="#5a3a1e"/><rect x="10" y="12" width="44" height="26" fill="#14613f"/>
-            <rect x="9" y="11" width="3" height="3" fill="#050607"/><rect x="31" y="10" width="3" height="3" fill="#050607"/><rect x="52" y="11" width="3" height="3" fill="#050607"/><rect x="9" y="36" width="3" height="3" fill="#050607"/><rect x="31" y="37" width="3" height="3" fill="#050607"/><rect x="52" y="36" width="3" height="3" fill="#050607"/>
-            <rect x="40" y="23" width="3" height="3" fill="#ffd23f"/><rect x="43" y="21" width="3" height="3" fill="#3ff0ff"/><rect x="43" y="25" width="3" height="3" fill="#ff4b3e"/><rect x="46" y="23" width="3" height="3" fill="#a77bff"/><rect x="46" y="19" width="3" height="3" fill="#9bff3f"/>
-            <rect x="20" y="23" width="3" height="3" fill="#f6f4ee"/><rect x="8" y="24" width="11" height="1" fill="#c08a50"/>
-            <rect x="28" y="1" width="8" height="3" fill="#ffd23f"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Billiards speed rack</p>
-        <p class="cab-hook">Clear the back-room pool table before the shop closes.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="pawn-shop-pool" data-fmt="time">---</b></span></div>
-        <a class="play" href="pawn-shop-pool/" aria-label="Play Pawn Shop Pool">PLAY</a>
-      </article>
-    </li>
-
-    <!-- 7. RINK RAT SHOOTOUT -->
-    <li data-ready data-genre="ice">
-      <article class="cab" style="--c:#3ff0ff" aria-labelledby="g-rink">
-        <div class="cab-marquee"><h2 id="g-rink">RINK RAT SHOOTOUT</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/07-rink-rat-shootout.webp" type="image/webp"><img src="covers/07-rink-rat-shootout.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#d7e6ef"/>
-            <rect x="0" y="0" width="64" height="12" fill="#2a3346"/>
-            <rect x="0" y="12" width="64" height="2" fill="#ff4b3e"/>
-            <rect x="18" y="14" width="28" height="14" fill="#ff4b3e"/><rect x="20" y="16" width="24" height="12" fill="#eef4f8"/>
-            <rect x="21" y="17" width="22" height="1" fill="#c2ccd4"/><rect x="21" y="21" width="22" height="1" fill="#c2ccd4"/><rect x="21" y="25" width="22" height="1" fill="#c2ccd4"/>
-            <rect x="28" y="17" width="8" height="10" fill="#a77bff"/><rect x="29" y="15" width="6" height="4" fill="#eceae2"/><rect x="25" y="23" width="4" height="5" fill="#eceae2"/>
-            <rect x="0" y="34" width="64" height="1" fill="#3ff0ff"/>
-            <rect x="34" y="40" width="5" height="2" fill="#101219"/><rect x="38" y="42" width="10" height="2" fill="#5a3a1e"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Hockey shootout</p>
-        <p class="cab-hook">You vs a goalie who has seen every trick. Three 30-second periods.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="rink-rat-shootout" data-fmt="pts">---</b></span></div>
-        <a class="play" href="rink-rat-shootout/" aria-label="Play Rink Rat Shootout">PLAY</a>
-      </article>
-    </li>
-
-    <!-- 8. FOURTH AND COLLECT -->
-    <li data-genre="court" data-ready>
-      <article class="cab" style="--c:#9bff3f" aria-labelledby="g-fourth">
-        <div class="cab-marquee"><h2 id="g-fourth">FOURTH AND COLLECT</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/08-fourth-and-collect.webp" type="image/webp"><img src="covers/08-fourth-and-collect.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#0b1020"/>
-            <path d="M0 48 L22 22 L42 22 L64 48Z" fill="#1c5e33"/>
-            <rect x="12" y="34" width="40" height="1" fill="#eceae2"/><rect x="18" y="28" width="28" height="1" fill="#eceae2"/>
-            <rect x="31" y="12" width="2" height="12" fill="#ffd23f"/><rect x="24" y="12" width="16" height="2" fill="#ffd23f"/><rect x="24" y="2" width="2" height="10" fill="#ffd23f"/><rect x="38" y="2" width="2" height="10" fill="#ffd23f"/>
-            <rect x="53" y="6" width="1" height="12" fill="#8e93a2"/><rect x="54" y="6" width="6" height="3" fill="#ff3fa4"/>
-            <rect x="29" y="38" width="6" height="4" fill="#8a4a24"/><rect x="31" y="39" width="2" height="1" fill="#eceae2"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Field goal kicking</p>
-        <p class="cab-hook">Split the uprights from farther and farther back. Watch the wind flag.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="fourth-and-collect" data-fmt="yds">---</b></span></div>
-        <a class="play" href="fourth-and-collect/" aria-label="Play Fourth and Collect">PLAY</a>
-      </article>
-    </li>
-
-    <!-- 9. POWDER DAY HAUL -->
-    <li data-ready data-genre="ice">
-      <article class="cab" style="--c:#a77bff" aria-labelledby="g-powder">
-        <div class="cab-marquee"><h2 id="g-powder">POWDER DAY HAUL</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/09-powder-day-haul.webp" type="image/webp"><img src="covers/09-powder-day-haul.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#e7eef5"/>
-            <rect x="8" y="6" width="6" height="8" fill="#2e6b45"/><rect x="10" y="14" width="2" height="2" fill="#5a3a1e"/>
-            <rect x="48" y="18" width="6" height="8" fill="#2e6b45"/><rect x="50" y="26" width="2" height="2" fill="#5a3a1e"/>
-            <rect x="14" y="34" width="6" height="8" fill="#2e6b45"/><rect x="16" y="42" width="2" height="2" fill="#5a3a1e"/>
-            <rect x="40" y="4" width="8" height="5" fill="#ffffff"/><rect x="40" y="9" width="8" height="1" fill="#c2ccd4"/>
-            <rect x="30" y="12" width="4" height="4" fill="#ffd23f"/><rect x="31" y="13" width="2" height="2" fill="#e7eef5"/>
-            <rect x="36" y="38" width="4" height="4" fill="#ffd23f"/><rect x="37" y="39" width="2" height="2" fill="#e7eef5"/>
-            <rect x="26" y="26" width="10" height="2" fill="#ff4b3e"/><rect x="29" y="20" width="4" height="6" fill="#a77bff"/><rect x="29" y="18" width="4" height="2" fill="#e0a070"/>
-            <rect x="22" y="29" width="1" height="1" fill="#c2ccd4"/><rect x="20" y="31" width="1" height="1" fill="#c2ccd4"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Downhill snowboarding</p>
-        <p class="cab-hook">Carve down Mount Backlog and grab the loose discs before the bottom.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="powder-day-haul" data-fmt="pts">---</b></span></div>
-        <a class="play" href="powder-day-haul/" aria-label="Play Powder Day Haul">PLAY</a>
-      </article>
-    </li>
-
-    <!-- 10. TABLE RINK RUMBLE -->
-    <li data-ready data-genre="table">
-      <article class="cab" style="--c:#ff3fa4" aria-labelledby="g-table">
-        <div class="cab-marquee"><h2 id="g-table">TABLE RINK RUMBLE</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/10-table-rink-rumble.webp" type="image/webp"><img src="covers/10-table-rink-rumble.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#12141c"/>
-            <rect x="14" y="2" width="36" height="44" fill="#2c3040"/><rect x="16" y="4" width="32" height="40" fill="#1e3a63"/>
-            <rect x="26" y="3" width="12" height="2" fill="#050607"/><rect x="26" y="43" width="12" height="2" fill="#050607"/>
-            <rect x="16" y="23" width="32" height="1" fill="#ff3fa4"/>
-            <rect x="29" y="9" width="6" height="6" fill="#ff4b3e"/><rect x="31" y="11" width="2" height="2" fill="#ffb0a8"/>
-            <rect x="26" y="33" width="6" height="6" fill="#3ff0ff"/><rect x="28" y="35" width="2" height="2" fill="#c8fbff"/>
-            <rect x="36" y="20" width="4" height="4" fill="#eceae2"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Air hockey vs CPU</p>
-        <p class="cab-hook">First to 7 on the rec room table. The CPU plays dirty.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="table-rink-rumble" data-fmt="streak">---</b></span></div>
-        <a class="play" href="table-rink-rumble/" aria-label="Play Table Rink Rumble">PLAY</a>
-      </article>
-    </li>
-
-    <!-- 12. BATTLE KARTS -->
-    <li data-ready data-genre="racing">
-      <article class="cab" style="--c:#ff9214" aria-labelledby="g-karts">
-        <div class="cab-marquee"><h2 id="g-karts">BATTLE KARTS</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/12-battle-karts.webp" type="image/webp"><img src="covers/12-battle-karts.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#c9b48a"/>
-            <rect x="0" y="28" width="64" height="20" fill="#6b6460"/>
-            <rect x="30" y="28" width="4" height="20" fill="#ffd23f"/>
-            <rect x="0" y="27" width="64" height="1" fill="#eceae2"/>
-            <rect x="4" y="14" width="10" height="16" fill="#d4a15a"/>
-            <rect x="8" y="8" width="14" height="22" fill="#c47a3a"/>
-            <rect x="40" y="6" width="16" height="24" fill="#b86b2e"/>
-            <rect x="22" y="16" width="8" height="10" fill="#d89a4a"/>
-            <rect x="18" y="32" width="8" height="6" fill="#16b9e8"/><rect x="20" y="30" width="4" height="3" fill="#ffffff"/>
-            <rect x="36" y="34" width="8" height="6" fill="#ff9214"/><rect x="38" y="32" width="4" height="3" fill="#0d1f5c"/><rect x="39" y="30" width="2" height="2" fill="#ffffff"/>
-            <rect x="50" y="30" width="7" height="5" fill="#58c322"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Kart battler</p>
-        <p class="cab-hook">Six karts, three laps, prize cubes full of trouble.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="battle-karts" data-fmt="pts">---</b></span></div>
-        <a class="play" href="battle-karts/" aria-label="Play Battle Karts">PLAY</a>
-      </article>
-    </li>
-
-    <!-- 13. SHIFT RACING -->
-    <li data-ready data-genre="racing">
-      <article class="cab" style="--c:#39ff6a" aria-labelledby="g-shift">
-        <div class="cab-marquee"><h2 id="g-shift">SHIFT RACING</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/13-shift-racing.webp" type="image/webp"><img src="covers/13-shift-racing.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#2a1848"/>
-            <rect x="0" y="20" width="64" height="28" fill="#15151f"/>
-            <rect x="0" y="28" width="64" height="14" fill="#1c1c28"/>
-            <rect x="30" y="28" width="4" height="14" fill="#eceae2"/>
-            <rect x="0" y="26" width="64" height="2" fill="#ff3fa4"/>
-            <rect x="4" y="8" width="8" height="18" fill="#3a2260"/><rect x="6" y="10" width="2" height="2" fill="#ffd23f"/><rect x="8" y="14" width="2" height="2" fill="#3ff0ff"/>
-            <rect x="16" y="4" width="10" height="22" fill="#2c1858"/><rect x="18" y="8" width="2" height="2" fill="#ffd23f"/><rect x="22" y="12" width="2" height="2" fill="#3ff0ff"/>
-            <rect x="40" y="6" width="9" height="20" fill="#3a2260"/><rect x="42" y="9" width="2" height="2" fill="#ffd23f"/>
-            <rect x="52" y="10" width="8" height="16" fill="#2c1858"/><rect x="54" y="13" width="2" height="2" fill="#3ff0ff"/>
-            <rect x="24" y="30" width="16" height="10" fill="#9a2a32"/>
-            <rect x="26" y="38" width="12" height="2" fill="#39ff6a"/>
-            <rect x="28" y="32" width="2" height="2" fill="#eceae2"/><rect x="34" y="32" width="2" height="2" fill="#eceae2"/>
-            <rect x="8" y="34" width="10" height="6" fill="#5a5a7a"/>
-            <rect x="46" y="33" width="10" height="6" fill="#3a7a4a"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Street racer</p>
-        <p class="cab-hook">Street racing where every gear shift counts. Three circuits plus a quarter mile.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="shift-racing" data-fmt="pts">---</b></span></div>
-        <a class="play" href="shift-racing/" aria-label="Play Shift Racing">PLAY</a>
-      </article>
-    </li>
-
-
-    <!-- 14. MARBLE DROP -->
-    <li data-ready data-genre="table">
-      <article class="cab" style="--c:#ffd23f" aria-labelledby="g-marble">
-        <div class="cab-marquee"><h2 id="g-marble">MARBLE DROP</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/14-marble-drop.webp" type="image/webp"><img src="covers/14-marble-drop.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#1a3d8f"/>
-            <rect x="10" y="6" width="44" height="36" fill="#2f6a2a"/>
-            <rect x="10" y="6" width="44" height="36" fill="none"/>
-            <rect x="12" y="8" width="40" height="32" fill="#3d8a32"/>
-            <rect x="12" y="14" width="28" height="4" fill="#d4b896"/>
-            <rect x="36" y="14" width="4" height="18" fill="#d4b896"/>
-            <rect x="16" y="28" width="24" height="4" fill="#d4b896"/>
-            <rect x="18" y="30" width="6" height="6" rx="0" fill="#0b1a2a"/>
-            <rect x="14" y="13" width="4" height="4" fill="#ff3b30"/>
-            <rect x="18" y="13" width="4" height="4" fill="#2f7bff"/>
-            <rect x="22" y="13" width="4" height="4" fill="#ffd21f"/>
-            <rect x="26" y="13" width="4" height="4" fill="#35d04a"/>
-            <rect x="30" y="13" width="4" height="4" fill="#a45cff"/>
-            <rect x="36" y="18" width="4" height="4" fill="#ff3b30"/>
-            <rect x="36" y="22" width="4" height="4" fill="#2f7bff"/>
-            <rect x="30" y="28" width="4" height="4" fill="#ffd21f"/>
-            <rect x="28" y="22" width="4" height="6" fill="#3a6ad9"/>
-            <rect x="28" y="20" width="4" height="3" fill="#f0c070"/>
-            <rect x="22" y="8" width="20" height="3" fill="#0d1a33"/>
-            <rect x="24" y="8" width="8" height="3" fill="#ffd23f"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Marble matcher</p>
-        <p class="cab-hook">Aim, shoot and match three before the chain rolls down the drain.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="marble-drop" data-fmt="pts">---</b></span></div>
-        <a class="play" href="marble-drop/" aria-label="Play Marble Drop">PLAY</a>
-      </article>
-    </li>
-
-    <!-- 15. PINBALL RINGS -->
-    <li data-ready data-genre="table">
-      <article class="cab" style="--c:#ff3fa4" aria-labelledby="g-pinball">
-        <div class="cab-marquee"><h2 id="g-pinball">PINBALL RINGS</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/15-pinball-rings.webp" type="image/webp"><img src="covers/15-pinball-rings.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#160d4a"/>
-            <rect x="18" y="1" width="28" height="46" fill="#2a1460"/>
-            <rect x="20" y="3" width="24" height="8" fill="#3a1f8c"/>
-            <rect x="20" y="11" width="24" height="22" fill="#c43a8a"/>
-            <rect x="20" y="11" width="24" height="8" fill="#ff9214"/>
-            <rect x="20" y="19" width="24" height="8" fill="#ff3fa4"/>
-            <rect x="20" y="27" width="24" height="6" fill="#6b1a8c"/>
-            <rect x="26" y="13" width="3" height="3" fill="#ff3fa4"/>
-            <rect x="33" y="13" width="3" height="3" fill="#3ff0ff"/>
-            <rect x="29" y="16" width="3" height="3" fill="#ffd23f"/>
-            <rect x="23" y="31" width="7" height="2" fill="#ffffff"/>
-            <rect x="34" y="31" width="7" height="2" fill="#ffffff"/>
-            <rect x="31" y="24" width="2" height="2" fill="#ffffff"/>
-            <rect x="20" y="36" width="24" height="11" fill="#24104a"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Pinball</p>
-        <p class="cab-hook">A 3D pinball table built for collecting rings. Flippers, ramps and Ring Rush multiball.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="pinball-rings" data-fmt="pts">---</b></span></div>
-        <a class="play" href="pinball-rings/" aria-label="Play Pinball Rings">PLAY</a>
-      </article>
-    </li>
-    <!-- 16. CIRCUIT BOX -->
-    <li data-ready data-genre="table">
-      <article class="cab" style="--c:#ffd23f" aria-labelledby="g-circuit">
-        <div class="cab-marquee"><h2 id="g-circuit">CIRCUIT BOX</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/16-circuit-box.webp" type="image/webp"><img src="covers/16-circuit-box.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#101219"/>
-            <rect x="8" y="6" width="48" height="36" fill="#ffd23f"/>
-            <rect x="12" y="10" width="40" height="22" fill="#0b0d14"/>
-            <rect x="28" y="34" width="8" height="6" fill="#eceae2"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Wiring puzzle</p>
-        <p class="cab-hook">A wiring puzzle in a snap-together electronics kit. Light up every gadget.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="circuit-box" data-fmt="pts">---</b></span></div>
-        <a class="play" href="circuit-box/" aria-label="Play Circuit Box">PLAY</a>
-      </article>
-    </li>
-    <!-- 17. CLUTCH BALL 4000 -->
-    <li data-ready data-genre="court">
-      <article class="cab" style="--c:#3ff0ff" aria-labelledby="g-clutch">
-        <div class="cab-marquee"><h2 id="g-clutch">CLUTCH BALL 4000</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/17-clutch-ball-4000.webp" type="image/webp"><img src="covers/17-clutch-ball-4000.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#101219"/>
-            <rect x="8" y="6" width="48" height="36" fill="#3ff0ff"/>
-            <rect x="12" y="10" width="40" height="22" fill="#0b0d14"/>
-            <rect x="28" y="34" width="8" height="6" fill="#eceae2"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Arcade basketball</p>
-        <p class="cab-hook">Sixty seconds of neon arcade hoops. Charge the meter, chain combos, beat the horn.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="clutch-ball-4000" data-fmt="pts">---</b></span></div>
-        <a class="play" href="clutch-ball-4000/" aria-label="Play Clutch Ball 4000">PLAY</a>
-      </article>
-    </li>
-    <!-- 18. FLEA FORTRESS FLYBY -->
-    <li data-ready>
-      <article class="cab" style="--c:#ff9b3f" aria-labelledby="g-flea">
-        <div class="cab-marquee"><h2 id="g-flea">FLEA FORTRESS FLYBY</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/18-flea-fortress-flyby.webp" type="image/webp"><img src="covers/18-flea-fortress-flyby.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#101219"/>
-            <rect x="8" y="6" width="48" height="36" fill="#ff9b3f"/>
-            <rect x="12" y="10" width="40" height="22" fill="#0b0d14"/>
-            <rect x="28" y="34" width="8" height="6" fill="#eceae2"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Space shooter</p>
-        <p class="cab-hook">Fly through a floating flea market fortress. Shoot the fuel tanks before you run dry.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="flea-fortress-flyby" data-fmt="pts">---</b></span></div>
-        <a class="play" href="flea-fortress-flyby/" aria-label="Play Flea Fortress Flyby">PLAY</a>
-      </article>
-    </li>
-    <!-- 19. GEM SHOP -->
-    <li data-ready data-genre="table">
-      <article class="cab" style="--c:#ff4fc0" aria-labelledby="g-gem">
-        <div class="cab-marquee"><h2 id="g-gem">GEM SHOP</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/19-gem-shop.webp" type="image/webp"><img src="covers/19-gem-shop.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#101219"/>
-            <rect x="8" y="6" width="48" height="36" fill="#ff4fc0"/>
-            <rect x="12" y="10" width="40" height="22" fill="#0b0d14"/>
-            <rect x="28" y="34" width="8" height="6" fill="#eceae2"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Match three</p>
-        <p class="cab-hook">Match gems in real 3D, then spend the coins building up your own gem shop.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="gem-shop" data-fmt="pts">---</b></span></div>
-        <a class="play" href="gem-shop/" aria-label="Play Gem Shop">PLAY</a>
-      </article>
-    </li>
-    <!-- 20. MINI GOLF CLASSIC -->
-    <li data-ready data-genre="lanes">
-      <article class="cab" style="--c:#ff3fa4" aria-labelledby="g-minigolf">
-        <div class="cab-marquee"><h2 id="g-minigolf">MINI GOLF CLASSIC</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/20-mini-golf-classic.webp" type="image/webp"><img src="covers/20-mini-golf-classic.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#101219"/>
-            <rect x="8" y="6" width="48" height="36" fill="#ff3fa4"/>
-            <rect x="12" y="10" width="40" height="22" fill="#0b0d14"/>
-            <rect x="28" y="34" width="8" height="6" fill="#eceae2"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Mini golf</p>
-        <p class="cab-hook">An 18-hole miniature-golf course in real 3D. Play the front nine, the back nine or all 18.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="mini-golf-classic" data-fmt="num">---</b></span></div>
-        <a class="play" href="mini-golf-classic/" aria-label="Play Mini Golf Classic">PLAY</a>
-      </article>
-    </li>
-    <!-- 21. MONSTER TRUCK RALLY -->
-    <li data-ready data-genre="racing">
-      <article class="cab" style="--c:#ff9214" aria-labelledby="g-monster">
-        <div class="cab-marquee"><h2 id="g-monster">MONSTER TRUCK RALLY</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/21-monster-truck-rally.webp" type="image/webp"><img src="covers/21-monster-truck-rally.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#101219"/>
-            <rect x="8" y="6" width="48" height="36" fill="#ff9214"/>
-            <rect x="12" y="10" width="40" height="22" fill="#0b0d14"/>
-            <rect x="28" y="34" width="8" height="6" fill="#eceae2"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Monster trucks</p>
-        <p class="cab-hook">Eight courses of dirt, ramps and junk cars. Crush every car you can before the clock runs out.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="monster-truck-rally" data-fmt="pts">---</b></span></div>
-        <a class="play" href="monster-truck-rally/" aria-label="Play Monster Truck Rally">PLAY</a>
-      </article>
-    </li>
-    <!-- 22. PAINTBALL BLITZ -->
-    <li data-ready data-genre="court">
-      <article class="cab" style="--c:#ff3fa4" aria-labelledby="g-paintball">
-        <div class="cab-marquee"><h2 id="g-paintball">PAINTBALL BLITZ</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/22-paintball-blitz.webp" type="image/webp"><img src="covers/22-paintball-blitz.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#101219"/>
-            <rect x="8" y="6" width="48" height="36" fill="#ff3fa4"/>
-            <rect x="12" y="10" width="40" height="22" fill="#0b0d14"/>
-            <rect x="28" y="34" width="8" height="6" fill="#eceae2"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Paintball</p>
-        <p class="cab-hook">Work up the field, tag the other squad, and run your flag back to base.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="paintball-blitz" data-fmt="pts">---</b></span></div>
-        <a class="play" href="paintball-blitz/" aria-label="Play Paintball Blitz">PLAY</a>
-      </article>
-    </li>
-    <!-- 23. POOL HALL HUSTLE -->
-    <li data-ready data-genre="table">
-      <article class="cab" style="--c:#3ff0ff" aria-labelledby="g-hustle">
-        <div class="cab-marquee"><h2 id="g-hustle">POOL HALL HUSTLE</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/23-pool-hall-hustle.webp" type="image/webp"><img src="covers/23-pool-hall-hustle.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#101219"/>
-            <rect x="8" y="6" width="48" height="36" fill="#3ff0ff"/>
-            <rect x="12" y="10" width="40" height="22" fill="#0b0d14"/>
-            <rect x="28" y="34" width="8" height="6" fill="#eceae2"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Pool</p>
-        <p class="cab-hook">Real 3D pool against Velvet Rhett, the house hustler. Aim, set spin, and take the shot.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="pool-hall-hustle" data-fmt="pts">---</b></span></div>
-        <a class="play" href="pool-hall-hustle/" aria-label="Play Pool Hall Hustle">PLAY</a>
-      </article>
-    </li>
-    <!-- 24. VECTOR SIEGE -->
-    <li data-ready>
-      <article class="cab" style="--c:#2ff3ff" aria-labelledby="g-vector">
-        <div class="cab-marquee"><h2 id="g-vector">VECTOR SIEGE</h2></div>
-        <div class="cab-bezel"><div class="cab-screen">
-          <picture class="cab-cover"><source srcset="covers/24-vector-siege.webp" type="image/webp"><img src="covers/24-vector-siege.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>
-          <svg class="cab-fallback" viewBox="0 0 64 48" shape-rendering="crispEdges" aria-hidden="true">
-            <rect width="64" height="48" fill="#101219"/>
-            <rect x="8" y="6" width="48" height="36" fill="#2ff3ff"/>
-            <rect x="12" y="10" width="40" height="22" fill="#0b0d14"/>
-            <rect x="28" y="34" width="8" height="6" fill="#eceae2"/>
-          </svg>
-        </div></div>
-        <p class="cab-genre">Tower defense</p>
-        <p class="cab-hook">Thirty waves of vector raiders are marching on your master tape. Build towers and hold the line.</p>
-        <div class="cab-panel"><span class="stick" aria-hidden="true"></span><span class="pbtn a" aria-hidden="true"></span><span class="pbtn b" aria-hidden="true"></span>
-          <span class="best">BEST<b data-best="vector-siege" data-fmt="pts">---</b></span></div>
-        <a class="play" href="vector-siege/" aria-label="Play Vector Siege">PLAY</a>
-      </article>
-    </li>
-  </ul>
-
-  <!-- Seasonal Vault: every built seasonal game, playable all year. Filled by seasonal.js. -->
-  <section class="vault" id="vault" aria-labelledby="vault-h" hidden>
-    <h2 class="vault-h" id="vault-h">SEASONAL VAULT</h2>
-    <p class="vault-sub">Holiday cabinets stay plugged in after the holiday. Trophies count on the shelf all year.</p>
-    <ul class="grid vault-grid" id="vault-grid"></ul>
-  </section>
-
-  <section class="support-strip" aria-labelledby="lights">
-    <div>
-      <h2 id="lights">Keep the lights on</h2>
-      <p>The arcade is free, with no ads and no logins. If it gave you a one-more-try moment, drop a quarter in the machine.</p>
+  <div class="center">
+    <section class="banner" id="banner" aria-roledescription="carousel" aria-label="Featured games">
+      <div class="banner-slides" id="bannerSlides"></div>
+      <div class="banner-dots" id="bannerDots" role="group" aria-label="Choose featured game"></div>
+    </section>
+    <div class="promos">
+      <a class="promo promo-game" href="https://thenostalgiapro.itch.io/nostalgia-pro-the-game" target="_blank" rel="noopener">
+        <span class="promo-tag">$1 ON ITCH.IO</span>
+        <img src="img/np-game-480.jpg" width="480" height="270" alt="" loading="lazy">
+        <b class="promo-big">NOSTALGIA PRO:<br>THE GAME</b>
+        <span class="promo-click">&#9654; click here</span>
+      </a>
+      <a class="promo promo-shelf" href="/arcade/trophies/">
+        <span class="promo-box"><b>Click Here<br>To Look</b></span>
+        <b class="promo-big">THE TROPHY<br>SHELF</b>
+        <span class="promo-sub">Loose, Boxed, Sealed, Slabbed</span>
+      </a>
     </div>
-    <a class="coin" href="https://nostalgiapro-shop.fourthwall.com/pages/donate" data-donate target="_blank" rel="noopener">Support the arcade</a>
-  </section>
-
-  <section class="support-strip feedback-strip" aria-labelledby="fb">
-    <div>
-      <h2 id="fb">Tell us what you think</h2>
-      <p>Found a bug, beat a high score, or want a game in the next batch? It takes a minute.</p>
-    </div>
-    <a class="coin" href="https://tally.so/r/rDDJJl" data-site="FEEDBACK_URL" target="_blank" rel="noopener">Send feedback</a>
-  </section>
-</main>
-
-<footer class="foot">
-  <div class="wrap">
-    <nav aria-label="Footer">
-      <a href="https://thenostalgiapro.com/" data-site="SITE_URL">Back to the collection</a>
-      <a href="https://nostalgiapro-shop.fourthwall.com/" data-site="MERCH_URL">Merch shop</a>
-      <a href="https://nostalgiapro-shop.fourthwall.com/pages/donate" data-donate target="_blank" rel="noopener">Donate</a>
-      <a href="https://tally.so/r/rDDJJl" data-site="FEEDBACK_URL" target="_blank" rel="noopener">Feedback</a>
-    </nav>
-    <p>All games are original parodies. High scores stay on your device. May your shelf never be full.</p>
+    <a class="more" href="#games">more &#9654;</a>
   </div>
+
+  <aside class="right">
+    <section class="box" aria-labelledby="top-h">
+      <h2 id="top-h" class="bar">TOP 10 GAMES</h2>
+      <ol class="top10" id="top10"></ol>
+      <p class="top-note" id="topNote"></p>
+    </section>
+    <section class="box" aria-labelledby="fg-h">
+      <h2 id="fg-h" class="bar">FEATURED GAMES</h2>
+      <ul class="fg" id="featGames"></ul>
+    </section>
+  </aside>
+</div>
+
+
+<section class="prizes" aria-labelledby="pz-h">
+  <div class="bar bar-wide"><h2 id="pz-h">PRIZES</h2><a href="/arcade/trophies/">more prizes &#9654;</a></div>
+  <ul class="pz">
+    <li>
+      <div class="pz-art"><span class="tro tro-loose"></span><span class="tro tro-boxed"></span></div>
+      <p>Every game has its own trophies to unlock, in four tiers that start with <b>Loose</b> and <b>Boxed</b>.</p>
+      <a href="/arcade/trophies/">&#9654; click here</a>
+    </li>
+    <li>
+      <div class="pz-art"><span class="tro tro-sealed"></span><span class="tro tro-slabbed"></span></div>
+      <p><b>Sealed</b> and <b>Slabbed</b> are the higher tiers. Slabbed is worth the most on your shelf.</p>
+      <a href="/arcade/trophies/">&#9654; click here</a>
+    </li>
+    <li>
+      <div class="pz-art pz-count"><b id="pzGot">0</b><span>of <i id="pzTotal">0</i></span></div>
+      <p>Trophies on your shelf so far. They live on this device, so there is nothing to sign up for.</p>
+      <a href="/arcade/trophies/">&#9654; click here</a>
+    </li>
+    <li>
+      <div class="pz-art"><img src="img/np-game-480.jpg" width="480" height="270" alt="" loading="lazy"></div>
+      <p>Nostalgia Pro: The Game. One Saturday, $100, every yard sale in town. Get it for $1.</p>
+      <a href="https://thenostalgiapro.itch.io/nostalgia-pro-the-game" target="_blank" rel="noopener">&#9654; click here</a>
+    </li>
+  </ul>
+</section>
+
+<section class="games" id="games" aria-labelledby="games-h">
+  <div class="bar bar-wide"><h2 id="games-h">ALL GAMES</h2><span id="gamesCount"></span></div>
+  <p class="games-note" id="gamesNote" hidden></p>
+  <ul class="grid" id="grid"></ul>
+</section>
+
+<section class="sponsors" aria-labelledby="sp-h">
+  <h2 id="sp-h"><b>OUR</b> SPONSORS</h2>
+  <ul class="sp">
+    <li><a class="sp-np" href="/arcade/"><img src="img/np-logo-120.webp" width="120" height="119" alt=""><span>NP<br>GAMES</span></a></li>
+    <li><a class="sp-game" href="https://thenostalgiapro.itch.io/nostalgia-pro-the-game" target="_blank" rel="noopener"><span>NOSTALGIA PRO</span><b>THE GAME</b><i>$1</i></a></li>
+    <li><a class="sp-sub" href="https://nostalgiapro.substack.com/" target="_blank" rel="noopener"><span>Substack</span></a></li>
+    <li><a class="sp-yt" href="https://www.youtube.com/@TheNostalgiaPro" target="_blank" rel="noopener"><span class="sp-play" aria-hidden="true"></span><span>YouTube</span></a></li>
+    <li><a class="sp-tt" href="https://www.tiktok.com/@rc.the.nostalgia.pro" target="_blank" rel="noopener"><span>TikTok</span></a></li>
+    <li><a class="sp-merch" href="https://nostalgiapro-shop.fourthwall.com/" data-site="MERCH_URL" target="_blank" rel="noopener"><span>MERCH</span><b>SHOP</b></a></li>
+  </ul>
+</section>
+
+<footer class="ft">
+  <nav class="ft-nav" aria-label="Footer">
+    <a href="https://thenostalgiapro.com/" data-site="SITE_URL">COLLECTION</a>
+    <a href="/arcade/trophies/">TROPHIES</a>
+    <a href="https://nostalgiapro-shop.fourthwall.com/" data-site="MERCH_URL">MERCH</a>
+    <a href="https://nostalgiapro-shop.fourthwall.com/pages/donate" data-donate target="_blank" rel="noopener">SUPPORT</a>
+    <a href="https://tally.so/r/rDDJJl" data-site="FEEDBACK_URL" target="_blank" rel="noopener">FEEDBACK</a>
+    <a href="/play/">NP: THE GAME DEMO</a>
+  </nav>
+  <p class="ft-warn">HEADS UP: HIGH SCORES, NAME TAGS AND TROPHIES ARE SAVED ON THIS DEVICE ONLY.<br><span>Clearing your browser data clears them too. Back them up from the <a href="/arcade/trophies/">Trophy Shelf</a>.</span></p>
+  <p class="ft-priv"><a href="/privacy.html">Privacy Notice</a></p>
+  <p class="ft-copy">All games are original parodies. No ads, no logins.</p>
+  <a class="ft-friend" href="https://thenostalgiapro.com/"><img src="img/np-logo-240.webp" width="240" height="238" alt="" loading="lazy"><span>VISIT THE COLLECTION AT THENOSTALGIAPRO.COM</span></a>
 </footer>
+</div>
 
-<script src="shared/config.js"></script>
-<script src="shared/trophy-list.js"></script>
-<script src="shared/trophies.js"></script>
-<script src="shared/rewards.js"></script>
-<script src="seasonal.js"></script>
-<script>
-/* In-app rate card (added by /growth.js): sit inline under the arcade title instead of floating over the game tiles. */
-(function () {
-  if (!window.MutationObserver) return;
-  function place() {
-    var c = document.getElementById("npRate"), hero = document.querySelector("#games .hero");
-    if (c && hero && c.previousElementSibling !== hero) hero.parentNode.insertBefore(c, hero.nextSibling);
-  }
-  new MutationObserver(place).observe(document.body, { childList: true });
-})();
-</script>
-<script>
-(function () {
-  "use strict";
-  var C = window.NP_CONFIG || {};
-  if (C.wireDonate) C.wireDonate(document);
-  var siteLinks = document.querySelectorAll("[data-site]");
-  for (var i = 0; i < siteLinks.length; i++) {
-    var k = siteLinks[i].getAttribute("data-site");
-    if (C[k]) siteLinks[i].href = C[k];
-  }
-  if (C.loadAnalytics) C.loadAnalytics();
-
-  // Best scores straight from this device
-  var FMT = {
-    golf: function (n) { return n === 0 ? "E" : n > 0 ? "+" + n : String(n); },
-    pts: function (n) { return n + " PTS"; },
-    ft: function (n) { return n + " FT"; },
-    num: function (n) { return String(n); },
-    yds: function (n) { return n + " YDS"; },
-    time: function (n) { return Math.floor(n / 60) + ":" + ("0" + (n % 60)).slice(-2); },
-    streak: function (n) { var w = Math.floor(n / 10), m = n % 10; return w + "W" + (m ? " +" + m : ""); }
-  };
-  var bests = document.querySelectorAll("[data-best]");
-  for (i = 0; i < bests.length; i++) {
-    var el = bests[i], v = null;
-    try { v = localStorage.getItem("npArcade." + el.getAttribute("data-best") + ".best"); } catch (e) { v = null; }
-    if (v !== null && v !== "" && isFinite(Number(v))) {
-      var f = FMT[el.getAttribute("data-fmt")];
-      el.textContent = f ? f(Number(v)) : v;
-    }
-  }
-
-  // Trophy count on every cabinet (from shared/trophy-list.js)
-  if (window.Trophies) {
-    var hubSeen = 0;
-    try { hubSeen = Number(localStorage.getItem("npArcade.hub.seenAt")) || 0; } catch (e) { hubSeen = 0; }
-    var games = window.Trophies.list.games;
-    for (i = 0; i < games.length; i++) {
-      var g = games[i], cab = null, links = document.querySelectorAll(".cab");
-      for (var k = 0; k < links.length; k++) {
-        var h2 = links[k].querySelector("h2");
-        if (h2 && h2.textContent.replace(/\s+/g, " ").trim().toUpperCase() === g.name.toUpperCase()) cab = links[k];
-      }
-      if (!cab) continue;
-      var c = window.Trophies.count(g.slug), panel = cab.querySelector(".cab-panel");
-      var el = document.createElement("span");
-      el.className = "tro";
-      el.innerHTML = "SHELF<b>" + c.got + "/" + c.total + "</b>";
-      el.setAttribute("aria-label", "Trophies " + c.got + " of " + c.total);
-      panel.insertBefore(el, panel.querySelector(".best"));
-      // Rewards: "Next trophy" hint (closest locked trophy) under the panel, and a gentle
-      // pulse when a trophy for this game landed since the last hub visit.
-      if (window.NPRewards && g.status === "live") {
-        var nx = window.NPRewards.nextFor(g.slug), hint = document.createElement("p");
-        hint.className = "cab-next";
-        if (nx) hint.innerHTML = "<span>NEXT TROPHY</span><b></b>" + (nx.text ? "<i></i>" : "");
-        else hint.innerHTML = "<span>SHELF COMPLETE</span><b>Every trophy is yours.</b>";
-        if (nx) { hint.querySelector("b").textContent = nx.t.name; if (nx.text) hint.querySelector("i").textContent = nx.text; hint.title = nx.t.how; }
-        panel.parentNode.insertBefore(hint, panel.nextSibling);
-        var sv = window.Trophies.save(), newest = 0;
-        for (var q = 0; q < g.trophies.length; q++) if (sv.u[g.trophies[q].id] > newest) newest = sv.u[g.trophies[q].id];
-        if (hubSeen && newest > hubSeen) {
-          cab.classList.add("has-new");
-          var tag = document.createElement("span"); tag.className = "cab-newtag"; tag.textContent = "NEW TROPHY";
-          cab.querySelector(".cab-marquee").appendChild(tag);
-        }
-      }
-    }
-    try { localStorage.setItem("npArcade.hub.seenAt", String(Math.floor(Date.now() / 1000))); } catch (e) { }
-  }
-
-  // Filter chips
-  var chips = document.querySelectorAll("[data-filter]");
-  var tiles = document.querySelectorAll("#grid > li");
-  function apply(filter) {
-    for (var j = 0; j < chips.length; j++) chips[j].setAttribute("aria-pressed", chips[j].getAttribute("data-filter") === filter ? "true" : "false");
-    for (var t = 0; t < tiles.length; t++) {
-      var li = tiles[t];
-      var show = filter === "all" || (filter === "ready" ? li.hasAttribute("data-ready") : li.getAttribute("data-genre") === filter);
-      li.hidden = !show;
-    }
-  }
-  for (i = 0; i < chips.length; i++) chips[i].addEventListener("click", function () { apply(this.getAttribute("data-filter")); });
-})();
-</script>
-<script src="/growth.js" data-rate="game-return" data-offline="0"></script>
+<script src="/arcade/shared/config.js"></script>
+<script src="/arcade/shared/trophy-list.js"></script>
+<script src="/arcade/shared/trophies.js"></script>
+<script src="hub-v2.js"></script>
 </body>
 </html>
