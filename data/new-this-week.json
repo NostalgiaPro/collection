@@ -1,6 +1,38 @@
 {
   "items": [
     {
+      "type": "substack",
+      "title": "My 5 Favorite Consoles and My 5 Favorite Games on Each",
+      "text": "25 games from my own shelves. Took me way too long to narrow this down.",
+      "url": "https://nostalgiapro.substack.com/p/my-5-favorite-consoles-and-my-5-favorite",
+      "image": "",
+      "date": "2026-11-16"
+    },
+    {
+      "type": "substack",
+      "title": "Reviews and Rankings: Nov 10 to Nov 16",
+      "text": "Everything I posted on X this week, in one place.",
+      "url": "https://nostalgiapro.substack.com/p/reviews-and-rankings-nov-10-to-nov",
+      "image": "",
+      "date": "2026-11-16"
+    },
+    {
+      "type": "x",
+      "title": "My 5 favorite consoles",
+      "text": "My 5 favorite consoles I own, and my 5 favorite games on each one. Took me way too long to narrow this down.",
+      "url": "https://x.com/NostalgiaPro/status/2122467418408976707",
+      "image": "",
+      "date": "2026-11-16"
+    },
+    {
+      "type": "substack",
+      "title": "8 “ONLY ON XBOX” Games Worth Playing Today",
+      "text": "Microsoft’s first console came out 25 years ago today.",
+      "url": "https://nostalgiapro.substack.com/p/8-only-on-xbox-games-worth-playing",
+      "image": "",
+      "date": "2026-11-15"
+    },
+    {
       "type": "game",
       "title": "Holiday Rush is out",
       "text": "Update 2 for my $1 game. A December Saturday at the mall.",
@@ -23,6 +55,14 @@
       "url": "/shelf.html",
       "image": "/images/doom-the-dark-ages-xbox-series-x-s.webp",
       "date": "2026-11-14"
+    },
+    {
+      "type": "x",
+      "title": "Finished the Ocarina of Time remake",
+      "text": "You ever finish a game and you wonder what's next? That's where I'm at now after completing the Zelda Ocarina of Time remake.",
+      "url": "https://x.com/NostalgiaPro/status/2121474406375477435",
+      "image": "",
+      "date": "2026-11-13"
     },
     {
       "type": "x",
