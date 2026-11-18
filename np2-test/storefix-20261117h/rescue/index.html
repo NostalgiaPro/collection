@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rescue</title>
+<style>
+html,body{margin:0;height:100%;background:#12081c;overflow:hidden}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block}
+#fade{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:8}
+#fade.on{opacity:1}
+.bubble{position:fixed;z-index:6;max-width:min(520px,86vw);background:#fff8e8;color:#1a1028;border:4px solid #1a1028;border-radius:16px 16px 16px 4px;padding:14px 18px 16px;font:22px/1.3 system-ui,sans-serif;box-shadow:7px 7px 0 #1a1028;display:none}
+#bDonny{right:4vw;top:calc(66px + env(safe-area-inset-top));border-radius:16px 16px 4px 16px}   /* v21: over Donny, on the right, under SKIP */
+.bubble b{display:block;font:700 12px/1 system-ui,sans-serif;letter-spacing:.12em;margin-bottom:6px}
+.bubble.hero{left:5vw;top:calc(66px + env(safe-area-inset-top));border-radius:16px 16px 16px 4px}   /* v21: over the hero, on the left */
+.bubble.radio{left:50%;bottom:8vh;transform:translateX(-50%);background:#14081f;color:#ffe14d;border-color:#ffe14d;box-shadow:7px 7px 0 #5a2048}
+#skip{position:fixed;top:16px;right:16px;z-index:9;background:#fff;color:#1a1028;border:0;border-radius:999px;padding:10px 16px;font-weight:700}
+</style>
+<script type="importmap">{"imports":{"three":"../vendor/three-0.160.0/three.module.min.js"}}</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="fade"></div>
+<div id="bDonny" class="bubble"><b>DONNY</b><span></span></div>
+<div id="bHero" class="bubble hero"><b>YOU</b><span></span></div>
+<div id="bRadio" class="bubble radio"><b>RADIO</b><span></span></div>
+<button id="skip" type="button">SKIP</button>
+<script type="module">
+import * as THREE from 'three';
+import { radioVoice, radioStatic } from '../vendor/np2_radio.js';
+const ASK = 'What happened to me?';
+const EXPLAIN = 'Something was controlling you. I broke its hold. You’re free now. I don’t know what it was.';
+const LINE_Q = "But… if you stopped me, who’s driving that?";
+const LINE_R = "You weren’t supposed to let him go.";
+const bDonny = document.getElementById('bDonny');
+const bHero = document.getElementById('bHero');
+const bRadio = document.getElementById('bRadio');
+const fade = document.getElementById('fade');
+
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#1c0f2e');
+scene.fog = new THREE.Fog('#3a1c4a', 22, 70);
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 120);
+const EYE = 1.5;                 // the camera looks level, so the painted street's horizon sits on the middle line
+camera.position.set(0, EYE, 5.6);
+camera.lookAt(0, EYE, 0);
+// v21: light that matches the painted street: a purple sky, the pink neon on the left, the orange sunset and
+// street light on the right
+scene.add(new THREE.HemisphereLight('#8a6ad0', '#2a1430', 0.9));
+const sunset = new THREE.DirectionalLight('#ffb27a', 1.1); sunset.position.set(3, 4, -8); scene.add(sunset);
+const neonL = new THREE.PointLight('#ff4fd8', 26, 18); neonL.position.set(-6, 3, 1); scene.add(neonL);
+const neonR = new THREE.PointLight('#59f3ff', 14, 16); neonR.position.set(6, 3, -1); scene.add(neonR);
+
+function box(w, h, d, material) {
+  return new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
+}
+function textPlane(words, w, h, bg, fg, fontPx) {
+  const c = document.createElement('canvas');
+  c.width = 1024; c.height = Math.max(128, Math.round(1024 * h / w));
+  const g = c.getContext('2d');
+  g.fillStyle = bg; g.fillRect(0, 0, c.width, c.height);
+  g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle';
+  let px = fontPx;
+  g.font = '700 ' + px + 'px system-ui,sans-serif';
+  while (g.measureText(words).width > c.width - 64 && px > 24) {
+    px -= 4;
+    g.font = '700 ' + px + 'px system-ui,sans-serif';
+  }
+  g.fillText(words, c.width / 2, c.height / 2);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.5, emissive: '#ffffff', emissiveMap: tex, emissiveIntensity: 0.25 }));
+}
+function glowTexture(inner, outer) {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d');
+  const r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  r.addColorStop(0, inner); r.addColorStop(0.25, outer); r.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = r; g.fillRect(0, 0, 128, 128);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+const loader = new THREE.TextureLoader();
+
+// v21: the painted street (the approved fight arena, outside RC Retro Repair) is the backdrop, sized to fill the
+// screen with its horizon on the camera's horizon, so the 3D people and van stand on its road
+const BACK_Z = -60, HORIZON_V = 0.63;          // the arena's road meets the sky 63% of the way down the picture
+const backTex = loader.load('arena_backdrop.jpg');
+backTex.colorSpace = THREE.SRGBColorSpace;
+const back = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: backTex, fog: false, toneMapped: false }));
+back.position.z = BACK_Z;
+scene.add(back);
+let PITCH = 0;                 // how far the camera tips down (radians); the far horizon stays where the picture's is
+function fitBackdrop() {
+  const dist = camera.position.z - BACK_Z;
+  const half = camera.fov * Math.PI / 360;
+  const above = dist * Math.tan(half - PITCH), below = dist * Math.tan(half + PITCH);
+  const vw = dist * Math.tan(half) * 2 * camera.aspect;
+  const IMG = 2560 / 1440;
+  // the picture's horizon sits on the eye line; it must still reach the top, the bottom and both sides
+  const h = Math.max(vw * 1.04 / IMG, above * 1.04 / HORIZON_V, below * 1.04 / (1 - HORIZON_V));
+  back.scale.set(h * IMG, h, 1);
+  back.position.set(camera.position.x, EYE + (HORIZON_V - 0.5) * h, BACK_Z);
+}
+
+// v21: the people. The approved illustrated hero and rescued Donny, lit like the street around them: a pink neon rim
+// from the left, a warm rim from the right, darker at the feet, a soft contact shadow, and a reflection in the wet road.
+const cards = [];
+const CARD_VS = `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+const CARD_FS = `
+uniform sampler2D map; uniform vec3 tint; uniform vec3 rimL; uniform vec3 rimR; uniform float reflectMode; uniform float time;
+varying vec2 vUv;
+void main() {
+  vec2 uv = vUv;
+  if (reflectMode > 0.5) uv.x += sin(uv.y * 90.0 + time * 2.5) * 0.004;
+  vec4 c = texture2D(map, uv);
+  if (c.a < 0.06) discard;
+  vec3 col = c.rgb * tint;
+  float d = 0.008;
+  float aL = texture2D(map, uv + vec2(-d, 0.0)).a;
+  float aR = texture2D(map, uv + vec2(d, 0.0)).a;
+  col += rimL * c.a * (1.0 - aL) * 0.55;
+  col += rimR * c.a * (1.0 - aR) * 0.45;
+  col *= mix(0.72, 1.0, smoothstep(0.0, 0.3, uv.y));
+  float a = c.a;
+  if (reflectMode > 0.5) { a *= clamp(1.0 - uv.y * 2.4, 0.0, 1.0) * 0.32; col *= vec3(0.8, 0.75, 1.0); }
+  gl_FragColor = vec4(col, a);
+  #include <colorspace_fragment>
+}`;
+const shadowTex = glowTexture('rgba(255,255,255,0.8)', 'rgba(255,255,255,0.5)');      // used as an alpha map on black
+function cardMaterial(tex, reflect) {
+  const m = new THREE.ShaderMaterial({
+    uniforms: { map: { value: tex }, tint: { value: new THREE.Color('#e6d6f4') }, rimL: { value: new THREE.Color('#ff5fd0') }, rimR: { value: new THREE.Color('#ffb070') }, reflectMode: { value: reflect ? 1 : 0 }, time: { value: 0 } },
+    vertexShader: CARD_VS, fragmentShader: CARD_FS, transparent: true, depthWrite: !reflect,
+  });
+  m.map = tex;            // kept so the page can report which picture loaded
+  return m;
+}
+function character(url, height, aspect, footPad) {
+  const tex = loader.load(url);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  const w = height * aspect;
+  const geo = new THREE.PlaneGeometry(w, height);
+  geo.translate(0, height / 2 - height * footPad, 0);      // the feet, not the picture's edge, stand on the road
+  const card = new THREE.Mesh(geo, cardMaterial(tex, false));
+  const mirror = new THREE.Mesh(geo, cardMaterial(tex, true));
+  mirror.scale.y = -1;
+  mirror.position.y = -0.01;
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(w * 0.95, w * 0.42), new THREE.MeshBasicMaterial({ color: '#000000', alphaMap: shadowTex, transparent: true, depthWrite: false }));
+  shadow.rotation.x = -Math.PI / 2;
+  shadow.position.y = 0.01;
+  const g = new THREE.Group();
+  g.add(shadow, mirror, card);
+  g.userData.card = card;
+  g.userData.mirror = mirror;
+  cards.push(g);
+  return g;
+}
+// pictures: hero 675 x 900 (feet end 44 px above the bottom), Donny 274 x 640 (feet end 11 px above the bottom)
+const hero = character('hero_scene_v21.png', 2.25, 675 / 900, 44 / 900); hero.position.set(-1.45, 0, 0.6); scene.add(hero);
+const donny = character('donny_scene_v21.png', 2.15, 274 / 640, 11 / 640); donny.position.set(1.15, 0, 0.3); scene.add(donny);
+
+// the empty Storage Beers van: dark paint that catches the neon, real headlights that light and reflect in the road
+function profileExtrude(pts, depth) {
+  const sh = new THREE.Shape();
+  sh.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) sh.lineTo(pts[i][0], pts[i][1]);
+  sh.closePath();
+  const g = new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: true, bevelThickness: 0.08, bevelSize: 0.06, bevelSegments: 3 });
+  g.translate(0, 0, -depth / 2);
+  g.rotateY(-Math.PI / 2);
+  return g;
+}
+const van = new THREE.Group();
+const bodyMat = new THREE.MeshStandardMaterial({ color: '#232a4a', roughness: 0.32, metalness: 0.55 });
+const body = new THREE.Mesh(profileExtrude([[-2.55, 0.42], [-2.62, 0.98], [-2.45, 1.24], [-1.9, 1.4], [-1.5, 2.18], [-1.25, 2.28], [2.4, 2.28], [2.55, 2.12], [2.58, 0.42]], 1.82), bodyMat);
+van.add(body);
+const stripe = box(1.86, 0.1, 5.05, new THREE.MeshStandardMaterial({ color: '#ffe14d', emissive: '#ffb020', emissiveIntensity: 0.35, roughness: 0.4 }));
+stripe.position.y = 1.02; van.add(stripe);
+const glassMat = new THREE.MeshStandardMaterial({ color: '#0d0a18', roughness: 0.05, metalness: 0.9, transparent: true, opacity: 0.85 });
+const glass = new THREE.Mesh(profileExtrude([[-2.0, 1.5], [-1.55, 2.16], [-0.52, 2.16], [-0.52, 1.5]], 1.5), glassMat);
+van.add(glass);
+const sideWords = 'Storage Beers';
+const brand = textPlane(sideWords, 2.05, 0.48, '#14081f', '#fff6d0', 140);
+brand.position.set(1.0, 1.58, 0.55); brand.rotation.y = Math.PI / 2; van.add(brand);
+const brand2 = textPlane(sideWords, 2.05, 0.48, '#14081f', '#fff6d0', 140);
+brand2.position.set(-1.0, 1.58, 0.55); brand2.rotation.y = -Math.PI / 2; van.add(brand2);
+// v21: the name also over the windshield, facing forward, so it reads as the van comes at you
+const front = textPlane(sideWords, 1.6, 0.34, '#14081f', '#ffe14d', 150);
+front.position.set(0, 2.42, -1.35); front.rotation.y = Math.PI; front.rotation.x = 0.0; van.add(front);
+const frontBox = box(1.7, 0.42, 0.12, new THREE.MeshStandardMaterial({ color: '#14081f', roughness: 0.6 }));
+frontBox.position.set(0, 2.42, -1.26); van.add(frontBox);
+for (const [x, z] of [[-0.82, -1.55], [0.82, -1.55], [-0.82, 1.55], [0.82, 1.55]]) {
+  const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.28, 20), new THREE.MeshStandardMaterial({ color: '#0e0e12', roughness: 0.8 }));
+  wheel.rotation.z = Math.PI / 2; wheel.position.set(x, 0.4, z); wheel.userData.wheel = true;
+  const hub = box(0.3, 0.12, 0.5, new THREE.MeshStandardMaterial({ color: '#8a8a9a', metalness: 0.8, roughness: 0.3 }));
+  wheel.add(hub);
+  van.add(wheel);
+}
+const headGlow = glowTexture('rgba(255,250,235,1)', 'rgba(255,230,180,0.55)');
+const beamTex = (() => {
+  const c = document.createElement('canvas'); c.width = 64; c.height = 256;
+  const g = c.getContext('2d');
+  const r = g.createLinearGradient(0, 0, 0, 256);
+  r.addColorStop(0, 'rgba(255,236,200,0.75)'); r.addColorStop(1, 'rgba(255,236,200,0)');
+  g.filter = 'blur(6px)'; g.fillStyle = r; g.beginPath(); g.moveTo(26, 0); g.lineTo(38, 0); g.lineTo(58, 256); g.lineTo(6, 256); g.fill();
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+})();
+for (const x of [-0.6, 0.6]) {
+  const lamp = new THREE.Mesh(new THREE.CircleGeometry(0.14, 16), new THREE.MeshBasicMaterial({ color: '#fffaf0' }));
+  lamp.position.set(x, 0.95, -2.66); lamp.rotation.y = Math.PI; van.add(lamp);
+  const flare = new THREE.Sprite(new THREE.SpriteMaterial({ map: headGlow, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+  flare.scale.set(1.6, 1.6, 1); flare.position.set(x, 0.95, -2.75); van.add(flare);
+  // light thrown on the wet road ahead, and the lamp's own streak reflected in it
+  const beam = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 7), new THREE.MeshBasicMaterial({ map: beamTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.22 }));
+  beam.rotation.x = -Math.PI / 2; beam.rotation.z = Math.PI; beam.position.set(x * 1.3, 0.02, -6.2); van.add(beam);
+  const streak = new THREE.Sprite(new THREE.SpriteMaterial({ map: headGlow, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.5, fog: false }));
+  streak.scale.set(0.5, 2.4, 1); streak.position.set(x, -0.9, -2.7); van.add(streak);
+}
+const head = new THREE.PointLight('#fff1c9', 10, 12);
+head.position.set(0, 1.0, -3.4); van.add(head);
+van.rotation.y = Math.PI + 0.42;             // coming toward us down the middle of the road, its side name in view
+van.position.set(0.1, 0, -40);
+scene.add(van);
+const vignette = document.createElement('div');
+vignette.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:5;background:radial-gradient(ellipse at 50% 55%,rgba(0,0,0,0) 55%,rgba(10,0,20,.55) 100%)';
+document.body.appendChild(vignette);
+
+let t = 0, done = false, last = performance.now();
+function beatName() {
+  if (t >= 23.15) return 'black';
+  if (t >= 18.0) return 'radio';
+  if (t >= 12.0) return 'question';
+  if (t >= 6.0) return 'explain';
+  if (t >= 1.0) return 'ask';
+  return 'establish';
+}
+const heard = { squelch: false, voice: false };
+function show() {
+  const beat = beatName();
+  // v19: the radio is heard, not only read. The sound has no words in it (np2_radio.js): the exact line is the bubble.
+  if (beat === 'question' && !heard.squelch && t >= 12.2) { heard.squelch = true; radioStatic(0.3, 0.12); }
+  if (beat === 'radio' && !heard.voice) { heard.voice = true; radioVoice({ syllables: 8, garble: 0.25, rate: 3.2, pitch: 112 }); }
+  bDonny.style.display = (beat === 'ask' || beat === 'question') ? 'block' : 'none';
+  bDonny.querySelector('span').textContent = beat === 'question' ? LINE_Q : ASK;
+  bHero.style.display = beat === 'explain' ? 'block' : 'none';
+  bHero.querySelector('span').textContent = EXPLAIN;
+  bRadio.style.display = beat === 'radio' ? 'block' : 'none';
+  bRadio.querySelector('span').textContent = LINE_R;
+  fade.classList.toggle('on', beat === 'black');
+  document.getElementById('skip').style.visibility = beat === 'black' ? 'hidden' : 'visible';
+  document.body.dataset.beat = beat;
+  window.__np2rescue = { t: +t.toFixed(2), beat, vanX: +van.position.x.toFixed(2), vanZ: +van.position.z.toFixed(2), black: beat === 'black', art: cards.map((c) => { const im = c.userData.card.material.map.image; return im && im.complete && im.naturalWidth > 0 ? im.src.split('/').pop() : ''; }), radio: window.__np2radio ? window.__np2radio.made : 0, line: beat === 'ask' ? ASK : beat === 'explain' ? EXPLAIN : beat === 'question' ? LINE_Q : beat === 'radio' ? LINE_R : '' };
+}
+function finish() {
+  if (done) return;
+  done = true;
+  fade.classList.add('on');
+  const msg = { type: 'np2rescue:finished' };
+  if (window.parent && window.parent !== window) window.parent.postMessage(msg, '*');
+}
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  if (!done) t += dt;
+  const approach = Math.min(1, Math.max(0, (t - 12) / 7));
+  // v21: from far down the painted street to a stop just behind the two of them, slowing as it comes
+  const ease = 1 - Math.pow(1 - approach, 2.2);
+  van.position.x = 0.1;
+  van.position.z = -40 + ease * 33;
+  const rolling = approach > 0 && approach < 1;
+  van.children.forEach((child) => { if (child.userData && child.userData.wheel && rolling) child.rotation.x += dt * 7; });
+  const beat = beatName();
+  const talking = { hero: beat === 'explain', donny: beat === 'ask' || beat === 'question' };
+  [[hero, 'hero', 0], [donny, 'donny', 1]].forEach(([fig, who, i]) => {
+    const card = fig.userData.card;
+    // face the camera, turning only around the up axis, so they never tip over
+    fig.rotation.y = Math.atan2(camera.position.x - fig.position.x, camera.position.z - fig.position.z);
+    card.material.uniforms.time.value = t;
+    fig.userData.mirror.material.uniforms.time.value = t;
+    // the van's headlights wash over them as it comes up behind
+    card.material.uniforms.tint.value.set('#e6d6f4').lerp(new THREE.Color('#fff2dc'), approach * 0.35);
+    const breathe = Math.sin(t * 2.0 + i * 1.7);
+    card.scale.set(1 - breathe * 0.006, 1 + breathe * 0.012, 1);
+    fig.userData.mirror.scale.set(card.scale.x, -card.scale.y, 1);
+    // a small lift on each beat of a line while that one talks
+    card.position.y = talking[who] ? Math.abs(Math.sin(t * 7.5 + i)) * 0.035 : 0;
+    // Donny sways a little while he takes it in, then goes still when the van comes
+    card.rotation.z = who === 'donny' && approach === 0 ? Math.sin(t * 0.9) * 0.025 : 0;
+  });
+  show();
+  if (t >= 24.0) finish();
+  renderer.render(scene, camera);
+  if (!done) requestAnimationFrame(frame);
+}
+function resize() {
+  renderer.setSize(innerWidth, innerHeight, false);
+  camera.aspect = innerWidth / Math.max(1, innerHeight);
+  // v21: one lens for every screen; upright screens are framed by moving the camera and the two of them instead
+  camera.fov = camera.aspect < 1 ? 46 : 40;
+  // v21: the camera always looks level (the painted horizon must stay on its eye line); held upright, it steps back
+  // upright, the two of them stand closer together and the camera tips a little down, so the road fills the bottom
+  const tall = camera.aspect < 1;
+  hero.position.set(tall ? -0.62 : -1.45, 0, tall ? 0.9 : 0.6);
+  donny.position.set(tall ? 0.66 : 1.15, 0, tall ? -0.15 : 0.3);
+  camera.position.set(0, EYE, tall ? 7.0 : 5.6);
+  const lookY = tall ? EYE - 0.45 : EYE;
+  PITCH = Math.atan((EYE - lookY) / camera.position.z);
+  camera.lookAt(0, lookY, 0);
+  camera.updateProjectionMatrix();
+  fitBackdrop();
+}
+addEventListener('resize', resize);
+resize();
+document.getElementById('skip').addEventListener('pointerdown', () => { t = 23.2; show(); setTimeout(finish, 180); });
+show();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
