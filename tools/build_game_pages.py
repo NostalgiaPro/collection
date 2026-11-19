@@ -217,16 +217,16 @@ def page(g, total, photo, review, mentions, posts, ranks=(), overrated=()):
     desc = describe(g, cond, status, total, review)
     ink = "#0b0d12"
     h = [head(title, desc, path, photo, "980px", CSS, image_alt=f"{g['title']} for the {g['system']}")]
-    h.append(f'<body>\n' + BODY_JS + '<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/index.html">The Nostalgia Pro</a></p>\n')
+    h.append(f'<body>\n' + BODY_JS + '<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/">The Nostalgia Pro</a></p>\n')
     h.append(nav())
-    h.append(f'  <p class="crumb"><a href="/index.html#{g["system_id"]}">&larr; {esc(g["system"])} shelf</a></p>\n</header>\n\n')
+    h.append(f'  <p class="crumb"><a href="/#{g["system_id"]}">&larr; {esc(g["system"])} shelf</a></p>\n</header>\n\n')
     h.append(f'<div class="game" style="--c:{g["color"]};--ink:{ink}">\n  <div>')
     if photo:
         h.append(f'<img class="photo" src="{esc(photo)}" alt="{esc(g["title"])}, {esc(g["system"])}">')
     else:
         h.append('<div class="nophoto">No photo yet</div>')
     h.append('</div>\n  <div>\n')
-    h.append(f'    <a class="sysname" href="/index.html#{g["system_id"]}">{esc(g["system"])}</a>\n')
+    h.append(f'    <a class="sysname" href="/#{g["system_id"]}">{esc(g["system"])}</a>\n')
     h.append(f'    <h1>{esc(g["title"])}</h1>\n    <ul class="facts" style="margin-top:22px">\n')
     h.append(f'      <li><b>CONDITION</b><span>{esc(cond)}</span></li>\n')
     cls = ' class="yes"' if g["beaten"] else ""
@@ -242,7 +242,7 @@ def page(g, total, photo, review, mentions, posts, ranks=(), overrated=()):
         h.append(f'      <li><b>MY REVIEW</b><span><a href="/reviews.html#r-{review[0]}" style="color:inherit">'
                  f'{review[1]:g} out of 5 &middot; Honest and Unpopular Reviews No. {review[0]}</a></span></li>\n')
     h.append('    </ul>\n    <div class="links">\n')
-    h.append(f'      <a href="/index.html?find={esc(_q(g["title"]))}">Find it on the shelf</a>\n')
+    h.append(f'      <a href="/?find={esc(_q(g["title"]))}">Find it on the shelf</a>\n')
     if review:
         if review[2]:
             h.append(f'      <a href="{esc(review[2])}" target="_blank" rel="noopener">Read my review on X</a>\n')
@@ -279,7 +279,7 @@ def page(g, total, photo, review, mentions, posts, ranks=(), overrated=()):
         for p in posts:
             h.append(post_block(p, g["color"]) + "\n")
     h.append('\n<div class="lightbox" id="lightbox" role="dialog" aria-label="Photo"><img alt=""></div>\n')
-    h.append('\n<footer>\n  <p>The Nostalgia Pro. <a href="/index.html">Search all ' + str(total) +
+    h.append('\n<footer>\n  <p>The Nostalgia Pro. <a href="/">Search all ' + str(total) +
              ' games</a> &middot; <a href="https://x.com/' + cfg.X_HANDLE + '" target="_blank" rel="noopener">@' +
              cfg.X_HANDLE + ' on X</a></p>\n</footer>\n\n</div>\n')
     h.append("""<script>

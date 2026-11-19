@@ -49,7 +49,7 @@
   function games(){ return gamesP || (gamesP = fetch("/data/shelf-games.json").then(function(r){ return r.json(); })); }
   function row(list, sys){
     return '<div class="row">' + list.map(function(g){
-      var href = g.p ? "/game/" + g.k + ".html" : "/index.html";
+      var href = g.p ? "/game/" + g.k + ".html" : "/";
       return '<a href="' + href + '"><img src="/' + esc(g.i) + '" alt="" loading="lazy" decoding="async" width="112" height="149">' +
         '<b>' + esc(g.d) + '</b><span>' + esc(sys[g.s].n) + (g.y ? " \u00b7 " + g.y : "") + '</span></a>';
     }).join("") + '</div>';
