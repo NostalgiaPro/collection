@@ -768,8 +768,10 @@ function clothCanvas(base, crease, seed, opt) {
 function teeCanvas(script) {
   const c = clothCanvas("#1b1b22", "rgba(0,0,0,.45)", 11, { folds: 18 }), g = c.getContext("2d");
   g.fillStyle = "rgba(255,255,255,.04)"; g.fillRect(0, 0, 256, 256);
-  drawScript(g, script, 64, 120, 54, 30);
-  drawScript(g, script, 192, 112, 38, 20);
+  drawScript(g, script, 0, 104, 74, 36); drawScript(g, script, 256, 104, 74, 36);
+  drawScript(g, script, 128, 96, 40, 20);
+  g.strokeStyle = "rgba(255,255,255,.14)"; g.lineWidth = 2; g.setLineDash([5, 4]);
+  g.beginPath(); g.moveTo(64, 0); g.lineTo(64, 256); g.moveTo(192, 0); g.lineTo(192, 256); g.moveTo(0, 246); g.lineTo(256, 246); g.stroke(); g.setLineDash([]);
   return c;
 }
 // A loud souvenir sweater: knit rows, a cream band of little pine trees, snowflake dots.
@@ -1251,197 +1253,333 @@ function ledTick(dt) {
 
 /* ---------------- People: sculpted, jointed characters ----------------
    Every person is a rig of groups (pelvis, spine, neck, head; shoulder, elbow, wrist; hip, knee, ankle), facing +Z,
-   standing on y = 0, sized in meters. Bodies are lathed (a torso with a waist, chest and sloped shoulders; tapered
-   limbs with round ends) with ball joints at the shoulders, elbows, hips and knees so a bent arm or leg stays solid.
-   Hands have a palm, four fingers and a thumb; shoes have an upper, a sole, a toe cap and laces. Faces have a skull,
-   a jaw and chin, cheeks, a nose, ears, eyes that blink, brows that move and a mouth that opens and smiles.
-   Clothes carry painted folds and seams, plus hems, cuffs, collars and belts as real geometry.
-   A pose is a short list of joint angles (radians); poses blend, and a little life (breathing, blinking,
-   glances) is added on top every frame. */
+   standing on y = 0, sized in meters with adult proportions (about seven and a half heads tall).
+   Bodies are sculpted, not tubes: each torso and limb is a lathed profile that is then pushed out of round, so a chest
+   and belly sit forward, shoulder blades and a seat sit back, an upper arm has a biceps in front and a triceps behind,
+   a forearm swells below the elbow and narrows to the wrist, a thigh has its quads and a calf bulges behind the shin.
+   Clothes are separate shells over the body: sleeves and pant legs overlap the elbow and knee so a bend never shows a
+   seam, flare a little at the cuff and the hem, and carry painted folds, seams and stitching. Hands have a palm, four
+   fingers and a thumb; shoes have an upper, a toe box, a heel, laces and a real sole. Faces have a skull, jaw, chin,
+   cheekbones, nose, ears, eyes that blink, brows that move and a mouth that opens and smiles.
+   For phones, every bone's static pieces are merged into one mesh per material and materials are shared by color. */
 const HIP_H = 0.93;
 let PG = null;                                             // shared person geometry
+const PMAT = {};                                           // shared person materials, by kind and color
+
+function pmat(kind, key, make) { const k = kind + ":" + key; if (!PMAT[k]) PMAT[k] = make(); return PMAT[k]; }
+function hexOf(n) { return typeof n === "string" ? n : "#" + ("000000" + (n >>> 0).toString(16)).slice(-6); }
+function bump(y, at, w) { const d = (y - at) / w; return Math.exp(-d * d); }
+
+// A lathed profile pushed out of round. prof: [radius, y] from the bottom up. f(x, y, z) -> [x, y, z].
+function sculpt(prof, segs, f, open) {
+  const T = THREE, pts = prof.map(function (p) { return new T.Vector2(Math.max(0.0005, p[0]), p[1]); });
+  const g = new T.LatheGeometry(pts, segs || 18);
+  if (f) {
+    const pa = g.attributes.position;
+    for (let i = 0; i < pa.count; i++) { const r = f(pa.getX(i), pa.getY(i), pa.getZ(i)); pa.setXYZ(i, r[0], r[1], r[2]); }
+    g.computeVertexNormals();
+  }
+  return g;
+}
+// limb profiles hang from the joint (y = 0) down to y = -len; cap = round the ends
+function capProf(list, topCap, botCap) {
+  const out = [];
+  if (botCap) { const r = list[0][0], y = list[0][1]; for (let i = 0; i <= 3; i++) { const a = i / 3 * Math.PI / 2; out.push([Math.sin(a) * r, y - Math.cos(a) * r * 0.8]); } }
+  list.forEach(function (p) { out.push(p); });
+  if (topCap) { const r = list[list.length - 1][0], y = list[list.length - 1][1]; for (let i = 2; i >= 0; i--) { const a = i / 3 * Math.PI / 2; out.push([Math.sin(a) * r, y + Math.cos(a) * r * 0.7]); } }
+  return out;
+}
 
 function personGeo() {
   if (PG) return PG;
   const T = THREE;
-  function limb(len, r0, r1, bulge) {                      // a tapered limb hanging from y = 0 to y = -len, round ends
-    const pts = [new T.Vector2(0.0005, -len - r1 * 0.9)];
-    for (let i = 0; i <= 4; i++) { const a = (i / 4) * Math.PI / 2; pts.push(new T.Vector2(Math.sin(a) * r1, -len - Math.cos(a) * r1 * 0.9)); }
-    for (let i = 1; i < 8; i++) { const k = i / 8; pts.push(new T.Vector2(r1 + (r0 - r1) * k + Math.sin(k * Math.PI) * (bulge || 0), -len + len * k)); }
-    for (let i = 4; i >= 0; i--) { const a = (i / 4) * Math.PI / 2; pts.push(new T.Vector2(Math.sin(a) * r0, Math.cos(a) * r0 * 0.6)); }
-    return new T.LatheGeometry(pts, 16);
-  }
-  const fing = new T.CapsuleGeometry(0.0115, 0.042, 4, 8); fing.translate(0, -0.032, 0);
-  const thumb = new T.CapsuleGeometry(0.013, 0.032, 4, 8); thumb.translate(0, -0.026, 0);
-  const brow = new T.CapsuleGeometry(0.0095, 0.045, 4, 8); brow.rotateZ(Math.PI / 2);
-  const lip = new T.TorusGeometry(0.036, 0.0075, 6, 14, Math.PI); lip.rotateZ(Math.PI);
   PG = {
     sph: new T.SphereGeometry(1, 18, 12),
-    half: new T.SphereGeometry(1, 22, 10, 0, TAU, 0, Math.PI * 0.55),
-    upArm: limb(0.27, 0.058, 0.048, 0.008), foreArm: limb(0.24, 0.047, 0.036, 0.006),
-    thigh: limb(0.42, 0.098, 0.068, 0.012), shin: limb(0.42, 0.066, 0.046, 0.01),
-    sleeveS: limb(0.11, 0.078, 0.072, 0), sleeveL: limb(0.27, 0.07, 0.06, 0.005), cuffL: limb(0.24, 0.058, 0.048, 0.004),
-    neck: new T.CylinderGeometry(0.052, 0.06, 0.12, 14),
-    ring: new T.TorusGeometry(1, 0.16, 8, 24),
-    fing: fing, thumb: thumb, brow: brow, lip: lip,
+    lo: new T.SphereGeometry(1, 12, 8),
+    half: new T.SphereGeometry(1, 20, 9, 0, TAU, 0, Math.PI * 0.55),
+    box: new T.BoxGeometry(1, 1, 1),
     spike: new T.ConeGeometry(0.03, 0.1, 6),
-    box: new T.BoxGeometry(1, 1, 1)
+    ring: new T.TorusGeometry(1, 0.16, 6, 22).rotateX(Math.PI / 2),
+    brow: new T.CapsuleGeometry(0.0095, 0.045, 3, 6).rotateZ(Math.PI / 2),
+    lip: new T.TorusGeometry(0.034, 0.0075, 6, 14, Math.PI).rotateZ(Math.PI),
+    fing: new T.CapsuleGeometry(0.0125, 0.045, 3, 7).translate(0, -0.034, 0),
+    tip: new T.CapsuleGeometry(0.0115, 0.022, 3, 7).translate(0, -0.02, 0),
+    thumb: new T.CapsuleGeometry(0.0145, 0.036, 3, 7).translate(0, -0.028, 0),
+    neck: sculpt([[0.058, -0.02], [0.052, 0.04], [0.05, 0.08], [0.056, 0.12]], 14, function (x, y, z) { return [x, y, z * 0.95 + (z < 0 ? 0.004 : 0)]; }),
+    // skin limbs
+    upArm: sculpt(capProf([[0.04, -0.29], [0.043, -0.24], [0.05, -0.16], [0.054, -0.1], [0.058, -0.04], [0.06, 0.0]], true, true), 16,
+      function (x, y, z) { return [x * 0.92, y, z + (z > 0 ? 0.012 * bump(y, -0.13, 0.07) : -0.01 * bump(y, -0.09, 0.08))]; }),
+    foreArm: sculpt(capProf([[0.028, -0.245], [0.031, -0.21], [0.038, -0.15], [0.047, -0.07], [0.05, -0.03], [0.044, 0.01]], true, true), 16,
+      function (x, y, z) { return [x * 1.12 + (x > 0 ? 0.004 * bump(y, -0.05, 0.05) : 0), y, z * 0.86]; }),
+    calf: sculpt(capProf([[0.03, -0.43], [0.033, -0.38], [0.042, -0.28], [0.054, -0.17], [0.057, -0.11], [0.05, -0.04], [0.047, 0.01]], true, true), 16,
+      function (x, y, z) { return [x * 0.95, y, z < 0 ? z - 0.018 * bump(y, -0.13, 0.08) : z * 0.9]; }),
+    thighSkin: sculpt(capProf([[0.05, -0.44], [0.062, -0.36], [0.08, -0.22], [0.095, -0.1], [0.1, 0.0]], true, true), 16,
+      function (x, y, z) { return [x, y, z > 0 ? z + 0.012 * bump(y, -0.16, 0.1) : z]; }),
+    // garments
+    pantsThigh: sculpt([[0.077, -0.47], [0.079, -0.42], [0.086, -0.33], [0.098, -0.2], [0.11, -0.09], [0.118, 0.0], [0.116, 0.05]], 18,
+      function (x, y, z) { return [x, y, z > 0 ? z + 0.012 * bump(y, -0.18, 0.12) : z - 0.008 * bump(y, -0.05, 0.08)]; }),
+    pantsShin: sculpt([[0.08, -0.43], [0.076, -0.41], [0.069, -0.33], [0.066, -0.22], [0.07, -0.1], [0.078, -0.01], [0.079, 0.04]], 18,
+      function (x, y, z) { return [x, y, z < 0 ? z - 0.006 * bump(y, -0.12, 0.08) : z]; }),
+    sleeveShort: sculpt([[0.072, -0.15], [0.069, -0.13], [0.07, -0.07], [0.074, -0.02], [0.074, 0.02], [0.05, 0.065]], 18),
+    sleeveUp: sculpt([[0.06, -0.31], [0.063, -0.22], [0.068, -0.12], [0.074, -0.03], [0.075, 0.02], [0.05, 0.065]], 18,
+      function (x, y, z) { return [x * 0.96, y, z]; }),
+    sleeveLow: sculpt([[0.058, -0.235], [0.053, -0.215], [0.05, -0.17], [0.055, -0.08], [0.062, -0.01], [0.064, 0.03]], 18,
+      function (x, y, z) { return [x * 1.08, y, z * 0.92]; }),
+    hem: new T.TorusGeometry(1, 0.11, 5, 22).rotateX(Math.PI / 2),
+    sole: roundBox(0.11, 0.028, 0.29, 0.012, 2)
   };
-  PG.ring.rotateX(Math.PI / 2);
   return PG;
 }
 
-function torsoGeo(belly, chest) {
-  const T = THREE, b = belly || 0, c = chest || 0;
-  const P = [[0.0005, -0.07], [0.12, -0.05], [0.143, 0.0], [0.148, 0.08], [0.152 + b * 0.05, 0.16], [0.162 + b * 0.055 + c * 0.01, 0.25],
-    [0.18 + b * 0.03 + c * 0.015, 0.34], [0.192 + c * 0.012, 0.41], [0.196, 0.45], [0.18, 0.49], [0.13, 0.525], [0.07, 0.545], [0.0005, 0.55]];
-  return new T.LatheGeometry(P.map(function (p) { return new T.Vector2(p[0], p[1]); }), 22);
+// The torso, shaped: a waist, the ribcage, chest (or bust) and belly forward, shoulder blades and a flatter back.
+function torsoGeo(belly, chest, bust) {
+  const b = belly || 0, c = chest || 0, w = bust ? 1 : 0;
+  const P = [[0.01, -0.07], [0.125, -0.05], [0.148, 0.0], [0.142 + b * 0.02, 0.08], [0.148 + b * 0.04, 0.16], [0.16 + b * 0.04 + c * 0.01, 0.25],
+    [0.175 + b * 0.02 + c * 0.015, 0.33], [0.186 + c * 0.012, 0.4], [0.19, 0.445], [0.176, 0.485], [0.13, 0.52], [0.07, 0.542], [0.01, 0.552]];
+  return sculpt(P, 24, function (x, y, z) {
+    let zz = z * 0.7;
+    if (z > 0) zz += 0.045 * b * bump(y, 0.15, 0.1) + (0.018 + 0.012 * c + 0.03 * w) * bump(y, 0.36, 0.07) * (1 - Math.abs(x) * 2.5);
+    else zz = zz * 0.86 - 0.012 * bump(y, 0.38, 0.06) * (Math.abs(x) > 0.05 ? 1 : 0.4);
+    const xx = x * (1 + 0.05 * bump(y, 0.45, 0.05));
+    return [xx, y, zz];
+  });
+}
+function hipsGeo(wide) {
+  const k = wide ? 1.08 : 1;
+  return sculpt([[0.04, -0.15], [0.1 * k, -0.14], [0.15 * k, -0.09], [0.165 * k, -0.03], [0.158, 0.03], [0.15, 0.07], [0.01, 0.085]], 22,
+    function (x, y, z) { return [x, y, z < 0 ? z * 0.8 - 0.03 * bump(y, -0.07, 0.05) : z * 0.72]; });
 }
 
-// o: skin, shirtMap | shirt, pantsMap | pants, shoe, sole, hair, hairStyle, sleeves ("short"|"long"), belly, chest,
-//    glasses ("shades"|"round"|null), hat ("earflap"|null), mustache, beard, eye, lip, scale, apron, skirt
+// Clothing texture: woven base, soft folds, side seams and stitching at the hems. Cached by look.
+const CLOTH = {};
+function clothTex(base, opt) {
+  opt = opt || {};
+  const key = base + JSON.stringify(opt);
+  if (CLOTH[key]) return CLOTH[key];
+  const c = clothCanvas(base, "rgba(0,0,0,.32)", base.length * 7 + (opt.seed || 1), { folds: 16, denim: opt.denim, vertical: opt.vertical });
+  const g = c.getContext("2d");
+  g.strokeStyle = opt.stitch || "rgba(255,255,255,.22)"; g.lineWidth = 2; g.setLineDash([5, 4]);
+  g.beginPath(); g.moveTo(64, 0); g.lineTo(64, 256); g.moveTo(192, 0); g.lineTo(192, 256); g.stroke();      // side seams
+  g.beginPath(); g.moveTo(0, 246); g.lineTo(256, 246); g.moveTo(0, 240); g.lineTo(256, 240); g.stroke();    // hem stitching
+  g.setLineDash([]);
+  g.fillStyle = "rgba(0,0,0,.18)"; g.fillRect(62, 0, 1, 256); g.fillRect(190, 0, 1, 256);
+  return (CLOTH[key] = K.tex(c, true));
+}
+
+// o: skin, shirtMap | shirt, pantsMap | pants, shoe, sole, hair, hairStyle, sleeves ("short"|"long"|"none"), belly, chest, bust,
+//    glasses ("shades"|"round"|null), hat ("earflap"|null), mustache, beard, eye, lip, scale, apron, skirt, collar ("crew"|"shirt"|"turtle")
 function makePerson(o) {
   const T = THREE, G = personGeo();
   const root = new T.Group();
+  const skinH = hexOf(o.skin), lam = function (k, c, extra) { return pmat(k, hexOf(c), function () { return new T.MeshLambertMaterial(Object.assign({ color: c }, extra || {})); }); };
   const M = {
-    skin: new T.MeshPhongMaterial({ color: o.skin, shininess: 14, specular: 0x2a1a10 }),
-    shirt: new T.MeshLambertMaterial(o.shirtMap ? { map: o.shirtMap } : { color: o.shirt || 0x888888 }),
-    trim: new T.MeshLambertMaterial({ color: o.trim || o.shirtTrim || 0x111116 }),
-    pants: new T.MeshLambertMaterial(o.pantsMap ? { map: o.pantsMap } : { color: o.pants || 0x334466 }),
-    shoe: new T.MeshPhongMaterial({ color: o.shoe || 0xc2304a, shininess: 30, specular: 0x333333 }),
-    sole: new T.MeshLambertMaterial({ color: o.sole || 0xf2efe6 }),
-    hair: new T.MeshLambertMaterial({ color: o.hair || 0x4a2f1c }),
-    white: new T.MeshPhongMaterial({ color: 0xfbfaf4, shininess: 60 }),
-    dark: new T.MeshPhongMaterial({ color: o.eye || 0x2a1a10, shininess: 90, specular: 0xffffff }),
-    mouth: new T.MeshLambertMaterial({ color: 0x5a1418 }),
-    lip: new T.MeshPhongMaterial({ color: o.lip || 0x6a1e1c, shininess: 20 }),
-    brow: new T.MeshLambertMaterial({ color: o.brow || o.hair || 0x3a2414 }),
-    belt: new T.MeshPhongMaterial({ color: o.belt || 0x3a2616, shininess: 30 })
+    skin: pmat("skin", skinH, function () { return new T.MeshPhongMaterial({ color: o.skin, shininess: 14, specular: 0x2a1a10 }); }),
+    shirt: o.shirtMap ? pmat("map", o.shirtMap.uuid, function () { return new T.MeshLambertMaterial({ map: o.shirtMap, side: T.DoubleSide }); })
+                      : pmat("cloth", hexOf(o.shirt || 0x888888), function () { return new T.MeshLambertMaterial({ map: clothTex(hexOf(o.shirt || 0x888888)), side: T.DoubleSide }); }),
+    trim: lam("lam", o.trim || 0x111116),
+    sleeve: null,
+    pants: o.pantsMap ? pmat("map", o.pantsMap.uuid, function () { return new T.MeshLambertMaterial({ map: o.pantsMap, side: T.DoubleSide }); })
+                      : pmat("cloth", hexOf(o.pants || 0x334466) + "v", function () { return new T.MeshLambertMaterial({ map: clothTex(hexOf(o.pants || 0x334466), { vertical: true, seed: 3 }), side: T.DoubleSide }); }),
+    shoe: pmat("phong", hexOf(o.shoe || 0xc2304a), function () { return new T.MeshPhongMaterial({ color: o.shoe || 0xc2304a, shininess: 30, specular: 0x333333 }); }),
+    sole: lam("lam", o.sole || 0xf2efe6),
+    sock: lam("lam", o.sock || 0xeceae2),
+    hair: lam("lam", o.hair || 0x4a2f1c),
+    white: pmat("eye", "w", function () { return new T.MeshPhongMaterial({ color: 0xfbfaf4, shininess: 60 }); }),
+    dark: pmat("iris", hexOf(o.eye || 0x2a1a10), function () { return new T.MeshPhongMaterial({ color: o.eye || 0x2a1a10, shininess: 90, specular: 0xffffff }); }),
+    mouth: lam("lam", 0x5a1418),
+    lip: pmat("phong", hexOf(o.lip || 0x6a1e1c), function () { return new T.MeshPhongMaterial({ color: o.lip || 0x6a1e1c, shininess: 20 }); }),
+    brow: lam("lam", o.brow || o.hair || 0x3a2414),
+    belt: pmat("phong", hexOf(o.belt || 0x3a2616), function () { return new T.MeshPhongMaterial({ color: o.belt || 0x3a2616, shininess: 30 }); }),
+    buckle: pmat("phong", "buckle", function () { return new T.MeshPhongMaterial({ color: 0xd8c27a, shininess: 90, specular: 0xffffff }); })
   };
-  function mesh(geo, mat, parent, x, y, z, sx, sy, sz) { const m = new T.Mesh(geo, mat); m.position.set(x || 0, y || 0, z || 0); if (sx != null) m.scale.set(sx, sy == null ? sx : sy, sz == null ? sx : sz); parent.add(m); return m; }
+  M.sleeve = o.sleeveMap ? pmat("map", o.sleeveMap.uuid, function () { return new T.MeshLambertMaterial({ map: o.sleeveMap, side: T.DoubleSide }); }) : M.shirt;
+  function mesh(geo, mat, parent, x, y, z, sx, sy, sz, keep) { const m = new T.Mesh(geo, mat); m.position.set(x || 0, y || 0, z || 0); if (sx != null) m.scale.set(sx, sy == null ? sx : sy, sz == null ? sx : sz); if (keep) m.userData.keep = true; parent.add(m); return m; }
   function grp(parent, x, y, z) { const g = new T.Group(); g.position.set(x || 0, y || 0, z || 0); parent.add(g); return g; }
+  const skirt = !!o.skirt;
 
+  // hips and seat
   const pelvis = grp(root, 0, HIP_H, 0);
-  mesh(G.sph, M.pants, pelvis, 0, -0.01, 0, 0.162, 0.125, 0.118);
-  mesh(G.ring, M.belt, pelvis, 0, 0.055, 0, 0.152, 0.2, 0.116);              // belt
-  if (o.skirt) mesh(new T.CylinderGeometry(0.17, 0.27, 0.42, 20, 1, true), new T.MeshLambertMaterial({ color: o.skirt, side: T.DoubleSide }), pelvis, 0, -0.17, 0, 1, 1, 0.8);
+  mesh(hipsGeo(o.bust), M.pants, pelvis, 0, 0, 0);
+  [-1, 1].forEach(function (s) { mesh(G.lo, M.pants, pelvis, s * 0.07, -0.06, -0.055, 0.085, 0.09, 0.07); });           // seat
+  mesh(G.ring, M.belt, pelvis, 0, 0.06, 0, 0.152, 0.22, 0.112);
+  mesh(G.box, M.buckle, pelvis, 0, 0.06, 0.115, 0.05, 0.036, 0.01);
+  if (skirt) mesh(sculpt([[0.25, -0.46], [0.24, -0.4], [0.2, -0.2], [0.17, -0.02], [0.16, 0.07]], 22, function (x, y, z) { return [x + Math.sin(Math.atan2(z, x) * 8) * 0.008 * (-y), y, z * 0.85]; }),
+    lam("cloth2", o.skirt, { side: T.DoubleSide }), pelvis, 0, 0, 0);
 
+  // torso, with a shirt hem, a collar and a little yoke at the neck
   const spine = grp(pelvis, 0, 0.05, 0);
-  const torso = mesh(torsoGeo(o.belly, o.chest), M.shirt, spine, 0, 0, 0); torso.scale.z = 0.7;
-  if (o.belly) mesh(G.sph, M.shirt, spine, 0, 0.17, 0.05, 0.15, 0.14 + o.belly * 0.03, 0.1 + o.belly * 0.05);
-  mesh(G.ring, M.trim, spine, 0, -0.015, 0, 0.146, 0.22, 0.104);           // shirt hem
-  mesh(G.ring, M.trim, spine, 0, 0.53, 0.005, 0.07, 0.25, 0.06);           // collar
-  if (o.apron) { const ap = mesh(new T.PlaneGeometry(0.3, 0.62), new T.MeshLambertMaterial({ color: o.apron, side: T.DoubleSide }), spine, 0, 0.02, 0.112); ap.rotation.x = -0.08; }
+  mesh(torsoGeo(o.belly, o.chest, o.bust), M.shirt, spine, 0, 0, 0);
+  mesh(G.hem, M.shirt, spine, 0, -0.035, 0, 0.152 + (o.belly || 0) * 0.012, 0.3, 0.112 + (o.belly || 0) * 0.02);
+  mesh(G.lo, M.shirt, spine, 0, 0.49, -0.02, 0.13, 0.05, 0.08);                                         // trapezius
+  const col = o.collar || (o.sleeves === "long" ? "shirt" : "crew");
+  if (col === "turtle") mesh(G.ring, M.shirt, spine, 0, 0.57, 0, 0.072, 0.55, 0.068);
+  else mesh(G.ring, M.trim, spine, 0, 0.535, 0.006, 0.072, 0.22, 0.064);
+  if (col === "shirt") [-1, 1].forEach(function (s) { const f = mesh(G.box, M.shirt, spine, s * 0.04, 0.52, 0.06, 0.06, 0.008, 0.07); f.rotation.set(-0.5, s * 0.5, s * 0.3); });
+  if (o.apron) { const ap = mesh(new T.PlaneGeometry(0.3, 0.62), lam("lam2", o.apron, { side: T.DoubleSide }), spine, 0, 0.02, 0.135); ap.rotation.x = -0.12; mesh(G.ring, lam("lam", o.apron), spine, 0, 0.12, 0, 0.152, 0.08, 0.135); }
 
-  const neck = grp(spine, 0, 0.53, 0);
-  mesh(G.neck, M.skin, neck, 0, 0.04, 0);
-  const head = grp(neck, 0, 0.1, 0.005);
-  mesh(G.sph, M.skin, head, 0, 0.165, -0.01, 0.152, 0.162, 0.152);         // skull
-  mesh(G.sph, M.skin, head, 0, 0.085, 0.022, 0.125, 0.1, 0.118);           // jaw and cheeks
-  const chin = mesh(G.sph, M.skin, head, 0, 0.045, 0.085, 0.052, 0.04, 0.045);
-  mesh(G.sph, M.skin, head, 0, 0.128, 0.152, 0.026, 0.032, 0.03);          // nose
-  mesh(G.sph, M.skin, head, 0, 0.115, 0.158, 0.018, 0.014, 0.018);         // nose tip
-  [-1, 1].forEach(function (s) { mesh(G.sph, M.skin, head, s * 0.15, 0.14, -0.01, 0.024, 0.042, 0.034); mesh(G.sph, M.skin, head, s * 0.075, 0.1, 0.1, 0.04, 0.03, 0.03); });
+  // neck and head
+  const neck = grp(spine, 0, 0.52, 0);
+  mesh(G.neck, M.skin, neck, 0, 0.0, 0.005);
+  const head = grp(neck, 0, 0.1, 0.008); head.scale.setScalar(0.9);
+  mesh(G.sph, M.skin, head, 0, 0.17, -0.012, 0.15, 0.165, 0.158);       // skull
+  mesh(G.sph, M.skin, head, 0, 0.09, 0.024, 0.122, 0.1, 0.118);         // jaw
+  const chin = mesh(G.lo, M.skin, head, 0, 0.042, 0.088, 0.05, 0.04, 0.044, 0, 0, true);
+  [-1, 1].forEach(function (s) {
+    mesh(G.lo, M.skin, head, s * 0.074, 0.115, 0.098, 0.042, 0.03, 0.03);                // cheekbones
+    mesh(G.lo, M.skin, head, s * 0.15, 0.14, -0.012, 0.024, 0.044, 0.034);              // ears
+    mesh(G.lo, M.skin, head, s * 0.148, 0.135, 0.0, 0.012, 0.024, 0.016);
+  });
+  mesh(G.lo, M.skin, head, 0, 0.13, 0.152, 0.024, 0.036, 0.03);         // nose bridge
+  mesh(G.lo, M.skin, head, 0, 0.113, 0.164, 0.021, 0.017, 0.02);        // nose tip
+  [-1, 1].forEach(function (s) { mesh(G.lo, M.skin, head, s * 0.015, 0.107, 0.155, 0.012, 0.01, 0.012); });
+  mesh(G.lo, M.skin, head, 0, 0.205, 0.128, 0.1, 0.022, 0.03);          // brow ridge
   const eyes = [], brows = [];
   [-1, 1].forEach(function (s) {
     const e = grp(head, s * 0.056, 0.168, 0.128);
-    mesh(G.sph, M.white, e, 0, 0, 0, 0.03, 0.036, 0.02);
-    mesh(G.sph, M.dark, e, 0, -0.002, 0.016, 0.016, 0.019, 0.01);
-    mesh(G.sph, M.white, e, s * -0.005, 0.008, 0.024, 0.005, 0.005, 0.004);
+    mesh(G.lo, M.white, e, 0, 0, 0, 0.03, 0.034, 0.02);
+    mesh(G.lo, M.dark, e, 0, -0.002, 0.016, 0.016, 0.018, 0.01);
+    mesh(G.lo, M.white, e, s * -0.005, 0.008, 0.024, 0.005, 0.005, 0.004);
     e.rotation.y = s * 0.28;
     eyes.push(e);
-    const b = mesh(G.brow, M.brow, head, s * 0.058, 0.218, 0.142);
+    const b = mesh(G.brow, M.brow, head, s * 0.058, 0.22, 0.145, 1, 1, 1, true);
     b.rotation.y = s * 0.3;
     brows.push(b);
   });
-  const mouth = grp(head, 0, 0.078, 0.136);
-  const inner = mesh(G.sph, M.mouth, mouth, 0, 0, 0, 0.034, 0.01, 0.014);
-  const lips = mesh(G.lip, M.lip, mouth, 0, 0.004, 0.004);
-  if (o.mustache) { const mu = mesh(G.sph, M.hair, head, 0, 0.1, 0.15, 0.055, 0.016, 0.02); mu.rotation.z = 0; }
-  if (o.beard) mesh(G.sph, M.hair, head, 0, 0.055, 0.07, 0.12, 0.08, 0.09);
+  const mouth = grp(head, 0, 0.078, 0.137);
+  const inner = mesh(G.lo, M.mouth, mouth, 0, 0, 0, 0.034, 0.01, 0.014, true);
+  const lips = mesh(G.lip, M.lip, mouth, 0, 0.004, 0.004, 1, 1, 1, true);
+  if (o.mustache) mesh(G.lo, M.hair, head, 0, 0.1, 0.155, 0.058, 0.017, 0.022);
+  if (o.beard) { mesh(G.sph, M.hair, head, 0, 0.06, 0.06, 0.125, 0.085, 0.1); mesh(G.lo, M.hair, head, 0, 0.03, 0.1, 0.06, 0.05, 0.04); }
 
-  // hair styles
-  const hairG = grp(head, 0, 0, 0);
-  if (o.hairStyle !== "bald") mesh(G.half, M.hair, hairG, 0, 0.17, -0.016, 0.162, 0.17, 0.162);
+  // hair
+  const hairG = grp(head, 0, 0, 0), spikes = grp(hairG, 0, 0, 0);
+  if (o.hairStyle !== "bald") mesh(G.half, M.hair, hairG, 0, 0.17, -0.018, 0.16, 0.172, 0.168);
   if (o.hairStyle === "spiky") {
-    for (let i = 0; i < 11; i++) { const a = -1.1 + i * 0.22, sp = mesh(G.spike, M.hair, hairG, Math.sin(a) * 0.1, 0.3 + Math.cos(a * 1.4) * 0.03, 0.02 + Math.cos(a) * 0.05, 1, 1.1 + (i % 3) * 0.25, 1); sp.rotation.set(0.5 + (i % 2) * 0.2, 0, -a * 0.7); }
-    for (let i = 0; i < 5; i++) { const sp = mesh(G.spike, M.hair, hairG, -0.08 + i * 0.04, 0.29, -0.08, 1, 1.2, 1); sp.rotation.set(-0.6, 0, (i - 2) * 0.3); }
-    mesh(G.sph, M.hair, hairG, 0, 0.26, 0.09, 0.11, 0.045, 0.05);
+    for (let i = 0; i < 11; i++) { const a = -1.1 + i * 0.22, sp = mesh(G.spike, M.hair, spikes, Math.sin(a) * 0.1, 0.3 + Math.cos(a * 1.4) * 0.03, 0.02 + Math.cos(a) * 0.05, 1, 1.1 + (i % 3) * 0.25, 1); sp.rotation.set(0.5 + (i % 2) * 0.2, 0, -a * 0.7); }
+    for (let i = 0; i < 5; i++) { const sp = mesh(G.spike, M.hair, spikes, -0.08 + i * 0.04, 0.29, -0.08, 1, 1.2, 1); sp.rotation.set(-0.6, 0, (i - 2) * 0.3); }
+    mesh(G.lo, M.hair, spikes, 0, 0.26, 0.09, 0.11, 0.045, 0.05);
+    [-1, 1].forEach(function (s) { mesh(G.lo, M.hair, spikes, s * 0.142, 0.18, 0.02, 0.022, 0.05, 0.04); });     // sideburns
   } else if (o.hairStyle === "bob") {
-    mesh(G.sph, M.hair, hairG, 0, 0.13, -0.03, 0.175, 0.17, 0.165);
-    mesh(G.sph, M.hair, hairG, 0, 0.27, 0.06, 0.13, 0.05, 0.08);
+    mesh(G.sph, M.hair, hairG, 0, 0.13, -0.035, 0.172, 0.17, 0.165);
+    mesh(G.lo, M.hair, hairG, 0, 0.27, 0.06, 0.13, 0.05, 0.08);
   } else if (o.hairStyle === "bun") {
-    mesh(G.sph, M.hair, hairG, 0, 0.3, -0.1, 0.07, 0.065, 0.07);
+    mesh(G.lo, M.hair, hairG, 0, 0.3, -0.1, 0.07, 0.065, 0.07);
   } else if (o.hairStyle === "short") {
-    mesh(G.sph, M.hair, hairG, 0, 0.27, 0.07, 0.12, 0.045, 0.06);
+    mesh(G.lo, M.hair, hairG, 0, 0.27, 0.07, 0.12, 0.045, 0.06);
+  } else if (o.hairStyle === "bald") {
+    [-1, 1].forEach(function (s) { mesh(G.lo, M.hair, hairG, s * 0.135, 0.17, -0.06, 0.04, 0.06, 0.08); });
   }
   if (o.glasses === "shades") {
-    const gm = new T.MeshPhongMaterial({ color: 0x0c0c12, shininess: 120, specular: 0xffffff });
-    [-1, 1].forEach(function (s) { mesh(G.sph, gm, head, s * 0.058, 0.172, 0.15, 0.054, 0.036, 0.016); const tm = mesh(G.box, gm, head, s * 0.128, 0.18, 0.07, 0.008, 0.01, 0.15); tm.rotation.y = s * 0.15; });
+    const gm = pmat("phong", "shades", function () { return new T.MeshPhongMaterial({ color: 0x0c0c12, shininess: 120, specular: 0xffffff }); });
+    [-1, 1].forEach(function (s) { mesh(G.lo, gm, head, s * 0.058, 0.172, 0.15, 0.054, 0.036, 0.016); const tm = mesh(G.box, gm, head, s * 0.128, 0.18, 0.07, 0.008, 0.01, 0.15); tm.rotation.y = s * 0.15; });
     mesh(G.box, gm, head, 0, 0.18, 0.162, 0.03, 0.01, 0.01);
     eyes.forEach(function (e) { e.visible = false; });
   } else if (o.glasses === "round") {
-    const gm = new T.MeshPhongMaterial({ color: 0xc9a14a, shininess: 90 });
-    [-1, 1].forEach(function (s) { const r = mesh(G.ring, gm, head, s * 0.058, 0.168, 0.152, 0.036, 0.04, 0.036); r.rotation.x = Math.PI / 2; });
+    const gm = pmat("phong", "gold", function () { return new T.MeshPhongMaterial({ color: 0xc9a14a, shininess: 90 }); });
+    [-1, 1].forEach(function (s) { const r = mesh(new T.TorusGeometry(0.036, 0.0045, 5, 16), gm, head, s * 0.058, 0.168, 0.158); r.rotation.y = s * 0.2; mesh(G.box, gm, head, s * 0.115, 0.17, 0.08, 0.005, 0.006, 0.15); });
+    mesh(G.box, gm, head, 0, 0.172, 0.165, 0.04, 0.005, 0.005);
   }
   if (o.hat === "earflap") {
-    const hm = new T.MeshLambertMaterial({ color: 0xd94a2a });
-    mesh(G.half, hm, head, 0, 0.18, -0.01, 0.17, 0.17, 0.17);
-    [-1, 1].forEach(function (s) { const f = mesh(G.sph, hm, head, s * 0.15, 0.12, -0.01, 0.035, 0.08, 0.06); f.rotation.z = s * 0.1; });
-    mesh(G.ring, new T.MeshLambertMaterial({ color: 0xfff1d6 }), head, 0, 0.2, -0.01, 0.17, 0.35, 0.17);
-    mesh(G.sph, new T.MeshLambertMaterial({ color: 0xfff1d6 }), head, 0, 0.36, -0.01, 0.04);
+    const hm = lam("lam", 0xd94a2a), cream = lam("lam", 0xfff1d6);
+    mesh(G.half, hm, head, 0, 0.18, -0.012, 0.17, 0.17, 0.175);
+    [-1, 1].forEach(function (s) { const f = mesh(G.lo, hm, head, s * 0.152, 0.11, -0.012, 0.03, 0.085, 0.06); f.rotation.z = s * 0.12; });
+    mesh(G.ring, cream, head, 0, 0.2, -0.012, 0.17, 0.32, 0.175);
+    mesh(G.lo, cream, head, 0, 0.36, -0.012, 0.042);
   }
 
-  // arms: shoulder, elbow, wrist
+  // arms: shoulder (deltoid), upper arm, elbow, forearm, wrist and the hand
   function arm(s) {
-    const sh = grp(spine, s * 0.205, 0.445, 0);
-    mesh(G.sph, o.sleeves === "none" ? M.skin : M.shirt, sh, 0, 0, 0, 0.074, 0.07, 0.072);            // the shoulder
-    mesh(G.upArm, M.skin, sh, 0, -0.02, 0);
-    if (o.sleeves === "long") { mesh(G.sleeveL, M.shirt, sh, 0, -0.02, 0); }
-    else if (o.sleeves !== "none") { mesh(G.sleeveS, M.shirt, sh, 0, -0.01, 0); mesh(G.ring, M.trim, sh, 0, -0.12, 0, 0.074, 0.18, 0.074); }
+    const sh = grp(spine, s * 0.2, 0.44, -0.005);
+    const sleeve = o.sleeves === "none" ? null : o.sleeves === "long" ? "long" : "short";
+    mesh(G.lo, sleeve ? M.sleeve : M.skin, sh, s * 0.012, 0.008, 0, 0.074, 0.072, 0.07);                // deltoid
+    if (sleeve !== "long") mesh(G.upArm, M.skin, sh, 0, -0.01, 0);
+    if (sleeve === "short") { mesh(G.sleeveShort, M.sleeve, sh, 0, -0.005, 0); mesh(G.hem, M.sleeve, sh, 0, -0.152, 0, 0.074, 0.22, 0.074); }
+    if (sleeve === "long") mesh(G.sleeveUp, M.sleeve, sh, 0, 0, 0);
     const el = grp(sh, 0, -0.29, 0);
-    mesh(G.sph, o.sleeves === "long" ? M.shirt : M.skin, el, 0, 0, 0, 0.05 + (o.sleeves === "long" ? 0.01 : 0));
-    mesh(G.foreArm, M.skin, el, 0, 0, 0);
-    if (o.sleeves === "long") { mesh(G.cuffL, M.shirt, el, 0, 0, 0); mesh(G.ring, M.trim, el, 0, -0.235, 0, 0.052, 0.2, 0.052); }
+    if (sleeve === "long") {
+      mesh(G.lo, M.sleeve, el, 0, 0, 0, 0.06, 0.06, 0.058);
+      mesh(G.sleeveLow, M.sleeve, el, 0, 0, 0);
+      mesh(G.hem, M.trim, el, 0, -0.232, 0, 0.061, 0.25, 0.056);                    // the cuff
+      mesh(new T.CylinderGeometry(0.03, 0.033, 0.04, 12), M.skin, el, 0, -0.245, 0);
+    } else mesh(G.foreArm, M.skin, el, 0, 0, 0);
     const wr = grp(el, 0, -0.255, 0);
-    const hand = grp(wr, 0, 0, 0); hand.rotation.y = s * -Math.PI / 2;
-    mesh(G.sph, M.skin, hand, 0, -0.045, 0, 0.044, 0.055, 0.022);           // palm
+    const hand = grp(wr, 0, 0, 0); hand.rotation.y = s * -Math.PI / 2; hand.scale.setScalar(1.18);
+    mesh(G.sph, M.skin, hand, 0, -0.044, 0.0, 0.045, 0.052, 0.022);                    // palm
+    mesh(G.lo, M.skin, hand, s * 0.024, -0.035, 0.012, 0.024, 0.032, 0.016);             // the thumb's heel
+    mesh(G.lo, M.skin, hand, 0, -0.08, 0.002, 0.042, 0.014, 0.02);                      // knuckles
     const fingers = [];
     for (let i = 0; i < 4; i++) {
-      const f = grp(hand, s * (-0.03 + i * 0.02), -0.088 + Math.abs(i - 1.5) * 0.006, 0.004);
-      mesh(G.fing, M.skin, f, 0, 0, 0, 1, 0.85 + (i === 1 || i === 2 ? 0.2 : 0), 1);
+      const f = grp(hand, s * (-0.03 + i * 0.02), -0.088 + Math.abs(i - 1.5) * 0.005, 0.003);
+      const L = i === 0 ? 0.8 : i === 3 ? 0.85 : 1;
+      mesh(G.fing, M.skin, f, 0, 0, 0, 1, L, 1);
+      const tipG = grp(f, 0, -0.062 * L, 0); tipG.rotation.x = -0.25;
+      mesh(G.tip, M.skin, tipG, 0, 0, 0, 0.95, L, 0.95);
+      f.userData.tip = tipG;
       fingers.push(f);
     }
-    const th = grp(hand, s * 0.04, -0.03, 0.012); th.rotation.set(-0.5, 0, s * 0.7);
+    const th = grp(hand, s * 0.042, -0.028, 0.014); th.rotation.set(-0.5, 0, s * 0.75);
     mesh(G.thumb, M.skin, th, 0, 0, 0);
     return { sh: sh, el: el, wr: wr, hand: hand, fingers: fingers, thumb: th };
   }
   const L = arm(1), Rr = arm(-1);
 
-  // legs: hip, knee, ankle, and the shoe
+  // legs: hip, thigh, knee, shin, ankle; pant legs (or bare legs under a skirt), socks and shoes
   function leg(s) {
-    const hp = grp(pelvis, s * 0.085, -0.04, 0);
-    mesh(G.sph, M.pants, hp, 0, 0, 0, 0.1);
-    mesh(G.thigh, M.pants, hp, 0, 0, 0);
-    const kn = grp(hp, 0, -0.435, 0);
-    mesh(G.sph, M.pants, kn, 0, 0, 0.004, 0.074);
-    mesh(G.shin, M.pants, kn, 0, 0, 0);
-    mesh(G.ring, M.pants, kn, 0, -0.4, 0, 0.068, 0.24, 0.068);              // the hem, folded over
+    const hp = grp(pelvis, s * 0.088, -0.05, 0);
+    if (skirt) { mesh(G.thighSkin, M.skin, hp, 0, 0, 0); }
+    else mesh(G.pantsThigh, M.pants, hp, 0, 0, 0);
+    const kn = grp(hp, 0, -0.44, 0);
+    if (skirt) { mesh(G.lo, M.skin, kn, 0, 0, 0.004, 0.052, 0.055, 0.052); mesh(G.calf, M.skin, kn, 0, 0, 0); }
+    else {
+      mesh(G.lo, M.pants, kn, 0, 0, 0.004, 0.079, 0.082, 0.08);
+      mesh(G.pantsShin, M.pants, kn, 0, 0, 0);
+      mesh(G.hem, M.pants, kn, 0, -0.425, 0, 0.08, 0.24, 0.08);
+      mesh(new T.CylinderGeometry(0.034, 0.038, 0.08, 12), M.sock, kn, 0, -0.42, 0);
+    }
     const an = grp(kn, 0, -0.44, 0);
-    mesh(G.sph, M.shoe, an, 0, -0.025, 0.035, 0.064, 0.055, 0.125);          // upper
-    mesh(G.sph, M.sole, an, 0, -0.066, 0.04, 0.07, 0.022, 0.135);            // sole
-    mesh(G.sph, M.sole, an, 0, -0.045, 0.125, 0.054, 0.034, 0.045);          // toe cap
-    for (let i = 0; i < 3; i++) mesh(G.box, M.sole, an, 0, 0.012 - i * 0.01, 0.06 + i * 0.022, 0.05, 0.006, 0.008);   // laces
-    mesh(G.sph, M.shoe, an, 0, 0.01, -0.03, 0.05, 0.05, 0.05);              // heel collar
+    mesh(G.sph, M.shoe, an, 0, -0.03, 0.038, 0.066, 0.056, 0.128);         // upper
+    mesh(G.lo, M.shoe, an, 0, -0.045, 0.13, 0.058, 0.04, 0.062);           // toe box
+    mesh(G.lo, M.shoe, an, 0, -0.03, -0.055, 0.056, 0.05, 0.05);           // heel counter
+    mesh(G.sole, M.sole, an, 0, -0.072, 0.04, 1.12, 1, 1);                 // sole
+    mesh(G.lo, M.sole, an, 0, -0.06, 0.15, 0.058, 0.028, 0.05);            // toe cap
+    for (let i = 0; i < 3; i++) mesh(G.box, M.sole, an, 0, 0.012 - i * 0.012, 0.055 + i * 0.024, 0.05, 0.006, 0.008);   // laces
+    mesh(G.lo, M.shoe, an, 0, 0.012, 0.03, 0.04, 0.03, 0.05);              // tongue
     return { hp: hp, kn: kn, an: an };
   }
   const LL = leg(1), RL = leg(-1);
 
   root.scale.setScalar(o.scale || 1);
-  const P = { root: root, pelvis: pelvis, spine: spine, neck: neck, head: head, la: L, ra: Rr, ll: LL, rl: RL,
-    eyes: eyes, brows: brows, mouth: mouth, inner: inner, lips: lips, chin: chin, hairG: hairG, M: M, acc: {},
+  mergeStatic(root);
+  return { root: root, pelvis: pelvis, spine: spine, neck: neck, head: head, la: L, ra: Rr, ll: LL, rl: RL,
+    eyes: eyes, brows: brows, mouth: mouth, inner: inner, lips: lips, chin: chin, hairG: hairG, spikes: spikes, M: M, acc: {},
     blink: Math.random() * 3, phase: Math.random() * 10, pose: {} };
-  return P;
+}
+
+// Merge every group's static meshes into one mesh per material (moving parts are left alone).
+function mergeStatic(node) {
+  const T = THREE, kids = node.children.slice(), buckets = new Map();
+  kids.forEach(function (c) { if (c.isMesh && !c.userData.keep && !c.geometry.morphAttributes.position) { const k = c.material.uuid; if (!buckets.has(k)) buckets.set(k, []); buckets.get(k).push(c); } else if (!c.isMesh) mergeStatic(c); });
+  buckets.forEach(function (list) {
+    if (list.length < 2) return;
+    let nPos = 0, nIdx = 0;
+    const geos = list.map(function (m) { m.updateMatrix(); let g = m.geometry.clone().applyMatrix4(m.matrix); if (!g.index) g.setIndex([...Array(g.attributes.position.count).keys()]); nPos += g.attributes.position.count; nIdx += g.index.count; return g; });
+    const pos = new Float32Array(nPos * 3), nor = new Float32Array(nPos * 3), uv = new Float32Array(nPos * 2), idx = new Uint32Array(nIdx);
+    let vp = 0, ip = 0;
+    geos.forEach(function (g) {
+      const pa = g.attributes.position, na = g.attributes.normal, ua = g.attributes.uv;
+      for (let i = 0; i < pa.count; i++) { pos[(vp + i) * 3] = pa.getX(i); pos[(vp + i) * 3 + 1] = pa.getY(i); pos[(vp + i) * 3 + 2] = pa.getZ(i);
+        nor[(vp + i) * 3] = na.getX(i); nor[(vp + i) * 3 + 1] = na.getY(i); nor[(vp + i) * 3 + 2] = na.getZ(i);
+        uv[(vp + i) * 2] = ua ? ua.getX(i) : 0; uv[(vp + i) * 2 + 1] = ua ? ua.getY(i) : 0; }
+      for (let i = 0; i < g.index.count; i++) idx[ip + i] = g.index.getX(i) + vp;
+      vp += pa.count; ip += g.index.count; g.dispose();
+    });
+    const mg = new T.BufferGeometry();
+    mg.setAttribute("position", new T.BufferAttribute(pos, 3)); mg.setAttribute("normal", new T.BufferAttribute(nor, 3)); mg.setAttribute("uv", new T.BufferAttribute(uv, 2));
+    mg.setIndex(new T.BufferAttribute(idx, 1)); mg.computeBoundingSphere();
+    const mm = new T.Mesh(mg, list[0].material);
+    list.forEach(function (m) { node.remove(m); });
+    node.add(mm);
+  });
 }
 
 // Pose: every key defaults to 0. hy pelvis height offset; hx/hry/hz pelvis; sx/sy/sz spine; nx/ny/nz head;
@@ -1450,22 +1588,23 @@ function makePerson(o) {
 const PK = ["hy", "hx", "hry", "hz", "sx", "sy", "sz", "nx", "ny", "nz", "lsx", "lsy", "lsz", "lex", "lwx", "lwz", "rsx", "rsy", "rsz", "rex", "rwx", "rwz",
   "lhx", "lhz", "lkx", "lax", "rhx", "rhz", "rkx", "rax", "curl", "smile", "jaw", "brow", "frown"];
 const POSES = {
-  stand: { lsz: 0.12, rsz: 0.12, lex: -0.22, rex: -0.22, curl: 0.35, smile: 0.5 },
+  stand: { hy: -0.012, lsz: 0.1, rsz: 0.1, lsx: 0.05, rsx: 0.02, lex: -0.32, rex: -0.26, lkx: 0.07, rkx: 0.04, lhx: -0.04, rhx: -0.02, lax: -0.03, curl: 0.45, smile: 0.5 },
   sit: { hy: -0.42, sx: -0.06, lhx: -1.52, rhx: -1.52, lkx: 1.45, rkx: 1.45, lax: 0.05, rax: 0.05, lhz: 0.06, rhz: 0.06,
-    lsx: -0.5, rsx: -0.5, lsz: 0.1, rsz: 0.1, lex: -0.85, rex: -0.85, curl: 0.4, smile: 0.4 },
-  hold: { lsx: -2.95, rsx: -2.95, lsz: 0.1, rsz: 0.1, lsy: 0.15, rsy: 0.15, lex: -0.42, rex: -0.42, lwx: -0.4, rwx: -0.4, lkx: 0.14, rkx: 0.14, lhx: -0.08, rhx: -0.08, lhz: 0.07, rhz: 0.07, hy: -0.012, curl: 0.15, nx: -0.25, smile: 0.1, brow: 0.4 },
-  kick: { sx: -0.18, rhx: -1.35, rkx: 0.25, rax: -0.3, lkx: 0.12, lhx: 0.08, lsx: -0.7, lsz: 0.75, rsx: 0.5, rsz: 0.35, lex: -0.4, rex: -0.6, curl: 0.9, jaw: 0.5, smile: -0.3, brow: -0.6, frown: 1 },
+    lsx: -0.5, rsx: -0.5, lsz: 0.1, rsz: 0.1, lex: -0.85, rex: -0.85, curl: 0.45, smile: 0.4 },
+  hold: { lsx: -2.95, rsx: -2.95, lsz: 0.1, rsz: 0.1, lsy: 0.15, rsy: 0.15, lex: -0.42, rex: -0.42, lwx: -0.4, rwx: -0.4, lkx: 0.18, rkx: 0.18, lhx: -0.1, rhx: -0.1, lax: -0.08, rax: -0.08, lhz: 0.07, rhz: 0.07, hy: -0.02, curl: 0.15, nx: -0.25, smile: 0.1, brow: 0.4 },
+  kick: { sx: -0.18, rhx: -1.35, rkx: 0.35, rax: -0.3, lkx: 0.2, lhx: 0.08, lax: -0.1, hy: -0.02, lsx: -0.7, lsz: 0.75, rsx: 0.5, rsz: 0.35, lex: -0.7, rex: -0.9, curl: 0.9, jaw: 0.5, smile: -0.3, brow: -0.6, frown: 1 },
   drive: { hy: -0.5, sx: -0.12, lhx: -1.35, rhx: -1.35, lkx: 1.2, rkx: 1.2, lax: 0.15, rax: 0.15, lhz: 0.08, rhz: 0.08,
     lsx: -1.05, rsx: -1.05, lsz: 0.18, rsz: 0.18, lex: -0.75, rex: -0.75, lwx: 0.3, rwx: 0.3, curl: 0.85, smile: 0.6 },
-  cheer: { lsx: -2.55, rsx: -2.55, lsz: 0.65, rsz: 0.65, lex: -0.25, rex: -0.25, curl: 0.1, smile: 1, jaw: 0.8, brow: 0.8 },
-  carry: { lsx: -0.45, rsx: -0.45, lsz: -0.02, rsz: -0.02, lex: -1.3, rex: -1.3, lwx: 0.4, rwx: 0.4, curl: 0.2, smile: 0.7 },
+  cheer: { lsx: -2.45, rsx: -2.45, lsz: 0.6, rsz: 0.6, lex: -0.6, rex: -0.6, lkx: 0.1, rkx: 0.1, lhx: -0.05, rhx: -0.05, curl: 0.2, smile: 1, jaw: 0.8, brow: 0.8 },
+  carry: { lsx: -0.45, rsx: -0.45, lsz: -0.02, rsz: -0.02, lex: -1.3, rex: -1.3, lwx: 0.4, rwx: 0.4, lkx: 0.06, rkx: 0.06, curl: 0.25, smile: 0.7 },
   talk: { hy: -0.42, sx: -0.04, lhx: -1.52, rhx: -1.52, lkx: 1.45, rkx: 1.45, lhz: 0.08, rhz: 0.08, lsx: -0.5, lsz: 0.1, lex: -0.9,
     rsx: -0.9, rsz: 0.25, rex: -1.5, curl: 0.2, smile: 0.9, brow: 0.5 },
   phone: { hy: -0.42, sx: -0.02, lhx: -1.52, rhx: -1.52, lkx: 1.45, rkx: 1.45, lhz: 0.08, rhz: 0.08, lsx: -0.5, lsz: 0.1, lex: -0.9,
     rsx: -1.25, rsz: -0.15, rex: -1.25, rsy: 0.5, curl: 0.5, smile: 1, brow: 0.6, ny: -0.3 },
   sleep: { hy: -0.42, sx: -0.12, lhx: -1.5, rhx: -1.5, lkx: 1.45, rkx: 1.45, lsx: -0.45, rsx: -0.45, lex: -0.9, rex: -0.9, nz: 0.42, nx: 0.25, curl: 0.5, smile: 0.1, jaw: 0.25 },
   read: { hy: -0.42, lhx: -1.5, rhx: -1.5, lkx: 1.45, rkx: 1.45, lsx: -0.95, rsx: -0.95, lsz: -0.12, rsz: -0.12, lex: -1.15, rex: -1.15, nx: 0.3, curl: 0.7, smile: 0 },
-  seatRide: { hy: -0.38, sx: -0.1, lhx: -1.45, rhx: -1.45, lkx: 1.35, rkx: 1.35, lsx: -0.35, rsx: -0.35, lsz: 0.3, rsz: 0.3, lex: -0.6, rex: -0.6, curl: 0.8, smile: 0.8, brow: 0.4 }
+  seatRide: { hy: -0.38, sx: -0.1, lhx: -1.45, rhx: -1.45, lkx: 1.35, rkx: 1.35, lsx: -0.35, rsx: -0.35, lsz: 0.3, rsz: 0.3, lex: -0.6, rex: -0.6, curl: 0.8, smile: 0.8, brow: 0.4 },
+  wave: { hy: -0.012, lsz: 0.1, lex: -0.3, lkx: 0.06, rkx: 0.03, rsx: -0.3, rsz: 1.9, rex: -1.2, curl: 0.15, smile: 0.9, brow: 0.4 }
 };
 function mixPose(a, b, u, out) {
   out = out || {};
@@ -1473,6 +1612,25 @@ function mixPose(a, b, u, out) {
   return out;
 }
 function addPose(a, d, k) { for (const key in d) a[key] = (a[key] || 0) + d[key] * (k == null ? 1 : k); return a; }
+// A walk cycle laid over any pose: ph advances about 2 pi per stride. Knees bend through the swing, the heel
+// strikes with a straight-ish knee, arms swing against the legs with soft elbows, the hips sway and bob.
+function walkPose(p, ph, k, armsFree) {
+  const s = Math.sin(ph), c = Math.cos(ph);
+  p.lhx = (p.lhx || 0) - 0.48 * s * k; p.rhx = (p.rhx || 0) + 0.48 * s * k;
+  p.lkx = (p.lkx || 0) + (0.12 + 0.85 * Math.max(0, c)) * k; p.rkx = (p.rkx || 0) + (0.12 + 0.85 * Math.max(0, -c)) * k;
+  p.lax = (p.lax || 0) + (-0.25 * Math.max(0, c) + 0.2 * s) * k; p.rax = (p.rax || 0) + (-0.25 * Math.max(0, -c) - 0.2 * s) * k;
+  p.hy = (p.hy || 0) - (0.03 - 0.025 * Math.abs(s)) * k;
+  p.hry = (p.hry || 0) + 0.09 * s * k; p.sy = (p.sy || 0) - 0.12 * s * k; p.hz = (p.hz || 0) + 0.03 * c * k;
+  p.sx = (p.sx || 0) + 0.05 * k;
+  if (armsFree) { p.lsx = (p.lsx || 0) + 0.42 * s * k; p.rsx = (p.rsx || 0) - 0.42 * s * k; p.lex = (p.lex || 0) - 0.25 * Math.max(0, -s) * k; p.rex = (p.rex || 0) - 0.25 * Math.max(0, s) * k; }
+  return p;
+}
+// A cheer that bounces: knees load before each hop, elbows pump
+function cheerExtra(t, i) {
+  const j = Math.sin(t * 8 + i), up = Math.max(0, j);
+  return { hy: up * 0.06 - Math.max(0, -j) * 0.05, lkx: Math.max(0, -j) * 0.5, rkx: Math.max(0, -j) * 0.5, lhx: -Math.max(0, -j) * 0.3, rhx: -Math.max(0, -j) * 0.3, lax: -Math.max(0, -j) * 0.2, rax: -Math.max(0, -j) * 0.2,
+    lsx: Math.sin(t * 7 + i) * 0.3, rsx: Math.cos(t * 7 + i) * 0.3, lex: -Math.abs(Math.sin(t * 7 + i)) * 0.5, rex: -Math.abs(Math.cos(t * 7 + i)) * 0.5, sx: -0.06 };
+}
 
 function applyPose(P, p, t) {
   const g = function (k) { return p[k] || 0; };
@@ -1483,34 +1641,33 @@ function applyPose(P, p, t) {
   P.head.rotation.set(g("nx") * 0.65, g("ny") * 0.65, g("nz") * 0.65);
   P.la.sh.rotation.set(g("lsx"), g("lsy"), g("lsz"));
   P.ra.sh.rotation.set(g("rsx"), -g("rsy"), -g("rsz"));
-  P.la.el.rotation.x = g("lex"); P.ra.el.rotation.x = g("rex");
+  P.la.el.rotation.x = Math.min(-0.08, g("lex")); P.ra.el.rotation.x = Math.min(-0.08, g("rex"));      // elbows never lock straight
   P.la.wr.rotation.set(g("lwx"), 0, g("lwz")); P.ra.wr.rotation.set(g("rwx"), 0, -g("rwz"));
   P.ll.hp.rotation.set(g("lhx"), 0, g("lhz")); P.rl.hp.rotation.set(g("rhx"), 0, -g("rhz"));
-  P.ll.kn.rotation.x = g("lkx"); P.rl.kn.rotation.x = g("rkx");
+  P.ll.kn.rotation.x = Math.max(0.02, g("lkx")); P.rl.kn.rotation.x = Math.max(0.02, g("rkx"));
   P.ll.an.rotation.x = g("lax"); P.rl.an.rotation.x = g("rax");
   const curl = clamp(g("curl"), 0, 1);
-  [P.la, P.ra].forEach(function (A) { for (let i = 0; i < 4; i++) A.fingers[i].rotation.x = -curl * (1.25 + i * 0.08); A.thumb.rotation.x = -0.5 - curl * 0.6; });
-  // face
+  [P.la, P.ra].forEach(function (A) { for (let i = 0; i < 4; i++) { A.fingers[i].rotation.x = -curl * (1.0 + i * 0.08); A.fingers[i].userData.tip.rotation.x = -0.2 - curl * 1.1; } A.thumb.rotation.x = -0.5 - curl * 0.6; });
   const jaw = clamp(g("jaw"), 0, 1), smile = clamp(g("smile"), -1, 1);
   P.inner.scale.set(0.03 + smile * 0.006, 0.002 + jaw * 0.03, 0.014);
   P.inner.position.y = -0.008 - jaw * 0.012;
   P.lips.scale.set(1 + smile * 0.12, Math.abs(smile) < 0.08 ? 0.08 : smile * 0.55, 1);
   P.lips.position.y = 0.004 - jaw * 0.02 + (smile < 0 ? -0.012 : 0);
-  P.chin.position.y = 0.045 - jaw * 0.016;
+  P.chin.position.y = 0.042 - jaw * 0.016;
   const br = clamp(g("brow"), -1, 1), fr = clamp(g("frown"), 0, 1);
-  P.brows.forEach(function (b, i) { const s = i ? 1 : -1; b.position.y = 0.218 + br * 0.014; b.rotation.z = s * (fr * 0.35 - br * 0.12); });
-  // blink
+  P.brows.forEach(function (b, i) { const s = i ? 1 : -1; b.position.y = 0.22 + br * 0.014; b.rotation.z = s * (fr * 0.35 - br * 0.12); });
   P.blink -= (t || 0);
   let lid = 1;
   if (P.blink < 0.12) lid = Math.abs(P.blink - 0.06) / 0.06;
   if (P.blink < 0) P.blink = 2 + Math.random() * 3.5;
   P.eyes.forEach(function (e) { e.scale.y = Math.max(0.1, lid); });
 }
-// A little life on top of any pose: breathing, a slow sway, glances. k scales it (0 = still).
+// A little life on top of any pose: breathing, a slow weight shift, glances. k scales it (0 = still).
 function lifePose(p, P, time, k) {
   const ph = P.phase + time;
   p.sx = (p.sx || 0) + Math.sin(ph * 1.7) * 0.015 * k;
   p.lsz = (p.lsz || 0) + Math.sin(ph * 1.7) * 0.02 * k; p.rsz = (p.rsz || 0) + Math.sin(ph * 1.7) * 0.02 * k;
+  p.lex = (p.lex || 0) + Math.sin(ph * 0.9) * 0.05 * k; p.rex = (p.rex || 0) + Math.sin(ph * 0.9 + 1) * 0.05 * k;
   p.ny = (p.ny || 0) + Math.sin(ph * 0.43) * 0.18 * k;
   p.nx = (p.nx || 0) + Math.sin(ph * 0.61 + 1) * 0.04 * k;
   p.hz = (p.hz || 0) + Math.sin(ph * 0.5) * 0.015 * k;
@@ -1519,6 +1676,7 @@ function lifePose(p, P, time, k) {
 function posePerson(P, name, dt, time, extra, life) {
   const p = mixPose(POSES[name] || POSES.stand, POSES[name] || POSES.stand, 0, P.pose);
   if (extra) addPose(p, extra);
+  if (name === "stand" || name === "wave") { const w = Math.sin((P.phase + time) * 0.5) * (life == null ? 1 : life); p.lkx += Math.max(0, w) * 0.12; p.rkx += Math.max(0, -w) * 0.12; p.hz += w * 0.02; }   // weight shift
   lifePose(p, P, time, life == null ? 1 : life);
   applyPose(P, p, dt);
 }
@@ -1531,14 +1689,14 @@ function dressMascot(P, maps) {
     const muff = new T.MeshLambertMaterial({ color: 0xff77a8 }), band = new T.MeshPhongMaterial({ color: 0x8e93a2, shininess: 60 });
     const em = new T.Group(); P.head.add(em);
     [-1, 1].forEach(function (s) { const m = new T.Mesh(G.sph, muff); m.position.set(s * 0.158, 0.15, 0); m.scale.set(0.04, 0.062, 0.062); em.add(m); });
-    const arc = new T.Mesh(new T.TorusGeometry(0.168, 0.009, 6, 20, Math.PI), band); arc.position.set(0, 0.15, -0.01); em.add(arc);   // over the top, ear to ear
+    const arc = new T.Mesh(new T.TorusGeometry(0.168, 0.009, 6, 20, Math.PI), band); arc.position.set(0, 0.15, -0.01); em.add(arc);
     P.acc.muffs = em;
     const plaid = new T.MeshLambertMaterial({ map: maps.plaid });
     const sc = new T.Group(); P.spine.add(sc);
     const wrap = new T.Mesh(G.ring, plaid); wrap.position.set(0, 0.53, 0.01); wrap.scale.set(0.088, 0.55, 0.08); sc.add(wrap);
-    const tail = new T.Group(); tail.position.set(0.05, 0.5, 0.075); sc.add(tail);
+    const tail = new T.Group(); tail.position.set(0.05, 0.5, 0.085); sc.add(tail);
     const tm = new T.Mesh(G.box, plaid); tm.scale.set(0.06, 0.24, 0.018); tm.position.y = -0.12; tail.add(tm);
-    const tail2 = new T.Group(); tail2.position.set(-0.03, 0.5, 0.07); sc.add(tail2);
+    const tail2 = new T.Group(); tail2.position.set(-0.03, 0.5, 0.08); sc.add(tail2);
     const tm2 = new T.Mesh(G.box, plaid); tm2.scale.set(0.06, 0.2, 0.018); tm2.position.y = -0.1; tail2.add(tm2);
     P.acc.scarf = sc; P.acc.tail = tail; P.acc.tail2 = tail2;
     const hat = new T.Group(); hat.position.set(0, 0.28, -0.02); P.head.add(hat);
@@ -1552,7 +1710,7 @@ function dressMascot(P, maps) {
   P.acc.muffs.visible = wear("earmuffs");
   P.acc.scarf.visible = wear("scarf");
   P.acc.hat.visible = wear("hat");
-  P.hairG.children.forEach(function (c, i) { if (i > 0) c.visible = !wear("hat"); });
+  P.spikes.visible = !wear("hat");
 }
 
 /* =====================================================================================
@@ -1607,7 +1765,7 @@ function buildKit(T, scriptImg) {
   G.sph = new T.SphereGeometry(1, 20, 14); G.box = new T.BoxGeometry(1, 1, 1); G.cyl = new T.CylinderGeometry(1, 1, 1, 18);
   G.cone = new T.ConeGeometry(1, 1, 18); G.plane = new T.PlaneGeometry(1, 1); G.ring = new T.TorusGeometry(1, 0.12, 8, 28);
   G.ground = new T.PlaneGeometry(1, 1).rotateX(-Math.PI / 2);
-  MP.tee = tex(teeCanvas(script)); MP.jeans = tex(clothCanvas("#3b5a96", "rgba(10,20,50,.45)", 4, { denim: true, vertical: true, seam: "rgba(255,200,120,.5)" }), true);
+  MP.tee = tex(teeCanvas(script)); MP.teeSleeve = tex(clothCanvas("#1b1b22", "rgba(0,0,0,.45)", 12, { folds: 12, seam: "rgba(255,255,255,.14)" }), true); MP.jeans = tex(clothCanvas("#3b5a96", "rgba(10,20,50,.45)", 4, { denim: true, vertical: true, seam: "rgba(255,200,120,.5)" }), true);
   MP.sweater = tex(sweaterCanvas()); MP.plaid = tex(plaidCanvas("#c2304a", "#2f6b3a"), true); MP.plaidCloth = tex(plaidCanvas("#c2304a", "#fff1d6", "#8a1f30"), true);
   MP.pieBox = tex(pieBoxCanvas(script, false)); MP.pieBoxGold = tex(pieBoxCanvas(script, true)); MP.pieTop = tex(pieTopCanvas());
   MP.giftA = tex(giftCanvas("#5a7bb5", "#ffd23f")); MP.giftB = tex(giftCanvas("#8a5a9a", "#ffd23f"));
@@ -1619,7 +1777,7 @@ function buildKit(T, scriptImg) {
   G.pieBox = roundBox(0.38, 0.13, 0.38, 0.015, 2);
 
   /* the mascot: the Nostalgia Pro collector (spiky brown hair, shades, the NP tee, jeans, red sneakers) */
-  K.hero = makePerson({ skin: 0xf0a862, shirtMap: MP.tee, trim: 0x101016, pantsMap: MP.jeans, shoe: 0xd8283a, sole: 0xf6f2e8, hair: 0x5a3418,
+  K.hero = makePerson({ skin: 0xf0a862, shirtMap: MP.tee, sleeveMap: MP.teeSleeve, trim: 0x101016, pantsMap: MP.jeans, shoe: 0xd8283a, sole: 0xf6f2e8, hair: 0x5a3418,
     hairStyle: "spiky", glasses: "shades", sleeves: "short", brow: 0x3a2010, belt: 0x2a1a10 });
   K.hero.root.traverse(function (o) { o.frustumCulled = true; });
   dressMascot(K.hero, MP);
@@ -1913,8 +2071,13 @@ function buildIntro() {
     const pt = S.phase === "intro" ? S.pt : 5;
     paintBoard(cb.getContext("2d"), pt); tb.needsUpdate = true;
     const P = K.hero;
-    place(P.root, scene, 0.55, 0, 0.6, -0.25);
-    posePerson(P, "carry", dt, t, { ny: Math.sin(t * 0.8) * 0.2 - 0.35, nx: -0.12 }, 0.7);
+    const wk = clamp(pt / 2.4, 0, 1), ease = 1 - Math.pow(1 - wk, 1.6), walking = 1 - clamp((pt - 2.1) / 0.5, 0, 1);
+    const turn = clamp((pt - 2.0) / 0.7, 0, 1);
+    place(P.root, scene, 2.6 - ease * 2.05, 0, 0.6, -Math.PI / 2 * (1 - turn) - 0.25 * turn);
+    const pz = mixPose(POSES.carry, POSES.carry, 0, P.pose);
+    addPose(pz, { ny: (Math.sin(t * 0.8) * 0.2 - 0.35) * turn - 0.1 * (1 - turn), nx: -0.12 });
+    walkPose(pz, pt * 4.6, walking, false);
+    lifePose(pz, P, t, 0.7 * turn); applyPose(P, pz, dt);
     P.root.updateMatrixWorld(true);
     const hv = new T.Vector3(); P.la.hand.getWorldPosition(hv); const hr = new T.Vector3(); P.ra.hand.getWorldPosition(hr);
     boxes.position.set((hv.x + hr.x) / 2, (hv.y + hr.y) / 2 - 0.02, (hv.z + hr.z) / 2); boxes.rotation.y = -0.25;
@@ -2190,6 +2353,10 @@ function buildMotel() {
   add(iceBody, K.geo.box, 0x5a6670, 0, 0.62, 0.4, 0.4, 0.05, 0.03);
   const iceLamp = add(iceBody, K.geo.sph, new T.MeshBasicMaterial({ color: 0x9bff3f }), 0.36, 1.48, 0.38, 0.03);
   const P0 = K.hero;
+  const clerk = makePerson({ skin: 0xc98a5a, shirt: 0xb8862a, trim: 0x8a6420, pants: 0x4a4a52, shoe: 0x2a1a10, sole: 0x1b1410, hair: 0x9a9a9a, hairStyle: "bald",
+    sleeves: "long", collar: "shirt", glasses: "round", mustache: true, belly: 0.5, brow: 0x8a8a8a });
+  clerk.root.position.set(-1.55, 0.16, -3.2); scene.add(clerk.root);
+  const fob = grp(clerk.la.hand, 0, -0.1, 0.02); add(fob, K.geo.box, 0xc2304a, 0, -0.05, 0, 0.04, 0.09, 0.012); add(fob, K.geo.ring, 0xd8c27a, 0, 0.01, 0, 0.02, 0.02, 0.02);
   const leaves = leafFall(scene, 50, [-5, 5], [0.1, 4.5], [-4, 2], 0.14);
   return { scene: scene, cam: cam, sync: function (state, dt, t) {
     const live = S.phase === "motel", pt = live ? S.pt : 9;
@@ -2211,6 +2378,8 @@ function buildMotel() {
     else addPose(base, { brow: -0.2, frown: 0.3, smile: 0.0 });
     lifePose(base, P0, t, 0.6);
     applyPose(P0, base, dt);
+    posePerson(clerk, "wave", dt, t, { rsz: Math.sin(t * 6) * 0.35, rex: Math.sin(t * 6 + 1) * 0.2, ny: 0.35, lsx: -0.6, lex: -1.1, lsz: -0.1 }, 0.6);
+    clerk.root.rotation.y = 0.35;
     // the car, parked
     place(K.car, scene, -3.2, 0, -1.6, 0.75);
     carParts(0); heroUnflap();
@@ -2431,6 +2600,8 @@ function buildHome() {
   add(room, K.geo.box, new T.MeshLambertMaterial({ color: 0xc9a47a }), 0, 1.6, -3, 10, 3.2, 0.1);
   add(room, K.geo.box, 0x5a3a2a, 0, 0.5, -2.94, 10, 1.0, 0.04);
   add(room, K.geo.box, new T.MeshLambertMaterial({ color: 0xb8946a }), -3.5, 1.6, 0, 0.1, 3.2, 8);
+  add(room, K.geo.box, new T.MeshLambertMaterial({ color: 0xb8946a }), 4.5, 1.6, 0, 0.1, 3.2, 8);
+  add(room, K.geo.box, 0x5a3a2a, 4.44, 0.5, 0, 0.04, 1.0, 8);
   add(room, K.geo.plane, new T.MeshBasicMaterial({ map: K.tex(signCanvas(K.script, 512, 300, "#1d2b53", "#ffd23f", [["GIVE THANKS", "#ffd23f", 44]], { logo: true })) }), 0.4, 2.2, -2.92, 1.4, 0.82, 1);
   const roomLight = new T.PointLight(0xffd8a0, 0, 10, 1.4); roomLight.position.set(40, 2.6, 0.5); scene.add(roomLight);
   const tbl = grp(room, 0, 0, -0.6);
@@ -2500,7 +2671,7 @@ function buildHome() {
     fam.forEach(function (p, i) {
       p.root.visible = on && T0 > 5 && T0 < 6;
       place(p.root, scene, [-1.5, -0.95, 1.2][i], 0.25, -4.45, [0.3, 0.2, -0.3][i]);
-      posePerson(p, "cheer", dt, t + i, { lsx: Math.sin(t * 7 + i) * 0.3, rsx: Math.cos(t * 7 + i) * 0.3, hy: Math.abs(Math.sin(t * 8 + i)) * 0.05 }, 0.5);
+      posePerson(p, "cheer", dt, t + i, cheerExtra(t, i), 0.5);
     });
     // cut inside after the door opens
     const inside = T0 > 6;
@@ -2518,11 +2689,15 @@ function buildHome() {
         fam.forEach(function (p, i) {
           p.root.visible = true;
           place(p.root, room, -0.9 + i * 0.9, 0, -1.55, 0);
-          posePerson(p, "cheer", dt, t + i, { lsx: Math.sin(t * 6 + i) * 0.35, rsx: Math.cos(t * 6 + i) * 0.35 }, 0.5);
+          posePerson(p, "cheer", dt, t + i, cheerExtra(t * 0.85, i), 0.5);
         });
       } else {
-        place(P0.root, room, -0.45, 0, 0.95, 0.4);
-        posePerson(P0, "stand", dt, t, { nx: 0.45, ny: 0.5, smile: -0.2, brow: 0.6, rsx: -0.5, rex: -1.6, rsz: 0.3, lsx: 0.1 }, 0.5);
+        const wk = clamp((T0 - 6) / 2.4, 0, 1), walking = 1 - clamp((T0 - 8.2) / 0.4, 0, 1), turn = clamp((T0 - 8.0) / 0.6, 0, 1);
+        place(P0.root, room, 2.2 - wk * 2.65, 0, 2.6 - wk * 1.65, -2.13 * (1 - turn) + 0.4 * turn);
+        const pz = mixPose(POSES.stand, POSES.stand, 0, P0.pose);
+        addPose(pz, { nx: 0.45 * turn + 0.1, ny: 0.5 * turn, smile: -0.2, brow: 0.6 * turn, rsx: -0.5 * turn, rex: -1.3 * turn, rsz: 0.3 * turn, lsx: 0.1 });
+        walkPose(pz, (T0 - 6) * 5.4, walking, true);
+        lifePose(pz, P0, t, 0.5 * turn); applyPose(P0, pz, dt);
       }
     }
     // confetti on time
