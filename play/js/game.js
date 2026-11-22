@@ -3112,7 +3112,7 @@
   function cartHTML() {
     if (!DEMO) return cartFull();
     var dsv = readDemoSave();
-    return '<div class="cart-label"><div class="cart-brand">NOSTALGIA PRO</div><div class="cart-sub">' + 'THE GAME &middot; SELECT A MODE</div>' +
+    return '<div class="cart-label"><div class="cart-brand"><img src="/images/np-script.webp" width="1800" height="749" alt="Nostalgia Pro"></div><div class="cart-sub">' + 'THE GAME &middot; SELECT A MODE</div>' +
       (dsv ? '<button class="cart-item mode" data-act="democontinue">CONTINUE <small>your Saturday, ' + esc(fmtTime(dsv.run.time)) + '</small></button>' : '') +
       '<button class="cart-item mode" data-act="start" data-mode="noon">BACK BY NOON <small>' + (DEMO ? 'free demo' : 'short run') + '</small></button>' +
       (DEMO ? '<button class="cart-item mode" disabled aria-disabled="true">HOME BY SUNDOWN <small>full version</small></button>'
@@ -3132,7 +3132,7 @@
   function cartFull() {
     var sv = readSave(), se = sv && sv.season;
     var cont = se ? '<button class="cart-item mode" data-act="continue">CONTINUE <small>' + esc(se.endingPending ? 'your ending is waiting' : seasonLabelLc(sv.run ? sv.run.week : se.week)) + '</small></button>' : '';
-    return '<div class="cart-label"><div class="cart-brand">NOSTALGIA PRO</div><div class="cart-sub">THE GAME &middot; SELECT A MODE</div>' +
+    return '<div class="cart-label"><div class="cart-brand"><img src="/images/np-script.webp" width="1800" height="749" alt="Nostalgia Pro"></div><div class="cart-sub">THE GAME &middot; SELECT A MODE</div>' +
       cont +
       '<button class="cart-item mode" data-act="newgame">NEW GAME <small>12 Saturdays</small></button>' +
       '<button class="cart-item mode" data-act="start" data-mode="noon">BACK BY NOON <small>today\'s quick run</small></button>' +
@@ -3222,7 +3222,7 @@
       '<div class="screen title">' +
       (tv ? '<div class="tvwrap"><canvas id="tvcv" width="320" height="200" aria-label="A CRT TV on a VCR. The title Nostalgia Pro is on screen. Press Enter or tap to start."></canvas></div>' +
         '<div class="tv-hint" id="tvhint"' + (cartOpen ? ' hidden' : '') + '>' + (coarse() ? 'Tap the TV to start' : 'Press Enter or click the TV') + '</div>'
-        : '<canvas id="logo" width="640" height="150"></canvas>') +
+        : '<canvas id="logo" width="640" height="240"></canvas>') +
       '<div class="cart" id="cart"' + (tv && !cartOpen ? ' hidden' : '') + '>' + cartHTML() + '</div>' +
       seasonBox() +
       '<div class="daily">' + (DEMO ? '<b>Demo Saturday</b>' : '<b>Back by noon</b> &middot; ' + dayLabel() + ' &middot; ' + esc(todaySeed)) +
@@ -5192,7 +5192,7 @@
   function renderGate() {
     gateOn = true;
     app.innerHTML = '<div class="screen gate"><button class="gate-btn" data-act="tapstart">' +
-      '<canvas id="gatecv" width="320" height="104" aria-hidden="true"></canvas>' +
+      '<canvas id="gatecv" width="320" height="150" aria-hidden="true"></canvas>' +
       '<span class="gate-t">' + (coarse() ? 'Tap to start' : 'Click or press Enter to start') + '</span>' +
       '<span class="gate-s">' + (DEMO ? 'Nostalgia Pro: The Game, free demo. ' : '') + 'Turn your sound up.</span></button>' +
       '<div class="foot">A parody. Every game, console, store and company in here is made up.</div></div>';

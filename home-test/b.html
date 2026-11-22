@@ -50,9 +50,9 @@
 
   header{padding:44px 0 0}
   .wordmark{
-    font-family:"Silkscreen",monospace;font-weight:700;
-    font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px;
+    margin:0 0 22px;line-height:0;
   }
+  .wordmark img{display:block;width:min(240px,72vw);height:auto}
   h1{
     font-family:"Press Start 2P",monospace;
     font-size:clamp(15px,3.3vw,34px);
@@ -430,9 +430,9 @@ header.o1{padding-top:0}
 
 .o1-hero{position:relative;margin-top:-56px;text-align:center}
 .o1 .wordmark{
-  display:inline-block;margin:0 0 16px;padding:6px 12px;color:var(--text);
-  background:rgba(16,18,25,.85);border:1px solid var(--line);border-radius:2px;
+  display:inline-block;margin:0 auto 12px;padding:0;background:none;border:none;line-height:0;
 }
+.o1 .wordmark img{width:min(420px,86vw);height:auto;margin:0 auto;filter:drop-shadow(0 4px 0 rgba(0,0,0,.55))}
 .o1 h1{text-shadow:0 0 26px rgba(255,75,62,.45),0 3px 0 #000}
 .o1 .standfirst{margin:16px auto 0;color:#b9bcc7;font-size:17px}
 .o1 .searchbar{max-width:900px;margin:26px auto 0}
@@ -472,7 +472,8 @@ header.o1{padding-top:0}
 /* 1996 mode: no moving photos, plain web-ring style link groups */
 body.y1996 .o1-strip{display:none}
 body.y1996 .o1-hero{margin-top:0}
-body.y1996 .o1 .wordmark{background:none;border:none;color:#00ff00}
+body.y1996 .o1 .wordmark{background:none;border:none}
+body.y1996 .o1 .wordmark img{filter:sepia(1) saturate(6) hue-rotate(70deg) brightness(1.25)}
 body.y1996 .o1-group{background:#c0c0c0;border:2px outset #fff;border-radius:0}
 body.y1996 .o1-lbl{color:#000080;font-family:"Times New Roman",Times,serif;font-size:13px;letter-spacing:0;font-weight:700}
 body.y1996 .shelflink.o1-pill{border-radius:0;font-size:13px}
@@ -780,7 +781,7 @@ body.y1996 .ptile .psub{color:#000}
       </div>
     </div>
     <div class="o1-hero">
-      <p class="wordmark">The Nostalgia Pro</p>
+      <p class="wordmark"><img src="/images/np-script.webp" width="1800" height="749" alt="The Nostalgia Pro"></p>
       <h1>Is it on the shelf?</h1>
     </div>
     <div class="ht-hero">

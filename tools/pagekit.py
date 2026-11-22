@@ -33,8 +33,9 @@ BASE_CSS = """  :root{
   }
   .wrap{position:relative;z-index:1;max-width:WIDTH;margin:0 auto;padding:0 22px 90px}
   header{padding:44px 0 0}
-  .wordmark{font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim);margin:0 0 22px}
-  .wordmark a{color:inherit;text-decoration:none}
+  .wordmark{margin:0 0 18px;line-height:0}
+  .wordmark a{display:inline-block;line-height:0;color:inherit;text-decoration:none}
+  .wordmark img{display:block;width:min(240px,72vw);height:auto}
   h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word}
   .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
   .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}

@@ -45,8 +45,10 @@ a { color: inherit; }
   width: 48px; height: 48px; border-radius: 8px; background: var(--red); color: #101219;
   font: 400 14px/1 var(--display); text-decoration: none; box-shadow: 0 3px 0 #9c2a20;
 }
-.brand { font: 400 10px/1.4 var(--display); color: var(--dim); text-decoration: none; margin-right: auto; display: flex; flex-direction: column; justify-content: center; min-height: 44px; }
+.brand { font: 400 10px/1.4 var(--display); color: var(--dim); text-decoration: none; margin-right: auto; display: flex; flex-direction: column; justify-content: center; min-height: 44px; gap: 1px; }
 .brand b { display: block; color: var(--text); font-weight: 400; }
+.brand-logo { display: block; width: min(168px, 42vw); height: auto; }
+.marquee-logo { display: block; width: min(560px, 86vw); height: auto; margin: 0 auto 6px; filter: drop-shadow(0 3px 0 #000); }
 .nav { display: flex; align-items: center; gap: 6px; }
 .nav a {
   display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 6px;
@@ -72,7 +74,7 @@ a { color: inherit; }
 .marquee::after { bottom: 4px; animation-delay: .45s; }
 .marquee h1 {
   margin: 0; font: 400 clamp(16px, 4.6vw, 40px)/1.35 var(--display); color: var(--text);
-  letter-spacing: 1px;
+  letter-spacing: 1px; display: flex; flex-direction: column; align-items: center;
   text-shadow: 0 0 6px var(--red), 0 0 18px rgba(255,75,62,.7), 3px 3px 0 #000;
 }
 .marquee h1 span { color: var(--red); text-shadow: 0 0 8px rgba(255,75,62,.9), 3px 3px 0 #000; }
@@ -194,9 +196,10 @@ a { color: inherit; }
 
 @keyframes chase { 50% { background-position: 9px 0; } }
 
-/* Header fit (arcade-test): tablets drop the brand text (the NP badge still links home) so the nav never runs off the right edge. */
+/* Header fit (arcade-test): tablets shrink the script logo so the nav still fits. */
 @media (max-width: 780px) {
-  .brand { display: none; }
+  .brand b { font-size: 11px; }
+  .brand-logo { width: min(120px, 36vw); }
   .nav { margin-left: auto; gap: 4px; }
   .nav a { padding: 0 10px; }
 }

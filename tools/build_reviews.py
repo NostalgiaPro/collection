@@ -280,7 +280,7 @@ def build():
     desc = (f"My Honest and Unpopular Reviews from X, all {len(revs)} of them: the full review, "
             f"the score out of five, and a link to the post.")
     h = [head("The Nostalgia Pro \u2014 Honest and Unpopular Reviews", desc, "/reviews.html", None, "940px", CSS)]
-    h.append('<body>\n' + BODY_JS + '<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/">The Nostalgia Pro</a></p>\n')
+    h.append('<body>\n' + BODY_JS + '<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/" aria-label="The Nostalgia Pro home"><img src="/images/np-script.webp" width="1800" height="749" alt="The Nostalgia Pro"></a></p>\n')
     h.append("  <h1>Honest and Unpopular Reviews</h1>\n")
     h.append("  <p class=\"standfirst\">Every game I've reviewed on X, newest first. Open one to read the whole review, "
              "or go to the post on X. Filter by console, or sort by number, rating or title.</p>\n")

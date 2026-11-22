@@ -15,7 +15,9 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 button.big { background: var(--red); color: var(--cream); border-bottom-color: #8e1c23; font-size: calc(18px * var(--tsz, 1)); padding: 12px 18px; }
 .center { text-align: center; justify-content: center; }
 .title { text-align: center; }
-#logo { width: 100%; max-width: 640px; height: auto; margin-top: 18px; }
+#logo { width: 100%; max-width: 640px; height: auto; margin-top: 10px; }
+#gatecv { width: min(100%, 360px); height: auto; display: block; margin: 0 auto 8px; }
+.cart-brand img { display: block; width: min(220px, 86%); height: auto; margin: 2px 0 4px; }
 .tagline { color: var(--cyan); font-weight: bold; font-size: calc(17px * var(--tsz, 1)); }
 .daily { margin: 12px auto; padding: 8px; border: 2px dashed var(--cyan); max-width: 460px; }
 .daily small { color: #b8c3e0; }
@@ -163,7 +165,7 @@ button.home { margin-top: 16px; width: 100%; }
 .cart::before { content: ""; position: absolute; left: 18px; right: 18px; top: 8px; height: 10px; background: repeating-linear-gradient(90deg, #5d6169 0 4px, transparent 4px 9px); }
 @keyframes cartIn { from { transform: translateY(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
 .cart-label { background: var(--cream); color: var(--ink); border: 3px solid var(--ink); border-top: 14px solid var(--red); padding: 8px 10px 10px; }
-.cart-brand { font-weight: bold; font-size: calc(22px * var(--tsz, 1)); color: var(--navy); letter-spacing: 3px; }
+.cart-brand { font-weight: bold; font-size: calc(22px * var(--tsz, 1)); color: var(--navy); letter-spacing: 3px; line-height: 0; }
 .cart-sub { font-size: calc(12px * var(--tsz, 1)); color: var(--red); font-weight: bold; margin-bottom: 6px; border-bottom: 3px solid var(--cyan); padding-bottom: 4px; letter-spacing: 1px; }
 .cart .cart-item { display: block; width: 100%; margin: 3px 0; padding: 9px 8px 9px 30px; text-align: left; position: relative; background: transparent; color: var(--navy); border: 0; font-size: calc(18px * var(--tsz, 1)); letter-spacing: 1px; }
 .cart .cart-item:hover:not(:disabled), .cart .cart-item:focus { background: var(--navy); color: var(--cream); outline: none; }

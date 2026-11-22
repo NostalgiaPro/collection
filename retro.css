@@ -26,8 +26,11 @@ body.y1996::before{
 
 /* ---- header ---- */
 body.y1996 .wordmark{
-  font-family:"Courier New",monospace;color:#00ff00;
-  letter-spacing:2px;text-align:center;font-size:13px;
+  text-align:center;
+}
+body.y1996 .wordmark img{
+  margin:0 auto;
+  filter:sepia(1) saturate(6) hue-rotate(70deg) brightness(1.25);
 }
 body.y1996 h1{
   font-family:"Times New Roman",Times,serif;

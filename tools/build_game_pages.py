@@ -217,7 +217,7 @@ def page(g, total, photo, review, mentions, posts, ranks=(), overrated=()):
     desc = describe(g, cond, status, total, review)
     ink = "#0b0d12"
     h = [head(title, desc, path, photo, "980px", CSS, image_alt=f"{g['title']} for the {g['system']}")]
-    h.append(f'<body>\n' + BODY_JS + '<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/">The Nostalgia Pro</a></p>\n')
+    h.append(f'<body>\n' + BODY_JS + '<div class="wrap">\n\n<header>\n  <p class="wordmark"><a href="/" aria-label="The Nostalgia Pro home"><img src="/images/np-script.webp" width="1800" height="749" alt="The Nostalgia Pro"></a></p>\n')
     h.append(nav())
     h.append(f'  <p class="crumb"><a href="/#{g["system_id"]}">&larr; {esc(g["system"])} shelf</a></p>\n</header>\n\n')
     h.append(f'<div class="game" style="--c:{g["color"]};--ink:{ink}">\n  <div>')

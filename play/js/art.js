@@ -289,18 +289,54 @@ NP.makeArt = function (it, scale) {
   return c;
 };
 
+NP._scriptLogo = null;
+NP._scriptLogoWait = [];
+NP.loadScriptLogo = function (cb) {
+  if (NP._scriptLogo) { cb(NP._scriptLogo); return; }
+  NP._scriptLogoWait.push(cb);
+  if (NP._scriptLogoWait.length > 1) return;
+  var img = new Image();
+  img.onload = function () {
+    NP._scriptLogo = img;
+    var fns = NP._scriptLogoWait.splice(0);
+    fns.forEach(function (fn) { fn(img); });
+  };
+  img.onerror = function () {
+    var fns = NP._scriptLogoWait.splice(0);
+    fns.forEach(function (fn) { fn(null); });
+  };
+  img.src = '/images/np-script.webp';
+};
+
 NP.drawLogo = function (canvas, adFree) {
+  if (!canvas) return;
   var ctx = canvas.getContext('2d');
   var W = canvas.width, H = canvas.height;
   ctx.clearRect(0, 0, W, H);
-  var s = Math.floor(W / 80);
-  var txt = 'NOSTALGIA PRO';
-  var y = Math.round(H / 2 - 7 * s / 2) - s * 2;
-  NP.pixelText(ctx, txt, W / 2 + s, y + s, s, NP.COL.red, 'center');
-  NP.pixelText(ctx, txt, W / 2, y, s, NP.COL.cream, 'center');
+  var s = Math.max(1, Math.floor(W / 80));
   var sub = adFree ? 'THE AD-LESS EDITION (WITH ADS)' : 'THE GAME';
   var s2 = Math.max(1, Math.floor(s / 3));
-  NP.pixelText(ctx, sub, W / 2, y + 9 * s, s2, NP.COL.cyan, 'center');
+  var paint = function (img) {
+    if (canvas !== document.getElementById(canvas.id) && canvas.parentNode == null) return;
+    ctx.clearRect(0, 0, W, H);
+    if (img) {
+      var subH = s2 * 8;
+      var maxW = W * 0.94;
+      var maxH = Math.max(24, H - subH - s);
+      var sc = Math.min(maxW / img.width, maxH / img.height);
+      var dw = img.width * sc, dh = img.height * sc;
+      var dx = (W - dw) / 2, dy = Math.max(0, (H - dh - subH) / 2);
+      ctx.drawImage(img, dx, dy, dw, dh);
+      NP.pixelText(ctx, sub, W / 2, dy + dh + s2 * 2, s2, NP.COL.cyan, 'center');
+    } else {
+      var txt = 'NOSTALGIA PRO';
+      var y = Math.round(H / 2 - 7 * s / 2) - s * 2;
+      NP.pixelText(ctx, txt, W / 2 + s, y + s, s, NP.COL.red, 'center');
+      NP.pixelText(ctx, txt, W / 2, y, s, NP.COL.cream, 'center');
+      NP.pixelText(ctx, sub, W / 2, y + 9 * s, s2, NP.COL.cyan, 'center');
+    }
+  };
+  NP.loadScriptLogo(paint);
 };
 
 // A can of Saguaro Splash Cola, 8x14 at scale k. phase 0 = label edge-on, 1 = label facing you.
