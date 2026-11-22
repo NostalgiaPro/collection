@@ -15,10 +15,10 @@ window.NP_SEASONS = {
       art: "halloween", cover: "covers/11-creature-feature-ko" },
     // testOnly: built and playable, but only shows with ?season=thanksgiving until RC approves it.
     { id: "thanksgiving", label: "Thanksgiving", start: "11-20", end: "11-30", status: "live", testOnly: true,
-      slug: "gravy-or-bust", name: "Gravy or Bust!", href: "gravy-or-bust/index.html", accent: "#e0662a",
+      slug: "gravy-or-bust", name: "Gravy or Bust!", href: "gravy-or-bust-3d/index.html", accent: "#e0662a",
       kicker: "SEASONAL SPECIAL: THANKSGIVING", genre: "Thanksgiving travel dash", fmt: "pts",
       hook: "Three rides, one card-table seat, three pies on your lap. Tap to the beat in the air, hold steady on the rails, hop lanes on the road. Make it home before the gravy.",
-      art: "thanksgiving" },
+      art: "thanksgiving", cover: "covers/gravy-or-bust-3d" },
     // testOnly: built and playable, but only shows with ?season=christmas until RC approves it.
     { id: "christmas", label: "Christmas", start: "12-08", end: "12-28", status: "live", testOnly: true,
       slug: "mall-santa-dash", name: "Mall Santa Dash '94", href: "mall-santa-dash/index.html", accent: "#3fd07a",
