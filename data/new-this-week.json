@@ -1,6 +1,14 @@
 {
   "items": [
     {
+      "type": "site",
+      "title": "LEGO Batman: Legacy of the Dark Knight",
+      "text": "New on the Xbox Series X shelf.",
+      "url": "/game/lego-batman-legacy-of-the-dark-knight-xbox-series-x-s.html",
+      "image": "/images/lego-batman-legacy-of-the-dark-knight-xbox-series-x-s.webp",
+      "date": "2026-11-22"
+    },
+    {
       "type": "x",
       "title": "147 mph on the Golden Gate bridge",
       "text": "While everyone is arguing about GTA 6, I'm over here doing 147 mph on the Golden Gate bridge in San Francisco Rush on my N64. Still one of the best arcade racers of the 90s.",

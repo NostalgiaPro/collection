@@ -11924,6 +11924,18 @@
       "region": "United States of America",
       "region_abbr": "USA",
       "gameye_release_date": "2013-11-19"
+    },
+    "lego-batman-legacy-of-the-dark-knight-xbox-series-x-s": {
+      "title": "LEGO Batman: Legacy of the Dark Knight",
+      "system": "Xbox Series X/S",
+      "nkey": "lego batman legacy of the dark knight",
+      "publisher": "Warner Bros. Games",
+      "developer": "TT Games",
+      "players": "",
+      "players_possibly_online": false,
+      "co_op": "",
+      "region": "United States of America",
+      "region_abbr": "USA"
     }
   }
 }
