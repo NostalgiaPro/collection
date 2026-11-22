@@ -1251,104 +1251,125 @@ function ledTick(dt) {
   if (redraw) { ledDraw(); if (L.tex) L.tex.needsUpdate = true; }
 }
 
-/* ---------------- People: sculpted, jointed characters ----------------
-   Every person is a rig of groups (pelvis, spine, neck, head; shoulder, elbow, wrist; hip, knee, ankle), facing +Z,
-   standing on y = 0, sized in meters with adult proportions (about seven and a half heads tall).
-   Bodies are sculpted, not tubes: each torso and limb is a lathed profile that is then pushed out of round, so a chest
-   and belly sit forward, shoulder blades and a seat sit back, an upper arm has a biceps in front and a triceps behind,
-   a forearm swells below the elbow and narrows to the wrist, a thigh has its quads and a calf bulges behind the shin.
-   Clothes are separate shells over the body: sleeves and pant legs overlap the elbow and knee so a bend never shows a
-   seam, flare a little at the cuff and the hem, and carry painted folds, seams and stitching. Hands have a palm, four
-   fingers and a thumb; shoes have an upper, a toe box, a heel, laces and a real sole. Faces have a skull, jaw, chin,
-   cheekbones, nose, ears, eyes that blink, brows that move and a mouth that opens and smiles.
-   For phones, every bone's static pieces are merged into one mesh per material and materials are shared by color. */
+/* ---------------- People: smooth, stylized, one surface per body ----------------
+   Every person is a SkinnedMesh on a small bone chain (pelvis, spine, neck, head; shoulder, elbow, wrist;
+   hip, knee, ankle), facing +Z, standing on y = 0, sized in meters.
+   The body is ONE continuous skinned surface: trunk, neck, arms and legs are lathed profiles whose vertices are
+   weighted across the joints, so elbows and knees bend smoothly with no ball, gap or crease. Sleeves and pant legs
+   are that same surface in cloth (or a slightly larger sleeve on the same bones), flaring a little at the cuff.
+   The head is one sculpted closed surface (a high-segment sphere pushed in code for the jaw, cheeks, chin, brow,
+   eye sockets and lips) with its color painted in per vertex: skin, blush, lips, mustache or beard. The nose and
+   ears are single smooth shapes merged into the same mesh. Hair is one swept cap that hugs the skull.
+   Hands are smooth mitts (the fingers together) that curl as one piece through a morph target, plus one thumb.
+   Shoes are one sculpted sneaker over a sole. Eyes are glossy eyeballs set into sockets, with lids that blink.
+   Materials are soft MeshStandardMaterial with a gentle rim, shared by color; small parts share geometry. */
 const HIP_H = 0.93;
-let PG = null;                                             // shared person geometry
-const PMAT = {};                                           // shared person materials, by kind and color
-
-function pmat(kind, key, make) { const k = kind + ":" + key; if (!PMAT[k]) PMAT[k] = make(); return PMAT[k]; }
+const PMAT = {}, PGEO = {};
+function pmat(key, make) { if (!PMAT[key]) PMAT[key] = make(); return PMAT[key]; }
+function pgeo(key, make) { if (!PGEO[key]) PGEO[key] = make(); return PGEO[key]; }
 function hexOf(n) { return typeof n === "string" ? n : "#" + ("000000" + (n >>> 0).toString(16)).slice(-6); }
-function bump(y, at, w) { const d = (y - at) / w; return Math.exp(-d * d); }
+function smooth(a, b, x) { let t = (x - a) / (b - a); t = t < 0 ? 0 : t > 1 ? 1 : t; return t * t * (3 - 2 * t); }
+function gauss(d, w) { const q = d / w; return Math.exp(-q * q); }
 
-// A lathed profile pushed out of round. prof: [radius, y] from the bottom up. f(x, y, z) -> [x, y, z].
-function sculpt(prof, segs, f, open) {
-  const T = THREE, pts = prof.map(function (p) { return new T.Vector2(Math.max(0.0005, p[0]), p[1]); });
-  const g = new T.LatheGeometry(pts, segs || 18);
-  if (f) {
-    const pa = g.attributes.position;
-    for (let i = 0; i < pa.count; i++) { const r = f(pa.getX(i), pa.getY(i), pa.getZ(i)); pa.setXYZ(i, r[0], r[1], r[2]); }
-    g.computeVertexNormals();
-  }
-  return g;
+// A soft rim of light on every person, so forms read against any background.
+function rimify(m, k) {
+  m.onBeforeCompile = function (sh) {
+    sh.fragmentShader = sh.fragmentShader.replace("#include <emissivemap_fragment>",
+      "#include <emissivemap_fragment>\n  { float rimF = 1.0 - clamp(dot(normal, normalize(vViewPosition)), 0.0, 1.0);\n" +
+      "    totalEmissiveRadiance += (diffuseColor.rgb * 0.55 + vec3(0.45, 0.42, 0.38)) * pow(rimF, 2.6) * " + k.toFixed(3) + "; }");
+  };
+  m.customProgramCacheKey = function () { return "np-rim-" + k; };
+  return m;
 }
-// limb profiles hang from the joint (y = 0) down to y = -len; cap = round the ends
-function capProf(list, topCap, botCap) {
-  const out = [];
-  if (botCap) { const r = list[0][0], y = list[0][1]; for (let i = 0; i <= 3; i++) { const a = i / 3 * Math.PI / 2; out.push([Math.sin(a) * r, y - Math.cos(a) * r * 0.8]); } }
-  list.forEach(function (p) { out.push(p); });
-  if (topCap) { const r = list[list.length - 1][0], y = list[list.length - 1][1]; for (let i = 2; i >= 0; i--) { const a = i / 3 * Math.PI / 2; out.push([Math.sin(a) * r, y + Math.cos(a) * r * 0.7]); } }
+function skinMat(c) { return pmat("skin" + hexOf(c), function () { return rimify(new THREE.MeshStandardMaterial({ color: c, roughness: 0.62, metalness: 0 }), 0.16); }); }
+function vcMat(key, rough, extra) { return pmat("vc" + key, function () { return rimify(new THREE.MeshStandardMaterial(Object.assign({ color: 0xffffff, vertexColors: true, roughness: rough, metalness: 0 }, extra || {})), 0.16); }); }
+function clothMat(key, opts) { return pmat("cl" + key, function () { return rimify(new THREE.MeshStandardMaterial(Object.assign({ roughness: 0.88, metalness: 0, side: THREE.DoubleSide }, opts)), 0.12); }); }
+function glossMat(c, rough) { return pmat("gl" + hexOf(c) + rough, function () { return rimify(new THREE.MeshStandardMaterial({ color: c, roughness: rough, metalness: 0.05 }), 0.1); }); }
+
+// Catmull-Rom through key rows ([a, b, ...] each), resampled to n rows. Used for smooth profiles.
+function resample(keys, n) {
+  const out = [], m = keys.length - 1;
+  for (let k = 0; k < n; k++) {
+    const f = k / (n - 1) * m, i = Math.min(m - 1, Math.floor(f)), t = f - i;
+    const p0 = keys[Math.max(0, i - 1)], p1 = keys[i], p2 = keys[i + 1], p3 = keys[Math.min(m, i + 2)], row = [];
+    for (let c = 0; c < p1.length; c++) row.push(0.5 * (2 * p1[c] + (-p0[c] + p2[c]) * t + (2 * p0[c] - 5 * p1[c] + 4 * p2[c] - p3[c]) * t * t + (-p0[c] + 3 * p1[c] - 3 * p2[c] + p3[c]) * t * t * t));
+    out.push(row);
+  }
   return out;
 }
 
-function personGeo() {
-  if (PG) return PG;
-  const T = THREE;
-  PG = {
-    sph: new T.SphereGeometry(1, 18, 12),
-    lo: new T.SphereGeometry(1, 12, 8),
-    half: new T.SphereGeometry(1, 20, 9, 0, TAU, 0, Math.PI * 0.55),
-    box: new T.BoxGeometry(1, 1, 1),
-    spike: new T.ConeGeometry(0.03, 0.1, 6),
-    ring: new T.TorusGeometry(1, 0.16, 6, 22).rotateX(Math.PI / 2),
-    brow: new T.CapsuleGeometry(0.0095, 0.045, 3, 6).rotateZ(Math.PI / 2),
-    lip: new T.TorusGeometry(0.034, 0.0075, 6, 14, Math.PI).rotateZ(Math.PI),
-    fing: new T.CapsuleGeometry(0.0125, 0.045, 3, 7).translate(0, -0.034, 0),
-    tip: new T.CapsuleGeometry(0.0115, 0.022, 3, 7).translate(0, -0.02, 0),
-    thumb: new T.CapsuleGeometry(0.0145, 0.036, 3, 7).translate(0, -0.028, 0),
-    neck: sculpt([[0.058, -0.02], [0.052, 0.04], [0.05, 0.08], [0.056, 0.12]], 14, function (x, y, z) { return [x, y, z * 0.95 + (z < 0 ? 0.004 : 0)]; }),
-    // skin limbs
-    upArm: sculpt(capProf([[0.04, -0.29], [0.043, -0.24], [0.05, -0.16], [0.054, -0.1], [0.058, -0.04], [0.06, 0.0]], true, true), 16,
-      function (x, y, z) { return [x * 0.92, y, z + (z > 0 ? 0.012 * bump(y, -0.13, 0.07) : -0.01 * bump(y, -0.09, 0.08))]; }),
-    foreArm: sculpt(capProf([[0.028, -0.245], [0.031, -0.21], [0.038, -0.15], [0.047, -0.07], [0.05, -0.03], [0.044, 0.01]], true, true), 16,
-      function (x, y, z) { return [x * 1.12 + (x > 0 ? 0.004 * bump(y, -0.05, 0.05) : 0), y, z * 0.86]; }),
-    calf: sculpt(capProf([[0.03, -0.43], [0.033, -0.38], [0.042, -0.28], [0.054, -0.17], [0.057, -0.11], [0.05, -0.04], [0.047, 0.01]], true, true), 16,
-      function (x, y, z) { return [x * 0.95, y, z < 0 ? z - 0.018 * bump(y, -0.13, 0.08) : z * 0.9]; }),
-    thighSkin: sculpt(capProf([[0.05, -0.44], [0.062, -0.36], [0.08, -0.22], [0.095, -0.1], [0.1, 0.0]], true, true), 16,
-      function (x, y, z) { return [x, y, z > 0 ? z + 0.012 * bump(y, -0.16, 0.1) : z]; }),
-    // garments
-    pantsThigh: sculpt([[0.077, -0.47], [0.079, -0.42], [0.086, -0.33], [0.098, -0.2], [0.11, -0.09], [0.118, 0.0], [0.116, 0.05]], 18,
-      function (x, y, z) { return [x, y, z > 0 ? z + 0.012 * bump(y, -0.18, 0.12) : z - 0.008 * bump(y, -0.05, 0.08)]; }),
-    pantsShin: sculpt([[0.08, -0.43], [0.076, -0.41], [0.069, -0.33], [0.066, -0.22], [0.07, -0.1], [0.078, -0.01], [0.079, 0.04]], 18,
-      function (x, y, z) { return [x, y, z < 0 ? z - 0.006 * bump(y, -0.12, 0.08) : z]; }),
-    sleeveShort: sculpt([[0.072, -0.15], [0.069, -0.13], [0.07, -0.07], [0.074, -0.02], [0.074, 0.02], [0.05, 0.065]], 18),
-    sleeveUp: sculpt([[0.06, -0.31], [0.063, -0.22], [0.068, -0.12], [0.074, -0.03], [0.075, 0.02], [0.05, 0.065]], 18,
-      function (x, y, z) { return [x * 0.96, y, z]; }),
-    sleeveLow: sculpt([[0.058, -0.235], [0.053, -0.215], [0.05, -0.17], [0.055, -0.08], [0.062, -0.01], [0.064, 0.03]], 18,
-      function (x, y, z) { return [x * 1.08, y, z * 0.92]; }),
-    hem: new T.TorusGeometry(1, 0.11, 5, 22).rotateX(Math.PI / 2),
-    sole: roundBox(0.11, 0.028, 0.29, 0.012, 2)
-  };
-  return PG;
+// A smooth surface from a grid: f(i, j, u, v) -> [x, y, z] or { p: [x, y, z], c: [r, g, b] }.
+// Normals are averaged across the wrap seam and at the poles, so nothing shows a crease.
+function surf(nu, nv, f, wrap) {
+  const T = THREE, cols = nu + 1, rows = nv + 1, n = cols * rows;
+  const pos = new Float32Array(n * 3), uv = new Float32Array(n * 2);
+  let col = null;
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+    const k = j * cols + i, r = f(i, j, i / nu, j / nv), p = r.p || r;
+    pos[k * 3] = p[0]; pos[k * 3 + 1] = p[1]; pos[k * 3 + 2] = p[2];
+    uv[k * 2] = i / nu; uv[k * 2 + 1] = j / nv;
+    if (r.c) { col = col || new Float32Array(n * 3); col[k * 3] = r.c[0]; col[k * 3 + 1] = r.c[1]; col[k * 3 + 2] = r.c[2]; }
+  }
+  const idx = [];
+  for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) { const a = j * cols + i, b = a + cols; idx.push(a, b, a + 1, b, b + 1, a + 1); }
+  const g = new T.BufferGeometry();
+  g.setAttribute("position", new T.BufferAttribute(pos, 3)); g.setAttribute("uv", new T.BufferAttribute(uv, 2));
+  if (col) g.setAttribute("color", new T.BufferAttribute(col, 3));
+  g.setIndex(idx); g.computeVertexNormals();
+  // face outward
+  let cx = 0, cy = 0, cz = 0;
+  for (let k = 0; k < n; k++) { cx += pos[k * 3]; cy += pos[k * 3 + 1]; cz += pos[k * 3 + 2]; }
+  cx /= n; cy /= n; cz /= n;
+  const nor = g.attributes.normal.array;
+  let s = 0;
+  for (let k = 0; k < n; k++) s += nor[k * 3] * (pos[k * 3] - cx) + nor[k * 3 + 1] * (pos[k * 3 + 1] - cy) + nor[k * 3 + 2] * (pos[k * 3 + 2] - cz);
+  if (s < 0) { for (let q = 0; q < idx.length; q += 3) { const t = idx[q + 1]; idx[q + 1] = idx[q + 2]; idx[q + 2] = t; } g.setIndex(idx); g.computeVertexNormals(); }
+  const N = g.attributes.normal.array;
+  for (let j = 0; j < rows; j++) {
+    if (wrap !== false) {
+      const a = j * cols, b = a + nu;
+      for (let c = 0; c < 3; c++) { const m = (N[a * 3 + c] + N[b * 3 + c]) / 2; N[a * 3 + c] = m; N[b * 3 + c] = m; }
+    }
+    let spread = 0;
+    for (let i = 1; i < cols; i++) { const a = j * cols, b = a + i; spread = Math.max(spread, Math.abs(pos[a * 3] - pos[b * 3]) + Math.abs(pos[a * 3 + 1] - pos[b * 3 + 1]) + Math.abs(pos[a * 3 + 2] - pos[b * 3 + 2])); }
+    if (spread < 1e-5) {
+      let x = 0, y = 0, z = 0;
+      for (let i = 0; i < nu; i++) { const k = j * cols + i; x += N[k * 3]; y += N[k * 3 + 1]; z += N[k * 3 + 2]; }
+      const l = Math.hypot(x, y, z) || 1;
+      for (let i = 0; i < cols; i++) { const k = j * cols + i; N[k * 3] = x / l; N[k * 3 + 1] = y / l; N[k * 3 + 2] = z / l; }
+    }
+  }
+  for (let k = 0; k < n; k++) { const l = Math.hypot(N[k * 3], N[k * 3 + 1], N[k * 3 + 2]) || 1; N[k * 3] /= l; N[k * 3 + 1] /= l; N[k * 3 + 2] /= l; }
+  g.attributes.normal.needsUpdate = true;
+  g.computeBoundingSphere();
+  return g;
 }
-
-// The torso, shaped: a waist, the ribcage, chest (or bust) and belly forward, shoulder blades and a flatter back.
-function torsoGeo(belly, chest, bust) {
-  const b = belly || 0, c = chest || 0, w = bust ? 1 : 0;
-  const P = [[0.01, -0.07], [0.125, -0.05], [0.148, 0.0], [0.142 + b * 0.02, 0.08], [0.148 + b * 0.04, 0.16], [0.16 + b * 0.04 + c * 0.01, 0.25],
-    [0.175 + b * 0.02 + c * 0.015, 0.33], [0.186 + c * 0.012, 0.4], [0.19, 0.445], [0.176, 0.485], [0.13, 0.52], [0.07, 0.542], [0.01, 0.552]];
-  return sculpt(P, 24, function (x, y, z) {
-    let zz = z * 0.7;
-    if (z > 0) zz += 0.045 * b * bump(y, 0.15, 0.1) + (0.018 + 0.012 * c + 0.03 * w) * bump(y, 0.36, 0.07) * (1 - Math.abs(x) * 2.5);
-    else zz = zz * 0.86 - 0.012 * bump(y, 0.38, 0.06) * (Math.abs(x) > 0.05 ? 1 : 0.4);
-    const xx = x * (1 + 0.05 * bump(y, 0.45, 0.05));
-    return [xx, y, zz];
+// A lathed tube from a profile of [radius, y] keys (bottom to top), smoothed to `rows`, pushed by deform(x, y, z, r).
+function tube(keys, rows, segs, deform) {
+  const P = resample(keys, rows);
+  return surf(segs, rows - 1, function (i, j, u) {
+    const r = Math.max(0, P[j][0]), y = P[j][1], a = u * TAU;
+    const x = Math.sin(a) * r, z = Math.cos(a) * r;
+    return deform ? deform(x, y, z, r) : [x, y, z];
   });
 }
-function hipsGeo(wide) {
-  const k = wide ? 1.08 : 1;
-  return sculpt([[0.04, -0.15], [0.1 * k, -0.14], [0.15 * k, -0.09], [0.165 * k, -0.03], [0.158, 0.03], [0.15, 0.07], [0.01, 0.085]], 22,
-    function (x, y, z) { return [x, y, z < 0 ? z * 0.8 - 0.03 * bump(y, -0.07, 0.05) : z * 0.72]; });
+// Merge geometries (each with an optional matrix) into one. All must share the same attribute set.
+function mergeG(list) {
+  const T = THREE, names = ["position", "normal", "uv", "color"].filter(function (a) { return list[0].g.attributes[a]; });
+  let nv = 0, ni = 0;
+  const gs = list.map(function (e) { const g = e.g.clone(); if (e.m) g.applyMatrix4(e.m); nv += g.attributes.position.count; ni += g.index.count; return g; });
+  const out = new T.BufferGeometry(), idx = new Uint32Array(ni);
+  names.forEach(function (a) {
+    const sz = gs[0].attributes[a].itemSize, arr = new Float32Array(nv * sz);
+    let o = 0; gs.forEach(function (g) { arr.set(g.attributes[a].array, o); o += g.attributes[a].array.length; });
+    out.setAttribute(a, new T.BufferAttribute(arr, sz));
+  });
+  let vo = 0, io = 0;
+  gs.forEach(function (g) { const ix = g.index.array; for (let i = 0; i < ix.length; i++) idx[io + i] = ix[i] + vo; vo += g.attributes.position.count; io += ix.length; g.dispose(); });
+  out.setIndex(new T.BufferAttribute(idx, 1)); out.computeBoundingSphere();
+  return out;
 }
+function paintAll(g, c) { const n = g.attributes.position.count, a = new Float32Array(n * 3), col = new THREE.Color(c); for (let i = 0; i < n; i++) { a[i * 3] = col.r; a[i * 3 + 1] = col.g; a[i * 3 + 2] = col.b; } g.setAttribute("color", new THREE.BufferAttribute(a, 3)); return g; }
 
 // Clothing texture: woven base, soft folds, side seams and stitching at the hems. Cached by look.
 const CLOTH = {};
@@ -1356,230 +1377,492 @@ function clothTex(base, opt) {
   opt = opt || {};
   const key = base + JSON.stringify(opt);
   if (CLOTH[key]) return CLOTH[key];
-  const c = clothCanvas(base, "rgba(0,0,0,.32)", base.length * 7 + (opt.seed || 1), { folds: 16, denim: opt.denim, vertical: opt.vertical });
+  const c = clothCanvas(base, "rgba(0,0,0,.26)", base.length * 7 + (opt.seed || 1), { folds: 14, denim: opt.denim, vertical: opt.vertical });
   const g = c.getContext("2d");
-  g.strokeStyle = opt.stitch || "rgba(255,255,255,.22)"; g.lineWidth = 2; g.setLineDash([5, 4]);
-  g.beginPath(); g.moveTo(64, 0); g.lineTo(64, 256); g.moveTo(192, 0); g.lineTo(192, 256); g.stroke();      // side seams
-  g.beginPath(); g.moveTo(0, 246); g.lineTo(256, 246); g.moveTo(0, 240); g.lineTo(256, 240); g.stroke();    // hem stitching
+  g.strokeStyle = opt.stitch || "rgba(255,255,255,.2)"; g.lineWidth = 2; g.setLineDash([5, 4]);
+  g.beginPath(); g.moveTo(64, 0); g.lineTo(64, 256); g.moveTo(192, 0); g.lineTo(192, 256); g.stroke();
+  g.beginPath(); g.moveTo(0, 246); g.lineTo(256, 246); g.stroke();
   g.setLineDash([]);
-  g.fillStyle = "rgba(0,0,0,.18)"; g.fillRect(62, 0, 1, 256); g.fillRect(190, 0, 1, 256);
   return (CLOTH[key] = K.tex(c, true));
 }
 
-// o: skin, shirtMap | shirt, pantsMap | pants, shoe, sole, hair, hairStyle, sleeves ("short"|"long"|"none"), belly, chest, bust,
-//    glasses ("shades"|"round"|null), hat ("earflap"|null), mustache, beard, eye, lip, scale, apron, skirt, collar ("crew"|"shirt"|"turtle")
-function makePerson(o) {
-  const T = THREE, G = personGeo();
-  const root = new T.Group();
-  const skinH = hexOf(o.skin), lam = function (k, c, extra) { return pmat(k, hexOf(c), function () { return new T.MeshLambertMaterial(Object.assign({ color: c }, extra || {})); }); };
-  const M = {
-    skin: pmat("skin", skinH, function () { return new T.MeshPhongMaterial({ color: o.skin, shininess: 14, specular: 0x2a1a10 }); }),
-    shirt: o.shirtMap ? pmat("map", o.shirtMap.uuid, function () { return new T.MeshLambertMaterial({ map: o.shirtMap, side: T.DoubleSide }); })
-                      : pmat("cloth", hexOf(o.shirt || 0x888888), function () { return new T.MeshLambertMaterial({ map: clothTex(hexOf(o.shirt || 0x888888)), side: T.DoubleSide }); }),
-    trim: lam("lam", o.trim || 0x111116),
-    sleeve: null,
-    pants: o.pantsMap ? pmat("map", o.pantsMap.uuid, function () { return new T.MeshLambertMaterial({ map: o.pantsMap, side: T.DoubleSide }); })
-                      : pmat("cloth", hexOf(o.pants || 0x334466) + "v", function () { return new T.MeshLambertMaterial({ map: clothTex(hexOf(o.pants || 0x334466), { vertical: true, seed: 3 }), side: T.DoubleSide }); }),
-    shoe: pmat("phong", hexOf(o.shoe || 0xc2304a), function () { return new T.MeshPhongMaterial({ color: o.shoe || 0xc2304a, shininess: 30, specular: 0x333333 }); }),
-    sole: lam("lam", o.sole || 0xf2efe6),
-    sock: lam("lam", o.sock || 0xeceae2),
-    hair: lam("lam", o.hair || 0x4a2f1c),
-    white: pmat("eye", "w", function () { return new T.MeshPhongMaterial({ color: 0xfbfaf4, shininess: 60 }); }),
-    dark: pmat("iris", hexOf(o.eye || 0x2a1a10), function () { return new T.MeshPhongMaterial({ color: o.eye || 0x2a1a10, shininess: 90, specular: 0xffffff }); }),
-    mouth: lam("lam", 0x5a1418),
-    lip: pmat("phong", hexOf(o.lip || 0x6a1e1c), function () { return new T.MeshPhongMaterial({ color: o.lip || 0x6a1e1c, shininess: 20 }); }),
-    brow: lam("lam", o.brow || o.hair || 0x3a2414),
-    belt: pmat("phong", hexOf(o.belt || 0x3a2616), function () { return new T.MeshPhongMaterial({ color: o.belt || 0x3a2616, shininess: 30 }); }),
-    buckle: pmat("phong", "buckle", function () { return new T.MeshPhongMaterial({ color: 0xd8c27a, shininess: 90, specular: 0xffffff }); })
-  };
-  M.sleeve = o.sleeveMap ? pmat("map", o.sleeveMap.uuid, function () { return new T.MeshLambertMaterial({ map: o.sleeveMap, side: T.DoubleSide }); }) : M.shirt;
-  function mesh(geo, mat, parent, x, y, z, sx, sy, sz, keep) { const m = new T.Mesh(geo, mat); m.position.set(x || 0, y || 0, z || 0); if (sx != null) m.scale.set(sx, sy == null ? sx : sy, sz == null ? sx : sz); if (keep) m.userData.keep = true; parent.add(m); return m; }
-  function grp(parent, x, y, z) { const g = new T.Group(); g.position.set(x || 0, y || 0, z || 0); parent.add(g); return g; }
-  const skirt = !!o.skirt;
-
-  // hips and seat
-  const pelvis = grp(root, 0, HIP_H, 0);
-  mesh(hipsGeo(o.bust), M.pants, pelvis, 0, 0, 0);
-  [-1, 1].forEach(function (s) { mesh(G.lo, M.pants, pelvis, s * 0.07, -0.06, -0.055, 0.085, 0.09, 0.07); });           // seat
-  mesh(G.ring, M.belt, pelvis, 0, 0.06, 0, 0.152, 0.22, 0.112);
-  mesh(G.box, M.buckle, pelvis, 0, 0.06, 0.115, 0.05, 0.036, 0.01);
-  if (skirt) mesh(sculpt([[0.25, -0.46], [0.24, -0.4], [0.2, -0.2], [0.17, -0.02], [0.16, 0.07]], 22, function (x, y, z) { return [x + Math.sin(Math.atan2(z, x) * 8) * 0.008 * (-y), y, z * 0.85]; }),
-    lam("cloth2", o.skirt, { side: T.DoubleSide }), pelvis, 0, 0, 0);
-
-  // torso, with a shirt hem, a collar and a little yoke at the neck
-  const spine = grp(pelvis, 0, 0.05, 0);
-  mesh(torsoGeo(o.belly, o.chest, o.bust), M.shirt, spine, 0, 0, 0);
-  mesh(G.hem, M.shirt, spine, 0, -0.035, 0, 0.152 + (o.belly || 0) * 0.012, 0.3, 0.112 + (o.belly || 0) * 0.02);
-  mesh(G.lo, M.shirt, spine, 0, 0.49, -0.02, 0.13, 0.05, 0.08);                                         // trapezius
-  const col = o.collar || (o.sleeves === "long" ? "shirt" : "crew");
-  if (col === "turtle") mesh(G.ring, M.shirt, spine, 0, 0.57, 0, 0.072, 0.55, 0.068);
-  else mesh(G.ring, M.trim, spine, 0, 0.535, 0.006, 0.072, 0.22, 0.064);
-  if (col === "shirt") [-1, 1].forEach(function (s) { const f = mesh(G.box, M.shirt, spine, s * 0.04, 0.52, 0.06, 0.06, 0.008, 0.07); f.rotation.set(-0.5, s * 0.5, s * 0.3); });
-  if (o.apron) { const ap = mesh(new T.PlaneGeometry(0.3, 0.62), lam("lam2", o.apron, { side: T.DoubleSide }), spine, 0, 0.02, 0.135); ap.rotation.x = -0.12; mesh(G.ring, lam("lam", o.apron), spine, 0, 0.12, 0, 0.152, 0.08, 0.135); }
-
-  // neck and head
-  const neck = grp(spine, 0, 0.52, 0);
-  mesh(G.neck, M.skin, neck, 0, 0.0, 0.005);
-  const head = grp(neck, 0, 0.1, 0.008); head.scale.setScalar(0.9);
-  mesh(G.sph, M.skin, head, 0, 0.17, -0.012, 0.15, 0.165, 0.158);       // skull
-  mesh(G.sph, M.skin, head, 0, 0.09, 0.024, 0.122, 0.1, 0.118);         // jaw
-  const chin = mesh(G.lo, M.skin, head, 0, 0.042, 0.088, 0.05, 0.04, 0.044, 0, 0, true);
-  [-1, 1].forEach(function (s) {
-    mesh(G.lo, M.skin, head, s * 0.074, 0.115, 0.098, 0.042, 0.03, 0.03);                // cheekbones
-    mesh(G.lo, M.skin, head, s * 0.15, 0.14, -0.012, 0.024, 0.044, 0.034);              // ears
-    mesh(G.lo, M.skin, head, s * 0.148, 0.135, 0.0, 0.012, 0.024, 0.016);
-  });
-  mesh(G.lo, M.skin, head, 0, 0.13, 0.152, 0.024, 0.036, 0.03);         // nose bridge
-  mesh(G.lo, M.skin, head, 0, 0.113, 0.164, 0.021, 0.017, 0.02);        // nose tip
-  [-1, 1].forEach(function (s) { mesh(G.lo, M.skin, head, s * 0.015, 0.107, 0.155, 0.012, 0.01, 0.012); });
-  mesh(G.lo, M.skin, head, 0, 0.205, 0.128, 0.1, 0.022, 0.03);          // brow ridge
-  const eyes = [], brows = [];
-  [-1, 1].forEach(function (s) {
-    const e = grp(head, s * 0.056, 0.168, 0.128);
-    mesh(G.lo, M.white, e, 0, 0, 0, 0.03, 0.034, 0.02);
-    mesh(G.lo, M.dark, e, 0, -0.002, 0.016, 0.016, 0.018, 0.01);
-    mesh(G.lo, M.white, e, s * -0.005, 0.008, 0.024, 0.005, 0.005, 0.004);
-    e.rotation.y = s * 0.28;
-    eyes.push(e);
-    const b = mesh(G.brow, M.brow, head, s * 0.058, 0.22, 0.145, 1, 1, 1, true);
-    b.rotation.y = s * 0.3;
-    brows.push(b);
-  });
-  const mouth = grp(head, 0, 0.078, 0.137);
-  const inner = mesh(G.lo, M.mouth, mouth, 0, 0, 0, 0.034, 0.01, 0.014, true);
-  const lips = mesh(G.lip, M.lip, mouth, 0, 0.004, 0.004, 1, 1, 1, true);
-  if (o.mustache) mesh(G.lo, M.hair, head, 0, 0.1, 0.155, 0.058, 0.017, 0.022);
-  if (o.beard) { mesh(G.sph, M.hair, head, 0, 0.06, 0.06, 0.125, 0.085, 0.1); mesh(G.lo, M.hair, head, 0, 0.03, 0.1, 0.06, 0.05, 0.04); }
-
-  // hair
-  const hairG = grp(head, 0, 0, 0), spikes = grp(hairG, 0, 0, 0);
-  if (o.hairStyle !== "bald") mesh(G.half, M.hair, hairG, 0, 0.17, -0.018, 0.16, 0.172, 0.168);
-  if (o.hairStyle === "spiky") {
-    for (let i = 0; i < 11; i++) { const a = -1.1 + i * 0.22, sp = mesh(G.spike, M.hair, spikes, Math.sin(a) * 0.1, 0.3 + Math.cos(a * 1.4) * 0.03, 0.02 + Math.cos(a) * 0.05, 1, 1.1 + (i % 3) * 0.25, 1); sp.rotation.set(0.5 + (i % 2) * 0.2, 0, -a * 0.7); }
-    for (let i = 0; i < 5; i++) { const sp = mesh(G.spike, M.hair, spikes, -0.08 + i * 0.04, 0.29, -0.08, 1, 1.2, 1); sp.rotation.set(-0.6, 0, (i - 2) * 0.3); }
-    mesh(G.lo, M.hair, spikes, 0, 0.26, 0.09, 0.11, 0.045, 0.05);
-    [-1, 1].forEach(function (s) { mesh(G.lo, M.hair, spikes, s * 0.142, 0.18, 0.02, 0.022, 0.05, 0.04); });     // sideburns
-  } else if (o.hairStyle === "bob") {
-    mesh(G.sph, M.hair, hairG, 0, 0.13, -0.035, 0.172, 0.17, 0.165);
-    mesh(G.lo, M.hair, hairG, 0, 0.27, 0.06, 0.13, 0.05, 0.08);
-  } else if (o.hairStyle === "bun") {
-    mesh(G.lo, M.hair, hairG, 0, 0.3, -0.1, 0.07, 0.065, 0.07);
-  } else if (o.hairStyle === "short") {
-    mesh(G.lo, M.hair, hairG, 0, 0.27, 0.07, 0.12, 0.045, 0.06);
-  } else if (o.hairStyle === "bald") {
-    [-1, 1].forEach(function (s) { mesh(G.lo, M.hair, hairG, s * 0.135, 0.17, -0.06, 0.04, 0.06, 0.08); });
-  }
-  if (o.glasses === "shades") {
-    const gm = pmat("phong", "shades", function () { return new T.MeshPhongMaterial({ color: 0x0c0c12, shininess: 120, specular: 0xffffff }); });
-    [-1, 1].forEach(function (s) { mesh(G.lo, gm, head, s * 0.058, 0.172, 0.15, 0.054, 0.036, 0.016); const tm = mesh(G.box, gm, head, s * 0.128, 0.18, 0.07, 0.008, 0.01, 0.15); tm.rotation.y = s * 0.15; });
-    mesh(G.box, gm, head, 0, 0.18, 0.162, 0.03, 0.01, 0.01);
-    eyes.forEach(function (e) { e.visible = false; });
-  } else if (o.glasses === "round") {
-    const gm = pmat("phong", "gold", function () { return new T.MeshPhongMaterial({ color: 0xc9a14a, shininess: 90 }); });
-    [-1, 1].forEach(function (s) { const r = mesh(new T.TorusGeometry(0.036, 0.0045, 5, 16), gm, head, s * 0.058, 0.168, 0.158); r.rotation.y = s * 0.2; mesh(G.box, gm, head, s * 0.115, 0.17, 0.08, 0.005, 0.006, 0.15); });
-    mesh(G.box, gm, head, 0, 0.172, 0.165, 0.04, 0.005, 0.005);
-  }
-  if (o.hat === "earflap") {
-    const hm = lam("lam", 0xd94a2a), cream = lam("lam", 0xfff1d6);
-    mesh(G.half, hm, head, 0, 0.18, -0.012, 0.17, 0.17, 0.175);
-    [-1, 1].forEach(function (s) { const f = mesh(G.lo, hm, head, s * 0.152, 0.11, -0.012, 0.03, 0.085, 0.06); f.rotation.z = s * 0.12; });
-    mesh(G.ring, cream, head, 0, 0.2, -0.012, 0.17, 0.32, 0.175);
-    mesh(G.lo, cream, head, 0, 0.36, -0.012, 0.042);
-  }
-
-  // arms: shoulder (deltoid), upper arm, elbow, forearm, wrist and the hand
-  function arm(s) {
-    const sh = grp(spine, s * 0.2, 0.44, -0.005);
-    const sleeve = o.sleeves === "none" ? null : o.sleeves === "long" ? "long" : "short";
-    mesh(G.lo, sleeve ? M.sleeve : M.skin, sh, s * 0.012, 0.008, 0, 0.074, 0.072, 0.07);                // deltoid
-    if (sleeve !== "long") mesh(G.upArm, M.skin, sh, 0, -0.01, 0);
-    if (sleeve === "short") { mesh(G.sleeveShort, M.sleeve, sh, 0, -0.005, 0); mesh(G.hem, M.sleeve, sh, 0, -0.152, 0, 0.074, 0.22, 0.074); }
-    if (sleeve === "long") mesh(G.sleeveUp, M.sleeve, sh, 0, 0, 0);
-    const el = grp(sh, 0, -0.29, 0);
-    if (sleeve === "long") {
-      mesh(G.lo, M.sleeve, el, 0, 0, 0, 0.06, 0.06, 0.058);
-      mesh(G.sleeveLow, M.sleeve, el, 0, 0, 0);
-      mesh(G.hem, M.trim, el, 0, -0.232, 0, 0.061, 0.25, 0.056);                    // the cuff
-      mesh(new T.CylinderGeometry(0.03, 0.033, 0.04, 12), M.skin, el, 0, -0.245, 0);
-    } else mesh(G.foreArm, M.skin, el, 0, 0, 0);
-    const wr = grp(el, 0, -0.255, 0);
-    const hand = grp(wr, 0, 0, 0); hand.rotation.y = s * -Math.PI / 2; hand.scale.setScalar(1.18);
-    mesh(G.sph, M.skin, hand, 0, -0.044, 0.0, 0.045, 0.052, 0.022);                    // palm
-    mesh(G.lo, M.skin, hand, s * 0.024, -0.035, 0.012, 0.024, 0.032, 0.016);             // the thumb's heel
-    mesh(G.lo, M.skin, hand, 0, -0.08, 0.002, 0.042, 0.014, 0.02);                      // knuckles
-    const fingers = [];
-    for (let i = 0; i < 4; i++) {
-      const f = grp(hand, s * (-0.03 + i * 0.02), -0.088 + Math.abs(i - 1.5) * 0.005, 0.003);
-      const L = i === 0 ? 0.8 : i === 3 ? 0.85 : 1;
-      mesh(G.fing, M.skin, f, 0, 0, 0, 1, L, 1);
-      const tipG = grp(f, 0, -0.062 * L, 0); tipG.rotation.x = -0.25;
-      mesh(G.tip, M.skin, tipG, 0, 0, 0, 0.95, L, 0.95);
-      f.userData.tip = tipG;
-      fingers.push(f);
+/* ---- the head: one sculpted surface ---- */
+const HC = { cy: 0.086, cz: -0.004, rx: 0.134, ry: 0.15, rz: 0.142 };
+// a point on the head for polar angle th (0 = crown) and turn ph (0 = straight ahead, + toward the character's left)
+function headPoint(th, ph, f) {
+  const st = Math.sin(th), dx = st * Math.sin(ph), dy = Math.cos(th), dz = st * Math.cos(ph);
+  let x = dx * HC.rx, y = dy * HC.ry, z = dz * HC.rz;
+  const low = smooth(-0.05, -0.98, dy);
+  x *= 1 - (f.fem ? 0.22 : 0.15) * low;
+  if (dz < 0) { z *= 1 - 0.4 * low; if (dy > 0.05) z *= 1.05; }
+  else z += 0.012 * low * dz;
+  const a = Math.atan2(dx, dz), aa = Math.abs(a), front = dz > 0 ? 1 : 0;
+  let push = 0;
+  push += 0.007 * gauss(dy + 0.22, 0.2) * gauss(aa - 0.62, 0.35);                     // cheeks
+  push += 0.008 * gauss(dy + 0.85, 0.1) * gauss(a, 0.42) * front;                     // chin
+  push += (f.fem ? 0.004 : 0.011) * gauss(dy + 0.6, 0.17) * gauss(aa - 1.0, 0.5);          // jaw line
+  push -= 0.012 * gauss(dy - 0.07, 0.11) * gauss(aa - 0.37, 0.15);                    // eye sockets
+  push += 0.005 * gauss(dy - 0.21, 0.06) * gauss(a, 0.7) * front;                     // brow
+  push += 0.007 * gauss(dy + 0.14, 0.18) * gauss(a, 0.2);                             // under the nose
+  push -= 0.003 * gauss(dy + 0.45, 0.035) * gauss(a, 0.26);                           // mouth line
+  push += 0.003 * gauss(dy + 0.52, 0.045) * gauss(a, 0.22);                           // lower lip
+  if (f.beard) push += 0.009 * smooth(-0.2, -0.55, dy) * gauss(aa, 1.15);
+  return [x + dx * push, HC.cy + y + dy * push, HC.cz + z + dz * push];
+}
+function headNormal(th, ph, f) {
+  const e = 0.002, p = headPoint(th, ph, f), a = headPoint(th + e, ph, f), b = headPoint(th, ph + e, f);
+  const u = [a[0] - p[0], a[1] - p[1], a[2] - p[2]], v = [b[0] - p[0], b[1] - p[1], b[2] - p[2]];
+  let n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+  const l = Math.hypot(n[0], n[1], n[2]) || 1; n = [n[0] / l, n[1] / l, n[2] / l];
+  if (n[0] * (p[0]) + n[1] * (p[1] - HC.cy) + n[2] * (p[2] - HC.cz) < 0) n = [-n[0], -n[1], -n[2]];
+  return { p: p, n: n };
+}
+function faceAt(dy, a, f) { return headNormal(Math.acos(dy), a, f); }
+function headGeo(o) {
+  const f = { fem: !!o.fem, beard: !!o.beard, mustache: !!o.mustache };
+  const key = "head" + hexOf(o.skin) + hexOf(o.hair || 0) + (f.fem ? "f" : "") + (f.beard ? "b" : "") + (f.mustache ? "m" : "") + hexOf(o.lip || 0);
+  return pgeo(key, function () {
+    const T = THREE, skin = new T.Color(o.skin), blush = new T.Color(0xe8736a), lip = new T.Color(o.lip || 0xb85a50), hair = new T.Color(o.hair || 0x3a2414), c = new T.Color();
+    const head = surf(48, 36, function (i, j, u, v) {
+      const th = v * Math.PI, ph = u * TAU, p = headPoint(th, ph, f);
+      const st = Math.sin(th), dx = st * Math.sin(ph), dy = Math.cos(th), dz = st * Math.cos(ph), a = Math.atan2(dx, dz), aa = Math.abs(a);
+      c.copy(skin);
+      c.lerp(blush, 0.2 * gauss(dy + 0.24, 0.14) * gauss(aa - 0.62, 0.22));
+      c.lerp(lip, 0.45 * gauss(dy + 0.49, 0.05) * gauss(a, 0.22));
+      if (f.beard) c.lerp(hair, 0.9 * smooth(-0.24, -0.42, dy) * smooth(1.25, 1.0, aa));
+      return { p: p, c: [c.r, c.g, c.b] };
+    });
+    // the nose: one smooth teardrop, blended into the face in the same color
+    const P = resample([[0.006, 0.002, 0.0, 0.0], [0.009, 0.006, -0.012, 0.002], [0.012, 0.009, -0.028, 0.007], [0.016, 0.012, -0.042, 0.011], [0.015, 0.011, -0.051, 0.012], [0.001, 0.001, -0.056, 0.009]], 12);
+    const nose = paintAll(surf(18, 11, function (i, j, u) { const r = P[j], a = u * TAU, ca = Math.cos(a); return [Math.sin(a) * r[0], r[2], r[3] + ca * r[1] * (ca > 0 ? 1 : 0.4)]; }), skin);
+    const nb = faceAt(0.08, 0, f);
+    const noseM = new T.Matrix4().makeTranslation(nb.p[0], nb.p[1], nb.p[2] - 0.007);
+    // the ears: one smooth cupped shape a side, tucked into the head
+    const earG = paintAll(surf(16, 12, function (i, j, u, v) {
+      const th = v * Math.PI, ph = u * TAU, st = Math.sin(th), x0 = st * Math.cos(ph), y0 = Math.cos(th), z0 = st * Math.sin(ph);
+      const cup = x0 > 0 ? 0.55 * gauss(Math.hypot(y0, z0), 0.55) : 0;
+      return [(x0 - cup * x0) * 0.014, y0 * 0.034, z0 * 0.022];
+    }), skin);
+    const parts = [{ g: head }, { g: nose, m: noseM }];
+    if (f.mustache) {
+      const mu = paintAll(surf(20, 10, function (i, j, u, v) {
+        const s = u * 2 - 1, r = 0.0095 * Math.pow(Math.max(0, 1 - Math.pow(Math.abs(s), 3)), 0.5) + 0.0012, a = v * TAU;
+        return [s * 0.04, -0.012 * s * s + Math.cos(a) * r, -0.03 * s * s + Math.sin(a) * r * 0.55];
+      }, false), hair.clone().multiplyScalar(0.95));
+      const mb = faceAt(-0.33, 0, f);
+      parts.push({ g: mu, m: new T.Matrix4().makeTranslation(mb.p[0], mb.p[1], mb.p[2] - 0.001) });
     }
-    const th = grp(hand, s * 0.042, -0.028, 0.014); th.rotation.set(-0.5, 0, s * 0.75);
-    mesh(G.thumb, M.skin, th, 0, 0, 0);
-    return { sh: sh, el: el, wr: wr, hand: hand, fingers: fingers, thumb: th };
-  }
-  const L = arm(1), Rr = arm(-1);
-
-  // legs: hip, thigh, knee, shin, ankle; pant legs (or bare legs under a skirt), socks and shoes
-  function leg(s) {
-    const hp = grp(pelvis, s * 0.088, -0.05, 0);
-    if (skirt) { mesh(G.thighSkin, M.skin, hp, 0, 0, 0); }
-    else mesh(G.pantsThigh, M.pants, hp, 0, 0, 0);
-    const kn = grp(hp, 0, -0.44, 0);
-    if (skirt) { mesh(G.lo, M.skin, kn, 0, 0, 0.004, 0.052, 0.055, 0.052); mesh(G.calf, M.skin, kn, 0, 0, 0); }
-    else {
-      mesh(G.lo, M.pants, kn, 0, 0, 0.004, 0.079, 0.082, 0.08);
-      mesh(G.pantsShin, M.pants, kn, 0, 0, 0);
-      mesh(G.hem, M.pants, kn, 0, -0.425, 0, 0.08, 0.24, 0.08);
-      mesh(new T.CylinderGeometry(0.034, 0.038, 0.08, 12), M.sock, kn, 0, -0.42, 0);
-    }
-    const an = grp(kn, 0, -0.44, 0);
-    mesh(G.sph, M.shoe, an, 0, -0.03, 0.038, 0.066, 0.056, 0.128);         // upper
-    mesh(G.lo, M.shoe, an, 0, -0.045, 0.13, 0.058, 0.04, 0.062);           // toe box
-    mesh(G.lo, M.shoe, an, 0, -0.03, -0.055, 0.056, 0.05, 0.05);           // heel counter
-    mesh(G.sole, M.sole, an, 0, -0.072, 0.04, 1.12, 1, 1);                 // sole
-    mesh(G.lo, M.sole, an, 0, -0.06, 0.15, 0.058, 0.028, 0.05);            // toe cap
-    for (let i = 0; i < 3; i++) mesh(G.box, M.sole, an, 0, 0.012 - i * 0.012, 0.055 + i * 0.024, 0.05, 0.006, 0.008);   // laces
-    mesh(G.lo, M.shoe, an, 0, 0.012, 0.03, 0.04, 0.03, 0.05);              // tongue
-    return { hp: hp, kn: kn, an: an };
-  }
-  const LL = leg(1), RL = leg(-1);
-
-  root.scale.setScalar(o.scale || 1);
-  mergeStatic(root);
-  return { root: root, pelvis: pelvis, spine: spine, neck: neck, head: head, la: L, ra: Rr, ll: LL, rl: RL,
-    eyes: eyes, brows: brows, mouth: mouth, inner: inner, lips: lips, chin: chin, hairG: hairG, spikes: spikes, M: M, acc: {},
-    blink: Math.random() * 3, phase: Math.random() * 10, pose: {} };
+    if (!o.noEars) [-1, 1].forEach(function (s) {
+      const m = new T.Matrix4().compose(new T.Vector3(s * 0.124, HC.cy - 0.004, HC.cz - 0.014), new T.Quaternion().setFromEuler(new T.Euler(0, s > 0 ? -0.25 : Math.PI + 0.25, 0)), new T.Vector3(1, 1, 1));
+      parts.push({ g: earG, m: m });
+    });
+    return mergeG(parts);
+  });
 }
 
-// Merge every group's static meshes into one mesh per material (moving parts are left alone).
-function mergeStatic(node) {
-  const T = THREE, kids = node.children.slice(), buckets = new Map();
-  kids.forEach(function (c) { if (c.isMesh && !c.userData.keep && !c.geometry.morphAttributes.position) { const k = c.material.uuid; if (!buckets.has(k)) buckets.set(k, []); buckets.get(k).push(c); } else if (!c.isMesh) mergeStatic(c); });
-  buckets.forEach(function (list) {
-    if (list.length < 2) return;
-    let nPos = 0, nIdx = 0;
-    const geos = list.map(function (m) { m.updateMatrix(); let g = m.geometry.clone().applyMatrix4(m.matrix); if (!g.index) g.setIndex([...Array(g.attributes.position.count).keys()]); nPos += g.attributes.position.count; nIdx += g.index.count; return g; });
-    const pos = new Float32Array(nPos * 3), nor = new Float32Array(nPos * 3), uv = new Float32Array(nPos * 2), idx = new Uint32Array(nIdx);
-    let vp = 0, ip = 0;
-    geos.forEach(function (g) {
-      const pa = g.attributes.position, na = g.attributes.normal, ua = g.attributes.uv;
-      for (let i = 0; i < pa.count; i++) { pos[(vp + i) * 3] = pa.getX(i); pos[(vp + i) * 3 + 1] = pa.getY(i); pos[(vp + i) * 3 + 2] = pa.getZ(i);
-        nor[(vp + i) * 3] = na.getX(i); nor[(vp + i) * 3 + 1] = na.getY(i); nor[(vp + i) * 3 + 2] = na.getZ(i);
-        uv[(vp + i) * 2] = ua ? ua.getX(i) : 0; uv[(vp + i) * 2 + 1] = ua ? ua.getY(i) : 0; }
-      for (let i = 0; i < g.index.count; i++) idx[ip + i] = g.index.getX(i) + vp;
-      vp += pa.count; ip += g.index.count; g.dispose();
-    });
-    const mg = new T.BufferGeometry();
-    mg.setAttribute("position", new T.BufferAttribute(pos, 3)); mg.setAttribute("normal", new T.BufferAttribute(nor, 3)); mg.setAttribute("uv", new T.BufferAttribute(uv, 2));
-    mg.setIndex(new T.BufferAttribute(idx, 1)); mg.computeBoundingSphere();
-    const mm = new T.Mesh(mg, list[0].material);
-    list.forEach(function (m) { node.remove(m); });
-    node.add(mm);
+/* ---- hair: one swept cap (or band) that hugs the skull ---- */
+function hairGeo(style, color) {
+  return pgeo("hair" + style + hexOf(color), function () {
+    const T = THREE, base = new T.Color(color), c = new T.Color(), f0 = {};
+    const plain = style === "bob" || style === "earflap";
+    function P(th, ph) { if (!plain) return headPoint(th, ph, f0); const st = Math.sin(th); return [st * Math.sin(ph) * HC.rx * 1.02, HC.cy + Math.cos(th) * HC.ry * 1.02, HC.cz + st * Math.cos(ph) * HC.rz * 1.02]; }
+    let nu = 52, nv = 14, ph0 = 0, ph1 = TAU, band = false;
+    let top = function () { return 0; }, bot, thick;
+    const fr = function (a) { return Math.pow((1 + Math.cos(a)) / 2, 1.3); };
+    if (style === "swept" || style === "short") {
+      const big = style === "swept";
+      bot = function (a) { return Math.PI * (0.8 - 0.49 * fr(a) - 0.13 * gauss(Math.abs(a) - 1.5, 0.32) - (big ? 0.03 * gauss(a + 0.5, 0.4) : 0)); };
+      thick = function (th, a, e) {
+        let t = big ? 0.012 : 0.008;
+        t += (big ? 0.02 : 0.008) * gauss(th - 0.2 * Math.PI, 0.13 * Math.PI) * gauss(a - (big ? 0.45 : 0), big ? 0.75 : 1.1);
+        t *= 1 - 0.45 * smooth(0.45 * Math.PI, 0.75 * Math.PI, th);
+        t += 0.0012 * Math.sin(a * 26 + th * 9) * smooth(0.2, 0.6, e);
+        return t * (1 - 0.97 * smooth(0.6, 1, e));
+      };
+    } else if (style === "bun") {
+      bot = function (a) { return Math.PI * (0.78 - 0.47 * fr(a) - 0.13 * gauss(Math.abs(a) - 1.5, 0.32)); };
+      thick = function (th, a, e) { return (0.007 + 0.001 * Math.sin(a * 30)) * (1 - 0.92 * smooth(0.7, 1, e)); };
+    } else if (style === "bob") {
+      bot = function (a) { return Math.PI * (0.73 - 0.37 * Math.pow((1 + Math.cos(a)) / 2, 2.2)); };
+      thick = function (th, a, e) { return (0.01 + 0.022 * smooth(0.4 * Math.PI, 0.7 * Math.PI, th)) * (1 - 0.85 * smooth(0.86, 1, e)); };
+    } else if (style === "earflap") {
+      bot = function (a) { return Math.PI * (0.39 + 0.03 * (1 - Math.cos(a)) + 0.32 * gauss(Math.abs(a) - 1.57, 0.32)); };
+      thick = function (th, a, e) { return (0.022 + 0.012 * gauss(th, 0.25 * Math.PI)) * (1 - 0.8 * smooth(0.88, 1, e)); };
+      nv = 18;
+    } else {                                                // "bald": a smooth band round the back and sides
+      band = true; ph0 = 1.2; ph1 = TAU - 1.2; nu = 40; nv = 10;
+      top = function () { return 0.38 * Math.PI; };
+      bot = function (a) { return Math.PI * (0.6 - 0.16 * gauss(Math.abs(a) - 1.35, 0.3)); };
+      thick = function (th, a, e, u) { return 0.009 * Math.sin(Math.PI * e) * smooth(0, 0.18, u) * smooth(1, 0.82, u); };
+    }
+    const g = surf(nu, nv, function (i, j, u, v) {
+      const ph = ph0 + (ph1 - ph0) * u, a = Math.atan2(Math.sin(ph), Math.cos(ph));
+      const t0 = top(a), t1 = bot(a), th = t0 + (t1 - t0) * (band ? v : Math.pow(v, 0.9));
+      const p = P(th, ph), st = Math.sin(th), d = [st * Math.sin(ph), Math.cos(th), st * Math.cos(ph)];
+      let t = thick(th, a, v, u) + 0.0018;
+      if (style === "earflap" && v > 0.92) t = 0.003 + (1 - v) * 0.25;
+      let x = p[0] + d[0] * t, y = p[1] + d[1] * t, z = p[2] + d[2] * t;
+      if (style === "swept") x -= 0.01 * gauss(th - 0.22 * Math.PI, 0.14 * Math.PI) * Math.max(0, Math.cos(a));   // combed to one side
+      c.copy(base);
+      if (style === "earflap") {
+        const flap = gauss(Math.abs(a) - 1.57, 0.3);
+        c.set(v > 0.8 && flap < 0.35 ? 0xfff1d6 : 0xd94a2a);
+      } else c.multiplyScalar(0.84 + 0.16 * Math.sin(th * 3) * (1 - v) + (Math.sin(a * 26 + th * 9) > 0.65 ? -0.06 : 0));
+      return { p: [x, y, z], c: [c.r, c.g, c.b] };
+    }, !band);
+    if (style === "bun" || style === "earflap") {
+      const s = style === "bun" ? 0.052 : 0.04, ctr = style === "bun" ? P(0.32 * Math.PI, Math.PI) : P(0, 0);
+      const pom = paintAll(surf(20, 14, function (i, j, u, v) { const th = v * Math.PI, ph = u * TAU; return [Math.sin(th) * Math.sin(ph) * s, Math.cos(th) * s, Math.sin(th) * Math.cos(ph) * s]; }), style === "bun" ? base.clone().multiplyScalar(0.92) : new T.Color(0xfff1d6));
+      const m = new T.Matrix4().makeTranslation(ctr[0], ctr[1] + (style === "bun" ? 0.01 : 0.055), ctr[2] - (style === "bun" ? 0.035 : 0));
+      return mergeG([{ g: g }, { g: pom, m: m }]);
+    }
+    return g;
   });
+}
+
+/* ---- hands, thumbs, shoes, eyes: shared smooth shapes ---- */
+function thumbGeo() {
+  return pgeo("thumb", function () { return tube([[0.001, -0.05], [0.0105, -0.047], [0.0135, -0.037], [0.0155, -0.021], [0.019, -0.006], [0.018, 0.008], [0.001, 0.018]], 14, 14, function (x, y, z) { return [x * 1.08, y, z * 0.8]; }); });
+}
+// A sneaker from heel (z = -0.065) to toe (z = 0.175), sitting on the floor 0.07 below the ankle; one sculpted upper with
+// a lighter toe cap and laces painted in, over a separate sole.
+function shoeGeo(color, soleCol) {
+  return pgeo("shoe" + hexOf(color) + hexOf(soleCol), function () {
+    const T = THREE, base = new T.Color(color), light = new T.Color(soleCol), dark = base.clone().multiplyScalar(0.6), c = new T.Color();
+    const up = surf(18, 18, function (i, j, u, v) {
+      const t = v, a = u * TAU, ca = Math.cos(a), sa = Math.sin(a);
+      const ends = Math.sqrt(smooth(0, 0.16, t)) * Math.sqrt(smooth(1, 0.8, t));
+      const w = (0.037 + 0.01 * gauss(t - 0.62, 0.3)) * (0.4 + 0.6 * ends);
+      const h = (0.082 - 0.036 * smooth(0.3, 0.92, t)) * (0.45 + 0.55 * ends);
+      const yb = -0.06, yc = yb + h * 0.5, hh = h * 0.5;
+      const y = yc + hh * (sa >= 0 ? Math.pow(sa, 0.75) : -Math.pow(-sa, 0.35));
+      const x = w * Math.sign(ca) * Math.pow(Math.abs(ca), 0.8);
+      const z = -0.065 + t * 0.24;
+      c.copy(base);
+      if (t > 0.8) c.lerp(light, 0.85 * smooth(0.8, 0.86, t));
+      if (t > 0.38 && t < 0.72 && sa > 0.82 && Math.sin(t * 60) > 0.3) c.copy(light);
+      if (sa < -0.2) c.lerp(dark, 0.3);
+      return { p: [x, y, z], c: [c.r, c.g, c.b] };
+    });
+    const sole = paintAll(roundBox(0.084, 0.016, 0.244, 0.008, 3), soleCol);
+    sole.deleteAttribute("uv"); up.deleteAttribute("uv");
+    return mergeG([{ g: up }, { g: sole, m: new T.Matrix4().makeTranslation(0, -0.064, 0.055) }]);
+  });
+}
+function eyeTex(iris) {
+  return pmat("eyetex" + hexOf(iris), function () {
+    const c = mkCanvas(128, 64), g = c.getContext("2d");
+    g.fillStyle = "#fbfaf4"; g.fillRect(0, 0, 128, 64);
+    g.fillStyle = hexOf(iris); g.beginPath(); g.arc(32, 32, 10, 0, TAU); g.fill();
+    g.fillStyle = "#0c0c12"; g.beginPath(); g.arc(32, 32, 5, 0, TAU); g.fill();
+    g.fillStyle = "#ffffff"; g.beginPath(); g.arc(29, 29, 2.2, 0, TAU); g.fill();
+    return K.tex(c);
+  });
+}
+
+/* ---- the skinned body ---- */
+const BONES = ["pelvis", "spine", "neck", "head", "lsh", "lel", "lwr", "rsh", "rel", "rwr", "lhp", "lkn", "lan", "rhp", "rkn", "ran"];
+const BI = {}; BONES.forEach(function (n, i) { BI[n] = i; });
+function weights(list) { list.sort(function (a, b) { return b[1] - a[1]; }); const out = list.slice(0, 4); let s = 0; out.forEach(function (e) { s += e[1]; }); return out.map(function (e) { return [e[0], e[1] / s]; }); }
+function blend2(a, b, t) { return t <= 0 ? [[a, 1]] : t >= 1 ? [[b, 1]] : [[a, 1 - t], [b, t]]; }
+
+// One arm and its hand as one surface, in shoulder space (y down the arm, the wrist at -0.545). keys: [radius, y] of the
+// arm from yTop down to the wrist. Past the wrist the round arm flattens into the mitt: the palm and the four fingers
+// together, palm toward the body. Returns the geometry plus a second set of positions and normals with the fingers
+// curled in (the morph target), so the whole hand closes as one piece.
+const HANDP = [[0.0, 0.024, 0.018, 0], [-0.025, 0.034, 0.021, 0.001], [-0.052, 0.041, 0.021, 0.002], [-0.078, 0.043, 0.019, 0.003], [-0.103, 0.041, 0.016, 0.005],
+  [-0.124, 0.037, 0.0158, 0.006], [-0.139, 0.032, 0.0148, 0.006], [-0.15, 0.023, 0.0122, 0.006], [-0.156, 0.001, 0.003, 0.005]];
+function armHandGeo(keys, s, yTop, bulge) {
+  const R = resample(keys, 60), H = resample(HANDP, 40);
+  function rAt(y) { if (y >= R[R.length - 1][1]) return R[R.length - 1][0]; if (y <= R[0][1]) return R[0][0]; for (let i = 1; i < R.length; i++) if (R[i][1] >= y) { const t = (y - R[i - 1][1]) / (R[i][1] - R[i - 1][1]); return R[i - 1][0] + (R[i][0] - R[i - 1][0]) * t; } return R[0][0]; }
+  function hAt(hy) { if (hy >= H[0][0]) return H[0]; for (let i = 1; i < H.length; i++) if (H[i][0] <= hy) { const t = (hy - H[i - 1][0]) / (H[i][0] - H[i - 1][0]), a = H[i - 1], b = H[i]; return [hy, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t, a[3] + (b[3] - a[3]) * t]; } return H[H.length - 1]; }
+  const yW = -0.545, yTip = yW - 0.155, segs = 18, armRows = Math.max(6, Math.round((yTop - yW) / 0.022)), handRows = 20, rows = armRows + handRows;
+  function yOf(j) { return j <= armRows ? yTop + (yW - 0.01 - yTop) * (j / armRows) : yW - 0.01 + (yTip - yW + 0.01) * ((j - armRows) / handRows); }
+  function point(y, a, curl) {
+    const sa = Math.sin(a), ca = Math.cos(a), r = rAt(y), lo = smooth(-0.29, -0.34, y);
+    let ax = sa * r * (0.94 + 0.14 * lo), az = ca * r * (1 - 0.1 * lo);
+    if (bulge && ca > 0) az += 0.006 * gauss(y + 0.15, 0.06) * ca;
+    const hb = smooth(-0.52, -0.556, y);
+    if (hb > 0) {
+      const h = hAt(y - yW);
+      let d = h[3] + Math.sign(-s * sa) * Math.pow(Math.abs(sa), 0.9) * h[2], hy = y;   // d: toward the palm
+      const hz = Math.sign(ca) * Math.pow(Math.abs(ca), 0.8) * h[1];
+      if (curl && hy < yW - 0.072) {
+        const q = (yW - 0.072 - hy) / 0.084, ang = -1.45 * smooth(0, 0.35, q) * (0.75 + 0.25 * q), py = yW - 0.072, pd = 0.016, yy = hy - py, dd = d - pd, cs = Math.cos(ang), sn = Math.sin(ang);
+        hy = py + yy * cs - dd * sn; d = pd + yy * sn + dd * cs;
+      }
+      const hx = -s * d;
+      ax = ax + (hx - ax) * hb; az = az + (hz - az) * hb; y = y + (hy - y) * hb;
+    }
+    return [ax, y, az];
+  }
+  const g = surf(segs, rows, function (i, j, u) { return point(yOf(j), u * TAU, false); });
+  const gc = surf(segs, rows, function (i, j, u) { return point(yOf(j), u * TAU, true); });
+  return { g: g, curl: gc };
+}
+
+// One leg with its half of the hips. keys: [radius, y] of the round leg in hip space (bottom to top); s: +1 left, -1 right.
+// Below the crotch it is a rounded tube; above, the outer side follows the hip line and the inner side flattens onto
+// the center seam (x = 0 of the body), where it meets the other leg.
+function legGeo(keys, s, hipW, belly, bare) {
+  const R = resample(keys, 80);
+  function rAt(y) { if (y <= R[0][1]) return R[0][0]; for (let i = 1; i < R.length; i++) if (R[i][1] >= y) { const t = (y - R[i - 1][1]) / (R[i][1] - R[i - 1][1]); return R[i - 1][0] + (R[i][0] - R[i - 1][0]) * t; } return R[R.length - 1][0]; }
+  function lerpK(K, y) { if (y <= K[0][0]) return K[0][1]; for (let i = 1; i < K.length; i++) if (K[i][0] >= y) { const t = smooth(K[i - 1][0], K[i][0], y); return K[i - 1][1] + (K[i][1] - K[i - 1][1]) * t; } return K[K.length - 1][1]; }
+  const OX = bare ? [[-0.3, 0.16], [-0.12, 0.164], [-0.05, 0.164], [0.0, 0.158], [0.05, 0.15], [0.1, 0.14]]                       // outer hip line (body x)
+    : [[-0.3, 0.188], [-0.12, 0.19 * hipW], [-0.05, 0.188 * hipW], [0.0, 0.178 * hipW], [0.05, 0.158], [0.1, 0.146]];
+  const OZ = bare ? [[-0.3, 0.09], [-0.12, 0.1], [0.0, 0.1], [0.05, 0.096], [0.1, 0.092]] : [[-0.3, 0.1], [-0.12, 0.108], [0.0, 0.11], [0.05, 0.102], [0.1, 0.098]];                                        // front to back half depth
+  const y0 = keys[0][1], y1 = 0.15, rows = 40, segs = 22;
+  return surf(segs, rows, function (i, j, u, v) {
+    const y = y0 + (y1 - y0) * Math.pow(v, 0.92), yp = y - 0.05, r = rAt(y);
+    const bh = smooth(-0.32, -0.2, yp), bi = smooth(-0.23, -0.12, yp);
+    const rOut = r + (lerpK(OX, yp) - 0.086 - r) * bh, rZ = r + (lerpK(OZ, yp) - r) * bh;
+    const dIn = r + (0.093 - r) * bi, pw = 1 - 0.82 * bi;
+    const al = u * TAU, sa = Math.sin(al), ca = Math.cos(al);
+    let X = sa >= 0 ? rOut * sa : -dIn * Math.pow(-sa, pw), Z = (sa >= 0 ? rZ : r + (rZ - r) * bi) * ca;
+    const xp = 0.086 + X;                                                         // distance from the center seam
+    if (Z < 0) Z -= 0.03 * gauss(yp + 0.07, 0.06) * gauss(xp - 0.075, 0.06) * bh; // the seat
+    else Z += 0.05 * belly * gauss(yp - 0.19, 0.1) * bh;
+    if (!bare) Z += Z > 0 ? 0.008 * gauss(y + 0.2, 0.1) + 0.003 * gauss(y + 0.44, 0.03) : -0.006 * gauss(y + 0.56, 0.07);
+    else { X *= 0.96; Z += Z < 0 ? -0.012 * gauss(y + 0.58, 0.06) : 0; }
+    return [s * X, y, Z];
+  });
+}
+
+// o: skin, shirtMap | shirt, sleeveMap, pantsMap | pants, shoe, sole, hair, hairStyle ("swept"|"short"|"bob"|"bun"|"bald"),
+//    sleeves ("short"|"long"), belly, chest, bust, glasses ("shades"|"round"), hat ("earflap"), mustache, beard, eye, lip,
+//    scale, apron, skirt, collar, trim, belt
+function makePerson(o) {
+  const T = THREE, root = new T.Group();
+  const fem = !!(o.bust || o.skirt || o.hairStyle === "bob" || o.hairStyle === "bun");
+  const b = o.belly || 0, ch = o.chest || 0, bust = fem ? 1 : 0;
+  // materials (shared by color)
+  const M = {
+    skin: skinMat(o.skin),
+    shirt: o.shirtMap ? clothMat("map" + o.shirtMap.uuid, { map: o.shirtMap }) : clothMat("tex" + hexOf(o.shirt || 0x888888), { map: clothTex(hexOf(o.shirt || 0x888888)) }),
+    pants: o.pantsMap ? clothMat("map" + o.pantsMap.uuid, { map: o.pantsMap }) : clothMat("texv" + hexOf(o.pants || 0x334466), { map: clothTex(hexOf(o.pants || 0x334466), { vertical: true, seed: 3 }) }),
+    belt: glossMat(o.belt || 0x3a2616, 0.45),
+    trim: clothMat("solid" + hexOf(o.trim || 0x111116), { color: o.trim || 0x111116 }),
+    mouth: glossMat(0x4a1012, 0.6), lip: glossMat(o.lip || 0x7a2a26, 0.5), brow: glossMat(o.brow || o.hair || 0x3a2414, 0.8)
+  };
+  M.sleeve = o.sleeveMap ? clothMat("map" + o.sleeveMap.uuid, { map: o.sleeveMap }) : M.shirt;
+  // bones, at rest
+  const bone = {};
+  function mk(name, parent, x, y, z) { const bn = new T.Bone(); bn.name = name; bn.position.set(x, y, z); (parent ? bone[parent] : root).add(bn); bone[name] = bn; return bn; }
+  mk("pelvis", null, 0, HIP_H, 0); mk("spine", "pelvis", 0, 0.05, 0); mk("neck", "spine", 0, 0.52, 0); mk("head", "neck", 0, 0.1, 0.008);
+  [["l", 1], ["r", -1]].forEach(function (q) {
+    const s = q[1], n = q[0];
+    mk(n + "sh", "spine", s * 0.2, 0.44, -0.005); mk(n + "el", n + "sh", 0, -0.29, 0); mk(n + "wr", n + "el", 0, -0.255, 0);
+    mk(n + "hp", "pelvis", s * 0.086, -0.05, 0); mk(n + "kn", n + "hp", 0, -0.44, 0); mk(n + "an", n + "kn", 0, -0.37, 0);
+  });
+  const W0 = { pelvis: [0, HIP_H, 0] };
+  W0.lsh = [0.2, HIP_H + 0.05 + 0.44, -0.005]; W0.rsh = [-0.2, W0.lsh[1], -0.005];
+  W0.lhp = [0.086, HIP_H - 0.05, 0]; W0.rhp = [-0.086, HIP_H - 0.05, 0];
+
+  // the body pieces: geometry in local space, an origin, a weight rule and a material slot
+  const pieces = [], mats = [], slot = {};
+  function mat(m) { if (slot[m.uuid] == null) { slot[m.uuid] = mats.length; mats.push(m); } return slot[m.uuid]; }
+  function piece(g, m, origin, wf, curl, mi) { pieces.push({ g: g, slot: mat(m), o: origin, wf: wf, curl: curl, mi: mi }); }
+  function trunkW(x, y) {
+    const ws = smooth(0.02, 0.13, y), wn = smooth(0.55, 0.62, y), wh = smooth(0.63, 0.69, y);
+    const sh = 0.45 * smooth(0.12, 0.215, Math.abs(x)) * gauss(y - 0.48, 0.07), sp = ws * (1 - wn);
+    return weights([[BI.pelvis, 1 - ws], [BI.spine, sp * (1 - sh)], [x > 0 ? BI.lsh : BI.rsh, sp * sh], [BI.neck, ws * wn * (1 - wh)], [BI.head, ws * wn * wh]].filter(function (e) { return e[1] > 1e-4; }));
+  }
+  function trunkDeform(x, y, z, r) {
+    let zz = z * (0.68 + 0.27 * smooth(0.55, 0.6, y)), xx = x * (1 + 0.15 * gauss(y - 0.48, 0.06));
+    const nx = r > 0 ? Math.abs(x) / r : 0;
+    if (z > 0) {
+      zz += 0.05 * b * gauss(y - 0.19, 0.1) * (1 - nx * 0.6);
+      zz += (0.014 + 0.01 * ch) * gauss(y - 0.4, 0.07) * (1 - nx);
+      if (bust) zz += 0.03 * gauss(Math.abs(x) - 0.072, 0.045) * gauss(y - 0.38, 0.055);
+    } else {
+      zz -= 0.026 * gauss(y + 0.07, 0.055) * (1 - Math.abs(nx - 0.55));
+      zz -= 0.01 * gauss(y - 0.42, 0.06) * smooth(0.2, 0.5, nx);
+    }
+    return [xx, y, zz];
+  }
+  const hipW = fem ? 1.05 : 1;
+  piece(tube([[0.152, 0.077], [0.146, 0.12], [0.148 + b * 0.04, 0.2], [0.158 + b * 0.045, 0.27], [0.172 + b * 0.02 + ch * 0.01, 0.34], [0.185 + ch * 0.008, 0.41], [0.19, 0.46], [0.182, 0.5], [0.158, 0.532], [0.116, 0.556], [0.09, 0.571], [0.084, 0.584]], 22, 28, trunkDeform), M.shirt, W0.pelvis, trunkW);
+  piece(tube([[0.08, 0.57], [0.075, 0.6], [0.071, 0.63], [0.07, 0.66], [0.062, 0.69], [0.036, 0.712], [0.001, 0.718]], 10, 20, trunkDeform), M.skin, W0.pelvis, trunkW);
+  piece(tube([[0.164, 0.05], [0.171, 0.056], [0.171, 0.09], [0.164, 0.097]], 4, 28, function (x, y, z) { return trunkDeform(x * 1.015, y, z * 1.06 + (z > 0 ? 0.002 : -0.002), 0.16); }), M.belt, W0.pelvis, function () { return [[BI.pelvis, 1]]; });
+  // the collar: a soft band in the trim color that rides the neck line
+  piece(tube([[0.083, 0.566], [0.088, 0.573], [0.089, 0.585], [0.086, 0.594], [0.081, 0.597], [0.078, 0.59]], 8, 28, function (x, y, z) { return trunkDeform(x, y, z, 0.08); }), M.trim, W0.pelvis, trunkW);
+  if (o.skirt) {
+    piece(tube([[0.212, -0.5], [0.207, -0.46], [0.198, -0.3], [0.188, -0.12], [0.174, 0.0], [0.164, 0.06], [0.157, 0.085]], 16, 28, function (x, y, z) { const a = Math.atan2(x, z); return [x + Math.sin(a * 7) * 0.006 * (-y), y, z * 0.85]; }),
+      clothMat("solid" + hexOf(o.skirt), { color: o.skirt }), W0.pelvis, function (x, y, z) {
+        const k = 0.95 * smooth(0.03, -0.16, y), wl = smooth(-0.06, 0.06, x);
+        return k > 1e-4 ? weights([[BI.pelvis, 1 - k], [BI.lhp, k * wl], [BI.rhp, k * (1 - wl)]].filter(function (e) { return e[1] > 1e-4; })) : [[BI.pelvis, 1]];
+      });
+  }
+  if (o.apron) {
+    const SH = resample([[0.152, 0.077], [0.146, 0.12], [0.148, 0.2], [0.158, 0.27], [0.172, 0.34], [0.185, 0.41]], 40), SK = resample([[0.212, -0.5], [0.207, -0.46], [0.198, -0.3], [0.188, -0.12], [0.174, 0.0], [0.164, 0.06], [0.157, 0.085]], 40);
+    const at = function (T2, y) { for (let i = 1; i < T2.length; i++) if (T2[i][1] >= y) { const t = (y - T2[i - 1][1]) / (T2[i][1] - T2[i - 1][1]); return T2[i - 1][0] + (T2[i][0] - T2[i - 1][0]) * t; } return T2[T2.length - 1][0]; };
+    const skirtW = o.skirt ? pieces[pieces.length - 1].wf : function () { return [[BI.pelvis, 1]]; };
+    piece(surf(14, 20, function (i, j, u, v) {
+      const y = -0.44 + v * 0.8, am = 0.62 - 0.2 * smooth(0.12, 0.3, y), a = (u - 0.5) * 2 * am;
+      if (y > 0.08) { const r = at(SH, y) + 0.008, p = trunkDeform(Math.sin(a) * r, y, Math.cos(a) * r, r); return [p[0], p[1], p[2] + 0.004]; }
+      const r = at(SK, y) + 0.007; return [Math.sin(a) * r, y, Math.cos(a) * r * 0.85 + 0.003];
+    }, false), clothMat("solid2" + hexOf(o.apron), { color: o.apron }), W0.pelvis, function (x, y, z) { return y > 0.06 ? trunkW(x, y) : skirtW(x, y, z); });
+  }
+  // arms: one continuous surface from the shoulder to the wrist, bending at the elbow
+  [["l", 1], ["r", -1]].forEach(function (q) {
+    const n = q[0], s = q[1], org = W0[n + "sh"];
+    const cap = function (y) { return 0.4 * smooth(-0.03, 0.035, y); };     // the top of the shoulder stays with the chest
+    const aw = function (x, y) { const we = smooth(-0.22, -0.36, y), ww = smooth(-0.49, -0.545, y), c = cap(y); return weights([[BI.spine, c], [BI[n + "sh"], (1 - we) * (1 - c)], [BI[n + "el"], we * (1 - ww)], [BI[n + "wr"], we * ww]].filter(function (e) { return e[1] > 1e-4; })); };
+    const ARM = [[0.024, -0.56], [0.029, -0.522], [0.037, -0.45], [0.045, -0.375], [0.043, -0.315], [0.041, -0.285], [0.046, -0.2], [0.05, -0.12], [0.049, -0.05], [0.046, 0.0], [0.036, 0.017], [0.018, 0.027], [0.001, 0.03]];
+    if (o.sleeves === "long") {
+      piece(tube([[0.026, -0.534], [0.05, -0.53], [0.057, -0.522], [0.051, -0.5], [0.051, -0.43], [0.057, -0.34], [0.062, -0.26], [0.066, -0.16], [0.068, -0.06], [0.066, 0.0], [0.056, 0.02], [0.032, 0.033], [0.001, 0.037]], 28, 18,
+        function (x, y, z) { const lo = smooth(-0.3, -0.36, y); return [x * (0.96 + 0.1 * lo), y, z * (1 - 0.08 * lo)]; }), M.sleeve, org, aw);
+      const ah = armHandGeo(ARM, s, -0.47, false); piece(ah.g, M.skin, org, aw, ah.curl, n === "l" ? 0 : 1);
+    } else {
+      const ah = armHandGeo(ARM, s, 0.03, true); piece(ah.g, M.skin, org, aw, ah.curl, n === "l" ? 0 : 1);
+      if (o.sleeves !== "none") piece(tube([[0.066, -0.165], [0.07, -0.158], [0.067, -0.12], [0.065, -0.06], [0.064, 0.0], [0.055, 0.021], [0.034, 0.034], [0.001, 0.038]], 10, 20), M.sleeve, org, function (x, y) { const c = cap(y); return c > 1e-4 ? [[BI[n + "sh"], 1 - c], [BI.spine, c]] : [[BI[n + "sh"], 1]]; });
+    }
+    // legs: each pant leg (or bare leg) is one surface from the belt line to the ankle. Above the crotch the round leg
+    // widens into its half of the hips and flattens against the other leg at the center seam, so hips and legs are
+    // the same skin, bending at the hip and the knee with no ball or gap.
+    const lo = W0[n + "hp"];
+    const lw = function (x, y) {
+      const yp = y - 0.05, xp = Math.abs(s * 0.086 + x);
+      const c = Math.min(1, smooth(-0.14, 0.05, yp) + 0.6 * smooth(0.045, 0.0, xp) * smooth(-0.24, -0.14, yp));
+      const wk = smooth(-0.37, -0.51, y), wa = o.skirt ? smooth(-0.77, -0.81, y) : 0;
+      return weights([[BI.pelvis, c], [BI[n + "hp"], (1 - wk) * (1 - c)], [BI[n + "kn"], wk * (1 - wa)], [BI[n + "an"], wk * wa]].filter(function (e) { return e[1] > 1e-4; }));
+    };
+    piece(legGeo(o.skirt ? [[0.001, -0.835], [0.027, -0.828], [0.031, -0.79], [0.036, -0.72], [0.05, -0.6], [0.054, -0.55], [0.047, -0.47], [0.05, -0.42], [0.07, -0.3], [0.084, -0.15], [0.09, -0.05], [0.09, 0.15]]
+      : [[0.074, -0.792], [0.078, -0.782], [0.072, -0.73], [0.066, -0.63], [0.067, -0.53], [0.073, -0.45], [0.08, -0.38], [0.09, -0.28], [0.1, -0.15], [0.104, -0.05], [0.104, 0.15]], s, fem ? 1.05 : 1, b, !!o.skirt),
+      o.skirt ? M.skin : M.pants, lo, lw);
+  });
+  // assemble the one skinned body
+  pieces.sort(function (a, b) { return a.slot - b.slot; });
+  let nv = 0, ni = 0;
+  pieces.forEach(function (p) { nv += p.g.attributes.position.count; ni += p.g.index.count; });
+  const pos = new Float32Array(nv * 3), nor = new Float32Array(nv * 3), uv = new Float32Array(nv * 2), si = new Uint16Array(nv * 4), sw = new Float32Array(nv * 4), idx = new Uint32Array(ni);
+  const mpos = [new Float32Array(nv * 3), new Float32Array(nv * 3)], mn = [new Float32Array(nv * 3), new Float32Array(nv * 3)];
+  const geo = new T.BufferGeometry();
+  let vo = 0, io = 0;
+  pieces.forEach(function (p) {
+    const pa = p.g.attributes.position, na = p.g.attributes.normal, ua = p.g.attributes.uv, ix = p.g.index.array, start = io;
+    for (let i = 0; i < pa.count; i++) {
+      const x = pa.getX(i), y = pa.getY(i), z = pa.getZ(i), k = vo + i;
+      pos[k * 3] = x + p.o[0]; pos[k * 3 + 1] = y + p.o[1]; pos[k * 3 + 2] = z + p.o[2];
+      nor[k * 3] = na.getX(i); nor[k * 3 + 1] = na.getY(i); nor[k * 3 + 2] = na.getZ(i);
+      uv[k * 2] = ua.getX(i); uv[k * 2 + 1] = ua.getY(i);
+      const w = p.wf(x, y, z);
+      for (let q = 0; q < 4; q++) { si[k * 4 + q] = w[q] ? w[q][0] : 0; sw[k * 4 + q] = w[q] ? w[q][1] : 0; }
+    }
+    for (let t = 0; t < 2; t++) { mpos[t].set(pos.subarray(vo * 3, (vo + pa.count) * 3), vo * 3); mn[t].set(nor.subarray(vo * 3, (vo + pa.count) * 3), vo * 3); }
+    if (p.curl) {
+      const cp = p.curl.attributes.position, cn = p.curl.attributes.normal, t = p.mi;
+      for (let i = 0; i < cp.count; i++) { const k = vo + i; mpos[t][k * 3] = cp.getX(i) + p.o[0]; mpos[t][k * 3 + 1] = cp.getY(i) + p.o[1]; mpos[t][k * 3 + 2] = cp.getZ(i) + p.o[2]; mn[t][k * 3] = cn.getX(i); mn[t][k * 3 + 1] = cn.getY(i); mn[t][k * 3 + 2] = cn.getZ(i); }
+      p.curl.dispose();
+    }
+    for (let i = 0; i < ix.length; i++) idx[io + i] = ix[i] + vo;
+    const last = geo.groups[geo.groups.length - 1];
+    if (last && last.materialIndex === p.slot) last.count += ix.length; else geo.addGroup(start, ix.length, p.slot);
+    vo += pa.count; io += ix.length; p.g.dispose();
+  });
+  geo.setAttribute("position", new T.BufferAttribute(pos, 3)); geo.setAttribute("normal", new T.BufferAttribute(nor, 3)); geo.setAttribute("uv", new T.BufferAttribute(uv, 2));
+  geo.setAttribute("skinIndex", new T.Uint16BufferAttribute(si, 4)); geo.setAttribute("skinWeight", new T.BufferAttribute(sw, 4));
+  geo.setIndex(new T.BufferAttribute(idx, 1)); geo.computeBoundingSphere();
+  geo.morphAttributes.position = [new T.BufferAttribute(mpos[0], 3), new T.BufferAttribute(mpos[1], 3)];
+  geo.morphAttributes.normal = [new T.BufferAttribute(mn[0], 3), new T.BufferAttribute(mn[1], 3)];
+  const body = new T.SkinnedMesh(geo, mats);
+  body.frustumCulled = false;
+  root.add(body);
+  root.updateMatrixWorld(true);
+  body.bind(new T.Skeleton(BONES.map(function (nm) { return bone[nm]; })));
+
+  // rigid parts that ride the bones: buckle, apron, head, hands, shoes
+  const buckle = new T.Mesh(pgeo("buckle", function () { return roundBox(0.05, 0.036, 0.012, 0.005, 2); }), glossMat(0xd8c27a, 0.3)); buckle.position.set(0, 0.074, 0.106); bone.pelvis.add(buckle);
+  if ((o.collar || (o.sleeves === "long" ? "shirt" : "crew")) === "shirt") [-1, 1].forEach(function (s) {
+    const fl = new T.Mesh(pgeo("collarFlap", function () { return surf(12, 8, function (i, j, u, v) { const a = u * TAU, w = 0.024 * (1 - 0.5 * v) + 0.002, h = 0.004 * (1 - 0.4 * v) + 0.001; return [Math.sin(a) * w, -0.055 * v, Math.cos(a) * h + 0.006 * Math.sin(Math.PI * v)]; }); }), M.shirt);
+    fl.position.set(s * 0.034, 0.522, 0.083); fl.rotation.set(-0.42, 0, s * 0.62); bone.spine.add(fl);
+  });
+  const head = bone.head;
+  const hd = new T.Mesh(headGeo({ skin: o.skin, hair: o.hair, fem: fem, beard: o.beard, mustache: o.mustache, lip: o.lipTint, noEars: o.hairStyle === "bob" }), vcMat("skin", 0.6));
+  head.add(hd);
+  const f = { fem: fem, beard: o.beard, mustache: o.mustache };
+  // eyes set into the sockets, with lids
+  const eyes = [], lids = [], brows = [];
+  const eyeG = pgeo("eyeball", function () { return new T.SphereGeometry(0.0205, 16, 12); }), lidG = pgeo("lid", function () { return new T.SphereGeometry(0.0222, 16, 6, 0, TAU, 0, Math.PI / 2); });
+  const browG = pgeo("brow", function () { return tube([[0.001, -0.026], [0.006, -0.02], [0.0075, 0.0], [0.0055, 0.02], [0.001, 0.026]], 8, 10, function (x, y, z) { return [x, y, z * 0.35]; }).rotateZ(Math.PI / 2); });
+  const eyeM = pmat("eyeM" + hexOf(o.eye || 0x3a2414), function () { return new T.MeshStandardMaterial({ map: eyeTex(o.eye || 0x3a2414), roughness: 0.18, metalness: 0 }); });
+  [-1, 1].forEach(function (s) {
+    const fp = faceAt(0.07, s * 0.37, f);
+    const e = new T.Group(); e.position.set(fp.p[0] - fp.n[0] * 0.0115, fp.p[1] - fp.n[1] * 0.0115, fp.p[2] - fp.n[2] * 0.0115); head.add(e);
+    const ball = new T.Mesh(eyeG, eyeM); e.add(ball);
+    const lid = new T.Mesh(lidG, M.skin); e.add(lid);
+    eyes.push(e); lids.push(lid);
+    const bp = faceAt(0.25, s * 0.36, f);
+    const br = new T.Mesh(browG, M.brow); br.position.set(bp.p[0] + bp.n[0] * 0.003, bp.p[1] + bp.n[1] * 0.003, bp.p[2] + bp.n[2] * 0.003);
+    br.rotation.set(-0.2, s * 0.38, 0); br.userData.y0 = br.position.y; br.userData.s = s; head.add(br); brows.push(br);
+  });
+  const mp = faceAt(-0.45, 0, f);
+  const mouth = new T.Group(); mouth.position.set(mp.p[0], mp.p[1], mp.p[2] - 0.001); mouth.rotation.x = -0.15; head.add(mouth);
+  const inner = new T.Mesh(pgeo("mouthIn", function () { return surf(20, 4, function (i, j, u, v) { const a = u * TAU, r = Math.sin(Math.PI * v * 0.5 + (v > 0 ? 0 : 0)); return v === 0 ? [0, 0, 0.6] : [Math.sin(a) * Math.min(1, v * 1.4), Math.cos(a) * Math.min(1, v * 1.4), 0.6 - v * 0.9]; }); }), M.mouth); inner.scale.set(0.026, 0.004, 0.006); mouth.add(inner);
+  const lips = new T.Mesh(pgeo("lipArc", function () { return new T.TorusGeometry(0.026, 0.0035, 6, 16, Math.PI).rotateZ(Math.PI); }), M.lip); lips.scale.z = 0.5; mouth.add(lips);
+  const chinDummy = new T.Object3D(); chinDummy.position.set(0, HC.cy - HC.ry, 0.09); head.add(chinDummy);
+  // hair, glasses, hat
+  const hairG = new T.Group(); head.add(hairG);
+  const hairM = vcMat("hair" + hexOf(o.hair || 0x3a2414), 0.48, { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+  if (o.hat !== "earflap" || o.hairStyle) hairG.add(new T.Mesh(hairGeo(o.hairStyle || "short", o.hair || 0x3a2414), hairM));
+  if (o.hat === "earflap") head.add(new T.Mesh(hairGeo("earflap", 0xd94a2a), vcMat("hat", 0.85, { polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 })));
+  if (o.glasses === "shades") {
+    // Sunglasses (Grok Bot patch): two glossy lenses that face the way the face does, a framed rim so they read from the
+    // side, a bridge arching over the nose, and temple arms that follow the head's own surface back to the ears.
+    const T = THREE, gm = glossMat(0x0c0c12, 0.12), fm = glossMat(0x16161c, 0.3), Z = new T.Vector3(0, 0, 1);
+    const lensG = pgeo("lens2", function () { return surf(24, 8, function (i, j, u, v) { const a = u * TAU, ca = Math.cos(a), sa = Math.sin(a), rr = v < 0.5 ? 1 : 1 - (v - 0.5) * 2 * 0.15;
+      const x = Math.sign(ca) * Math.pow(Math.abs(ca), 0.7) * 0.033 * rr, y = Math.sign(sa) * Math.pow(Math.abs(sa), 0.7) * 0.022 * rr * (sa < 0 ? 1.1 : 1);
+      const z = (v < 0.5 ? 0.005 : -0.003) - 0.1 * (x * x + y * y) / 0.033; return v === 0 || v === 1 ? [0, 0, v ? -0.003 : 0.005] : [x, y, z]; }); });
+    const rimG = pgeo("lensRim", function () { return surf(32, 6, function (i, j, u, v) { const a = u * TAU, ca = Math.cos(a), sa = Math.sin(a), b = v * TAU;
+      const R = 1 + 0.12 * Math.cos(b), x = Math.sign(ca) * Math.pow(Math.abs(ca), 0.7) * 0.034 * R, y = Math.sign(sa) * Math.pow(Math.abs(sa), 0.7) * 0.023 * R * (sa < 0 ? 1.1 : 1);
+      return [x, y, 0.004 * Math.sin(b) - 0.1 * (x * x + y * y) / 0.034]; }); });
+    const off = function (fp, d) { return new T.Vector3(fp.p[0] + fp.n[0] * d, fp.p[1] + fp.n[1] * d, fp.p[2] + fp.n[2] * d); };
+    const inner = [], outer = [];
+    [-1, 1].forEach(function (s) {
+      const fp = faceAt(0.07, s * 0.4, f), pos = off(fp, 0.017);
+      const dir = new T.Vector3(fp.n[0] * 0.6, 0, fp.n[2] * 0.6 + 0.4).normalize();
+      const q = new T.Quaternion().setFromUnitVectors(Z, dir);
+      const l = new T.Mesh(lensG, gm); l.position.copy(pos); l.quaternion.copy(q); head.add(l);
+      const r = new T.Mesh(rimG, fm); r.position.copy(pos); r.quaternion.copy(q); head.add(r);
+      const right = new T.Vector3(1, 0, 0).applyQuaternion(q);
+      inner.push(pos.clone().addScaledVector(right, -s * 0.032).add(new T.Vector3(0, 0.006, 0)));
+      outer.push(pos.clone().addScaledVector(right, s * 0.034).add(new T.Vector3(0, 0.004, 0)));
+      // temple: from the outer hinge, along the side of the head at eye level, back to the top of the ear
+      const pts = [outer[outer.length - 1]];
+      [0.95, 1.2, 1.45, 1.7, 1.9].forEach(function (a, k) { pts.push(off(faceAt(0.08 - k * 0.006, s * a, f), 0.005)); });
+      const tg = new T.TubeGeometry(new T.CatmullRomCurve3(pts), 24, 0.0042, 6, false);
+      head.add(new T.Mesh(tg, fm));
+    });
+    const nb = faceAt(0.1, 0, f), top = off(nb, 0.012);
+    const bridge = new T.TubeGeometry(new T.CatmullRomCurve3([inner[0], new T.Vector3(top.x - 0.008, top.y + 0.004, top.z), new T.Vector3(top.x + 0.008, top.y + 0.004, top.z), inner[1]]), 12, 0.0035, 6, false);
+    head.add(new T.Mesh(bridge, fm));
+    eyes.forEach(function (e) { e.visible = false; });
+  } else if (o.glasses === "round") {
+    const gm = glossMat(0xc9a14a, 0.25);
+    [-1, 1].forEach(function (s) {
+      const fp = faceAt(0.07, s * 0.37, f);
+      const r = new T.Mesh(pgeo("ring", function () { return new T.TorusGeometry(0.026, 0.0028, 6, 20); }), gm); r.position.set(fp.p[0] + fp.n[0] * 0.012, fp.p[1], fp.p[2] + fp.n[2] * 0.012); r.rotation.y = s * 0.3; head.add(r);
+      const tm = new T.Mesh(pgeo("templeR", function () { return roundBox(0.004, 0.004, 0.12, 0.002, 1); }), gm); tm.position.set(s * 0.13, fp.p[1], 0.05); tm.rotation.y = -s * 0.26; head.add(tm);
+    });
+  }
+  // hands: a mitt and a thumb at each wrist
+  function hand(n, s) {
+    const g = new T.Group(); g.rotation.y = s * -Math.PI / 2; bone[n + "wr"].add(g);
+    const th = new T.Group(); th.position.set(s * 0.03, -0.022, 0.008); th.rotation.set(-0.6, 0, s * 0.28); g.add(th);
+    th.add(new T.Mesh(thumbGeo(), M.skin));
+    return { g: g, th: th };
+  }
+  const LH = hand("l", 1), RH = hand("r", -1);
+  const shoeG = shoeGeo(o.shoe || 0xc2304a, o.sole || 0xf2efe6), shoeM = vcMat("shoe", 0.5);
+  bone.lan.add(new T.Mesh(shoeG, shoeM)); bone.ran.add(new T.Mesh(shoeG, shoeM));
+
+  root.scale.setScalar(o.scale || 1);
+  return { root: root, body: body, pelvis: bone.pelvis, spine: bone.spine, neck: bone.neck, head: head,
+    la: { sh: bone.lsh, el: bone.lel, wr: bone.lwr, hand: LH.g, fingers: [], thumb: LH.th },
+    ra: { sh: bone.rsh, el: bone.rel, wr: bone.rwr, hand: RH.g, fingers: [], thumb: RH.th },
+    ll: { hp: bone.lhp, kn: bone.lkn, an: bone.lan }, rl: { hp: bone.rhp, kn: bone.rkn, an: bone.ran },
+    eyes: eyes, lids: lids, brows: brows, mouth: mouth, inner: inner, lips: lips, chin: chinDummy, hairG: hairG, spikes: new T.Group(), M: M, acc: {},
+    blink: Math.random() * 3, phase: Math.random() * 10, pose: {} };
 }
 
 // Pose: every key defaults to 0. hy pelvis height offset; hx/hry/hz pelvis; sx/sy/sz spine; nx/ny/nz head;
@@ -1647,20 +1930,20 @@ function applyPose(P, p, t) {
   P.ll.kn.rotation.x = Math.max(0.02, g("lkx")); P.rl.kn.rotation.x = Math.max(0.02, g("rkx"));
   P.ll.an.rotation.x = g("lax"); P.rl.an.rotation.x = g("rax");
   const curl = clamp(g("curl"), 0, 1);
-  [P.la, P.ra].forEach(function (A) { for (let i = 0; i < 4; i++) { A.fingers[i].rotation.x = -curl * (1.0 + i * 0.08); A.fingers[i].userData.tip.rotation.x = -0.2 - curl * 1.1; } A.thumb.rotation.x = -0.5 - curl * 0.6; });
+  const mi = P.body.morphTargetInfluences; mi[0] = mi[1] = 0.05 + curl * 0.75;
+  [P.la, P.ra].forEach(function (A) { A.thumb.rotation.x = -0.55 - curl * 0.6; });
   const jaw = clamp(g("jaw"), 0, 1), smile = clamp(g("smile"), -1, 1);
-  P.inner.scale.set(0.03 + smile * 0.006, 0.002 + jaw * 0.03, 0.014);
-  P.inner.position.y = -0.008 - jaw * 0.012;
-  P.lips.scale.set(1 + smile * 0.12, Math.abs(smile) < 0.08 ? 0.08 : smile * 0.55, 1);
-  P.lips.position.y = 0.004 - jaw * 0.02 + (smile < 0 ? -0.012 : 0);
-  P.chin.position.y = 0.042 - jaw * 0.016;
+  P.inner.scale.set(0.022 + smile * 0.005, 0.002 + jaw * 0.016, 0.006);
+  P.inner.position.y = -0.006 - jaw * 0.009;
+  P.lips.scale.set(1 + smile * 0.12, Math.abs(smile) < 0.08 ? 0.08 : smile * 0.5, 0.5);
+  P.lips.position.y = 0.003 - jaw * 0.012 + (smile < 0 ? -0.01 : 0);
   const br = clamp(g("brow"), -1, 1), fr = clamp(g("frown"), 0, 1);
-  P.brows.forEach(function (b, i) { const s = i ? 1 : -1; b.position.y = 0.22 + br * 0.014; b.rotation.z = s * (fr * 0.35 - br * 0.12); });
+  P.brows.forEach(function (b) { b.position.y = b.userData.y0 + br * 0.008; b.rotation.z = b.userData.s * (br * 0.1 - fr * 0.3); });
   P.blink -= (t || 0);
-  let lid = 1;
-  if (P.blink < 0.12) lid = Math.abs(P.blink - 0.06) / 0.06;
+  let lid = 0;
+  if (P.blink < 0.12) lid = 1 - Math.abs(P.blink - 0.06) / 0.06;
   if (P.blink < 0) P.blink = 2 + Math.random() * 3.5;
-  P.eyes.forEach(function (e) { e.scale.y = Math.max(0.1, lid); });
+  P.lids.forEach(function (l) { l.rotation.x = -0.42 + lid * 2.0; });
 }
 // A little life on top of any pose: breathing, a slow weight shift, glances. k scales it (0 = still).
 function lifePose(p, P, time, k) {
@@ -1681,36 +1964,38 @@ function posePerson(P, name, dt, time, extra, life) {
   applyPose(P, p, dt);
 }
 
-/* The mascot's extras, bought with play: earmuffs, a plaid scarf, a paper turkey hat */
+/* The mascot's extras, bought with play: earmuffs, a plaid scarf, a paper turkey hat, fitted to the new head */
 function dressMascot(P, maps) {
-  const T = THREE, G = personGeo();
+  const T = THREE, sph = pgeo("accSph", function () { return new T.SphereGeometry(1, 14, 10); });
   if (!P.acc.built) {
     P.acc.built = true;
-    const muff = new T.MeshLambertMaterial({ color: 0xff77a8 }), band = new T.MeshPhongMaterial({ color: 0x8e93a2, shininess: 60 });
+    const muff = glossMat(0xff77a8, 0.9), band = glossMat(0x8e93a2, 0.3);
     const em = new T.Group(); P.head.add(em);
-    [-1, 1].forEach(function (s) { const m = new T.Mesh(G.sph, muff); m.position.set(s * 0.158, 0.15, 0); m.scale.set(0.04, 0.062, 0.062); em.add(m); });
-    const arc = new T.Mesh(new T.TorusGeometry(0.168, 0.009, 6, 20, Math.PI), band); arc.position.set(0, 0.15, -0.01); em.add(arc);
+    [-1, 1].forEach(function (s) { const m = new T.Mesh(sph, muff); m.position.set(s * 0.148, 0.145, -0.012); m.scale.set(0.032, 0.05, 0.05); em.add(m); });
+    const arc = new T.Mesh(new T.TorusGeometry(0.19, 0.008, 6, 24, Math.PI), band); arc.position.set(0, 0.145, -0.02); arc.scale.set(0.79, 1, 1); em.add(arc);
     P.acc.muffs = em;
-    const plaid = new T.MeshLambertMaterial({ map: maps.plaid });
+    const plaid = clothMat("plaid", { map: maps.plaid });
     const sc = new T.Group(); P.spine.add(sc);
-    const wrap = new T.Mesh(G.ring, plaid); wrap.position.set(0, 0.53, 0.01); wrap.scale.set(0.088, 0.55, 0.08); sc.add(wrap);
-    const tail = new T.Group(); tail.position.set(0.05, 0.5, 0.085); sc.add(tail);
-    const tm = new T.Mesh(G.box, plaid); tm.scale.set(0.06, 0.24, 0.018); tm.position.y = -0.12; tail.add(tm);
-    const tail2 = new T.Group(); tail2.position.set(-0.03, 0.5, 0.08); sc.add(tail2);
-    const tm2 = new T.Mesh(G.box, plaid); tm2.scale.set(0.06, 0.2, 0.018); tm2.position.y = -0.1; tail2.add(tm2);
+    const wrap = new T.Mesh(new T.TorusGeometry(1, 0.32, 10, 24).rotateX(Math.PI / 2), plaid); wrap.position.set(0, 0.555, 0.008); wrap.scale.set(0.072, 0.075, 0.07); sc.add(wrap);
+    const tail = new T.Group(); tail.position.set(0.045, 0.52, 0.098); sc.add(tail);
+    const tl = new T.Group(); tl.rotation.set(-0.3, 0, 0.06); tail.add(tl);
+    const tm = new T.Mesh(roundBox(0.06, 0.24, 0.016, 0.007, 2), plaid); tm.position.y = -0.12; tl.add(tm);
+    const tail2 = new T.Group(); tail2.position.set(-0.025, 0.52, 0.1); sc.add(tail2);
+    const tl2 = new T.Group(); tl2.rotation.set(-0.27, 0, -0.05); tail2.add(tl2);
+    const tm2 = new T.Mesh(roundBox(0.06, 0.2, 0.016, 0.007, 2), plaid); tm2.position.y = -0.1; tl2.add(tm2);
     P.acc.scarf = sc; P.acc.tail = tail; P.acc.tail2 = tail2;
-    const hat = new T.Group(); hat.position.set(0, 0.28, -0.02); P.head.add(hat);
-    const hb = new T.Mesh(new T.CylinderGeometry(0.16, 0.165, 0.06, 20, 1, true), new T.MeshLambertMaterial({ color: 0x8a5a2b, side: T.DoubleSide })); hat.add(hb);
+    const hat = new T.Group(); hat.position.set(0, 0.225, -0.01); P.head.add(hat);
+    const hb = new T.Mesh(new T.CylinderGeometry(0.135, 0.142, 0.07, 28, 1, true), clothMat("paperband", { color: 0x8a5a2b }));
+    hat.add(hb);
     const fc = [0xe4343e, 0xff8a1f, 0xffd23f, 0xff8a1f, 0xe4343e, 0x9bdc3a, 0xffd23f];
-    for (let i = 0; i < 7; i++) { const f = new T.Mesh(G.sph, new T.MeshLambertMaterial({ color: fc[i] })); const a = (i - 3) * 0.32; f.position.set(Math.sin(a) * 0.08, 0.1 + Math.cos(a) * 0.04, -0.09); f.scale.set(0.035, 0.11, 0.012); f.rotation.z = -a; hat.add(f); }
-    const tk = new T.Mesh(G.sph, new T.MeshLambertMaterial({ color: 0x8a5a2b })); tk.position.set(0, 0.06, 0.12); tk.scale.set(0.045, 0.05, 0.03); hat.add(tk);
-    const bk = new T.Mesh(G.sph, new T.MeshLambertMaterial({ color: 0xffd23f })); bk.position.set(0, 0.07, 0.15); bk.scale.set(0.012, 0.008, 0.02); hat.add(bk);
+    for (let i = 0; i < 7; i++) { const fm = new T.Mesh(sph, glossMat(fc[i], 0.8)); const a = (i - 3) * 0.3; fm.position.set(Math.sin(a) * 0.09, 0.1 + Math.cos(a) * 0.03, -0.1); fm.scale.set(0.032, 0.1, 0.01); fm.rotation.z = -a; hat.add(fm); }
+    const tk = new T.Mesh(sph, glossMat(0x8a5a2b, 0.7)); tk.position.set(0, 0.04, 0.135); tk.scale.set(0.04, 0.045, 0.025); hat.add(tk);
+    const bk = new T.Mesh(sph, glossMat(0xffd23f, 0.6)); bk.position.set(0, 0.05, 0.16); bk.scale.set(0.01, 0.007, 0.016); hat.add(bk);
     P.acc.hat = hat;
   }
   P.acc.muffs.visible = wear("earmuffs");
   P.acc.scarf.visible = wear("scarf");
   P.acc.hat.visible = wear("hat");
-  P.spikes.visible = !wear("hat");
 }
 
 /* =====================================================================================
@@ -1776,10 +2061,9 @@ function buildKit(T, scriptImg) {
   MT.crust = new T.MeshLambertMaterial({ color: 0xc9842e }); MT.filling = new T.MeshLambertMaterial({ map: MP.pieTop });
   G.pieBox = roundBox(0.38, 0.13, 0.38, 0.015, 2);
 
-  /* the mascot: the Nostalgia Pro collector (spiky brown hair, shades, the NP tee, jeans, red sneakers) */
+  /* the mascot: the Nostalgia Pro collector (short swept brown hair, shades, the NP tee, jeans, red sneakers) */
   K.hero = makePerson({ skin: 0xf0a862, shirtMap: MP.tee, sleeveMap: MP.teeSleeve, trim: 0x101016, pantsMap: MP.jeans, shoe: 0xd8283a, sole: 0xf6f2e8, hair: 0x5a3418,
-    hairStyle: "spiky", glasses: "shades", sleeves: "short", brow: 0x3a2010, belt: 0x2a1a10 });
-  K.hero.root.traverse(function (o) { o.frustumCulled = true; });
+    hairStyle: "swept", glasses: "shades", sleeves: "short", brow: 0x3a2010, belt: 0x2a1a10 });
   dressMascot(K.hero, MP);
   K.car = makeCar(T);
   K.ledMat = null;
@@ -2353,7 +2637,7 @@ function buildMotel() {
   add(iceBody, K.geo.box, 0x5a6670, 0, 0.62, 0.4, 0.4, 0.05, 0.03);
   const iceLamp = add(iceBody, K.geo.sph, new T.MeshBasicMaterial({ color: 0x9bff3f }), 0.36, 1.48, 0.38, 0.03);
   const P0 = K.hero;
-  const clerk = makePerson({ skin: 0xc98a5a, shirt: 0xb8862a, trim: 0x8a6420, pants: 0x4a4a52, shoe: 0x2a1a10, sole: 0x1b1410, hair: 0x9a9a9a, hairStyle: "bald",
+  const clerk = makePerson({ skin: 0xc98a5a, shirt: 0x2f6a5e, trim: 0x1f4a40, pants: 0x4a4a52, shoe: 0x2a1a10, sole: 0x1b1410, hair: 0x9a9a9a, hairStyle: "bald",
     sleeves: "long", collar: "shirt", glasses: "round", mustache: true, belly: 0.5, brow: 0x8a8a8a });
   clerk.root.position.set(-1.55, 0.16, -3.2); scene.add(clerk.root);
   const fob = grp(clerk.la.hand, 0, -0.1, 0.02); add(fob, K.geo.box, 0xc2304a, 0, -0.05, 0, 0.04, 0.09, 0.012); add(fob, K.geo.ring, 0xd8c27a, 0, 0.01, 0, 0.02, 0.02, 0.02);
@@ -2804,7 +3088,11 @@ function icon(c, k, x, y, s) {
   if (k === "cat") { rect(c, -10, -4, 20, 14, "#e08a3a"); c.fillStyle = "#e08a3a"; c.beginPath(); c.moveTo(-10, -4); c.lineTo(-7, -12); c.lineTo(-3, -4); c.moveTo(10, -4); c.lineTo(7, -12); c.lineTo(3, -4); c.fill(); rect(c, -6, 0, 3, 3, "#1b1b28"); rect(c, 3, 0, 3, 3, "#1b1b28"); rect(c, 10, 4, 8, 3, "#e08a3a"); }
   else if (k === "lawn") { rect(c, -16, 4, 32, 8, "#4caf50"); for (let i = -14; i < 16; i += 4) rect(c, i, 0, 2, 5, "#2e7d32"); circ(c, 8, -6, 5, "#ffd23f"); }
   else if (k === "foot") { rr(c, -12, -2, 24, 12, 5, "#e8b88a"); rect(c, -12, -12, 9, 12, "#e8b88a"); circ(c, 9, 0, 4, "#ff6b6b"); }
-  else if (k === "photos") { rect(c, -14, -10, 22, 16, "#cfc8b7"); rect(c, -8, -6, 22, 16, "#1b1b28"); rect(c, -6, -4, 18, 12, "#6fa8dc"); c.fillStyle = "#4caf50"; c.beginPath(); c.moveTo(-6, 8); c.lineTo(2, -2); c.lineTo(12, 8); c.fill(); }
+  else if (k === "photos") {   // vacation snapshots: two instant photos fanned out (a beach, then the grandkids)
+    const snap = function (dx, dy, rot, draw) { c.save(); c.translate(dx, dy); c.rotate(rot); rect(c, -11, -12, 22, 25, "#fffdf6"); rect(c, -11, -12, 22, 1, "#d8d2c2"); rect(c, -9, -10, 18, 15, "#7ec8f0"); draw(); c.restore(); };
+    snap(-5, 1, -0.22, function () { rect(c, -9, 1, 18, 4, "#f2d68a"); rect(c, -9, -2, 18, 3, "#2f86c8"); circ(c, 4, -6, 2.6, "#ffd23f"); });
+    snap(6, -1, 0.14, function () { rect(c, -9, 1, 18, 4, "#5cae4e"); circ(c, -3, -1, 2.4, "#e8b88a"); rect(c, -5, 1, 4, 4, "#c2304a"); circ(c, 3, 0, 2.1, "#d9a273"); rect(c, 1, 2, 4, 3, "#3b5a96"); });
+  }
   else if (k === "fish") { c.fillStyle = "#5b9bd5"; c.beginPath(); c.ellipse(-2, 0, 12, 6, 0, 0, TAU); c.fill(); c.beginPath(); c.moveTo(9, 0); c.lineTo(16, -6); c.lineTo(16, 6); c.fill(); rect(c, -9, -2, 2, 2, "#1b1b28"); }
   else if (k === "cloud") { circ(c, -6, 2, 7, "#9aa4b2"); circ(c, 4, -1, 9, "#9aa4b2"); circ(c, 12, 3, 6, "#9aa4b2"); for (let i = -6; i < 12; i += 6) rect(c, i, 10, 2, 5, "#3f7fd0"); }
   else if (k === "mower") { rect(c, -12, -2, 20, 8, "#c2304a"); circ(c, -8, 8, 4, "#1b1b22"); circ(c, 6, 8, 4, "#1b1b22"); rect(c, 6, -12, 2, 12, "#5a5e6c"); rect(c, 6, -12, 10, 2, "#5a5e6c"); }
