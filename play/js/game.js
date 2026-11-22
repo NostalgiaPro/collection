@@ -3112,7 +3112,7 @@
   function cartHTML() {
     if (!DEMO) return cartFull();
     var dsv = readDemoSave();
-    return '<div class="cart-label"><div class="cart-brand"><img src="/images/np-script.webp" width="1800" height="749" alt="Nostalgia Pro"></div><div class="cart-sub">' + 'THE GAME &middot; SELECT A MODE</div>' +
+    return '<div class="cart-label"><div class="cart-brand"><img src="/images/np-script-the-game.webp" width="1800" height="748" alt="Nostalgia Pro"></div><div class="cart-sub">' + 'SELECT A MODE</div>' +
       (dsv ? '<button class="cart-item mode" data-act="democontinue">CONTINUE <small>your Saturday, ' + esc(fmtTime(dsv.run.time)) + '</small></button>' : '') +
       '<button class="cart-item mode" data-act="start" data-mode="noon">BACK BY NOON <small>' + (DEMO ? 'free demo' : 'short run') + '</small></button>' +
       (DEMO ? '<button class="cart-item mode" disabled aria-disabled="true">HOME BY SUNDOWN <small>full version</small></button>'
@@ -3132,7 +3132,7 @@
   function cartFull() {
     var sv = readSave(), se = sv && sv.season;
     var cont = se ? '<button class="cart-item mode" data-act="continue">CONTINUE <small>' + esc(se.endingPending ? 'your ending is waiting' : seasonLabelLc(sv.run ? sv.run.week : se.week)) + '</small></button>' : '';
-    return '<div class="cart-label"><div class="cart-brand"><img src="/images/np-script.webp" width="1800" height="749" alt="Nostalgia Pro"></div><div class="cart-sub">THE GAME &middot; SELECT A MODE</div>' +
+    return '<div class="cart-label"><div class="cart-brand"><img src="/images/np-script-the-game.webp" width="1800" height="748" alt="Nostalgia Pro"></div><div class="cart-sub">SELECT A MODE</div>' +
       cont +
       '<button class="cart-item mode" data-act="newgame">NEW GAME <small>12 Saturdays</small></button>' +
       '<button class="cart-item mode" data-act="start" data-mode="noon">BACK BY NOON <small>today\'s quick run</small></button>' +

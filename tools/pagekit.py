@@ -151,6 +151,29 @@ if ("serviceWorker" in navigator)
 </html>
 """
 
+
+# Official script wordmark. variant is the section plate (games, movies, tv, music,
+# board-games, arcade, the-game, merch) or "plain" for the homepage / utility pages.
+SCRIPT_SRC = {
+    "plain": "/images/np-script.webp",
+    "games": "/images/np-script-games.webp",
+    "movies": "/images/np-script-movies.webp",
+    "tv": "/images/np-script-tv.webp",
+    "music": "/images/np-script-music.webp",
+    "board-games": "/images/np-script-board-games.webp",
+    "arcade": "/images/np-script-arcade.webp",
+    "the-game": "/images/np-script-the-game.webp",
+    "merch": "/images/np-script-merch.webp",
+}
+
+def wordmark(href="/", variant="games", alt="The Nostalgia Pro"):
+    src = SCRIPT_SRC[variant]
+    img = f'<img src="{src}" width="1800" height="748" alt="{alt}">'
+    if href:
+        return f'<p class="wordmark"><a href="{href}" aria-label="The Nostalgia Pro home">{img}</a></p>'
+    return f'<p class="wordmark">{img}</p>'
+
+
 MONTHS = ["January", "February", "March", "April", "May", "June", "July",
           "August", "September", "October", "November", "December"]
 

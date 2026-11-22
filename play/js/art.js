@@ -305,7 +305,7 @@ NP.loadScriptLogo = function (cb) {
     var fns = NP._scriptLogoWait.splice(0);
     fns.forEach(function (fn) { fn(null); });
   };
-  img.src = '/images/np-script.webp';
+  img.src = '/images/np-script-the-game.webp';
 };
 
 NP.drawLogo = function (canvas, adFree) {
@@ -314,26 +314,26 @@ NP.drawLogo = function (canvas, adFree) {
   var W = canvas.width, H = canvas.height;
   ctx.clearRect(0, 0, W, H);
   var s = Math.max(1, Math.floor(W / 80));
-  var sub = adFree ? 'THE AD-LESS EDITION (WITH ADS)' : 'THE GAME';
+  var sub = adFree ? 'THE AD-LESS EDITION (WITH ADS)' : '';
   var s2 = Math.max(1, Math.floor(s / 3));
   var paint = function (img) {
     if (canvas !== document.getElementById(canvas.id) && canvas.parentNode == null) return;
     ctx.clearRect(0, 0, W, H);
     if (img) {
-      var subH = s2 * 8;
+      var subH = sub ? s2 * 8 : 0;
       var maxW = W * 0.94;
       var maxH = Math.max(24, H - subH - s);
       var sc = Math.min(maxW / img.width, maxH / img.height);
       var dw = img.width * sc, dh = img.height * sc;
       var dx = (W - dw) / 2, dy = Math.max(0, (H - dh - subH) / 2);
       ctx.drawImage(img, dx, dy, dw, dh);
-      NP.pixelText(ctx, sub, W / 2, dy + dh + s2 * 2, s2, NP.COL.cyan, 'center');
+      if (sub) NP.pixelText(ctx, sub, W / 2, dy + dh + s2 * 2, s2, NP.COL.cyan, 'center');
     } else {
       var txt = 'NOSTALGIA PRO';
       var y = Math.round(H / 2 - 7 * s / 2) - s * 2;
       NP.pixelText(ctx, txt, W / 2 + s, y + s, s, NP.COL.red, 'center');
       NP.pixelText(ctx, txt, W / 2, y, s, NP.COL.cream, 'center');
-      NP.pixelText(ctx, sub, W / 2, y + 9 * s, s2, NP.COL.cyan, 'center');
+      NP.pixelText(ctx, sub || 'THE GAME', W / 2, y + 9 * s, s2, NP.COL.cyan, 'center');
     }
   };
   NP.loadScriptLogo(paint);
