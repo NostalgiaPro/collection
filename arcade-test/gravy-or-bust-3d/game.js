@@ -2218,6 +2218,9 @@ function makeCar(T) {
     return win;
   }
   door(-1, parts[4]); door(1, parts[5]);
+  // pivot the left (driver) door at its front edge so it can swing open at home
+  const leftHinge = grp(car, -0.76, 0, -0.58);
+  car.remove(parts[4]); leftHinge.add(parts[4]); parts[4].position.set(0.76, 0, 0.58);
   add(parts[5], roundBox(1.5, 0.08, 1.4, 0.05), paintM, 0, 1.44, 0.45);                 // roof
   [-1, 1].forEach(function (s) { add(parts[5], roundBox(0.1, 0.9, 0.85, 0.06), paintM, s * 0.76, 0.98, 1.08); add(parts[5], K.geo.box, paintM, s * 0.73, 1.22, -0.45, 0.05, 0.5, 0.06); });
   const hatch = add(parts[5], roundBox(1.5, 0.95, 0.12, 0.06), paintM, 0, 0.98, 1.56);
@@ -2226,7 +2229,7 @@ function makeCar(T) {
   plate.position.set(0, 0.72, 1.63); parts[5].add(plate);
   [-0.55, 0.55].forEach(function (x) { add(parts[5], K.geo.box, tailM, x, 0.8, 1.63, 0.22, 0.12, 0.02); });
   hatch.userData.paint = true;
-  car.userData = { parts: parts, wheels: wheels, paint: paintM, flyers: [], scarf: null };
+  car.userData = { parts: parts, wheels: wheels, paint: paintM, flyers: [], scarf: null, leftDoorHinge: leftHinge };
   return car;
 }
 function paintCar() { if (K && K.car) K.car.userData.paint.color.set(paint()); }
@@ -2235,6 +2238,7 @@ function spinWheels(dist) { const w = K.car.userData.wheels; for (let i = 0; i <
 // The mascot in the driver's seat, scarf flying if the doors are gone
 function heroDrive(dt, t, life) {
   const P = K.hero;
+  if (K.car.userData.leftDoorHinge) K.car.userData.leftDoorHinge.rotation.y = 0;
   place(P.root, K.car, -0.32, 0.21, 0.32, Math.PI);
   posePerson(P, "drive", dt, t, { ny: Math.sin(t * 0.7) * 0.15 }, life == null ? 0.4 : life);
   if (P.acc.tail) { P.acc.tail.rotation.x = 1.1 + Math.sin(t * 22) * 0.25; P.acc.tail2.rotation.x = 0.9 + Math.sin(t * 19 + 1) * 0.25; }
@@ -2929,28 +2933,63 @@ function buildHome() {
     const open = clamp((T0 - 5) / 0.6, 0, 1);
     doorPiv.rotation.y = -open * 1.7;
     doorWay.material.color.set(on ? 0xfff1c0 : 0x2a2420);
-    // the car coasts in, sheds what is left at the curb, the hero rides the seat to the door
+    // the car coasts in and parks in the driveway; the hero gets out and walks to the door
     const k = clamp(T0 / 2.4, 0, 1), e = 1 - Math.pow(1 - k, 2);
-    car.visible = T0 < 3.4;
-    place(car, scene, 0.2, 0, 14 - e * 15, 0);
-    spinWheels(e * 15);
-    carParts(T0 > 2.4 ? 6 : S.lost);
-    seatRide.visible = T0 >= 3.4 && T0 < 6;
+    const parkX = 0.2, parkZ = -1;
+    place(car, scene, parkX, 0, 14 - e * (14 - parkZ), 0);
+    car.visible = true;
+    spinWheels(e * (14 - parkZ));
+    carParts(S.lost);
+    seatRide.visible = false;
     for (let i = V.fly.length - 1; i >= 0; i--) { if (V.fly[i].mesh && V.fly[i].mesh.parent) V.fly[i].mesh.parent.remove(V.fly[i].mesh); V.fly.splice(i, 1); }
-    if (!this.shed) this.shed = [];
-    if (T0 > 2.4 && T0 < 4.6) {
-      if (!this.shedDone) { this.shedDone = true; for (let i = S.lost; i < 6; i++) { const m = car.userData.parts[i].clone(); m.visible = true; scene.add(m); this.shed.push({ m: m, vx: (i - 3) * 1.4, vy: 3 + i * 0.4, s: rnd(-6, 6) }); } }
-      const q = T0 - 2.4;
-      this.shed.forEach(function (p) { p.m.position.set(0.2 + p.vx * q, Math.max(-0.3, p.vy * q - 7 * q * q), -1 + q * 0.8); p.m.rotation.set(p.s * q, 0, p.s * 0.5 * q); });
-    } else if (this.shed.length && (T0 >= 4.6 || T0 < 2.4)) { this.shed.forEach(function (p) { scene.remove(p.m); }); this.shed = []; if (T0 < 2.4) this.shedDone = false; }
-    if (T0 < 3.4) heroDrive(dt, t, 0.4);
-    else if (T0 < 6) {
-      const gk = clamp((T0 - 3.4) / 1.5, 0, 1);
-      seatRide.position.set(0.2 * (1 - gk), 0, -1 - gk * 3.6);
-      seatRide.rotation.y = Math.PI;
-      place(P0.root, scene, seatRide.position.x, 0.02, seatRide.position.z + 0.1, Math.PI);
-      posePerson(P0, "seatRide", dt, t, { ny: 0.2 }, 0.6);
+    if (this.shed && this.shed.length) { this.shed.forEach(function (p) { if (p.m && p.m.parent) p.m.parent.remove(p.m); }); this.shed = []; }
+    const sm = function (u) { u = clamp(u, 0, 1); return u * u * (3 - 2 * u); };
+    const seatX = parkX - 0.32, seatY = 0.21, seatZ = parkZ + 0.32;
+    const outX = -1.18, outY = 0, outZ = -0.82;
+    if (T0 < 2.4) {
+      heroDrive(dt, t, 0.4);
+    } else if (T0 < 6) {
+      heroUnflap();
+      if (T0 < 3.55) {
+        const exitU = sm(clamp((T0 - 2.4) / 1.15, 0, 1));
+        const x = seatX + (outX - seatX) * sm(clamp(exitU / 0.85, 0, 1));
+        const y = seatY + (outY - seatY) * exitU;
+        const z = seatZ + (outZ - seatZ) * sm(clamp((exitU - 0.15) / 0.85, 0, 1));
+        place(P0.root, scene, x, y, z, Math.PI + 0.5 * Math.sin(Math.PI * exitU));
+        const pz = mixPose(POSES.drive, POSES.stand, exitU, P0.pose);
+        const step = Math.sin(Math.PI * exitU);
+        addPose(pz, { lhx: -0.45 * step * (1 - exitU * 0.35), lkx: 0.35 * step * (1 - exitU), lhz: 0.2 * step * (1 - exitU), ny: 0.25 * (1 - exitU), smile: 0.4 });
+        lifePose(pz, P0, t, 0.35); applyPose(P0, pz, dt);
+      } else {
+        const raw = clamp((T0 - 3.55) / 2.45, 0, 1);
+        const u = sm(raw);
+        const midX = -0.92, midY = 0.04, midZ = -2.72;
+        const doorX = 0.02, doorY = 0.22, doorZ = -4.58;
+        const inX = 0.02, inY = 0.24, inZ = -5.45;
+        let x, y, z, ax, az, bx, bz, s, dist = 0;
+        const d1 = Math.hypot(midX - outX, midZ - outZ), d2 = Math.hypot(doorX - midX, doorZ - midZ), d3 = Math.hypot(inX - doorX, inZ - doorZ);
+        const total = d1 + d2 + d3, along = u * total;
+        if (along < d1) {
+          s = d1 ? along / d1 : 1; ax = outX; az = outZ; bx = midX; bz = midZ;
+          x = outX + (midX - outX) * s; y = outY + (midY - outY) * s; z = outZ + (midZ - outZ) * s; dist = along;
+        } else if (along < d1 + d2) {
+          s = d2 ? (along - d1) / d2 : 1; ax = midX; az = midZ; bx = doorX; bz = doorZ;
+          x = midX + (doorX - midX) * s; y = midY + (doorY - midY) * s; z = midZ + (doorZ - midZ) * s; dist = along;
+        } else {
+          s = d3 ? (along - d1 - d2) / d3 : 1; ax = doorX; az = doorZ; bx = inX; bz = inZ;
+          x = doorX + (inX - doorX) * s; y = doorY + (inY - doorY) * s; z = doorZ + (inZ - doorZ) * s; dist = along;
+        }
+        const ry = Math.atan2(bx - ax, bz - az);
+        place(P0.root, scene, x, y, z, ry);
+        const pz = mixPose(POSES.stand, POSES.stand, 0, P0.pose);
+        const walking = 1 - clamp((u - 0.9) / 0.1, 0, 1);
+        walkPose(pz, (dist / 0.8) * Math.PI * 2, walking, true);
+        addPose(pz, { smile: 0.7, brow: 0.2 });
+        lifePose(pz, P0, t, 0.25); applyPose(P0, pz, dt);
+      }
     }
+    const hinge = car.userData.leftDoorHinge;
+    if (hinge) hinge.rotation.y = (S.lost >= 4 ? 0 : -1.15 * sm(clamp((T0 - 2.15) / 0.5, 0, 1)));
     // the family greets at the door
     fam.forEach(function (p, i) {
       p.root.visible = on && T0 > 5 && T0 < 6;
@@ -2991,9 +3030,12 @@ function buildHome() {
       for (let i = 0; i < 120; i++) { const v = cvel[i]; cp.setXYZ(i, (inside ? 40 : 0) + v[0] * q, (inside ? 1.4 : 2.2) + v[1] * q - 3 * q * q, (inside ? -0.4 : -5) + v[2] * q); }
       confetti.visible = true; cp.needsUpdate = true;
     } else confetti.visible = false;
-    // camera
-    if (!inside) { cam.position.set(2.2, 1.9, 6.8); cam.lookAt(0.0, 1.2, -4.5); }
-    else { cam.position.set(40.75, 1.8, 4.6); cam.lookAt(40.4, 0.95, -0.2); }
+    // camera: a driver's-side three-quarter so the get-out and the walk read clearly, easing toward the porch
+    if (!inside) {
+      const cu = (function (u) { u = clamp(u, 0, 1); return u * u * (3 - 2 * u); })(clamp((T0 - 2.2) / 3.5, 0, 1));
+      cam.position.set(-3.15 + cu * 0.15, 1.58, 4.1 - cu * 2.4);
+      cam.lookAt(-0.25 + cu * 0.2, 0.92, -1.0 - cu * 2.6);
+    } else { cam.position.set(40.75, 1.8, 4.6); cam.lookAt(40.4, 0.95, -0.2); }
   } };
 }
 
