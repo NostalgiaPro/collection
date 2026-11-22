@@ -100,8 +100,24 @@
       T(81, "cfk-rewind", "Be Kind, Rewind", "Finish the whole marathon in under 2:45.", "slabbed", { goal: { stat: "clearTime", at: 165, low: true, margin: 25, unit: "seconds", one: "second" }, end: function (s) { return s.cleared && s.clearTime < 165; } }),
       T(82, "cfk-horse-clean", "Director's Cut", "K.O. the Headless Hayrider without getting hit.", "slabbed")
     ] },
+    // Seasonal (Thanksgiving 2026). seasonal: "thanksgiving" keeps it out of the arcade-wide
+    // "every live game" trophies once the season ends and the game moves to the Seasonal Vault.
+    // Slots 83-93; never reuse them.
+    { slug: "gravy-or-bust", name: "Gravy or Bust!", status: "live", seasonal: "thanksgiving", trophies: [
+      T(83, "gob-wheels", "Wheels Down", "Finish the flight leg.", "loose", end(function (s) { return s.skyDone; })),
+      T(84, "gob-nod", "Nodding Along", "Hit a 10-beat streak on the flight.", "loose", { goal: { stat: "streakBest", at: 10, margin: 3, unit: "beats", one: "beat" }, end: function (s) { return s.streakBest >= 10; } }),
+      T(85, "gob-courier", "Pie Courier", "Reach the motel with at least 2 pies.", "loose", end(function (s) { return s.piesMotel >= 2; })),
+      T(86, "gob-ice", "Ice Machine Whisperer", "Quiet the motel ice machine.", "loose", end(function (s) { return s.iceQuiet; })),
+      T(87, "gob-saved", "Saved You Some", "Arrive after dinner started. They kept a plate.", "loose", end(function (s) { return s.arrived && !s.onTime; })),
+      T(88, "gob-home", "Home for the Holiday", "Make it home before dinner.", "boxed", end(function (s) { return s.onTime; })),
+      T(89, "gob-steady", "Steady Hands", "Ride the whole rail leg without dropping a box.", "boxed", end(function (s) { return s.railsDrops === 0; })),
+      T(90, "gob-seat", "Just the Seat", "Arrive with every car part gone.", "boxed", end(function (s) { return s.partsLeft === 0; })),
+      T(91, "gob-coffee", "Coffee Run", "Grab 8 coffees on the road.", "boxed", { goal: { stat: "coffee", at: 8, margin: 3, unit: "coffees", one: "coffee" }, end: function (s) { return s.coffee >= 8; } }),
+      T(92, "gob-saint", "Saintly Patience", "Finish the flight without missing a beat.", "sealed", end(function (s) { return s.skyDone && s.skyMisses === 0; })),
+      T(93, "gob-gravy", "Before the Gravy", "Arrive 30+ minutes early with all 3 pies and zero road hits.", "slabbed", end(function (s) { return s.spare >= 30 && s.pies === 3 && s.roadHits === 0; }))
+    ] },
     // Batch 3 (live Oct 28, 2026). New batch 3 trophies use slots 94-117 (47-58 are the original brief slots).
-    // Slots 83-93 and 118-129 are reserved; never reuse them.
+    // Slots 118-129 are reserved; never reuse them.
     { slug: "pawn-shop-pool", name: "Pawn Shop Pool", status: "live", trophies: [
       T(47, "psp-scratch", "That Cue Ball Was Not for Sale", "Scratch the cue ball.", "loose"),
       T(94, "psp-break", "Opening Bid", "Sink a ball on the break.", "loose"),

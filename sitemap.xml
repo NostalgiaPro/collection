@@ -164,7 +164,7 @@
   </url>
   <url>
     <loc>https://thenostalgiapro.com/arcade/</loc>
-    <lastmod>2026-11-15</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -309,6 +309,12 @@
   <url>
     <loc>https://thenostalgiapro.com/arcade/vector-siege/</loc>
     <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://thenostalgiapro.com/arcade/gravy-or-bust/</loc>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>

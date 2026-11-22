@@ -1,5 +1,5 @@
 /* Bump this string whenever you upload new files, or phones keep the old ones. */
-const CACHE = "nostalgiapro-v130";
+const CACHE = "nostalgiapro-v131";
 
 const PAGES = [
   "/", "/index.html", "/anniversaries.html", "/consoles.html", "/reviews.html",
@@ -14,7 +14,7 @@ const PAGES = [
   "/arcade/trophies/", "/arcade/trophies/shelf.css", "/arcade/trophies/shelf.js", "/arcade/trophies/game-list.js",
   "/arcade/shared/trophy-list.js", "/arcade/shared/trophies.js", "/arcade/shared/rewards.js", "/arcade/shared/extras.js", "/arcade/shared/hiscores.js",
   "/arcade/pawn-shop-pool/", "/arcade/pawn-shop-pool/game.js", "/arcade/rink-rat-shootout/", "/arcade/rink-rat-shootout/game.js",
-  "/arcade/powder-day-haul/", "/arcade/powder-day-haul/game.js", "/arcade/table-rink-rumble/", "/arcade/table-rink-rumble/game.js", "/arcade/creature-feature-ko/", "/arcade/creature-feature-ko/game.js", "/arcade/battle-karts/", "/arcade/battle-karts/game.js", "/arcade/shift-racing/", "/arcade/shift-racing/game.js", "/arcade/marble-drop/", "/arcade/marble-drop/game.js", "/arcade/pinball-rings/", "/arcade/pinball-rings/game.js", "/arcade/circuit-box/", "/arcade/circuit-box/game.js", "/arcade/clutch-ball-4000/", "/arcade/clutch-ball-4000/game.js", "/arcade/flea-fortress-flyby/", "/arcade/flea-fortress-flyby/game.js", "/arcade/gem-shop/", "/arcade/gem-shop/game.js", "/arcade/mini-golf-classic/", "/arcade/mini-golf-classic/game.js", "/arcade/monster-truck-rally/", "/arcade/monster-truck-rally/game.js", "/arcade/paintball-blitz/", "/arcade/paintball-blitz/game.js", "/arcade/pool-hall-hustle/", "/arcade/pool-hall-hustle/game.js", "/arcade/vector-siege/", "/arcade/vector-siege/game.js"
+  "/arcade/powder-day-haul/", "/arcade/powder-day-haul/game.js", "/arcade/table-rink-rumble/", "/arcade/table-rink-rumble/game.js", "/arcade/creature-feature-ko/", "/arcade/creature-feature-ko/game.js", "/arcade/battle-karts/", "/arcade/battle-karts/game.js", "/arcade/shift-racing/", "/arcade/shift-racing/game.js", "/arcade/marble-drop/", "/arcade/marble-drop/game.js", "/arcade/pinball-rings/", "/arcade/pinball-rings/game.js", "/arcade/circuit-box/", "/arcade/circuit-box/game.js", "/arcade/clutch-ball-4000/", "/arcade/clutch-ball-4000/game.js", "/arcade/flea-fortress-flyby/", "/arcade/flea-fortress-flyby/game.js", "/arcade/gem-shop/", "/arcade/gem-shop/game.js", "/arcade/mini-golf-classic/", "/arcade/mini-golf-classic/game.js", "/arcade/monster-truck-rally/", "/arcade/monster-truck-rally/game.js", "/arcade/paintball-blitz/", "/arcade/paintball-blitz/game.js", "/arcade/pool-hall-hustle/", "/arcade/pool-hall-hustle/game.js", "/arcade/vector-siege/", "/arcade/vector-siege/game.js", "/arcade/gravy-or-bust/", "/arcade/gravy-or-bust/game.js"
 ];
 
 /* Grab the pages up front so the whole site works with no signal. */

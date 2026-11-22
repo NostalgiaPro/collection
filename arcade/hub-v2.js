@@ -36,9 +36,10 @@
     {"slug": "monster-truck-rally", "name": "Monster Truck Rally", "kind": "Monster trucks", "hook": "Eight courses of dirt, ramps and junk cars. Crush every car you can before the clock runs out.", "cover": "21-monster-truck-rally", "c": "#ff9214", "fmt": "pts", "cats": ["arcade"]},
     {"slug": "paintball-blitz", "name": "Paintball Blitz", "kind": "Paintball", "hook": "Work up the field, tag the other squad, and run your flag back to base.", "cover": "22-paintball-blitz", "c": "#ff3fa4", "fmt": "pts", "cats": ["sports", "mp"]},
     {"slug": "pool-hall-hustle", "name": "Pool Hall Hustle", "kind": "Pool", "hook": "Real 3D pool against Velvet Rhett, the house hustler. Aim, set spin, and take the shot.", "cover": "23-pool-hall-hustle", "c": "#3ff0ff", "fmt": "pts", "cats": ["sports", "mp"]},
-    {"slug": "vector-siege", "name": "Vector Siege", "kind": "Tower defense", "hook": "Thirty waves of vector raiders are marching on your master tape. Build towers and hold the line.", "cover": "24-vector-siege", "c": "#2ff3ff", "fmt": "pts", "cats": ["puzzles"]}
+    {"slug": "vector-siege", "name": "Vector Siege", "kind": "Tower defense", "hook": "Thirty waves of vector raiders are marching on your master tape. Build towers and hold the line.", "cover": "24-vector-siege", "c": "#2ff3ff", "fmt": "pts", "cats": ["puzzles"]},
+    {"slug": "gravy-or-bust", "name": "Gravy or Bust!", "kind": "Thanksgiving travel dash", "hook": "Three rides, three pies, and one Dinner Clock. Make it home before the gravy.", "cover": "25-gravy-or-bust", "c": "#e0662a", "fmt": "pts", "season": true, "cats": ["arcade"]}
   ];
-  var BANNER = ["ticket-roll-alley", "pool-hall-hustle", "monster-truck-rally", "pinball-rings", "mini-golf-classic"];
+  var BANNER = ["gravy-or-bust", "ticket-roll-alley", "pool-hall-hustle", "monster-truck-rally", "pinball-rings", "mini-golf-classic"];
   var FEATURED = [["fourth-and-collect", "mini-golf-classic"], ["bleacher-carts", "battle-karts"], ["gem-shop", "shift-racing"], ["paintball-blitz", "clutch-ball-4000"]];
   var TOP10_FALLBACK = ["ticket-roll-alley", "bleacher-carts", "pool-hall-hustle", "mini-golf-classic", "monster-truck-rally", "pinball-rings", "battle-karts", "shift-racing", "bargain-bin-buckets", "gem-shop"];
   var CAT_NAMES = { all: "ALL GAMES", sports: "SPORTS GAMES", arcade: "ARCADE GAMES", puzzles: "PUZZLE GAMES", mp: "MULTI-PLAYER GAMES" };
