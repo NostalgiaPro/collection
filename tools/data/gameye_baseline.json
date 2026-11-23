@@ -6793,6 +6793,14 @@
       "site_title": "Zumba Fitness World Party",
       "ge_title": "Zumba Fitness World Party",
       "ge_platform_id": 47
+    },
+    {
+      "uuid": "01a2004d-b7fd-72d1-b9a2-27721c2a2234",
+      "item_id": 185427,
+      "site_system": "Xbox Series X/S",
+      "site_title": "LEGO Batman: Legacy of the Dark Knight",
+      "ge_title": "LEGO Batman: Legacy of the Dark Knight",
+      "ge_platform_id": 106
     }
   ],
   "uuids": [
@@ -7644,7 +7652,8 @@
     "01a17678-fca2-7446-84de-997e0ee3d875",
     "01a1767a-af8e-7004-913f-1790fc2356cd",
     "01a19a7b-5b4c-75af-86c0-7e0e04e7fdb6",
-    "01a1ae91-db8c-77e4-ade2-6074002beccb"
+    "01a1ae91-db8c-77e4-ade2-6074002beccb",
+    "01a2004d-b7fd-72d1-b9a2-27721c2a2234"
   ],
   "item_ids": [
     37,
@@ -8495,6 +8504,7 @@
     181765,
     184186,
     184310,
+    185427,
     191283
   ],
   "variant_count": 4,
@@ -8535,5 +8545,6 @@
       "site_title": "Warhammer 40,000: Space Marine 2",
       "kind": "variant"
     }
-  ]
+  ],
+  "updated_at": "2026-11-23T23:16:52Z"
 }
