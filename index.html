@@ -428,8 +428,10 @@ a.score:hover::after,a.score:focus-visible::after{opacity:1}
 .hp-band-slat{background-image:repeating-linear-gradient(180deg,transparent 0 26px,rgba(0,0,0,.2) 26px 28px)}   /* slatwall */
 .hp-band-peg{background-image:radial-gradient(circle,rgba(0,0,0,.34) 0 1.5px,transparent 2px);background-size:22px 22px} /* pegboard */
 
-/* --- New this week: box art standing on a shelf --- */
+/* --- Latest Game Purchases + Latest Posts: box art standing on a shelf --- */
 .ht-new{margin:0}
+.ht-purchases{margin:0 0 28px}
+.ht-purchases[hidden]{display:none}
 .ht-row{display:grid;grid-template-columns:1fr;gap:0;margin:0}
 .ht-card{
   position:relative;display:flex;align-items:flex-end;gap:14px;min-width:0;margin:0 0 30px;padding:0 6px;
@@ -1563,24 +1565,31 @@ const ANNOUNCEMENTS = [
 })();
     </script>
 
-    <!-- NEW THIS WEEK + the monthly / seasonal slot (/theme.js fills #themeSlot) -->
+    <!-- LATEST GAME PURCHASES + LATEST POSTS + the monthly / seasonal slot (/theme.js fills #themeSlot) -->
     <div class="hp-band hp-band-slat">
+      <section class="ht-new ht-purchases" id="htBuy" aria-labelledby="htBuyH" hidden>
+        <div class="hp-sign"><h2 class="ht-sh" id="htBuyH">Latest Game Purchases</h2></div>
+        <div class="ht-row" id="htBuyRow"></div>
+      </section>
       <section class="ht-new" aria-labelledby="htNewH">
         <div class="hp-sign"><h2 class="ht-sh" id="htNewH">Latest Posts</h2></div>
         <!-- Filled from /data/new-this-week.json by the script right under this section.
-             The Daily Shelf card below is the evergreen fallback: it stays if the file is missing or nothing in it is fresh. -->
+             New shelf adds (On the site cards that point at a /game/ page) go in Latest Game Purchases above.
+             Latest Posts keeps X posts and any other non-purchase items.
+             The Daily Shelf card below is the evergreen fallback: it stays if the file is missing or no posts are fresh. -->
         <div class="ht-row" id="htRow">
           <a class="ht-card ht-daily" href="/daily.html"><span class="ht-cm ht-dailypix" aria-hidden="true"><i style="--c:#ff4b3e"></i><i style="--c:#5a8fd6"></i><i style="--c:#e0a33a"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i><i style="--c:#3fbf6a"></i><i style="--c:#3a3f52"></i><i style="--c:#e0a33a"></i><i style="--c:#8f6fd6"></i><i style="--c:#ff4b3e"></i><i style="--c:#5a8fd6"></i><i style="--c:#3a3f52"></i><i style="--c:#3fbf6a"></i><i style="--c:#e0a33a"></i><i style="--c:#3a3f52"></i><i style="--c:#ff4b3e"></i></span><span class="ht-ctxt"><span class="ht-ck" id="htDailyKick">Daily Shelf</span><b class="ht-ch">Guess the game</b><span class="ht-cs">One pixelated photo off my shelf a day. Six guesses.</span></span></a>
         </div>
       </section>
       <script>
 /* ============================================================================
-   NEW THIS WEEK: the row above is drawn from /data/new-this-week.json
+   LATEST GAME PURCHASES + LATEST POSTS
+   Both rows are drawn from /data/new-this-week.json
 
    The file looks like this:
      {"items":[{"type":"substack","title":"...","text":"...","url":"...","image":"","date":"2026-11-11"}]}
 
-     type   x | substack | site | game   (sets the small label on the card)
+     type   x | substack | site | game | purchase   (sets the small label on the card)
      title  required
      text   optional, a short line
      url    optional. A full https link opens in a new tab, a /slash link stays on the site.
@@ -1588,24 +1597,30 @@ const ANNOUNCEMENTS = [
             sleeve, and a post from X gets a pull quote card instead.
      date   required, YYYY-MM-DD
 
-   Newest first, six at most. An item shows for 7 days after its date and then
-   drops off by itself (dated Nov 8: still there Nov 15, gone Nov 16). A date
-   that has not come yet stays hidden until that day. Days are counted in
-   Arizona time (UTC-7 all year).
+   A new shelf add belongs in Latest Game Purchases when type is "purchase",
+   or when type is "site" and the url starts with /game/. Other site news,
+   X posts, Substack posts, and game announcements stay in Latest Posts.
+
+   Newest first, six at most in each section. An item shows for 7 days after
+   its date and then drops off by itself (dated Nov 8: still there Nov 15,
+   gone Nov 16). A date that has not come yet stays hidden until that day.
+   Days are counted in Arizona time (UTC-7 all year).
 
    Anything still set to TODO is treated as blank: a TODO url makes a card
    with no link, a TODO text is left off.
 
-   If the file will not load, or nothing in it is fresh, the Daily Shelf card
-   that is already in the page stays put, so the row is never empty.
+   If the file will not load, or no purchases are fresh, Latest Game Purchases
+   stays hidden. If no posts are fresh, the Daily Shelf card that is already
+   in Latest Posts stays put, so that row is never empty.
    ============================================================================ */
 (function(){
   var SRC = "/data/new-this-week.json", MAX = 6, DAYS = 7;
-  var LABEL = { x: "On X", substack: "On Substack", site: "On the site", game: "The game" };
+  var LABEL = { x: "On X", substack: "On Substack", site: "On the site", game: "The game", purchase: "On the site" };
   var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   var MARK = {                       /* 8 x 8 pixel marks for cards with no picture */
     substack: ["........","wwwwwwww","wrwwwwrw","wwrwwrww","wwwrrwww","wwwwwwww","wwwwwwww","........"],
     site:     ["........",".r.b..y.",".r.bg.y.",".r.bg.y.",".r.bg.y.","wwwwwwww","........","........"],
+    purchase: ["........",".r.b..y.",".r.bg.y.",".r.bg.y.",".r.bg.y.","wwwwwwww","........","........"],
     game:     ["........",".rryybb.",".rryybb.",".rryybb.",".rryybb.","wwwwwwww",".w....w.","........"],
     x:        ["........",".w....w.","..w..w..","...ww...","...ww...","..w..w..",".w....w.","........"],
     other:    ["........","...rr...","..rrrr..",".rrrrrr.","..rrrr..","...rr...","........","........"]
@@ -1613,7 +1628,9 @@ const ANNOUNCEMENTS = [
   var FILL = { w: "#eceae2", r: "#ff4b3e", b: "#5a8fd6", g: "#3fbf6a", y: "#ffd23f" };
 
   var row = document.getElementById("htRow");
-  if (!row || !window.fetch) return;
+  var buySec = document.getElementById("htBuy");
+  var buyRow = document.getElementById("htBuyRow");
+  if ((!row && !buyRow) || !window.fetch) return;
 
   var DAY = 864e5;
   var az = new Date(Date.now() - 7 * 3600e3);      /* Arizona wall clock, read with the UTC getters */
@@ -1633,6 +1650,11 @@ const ANNOUNCEMENTS = [
     if (cls) e.className = cls;
     if (text != null) e.textContent = text;
     return e;
+  }
+  function isPurchase(e){
+    if (e.type === "purchase") return true;
+    if (e.type !== "site") return false;
+    return /^\/game\//i.test(link(e.it.url));
   }
   function sleeve(type){
     var NS = "http://www.w3.org/2000/svg", box = el("span", "ht-cm ht-sleeve"), svg = null;
@@ -1664,6 +1686,7 @@ const ANNOUNCEMENTS = [
   function card(e){
     var it = e.it, type = LABEL[e.type] ? e.type : "other";
     var href = link(it.url), img = link(it.image), text = val(it.text);
+    if (type === "purchase") type = "site";
     var c = el(href ? "a" : "div", "ht-card ht-t-" + type + (href ? "" : " ht-nolink"));
     if (href){
       c.href = href;
@@ -1688,6 +1711,14 @@ const ANNOUNCEMENTS = [
     c.appendChild(t);
     return c;
   }
+  function fill(rowEl, list){
+    if (!rowEl || !list.length) return false;
+    var out = document.createDocumentFragment();
+    list.slice(0, MAX).forEach(function(e){ out.appendChild(card(e)); });
+    rowEl.textContent = "";
+    rowEl.appendChild(out);
+    return true;
+  }
 
   fetch(SRC, { cache: "no-cache" }).then(function(r){ return r.ok ? r.json() : null; }).then(function(data){
     var fresh = [];
@@ -1699,13 +1730,15 @@ const ANNOUNCEMENTS = [
       if (age < 0 || age > DAYS) return;
       fresh.push({ it: it, d: d, i: i, title: title, type: String(it.type || "").toLowerCase() });
     });
-    if (!fresh.length) return;                       /* nothing fresh: the Daily Shelf card stays */
     fresh.sort(function(a, b){ return (b.d.n - a.d.n) || (a.i - b.i); });
-    var out = document.createDocumentFragment();
-    fresh.slice(0, MAX).forEach(function(e){ out.appendChild(card(e)); });
-    row.textContent = "";
-    row.appendChild(out);
-  }).catch(function(){});                            /* file missing or broken: the Daily Shelf card stays */
+    var buys = [], posts = [];
+    fresh.forEach(function(e){ (isPurchase(e) ? buys : posts).push(e); });
+    if (buys.length && buySec && buyRow){
+      fill(buyRow, buys);
+      buySec.hidden = false;
+    }
+    if (posts.length) fill(row, posts);             /* no fresh posts: the Daily Shelf card stays */
+  }).catch(function(){});                            /* file missing or broken: purchases stay hidden, Daily Shelf stays */
 })();
       </script>
       <div id="themeSlot"></div>
