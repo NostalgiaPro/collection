@@ -1,6 +1,14 @@
 {
   "items": [
     {
+      "type": "site",
+      "title": "Donkey Kong Bananza",
+      "text": "New on the Nintendo Switch 2 shelf.",
+      "url": "/game/donkey-kong-bananza-nintendo-switch-2.html",
+      "image": "/images/donkey-kong-bananza-nintendo-switch-2.webp",
+      "date": "2026-11-22"
+    },
+    {
       "type": "x",
       "title": "Xbox 360 turns 21",
       "text": "Happy anniversary to the Xbox 360!🎉  It launched 21 years ago today in North America. Here's 10 games you should play on it that aren't Halo, Call of Duty, or Battlefield.  🔟🧵⤵️",

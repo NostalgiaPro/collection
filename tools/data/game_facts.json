@@ -11936,6 +11936,18 @@
       "co_op": "",
       "region": "United States of America",
       "region_abbr": "USA"
+    },
+    "donkey-kong-bananza-nintendo-switch-2": {
+      "title": "Donkey Kong Bananza",
+      "system": "Nintendo Switch 2",
+      "nkey": "donkey kong bananza",
+      "publisher": "Nintendo",
+      "developer": "Nintendo",
+      "players": "",
+      "players_possibly_online": false,
+      "co_op": "",
+      "region": "United States of America",
+      "region_abbr": "USA"
     }
   }
 }
