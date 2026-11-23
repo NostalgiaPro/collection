@@ -692,26 +692,42 @@ body.y1996 .mrB-feat h3,body.y1996 .mrB-feat p,body.y1996 .mrB-foot small{color:
 .ht-shop .mrB-buy span,.ht-shop .npmerch-btn span,.ht-shop .ht-donbtn span{font-family:"Titillium Web",system-ui,sans-serif;font-size:16px;line-height:1;margin-left:0}
 body.y1996 .mrB-wall{background:#c0c0c0;border:2px outset #fff;box-shadow:none;border-radius:0}
 
-/* --- Site directory (same five groups, same destinations) --- */
+/* --- Site directory: one panel, aisle-numbered sections, plain text links (same five groups, same destinations) --- */
 .sitenav{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0}
-.o1-nav{display:grid;grid-template-columns:minmax(0,1fr);gap:0;margin:38px 0 0;border-top:2px solid var(--line)}
-.o1-group{min-width:0;padding:14px 0 16px;border-bottom:1px dotted var(--line)}
-.o1-col{display:flex;flex-direction:column;gap:0;min-width:0}
-.o1-lbl{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-family:"Righteous",sans-serif;font-weight:700;font-size:11px;
-  letter-spacing:.12em;text-transform:uppercase;color:var(--hot)}
-.o1-lbl::before{content:"";flex:none;width:7px;height:7px;background:var(--hot)}
-.o1-links{display:flex;flex-wrap:wrap;gap:8px}
+.o1-nav{counter-reset:aisle;display:grid;grid-template-columns:minmax(0,1fr);gap:26px 22px;margin:40px 0 0;padding:22px 18px 18px;
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0) 140px),var(--bg2);
+  border:1px solid var(--line);border-top:3px solid var(--hot);border-radius:var(--hp-r);box-shadow:0 14px 34px rgba(0,0,0,.28)}
+.o1-col{display:contents}
+.o1-group{min-width:0;padding:0;border:0}
+.o1-lbl{counter-increment:aisle;display:flex;align-items:center;gap:10px;margin:0 0 6px;padding:0 0 10px;border-bottom:1px solid var(--line);
+  font-family:"Righteous",sans-serif;font-weight:400;font-size:13px;line-height:1;letter-spacing:.14em;text-transform:uppercase;color:var(--text)}
+.o1-lbl::before{content:counter(aisle,decimal-leading-zero);flex:none;display:inline-flex;align-items:center;justify-content:center;
+  width:auto;height:19px;min-width:27px;padding:1px 5px 0;border-radius:3px;background:var(--hot);color:var(--hp-on-hot);
+  font-size:10.5px;letter-spacing:.06em}
+.o1-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px}
 .shelflink,.shelflink.o1-pill{
-  display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:36px;padding:6px 12px;
-  background:var(--bg2);border:1px solid var(--line);border-radius:4px;color:var(--text);text-decoration:none;white-space:nowrap;
-  font-family:"Titillium Web","Titillium Web",sans-serif;font-weight:600;font-size:15px;letter-spacing:0;
-}
-.shelflink:hover,.shelflink.o1-pill:hover{background:var(--bg2);border-color:var(--hot);color:var(--hot)}
-.shelflink:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
-.o1-nav .shelflink.o1-pill.o1-shop{background:var(--hot);border:2px solid var(--hot);border-bottom:4px solid rgba(0,0,0,.35);color:var(--hp-on-hot);
-  font-family:"Righteous",sans-serif;font-weight:700;font-size:12px;letter-spacing:.04em;padding:9px 14px 7px}
-.o1-nav .shelflink.o1-pill.o1-shop:hover{background:transparent;color:var(--hot);border-color:var(--hot)}
-.o1-nav .o1-shop span{margin-left:7px;font-family:"Titillium Web",system-ui,sans-serif;font-size:14px;line-height:1}
+  position:relative;display:flex;align-items:center;justify-content:flex-start;min-width:0;min-height:42px;padding:3px 0;
+  background:none;border:0;border-radius:0;color:var(--text);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-family:"Titillium Web",sans-serif;font-weight:600;font-size:15.5px;letter-spacing:0;opacity:.86;
+  transition:color .16s ease,padding-left .18s ease,opacity .16s ease}
+.shelflink.o1-pill::before{content:"";position:absolute;left:0;top:50%;width:0;height:2px;margin-top:-1px;background:var(--hot);transition:width .18s ease}
+.shelflink:hover,.shelflink.o1-pill:hover{background:none;color:var(--hot);opacity:1;padding-left:15px}
+.shelflink.o1-pill:hover::before{width:9px}
+.shelflink:focus-visible{outline:2px solid var(--hot);outline-offset:2px;opacity:1}
+/* Store: a full-width checkout counter under the aisles */
+.o1-group.o1-shopgrp{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px 20px;
+  padding:18px 0 0;border-top:1px dashed var(--line)}
+.o1-shopcopy{display:flex;flex-direction:column;gap:6px;min-width:0}
+.o1-shopgrp .o1-lbl{counter-increment:none;margin:0;padding:0;border:0;color:var(--hot)}
+.o1-shopgrp .o1-lbl::before{content:none}
+.o1-shoptxt{font-family:"Titillium Web",sans-serif;font-size:15px;line-height:1.35;color:var(--dim)}
+.o1-shopgrp .o1-links{display:flex}
+.o1-nav .shelflink.o1-pill.o1-shop{justify-content:center;min-height:44px;padding:12px 22px 10px;opacity:1;overflow:visible;
+  background:var(--hot);border:2px solid var(--hot);border-bottom:4px solid rgba(0,0,0,.35);border-radius:var(--hp-r);color:var(--hp-on-hot);
+  font-family:"Righteous",sans-serif;font-weight:400;font-size:15px;letter-spacing:.05em}
+.o1-nav .shelflink.o1-pill.o1-shop::before{content:none}
+.o1-nav .shelflink.o1-pill.o1-shop:hover{background:transparent;color:var(--hot);border-color:var(--hot);padding-left:22px}
+.o1-nav .o1-shop span{margin-left:8px;font-family:"Titillium Web",system-ui,sans-serif;font-size:16px;line-height:1}
 
 /* --- YouTube on the living-room set, with today's listings next to it --- */
 .hp-tune{display:grid;grid-template-columns:minmax(0,1fr);gap:22px;align-items:start}
@@ -1010,8 +1026,7 @@ footer p a{color:var(--text)}
   .npmerch-items{gap:16px;max-width:620px}
   .npmerch-items b{font-size:14px}
   .npmerch-items .pr{font-size:10px;top:10px}
-  .o1-nav{margin-top:46px;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px}
-  .o1-nav>.o1-group:first-child{grid-column:1 / -1}
+  .o1-nav{margin-top:46px;padding:26px 26px 22px}
   .ythead h2{font-size:12px}
   .ytlbl{font-size:12px}
   .hp-tv{padding:14px 14px 0;border-radius:20px 20px 12px 12px}
@@ -1064,19 +1079,11 @@ footer p a{color:var(--text)}
   .npss-start{grid-area:start}
   .npmerch{grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:40px;align-items:center}
   .npmerch-items{max-width:none}
-  .o1-nav{grid-template-columns:1.9fr 1fr 1fr 1fr;column-gap:36px;padding-top:24px}
-  .o1-nav>.o1-group:first-child{grid-column:auto}
-  .o1-group{padding:0;border-bottom:0}
-  .o1-col{gap:24px}
-  .o1-links{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
-  .o1-nav>.o1-group:first-child .o1-links{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px}
-  .shelflink,.shelflink.o1-pill{justify-content:space-between;min-height:0;padding:8px 2px 7px;background:none;border:0;
-    border-bottom:1px dotted var(--line);border-radius:0;font-size:16px}
-  .shelflink.o1-pill::after{content:"\25B8";font-size:11px;color:var(--line)}
-  .shelflink.o1-pill:hover{background:none}
-  .shelflink.o1-pill:hover::after{color:var(--hot)}
-  .o1-nav .shelflink.o1-pill.o1-shop{justify-content:center;padding:11px 14px 9px;border-radius:var(--hp-r)}
-  .o1-nav .shelflink.o1-pill.o1-shop::after{content:none}
+  .o1-nav{grid-template-columns:2fr 1fr 1fr 1fr;gap:30px 40px;padding:30px 34px 26px}
+  .o1-links{grid-template-columns:minmax(0,1fr)}
+  .o1-nav>.o1-group:first-child .o1-links{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:40px}
+  .shelflink,.shelflink.o1-pill{min-height:0;padding:6px 0}
+  .o1-group.o1-shopgrp{padding-top:22px}
 }
 @media (min-width:700px){
   /* Two even columns. A hidden bar (display:none) drops out, so a single list fills the row. */
@@ -1233,7 +1240,17 @@ body.y1996 .o1-group{background:#c0c0c0;border:2px outset #fff;border-radius:0;p
 body.y1996 .o1-lbl{color:#000080;font-family:"Times New Roman",Times,serif;font-size:13px;letter-spacing:0;font-weight:700}
 body.y1996 .o1-lbl::before{display:none}
 body.y1996 .shelflink.o1-pill{border-radius:0;font-size:13px;color:#0000ee;background:none;border-color:#808080;text-decoration:underline}
-body.y1996 .shelflink.o1-pill::after{color:#808080}
+body.npskin .o1-nav .shelflink.o1-pill:not(.o1-shop):hover{color:var(--hot);background:none}
+body.npskin .o1-nav{background:none;border:0;box-shadow:none;padding:0}
+body.npskin .o1-group{padding:12px 14px}
+body.npskin .o1-nav .shelflink.o1-pill:not(.o1-shop),body.npskin .o1-nav .shelflink.o1-pill:not(.o1-shop):hover{padding:6px 10px;margin:0 0 6px}
+body.npskin .o1-nav .shelflink.o1-pill::before{content:none}
+body.npskin .o1-group.o1-shopgrp{padding:14px}
+body.y1996 .o1-nav{background:none;border:0;box-shadow:none;padding:0}
+body.y1996 .shelflink.o1-pill{opacity:1;border:0}
+body.y1996 .shelflink.o1-pill::before{display:none}
+body.y1996 .shelflink.o1-pill:hover{padding-left:0}
+body.y1996 .o1-shoptxt{color:#000;font-family:"Times New Roman",Times,serif}
 body.y1996 .o1-group.o1-shopgrp{background:#c0c0c0;border:2px outset #fff;box-shadow:none}
 body.y1996 .o1-nav .shelflink.o1-pill.o1-shop{background:#000080;color:#ffff00;border:2px outset #fff;font-weight:700;font-size:13px}
 body.y1996 .npmerch{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0;padding:12px}
@@ -1288,7 +1305,7 @@ body.y1996 .ht-quote .ht-cs{color:#000}
 body.y1996 .ht-quote .ht-ctxt::before{color:#000080}
 
 @media (prefers-reduced-motion:reduce){
-  .ht-card,.ht-act,.ht-cm,.btn,.ytbtn,.npmerch-btn,.npmerch-items img,.shelflink,.shelfhead .caret,a.score,a.score::after{transition:none}
+  .ht-card,.ht-act,.ht-cm,.btn,.ytbtn,.npmerch-btn,.npmerch-items img,.shelflink,.shelflink::before,.shelfhead .caret,a.score,a.score::after{transition:none}
   .ht-act:hover,.ht-act:active,.btn:active,.ht-card:hover .ht-cm,.npmerch-items a:hover img,.npmerch-btn:active,.ytfacade:hover .ytbtn{transform:none}
   html{scroll-behavior:auto}
 }
@@ -1772,7 +1789,7 @@ const ANNOUNCEMENTS = [
       <div class="o1-group"><span class="o1-lbl">Other shelves</span><div class="o1-links"><a class="shelflink o1-pill" href="/movies.html">Movies</a><a class="shelflink o1-pill" href="/tv.html">TV</a><a class="shelflink o1-pill" href="/music.html">Music</a><a class="shelflink o1-pill" href="/boardgames.html">Board games</a></div></div>
       <div class="o1-col">
         <div class="o1-group"><span class="o1-lbl">Dates</span><div class="o1-links"><a class="shelflink o1-pill" href="/anniversaries.html">Anniversaries</a><a class="shelflink o1-pill" href="/onthisday.html">On this day</a></div></div>
-        <div class="o1-group o1-shopgrp"><span class="o1-lbl">Store</span><div class="o1-links"><a class="shelflink o1-pill o1-shop" href="https://nostalgiapro-shop.fourthwall.com/" target="_blank" rel="noopener">Shop merch <span aria-hidden="true">&#8599;</span></a></div></div>
+        <div class="o1-group o1-shopgrp"><div class="o1-shopcopy"><span class="o1-lbl">Store</span><span class="o1-shoptxt">Official Nostalgia Pro tees, hats, hoodies and desk stuff.</span></div><div class="o1-links"><a class="shelflink o1-pill o1-shop" href="https://nostalgiapro-shop.fourthwall.com/" target="_blank" rel="noopener">Shop merch <span aria-hidden="true">&#8599;</span></a></div></div>
       </div>
     </div>
 
