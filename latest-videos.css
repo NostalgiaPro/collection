@@ -4,11 +4,11 @@
 .lv{margin:40px 0 0}
 .lv-grp + .lv-grp{margin-top:26px}
 .lv-plat{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:0 0 9px;border-bottom:1px solid var(--line)}
-.lv-plat h3{margin:0;display:flex;align-items:center;gap:9px;font-family:"Silkscreen",monospace;font-weight:700;
+.lv-plat h3{margin:0;display:flex;align-items:center;gap:9px;font-family:"Righteous",sans-serif;font-weight:700;
   font-size:12px;line-height:1;letter-spacing:.12em;text-transform:uppercase;color:var(--text)}
 .lv-plat h3 small{font:inherit;font-weight:400;color:var(--dim)}
 .lv-ico{display:block;width:16px;height:16px;flex:none}
-.lv-all{margin-left:auto;font-family:"Silkscreen",monospace;font-size:11px;line-height:1;letter-spacing:.08em;text-transform:uppercase;
+.lv-all{margin-left:auto;font-family:"Righteous",sans-serif;font-size:11px;line-height:1;letter-spacing:.08em;text-transform:uppercase;
   color:var(--dim);text-decoration:none;white-space:nowrap}
 .lv-all::after{content:"\00A0\25B8"}
 .lv-all:hover,.lv-all:focus-visible{color:var(--hot)}
@@ -44,10 +44,10 @@
 .lv-card:hover .lv-th img{transform:scale(1.03)}
 .lv-card:focus-visible{outline:none}
 .lv-tt{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
-  font-family:"IBM Plex Sans",system-ui,sans-serif;font-weight:600;font-size:14px;line-height:1.38;color:var(--text)}
+  font-family:"Titillium Web",system-ui,sans-serif;font-weight:600;font-size:14px;line-height:1.38;color:var(--text)}
 .lv-tall .lv-tt{font-size:13px;-webkit-line-clamp:3}
 .lv-card:hover .lv-tt,.lv-card:focus-visible .lv-tt{color:var(--hot)}
-.lv-k{margin-top:-3px;font-family:"Silkscreen",monospace;font-size:10px;line-height:1;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.lv-k{margin-top:-3px;font-family:"Righteous",sans-serif;font-size:10px;line-height:1;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
 
 /* no thumbnail, or it failed to load: a plain panel with the platform mark */
 .lv-th.lv-nopic{display:flex;align-items:center;justify-content:center}
@@ -55,7 +55,7 @@
 
 /* fallback when the feed file will not load */
 .lv-empty{grid-column:1 / -1;display:flex;align-items:center;justify-content:center;min-height:84px;padding:16px;
-  border:1px dashed var(--line);font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  border:1px dashed var(--line);font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
   color:var(--dim);text-decoration:none}
 .lv-empty:hover{color:var(--hot);border-color:var(--hot)}
 @media (prefers-reduced-motion:reduce){.lv-th img{transition:none}.lv-card:hover .lv-th img{transform:none}}

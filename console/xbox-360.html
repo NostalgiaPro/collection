@@ -29,11 +29,12 @@
 <title>Xbox 360 | The Nostalgia Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Titillium+Web:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/retro.css">
 <link rel="stylesheet" href="/themes.css">
 <link rel="stylesheet" href="/eras.css">
 <link rel="stylesheet" href="/growth.css">
+<link rel="stylesheet" href="/type.css">
 <script src="/theme.js"></script>
 <style>
   :root{
@@ -44,7 +45,7 @@
   html,body{margin:0;padding:0}
   body{
     background:var(--bg);color:var(--text);
-    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    font-family:"Titillium Web",system-ui,sans-serif;font-size:16px;line-height:1.5;
     -webkit-font-smoothing:antialiased;
   }
   body::before{
@@ -58,18 +59,18 @@
   .wordmark{margin:0 0 18px;line-height:0}
   .wordmark a{display:inline-block;line-height:0;color:inherit;text-decoration:none}
   .wordmark img{display:block;width:min(240px,72vw);height:auto}
-  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word}
+  h1{font-family:"Righteous",sans-serif;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word}
   .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
   .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
   .navbtn{
     display:inline-flex;align-items:center;text-decoration:none;
     border:2px solid var(--line);color:var(--dim);
-    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.05em;
     padding:9px 14px;border-radius:2px;
   }
   .navbtn:hover{border-color:var(--hot);color:var(--hot)}
   .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
-  .barlabel{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:34px 0 10px}
+  .barlabel{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:34px 0 10px}
   .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:64ch}
   .xpost{
     margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);
@@ -78,34 +79,34 @@
   .xpost blockquote{margin:0;white-space:pre-line;font-size:15px}
   .xpost .meta{
     display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0 0;
-    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);
+    font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.06em;color:var(--dim);
   }
   .xpost .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
   .xpost .meta a:hover{border-color:var(--hot);color:var(--hot)}
-  .crumb{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;margin:30px 0 0}
+  .crumb{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.08em;margin:30px 0 0}
   .crumb a{color:var(--dim);text-decoration:none}
   .crumb a:hover{color:var(--hot)}
   h1{color:var(--c)}
-  .sec{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.1em;color:var(--c);margin:44px 0 6px}
+  .sec{font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.1em;color:var(--c);margin:44px 0 6px}
   .why{font-size:13.5px;color:var(--dim);margin:0 0 18px;max-width:70ch}
   .why a{color:var(--dim)}
   .pick{display:grid;grid-template-columns:110px 1fr;gap:18px;margin:0 0 16px;background:var(--bg2);
     border:1px solid var(--line);border-left:4px solid var(--c);border-radius:2px;padding:16px}
   .pick img,.pick .nopic{width:110px;border:1px solid var(--line);border-radius:2px;display:block}
   .pick .nopic{aspect-ratio:3/4;border-style:dashed;display:flex;align-items:center;justify-content:center;
-    font-family:"Silkscreen",monospace;font-size:8px;color:var(--dim);text-align:center;padding:6px}
-  .pick h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:20px;margin:0 0 8px;line-height:1.25}
+    font-family:"Righteous",sans-serif;font-size:8px;color:var(--dim);text-align:center;padding:6px}
+  .pick h3{font-family:"Titillium Web",sans-serif;font-size:20px;margin:0 0 8px;line-height:1.25}
   .pick h3 a{color:inherit;text-decoration:none}
   .pick h3 a:hover{color:var(--c)}
-  .pick h3 em{font-style:normal;font-family:"Press Start 2P",monospace;font-size:11px;color:var(--c);margin-right:10px}
+  .pick h3 em{font-style:normal;font-family:"Righteous",sans-serif;font-size:11px;color:var(--c);margin-right:10px}
   .pick blockquote{margin:0;white-space:pre-line;font-size:14.5px}
-  .pick .meta{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;color:var(--dim);margin:12px 0 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .pick .meta{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.05em;color:var(--dim);margin:12px 0 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .pick .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
   .pick .meta a:hover{border-color:var(--hot);color:var(--hot)}
   .shelfgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:14px;margin:8px 0 0}
   .tile{text-decoration:none;color:inherit;display:block}
   .tile .im{aspect-ratio:3/4;background:var(--panel) center/cover no-repeat;border:1px solid var(--line);border-radius:2px;
-    display:flex;align-items:center;justify-content:center;font-family:"Silkscreen",monospace;font-size:8px;color:var(--dim);
+    display:flex;align-items:center;justify-content:center;font-family:"Righteous",sans-serif;font-size:8px;color:var(--dim);
     text-align:center;padding:6px}
   .tile:hover .im{border-color:var(--c)}
   .tile span{display:block;font-size:12.5px;line-height:1.3;margin-top:6px}

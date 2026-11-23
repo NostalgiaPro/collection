@@ -29,11 +29,12 @@
 <title>The Nostalgia Pro — Lists</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Titillium+Web:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/retro.css">
 <link rel="stylesheet" href="/themes.css">
 <link rel="stylesheet" href="/eras.css">
 <link rel="stylesheet" href="/growth.css">
+<link rel="stylesheet" href="/type.css">
 <script src="/theme.js"></script>
 <style>
   :root{
@@ -44,7 +45,7 @@
   html,body{margin:0;padding:0}
   body{
     background:var(--bg);color:var(--text);
-    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    font-family:"Titillium Web",system-ui,sans-serif;font-size:16px;line-height:1.5;
     -webkit-font-smoothing:antialiased;
   }
   body::before{
@@ -57,10 +58,10 @@
 
   header{padding:44px 0 0}
   .wordmark{
-    font-family:"Silkscreen",monospace;font-weight:700;font-size:13px;
+    font-family:"Righteous",sans-serif;font-weight:700;font-size:13px;
     letter-spacing:.14em;color:var(--dim);margin:0 0 22px;
   }
-  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0}
+  h1{font-family:"Righteous",sans-serif;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0}
   .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
   .caveat{font-size:13.5px;border-left:3px solid var(--hot);padding-left:12px}
 
@@ -68,7 +69,7 @@
   .navbtn{
     display:inline-flex;align-items:center;text-decoration:none;
     border:2px solid var(--line);color:var(--dim);
-    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.05em;
     padding:9px 14px;border-radius:2px;
   }
   .navbtn:hover{border-color:var(--hot);color:var(--hot)}
@@ -82,7 +83,7 @@
     border:2px solid var(--line);border-radius:2px;padding:20px 22px;
   }
   .crosscut h2{
-    font-family:"Silkscreen",monospace;font-weight:700;font-size:11px;
+    font-family:"Righteous",sans-serif;font-weight:700;font-size:11px;
     letter-spacing:.1em;color:var(--dim);margin:0 0 4px;
   }
   .crosscut p.lead{margin:0 0 16px;color:var(--dim);font-size:13.5px}
@@ -90,18 +91,18 @@
   .cc .bar{flex:none;height:13px;border-radius:1px;background:var(--hot)}
   .cc b{font-weight:500;font-size:14.5px}
   .cc .n{
-    font-family:"Silkscreen",monospace;font-size:10px;color:var(--dim);
+    font-family:"Righteous",sans-serif;font-size:10px;color:var(--dim);
     margin-left:auto;white-space:nowrap;
   }
 
   .barlabel{
-    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;
+    font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.1em;
     color:var(--dim);margin:32px 0 9px;
   }
   .chips{display:flex;flex-wrap:wrap;gap:7px}
   .chip{
     background:transparent;border:1px solid var(--line);color:var(--dim);
-    font-family:"IBM Plex Sans",sans-serif;font-size:13px;font-weight:500;
+    font-family:"Titillium Web",sans-serif;font-size:13px;font-weight:500;
     padding:6px 12px;border-radius:2px;cursor:pointer;
   }
   .chip:hover{border-color:#4a5064;color:var(--text)}
@@ -113,9 +114,9 @@
     display:flex;align-items:baseline;justify-content:space-between;gap:14px;
     border-bottom:2px solid var(--hot);padding-bottom:8px;
   }
-  .listhead h2{font-family:"Press Start 2P",monospace;font-size:13px;margin:0;line-height:1.5}
+  .listhead h2{font-family:"Righteous",sans-serif;font-size:13px;margin:0;line-height:1.5}
   .listhead .kind{
-    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.07em;
+    font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.07em;
     color:var(--dim);white-space:nowrap;
   }
   .snub{
@@ -130,12 +131,12 @@
   }
   ol.picks li.off{opacity:.22}
   .rank{
-    flex:none;width:30px;font-family:"Press Start 2P",monospace;
+    flex:none;width:30px;font-family:"Righteous",sans-serif;
     font-size:11px;color:var(--dim);
   }
-  .rank.lab{width:46px;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase}
+  .rank.lab{width:46px;font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.05em;text-transform:uppercase}
   ol.picks li.top .rank{color:var(--hot)}
-  .posted{margin:8px 0 0;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);
+  .posted{margin:8px 0 0;font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.06em;color:var(--dim);
     display:flex;gap:12px;align-items:center;flex-wrap:wrap}
   .posted a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:3px 8px}
   .posted a:hover{border-color:var(--hot);color:var(--hot)}
@@ -143,12 +144,12 @@
   .pick a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
   .pick a:hover,.pick a:focus-visible{border-bottom-color:var(--c);outline:none}
   .sc{
-    flex:none;font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.05em;
+    flex:none;font-family:"Righteous",sans-serif;font-size:9px;letter-spacing:.05em;
     color:var(--dim);border:1px solid var(--line);border-radius:2px;
     padding:2px 6px;margin-left:8px;white-space:nowrap;
   }
   .on{
-    flex:none;font-family:"Silkscreen",monospace;font-size:10px;
+    flex:none;font-family:"Righteous",sans-serif;font-size:10px;
     letter-spacing:.06em;color:var(--c,var(--dim));white-space:nowrap;
   }
   .gap{color:var(--dim);font-style:italic}
@@ -163,14 +164,14 @@
   }
   .focusbar.on{display:flex}
   .focusbar h2{
-    font-family:"Press Start 2P",monospace;font-size:13px;margin:0;line-height:1.5;
+    font-family:"Righteous",sans-serif;font-size:13px;margin:0;line-height:1.5;
   }
   .focusbar p{
-    margin:0;font-family:"Silkscreen",monospace;font-size:10px;
+    margin:0;font-family:"Righteous",sans-serif;font-size:10px;
     letter-spacing:.08em;color:var(--dim);
   }
   .focusbar button{
-    margin-left:auto;font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    margin-left:auto;font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.05em;
     background:transparent;border:2px solid var(--line);color:var(--dim);
     padding:9px 14px;border-radius:2px;cursor:pointer;
   }
@@ -178,13 +179,13 @@
   ol.picks li.hit{background:rgba(255,75,62,.13)}
   ol.picks li.hit .pick{font-weight:600}
   a.also{
-    font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.05em;
+    font-family:"Righteous",sans-serif;font-size:9px;letter-spacing:.05em;
     color:var(--dim);text-decoration:none;border:1px solid var(--line);
     border-radius:2px;padding:2px 6px;margin-left:8px;white-space:nowrap;
   }
   a.also:hover{border-color:var(--hot);color:var(--hot)}
   .placing{
-    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;
+    font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.06em;
     color:var(--hot);margin-left:auto;padding-left:12px;white-space:nowrap;
   }
 </style>

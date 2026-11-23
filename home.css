@@ -6,7 +6,7 @@
 .ht-px{display:block;width:100%;height:100%}
 
 /* ---------- section heading ---------- */
-.ht-sh{margin:0;font-family:"Silkscreen",monospace;font-weight:700;font-size:12px;letter-spacing:.14em;
+.ht-sh{margin:0;font-family:"Righteous",sans-serif;font-weight:700;font-size:12px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--hot)}
 
 /* ---------- stats: one compact line ---------- */
@@ -23,9 +23,9 @@
 .ht-tm{position:relative;z-index:5}
 .ht-tmbtn{display:inline-flex;align-items:center;gap:7px;cursor:pointer;padding:6px 9px;border-radius:3px;
   background:rgba(16,18,25,.86);border:1px solid var(--line);color:var(--text);
-  font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+  font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
 .ht-tmbtn .ht-px{width:14px;height:12px}
-.ht-tmbtn b{font-family:"Press Start 2P",monospace;font-weight:400;font-size:8px;color:var(--hot)}
+.ht-tmbtn b{font-family:"Righteous",sans-serif;font-weight:400;font-size:8px;color:var(--hot)}
 .ht-tmbtn:hover,.ht-tmbtn[aria-expanded="true"]{border-color:var(--hot)}
 .ht-tmbtn:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 .ht-tmpanel{position:absolute;right:0;top:calc(100% + 6px);width:236px;display:grid;grid-template-columns:1fr 1fr;gap:6px;
@@ -34,8 +34,8 @@
 .ht-tmpanel button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;cursor:pointer;padding:7px 8px;
   background:var(--panel);border:1px solid var(--line);border-radius:3px;color:var(--text);text-align:left}
 .ht-tmpanel button:last-child{grid-column:1 / -1}
-.ht-tmpanel button b{font-family:"Press Start 2P",monospace;font-weight:400;font-size:9px}
-.ht-tmpanel button span{font-family:"Silkscreen",monospace;font-size:9px;color:var(--dim);letter-spacing:.05em}
+.ht-tmpanel button b{font-family:"Righteous",sans-serif;font-weight:400;font-size:9px}
+.ht-tmpanel button span{font-family:"Righteous",sans-serif;font-size:9px;color:var(--dim);letter-spacing:.05em}
 .ht-tmpanel button:hover{border-color:var(--hot)}
 .ht-tmpanel button[aria-pressed="true"]{background:var(--hot);border-color:var(--hot)}
 .ht-tmpanel button[aria-pressed="true"] b,.ht-tmpanel button[aria-pressed="true"] span{color:var(--e-on-hot,#12070a)}
@@ -52,17 +52,17 @@
 .ht-dailypix{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:2px;padding:6px}
 .ht-dailypix i{background:var(--c)}
 .ht-ctxt{display:flex;flex-direction:column;gap:4px;min-width:0}
-.ht-ck{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--hot)}
-.ht-ch{font-family:"Press Start 2P",monospace;font-weight:400;font-size:11px;line-height:1.5}
+.ht-ck{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--hot)}
+.ht-ch{font-family:"Righteous",sans-serif;font-weight:400;font-size:11px;line-height:1.5}
 .ht-cs{font-size:13.5px;line-height:1.4;color:var(--dim)}
 
 /* ---------- merch + donate ---------- */
 .ht-shop{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:14px;align-items:stretch;margin:22px 0 0}
 .ht-shop .npmerch{margin:0}
 .ht-donate{display:flex;flex-direction:column;align-items:flex-start;padding:18px;background:var(--bg2);border:1px solid var(--line);border-radius:4px}
-.ht-donate h2{margin:0;font-family:"Press Start 2P",monospace;font-weight:400;font-size:13px;line-height:1.6;color:var(--text)}
+.ht-donate h2{margin:0;font-family:"Righteous",sans-serif;font-weight:400;font-size:13px;line-height:1.6;color:var(--text)}
 .ht-donate p{margin:8px 0 0;font-size:14.5px;line-height:1.45;color:var(--dim)}
-.ht-donbtn{margin:auto 0 0;padding:11px 14px;transform:translateY(8px);font-family:"Press Start 2P",monospace;font-size:10px;
+.ht-donbtn{margin:auto 0 0;padding:11px 14px;transform:translateY(8px);font-family:"Righteous",sans-serif;font-size:10px;
   text-decoration:none;color:var(--text);border:2px solid var(--hot);border-radius:4px}
 .ht-donbtn:hover{background:var(--hot);color:var(--e-on-hot,#12070a)}
 html.np-twa .ht-shop{grid-template-columns:1fr}
@@ -80,7 +80,7 @@ html.np-twa .ht-shop{grid-template-columns:1fr}
 .ht-act:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 .ht-actico{flex:none;width:46px;height:46px;padding:7px;background:var(--panel);border:1px solid var(--line);border-radius:4px}
 .ht-acttxt{display:flex;flex-direction:column;gap:6px;min-width:0}
-.ht-acttxt b{font-family:"Press Start 2P",monospace;font-weight:400;font-size:12px;line-height:1.5}
+.ht-acttxt b{font-family:"Righteous",sans-serif;font-weight:400;font-size:12px;line-height:1.5}
 .ht-acttxt span{font-size:13.5px;line-height:1.35;color:var(--dim)}
 .ht-actgo{margin-left:auto;flex:none;font-size:12px;color:var(--hot)}
 .ht-act-arcade{border-color:var(--hot);background:linear-gradient(180deg,rgba(255,75,62,.16),transparent 70%),var(--bg2)}
@@ -101,7 +101,7 @@ html.np-twa .ht-shop{grid-template-columns:1fr}
   .ht .scores{align-items:center;gap:0 6px;justify-content:safe center;margin-left:-12px;margin-right:-12px;padding:2px 12px}
   .ht .score,.ht .o1 .score{gap:3px}
   .ht .score b,.ht .o1 .score b{font-size:7px}
-  .ht .score span,.ht .o1 .score span{font-family:"IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;font-weight:500;font-size:11px;letter-spacing:0}
+  .ht .score span,.ht .o1 .score span{font-family:"Titillium Web","Titillium Web",sans-serif;font-weight:500;font-size:11px;letter-spacing:0}
   .ht .score + .score::before{display:none}
   /* "232 beaten (37%)": the percent tucks in after beaten to keep it on one line */
   .ht .score:last-child{margin-left:-5px}

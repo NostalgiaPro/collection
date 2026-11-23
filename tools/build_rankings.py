@@ -66,21 +66,21 @@ GROUPS = [("console", "By console"), ("topic", "By series and topic"), ("hardwar
           ("year", "By year"), ("tiers", "Tier lists"), ("h2h", "Head-to-heads")]
 
 CSS = """  .jump{margin:30px 0 0;border:2px solid var(--line);border-radius:2px;background:var(--bg2);padding:14px 18px}
-  .jump p{margin:0 0 10px;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim)}
+  .jump p{margin:0 0 10px;font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.1em;color:var(--dim)}
   .jump ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:4px 18px}
   .jump li a{font-size:14px;color:var(--text);text-decoration:none;border-bottom:1px solid transparent}
   .jump li a:hover{border-bottom-color:var(--hot)}
   .jump li.g{grid-column:1/-1;margin:10px 0 2px}
   .jump li.g:first-child{margin-top:0}
-  .jump li.g a{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.06em;color:var(--hot)}
+  .jump li.g a{font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.06em;color:var(--hot)}
   .grp{margin:46px 0 0;scroll-margin-top:16px}
-  .grp>h2{font-family:"Press Start 2P",monospace;font-size:14px;line-height:1.6;margin:0 0 18px;padding-bottom:10px;border-bottom:2px solid var(--line)}
+  .grp>h2{font-family:"Righteous",sans-serif;font-size:14px;line-height:1.6;margin:0 0 18px;padding-bottom:10px;border-bottom:2px solid var(--line)}
   .rk{margin:0 0 22px;background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--c,var(--hot));
     border-radius:2px;padding:16px 18px;scroll-margin-top:16px}
-  .rk h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:22px;font-weight:700;line-height:1.25;margin:0}
-  .rk h4{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.08em;color:var(--c,var(--hot));margin:18px 0 6px}
+  .rk h3{font-family:"Titillium Web",sans-serif;font-size:22px;font-weight:700;line-height:1.25;margin:0}
+  .rk h4{font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.08em;color:var(--c,var(--hot));margin:18px 0 6px}
   .rk .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0 0;
-    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim)}
+    font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.06em;color:var(--dim)}
   .rk .meta a,.rk a.px{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
   .rk .meta a:hover,.rk a.px:hover{border-color:var(--hot);color:var(--hot)}
   .rk .tag{color:var(--c,var(--hot))}
@@ -88,47 +88,47 @@ CSS = """  .jump{margin:30px 0 0;border:2px solid var(--line);border-radius:2px;
   ol.items>li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 10px;padding:10px 0;border-top:1px solid var(--line)}
   ol.items>li:first-child{border-top:none}
   ol.items.wide>li{grid-template-columns:150px minmax(0,1fr)}
-  .pos{font-family:"Press Start 2P",monospace;font-size:12px;color:var(--c,var(--dim));padding-top:4px}
-  ol.items.wide .pos{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.04em;padding-top:3px}
+  .pos{font-family:"Righteous",sans-serif;font-size:12px;color:var(--c,var(--dim));padding-top:4px}
+  ol.items.wide .pos{font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.04em;padding-top:3px}
   .nm{font-weight:600;font-size:16px;line-height:1.35}
   .nm a{color:var(--text);text-decoration:none;border-bottom:1px solid var(--c,var(--hot))}
   .nm a:hover{color:var(--hot)}
   .why{margin:3px 0 0;font-size:15px;color:#cfccc3}
   .ent details{margin:6px 0 0}
-  .ent summary,.rk details.post>summary{cursor:pointer;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim)}
+  .ent summary,.rk details.post>summary{cursor:pointer;font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.06em;color:var(--dim)}
   .ent summary:hover,.rk details.post>summary:hover{color:var(--hot)}
   .ent blockquote,.rk blockquote{margin:8px 0 0;white-space:pre-line;font-size:15px;line-height:1.55;overflow-wrap:anywhere}
-  .ent a.px{display:inline-block;margin:8px 0 0;font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.06em}
+  .ent a.px{display:inline-block;margin:8px 0 0;font-family:"Righteous",sans-serif;font-size:9px;letter-spacing:.06em}
   .nm a.px{float:right;margin:0 0 0 10px;font-weight:400;border-bottom:1px solid var(--line);color:var(--dim)}
   .rk details.post{margin:14px 0 0;border-top:1px dashed var(--line);padding-top:10px}
-  .rk details.post h5{margin:12px 0 0;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim)}
+  .rk details.post h5{margin:12px 0 0;font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.06em;color:var(--dim)}
   details.earlier{scroll-margin-top:16px;margin:16px 0 0;border:1px dashed var(--line);border-radius:2px;padding:10px 14px}
-  details.earlier>summary{cursor:pointer;font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.06em;color:var(--text)}
+  details.earlier>summary{cursor:pointer;font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.06em;color:var(--text)}
   details.earlier>summary:hover{color:var(--hot)}
   .bw{display:grid;grid-template-columns:64px minmax(0,1fr);gap:4px 14px;padding:12px 0;border-top:1px solid var(--line);scroll-margin-top:16px}
   .bw:first-of-type{border-top:none}
-  .bw .yr{font-family:"Press Start 2P",monospace;font-size:13px;color:var(--c,var(--hot));padding-top:3px}
+  .bw .yr{font-family:"Righteous",sans-serif;font-size:13px;color:var(--c,var(--hot));padding-top:3px}
   .bw .pick{margin:0;font-size:15.5px}
-  .bw .pick b{display:inline-block;width:52px;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);font-weight:400}
+  .bw .pick b{display:inline-block;width:52px;font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.06em;color:var(--dim);font-weight:400}
   .rk h3 a,.bw .pick a{color:inherit;text-decoration:none;border-bottom:1px solid var(--c,var(--hot))}
   .rk h3 a:hover,.bw .pick a:hover{color:var(--hot)}
   .bw .pick a.px{float:right;margin:0 0 0 10px;border:1px solid var(--line);border-radius:2px;padding:3px 7px;
-    font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.06em;color:var(--dim)}
+    font-family:"Righteous",sans-serif;font-size:9px;letter-spacing:.06em;color:var(--dim)}
   .tiers{margin:14px 0 0;border:1px solid var(--line)}
   .tier{display:grid;grid-template-columns:58px minmax(0,1fr);border-top:1px solid var(--line);scroll-margin-top:16px}
   .tier:first-child{border-top:none}
-  .tier .tl{display:flex;align-items:center;justify-content:center;font-family:"Press Start 2P",monospace;font-size:16px;color:#1a1a1a}
+  .tier .tl{display:flex;align-items:center;justify-content:center;font-family:"Righteous",sans-serif;font-size:16px;color:#1a1a1a}
   .tier .tg{padding:10px 14px;font-size:14.5px;line-height:1.6}
   .tier .tg a{color:var(--text);text-decoration:none;border-bottom:1px solid var(--line)}
   .tier .tg a:hover{color:var(--hot);border-bottom-color:var(--hot)}
-  .tier .tg .px{margin-left:6px;font-family:"Silkscreen",monospace;font-size:9px}
+  .tier .tg .px{margin-left:6px;font-family:"Righteous",sans-serif;font-size:9px}
   figure.shot{margin:14px 0 0}
   figure.shot img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:2px;background:#0a0c11}
-  figure.shot figcaption{margin:6px 0 0;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim)}
+  figure.shot figcaption{margin:6px 0 0;font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.06em;color:var(--dim)}
   figure.shot figcaption a{color:var(--dim)}
   figure.small{max-width:420px}
   .h2h .pick{margin:12px 0 0;font-size:16px}
-  .h2h .pick b{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);font-weight:400;margin-right:8px}
+  .h2h .pick b{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.06em;color:var(--dim);font-weight:400;margin-right:8px}
   .h2h blockquote.q{border-left:2px solid var(--c,var(--hot));padding-left:12px;font-size:16px}
   .h2h .aside{margin:10px 0 0;font-size:13px;color:var(--dim)}
   body.y1996 .rk{background:#000;border:2px ridge #808080;border-left:6px solid var(--c,#808080)}

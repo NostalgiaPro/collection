@@ -181,7 +181,7 @@ body.y1996 .bestviewed a{color:#00ffff}
 #y1996btn{
   display:inline-flex;align-items:center;justify-content:center;
   border:2px solid var(--line);color:var(--dim);background:transparent;
-  font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.03em;
+  font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.03em;
   padding:8px 13px;border-radius:2px;cursor:pointer;
 }
 #y1996btn:hover{border-color:var(--hot);color:var(--hot)}
@@ -197,7 +197,7 @@ body.y1996 #y1996btn{
   width:46px;height:46px;padding:0;
   background:var(--bg2);color:var(--dim);
   border:2px solid var(--line);border-radius:2px;
-  font-family:"Silkscreen",monospace;font-size:20px;line-height:1;
+  font-family:"Righteous",sans-serif;font-size:20px;line-height:1;
   cursor:pointer;opacity:0;pointer-events:none;
   transition:opacity .15s ease,border-color .12s ease,color .12s ease;
 }

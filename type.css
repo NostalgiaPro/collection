@@ -1,0 +1,99 @@
+/* Nostalgia Pro typography: Righteous headings, Titillium Web body.
+   Loaded last so these sizes win over rules that were tuned for pixel fonts.
+   Official script logo images are not styled here. */
+
+input, textarea, select, input[type="search"], #q {
+  font-family: "Titillium Web", system-ui, sans-serif !important;
+}
+
+h1, .o1 h1, .ht-a .o1-hero h1 {
+  line-height: 1.15 !important;
+  letter-spacing: 0.02em !important;
+  font-weight: 400 !important;
+}
+/* Homepage hero was 15–40px Press Start; Righteous needs more size, less line-height. */
+.o1 h1, .ht-a .o1-hero h1, body.hp h1 {
+  font-size: clamp(28px, 4.2vw, 46px) !important;
+}
+/* Collection, console, and section pages used 15px / clamp(15px, 3vw, 26px) Press Start. */
+.wrap h1, header h1, .page h1, .hero h1 {
+  font-size: clamp(22px, 3.6vw, 34px) !important;
+  line-height: 1.2 !important;
+}
+/* Homepage hero should keep the larger clamp even inside a wrap. */
+.o1-hero h1, .o1 h1 {
+  font-size: clamp(28px, 4.2vw, 46px) !important;
+  line-height: 1.12 !important;
+}
+
+/* Section signs (LATEST POSTS, LATEST VIDEOS, Start here, The shelf) */
+.ht-sh, h2.ht-sh {
+  font-size: 14px !important;
+  letter-spacing: 0.06em !important;
+  line-height: 1.2 !important;
+  padding: 10px 14px 9px !important;
+}
+
+/* Card and merch display titles that were 11–14px Press Start */
+.ht-ch, .ht-acttxt b, .ht-donate h2, .hp-news-title, .vhead, .ptile .phead,
+.npss h2, .npmerch h2, .ythead h2, .ytlbl, .mrB-feat h3 {
+  line-height: 1.25 !important;
+  letter-spacing: 0.02em !important;
+  font-weight: 400 !important;
+}
+.ht-ch, .ht-acttxt b { font-size: 18px !important; }
+.ht-donate h2, .npss h2, .npmerch h2 { font-size: 24px !important; }
+.hp-news-title, .vhead, .ptile .phead { font-size: 20px !important; }
+.mrB-feat h3 { font-size: 24px !important; font-weight: 700 !important; letter-spacing: 0 !important; }
+.ythead h2, .ytlbl { font-size: 16px !important; }
+
+@media (min-width: 900px) {
+  .npmerch h2, .npss h2, .ht-donate h2 { font-size: 28px !important; }
+}
+
+/* Buttons and price tags that were 8–12px pixel type */
+.btn, .o1 .btn, .npmerch-btn, .ht-donbtn, .hp-news-cta, .npsub button, .mrB-buy,
+.ht-tmbtn b, .ht-tmpanel button b {
+  letter-spacing: 0.05em !important;
+  line-height: 1.2 !important;
+  font-weight: 400 !important;
+}
+.btn, .o1 .btn { font-size: 13px !important; }
+.npmerch-btn, .npsub button, .mrB-buy { font-size: 15px !important; }
+.ht-donbtn, .hp-news-cta { font-size: 14px !important; }
+.ht-tmbtn b, .ht-tmpanel button b { font-size: 11px !important; }
+.npmerch-items .pr, .mr .pr, .pr { font-size: 12px !important; letter-spacing: 0.04em !important; }
+
+/* Labels that were 9–12px Silkscreen with wide tracking */
+.ht-ck, .npmerch-k, .npss-k, .o1-lbl, .hp-qhint, .ytnote, .npsub-txt b, .npss-grid b,
+.lv-plat h3, .lv-all, .lv-k, .barlabel, .crumb, .sysname, .facts b, .links a,
+.mrB-tabs label, .mrB-pair figcaption, .mrB-neon, .todaybar .item em, .savebar p {
+  letter-spacing: 0.08em !important;
+  font-weight: 400 !important;
+}
+.ht-ck, .npmerch-k, .npss-k, .o1-lbl, .lv-plat h3, .mrB-tabs label { font-size: 13px !important; }
+.hp-qhint, .ytnote, .lv-all, .lv-k, .barlabel, .crumb, .mrB-pair figcaption { font-size: 12px !important; }
+.mrB-neon { font-size: 13px !important; letter-spacing: 0.08em !important; }
+.sysname { font-size: 14px !important; }
+.facts b, .links a, .mentions em, .ranks em { font-size: 13px !important; }
+
+/* Game and console page chrome */
+.mentions em, .ranks em, .pick h3 em {
+  font-size: 13px !important;
+  letter-spacing: 0.04em !important;
+  line-height: 1.3 !important;
+}
+.ranks .rx, .short p { font-size: 12px !important; letter-spacing: 0.06em !important; }
+
+/* Search stays Titillium and keeps its existing large size. */
+#q { font-weight: 600 !important; }
+
+/* Trophy shelf display sizes that were tiny Press Start */
+.brand { font-size: 13px !important; line-height: 1.3 !important; letter-spacing: 0.03em !important; }
+.group-h { font-size: 15px !important; letter-spacing: 0.06em !important; }
+.plate .cnt { font-size: 13px !important; }
+.obj.slabbed::after { font-size: 10px !important; line-height: 14px !important; }
+.tape { font-size: 14px !important; letter-spacing: 0.08em !important; }
+
+/* Progress badge injected by np-progress.js */
+.npbadge b{font-size:13px !important;letter-spacing:0.08em !important;}

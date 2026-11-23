@@ -22,7 +22,7 @@ BASE_CSS = """  :root{
   html,body{margin:0;padding:0}
   body{
     background:var(--bg);color:var(--text);
-    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    font-family:"Titillium Web",system-ui,sans-serif;font-size:16px;line-height:1.5;
     -webkit-font-smoothing:antialiased;
   }
   body::before{
@@ -36,18 +36,18 @@ BASE_CSS = """  :root{
   .wordmark{margin:0 0 18px;line-height:0}
   .wordmark a{display:inline-block;line-height:0;color:inherit;text-decoration:none}
   .wordmark img{display:block;width:min(240px,72vw);height:auto}
-  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0;overflow-wrap:break-word}
+  h1{font-family:"Righteous",sans-serif;font-size:clamp(22px,3.6vw,34px);line-height:1.2;letter-spacing:.02em;margin:0;overflow-wrap:break-word}
   .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
   .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
   .navbtn{
     display:inline-flex;align-items:center;text-decoration:none;
     border:2px solid var(--line);color:var(--dim);
-    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.05em;
     padding:9px 14px;border-radius:2px;
   }
   .navbtn:hover{border-color:var(--hot);color:var(--hot)}
   .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
-  .barlabel{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:34px 0 10px}
+  .barlabel{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.1em;color:var(--dim);margin:34px 0 10px}
   .note{font-size:13px;color:var(--dim);margin-top:34px;max-width:64ch}
   .xpost{
     margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);
@@ -56,7 +56,7 @@ BASE_CSS = """  :root{
   .xpost blockquote{margin:0;white-space:pre-line;font-size:15px}
   .xpost .meta{
     display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0 0;
-    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim);
+    font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.06em;color:var(--dim);
   }
   .xpost .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
   .xpost .meta a:hover{border-color:var(--hot);color:var(--hot)}
@@ -98,11 +98,12 @@ def head(title, desc, path, image=None, width="900px", css="", image_alt=None):
 <title>{t}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Titillium+Web:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/retro.css">
 <link rel="stylesheet" href="/themes.css">
 <link rel="stylesheet" href="/eras.css">
 <link rel="stylesheet" href="/growth.css">
+<link rel="stylesheet" href="/type.css">
 <script src="/theme.js"></script>
 <style>
 {BASE_CSS.replace("WIDTH", width)}{css}</style>

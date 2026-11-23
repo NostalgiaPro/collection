@@ -32,28 +32,28 @@ CSS = """  .entry{display:grid;grid-template-columns:150px 1fr;gap:22px;margin:0
     background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:18px}
   .entry .pic{width:150px;border:1px solid var(--line);border-radius:2px;display:block;background:#0a0c11}
   .entry .nopic{width:150px;aspect-ratio:3/4;border:1px dashed var(--line);border-radius:2px;display:flex;
-    align-items:center;justify-content:center;font-family:"Silkscreen",monospace;font-size:9px;color:var(--dim);text-align:center;padding:8px}
-  .entry .when{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;color:var(--dim);margin:0}
-  .entry h2{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:23px;font-weight:700;margin:6px 0 2px;line-height:1.25}
+    align-items:center;justify-content:center;font-family:"Righteous",sans-serif;font-size:9px;color:var(--dim);text-align:center;padding:8px}
+  .entry .when{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.08em;color:var(--dim);margin:0}
+  .entry h2{font-family:"Titillium Web",sans-serif;font-size:23px;font-weight:700;margin:6px 0 2px;line-height:1.25}
   .entry h2 a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
   .entry h2 a:hover{border-bottom-color:var(--c)}
-  .entry .sys{font-family:"Silkscreen",monospace;font-size:11px;color:var(--c);margin:0 0 12px}
+  .entry .sys{font-family:"Righteous",sans-serif;font-size:11px;color:var(--c);margin:0 0 12px}
   .entry blockquote{margin:0;white-space:pre-line;font-size:15px}
   .entry .links{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
-  .entry .links a{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;border:1px solid var(--line);
+  .entry .links a{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.05em;border:1px solid var(--line);
     border-radius:2px;padding:5px 9px;color:var(--dim);text-decoration:none}
   .entry .links a:hover{border-color:var(--hot);color:var(--hot)}
-  .count{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.08em;color:var(--hot);margin:30px 0 16px}
+  .count{font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.08em;color:var(--hot);margin:30px 0 16px}
   .entry .fake{margin:0 0 12px;padding:8px 12px;border:1px dashed var(--c);border-radius:2px;font-size:14px}
-  .entry .fake b{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--c);font-weight:400;margin-right:8px}
+  .entry .fake b{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.06em;color:var(--c);font-weight:400;margin-right:8px}
   .oq{margin:0 0 14px;background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--c,var(--hot));border-radius:2px;padding:16px 18px}
-  .oq .when{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;color:var(--dim);margin:0}
-  .oq h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:21px;font-weight:700;margin:6px 0 2px;line-height:1.25}
+  .oq .when{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.08em;color:var(--dim);margin:0}
+  .oq h3{font-family:"Titillium Web",sans-serif;font-size:21px;font-weight:700;margin:6px 0 2px;line-height:1.25}
   .oq h3 a{color:inherit;text-decoration:none;border-bottom:1px solid var(--c,var(--hot))}
-  .oq .sub{font-family:"Silkscreen",monospace;font-size:11px;color:var(--dim);margin:0 0 10px}
+  .oq .sub{font-family:"Righteous",sans-serif;font-size:11px;color:var(--dim);margin:0 0 10px}
   .oq blockquote{margin:0;white-space:pre-line;font-size:15.5px}
   .oq .links{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
-  .oq .links a{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;border:1px solid var(--line);
+  .oq .links a{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.05em;border:1px solid var(--line);
     border-radius:2px;padding:5px 9px;color:var(--dim);text-decoration:none}
   .oq .links a:hover{border-color:var(--hot);color:var(--hot)}
   @media (max-width:600px){ .entry{grid-template-columns:1fr} .entry .pic,.entry .nopic{width:120px} }

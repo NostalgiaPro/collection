@@ -30,25 +30,25 @@ SHELF_NAME = {"Xbox": "Xbox", "Xbox 360": "Xbox 360", "Xbox One": "Xbox One", "S
 CSS = """  .scores{display:flex;flex-wrap:wrap;margin:24px 0 0;border:2px solid var(--line);border-radius:2px;overflow:hidden}
   .score{flex:1 1 130px;padding:13px 15px;background:var(--bg2);border-right:1px solid var(--line)}
   .score:last-child{border-right:none}
-  .score b{display:block;font-family:"Press Start 2P",monospace;font-size:18px;line-height:1}
-  .score span{display:block;margin-top:8px;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.09em;color:var(--dim)}
+  .score b{display:block;font-family:"Righteous",sans-serif;font-size:18px;line-height:1}
+  .score span{display:block;margin-top:8px;font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.09em;color:var(--dim)}
   .dgroup{margin:38px 0 0}
-  .dgroup h2{display:flex;align-items:center;gap:12px;font-family:"IBM Plex Sans Condensed",sans-serif;
+  .dgroup h2{display:flex;align-items:center;gap:12px;font-family:"Titillium Web",sans-serif;
     font-size:22px;font-weight:700;margin:0 0 10px;letter-spacing:-.005em}
-  .dgroup h2 small{font-family:"Silkscreen",monospace;font-size:11px;font-weight:400;color:var(--dim);letter-spacing:.06em}
+  .dgroup h2 small{font-family:"Righteous",sans-serif;font-size:11px;font-weight:400;color:var(--dim);letter-spacing:.06em}
   ol.dlist{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:2px}
   ol.dlist li{display:flex;gap:13px;align-items:center;padding:9px 14px;
     border-bottom:1px solid rgba(44,48,64,.7);background:var(--bg2)}
   ol.dlist li:last-child{border-bottom:none}
   ol.dlist li:hover{background:var(--panel)}
-  ol.dlist .t{flex:1 1 auto;min-width:0;font-family:"IBM Plex Sans Condensed",sans-serif;font-size:17.5px;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
-  ol.dlist .p{flex:none;color:#7fc97f;font-family:"Silkscreen",monospace;font-size:11px;white-space:nowrap}
+  ol.dlist .t{flex:1 1 auto;min-width:0;font-family:"Titillium Web",sans-serif;font-size:17.5px;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+  ol.dlist .p{flex:none;color:#7fc97f;font-family:"Righteous",sans-serif;font-size:11px;white-space:nowrap}
   ol.dlist .cover{flex:none;width:46px;height:60px;object-fit:contain;border:1px solid var(--line);border-radius:2px;background:#0a0c11}
-  ol.dlist span.cover{display:flex;align-items:center;justify-content:center;font-family:"Silkscreen",monospace;font-size:8px;
+  ol.dlist span.cover{display:flex;align-items:center;justify-content:center;font-family:"Righteous",sans-serif;font-size:8px;
     line-height:1.3;text-align:center;color:var(--dim);letter-spacing:.04em}
   ol.dlist a.t{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
   ol.dlist a.t:hover,ol.dlist a.t:focus-visible{border-bottom-color:#7fc97f;outline:none}
-  ol.dlist a.t .w{margin-left:7px;font-family:"Silkscreen",monospace;font-size:9px;font-weight:400;letter-spacing:.06em;color:var(--dim);white-space:nowrap}
+  ol.dlist a.t .w{margin-left:7px;font-family:"Righteous",sans-serif;font-size:9px;font-weight:400;letter-spacing:.06em;color:var(--dim);white-space:nowrap}
   body.y1996 ol.dlist .cover{border:2px inset #808080;border-radius:0;background:#000}
   body.y1996 ol.dlist span.cover{color:#c0c0c0;font-family:"Courier New",monospace}
   body.y1996 ol.dlist a.t{color:#00ffff;border-bottom:none;text-decoration:underline}
@@ -56,7 +56,7 @@ CSS = """  .scores{display:flex;flex-wrap:wrap;margin:24px 0 0;border:2px solid 
   body.y1996 ol.dlist a.t .w{color:#c0c0c0;font-family:"Courier New",monospace}
   .tick{flex:none;width:15px;height:15px;border:2px solid #3fbf6a;background:#3fbf6a;border-radius:2px;position:relative}
   .tick::after{content:"";position:absolute;left:3.5px;top:.5px;width:4px;height:8px;border:solid #0b1410;border-width:0 2px 2px 0;transform:rotate(42deg)}
-  .hundo{flex:none;font-style:normal;font-family:"Silkscreen",monospace;font-size:9px;line-height:1;letter-spacing:.03em;
+  .hundo{flex:none;font-style:normal;font-family:"Righteous",sans-serif;font-size:9px;line-height:1;letter-spacing:.03em;
     padding:3px 4px 2px;border:1px solid #f2c94c;border-radius:2px;background:#f2c94c;color:#14110a;white-space:nowrap}
   body.y1996 .tick{width:auto;height:auto;border:none;background:none;font-family:"Courier New",monospace;font-size:13px;color:#00ff00}
   body.y1996 .tick::before{content:"[X]"}

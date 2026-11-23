@@ -34,30 +34,30 @@ esc = sd.esc
 OUT = os.path.join(sd.ROOT, "console")
 MIN_GAMES = 6       # smaller consoles get no page
 
-CSS = """  .crumb{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;margin:30px 0 0}
+CSS = """  .crumb{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.08em;margin:30px 0 0}
   .crumb a{color:var(--dim);text-decoration:none}
   .crumb a:hover{color:var(--hot)}
   h1{color:var(--c)}
-  .sec{font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.1em;color:var(--c);margin:44px 0 6px}
+  .sec{font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.1em;color:var(--c);margin:44px 0 6px}
   .why{font-size:13.5px;color:var(--dim);margin:0 0 18px;max-width:70ch}
   .why a{color:var(--dim)}
   .pick{display:grid;grid-template-columns:110px 1fr;gap:18px;margin:0 0 16px;background:var(--bg2);
     border:1px solid var(--line);border-left:4px solid var(--c);border-radius:2px;padding:16px}
   .pick img,.pick .nopic{width:110px;border:1px solid var(--line);border-radius:2px;display:block}
   .pick .nopic{aspect-ratio:3/4;border-style:dashed;display:flex;align-items:center;justify-content:center;
-    font-family:"Silkscreen",monospace;font-size:8px;color:var(--dim);text-align:center;padding:6px}
-  .pick h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:20px;margin:0 0 8px;line-height:1.25}
+    font-family:"Righteous",sans-serif;font-size:8px;color:var(--dim);text-align:center;padding:6px}
+  .pick h3{font-family:"Titillium Web",sans-serif;font-size:20px;margin:0 0 8px;line-height:1.25}
   .pick h3 a{color:inherit;text-decoration:none}
   .pick h3 a:hover{color:var(--c)}
-  .pick h3 em{font-style:normal;font-family:"Press Start 2P",monospace;font-size:11px;color:var(--c);margin-right:10px}
+  .pick h3 em{font-style:normal;font-family:"Righteous",sans-serif;font-size:11px;color:var(--c);margin-right:10px}
   .pick blockquote{margin:0;white-space:pre-line;font-size:14.5px}
-  .pick .meta{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;color:var(--dim);margin:12px 0 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .pick .meta{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.05em;color:var(--dim);margin:12px 0 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .pick .meta a{color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:2px;padding:4px 8px}
   .pick .meta a:hover{border-color:var(--hot);color:var(--hot)}
   .shelfgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:14px;margin:8px 0 0}
   .tile{text-decoration:none;color:inherit;display:block}
   .tile .im{aspect-ratio:3/4;background:var(--panel) center/cover no-repeat;border:1px solid var(--line);border-radius:2px;
-    display:flex;align-items:center;justify-content:center;font-family:"Silkscreen",monospace;font-size:8px;color:var(--dim);
+    display:flex;align-items:center;justify-content:center;font-family:"Righteous",sans-serif;font-size:8px;color:var(--dim);
     text-align:center;padding:6px}
   .tile:hover .im{border-color:var(--c)}
   .tile span{display:block;font-size:12.5px;line-height:1.3;margin-top:6px}

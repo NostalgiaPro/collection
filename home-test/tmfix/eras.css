@@ -13,12 +13,12 @@
 /* the app's rate card (growth.js, position:fixed at the bottom) must not sit on top of the picker:
    leave room under it so the page can scroll the picker clear of the card */
 body:has(#npRate:not(.out)) #npErasWrap{padding-bottom:190px}
-.npEras-lbl{margin:0 0 8px;font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.npEras-lbl{margin:0 0 8px;font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 #npEras{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
 #npEras button{
   min-height:44px;padding:6px 2px;cursor:pointer;
   background:transparent;color:var(--dim);border:2px solid var(--line);border-radius:2px;
-  font-family:"Silkscreen",monospace;font-size:12px;letter-spacing:.02em;
+  font-family:"Righteous",sans-serif;font-size:12px;letter-spacing:.02em;
 }
 #npEras button:hover{border-color:var(--hot);color:var(--hot)}
 #npEras button:focus-visible{outline:2px solid var(--hot);outline-offset:2px}

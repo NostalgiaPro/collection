@@ -26,27 +26,27 @@ esc = sd.esc
 
 COND = {"cib": "Complete in box", "cib+": "Complete in box", "loose": "Loose", "sealed": "Sealed"}
 
-CSS = """  .crumb{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.08em;margin:30px 0 0}
+CSS = """  .crumb{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.08em;margin:30px 0 0}
   .crumb a{color:var(--dim);text-decoration:none}
   .crumb a:hover{color:var(--hot)}
   .game{display:grid;grid-template-columns:minmax(0,300px) 1fr;gap:28px;margin:18px 0 0;align-items:start}
   .photo{width:100%;border:2px solid var(--line);border-radius:2px;background:#0a0c11;display:block;cursor:zoom-in}
   .nophoto{
     aspect-ratio:3/4;border:2px dashed var(--line);border-radius:2px;display:flex;align-items:center;
-    justify-content:center;font-family:"Silkscreen",monospace;font-size:10px;color:var(--dim);text-align:center;padding:14px;
+    justify-content:center;font-family:"Righteous",sans-serif;font-size:10px;color:var(--dim);text-align:center;padding:14px;
   }
-  .sysname{display:inline-block;font-family:"Silkscreen",monospace;font-size:12px;letter-spacing:.06em;
+  .sysname{display:inline-block;font-family:"Righteous",sans-serif;font-size:12px;letter-spacing:.06em;
     color:var(--ink);background:var(--c);padding:5px 10px;border-radius:2px;margin:0 0 16px;text-decoration:none}
   .facts{margin:0;padding:0;list-style:none;border-top:1px solid var(--line)}
   .facts li{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
-  .facts b{flex:0 0 120px;font-family:"Silkscreen",monospace;font-weight:400;font-size:10px;
+  .facts b{flex:0 0 120px;font-family:"Righteous",sans-serif;font-weight:400;font-size:10px;
     letter-spacing:.08em;color:var(--dim);padding-top:4px}
   .facts .yes{color:#3fbf6a}
   .hundo{display:inline-block;vertical-align:2px;margin-left:8px;font-style:normal;
-    font-family:"Silkscreen",monospace;font-size:9px;line-height:1;letter-spacing:.03em;
+    font-family:"Righteous",sans-serif;font-size:9px;line-height:1;letter-spacing:.03em;
     padding:3px 4px 2px;border:1px solid #f2c94c;border-radius:2px;background:#f2c94c;color:#14110a}
   .links{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
-  .links a{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em;border:1px solid var(--line);
+  .links a{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.05em;border:1px solid var(--line);
     border-radius:2px;padding:6px 10px;color:var(--dim);text-decoration:none}
   .links a:hover{border-color:var(--hot);color:var(--hot)}
   .mentions{margin:0;padding:0;list-style:none}
@@ -54,20 +54,20 @@ CSS = """  .crumb{font-family:"Silkscreen",monospace;font-size:10px;letter-spaci
     border-radius:2px;margin:0 0 7px;font-size:15px}
   .mentions a{color:inherit;text-decoration:none}
   .mentions a:hover{color:var(--hot)}
-  .mentions em{font-style:normal;font-family:"Press Start 2P",monospace;font-size:11px;color:var(--hot);margin-right:10px}
+  .mentions em{font-style:normal;font-family:"Righteous",sans-serif;font-size:11px;color:var(--hot);margin-right:10px}
   .ranks{margin:0;padding:0;list-style:none}
   .ranks li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:9px 12px;background:var(--bg2);
     border:1px solid var(--line);border-left:4px solid var(--hot);border-radius:2px;margin:0 0 7px;font-size:15px}
-  .ranks em{font-style:normal;font-family:"Press Start 2P",monospace;font-size:11px;color:var(--hot)}
+  .ranks em{font-style:normal;font-family:"Righteous",sans-serif;font-size:11px;color:var(--hot)}
   .ranks .rt{flex:1 1 220px;color:inherit;text-decoration:none}
   .ranks .rt:hover{color:var(--hot)}
-  .ranks .rx{font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.06em;color:var(--dim);text-decoration:none;
+  .ranks .rx{font-family:"Righteous",sans-serif;font-size:9px;letter-spacing:.06em;color:var(--dim);text-decoration:none;
     border:1px solid var(--line);border-radius:2px;padding:4px 8px}
   .ranks .rx:hover{border-color:var(--hot);color:var(--hot)}
   .short{max-width:360px}
   .short .frame{position:relative;width:100%;aspect-ratio:9/16;background:#0a0c11;border:2px solid var(--line);border-radius:2px;overflow:hidden}
   .short iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-  .short p{margin:8px 0 0;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.05em}
+  .short p{margin:8px 0 0;font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.05em}
   .short p a{color:var(--dim)}
   .short p a:hover{color:var(--hot)}
   .lightbox{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(6,7,11,.92)}

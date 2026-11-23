@@ -20,11 +20,11 @@ import _browser
 ROOT = _browser.ROOT
 
 PAGE = """<!doctype html><html><head><meta charset="utf-8">
-<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Titillium+Web:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 </head><body style="margin:0;background:#101219"></body></html>"""
 
 DRAW = """async ([src, block, n]) => {
-  try { await document.fonts.load('700 30px "Silkscreen"'); } catch (e) {}
+  try { await document.fonts.load('700 30px "Righteous"'); } catch (e) {}
   const IMG = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
   /* paint(), as in daily.html */
   const cv = document.createElement("canvas"); cv.width = 600; cv.height = 800;
@@ -44,7 +44,7 @@ DRAW = """async ([src, block, n]) => {
   c.drawImage(cv, 0, 0, 900, 1200);
   /* the label */
   const lbl = "DAILY SHELF #" + n;
-  c.font = '700 30px "Silkscreen", monospace';
+  c.font = '700 30px "Righteous", sans-serif';
   const lw = c.measureText(lbl).width;
   c.fillStyle = "rgba(11,13,18,.88)"; c.fillRect(28, 28, lw + 36, 58);
   c.fillStyle = "#ff4b3e"; c.fillRect(28, 28, 6, 58);

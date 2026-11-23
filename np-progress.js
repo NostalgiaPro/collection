@@ -101,8 +101,8 @@
       "max-width:min(340px,calc(100vw - 32px));padding:10px 14px 10px 10px;background:var(--panel,#1d2029);border:2px solid var(--hot,#ff4b3e);border-radius:2px;" +
       "color:var(--text,#eceae2);text-decoration:none;box-shadow:0 12px 30px rgba(0,0,0,.5);transform:translateY(16px);opacity:0;transition:transform .25s,opacity .25s}" +
       ".npbadge.on{transform:none;opacity:1}.npbadge svg{flex:none;image-rendering:pixelated}" +
-      ".npbadge b{display:block;font-family:Silkscreen,monospace;font-size:10px;letter-spacing:.1em;color:var(--hot,#ff4b3e);font-weight:700}" +
-      ".npbadge span{display:block;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:600;line-height:1.3}" +
+      ".npbadge b{display:block;font-family:Righteous,sans-serif;font-size:10px;letter-spacing:.1em;color:var(--hot,#ff4b3e);font-weight:700}" +
+      ".npbadge span{display:block;font-family:'Titillium Web',sans-serif;font-size:14px;font-weight:600;line-height:1.3}" +
       "@media (prefers-reduced-motion:reduce){.npbadge{transition:none;transform:none}}";
     document.head.appendChild(st);
   }

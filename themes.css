@@ -55,14 +55,14 @@ html[data-theme="autumn"] .navbtn.here{color:#170c04}
 /* ---------- the homepage strip (#themeSlot) ---------- */
 .npstrip{margin:18px 0 0;background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--hot);border-radius:4px;padding:14px 16px;overflow:hidden}
 .npstrip[hidden]{display:none}
-.npstrip .k{display:block;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.12em;color:var(--hot);margin:0 0 4px;text-transform:uppercase}
-.npstrip h2{font-family:"Press Start 2P",monospace;font-size:13px;line-height:1.5;margin:0;color:var(--text)}
+.npstrip .k{display:block;font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.12em;color:var(--hot);margin:0 0 4px;text-transform:uppercase}
+.npstrip h2{font-family:"Righteous",sans-serif;font-size:13px;line-height:1.5;margin:0;color:var(--text)}
 .npstrip p.s{margin:6px 0 0;font-size:14px;color:var(--dim)}
 .npstrip .row{display:flex;gap:10px;overflow-x:auto;margin:12px 0 0;padding:0 0 6px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
 .npstrip .row a{flex:none;width:112px;text-decoration:none;color:var(--text);scroll-snap-align:start}
 .npstrip .row img{display:block;width:112px;height:149px;object-fit:cover;border:1px solid var(--line);border-radius:2px;background:#0a0c11}
-.npstrip .row b{display:block;margin:6px 0 0;font-family:"IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;font-weight:600;font-size:13px;line-height:1.25}
-.npstrip .row span{display:block;font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.05em;color:var(--dim);margin:2px 0 0}
+.npstrip .row b{display:block;margin:6px 0 0;font-family:"Titillium Web","Titillium Web",sans-serif;font-weight:600;font-size:13px;line-height:1.25}
+.npstrip .row span{display:block;font-family:"Righteous",sans-serif;font-size:9px;letter-spacing:.05em;color:var(--dim);margin:2px 0 0}
 .npstrip .row a:hover b{color:var(--hot)}
 .npstrip .art{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;margin:12px 0 4px}
 .npstrip .art svg{display:block;height:auto;image-rendering:pixelated}

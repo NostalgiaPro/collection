@@ -29,11 +29,12 @@
 <title>The Nostalgia Pro &mdash; Make your own list</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Titillium+Web:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/retro.css">
 <link rel="stylesheet" href="/themes.css">
 <link rel="stylesheet" href="/eras.css">
 <link rel="stylesheet" href="/growth.css">
+<link rel="stylesheet" href="/type.css">
 <script src="/theme.js"></script>
 <style>
   :root{
@@ -44,7 +45,7 @@
   html,body{margin:0;padding:0}
   body{
     background:var(--bg);color:var(--text);
-    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    font-family:"Titillium Web",system-ui,sans-serif;font-size:16px;line-height:1.5;
     -webkit-font-smoothing:antialiased;
   }
   body::before{
@@ -56,19 +57,19 @@
   .wrap{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 22px 90px}
   header{padding:44px 0 0}
   .wordmark{margin:0 0 18px;line-height:0}.wordmark a{display:inline-block;line-height:0;color:inherit;text-decoration:none}.wordmark img{display:block;width:min(240px,72vw);height:auto}
-  h1{font-family:"Press Start 2P",monospace;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0}
+  h1{font-family:"Righteous",sans-serif;font-size:clamp(15px,3vw,26px);line-height:1.55;margin:0}
   .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:60ch}
   .navrow{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
   .navbtn{
     display:inline-flex;align-items:center;border:2px solid var(--line);color:var(--dim);
-    text-decoration:none;font-family:"Silkscreen",monospace;font-size:11px;
+    text-decoration:none;font-family:"Righteous",sans-serif;font-size:11px;
     letter-spacing:.05em;padding:9px 14px;border-radius:2px;
   }
   .navbtn:hover{border-color:var(--hot);color:var(--hot)}
   .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
 
   .pick{margin:32px 0 0}
-  .pick label{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);display:block;margin-bottom:9px}
+  .pick label{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.1em;color:var(--dim);display:block;margin-bottom:9px}
   select{
     width:100%;background:var(--bg2);color:var(--text);border:2px solid var(--line);
     border-radius:2px;padding:13px;font:inherit;font-size:15px;cursor:pointer;
@@ -81,9 +82,9 @@
     border:1px solid var(--line);border-left:4px solid var(--hot);
     border-radius:2px;padding:11px 12px;margin-bottom:7px;
   }
-  .pos{flex:0 0 30px;font-family:"Press Start 2P",monospace;font-size:12px;color:var(--dim)}
+  .pos{flex:0 0 30px;font-family:"Righteous",sans-serif;font-size:12px;color:var(--dim)}
   .nm{flex:1;min-width:0;font-size:15px}
-  .nm em{font-style:normal;display:block;font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.05em;color:var(--dim);margin-top:4px}
+  .nm em{font-style:normal;display:block;font-family:"Righteous",sans-serif;font-size:9px;letter-spacing:.05em;color:var(--dim);margin-top:4px}
   .mv{display:flex;gap:5px}
   .mv button{
     background:transparent;border:1px solid var(--line);color:var(--dim);
@@ -93,7 +94,7 @@
   .mv button:disabled{opacity:.25;cursor:default}
 
   .go{
-    width:100%;margin:20px 0 0;font-family:"Silkscreen",monospace;font-size:12px;
+    width:100%;margin:20px 0 0;font-family:"Righteous",sans-serif;font-size:12px;
     letter-spacing:.06em;background:var(--hot);border:2px solid var(--hot);color:#12070a;
     padding:15px;border-radius:2px;cursor:pointer;
   }
@@ -102,18 +103,18 @@
 
   .result{display:none;margin:34px 0 0;background:var(--bg2);border:2px solid var(--hot);border-radius:2px;padding:24px}
   .result.on{display:block}
-  .score{font-family:"Press Start 2P",monospace;font-size:34px;color:var(--hot);margin:0}
-  .score span{display:block;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.09em;color:var(--dim);margin-top:9px}
+  .score{font-family:"Righteous",sans-serif;font-size:34px;color:var(--hot);margin:0}
+  .score span{display:block;font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.09em;color:var(--dim);margin-top:9px}
   .verdict{margin:18px 0 0;font-size:15.5px}
   .cmp{margin:22px 0 0;border-top:1px solid var(--line);padding-top:16px}
   .crow{display:flex;align-items:center;gap:11px;padding:7px 0;font-size:14.5px}
-  .crow b{flex:0 0 54px;font-family:"Silkscreen",monospace;font-weight:700;font-size:10px;color:var(--dim)}
+  .crow b{flex:0 0 54px;font-family:"Righteous",sans-serif;font-weight:700;font-size:10px;color:var(--dim)}
   .crow .g{flex:1;min-width:0}
-  .crow .d{flex:none;font-family:"Silkscreen",monospace;font-size:10px;white-space:nowrap}
+  .crow .d{flex:none;font-family:"Righteous",sans-serif;font-size:10px;white-space:nowrap}
   .d.same{color:#3fbf6a}.d.near{color:var(--dim)}.d.far{color:var(--hot)}
   .vs{margin:28px 0 0}
   .roundlbl{
-    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.1em;
+    font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.1em;
     color:var(--dim);text-align:center;margin:0 0 16px;
   }
   .pair{display:flex;gap:14px;align-items:stretch;flex-wrap:wrap}
@@ -124,20 +125,20 @@
   .side:hover{border-color:var(--hot)}
   .side b{display:block;font-size:17px;font-weight:500;line-height:1.4}
   .side em{
-    font-style:normal;display:block;font-family:"Silkscreen",monospace;font-size:9px;
+    font-style:normal;display:block;font-family:"Righteous",sans-serif;font-size:9px;
     letter-spacing:.05em;color:var(--dim);margin-top:10px;
   }
   .orline{
-    align-self:center;font-family:"Press Start 2P",monospace;font-size:12px;color:var(--hot);
+    align-self:center;font-family:"Righteous",sans-serif;font-size:12px;color:var(--hot);
   }
-  .champ{font-family:"Press Start 2P",monospace;font-size:19px;line-height:1.5;margin:0;color:var(--hot)}
+  .champ{font-family:"Righteous",sans-serif;font-size:19px;line-height:1.5;margin:0;color:var(--hot)}
   .note{font-size:13px;color:var(--dim);margin-top:28px;max-width:62ch}
   .sharebox{margin:24px 0 0;border-top:1px solid var(--line);padding-top:18px}
   .sharebtns{display:flex;flex-wrap:wrap;gap:9px}
   .sbtn{
     display:inline-flex;align-items:center;justify-content:center;flex:1 1 140px;
     background:transparent;border:2px solid var(--hot);color:var(--hot);text-decoration:none;
-    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:.05em;
+    font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.05em;
     padding:11px 14px;border-radius:2px;cursor:pointer;
   }
   .sbtn:hover{background:var(--hot);color:#12070a}
@@ -418,7 +419,7 @@ async function drawShareImage(st){
   cv.width = W; cv.height = H;
   const ctx = cv.getContext("2d");
   try {
-    await Promise.all(['24px "Press Start 2P"','700 24px "Silkscreen"','600 30px "IBM Plex Sans Condensed"','400 24px "IBM Plex Sans"']
+    await Promise.all(['24px "Righteous"','700 24px "Righteous"','600 30px "Titillium Web"','400 24px "Titillium Web"']
       .map(f => document.fonts.load(f)));
   } catch (e) {}
 
@@ -432,16 +433,16 @@ async function drawShareImage(st){
 
   ctx.textBaseline = "alphabetic";
   ctx.fillStyle = "#8e93a2";
-  ctx.font = '700 26px "Silkscreen", monospace';
+  ctx.font = '700 26px "Righteous", sans-serif';
   ctx.fillText("THE NOSTALGIA PRO", P, P + 26);
 
   ctx.fillStyle = "#eceae2";
-  ctx.font = '30px "Press Start 2P", monospace';
+  ctx.font = '30px "Righteous", sans-serif';
   ctx.shadowColor = "rgba(255,75,62,.35)"; ctx.shadowBlur = 22;
   ctx.fillText(fit(ctx, st.title, W - 2*P), P, P + 100);
   ctx.shadowBlur = 0;
   ctx.fillStyle = "#ff4b3e";
-  ctx.font = '700 24px "Silkscreen", monospace';
+  ctx.font = '700 24px "Righteous", sans-serif';
   ctx.fillText(fit(ctx, st.sub.toUpperCase(), W - 2*P), P, P + 148);
   if (st.sub2) {
     ctx.fillStyle = "#8e93a2";
@@ -463,7 +464,7 @@ async function drawShareImage(st){
     ctx.fillStyle = col; ctx.fillRect(P, y, 8, rh);
     ctx.fillStyle = i === 0 ? "#ff4b3e" : "#8e93a2";
     const lf = Math.max(14, Math.min(24, Math.round(rh*0.32)));
-    ctx.font = lf + 'px "Press Start 2P", monospace';
+    ctx.font = lf + 'px "Righteous", sans-serif';
     ctx.fillText(r.label, P + 26, y + rh/2 + lf/2);
     let x = P + 26 + Math.max(ctx.measureText("9-16").width, 64) + 18;
     const im = photos[i], ts = rh - 12;
@@ -476,22 +477,22 @@ async function drawShareImage(st){
     ctx.strokeStyle = "#2c3040"; ctx.lineWidth = 2; ctx.strokeRect(x, y + 6, ts, ts);
     x += ts + 18;
     const sys = Array.isArray(r.c) ? r.c.join(" / ") : r.c;
-    ctx.font = '700 ' + Math.max(13, Math.round(rh*0.2)) + 'px "Silkscreen", monospace';
+    ctx.font = '700 ' + Math.max(13, Math.round(rh*0.2)) + 'px "Righteous", sans-serif';
     const sw = ctx.measureText(sys).width;
     ctx.fillStyle = col;
     ctx.fillText(sys, W - P - 22 - sw, y + rh/2 + rh*0.08);
     ctx.fillStyle = "#eceae2";
-    ctx.font = '600 ' + Math.max(18, Math.round(rh*0.38)) + 'px "IBM Plex Sans Condensed", sans-serif';
+    ctx.font = '600 ' + Math.max(18, Math.round(rh*0.38)) + 'px "Titillium Web", sans-serif';
     ctx.fillText(fit(ctx, r.t, W - P - 44 - sw - x), x, y + rh/2 + rh*0.13);
   });
 
   /* footer */
   ctx.fillStyle = "#2c3040"; ctx.fillRect(P, H - 128, W - 2*P, 2);
   ctx.fillStyle = "#ff4b3e";
-  ctx.font = '28px "Press Start 2P", monospace';
+  ctx.font = '28px "Righteous", sans-serif';
   ctx.fillText(SITE, P, H - 72);
   ctx.fillStyle = "#8e93a2";
-  ctx.font = '700 20px "Silkscreen", monospace';
+  ctx.font = '700 20px "Righteous", sans-serif';
   ctx.fillText("MAKE YOUR OWN LIST: " + SITE + "/RANK.HTML", P, H - 36);
   return cv;
 }
