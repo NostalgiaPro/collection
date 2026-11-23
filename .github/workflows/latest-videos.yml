@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: latest-videos
@@ -53,3 +54,21 @@ jobs:
             sleep 15
           done
           exit 1
+
+      # Pushes made with the workflow token do not start other workflows. If the
+      # site is deployed by a GitHub Actions Pages workflow, start it by hand so
+      # the new feed goes live. (With branch-based Pages this step does nothing.)
+      - name: Trigger Pages deploy workflow if there is one
+        if: steps.build.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for f in $(grep -l "actions/deploy-pages" .github/workflows/*.yml .github/workflows/*.yaml 2>/dev/null || true); do
+            if grep -q "workflow_dispatch" "$f"; then
+              echo "starting $(basename "$f")"
+              gh workflow run "$(basename "$f")" --ref main || echo "could not start $(basename "$f")"
+            else
+              echo "WARNING: $(basename "$f") has no workflow_dispatch trigger; feed commit may not deploy"
+            fi
+          done
