@@ -743,20 +743,63 @@ body.y1996 .ht-coin b{color:#000080;text-shadow:none}
 .ytlbl{font-family:"Righteous",sans-serif;font-size:11px;line-height:1.5;color:var(--text)}
 .ytnote{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.06em;color:var(--dim)}
 
-.hp-guide{display:flex;flex-direction:column;gap:18px;min-width:0}
-.hp-guide .todaybar:last-child{padding-bottom:0;border-bottom:0}   /* the band edge closes the list */
-.todaybar{display:none;flex-direction:column;align-items:flex-start;gap:12px;margin:0;padding:0 0 18px;border-bottom:1px dotted var(--line)}
+/* Today / On this day: anniversary box-art cards and a history timeline.
+   Replaces the old bullet lists. Data still comes from todayBar() / otdTeaser(). */
+.hp-dates{display:none}
+.hp-dates.on{display:block}
+.hp-dates-head{display:flex;align-items:center;gap:12px;margin:0 0 16px}
+.hp-dates-head::after{content:"";flex:1 1 auto;height:2px;
+  background:repeating-linear-gradient(90deg,var(--line) 0 6px,transparent 6px 12px)}
+.hp-dates-when{flex:none;margin:0;font-family:"Righteous",sans-serif;font-weight:400;
+  font-size:clamp(22px,3.2vw,30px);line-height:1.15;letter-spacing:.02em;color:var(--text)}
+
+.hp-guide{display:flex;flex-direction:column;gap:16px;min-width:0;align-items:stretch}
+.todaybar{display:none;flex-direction:column;align-items:stretch;gap:14px;margin:0;min-width:0;
+  padding:16px 16px 14px;background:var(--panel);border:2px solid var(--line);border-radius:var(--hp-r);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 10px 24px rgba(0,0,0,.35)}
 .todaybar.on{display:flex}
-.todaybar .lbl{flex:none;padding:7px 9px 6px;background:var(--hot);color:var(--hp-on-hot);
-  font-family:"Righteous",sans-serif;font-size:9px;line-height:1.2;letter-spacing:.02em;text-transform:uppercase}
-.todaybar .items{display:flex;flex-direction:column;gap:9px;width:100%;min-width:0}
-.todaybar .item{position:relative;padding-left:16px;font-size:15px;line-height:1.4}
-.todaybar .item::before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;background:var(--dim)}
-.todaybar .item b{font-weight:600}
-.todaybar .item em{font-style:normal;font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.06em;color:var(--dim);margin-left:9px;white-space:nowrap}
-.todaybar a.more{flex:none;font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.05em;color:var(--dim);text-decoration:none;
-  border:1px solid var(--line);border-radius:999px;padding:7px 12px 6px}
-.todaybar a.more:hover{border-color:var(--hot);color:var(--hot)}
+.todaybar .lbl{flex:none;align-self:flex-start;margin:0;padding:7px 10px 6px;background:var(--hot);color:var(--hp-on-hot);
+  font-family:"Righteous",sans-serif;font-weight:400;font-size:11px;line-height:1.2;letter-spacing:.06em;text-transform:uppercase;
+  clip-path:polygon(0 3px,3px 3px,3px 0,calc(100% - 3px) 0,calc(100% - 3px) 3px,100% 3px,100% calc(100% - 3px),calc(100% - 3px) calc(100% - 3px),calc(100% - 3px) 100%,3px 100%,3px calc(100% - 3px),0 calc(100% - 3px))}
+.todaybar .items{display:flex;flex-direction:column;gap:10px;width:100%;min-width:0;flex:1 1 auto}
+
+/* Today: each anniversary is a card with the game's cover, a platform chip, and a big age. */
+.tb-card{display:flex;align-items:center;gap:12px;min-width:0;padding:8px 12px 8px 8px;
+  background:var(--bg2);border:1px solid var(--line);border-radius:6px;text-decoration:none;color:var(--text);
+  box-shadow:0 8px 16px rgba(0,0,0,.3)}
+.tb-card:hover{border-color:var(--hot)}
+.tb-card:hover .tb-title{color:var(--hot)}
+.tb-card:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+.tb-cover{flex:none;display:block;width:72px;height:96px;overflow:hidden;border-radius:3px;background:var(--hp-well);
+  border:1px solid rgba(255,255,255,.08);box-shadow:var(--hp-drop)}
+.tb-cover img{display:block;width:100%;height:100%;object-fit:cover}
+.tb-meta{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.tb-title{font-family:"Righteous",sans-serif;font-weight:400;font-size:16px;line-height:1.25;letter-spacing:.02em}
+.tb-sys{display:inline-block;padding:3px 8px 2px;border:1px solid var(--line);border-radius:999px;
+  font-family:"Titillium Web",sans-serif;font-weight:600;font-size:12px;line-height:1.3;color:var(--text);background:var(--hp-well)}
+.tb-age{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:56px;padding:2px 0 0}
+.tb-turns{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.tb-num{display:block;font-family:"Righteous",sans-serif;font-weight:400;font-size:40px;line-height:.9;color:var(--hp-gold)}
+
+/* On this day: a clean timeline with a bold year and a readable category chip. */
+.otdbar .items{position:relative;gap:0}
+.otdbar .items::before{content:"";position:absolute;left:19px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.otd-item{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:2px 14px;padding:12px 0 12px 44px}
+.otd-item:first-child{padding-top:6px}
+.otd-item:last-child{padding-bottom:6px}
+.otd-item::before{content:"";position:absolute;left:14px;top:1.15em;width:12px;height:12px;border-radius:50%;
+  background:var(--hot);box-shadow:0 0 0 3px var(--panel)}
+.otd-year{font-family:"Righteous",sans-serif;font-weight:400;font-size:22px;line-height:1.1;letter-spacing:.02em;color:var(--hp-gold);padding-top:1px}
+.otd-body{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0}
+.otd-cat{display:inline-block;padding:3px 8px 2px;border:1px solid var(--line);border-radius:999px;
+  font-family:"Titillium Web",sans-serif;font-weight:700;font-size:12px;line-height:1.3;letter-spacing:.04em;text-transform:uppercase;color:var(--text);background:var(--hp-well)}
+.otd-text{font-size:16px;line-height:1.4;color:var(--text)}
+
+.todaybar a.more{flex:none;align-self:flex-start;margin-top:auto;padding:6px 0 2px;
+  font-family:"Righteous",sans-serif;font-size:13px;letter-spacing:.06em;color:var(--hot);text-decoration:none;
+  border:0;border-radius:0;background:none}
+.todaybar a.more::after{content:"\00a0\25B8"}
+.todaybar a.more:hover{color:var(--text);border:0}
 
 /* ---------- 4. Collection chrome: the searchable shelf ---------- */
 .hp-shelfsign{margin:40px 0 14px}
@@ -1038,12 +1081,21 @@ footer p a{color:var(--text)}
   .o1-nav .shelflink.o1-pill.o1-shop::after{content:none}
 }
 @media (min-width:700px){
-  /* Today and On this day side by side, two even columns (one fills the row if the other is empty) */
-  .hp-guide{flex-direction:row;align-items:stretch;gap:32px}
-  .hp-guide .todaybar{flex:1 1 0;min-width:0;padding-bottom:0;border-bottom:0}
+  /* Two even columns. A hidden bar (display:none) drops out, so a single list fills the row. */
+  .hp-guide{flex-direction:row;align-items:stretch;gap:20px}
+  .hp-guide .todaybar{flex:1 1 0;min-width:0}
 }
 @media (min-width:960px){
-  .hp-guide{gap:56px}
+  .hp-guide{gap:24px}
+  /* Wide desktop: Today becomes a row of box-art posters, like games standing on a rental shelf. */
+  .todaybar:not(.otdbar) .items{flex-direction:row;flex-wrap:wrap;align-content:start;gap:12px}
+  .todaybar:not(.otdbar) .tb-card{flex:1 1 128px;flex-direction:column;align-items:stretch;text-align:center;
+    padding:10px 10px 12px;min-width:128px}
+  .todaybar:not(.otdbar) .tb-card:only-child{max-width:200px}
+  .todaybar:not(.otdbar) .tb-cover{width:100%;height:auto;aspect-ratio:3/4}
+  .todaybar:not(.otdbar) .tb-meta{align-items:center}
+  .todaybar:not(.otdbar) .tb-age{min-width:0}
+  .todaybar:not(.otdbar) .tb-num{font-size:44px}
 }
 @media (min-width:1040px){
   .ht-shop{grid-template-columns:minmax(0,1fr) 280px;gap:40px}
@@ -1727,11 +1779,14 @@ const ANNOUNCEMENTS = [
     </div>
 
     <!-- TODAY / ON THIS DAY (the old YouTube/TikTok players are replaced by Latest Videos above) -->
-    <div class="hp-band">
+    <div class="hp-band hp-dates" id="hpDates">
       <div class="hp-tune">
+        <div class="hp-dates-head">
+          <h2 class="hp-dates-when" id="hpDatesWhen"></h2>
+        </div>
         <div class="hp-guide">
-    <div class="todaybar" id="todaybar"></div>
-    <div class="todaybar otdbar" id="otdbar"></div>
+          <section class="todaybar" id="todaybar" aria-label="Game anniversaries"></section>
+          <section class="todaybar otdbar" id="otdbar" aria-label="On this day"></section>
         </div>
       </div>
     </div>
@@ -3605,6 +3660,22 @@ function anniversary(g){
   return { text: `${MONTHNAME[m-1]} ${d}, ${y}`, age, soon: false };
 }
 
+/* Stamp today's date on the band, and only show the band once a list has something. */
+function stampDatesHead(){
+  const when = document.getElementById("hpDatesWhen");
+  if (when && !when.textContent) {
+    const now = new Date();
+    when.textContent = now.toLocaleDateString("en-US", {
+      weekday: "long", month: "long", day: "numeric", year: "numeric"
+    });
+  }
+  const band = document.getElementById("hpDates");
+  const t = document.getElementById("todaybar");
+  const o = document.getElementById("otdbar");
+  if (band && t && o)
+    band.classList.toggle("on", t.classList.contains("on") || o.classList.contains("on"));
+}
+
 /* The front page's one moving part: what's having a birthday. */
 (function todayBar(){
   const now = new Date();
@@ -3620,21 +3691,36 @@ function anniversary(g){
     const days = Math.round((when - today) / 86400000);
     hits.push({ g, age: when.getFullYear() - y, days });
   }
-  if (!hits.length) return;
+  const bar = document.getElementById("todaybar");
+  if (!bar) return;
+  if (!hits.length) { stampDatesHead(); return; }
   hits.sort((a,b) => a.days - b.days || b.age - a.age);
 
-  const bar = document.getElementById("todaybar");
   const soon = hits.filter(h => h.days === hits[0].days).slice(0, 3);
   const when = hits[0].days === 0 ? "Today"
              : hits[0].days === 1 ? "Tomorrow"
              : "In " + hits[0].days + " days";
   bar.className = "todaybar on";
   bar.innerHTML =
-    `<span class="lbl">${when}</span>
-     <span class="items">` +
-     soon.map(h => `<span class="item"><b>${esc(h.g.title)}</b> turns ${h.age}<em>${esc(h.g.system)}</em></span>`).join("") +
-     `</span>
+    `<h3 class="lbl">${when}</h3>
+     <div class="items">` +
+     soon.map(h => {
+       const s = slug(h.g);
+       return `<a class="tb-card" href="${gamePage(h.g)}">
+         <span class="tb-cover"><img ${shotAttrs(s)} alt=""></span>
+         <span class="tb-meta">
+           <span class="tb-title">${esc(h.g.title)}</span>
+           <span class="tb-sys">${esc(h.g.system)}</span>
+         </span>
+         <span class="tb-age">
+           <span class="tb-turns">turns</span>
+           <strong class="tb-num">${h.age}</strong>
+         </span>
+       </a>`;
+     }).join("") +
+     `</div>
      <a class="more" href="/anniversaries.html">All anniversaries</a>`;
+  stampDatesHead();
 })();
 
 function wiki(title){
@@ -4105,22 +4191,24 @@ render();
     .then(r => r.ok ? r.json() : null)
     .then(data => {
       const xs = data && data.days && data.days[k];
-      if (!xs || !xs.length) return;
-      /* games first, then whatever else the day has */
-      const order = ["Games","Movies","Music","TV","Toys","Sports","Tech"];
-      const pick = [];
-      for (const c of order) {
-        const x = xs.find(x => x.cat === c);
-        if (x) pick.push(x);
-        if (pick.length === 3) break;
+      if (xs && xs.length) {
+        /* games first, then whatever else the day has */
+        const order = ["Games","Movies","Music","TV","Toys","Sports","Tech"];
+        const pick = [];
+        for (const c of order) {
+          const x = xs.find(x => x.cat === c);
+          if (x) pick.push(x);
+          if (pick.length === 3) break;
+        }
+        bar.className = "todaybar otdbar on";
+        bar.innerHTML =
+          `<h3 class="lbl">On this day</h3><div class="items">` +
+          pick.map(x => `<div class="otd-item"><b class="otd-year">${x.y}</b><span class="otd-body"><span class="otd-cat">${e(x.cat)}</span><span class="otd-text">${e(x.text)}</span></span></div>`).join("") +
+          `</div><a class="more" href="/onthisday.html">More from today</a>`;
       }
-      bar.className = "todaybar otdbar on";
-      bar.innerHTML =
-        `<span class="lbl">On this day</span><span class="items">` +
-        pick.map(x => `<span class="item"><b>${x.y}</b> ${e(x.text)}<em>${e(x.cat)}</em></span>`).join("") +
-        `</span><a class="more" href="/onthisday.html">More from today</a>`;
+      if (typeof stampDatesHead === "function") stampDatesHead();
     })
-    .catch(() => {});
+    .catch(() => { if (typeof stampDatesHead === "function") stampDatesHead(); });
 })();
 </script>
 <script>
