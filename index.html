@@ -4177,7 +4177,7 @@ render();
 
 <script>
 /* On this day in pop culture: four of today's, one each from different
-   shelves, from the site's own data file (data/on-this-day/MM.json). */
+   shelves, oldest first, from the site's own data file (data/on-this-day/MM.json). */
 (function otdTeaser(){
   const bar = document.getElementById("otdbar");
   if (!bar || !window.fetch) return;
@@ -4190,20 +4190,50 @@ render();
     .then(data => {
       const xs = data && data.days && data.days[k];
       if (xs && xs.length) {
-        /* games first, then whatever else the day has */
-        /* one per shelf, four in all, so TV gets a spot when the day has it */
+        /* One per shelf, four in all, shown oldest first. TV prefers US shows
+           (US networks or syndication), then other English-language channels,
+           then entries that name no channel. A day whose only TV is a foreign
+           network or a non-English title skips TV and uses the next shelf. */
+        const US_TV = ["ABC","NBC","CBS","Fox","FOX","Fox Kids","PBS","The WB","UPN","The CW","Cartoon Network",
+          "Nickelodeon","Nick Jr.","Disney Channel","Disney XD","Disney Jr","Toon Disney","Freeform","USA Network",
+          "Syfy","Sci-Fi Channel","MTV","VH1","Comedy Central","TNT","TBS","HBO","Showtime","AMC","FX","History",
+          "TLC","Lifetime","TV Land","Discovery Channel","Animal Planet","Prime Time Entertainment Network",
+          "Adult Swim","Netflix","Hulu","ESPN","CNN","Food Network","Bravo","A&E","BET","Starz","Spike","G4",
+          "Hallmark Channel","Paramount+","Disney+","Peacock","Prime Video","Apple TV+","TV"];
+        const EN_TV = ["BBC","the BBC","BBC One","BBC Two","BBC Three","ITV","ITV1","Channel 4","Channel 5",
+          "Sky One","CBC Television","YTV","Teletoon","Treehouse TV","Network 10","Nine Network","Seven Network","the Seven Network"];
+        const tvScore = x => {
+          const t = String(x.text);
+          if (/in syndication|\bUS\b|American/.test(t)) return 3;
+          const m = t.match(/ on (.+?)\.?$/);
+          if (m) {
+            const net = m[1].split(",")[0].trim();
+            if (US_TV.includes(net)) return 3;
+            if (EN_TV.includes(net)) return 2;
+            return 0;
+          }
+          if (/[\u00C0-\u024F\u0400-\u04FF\u0900-\u097F\u3040-\u30FF\u4E00-\u9FFF\uAC00-\uD7AF]/.test(t)) return 0;
+          if (/^\u201c(El|La|Los|Las|De|Un|Una) /.test(t)) return 0;
+          /* foreign shows in the data that name no channel */
+          if (/Patito Feo|Amanda O\u201d|Kaun Banega|Uttaran|Balika Vadhu|Pleasant Goat|Patrol 03|The Fixies|Arabela|Inspector Rex|TG4/.test(t)) return 0;
+          return 1;
+        };
+        const tv = xs.filter(x => x.cat === "TV" && tvScore(x) > 0)
+                     .sort((a, b) => tvScore(b) - tvScore(a))[0];
+        const ok = x => x.cat !== "TV" || x === tv;
         const order = ["Games","Movies","Music","TV","Toys","Sports","Tech"];
         const pick = [];
         for (const c of order) {
-          const x = xs.find(x => x.cat === c);
+          const x = c === "TV" ? tv : xs.find(x => x.cat === c);
           if (x) pick.push(x);
           if (pick.length === 4) break;
         }
-        /* a day with fewer than four shelves fills up with its other entries */
+        /* a day with fewer than four usable shelves fills up with its other entries */
         for (const x of xs) {
           if (pick.length === 4) break;
-          if (!pick.includes(x)) pick.push(x);
+          if (!pick.includes(x) && ok(x)) pick.push(x);
         }
+        pick.sort((a, b) => a.y - b.y);
         bar.className = "todaybar otdbar on";
         bar.innerHTML =
           `<h3 class="lbl">On this day</h3><div class="items">` +
