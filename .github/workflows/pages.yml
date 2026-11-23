@@ -1,7 +1,8 @@
 name: Deploy Pages
 
 # Publishes the public site, /play-test/ (the full Nostalgia Pro: The Game
-# build and every DLC), and only the newest dated NP2 preview.
+# build and every DLC), /arcade-test/ (hidden arcade test builds), and only
+# the newest dated NP2 preview.
 # Everything else stays in the repo; it is just left out of the Pages artifact.
 # Identified newest dated build: np2-test/shops-20261118
 # (first committed 2026-11-18 5:51 PM MST, after phonefix and controls the same day).
@@ -45,7 +46,6 @@ jobs:
             --exclude '.git/' \
             --exclude '.github/' \
             --exclude '_site/' \
-            --exclude 'arcade-test/' \
             --exclude 'home-test/' \
             --exclude 'eras-test/' \
             --exclude 'growth-test/' \
@@ -61,10 +61,12 @@ jobs:
           test -f _site/index.html
           test -f "_site/$KEEP/index.html"
           test -f _site/play-test/index.html
+          test -f _site/arcade-test/index.html
 
           {
             echo "Kept NP2 preview: /$KEEP/"
             echo "Included full game: /play-test/"
+            echo "Included arcade tests: /arcade-test/"
             echo "Artifact files: $(find _site -type f | wc -l)"
             echo "Artifact size: $(du -sb _site | awk '{printf "%.2f MB (%s bytes)\n", $1/1024/1024, $1}')"
             echo
