@@ -623,7 +623,7 @@ html.np-twa .ht-shop{grid-template-columns:minmax(0,1fr)}
 .mrB-grid b{font-size:12.5px}
 @media (min-width:900px){.npmerch.mrB{grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:32px}}
 @media (prefers-reduced-motion:reduce){.mrB-tabs label{transition:none}}
-@media (max-width:420px){.mrB-tabs{gap:5px}.mrB-tabs label{font-size:9.5px;letter-spacing:.02em;padding:6px 7px 5px}}
+@media (max-width:420px){.mrB-tabs{gap:4px}.mrB-tabs label{font-size:11px!important;letter-spacing:.02em!important;padding:6px 7px 5px;white-space:nowrap}.mrB-wall{padding:12px}}
 body.y1996 .mrB-feat{background:#c0c0c0;border:2px outset #fff;box-shadow:none;border-radius:0}
 body.y1996 .mrB-feat::after{display:none}
 body.y1996 .mrB-neon{color:#000080;text-shadow:none}
@@ -647,6 +647,50 @@ body.y1996 .mrB-feat h3,body.y1996 .mrB-feat p,body.y1996 .mrB-foot small{color:
 .ht-donbtn span{font-family:"Titillium Web",system-ui,sans-serif;font-size:15px;line-height:1;margin-left:4px}
 .ht-donbtn:hover{background:var(--hot);color:var(--hp-on-hot)}
 .ht-donbtn:focus-visible{outline:2px solid var(--text);outline-offset:3px}
+
+/* Merch band: three even columns (spotlight, rack, coin door) with buttons on one line */
+.mrB-head .npmerch-k{margin:0 0 6px}
+.mrB-head h2{margin:0}
+.mrB-feat{display:flex;flex-direction:column;gap:12px}
+.mrB-feat .mrB-buy{margin:0;align-self:flex-start}
+.mrB-feat .mrB-pair{margin:auto 0}
+.mrB-wall{display:flex;flex-direction:column;padding:16px;background:linear-gradient(160deg,var(--panel),var(--bg));border:2px solid var(--line);border-radius:var(--hp-r);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 14px 26px -12px rgba(0,0,0,.7)}
+.mrB-tabs{margin:0}
+.mrB-foot{margin:14px 0 0;justify-content:flex-start}
+.mr .mrB-buy,.mrB-foot .npmerch-btn,.ht-donbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;min-height:46px;padding:0 16px;font-size:12px;line-height:1}
+.ht-donate{padding:16px}
+.ht-donate p{margin:10px 0 14px}
+.ht-coin{display:none}
+@media (min-width:900px){
+  .npmerch.mrB{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-areas:"head head" "feat wall";align-items:stretch;gap:16px 24px}
+  .mrB-head{grid-area:head}.mrB-feat{grid-area:feat}.mrB-wall{grid-area:wall}
+  .mrB-tabs{position:relative;display:grid;grid-template-columns:auto auto auto 1fr;grid-template-rows:auto minmax(0,1fr);gap:6px;flex:1 1 auto;min-height:0}
+  .mrB-tabs label{justify-self:start;white-space:nowrap}
+  .mrB-grid{grid-column:1 / -1;grid-template-rows:repeat(2,minmax(0,1fr));gap:12px;min-height:0}
+  #mrBt2:checked~.mrB-grid,#mrBt3:checked~.mrB-grid{grid-template-rows:minmax(0,1fr)}
+  #mrBt2:checked~.mrB-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #mrBt1:checked~.mrB-grid li.t,#mrBt2:checked~.mrB-grid li.h,#mrBt3:checked~.mrB-grid li.d{display:flex;flex-direction:column;min-height:0}
+  .mrB-grid li a{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
+  .mrB-grid .ph{flex:1 1 auto;aspect-ratio:auto;min-height:96px;background:#fff}
+  .mrB-grid .ph img{object-fit:contain}
+}
+@media (min-width:900px) and (max-width:1199px){.mrB-tabs label{font-size:10px;letter-spacing:.02em;padding:6px 8px 5px}}
+@media (min-width:980px){
+  html:not(.np-twa) .ht-shop{grid-template-columns:minmax(0,300px) minmax(0,1fr) minmax(0,240px);grid-template-rows:auto 1fr;gap:16px 24px;align-items:stretch}
+  html:not(.np-twa) .ht-shop>.npmerch.mrB{grid-column:1 / 3;grid-row:1 / 3;grid-template-columns:subgrid;grid-template-rows:subgrid}
+  html:not(.np-twa) .ht-shop>.ht-donate{grid-column:3;grid-row:2}
+  .ht-donate::before{display:none}
+  .ht-donate .npmerch-k,.ht-donate h2{padding-right:0}
+  .ht-coin{display:flex;flex:1 1 auto;flex-direction:column;align-items:center;justify-content:center;gap:12px;align-self:stretch;margin:0 0 14px;padding:14px 0;
+    background:var(--hp-well);border:2px dashed var(--line);border-radius:6px}
+  .ht-coin i{display:block;width:44px;height:64px;border:2px solid var(--line);border-radius:6px;
+    background:linear-gradient(var(--hot),var(--hot)) 50% 50%/5px 34px no-repeat,#05060a;box-shadow:0 0 18px -2px var(--hot)}
+  .ht-coin b{font-family:"Righteous",sans-serif;font-weight:400;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--hp-gold);text-shadow:0 0 8px rgba(255,210,63,.45)}
+}
+body.y1996 .mrB-wall{background:#c0c0c0;border:2px outset #fff;box-shadow:none;border-radius:0}
+body.y1996 .ht-coin{background:#c0c0c0;border:2px inset #fff}
+body.y1996 .ht-coin b{color:#000080;text-shadow:none}
 
 /* --- Site directory (same five groups, same destinations) --- */
 .sitenav{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0}
@@ -1639,9 +1683,10 @@ const ANNOUNCEMENTS = [
     <div class="hp-band hp-band-peg">
       <div class="ht-shop">
 <section class="npmerch mr mrB" aria-labelledby="merchH">
-  <div>
+  <div class="mrB-head">
     <span class="npmerch-k">Merch store</span>
-    <h2 id="merchH" style="margin:0 0 14px"><img class="mr-logo" src="/images/np-script-merch.webp" alt="Nostalgia Pro Merch" width="1800" height="748"></h2>
+    <h2 id="merchH"><img class="mr-logo" src="/images/np-script-merch.webp" alt="Nostalgia Pro Merch" width="1800" height="748"></h2>
+  </div>
     <div class="mrB-feat">
       <div>
         <p class="mrB-neon">NOW SHOWING</p>
@@ -1654,7 +1699,6 @@ const ANNOUNCEMENTS = [
       </div>
       <a class="mrB-buy" href="https://nostalgiapro-shop.fourthwall.com/products/genx-nostalgiapro-tee" target="_blank" rel="noopener">Get the GenX tee <span aria-hidden="true">&#8599;</span></a>
     </div>
-  </div>
   <div class="mrB-wall">
     <div class="mrB-tabs" role="group" aria-label="Filter merch">
       <input type="radio" name="mrB" id="mrBt1" checked><label for="mrBt1">Tees (8)</label>
@@ -1662,10 +1706,10 @@ const ANNOUNCEMENTS = [
       <input type="radio" name="mrB" id="mrBt3"><label for="mrBt3">Desk stuff (4)</label>
       <ul class="mrB-grid" style="flex-basis:100%;margin-top:6px"><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/is-it-on-the-shelf-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-is-it-on-the-shelf-tee-a.webp" alt="Is It On The Shelf? Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-is-it-on-the-shelf-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25+</span></span><b>Is It On The Shelf? Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/physical-media-enjoyer-neon-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-physical-media-enjoyer-neon-tee-a.webp" alt="Physical Media Enjoyer Neon Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-physical-media-enjoyer-neon-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25+</span></span><b>Physical Media Enjoyer Neon Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/daily-shelf-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-daily-shelf-tee-a.webp" alt="Daily Shelf Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-daily-shelf-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25+</span></span><b>Daily Shelf Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/genx-nostalgiapro-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-genx-nostalgiapro-tee-a.webp" alt="GenX NostalgiaPro Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-genx-nostalgiapro-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25+</span></span><b>GenX NostalgiaPro Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgiapro-vhs-label-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgiapro-vhs-label-tee-a.webp" alt="NostalgiaPro VHS Label Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgiapro-vhs-label-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25+</span></span><b>VHS Label Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgiapro-gaming-console-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgiapro-gaming-console-tee-a.webp" alt="NostalgiaPro Gaming Console Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgiapro-gaming-console-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25+</span></span><b>Gaming Console Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-tee-a.webp" alt="Nostalgia Pro Games Logo Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25+</span></span><b>Logo Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgiapro-pocket-logo-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgiapro-pocket-logo-tee-a.webp" alt="NostalgiaPro Pocket Logo Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgiapro-pocket-logo-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$22+</span></span><b>Pocket Logo Tee</b></a></li><li class="h"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgiapro-logo-cap" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgiapro-logo-cap-a.webp" alt="NostalgiaPro Logo Cap" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgiapro-logo-cap-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$22</span></span><b>Logo Cap</b></a></li><li class="h"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-hat" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-hat-a.webp" alt="Nostalgia Pro Games Logo Hat" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-hat-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25</span></span><b>Logo Hat</b></a></li><li class="h"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-hoodie" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-hoodie-a.webp" alt="Nostalgia Pro Games Logo Hoodie" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-hoodie-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$45+</span></span><b>Logo Hoodie</b></a></li><li class="d"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgiapro-neon-video-store-mouse-pad" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgiapro-neon-video-store-mouse-pad-a.webp" alt="NostalgiaPro Neon Video Store Mouse Pad" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgiapro-neon-video-store-mouse-pad-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$20+</span></span><b>Neon Video Store Mouse Pad</b></a></li><li class="d"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-mousepad" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-mousepad-a.webp" alt="Nostalgia Pro Games Logo Mousepad" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-mousepad-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$20</span></span><b>Logo Mousepad</b></a></li><li class="d"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-mug" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-mug-a.webp" alt="Nostalgia Pro Games Logo Mug" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-mug-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$16</span></span><b>Logo Mug</b></a></li><li class="d"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-sticker" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-sticker-a.webp" alt="Nostalgia Pro Games Logo Sticker" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-sticker-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$5+</span></span><b>Logo Sticker</b></a></li></ul>
     </div>
-    <div class="mrB-foot"><small>Hover for a second look. On a phone, swipe the rack.</small><a class="npmerch-btn" href="https://nostalgiapro-shop.fourthwall.com/" target="_blank" rel="noopener">Shop all 15 items <span aria-hidden="true">&#8599;</span></a></div>
+    <div class="mrB-foot"><a class="npmerch-btn" href="https://nostalgiapro-shop.fourthwall.com/" target="_blank" rel="noopener">Shop all 15 items <span aria-hidden="true">&#8599;</span></a></div>
   </div>
 </section>
-    <aside class="ht-donate" data-donate aria-labelledby="htDonH"><span class="npmerch-k">Support</span><h2 id="htDonH">Keep the lights on</h2><p>The arcade is free, with no ads and no logins. If it gave you a one-more-try moment, drop a quarter in the machine.</p><a class="ht-donbtn" href="https://nostalgiapro-shop.fourthwall.com/pages/donate" data-donate target="_blank" rel="noopener">Donate <span aria-hidden="true">&#8599;</span></a></aside>
+    <aside class="ht-donate" data-donate aria-labelledby="htDonH"><span class="npmerch-k">Support</span><h2 id="htDonH">Keep the lights on</h2><p>The arcade is free, with no ads and no logins. If it gave you a one-more-try moment, drop a quarter in the machine.</p><span class="ht-coin" aria-hidden="true"><i></i><b>Insert coin</b></span><a class="ht-donbtn" href="https://nostalgiapro-shop.fourthwall.com/pages/donate" data-donate target="_blank" rel="noopener">Donate <span aria-hidden="true">&#8599;</span></a></aside>
       </div>
     </div>
 
