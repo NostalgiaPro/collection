@@ -663,7 +663,6 @@ body.y1996 .mrB-feat h3,body.y1996 .mrB-feat p,body.y1996 .mrB-foot small{color:
 .mr .mrB-buy,.mrB-foot .npmerch-btn,.ht-donbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;min-height:46px;padding:0 16px;font-size:12px;line-height:1}
 .ht-donate{padding:16px}
 .ht-donate p{margin:10px 0 14px}
-.ht-coin{display:none}
 @media (min-width:900px){
   .npmerch.mrB{grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-areas:"head head" "feat wall";align-items:stretch;gap:16px 24px}
   .mrB-head{grid-area:head}.mrB-feat{grid-area:feat}.mrB-wall{grid-area:wall}
@@ -684,15 +683,14 @@ body.y1996 .mrB-feat h3,body.y1996 .mrB-feat p,body.y1996 .mrB-foot small{color:
   html:not(.np-twa) .ht-shop>.ht-donate{grid-column:3;grid-row:2}
   .ht-donate::before{display:none}
   .ht-donate .npmerch-k,.ht-donate h2{padding-right:0}
-  .ht-coin{display:flex;flex:1 1 auto;flex-direction:column;align-items:center;justify-content:center;gap:12px;align-self:stretch;margin:0 0 14px;padding:14px 0;
-    background:var(--hp-well);border:2px dashed var(--line);border-radius:6px}
-  .ht-coin i{display:block;width:44px;height:64px;border:2px solid var(--line);border-radius:6px;
-    background:linear-gradient(var(--hot),var(--hot)) 50% 50%/5px 34px no-repeat,#05060a;box-shadow:0 0 18px -2px var(--hot)}
-  .ht-coin b{font-family:"Righteous",sans-serif;font-weight:400;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--hp-gold);text-shadow:0 0 8px rgba(255,210,63,.45)}
+  .ht-shop .ht-donate h2{font-size:21px!important;white-space:nowrap;letter-spacing:0!important}
+  .ht-donate>.npmerch-k{margin-top:auto}
+  .ht-donate>p{margin-bottom:auto;padding-bottom:16px}
 }
+/* one label size for the three merch band buttons */
+.ht-shop .mrB-buy,.ht-shop .npmerch-btn,.ht-shop .ht-donbtn{font-size:15px!important;font-weight:400!important;letter-spacing:.05em!important;font-family:"Righteous",sans-serif}
+.ht-shop .mrB-buy span,.ht-shop .npmerch-btn span,.ht-shop .ht-donbtn span{font-family:"Titillium Web",system-ui,sans-serif;font-size:16px;line-height:1;margin-left:0}
 body.y1996 .mrB-wall{background:#c0c0c0;border:2px outset #fff;box-shadow:none;border-radius:0}
-body.y1996 .ht-coin{background:#c0c0c0;border:2px inset #fff}
-body.y1996 .ht-coin b{color:#000080;text-shadow:none}
 
 /* --- Site directory (same five groups, same destinations) --- */
 .sitenav{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0}
@@ -1763,7 +1761,7 @@ const ANNOUNCEMENTS = [
     <div class="mrB-foot"><a class="npmerch-btn" href="https://nostalgiapro-shop.fourthwall.com/" target="_blank" rel="noopener">Shop all 15 items <span aria-hidden="true">&#8599;</span></a></div>
   </div>
 </section>
-    <aside class="ht-donate" data-donate aria-labelledby="htDonH"><span class="npmerch-k">Support</span><h2 id="htDonH">Keep the lights on</h2><p>The arcade is free, with no ads and no logins. If it gave you a one-more-try moment, drop a quarter in the machine.</p><span class="ht-coin" aria-hidden="true"><i></i><b>Insert coin</b></span><a class="ht-donbtn" href="https://nostalgiapro-shop.fourthwall.com/pages/donate" data-donate target="_blank" rel="noopener">Donate <span aria-hidden="true">&#8599;</span></a></aside>
+    <aside class="ht-donate" data-donate aria-labelledby="htDonH"><span class="npmerch-k">Support</span><h2 id="htDonH">Keep the lights on</h2><p>The arcade is free, with no ads and no logins. If it gave you a one-more-try moment, drop a quarter in the machine.</p><a class="ht-donbtn" href="https://nostalgiapro-shop.fourthwall.com/pages/donate" data-donate target="_blank" rel="noopener">Donate <span aria-hidden="true">&#8599;</span></a></aside>
       </div>
     </div>
 
@@ -4178,7 +4176,7 @@ render();
 </script>
 
 <script>
-/* On this day in pop culture: three of today's, one each from different
+/* On this day in pop culture: four of today's, one each from different
    shelves, from the site's own data file (data/on-this-day/MM.json). */
 (function otdTeaser(){
   const bar = document.getElementById("otdbar");
@@ -4193,12 +4191,18 @@ render();
       const xs = data && data.days && data.days[k];
       if (xs && xs.length) {
         /* games first, then whatever else the day has */
+        /* one per shelf, four in all, so TV gets a spot when the day has it */
         const order = ["Games","Movies","Music","TV","Toys","Sports","Tech"];
         const pick = [];
         for (const c of order) {
           const x = xs.find(x => x.cat === c);
           if (x) pick.push(x);
-          if (pick.length === 3) break;
+          if (pick.length === 4) break;
+        }
+        /* a day with fewer than four shelves fills up with its other entries */
+        for (const x of xs) {
+          if (pick.length === 4) break;
+          if (!pick.includes(x)) pick.push(x);
         }
         bar.className = "todaybar otdbar on";
         bar.innerHTML =
