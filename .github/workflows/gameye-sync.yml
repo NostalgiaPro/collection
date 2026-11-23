@@ -68,13 +68,20 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          # Rapid pushes can leave an older pages-build-deployment "in progress"
-          # and make newer deploys fail with HTTP 400. Cancel older in-progress
-          # pages runs, then wait for (or re-run) the deploy for HEAD.
-          sleep 20
+          # Token pushes do not start other workflows. Start Deploy Pages
+          # (pages.yml), cancel superseded runs, then wait for HEAD.
+          WORKFLOW=pages.yml
+          sleep 15
           HEAD=$(git rev-parse HEAD)
+          row=$(gh run list --workflow="$WORKFLOW" --commit "$HEAD" --limit 1 \
+            --json databaseId,status,conclusion -q '.[0] // empty')
+          if [ -z "$row" ] || [ "$row" = "null" ]; then
+            echo "starting $WORKFLOW for main (HEAD $HEAD)"
+            gh workflow run "$WORKFLOW" --ref main
+            sleep 15
+          fi
           # Cancel in-progress pages runs that are not for HEAD
-          gh run list --workflow=pages-build-deployment --status in_progress --limit 10 \
+          gh run list --workflow="$WORKFLOW" --status in_progress --limit 10 \
             --json databaseId,headSha | python3 -c '
           import json,sys,subprocess
           for r in json.load(sys.stdin):
@@ -82,9 +89,9 @@ jobs:
               print("cancelling superseded pages run", r["databaseId"], r["headSha"][:7])
               subprocess.run(["gh","run","cancel",str(r["databaseId"])], check=False)
           '
-          # Wait up to ~4 minutes for a successful pages deploy of HEAD
-          for i in $(seq 1 24); do
-            row=$(gh run list --workflow=pages-build-deployment --commit "$HEAD" --limit 1 \
+          # Wait up to ~15 minutes for a successful pages deploy of HEAD
+          for i in $(seq 1 90); do
+            row=$(gh run list --workflow="$WORKFLOW" --commit "$HEAD" --limit 1 \
               --json databaseId,status,conclusion -q '.[0] // empty')
             if [ -z "$row" ] || [ "$row" = "null" ]; then
               echo "waiting for pages run to appear ($i)"
@@ -98,6 +105,12 @@ jobs:
             if [ "$status" = "completed" ] && [ "$conclusion" = "success" ]; then
               echo "Pages deploy ok for $HEAD"
               exit 0
+            fi
+            if [ "$status" = "completed" ] && [ "$conclusion" = "cancelled" ]; then
+              echo "deploy was cancelled; starting a fresh $WORKFLOW run"
+              gh workflow run "$WORKFLOW" --ref main
+              sleep 20
+              continue
             fi
             if [ "$status" = "completed" ] && [ "$conclusion" != "success" ]; then
               echo "re-running failed pages deploy $id"

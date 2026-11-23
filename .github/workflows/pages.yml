@@ -1,0 +1,93 @@
+name: Deploy Pages
+
+# Publishes the public site plus only the newest dated NP2 preview.
+# Everything else stays in the repo; it is just left out of the Pages artifact.
+# Identified newest dated build: np2-test/shops-20261118
+# (first committed 2026-11-18 5:51 PM MST, after phonefix and controls the same day).
+# That build is self-contained, so np2-test/index and story-preview are not published.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assemble public site
+        run: |
+          set -euo pipefail
+          # Newest dated NP2 preview (folder date + first-commit time).
+          KEEP="np2-test/shops-20261118"
+          if [ ! -d "$KEEP" ]; then
+            echo "Missing $KEEP; cannot assemble the Pages artifact."
+            exit 1
+          fi
+
+          rm -rf _site
+          mkdir -p _site
+          rsync -a \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude '_site/' \
+            --exclude 'arcade-test/' \
+            --exclude 'play-test/' \
+            --exclude 'home-test/' \
+            --exclude 'eras-test/' \
+            --exclude 'growth-test/' \
+            --exclude 'preview/' \
+            --exclude 'tools/' \
+            --exclude 'np2-test/' \
+            ./ _site/
+          mkdir -p "_site/$(dirname "$KEEP")"
+          rsync -a "$KEEP/" "_site/$KEEP/"
+
+          test -f _site/CNAME
+          test -f _site/.nojekyll
+          test -f _site/index.html
+          test -f "_site/$KEEP/index.html"
+
+          {
+            echo "Kept NP2 preview: /$KEEP/"
+            echo "Artifact files: $(find _site -type f | wc -l)"
+            echo "Artifact size: $(du -sb _site | awk '{printf "%.2f MB (%s bytes)\n", $1/1024/1024, $1}')"
+            echo
+            echo "Top folders:"
+            du -sh _site/*/ _site/*.* 2>/dev/null | sort -hr | head -20
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+          # Keep .nojekyll and .well-known (v4+ drops dotfiles by default).
+          include-hidden-files: true
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
