@@ -697,6 +697,7 @@ body.y1996 .mrB-feat h3,body.y1996 .mrB-feat p,body.y1996 .mrB-foot small{color:
 .ytnote{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.06em;color:var(--dim)}
 
 .hp-guide{display:flex;flex-direction:column;gap:18px;min-width:0}
+.hp-guide .todaybar:last-child{padding-bottom:0;border-bottom:0}   /* the band edge closes the list */
 .todaybar{display:none;flex-direction:column;align-items:flex-start;gap:12px;margin:0;padding:0 0 18px;border-bottom:1px dotted var(--line)}
 .todaybar.on{display:flex}
 .todaybar .lbl{flex:none;padding:7px 9px 6px;background:var(--hot);color:var(--hp-on-hot);
@@ -989,21 +990,13 @@ footer p a{color:var(--text)}
   .o1-nav .shelflink.o1-pill.o1-shop{justify-content:center;padding:11px 14px 9px;border-radius:var(--hp-r)}
   .o1-nav .shelflink.o1-pill.o1-shop::after{content:none}
 }
-@media (min-width:700px) and (max-width:959px){
-  /* in between: YouTube across the top, TikTok under it with Today / On this day beside it */
-  .hp-tune:has(.todaybar.on){grid-template-columns:360px minmax(0,1fr);grid-template-areas:"yt yt" "tt guide";gap:26px 32px}
-  .hp-tune:has(.todaybar.on) .ytlatest{grid-area:yt}
-  .hp-tune:has(.todaybar.on) .ttlatest{grid-area:tt}
-  .hp-tune:has(.todaybar.on) .hp-guide{grid-area:guide}
+@media (min-width:700px){
+  /* Today and On this day side by side, two even columns (one fills the row if the other is empty) */
+  .hp-guide{flex-direction:row;align-items:stretch;gap:32px}
+  .hp-guide .todaybar{flex:1 1 0;min-width:0;padding-bottom:0;border-bottom:0}
 }
 @media (min-width:960px){
-  /* YouTube on the left with Today / On this day under it, TikTok standing tall on the right */
-  .hp-tune{grid-template-columns:minmax(0,1fr) 360px;grid-template-areas:"yt tt" "guide tt";grid-template-rows:auto 1fr;gap:28px 40px}
-  .ytlatest{grid-area:yt}
-  .ttlatest{grid-area:tt}
-  .hp-guide{grid-area:guide;flex-direction:row;gap:36px}
-  .hp-guide .todaybar{flex:1 1 0;min-width:0}
-  .hp-tv.hp-tv-tall{padding-left:14px;padding-right:14px}
+  .hp-guide{gap:56px}
 }
 @media (min-width:1040px){
   .ht-shop{grid-template-columns:minmax(0,1fr) 280px;gap:40px}
@@ -1686,59 +1679,9 @@ const ANNOUNCEMENTS = [
       </div>
     </div>
 
-    <!-- YOUTUBE + TIKTOK + TODAY / ON THIS DAY -->
+    <!-- TODAY / ON THIS DAY (the old YouTube/TikTok players are replaced by Latest Videos above) -->
     <div class="hp-band">
       <div class="hp-tune">
-    <section class="ytlatest hp-tv" aria-labelledby="ytH">
-      <div class="ythead"><h2 id="ytH">Latest on YouTube</h2><a href="https://www.youtube.com/@TheNostalgiaPro" target="_blank" rel="noopener">All videos</a></div>
-      <div class="ytbox" id="ytBox">
-        <button class="ytfacade" id="ytPlay" type="button" aria-label="Play my latest YouTube upload">
-          <span class="ytbtn" aria-hidden="true"></span>
-          <span class="ytlbl">Play my latest upload</span>
-          <span class="ytnote">YouTube loads when you press play</span>
-        </button>
-      </div>
-    </section>
-    <!-- TikTok: same idea as YouTube. Nothing loads from TikTok until the visitor presses play. -->
-    <section class="ttlatest hp-tv hp-tv-tall" aria-labelledby="ttH">
-      <div class="ythead"><h2 id="ttH">Latest on TikTok</h2><a href="https://www.tiktok.com/@rc.the.nostalgia.pro" target="_blank" rel="noopener">All videos</a></div>
-      <div class="ytbox hp-ttbox" id="ttBox">
-        <button class="ytfacade" id="ttPlay" type="button" aria-label="See my latest TikToks">
-          <span class="ytbtn" aria-hidden="true"></span>
-          <span class="ytlbl">See my latest TikToks</span>
-          <span class="ytnote">TikTok loads when you press play</span>
-        </button>
-      </div>
-    </section>
-    <script>
-/* ============================================================================
-   TIKTOK: leave TIKTOK_VIDEO_ID empty to show my profile with my newest videos.
-   To feature one video instead, paste its id between the quotes. The id is the
-   long number at the end of the video's link:
-     https://www.tiktok.com/@rc.the.nostalgia.pro/video/1234567890123456789
-   ============================================================================ */
-const TIKTOK_VIDEO_ID = "";
-
-(function(){
-  var box = document.getElementById("ttBox"), btn = document.getElementById("ttPlay");
-  if (!box || !btn) return;
-  var id = String(TIKTOK_VIDEO_ID || "").trim(), one = /^\d+$/.test(id);
-  if (one){
-    btn.setAttribute("aria-label", "Play my latest TikTok");
-    btn.querySelector(".ytlbl").textContent = "Play my latest TikTok";
-  }
-  btn.addEventListener("click", function(){
-    var f = document.createElement("iframe");
-    f.src = one ? "https://www.tiktok.com/player/v1/" + id + "?autoplay=1"
-                : "https://www.tiktok.com/embed/@rc.the.nostalgia.pro";
-    f.title = one ? "My latest TikTok" : "My latest TikToks";
-    f.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-write; web-share";
-    f.setAttribute("allowfullscreen", "");
-    box.textContent = "";
-    box.appendChild(f);
-  });
-})();
-    </script>
         <div class="hp-guide">
     <div class="todaybar" id="todaybar"></div>
     <div class="todaybar otdbar" id="otdbar"></div>
@@ -4199,21 +4142,6 @@ if ("serviceWorker" in navigator)
       document.getElementById("matchPct").textContent = (p < 1 ? "<1" : Math.round(p)) + "%";
     }
   } catch (e) {}
-})();
-</script>
-<script>
-/* Latest YouTube upload: nothing loads from YouTube until the play button is pressed.
-   The uploads playlist (UU + channel id) always starts with the newest upload. */
-(function(){
-  var b = document.getElementById("ytPlay"); if (!b) return;
-  b.addEventListener("click", function(){
-    var f = document.createElement("iframe");
-    f.src = "https://www.youtube-nocookie.com/embed/videoseries?list=UUdHnuHu3XbvwJhgM5r5ZgIA&autoplay=1&rel=0";
-    f.title = "Latest videos from The Nostalgia Pro on YouTube";
-    f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
-    f.referrerPolicy = "strict-origin-when-cross-origin";
-    var box = document.getElementById("ytBox"); box.innerHTML = ""; box.appendChild(f);
-  });
 })();
 </script>
 <script src="/growth.js" data-rate="visit"></script>
