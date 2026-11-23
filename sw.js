@@ -9,7 +9,7 @@ const PAGES = [
   "/daily.html", "/match.html", "/first.html", "/data/daily.json", "/data/shelf-games.json",
   "/streaks.html", "/spines.html", "/tonight.html", "/np-progress.js", "/theme.js", "/themes.css", "/data/themes.json",
   "/console/game-boy-color.html", "/console/game-boy.html", "/console/gamecube.html", "/console/nes.html", "/console/nintendo-3ds.html", "/console/nintendo-64.html", "/console/nintendo-ds.html", "/console/nintendo-switch.html", "/console/pc.html", "/console/playstation-1.html", "/console/playstation-2.html", "/console/playstation-3.html", "/console/playstation-4.html", "/console/psp.html", "/console/sega-dreamcast.html", "/console/sega-genesis.html", "/console/sega-saturn.html", "/console/snes.html", "/console/wii.html", "/console/xbox-360.html", "/console/xbox-one.html", "/console/xbox-series-x-s.html", "/console/xbox.html",
-  "/retro.css", "/eras.css", "/eras.js", "/data/music-albums.json", "/growth.js", "/growth.css", "/home.css", "/home.js", "/images/google-play-badge-en.png", "/icon-192.png", "/icon-512.png",
+  "/retro.css", "/eras.css", "/eras.js", "/data/music-albums.json", "/growth.js", "/growth.css", "/home.css", "/home.js", "/latest-videos.css", "/latest-videos.js", "/images/google-play-badge-en.png", "/icon-192.png", "/icon-512.png",
   "/images/merch-is-it-on-the-shelf-tee.webp", "/images/merch-physical-media-enjoyer-tee.webp", "/images/merch-daily-shelf-tee.webp",
   "/arcade/trophies/", "/arcade/trophies/shelf.css", "/arcade/trophies/shelf.js", "/arcade/trophies/game-list.js",
   "/arcade/shared/trophy-list.js", "/arcade/shared/trophies.js", "/arcade/shared/rewards.js", "/arcade/shared/extras.js", "/arcade/shared/hiscores.js",
@@ -40,7 +40,7 @@ self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET" || new URL(req.url).origin !== location.origin) return;
   /* Homepage "New this week" must stay fresh. Network only, never written to cache. */
-  if (new URL(req.url).pathname === "/data/new-this-week.json") {
+  if (new URL(req.url).pathname === "/data/new-this-week.json" || new URL(req.url).pathname === "/data/latest-videos.json") {
     e.respondWith(fetch(req));
     return;
   }

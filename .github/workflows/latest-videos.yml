@@ -1,0 +1,55 @@
+name: Latest videos feed
+
+# Refreshes /data/latest-videos.json (homepage "Latest Videos") from the free
+# public YouTube RSS feed and TikTok's creator embed. No keys, no paid services.
+on:
+  schedule:
+    # 20 minutes after each posting slot (9 AM, 12 PM, 3 PM, 6 PM Arizona = 16, 19, 22, 01 UTC)
+    - cron: "20 16,19,22,1 * * *"
+    # 5:40 AM Arizona: keeps TikTok cover links fresh (they are signed and expire)
+    - cron: "40 12 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: latest-videos
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build feed
+        id: build
+        run: |
+          set -euo pipefail
+          python3 tools/build_latest_videos.py | tee /tmp/latest-videos.log
+          if git diff --quiet -- data/latest-videos.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push if changed
+        if: steps.build.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "latest-videos[bot]"
+          git config user.email "latest-videos[bot]@users.noreply.github.com"
+          git add data/latest-videos.json
+          git commit -m "Latest videos: refresh feed (auto)"
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && exit 0
+            sleep 15
+          done
+          exit 1

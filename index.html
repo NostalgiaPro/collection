@@ -38,6 +38,7 @@
 <link rel="stylesheet" href="/growth.css">
 <!-- /home.css is not linked here on purpose: the block below replaces it (and the old inline block) for this page. -->
 <script src="/theme.js"></script>
+<link rel="stylesheet" href="/latest-videos.css">
 <style>
 /* =====================================================================
    The Nostalgia Pro: homepage
@@ -1602,6 +1603,25 @@ const ANNOUNCEMENTS = [
       </script>
       <div id="themeSlot"></div>
     </div>
+
+    <!-- LATEST VIDEOS: newest public uploads. /latest-videos.js fills both rows from /data/latest-videos.json
+         (refreshed by the "Latest videos feed" GitHub Action). The channel cards stay if the file will not load. -->
+    <section class="lv" id="videos" aria-labelledby="lvH">
+      <div class="hp-sign"><h2 class="ht-sh" id="lvH">Latest Videos</h2></div>
+      <div class="lv-grp">
+        <div class="lv-plat"><h3><svg class="lv-ico" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="2" width="8" height="5" fill="#ff0033"/><rect x="1" y="1" width="6" height="7" fill="#ff0033"/><rect x="3" y="3" width="1" height="3" fill="#fff"/><rect x="4" y="4" width="1" height="1" fill="#fff"/></svg>YouTube <small>Videos</small></h3><a class="lv-all" href="https://www.youtube.com/@TheNostalgiaPro/videos" target="_blank" rel="noopener">See all</a></div>
+        <div class="lv-row lv-wide" id="lvYV"><a class="lv-empty" href="https://www.youtube.com/@TheNostalgiaPro/videos" target="_blank" rel="noopener">Watch on YouTube</a></div>
+      </div>
+      <div class="lv-grp">
+        <div class="lv-plat"><h3><svg class="lv-ico" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="2" width="8" height="5" fill="#ff0033"/><rect x="1" y="1" width="6" height="7" fill="#ff0033"/><rect x="3" y="3" width="1" height="3" fill="#fff"/><rect x="4" y="4" width="1" height="1" fill="#fff"/></svg>YouTube <small>Shorts</small></h3><a class="lv-all" href="https://www.youtube.com/@TheNostalgiaPro/shorts" target="_blank" rel="noopener">See all</a></div>
+        <div class="lv-row lv-tall" id="lvYS"><a class="lv-empty" href="https://www.youtube.com/@TheNostalgiaPro/shorts" target="_blank" rel="noopener">Watch on YouTube</a></div>
+      </div>
+      <div class="lv-grp">
+        <div class="lv-plat"><h3><svg class="lv-ico" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="0" width="1" height="6" fill="#eceae2"/><rect x="5" y="1" width="2" height="1" fill="#25f4ee"/><rect x="6" y="2" width="1" height="1" fill="#fe2c55"/><rect x="2" y="4" width="2" height="1" fill="#eceae2"/><rect x="1" y="5" width="1" height="2" fill="#25f4ee"/><rect x="2" y="7" width="2" height="1" fill="#eceae2"/><rect x="4" y="5" width="1" height="2" fill="#fe2c55"/></svg>TikTok</h3><a class="lv-all" href="https://www.tiktok.com/@rc.the.nostalgia.pro" target="_blank" rel="noopener">See all</a></div>
+        <div class="lv-row lv-tall" id="lvTT"><a class="lv-empty" href="https://www.tiktok.com/@rc.the.nostalgia.pro" target="_blank" rel="noopener">Watch on TikTok</a></div>
+      </div>
+    </section>
+    <script src="/latest-videos.js" defer></script>
 
     <!-- SUBSTACK -->
     <section class="npss" id="substack" aria-labelledby="npssH">
