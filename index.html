@@ -649,7 +649,9 @@ body.y1996 .mrB-feat h3,body.y1996 .mrB-feat p,body.y1996 .mrB-foot small{color:
 .ht-donbtn:focus-visible{outline:2px solid var(--text);outline-offset:3px}
 
 /* Merch band: three even columns (spotlight, rack, coin door) with buttons on one line */
+.mrB-head{text-align:center}
 .mrB-head .npmerch-k{margin:0 0 6px}
+.mrB-head .mr-logo{margin-left:auto;margin-right:auto}
 .mrB-head h2{margin:0}
 .mrB-feat{display:flex;flex-direction:column;gap:12px}
 .mrB-feat .mrB-buy{margin:0;align-self:flex-start}
@@ -678,7 +680,7 @@ body.y1996 .mrB-feat h3,body.y1996 .mrB-feat p,body.y1996 .mrB-foot small{color:
 @media (min-width:900px) and (max-width:1199px){.mrB-tabs label{font-size:10px;letter-spacing:.02em;padding:6px 8px 5px}}
 @media (min-width:980px){
   html:not(.np-twa) .ht-shop{grid-template-columns:minmax(0,300px) minmax(0,1fr) minmax(0,240px);grid-template-rows:auto 1fr;gap:16px 24px;align-items:stretch}
-  html:not(.np-twa) .ht-shop>.npmerch.mrB{grid-column:1 / 3;grid-row:1 / 3;grid-template-columns:subgrid;grid-template-rows:subgrid}
+  html:not(.np-twa) .ht-shop>.npmerch.mrB{grid-column:1 / -1;grid-row:1 / 3;grid-template-columns:subgrid;grid-template-rows:subgrid;grid-template-areas:"head head head" "feat wall ."}
   html:not(.np-twa) .ht-shop>.ht-donate{grid-column:3;grid-row:2}
   .ht-donate::before{display:none}
   .ht-donate .npmerch-k,.ht-donate h2{padding-right:0}
