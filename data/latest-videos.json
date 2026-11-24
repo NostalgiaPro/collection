@@ -1,14 +1,23 @@
 {
- "updated": "2026-11-24T02:56:56Z",
+ "updated": "2026-11-24T22:43:26Z",
  "channels": {
   "youtube": "https://www.youtube.com/@TheNostalgiaPro",
   "tiktok": "https://www.tiktok.com/@rc.the.nostalgia.pro"
  },
  "youtube": [
   {
+   "id": "o9G7QLy0AFE",
+   "kind": "video",
+   "title": "Is Disney's The Jungle Book as Hard as You Remember? Played on a real SNES and CRT",
+   "url": "https://www.youtube.com/watch?v=o9G7QLy0AFE",
+   "thumb": "https://i.ytimg.com/vi/o9G7QLy0AFE/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/o9G7QLy0AFE/hqdefault.jpg",
+   "published": "2026-11-24T20:00:02Z"
+  },
+  {
    "id": "vjw-iVsowVM",
    "kind": "video",
-   "title": "Watch me struggle at Cliffhanger on a real SNES and CRT",
+   "title": "I couldn't beat Cliffhanger on a real SNES and CRT",
    "url": "https://www.youtube.com/watch?v=vjw-iVsowVM",
    "thumb": "https://i.ytimg.com/vi/vjw-iVsowVM/maxresdefault.jpg",
    "thumb_alt": "https://i.ytimg.com/vi/vjw-iVsowVM/hqdefault.jpg",
@@ -17,7 +26,7 @@
   {
    "id": "f7tmq-iNQOE",
    "kind": "video",
-   "title": "Frogger 2, Tetris, and more on a real Game Boy",
+   "title": "Tetris, Zelda, and Frogger 2, playing on my real Game Boy and Game Boy Color",
    "url": "https://www.youtube.com/watch?v=f7tmq-iNQOE",
    "thumb": "https://i.ytimg.com/vi/f7tmq-iNQOE/maxresdefault.jpg",
    "thumb_alt": "https://i.ytimg.com/vi/f7tmq-iNQOE/hqdefault.jpg",
@@ -26,7 +35,7 @@
   {
    "id": "VCVykUCtr_4",
    "kind": "video",
-   "title": "Secret of Mana, Super Mario Kart, and more on a real SNES and CRT (Part 2)",
+   "title": "Secret of Mana, Super Mario Kart, and Final Fantasy on a real SNES and CRT (Part 2)",
    "url": "https://www.youtube.com/watch?v=VCVykUCtr_4",
    "thumb": "https://i.ytimg.com/vi/VCVykUCtr_4/maxresdefault.jpg",
    "thumb_alt": "https://i.ytimg.com/vi/VCVykUCtr_4/hqdefault.jpg",
@@ -51,13 +60,31 @@
    "published": "2026-11-22T05:24:45Z"
   },
   {
-   "id": "KCXawcfvSmQ",
-   "kind": "video",
-   "title": "Indiana Jones, Jaws, and more on a real NES and CRT (Part 3)",
-   "url": "https://www.youtube.com/watch?v=KCXawcfvSmQ",
-   "thumb": "https://i.ytimg.com/vi/KCXawcfvSmQ/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/KCXawcfvSmQ/hqdefault.jpg",
-   "published": "2026-11-22T05:22:11Z"
+   "id": "I5Zk3fGdLV4",
+   "kind": "short",
+   "title": "California Speed, 1999, title screen and no patch",
+   "url": "https://www.youtube.com/shorts/I5Zk3fGdLV4",
+   "thumb": "https://i.ytimg.com/vi/I5Zk3fGdLV4/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/I5Zk3fGdLV4/hqdefault.jpg",
+   "published": "2026-11-24T22:00:26Z"
+  },
+  {
+   "id": "9q-bo3JpHvY",
+   "kind": "short",
+   "title": "Unboxing my red Maximum Carnage SNES box",
+   "url": "https://www.youtube.com/shorts/9q-bo3JpHvY",
+   "thumb": "https://i.ytimg.com/vi/9q-bo3JpHvY/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/9q-bo3JpHvY/hqdefault.jpg",
+   "published": "2026-11-24T19:00:23Z"
+  },
+  {
+   "id": "JbKW8Rt8ZL0",
+   "kind": "short",
+   "title": "GoldenEye 007 on a real N64 and CRT",
+   "url": "https://www.youtube.com/shorts/JbKW8Rt8ZL0",
+   "thumb": "https://i.ytimg.com/vi/JbKW8Rt8ZL0/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/JbKW8Rt8ZL0/hqdefault.jpg",
+   "published": "2026-11-24T18:19:23Z"
   },
   {
    "id": "re7M0thGNkE",
@@ -71,7 +98,7 @@
   {
    "id": "1LtHgXGyMLM",
    "kind": "short",
-   "title": "Quake II on a real N64 and CRT",
+   "title": "No day-one update. Just the 1999 Quake II N64 cart",
    "url": "https://www.youtube.com/shorts/1LtHgXGyMLM",
    "thumb": "https://i.ytimg.com/vi/1LtHgXGyMLM/maxresdefault.jpg",
    "thumb_alt": "https://i.ytimg.com/vi/1LtHgXGyMLM/hqdefault.jpg",
@@ -85,83 +112,56 @@
    "thumb": "https://i.ytimg.com/vi/AzzSADnSUFI/maxresdefault.jpg",
    "thumb_alt": "https://i.ytimg.com/vi/AzzSADnSUFI/hqdefault.jpg",
    "published": "2026-11-23T19:00:22Z"
-  },
-  {
-   "id": "xp1_zOxx4PY",
-   "kind": "short",
-   "title": "Army Men: Sarge's Heroes title screen on a real N64 and CRT",
-   "url": "https://www.youtube.com/shorts/xp1_zOxx4PY",
-   "thumb": "https://i.ytimg.com/vi/xp1_zOxx4PY/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/xp1_zOxx4PY/hqdefault.jpg",
-   "published": "2026-11-23T16:00:09Z"
-  },
-  {
-   "id": "AXPcnERVu5U",
-   "kind": "short",
-   "title": "Donkey Kong 64 on a real N64 and CRT",
-   "url": "https://www.youtube.com/shorts/AXPcnERVu5U",
-   "thumb": "https://i.ytimg.com/vi/AXPcnERVu5U/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/AXPcnERVu5U/hqdefault.jpg",
-   "published": "2026-11-23T05:33:56Z"
-  },
-  {
-   "id": "_BDXO_kAAZU",
-   "kind": "short",
-   "title": "The 1080° Snowboarding intro on a real N64 and CRT",
-   "url": "https://www.youtube.com/shorts/_BDXO_kAAZU",
-   "thumb": "https://i.ytimg.com/vi/_BDXO_kAAZU/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/_BDXO_kAAZU/hqdefault.jpg",
-   "published": "2026-11-22T22:00:05Z"
   }
  ],
  "tiktok": [
   {
+   "id": "7711779200889376014",
+   "title": "Danny DeVito played both the Penguin and Frank Reynolds, and this Penguin just quoted Frank. Did you catch it?",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711779200889376014",
+   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oMmBEftF9wEKBZLIBc5iAnApvBgiI6Ht1g7cvI~tplv-tiktokx-origin.image?dr=9636&x-expires=1795730400&x-signature=EjeJL%2BuccPYDeK8OFs0VyoCEy1Q%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795730400,
+   "published": "2026-11-24T16:41:55Z"
+  },
+  {
+   "id": "7711610482079124749",
+   "title": "The Majora's Mask intro on a real N64 and CRT. Did this one get you too?",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711610482079124749",
+   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/ociaIp1fpQBIQkBKqJg11BiJJpvBB4wBAsybFA~tplv-tiktokx-origin.image?dr=9636&x-expires=1795730400&x-signature=ubxcALfELNxR7S0jdk%2BYLtBpbe8%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795730400,
+   "published": "2026-11-24T05:47:12Z"
+  },
+  {
+   "id": "7711563412588727583",
+   "title": "R.C. Pro-Am on my NES and a CRT. How many laps did you last?",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711563412588727583",
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/okQ5JrlCaBP3XgV2qyQAAFEDneDzuBDddfUZiS~tplv-tiktokx-origin.image?dr=9636&x-expires=1795730400&x-signature=3vaZyJxK3QzizDXNLJOKocczVTg%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795730400,
+   "published": "2026-11-24T02:44:32Z"
+  },
+  {
    "id": "7711452548401515790",
    "title": "Mission failed in Sarge's Heroes. How many times did this happen to you?",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711452548401515790",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oMRM4MUiaPKlbBNXRlrWgAI6E8wBIgROAliwP~tplv-tiktokx-origin.image?dr=9636&x-expires=1795658400&x-signature=F%2B%2BJDnRlKmWgVqlJcBm5M8fUJ5w%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795658400,
+   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oMRM4MUiaPKlbBNXRlrWgAI6E8wBIgROAliwP~tplv-tiktokx-origin.image?dr=9636&x-expires=1795730400&x-signature=9AiPITTzEvtIpLN12K3xvKehTFo%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795730400,
    "published": "2026-11-23T19:34:20Z"
   },
   {
    "id": "7711384051239685390",
    "title": "Picking a rider in the 1080° lodge. Who was your go-to rider?",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711384051239685390",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/o4DEhSMXIB1BfIEAyfVVCI3D5b5jFg5OBXARFr~tplv-tiktokx-origin.image?dr=9636&x-expires=1795658400&x-signature=JpmYSCJ6t9EZYAJ6IgNqBsNob%2B0%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795658400,
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/o4DEhSMXIB1BfIEAyfVVCI3D5b5jFg5OBXARFr~tplv-tiktokx-origin.image?dr=9636&x-expires=1795730400&x-signature=7BF4IbUKpEeg9eCrY4q1pBlpRJA%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795730400,
    "published": "2026-11-23T15:08:32Z"
   },
   {
    "id": "7711383556139879693",
    "title": "Mission 1, the Dam. Did you ever beat GoldenEye on 00 Agent?",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711383556139879693",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oIEtbXSErIXArkRf88IB6lDW35fFEHeKCAAxVC~tplv-tiktokx-origin.image?dr=9636&x-expires=1795658400&x-signature=r%2FSx7qO%2BQ%2FsxHcktZDAivEj7c%2Bw%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795658400,
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oIEtbXSErIXArkRf88IB6lDW35fFEHeKCAAxVC~tplv-tiktokx-origin.image?dr=9636&x-expires=1795730400&x-signature=Jq9L1mJbwOz4fryy3opBzwG%2BoaQ%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795730400,
    "published": "2026-11-23T15:06:36Z"
-  },
-  {
-   "id": "7710710646815444237",
-   "title": "Tetris on the Game Boy, still the best pack-in ever. A-Type or B-Type?",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7710710646815444237",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oEC5A5zA9FIhqEfDQWEDjTfAQGXeAJNPHkDkgr~tplv-tiktokx-origin.image?dr=9636&x-expires=1795658400&x-signature=FiWUmGO5%2F0%2BUaV4BXG2MIdFT8Zw%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795658400,
-   "published": "2026-11-21T19:35:22Z"
-  },
-  {
-   "id": "7710710250021653791",
-   "title": "Super Mario Kart on my SNES and a CRT. Who was your go-to racer?",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7710710250021653791",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/o8ggBfzMDHcWFgREFBE8fjIkACkIKkKAeKrXIA~tplv-tiktokx-origin.image?dr=9636&x-expires=1795658400&x-signature=%2FchB%2FnDKqLs8nc5Aszt0KMI9FRU%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795658400,
-   "published": "2026-11-21T19:33:50Z"
-  },
-  {
-   "id": "7710709913575607565",
-   "title": "The DK Rap on real N64 hardware. Can you still rap along to the whole thing?",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7710709913575607565",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oE8AKA4fANaJ8oIsWxeFOdRreIQCQCLDTQJBeG~tplv-tiktokx-origin.image?dr=9636&x-expires=1795658400&x-signature=jyTNwRKVvISnyM4Hyqb7wkF%2Frzg%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795658400,
-   "published": "2026-11-21T19:32:32Z"
   }
  ]
 }
