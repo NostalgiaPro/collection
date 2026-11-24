@@ -11948,6 +11948,42 @@
       "co_op": "",
       "region": "United States of America",
       "region_abbr": "USA"
+    },
+    "clive-barker-s-hellraiser-revival-xbox-series-x-s": {
+      "title": "Clive Barker's Hellraiser: Revival",
+      "system": "Xbox Series X/S",
+      "nkey": "clive barker s hellraiser revival",
+      "publisher": "Saber Interactive",
+      "developer": "Saber Interactive",
+      "players": "",
+      "players_possibly_online": false,
+      "co_op": "",
+      "region": "United States of America",
+      "region_abbr": "USA"
+    },
+    "resident-evil-requiem-xbox-series-x-s": {
+      "title": "Resident Evil Requiem",
+      "system": "Xbox Series X/S",
+      "nkey": "resident evil requiem",
+      "publisher": "Capcom",
+      "developer": "Capcom",
+      "players": "",
+      "players_possibly_online": false,
+      "co_op": "",
+      "region": "United States of America",
+      "region_abbr": "USA"
+    },
+    "control-resonant-xbox-series-x-s": {
+      "title": "Control Resonant",
+      "system": "Xbox Series X/S",
+      "nkey": "control resonant",
+      "publisher": "Remedy Entertainment",
+      "developer": "Remedy Entertainment",
+      "players": "",
+      "players_possibly_online": false,
+      "co_op": "",
+      "region": "United States of America",
+      "region_abbr": "USA"
     }
   }
 }
