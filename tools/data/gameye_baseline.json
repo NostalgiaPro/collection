@@ -6801,6 +6801,14 @@
       "site_title": "LEGO Batman: Legacy of the Dark Knight",
       "ge_title": "LEGO Batman: Legacy of the Dark Knight",
       "ge_platform_id": 106
+    },
+    {
+      "uuid": "01a206ae-a917-7061-b2b2-bff4f8ea9df7",
+      "item_id": 166760,
+      "site_system": "Nintendo Switch 2",
+      "site_title": "Donkey Kong Bananza",
+      "ge_title": "Donkey Kong Bananza",
+      "ge_platform_id": 178
     }
   ],
   "uuids": [
@@ -7653,7 +7661,8 @@
     "01a1767a-af8e-7004-913f-1790fc2356cd",
     "01a19a7b-5b4c-75af-86c0-7e0e04e7fdb6",
     "01a1ae91-db8c-77e4-ade2-6074002beccb",
-    "01a2004d-b7fd-72d1-b9a2-27721c2a2234"
+    "01a2004d-b7fd-72d1-b9a2-27721c2a2234",
+    "01a206ae-a917-7061-b2b2-bff4f8ea9df7"
   ],
   "item_ids": [
     37,
@@ -8495,6 +8504,7 @@
     158659,
     160839,
     165230,
+    166760,
     167412,
     168729,
     170523,
@@ -8546,5 +8556,5 @@
       "kind": "variant"
     }
   ],
-  "updated_at": "2026-11-23T23:16:52Z"
+  "updated_at": "2026-11-24T21:51:43Z"
 }
