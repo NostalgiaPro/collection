@@ -1,10 +1,19 @@
 {
- "updated": "2026-11-23T04:00:56Z",
+ "updated": "2026-11-24T00:17:40Z",
  "channels": {
   "youtube": "https://www.youtube.com/@TheNostalgiaPro",
   "tiktok": "https://www.tiktok.com/@rc.the.nostalgia.pro"
  },
  "youtube": [
+  {
+   "id": "vjw-iVsowVM",
+   "kind": "video",
+   "title": "Watch me struggle at Cliffhanger on a real SNES and CRT",
+   "url": "https://www.youtube.com/watch?v=vjw-iVsowVM",
+   "thumb": "https://i.ytimg.com/vi/vjw-iVsowVM/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/vjw-iVsowVM/hqdefault.jpg",
+   "published": "2026-11-23T20:00:26Z"
+  },
   {
    "id": "f7tmq-iNQOE",
    "kind": "video",
@@ -51,22 +60,40 @@
    "published": "2026-11-22T05:22:11Z"
   },
   {
-   "id": "fN9ABI9UkUY",
-   "kind": "video",
-   "title": "Mega Man 2, Kirby, and more on a real NES and CRT (Part 2)",
-   "url": "https://www.youtube.com/watch?v=fN9ABI9UkUY",
-   "thumb": "https://i.ytimg.com/vi/fN9ABI9UkUY/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/fN9ABI9UkUY/hqdefault.jpg",
-   "published": "2026-11-22T05:20:20Z"
+   "id": "1LtHgXGyMLM",
+   "kind": "short",
+   "title": "Quake II on a real N64 and CRT",
+   "url": "https://www.youtube.com/shorts/1LtHgXGyMLM",
+   "thumb": "https://i.ytimg.com/vi/1LtHgXGyMLM/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/1LtHgXGyMLM/hqdefault.jpg",
+   "published": "2026-11-23T22:00:12Z"
   },
   {
-   "id": "GDAdL-ULejc",
+   "id": "AzzSADnSUFI",
+   "kind": "short",
+   "title": "Mario is Missing complete in box on a real SNES",
+   "url": "https://www.youtube.com/shorts/AzzSADnSUFI",
+   "thumb": "https://i.ytimg.com/vi/AzzSADnSUFI/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/AzzSADnSUFI/hqdefault.jpg",
+   "published": "2026-11-23T19:00:22Z"
+  },
+  {
+   "id": "xp1_zOxx4PY",
+   "kind": "short",
+   "title": "Army Men: Sarge's Heroes title screen on a real N64 and CRT",
+   "url": "https://www.youtube.com/shorts/xp1_zOxx4PY",
+   "thumb": "https://i.ytimg.com/vi/xp1_zOxx4PY/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/xp1_zOxx4PY/hqdefault.jpg",
+   "published": "2026-11-23T16:00:09Z"
+  },
+  {
+   "id": "AXPcnERVu5U",
    "kind": "short",
    "title": "Donkey Kong 64 on a real N64 and CRT",
-   "url": "https://www.youtube.com/shorts/GDAdL-ULejc",
-   "thumb": "https://i.ytimg.com/vi/GDAdL-ULejc/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/GDAdL-ULejc/hqdefault.jpg",
-   "published": "2026-11-23T01:00:03Z"
+   "url": "https://www.youtube.com/shorts/AXPcnERVu5U",
+   "thumb": "https://i.ytimg.com/vi/AXPcnERVu5U/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/AXPcnERVu5U/hqdefault.jpg",
+   "published": "2026-11-23T05:33:56Z"
   },
   {
    "id": "_BDXO_kAAZU",
@@ -85,74 +112,56 @@
    "thumb": "https://i.ytimg.com/vi/NyrzggvWL6g/maxresdefault.jpg",
    "thumb_alt": "https://i.ytimg.com/vi/NyrzggvWL6g/hqdefault.jpg",
    "published": "2026-11-22T19:00:04Z"
-  },
-  {
-   "id": "HPiFVZWNSeo",
-   "kind": "short",
-   "title": "Booting up 1080° on a real N64 and CRT",
-   "url": "https://www.youtube.com/shorts/HPiFVZWNSeo",
-   "thumb": "https://i.ytimg.com/vi/HPiFVZWNSeo/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/HPiFVZWNSeo/hqdefault.jpg",
-   "published": "2026-11-22T16:00:20Z"
-  },
-  {
-   "id": "ULbcFEQZxIE",
-   "kind": "short",
-   "title": "Killer Instinct Gold on a real N64 and CRT",
-   "url": "https://www.youtube.com/shorts/ULbcFEQZxIE",
-   "thumb": "https://i.ytimg.com/vi/ULbcFEQZxIE/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/ULbcFEQZxIE/hqdefault.jpg",
-   "published": "2026-11-22T01:00:02Z"
   }
  ],
  "tiktok": [
   {
+   "id": "7711452548401515790",
+   "title": "Mission failed in Sarge's Heroes. How many times did this happen to you?",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711452548401515790",
+   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oMRM4MUiaPKlbBNXRlrWgAI6E8wBIgROAliwP~tplv-tiktokx-origin.image?dr=9636&x-expires=1795651200&x-signature=kiYJurRGs8VBz4VD7Xu%2BkBw5U%2FE%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+   "thumb_expires": 1795651200,
+   "published": "2026-11-23T19:34:20Z"
+  },
+  {
+   "id": "7711384051239685390",
+   "title": "Picking a rider in the 1080° lodge. Who was your go-to rider?",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711384051239685390",
+   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/o4DEhSMXIB1BfIEAyfVVCI3D5b5jFg5OBXARFr~tplv-tiktokx-origin.image?dr=9636&x-expires=1795651200&x-signature=MuaeH7uk9jNoTFCEe7AgabtJXgU%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+   "thumb_expires": 1795651200,
+   "published": "2026-11-23T15:08:32Z"
+  },
+  {
+   "id": "7711383556139879693",
+   "title": "Mission 1, the Dam. Did you ever beat GoldenEye on 00 Agent?",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711383556139879693",
+   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oIEtbXSErIXArkRf88IB6lDW35fFEHeKCAAxVC~tplv-tiktokx-origin.image?dr=9636&x-expires=1795651200&x-signature=H%2FoXCxfiBe7cujzZsl4IrleGfj4%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+   "thumb_expires": 1795651200,
+   "published": "2026-11-23T15:06:36Z"
+  },
+  {
+   "id": "7710710250021653791",
+   "title": "Super Mario Kart on my SNES and a CRT. Who was your go-to racer?",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7710710250021653791",
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/o8ggBfzMDHcWFgREFBE8fjIkACkIKkKAeKrXIA~tplv-tiktokx-origin.image?dr=9636&x-expires=1795651200&x-signature=VlTj95eQI8u0cz8OTwlfA%2BlDYgA%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+   "thumb_expires": 1795651200,
+   "published": "2026-11-21T19:33:50Z"
+  },
+  {
    "id": "7710709913575607565",
    "title": "The DK Rap on real N64 hardware. Can you still rap along to the whole thing?",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7710709913575607565",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oE8AKA4fANaJ8oIsWxeFOdRreIQCQCLDTQJBeG~tplv-tiktokx-origin.image?dr=9636&x-expires=1795579200&x-signature=Hulp8rF%2FUUpYXsJMT0DP%2BrqkaIk%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
-   "thumb_expires": 1795579200,
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oE8AKA4fANaJ8oIsWxeFOdRreIQCQCLDTQJBeG~tplv-tiktokx-origin.image?dr=9636&x-expires=1795651200&x-signature=NgDvfOcwQsaPXovdS6fygO4%2BHGc%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+   "thumb_expires": 1795651200,
    "published": "2026-11-21T19:32:32Z"
   },
   {
    "id": "7710709387404250381",
    "title": "That Mario face on a CRT, straight from the cart. Did you ever stop pulling on his face and actually play?",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7710709387404250381",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oI4DFC2efE2HFkEBIBlWEfspk8AIWIAT1HkrA0~tplv-tiktokx-origin.image?dr=9636&x-expires=1795579200&x-signature=2K1Cc%2BLoRUOxpJOG01bPm%2BoQ8uw%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
-   "thumb_expires": 1795579200,
+   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oI4DFC2efE2HFkEBIBlWEfspk8AIWIAT1HkrA0~tplv-tiktokx-origin.image?dr=9636&x-expires=1795651200&x-signature=PeHDfeUkpWcp4TMmycR7lj3HsyI%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+   "thumb_expires": 1795651200,
    "published": "2026-11-21T19:30:29Z"
-  },
-  {
-   "id": "7710514840468557069",
-   "title": "Slid in my loose Majora's Mask cart on a CRT. The Lost Woods intro still gets me. From my collection.",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7710514840468557069",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oMYDI4gamiNiQ5BUKFaIv5KAAwlBAiyI7wgBA~tplv-tiktokx-origin.image?dr=9636&x-expires=1795579200&x-signature=lqNFRAcb9ez%2Bug4G8w1m%2FyzxrxY%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
-   "thumb_expires": 1795579200,
-   "published": "2026-11-21T06:55:33Z"
-  },
-  {
-   "id": "7710514624273157389",
-   "title": "Pulled Mike Tyson's Punch-Out!! for a run on the NES. Nintendo put this one out in 1987.",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7710514624273157389",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/ocFCRfUBTg8VB09IAzxiAeBSQDAiII5QrmAooo~tplv-tiktokx-origin.image?dr=9636&x-expires=1795579200&x-signature=IZgTR%2BfBT6uM%2FXjpzMsG6q23Lz4%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
-   "thumb_expires": 1795579200,
-   "published": "2026-11-21T06:54:42Z"
-  },
-  {
-   "id": "7710514106389892383",
-   "title": "Glass shatters and Stone Cold walks out on my loose WWF WrestleMania 2000 cart. From my collection.",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7710514106389892383",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oM7eBIRERMAef24eXPWpOWsIAJ4AFFOBAZ8iJQ~tplv-tiktokx-origin.image?dr=9636&x-expires=1795579200&x-signature=ScLYpecQ6wEbxm66dc2%2FAd2OHME%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
-   "thumb_expires": 1795579200,
-   "published": "2026-11-21T06:52:42Z"
-  },
-  {
-   "id": "7710513575399345422",
-   "title": "Threw on The Grinch for the Game Boy Color. Came out in 2000.",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7710513575399345422",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oE6E1UFAvIDCfqBA5FbAf3EdWBIsrNeHkP3nPC~tplv-tiktokx-origin.image?dr=9636&x-expires=1795579200&x-signature=NvdvTZJnGDZHLeufXNvEUK65AtY%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
-   "thumb_expires": 1795579200,
-   "published": "2026-11-21T06:50:38Z"
   }
  ]
 }
