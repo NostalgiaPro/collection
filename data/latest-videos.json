@@ -1,10 +1,19 @@
 {
- "updated": "2026-11-25T09:54:53Z",
+ "updated": "2026-11-25T21:57:05Z",
  "channels": {
   "youtube": "https://www.youtube.com/@TheNostalgiaPro",
   "tiktok": "https://www.tiktok.com/@rc.the.nostalgia.pro"
  },
  "youtube": [
+  {
+   "id": "RV3VnyPIzEI",
+   "kind": "video",
+   "title": "Lethal Weapon on a real SNES and CRT",
+   "url": "https://www.youtube.com/watch?v=RV3VnyPIzEI",
+   "thumb": "https://i.ytimg.com/vi/RV3VnyPIzEI/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/RV3VnyPIzEI/hqdefault.jpg",
+   "published": "2026-11-25T20:00:05Z"
+  },
   {
    "id": "o9G7QLy0AFE",
    "kind": "video",
@@ -51,13 +60,22 @@
    "published": "2026-11-22T05:26:50Z"
   },
   {
-   "id": "XS3kNIIfGmw",
-   "kind": "video",
-   "title": "Unboxing Animaniacs, College Slam, and more complete in box on a real SNES and CRT",
-   "url": "https://www.youtube.com/watch?v=XS3kNIIfGmw",
-   "thumb": "https://i.ytimg.com/vi/XS3kNIIfGmw/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/XS3kNIIfGmw/hqdefault.jpg",
-   "published": "2026-11-22T05:24:45Z"
+   "id": "Al_llB_RcmE",
+   "kind": "short",
+   "title": "The Jungle Book, 1994, my boxed SNES copy going in",
+   "url": "https://www.youtube.com/shorts/Al_llB_RcmE",
+   "thumb": "https://i.ytimg.com/vi/Al_llB_RcmE/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/Al_llB_RcmE/hqdefault.jpg",
+   "published": "2026-11-25T19:00:34Z"
+  },
+  {
+   "id": "okMxHAsuw_M",
+   "kind": "short",
+   "title": "Diddy Kong Racing, 1997, booting up Rare's N64 kart racer",
+   "url": "https://www.youtube.com/shorts/okMxHAsuw_M",
+   "thumb": "https://i.ytimg.com/vi/okMxHAsuw_M/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/okMxHAsuw_M/hqdefault.jpg",
+   "published": "2026-11-25T16:00:08Z"
   },
   {
    "id": "unC6yDBDjP8",
@@ -94,74 +112,56 @@
    "thumb": "https://i.ytimg.com/vi/9q-bo3JpHvY/maxresdefault.jpg",
    "thumb_alt": "https://i.ytimg.com/vi/9q-bo3JpHvY/hqdefault.jpg",
    "published": "2026-11-24T19:00:23Z"
-  },
-  {
-   "id": "JbKW8Rt8ZL0",
-   "kind": "short",
-   "title": "GoldenEye 007 on a real N64 and CRT",
-   "url": "https://www.youtube.com/shorts/JbKW8Rt8ZL0",
-   "thumb": "https://i.ytimg.com/vi/JbKW8Rt8ZL0/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/JbKW8Rt8ZL0/hqdefault.jpg",
-   "published": "2026-11-24T18:19:23Z"
-  },
-  {
-   "id": "re7M0thGNkE",
-   "kind": "short",
-   "title": "An X-wing flyby on a real N64 and CRT",
-   "url": "https://www.youtube.com/shorts/re7M0thGNkE",
-   "thumb": "https://i.ytimg.com/vi/re7M0thGNkE/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/re7M0thGNkE/hqdefault.jpg",
-   "published": "2026-11-24T02:22:12Z"
   }
  ],
  "tiktok": [
   {
+   "id": "7711858265885396255",
+   "title": "The Legend of Zelda on my NES and a CRT. How old were you the first time you played it?",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711858265885396255",
+   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oUIB1gBzbIMwBAJLHlMBPnNAikplG9xIUwfiKB~tplv-tiktokx-origin.image?dr=9636&x-expires=1795813200&x-signature=2bQ5H9K%2BVEPm%2FAbkBkocWViCf%2Bw%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795813200,
+   "published": "2026-11-24T21:48:43Z"
+  },
+  {
+   "id": "7711857791085972749",
+   "title": "Mad Max on my NES and a CRT. The wasteland still looks rough.",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711857791085972749",
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oAADMLeHtDmeGCThrewCAvEGAkInH4LQdW7DQM~tplv-tiktokx-origin.image?dr=9636&x-expires=1795813200&x-signature=3Vy%2FZKOFJG%2FyqEKylrg3KWAAYD0%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795813200,
+   "published": "2026-11-24T21:46:53Z"
+  },
+  {
    "id": "7711857239077686542",
    "title": "\"I am not a human being, I'm an animal!\" Penguin pulling a line straight out of Batman Returns. Who's your favorite Penguin?",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711857239077686542",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/ocXGKw9x1IpBB4B5BAgi8kKiIaBBddAuVwfWWb~tplv-tiktokx-origin.image?dr=9636&x-expires=1795770000&x-signature=hdsTHRdIoIKn387cDDS9zrSybvI%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795770000,
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/ocXGKw9x1IpBB4B5BAgi8kKiIaBBddAuVwfWWb~tplv-tiktokx-origin.image?dr=9636&x-expires=1795813200&x-signature=3BhpgC2bDeXFAqtLLWeBpinExWw%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795813200,
    "published": "2026-11-24T21:44:44Z"
   },
   {
    "id": "7711854901302725902",
    "title": "Glass shatters and Stone Cold walks out on my WrestleMania 2000 cart. From my collection.",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711854901302725902",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/o0E1gBByIBAiJU21fBAwIyni5wG0QrpF0RTKpA~tplv-tiktokx-origin.image?dr=9636&x-expires=1795770000&x-signature=6eT4vZX8HG7pVSrRjasl0Qcr74A%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795770000,
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/o0E1gBByIBAiJU21fBAwIyni5wG0QrpF0RTKpA~tplv-tiktokx-origin.image?dr=9636&x-expires=1795813200&x-signature=WvqRt34OGNhrvxZhrrBS52N2%2FUw%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795813200,
    "published": "2026-11-24T21:35:40Z"
   },
   {
    "id": "7711779200889376014",
    "title": "Danny DeVito played both the Penguin and Frank Reynolds, and this Penguin just quoted Frank. Did you catch it?",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711779200889376014",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oMmBEftF9wEKBZLIBc5iAnApvBgiI6Ht1g7cvI~tplv-tiktokx-origin.image?dr=9636&x-expires=1795770000&x-signature=WlRsPY4UtqA74RSgNhqVZSvIE1c%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795770000,
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oMmBEftF9wEKBZLIBc5iAnApvBgiI6Ht1g7cvI~tplv-tiktokx-origin.image?dr=9636&x-expires=1795813200&x-signature=6s4DVtySYNzXdCUaIRBlKRPO4dY%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795813200,
    "published": "2026-11-24T16:41:55Z"
   },
   {
    "id": "7711610482079124749",
    "title": "The Majora's Mask intro on a real N64 and CRT. Did this one get you too?",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711610482079124749",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/ociaIp1fpQBIQkBKqJg11BiJJpvBB4wBAsybFA~tplv-tiktokx-origin.image?dr=9636&x-expires=1795770000&x-signature=DttWoqUoMuaMm2q%2FUVb0TK962ao%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795770000,
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/ociaIp1fpQBIQkBKqJg11BiJJpvBB4wBAsybFA~tplv-tiktokx-origin.image?dr=9636&x-expires=1795813200&x-signature=LLjI6AZBEXJ2UlJUHFVwen35Knw%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795813200,
    "published": "2026-11-24T05:47:12Z"
-  },
-  {
-   "id": "7711563412588727583",
-   "title": "R.C. Pro-Am on my NES and a CRT. How many laps did you last?",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711563412588727583",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/okQ5JrlCaBP3XgV2qyQAAFEDneDzuBDddfUZiS~tplv-tiktokx-origin.image?dr=9636&x-expires=1795770000&x-signature=rhY2PDmjttf%2BHLh4x3fVFKv%2FvPw%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795770000,
-   "published": "2026-11-24T02:44:32Z"
-  },
-  {
-   "id": "7711452548401515790",
-   "title": "Mission failed in Sarge's Heroes. How many times did this happen to you?",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711452548401515790",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oMRM4MUiaPKlbBNXRlrWgAI6E8wBIgROAliwP~tplv-tiktokx-origin.image?dr=9636&x-expires=1795770000&x-signature=DYwATD7%2BOYCOG8xDadseAOTb2bc%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795770000,
-   "published": "2026-11-23T19:34:20Z"
   }
  ]
 }
