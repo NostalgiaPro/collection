@@ -152,7 +152,7 @@
       "gameye_release_date": "1999-11-16"
     },
     "1080-snowboarding-nintendo-64": {
-      "title": "1080° Snowboarding",
+      "title": "1080\u00b0 Snowboarding",
       "system": "Nintendo 64",
       "nkey": "1080 snowboarding",
       "item_id": 222,
@@ -7474,7 +7474,7 @@
       "gameye_release_date": "1988-12-01"
     },
     "pokemon-colosseum-not-for-resale-gamecube": {
-      "title": "Pokémon Colosseum [Not for Resale]",
+      "title": "Pok\u00e9mon Colosseum [Not for Resale]",
       "system": "GameCube",
       "nkey": "pok mon colosseum",
       "item_id": 165230,
@@ -7549,7 +7549,7 @@
       "nkey": "primal rage",
       "item_id": 5420,
       "publisher": "Time Warner Interactive, Inc.",
-      "developer": "Bitmasters,Â Inc.",
+      "developer": "Bitmasters,\u00c2 Inc.",
       "players": 2,
       "players_possibly_online": false,
       "co_op": false,
@@ -11979,6 +11979,30 @@
       "nkey": "control resonant",
       "publisher": "Remedy Entertainment",
       "developer": "Remedy Entertainment",
+      "players": "",
+      "players_possibly_online": false,
+      "co_op": "",
+      "region": "United States of America",
+      "region_abbr": "USA"
+    },
+    "kirby-air-riders-nintendo-switch-2": {
+      "title": "Kirby Air Riders",
+      "system": "Nintendo Switch 2",
+      "nkey": "kirby air riders",
+      "publisher": "Nintendo",
+      "developer": "Bandai Namco Studios, Sora Ltd.",
+      "players": "",
+      "players_possibly_online": false,
+      "co_op": "",
+      "region": "United States of America",
+      "region_abbr": "USA"
+    },
+    "super-mario-galaxy-super-mario-galaxy-2-nintendo-switch": {
+      "title": "Super Mario Galaxy + Super Mario Galaxy 2",
+      "system": "Nintendo Switch",
+      "nkey": "super mario galaxy super mario galaxy 2",
+      "publisher": "Nintendo",
+      "developer": "Nintendo",
       "players": "",
       "players_possibly_online": false,
       "co_op": "",

@@ -1,6 +1,22 @@
 {
   "items": [
     {
+      "type": "site",
+      "title": "Kirby Air Riders",
+      "text": "New on the Nintendo Switch 2 shelf.",
+      "url": "/game/kirby-air-riders-nintendo-switch-2.html",
+      "image": "/images/kirby-air-riders-nintendo-switch-2.webp",
+      "date": "2026-11-24"
+    },
+    {
+      "type": "site",
+      "title": "Super Mario Galaxy + Super Mario Galaxy 2",
+      "text": "New on the Nintendo Switch shelf.",
+      "url": "/game/super-mario-galaxy-super-mario-galaxy-2-nintendo-switch.html",
+      "image": "/images/super-mario-galaxy-super-mario-galaxy-2-nintendo-switch.webp",
+      "date": "2026-11-24"
+    },
+    {
       "type": "x",
       "title": "4 new games acquired",
       "text": "4 new games have been acquired. Donkey Kong Bananza, Hellraiser Revival, Resident Evil Requiem, Control Resonant. I'm going to try and get these games finished before the end of the year and then give a proper best games of 2026 review.",
@@ -75,7 +91,7 @@
     {
       "type": "x",
       "title": "Xbox 360 turns 21",
-      "text": "Happy anniversary to the Xbox 360!🎉  It launched 21 years ago today in North America. Here's 10 games you should play on it that aren't Halo, Call of Duty, or Battlefield.  🔟🧵⤵️",
+      "text": "Happy anniversary to the Xbox 360!\ud83c\udf89  It launched 21 years ago today in North America. Here's 10 games you should play on it that aren't Halo, Call of Duty, or Battlefield.  \ud83d\udd1f\ud83e\uddf5\u2935\ufe0f",
       "url": "https://x.com/NostalgiaPro/status/2124637265691574550",
       "image": "",
       "date": "2026-11-22"
@@ -218,8 +234,8 @@
     },
     {
       "type": "substack",
-      "title": "8 “ONLY ON XBOX” Games Worth Playing Today",
-      "text": "Microsoft’s first console came out 25 years ago today.",
+      "title": "8 \u201cONLY ON XBOX\u201d Games Worth Playing Today",
+      "text": "Microsoft\u2019s first console came out 25 years ago today.",
       "url": "https://nostalgiapro.substack.com/p/8-only-on-xbox-games-worth-playing",
       "image": "",
       "date": "2026-11-15"
