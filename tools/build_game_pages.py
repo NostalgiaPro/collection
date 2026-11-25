@@ -363,6 +363,9 @@ def main():
     # the "From my shelf" box on onthisday.html follows the same shelf
     import build_otd_shelf
     build_otd_shelf.main()
+    # and so does the game list on anniversaries.html
+    import build_anniversaries
+    build_anniversaries.main()
 
 
 if __name__ == "__main__":

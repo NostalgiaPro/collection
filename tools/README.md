@@ -74,6 +74,23 @@ and `[edition]` tags) or one of the short names in `ALIASES`. Posts about
 movies, music or TV and tier-list replies are skipped. If a post that
 should show up doesn't, add its short name to `ALIASES`.
 
+## `build_anniversaries.py`: the games on anniversaries.html
+
+```
+python3 tools/build_anniversaries.py
+```
+
+Rewrites the games part of `EVENTS` in `anniversaries.html` from the shelf:
+one row per game per system (a Limited Edition or second copy shares the
+plain copy's row), using the shelf title so the photo filename matches, and
+the date from `RELEASED` (or a verified fill in
+`tools/data/released_fills.json`). Year-only dates are left out. The
+hardware rows at the top of `EVENTS` are hand-kept and left alone (North
+American launches; Famicom and Game & Watch are Japanese).
+`build_game_pages.py` runs it at the end, so the page only ever lists what's
+on the shelf. Release dates are North American; fix a wrong one in
+`RELEASED` in `index.html` and re-run `build_game_pages.py`.
+
 ## `build_reviews.py`: Honest and Unpopular Reviews
 
 ```
