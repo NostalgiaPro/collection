@@ -445,7 +445,7 @@ const EVENTS = [
   [11,18,1999,"WWF WrestleMania 2000","Nintendo 64",""],
   [11,22,1999,"Donkey Kong 64","Nintendo 64",""],
   [11,23,1999,"Turok: Rage Wars","Nintendo 64",""],
-  [12,1,1999,"NBA Jam 2000","Nintendo 64",""],
+  [11,30,1999,"NBA Jam 2000","Nintendo 64",""],
   [5,22,2000,"Perfect Dark","Nintendo 64",""],
   [9,7,2000,"Madden NFL 2001","Nintendo 64",""],
   [9,27,2000,"Army Men: Sarge's Heroes 2","Nintendo 64",""],
@@ -485,7 +485,7 @@ const EVENTS = [
   [3,9,2004,"Metal Gear Solid: The Twin Snakes","GameCube",""],
   [6,29,2004,"Spider-Man 2","GameCube",""],
   [7,15,2004,"NCAA Football 2005","GameCube",""],
-  [9,14,2004,"Bad Boys: Miami Takedown","GameCube",""],
+  [9,21,2004,"Bad Boys: Miami Takedown","GameCube",""],
   [9,21,2004,"Mega Man X: Command Mission","GameCube",""],
   [10,11,2004,"Paper Mario: The Thousand-Year Door [Player's Choice]","GameCube",""],
   [10,19,2004,"Teenage Mutant Ninja Turtles 2: Battle Nexus","GameCube",""],
@@ -699,7 +699,7 @@ const EVENTS = [
   [3,25,2008,"Backyard Baseball '09","PlayStation 2",""],
   [3,3,2009,"Major League Baseball 2K9","PlayStation 2",""],
   [11,20,2007,"Time Crisis 4","PlayStation 3",""],
-  [12,11,2007,"Unreal Tournament III","PlayStation 3",""],
+  [12,10,2007,"Unreal Tournament III","PlayStation 3",""],
   [4,15,2008,"Gran Turismo 5 Prologue","PlayStation 3",""],
   [6,12,2008,"Metal Gear Solid 4: Guns of the Patriots","PlayStation 3",""],
   [9,4,2008,"FaceBreaker","PlayStation 3",""],
@@ -810,7 +810,7 @@ const EVENTS = [
   [4,4,2005,"DOOM 3","Xbox",""],
   [4,12,2005,"Midnight Club 3: Dub Edition","Xbox",""],
   [4,20,2005,"WWE WrestleMania 21","Xbox",""],
-  [5,4,2005,"Star Wars Episode III: Revenge of the Sith","Xbox",""],
+  [5,5,2005,"Star Wars Episode III: Revenge of the Sith","Xbox",""],
   [5,31,2005,"Advent Rising","Xbox",""],
   [6,14,2005,"Batman Begins","Xbox",""],
   [6,21,2005,"Destroy All Humans!","Xbox",""],
@@ -1029,7 +1029,7 @@ const EVENTS = [
   [9,9,1999,"NFL 2K","Sega Dreamcast",""],
   [9,9,1999,"Sonic Adventure","Sega Dreamcast",""],
   [11,18,1999,"South Park: Chef's Luv Shack","Sega Dreamcast",""],
-  [11,27,1999,"SEGA Rally 2","Sega Dreamcast",""],
+  [11,30,1999,"SEGA Rally 2","Sega Dreamcast",""],
   [2,2,2000,"Crazy Taxi","Sega Dreamcast",""],
   [2,9,2000,"NHL 2K","Sega Dreamcast",""],
   [6,19,2000,"Street Fighter III: Double Impact","Sega Dreamcast",""],
@@ -1061,7 +1061,7 @@ const EVENTS = [
 
 /* Films, TV and music. month, day, year, title, format, kind, label */
 const MEDIA = [
-  [4,28,2001,"61*","VHS","film","In theaters"],
+  [4,28,2001,"61*","VHS","film","HBO premiere"],
   [11,27,2001,"61*","VHS","film","On VHS"],
   [11,21,1986,"An American Tail","VHS","film","In theaters"],
   [10,15,1991,"An American Tail","VHS","film","On VHS"],
@@ -1373,9 +1373,16 @@ function annivDate(year, m, d){
 }
 function next(e){
   const [m,d,y] = e;
-  const day = d || 1;
-  let when = annivDate(today.getFullYear(), m, day);
-  if (when < today) when = annivDate(today.getFullYear()+1, m, day);
+  let when;
+  if (!d) {
+    /* month only: the current month counts as this year's birthday, so it
+       only rolls over to next year once the month is over */
+    when = new Date(today.getFullYear(), m-1, 1);
+    if (m-1 < today.getMonth()) when = new Date(today.getFullYear()+1, m-1, 1);
+  } else {
+    when = annivDate(today.getFullYear(), m, d);
+    if (when < today) when = annivDate(today.getFullYear()+1, m, d);
+  }
   return { when, age: when.getFullYear() - y,
            days: Math.round((when - today) / 86400000) };
 }
