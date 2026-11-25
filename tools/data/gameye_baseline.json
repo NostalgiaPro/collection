@@ -6809,6 +6809,46 @@
       "site_title": "Donkey Kong Bananza",
       "ge_title": "Donkey Kong Bananza",
       "ge_platform_id": 178
+    },
+    {
+      "uuid": "01a20c3a-6f36-7778-b95b-95add739781c",
+      "item_id": 191679,
+      "site_system": "Xbox Series X/S",
+      "site_title": "Control Resonant",
+      "ge_title": "Control Resonant",
+      "ge_platform_id": 106
+    },
+    {
+      "uuid": "01a20c3a-6f3c-779c-9384-ad8acc54b5a5",
+      "item_id": 187185,
+      "site_system": "Xbox Series X/S",
+      "site_title": "Hellraiser: Revival",
+      "ge_title": "Hellraiser: Revival",
+      "ge_platform_id": 106
+    },
+    {
+      "uuid": "01a21134-c6e2-70ca-93a0-0fc66ad52d28",
+      "item_id": 171302,
+      "site_system": "Nintendo Switch 2",
+      "site_title": "Kirby Air Riders",
+      "ge_title": "Kirby Air Riders",
+      "ge_platform_id": 178
+    },
+    {
+      "uuid": "01a20c3a-6f3a-7293-b49b-7fc85eccd66d",
+      "item_id": 180345,
+      "site_system": "Xbox Series X/S",
+      "site_title": "Resident Evil: requiem",
+      "ge_title": "Resident Evil: requiem",
+      "ge_platform_id": 106
+    },
+    {
+      "uuid": "01a21134-c6e7-72f4-9401-1f5a89ca201f",
+      "item_id": 172169,
+      "site_system": "Nintendo Switch",
+      "site_title": "Super Mario Galaxy 1 & 2",
+      "ge_title": "Super Mario Galaxy 1 & 2",
+      "ge_platform_id": 97
     }
   ],
   "uuids": [
@@ -7662,7 +7702,12 @@
     "01a19a7b-5b4c-75af-86c0-7e0e04e7fdb6",
     "01a1ae91-db8c-77e4-ade2-6074002beccb",
     "01a2004d-b7fd-72d1-b9a2-27721c2a2234",
-    "01a206ae-a917-7061-b2b2-bff4f8ea9df7"
+    "01a206ae-a917-7061-b2b2-bff4f8ea9df7",
+    "01a20c3a-6f36-7778-b95b-95add739781c",
+    "01a20c3a-6f3a-7293-b49b-7fc85eccd66d",
+    "01a20c3a-6f3c-779c-9384-ad8acc54b5a5",
+    "01a21134-c6e2-70ca-93a0-0fc66ad52d28",
+    "01a21134-c6e7-72f4-9401-1f5a89ca201f"
   ],
   "item_ids": [
     37,
@@ -8508,14 +8553,19 @@
     167412,
     168729,
     170523,
+    171302,
     171560,
+    172169,
     173682,
     180180,
+    180345,
     181765,
     184186,
     184310,
     185427,
-    191283
+    187185,
+    191283,
+    191679
   ],
   "variant_count": 4,
   "variants": [
@@ -8556,5 +8606,5 @@
       "kind": "variant"
     }
   ],
-  "updated_at": "2026-11-24T21:51:43Z"
+  "updated_at": "2026-11-25T20:58:37Z"
 }
