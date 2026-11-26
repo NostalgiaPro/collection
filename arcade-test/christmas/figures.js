@@ -16,12 +16,19 @@ function num(c) {
   return 0xffffff;
 }
 
+/* y = 0 is the root of the bone (shoulder or hip), y = 1 is the far joint.
+   Upper arm and thigh stay thick; wrist and ankle narrow. A radius spike is a cuff or a hem. */
 const PROF = {
-  upArm: [[0, -0.06], [0.62, -0.03], [0.92, 0.06], [1.0, 0.2], [1.1, 0.42], [1.05, 0.58], [0.88, 0.78], [0.74, 0.94], [0.62, 1.02], [0, 1.06]],
-  foreArm: [[0, -0.05], [0.72, -0.02], [1.0, 0.08], [1.1, 0.22], [1.0, 0.4], [0.8, 0.66], [0.62, 0.9], [0.6, 1.0], [0, 1.04]],
-  thigh: [[0, -0.05], [0.76, -0.02], [1.0, 0.1], [1.08, 0.3], [1.02, 0.52], [0.86, 0.76], [0.72, 0.94], [0.68, 1.0], [0, 1.04]],
-  shin: [[0, -0.04], [0.8, -0.02], [0.98, 0.1], [1.14, 0.26], [1.0, 0.44], [0.74, 0.7], [0.56, 0.9], [0.54, 1.0], [0, 1.03]],
-  neck: [[0, 0], [1.28, 0], [1.12, 0.22], [0.95, 0.55], [0.9, 1.0], [0, 1.0]]
+  upSleeve: [[0, -0.05], [1.4, 0.0], [1.22, 0.28], [1.0, 0.55], [0.78, 0.8], [0.62, 0.9], [1.02, 0.98], [0.4, 1.06], [0, 1.1]],
+  upPuff: [[0, -0.05], [1.75, 0.02], [1.6, 0.35], [1.35, 0.65], [1.05, 0.86], [0.85, 0.92], [1.2, 0.99], [0.45, 1.07], [0, 1.12]],
+  foreSkin: [[0, -0.04], [0.78, 0.0], [0.66, 0.35], [0.5, 0.7], [0.36, 0.95], [0, 1.04]],
+  foreSleeve: [[0, -0.04], [0.92, 0.0], [0.78, 0.4], [0.58, 0.72], [0.46, 0.86], [0.85, 0.96], [0.32, 1.05], [0, 1.1]],
+  thighShort: [[0, -0.04], [1.5, 0.0], [1.28, 0.35], [1.05, 0.68], [0.82, 0.86], [1.2, 0.96], [0.45, 1.05], [0, 1.1]],
+  thighPant: [[0, -0.04], [1.48, 0.0], [1.22, 0.4], [0.95, 0.72], [0.7, 1.0], [0, 1.05]],
+  shinSkin: [[0, -0.04], [0.95, 0.02], [0.78, 0.35], [0.52, 0.7], [0.34, 0.98], [0, 1.04]],
+  shinPant: [[0, -0.04], [0.98, 0.02], [0.8, 0.4], [0.55, 0.75], [0.42, 0.88], [0.72, 0.97], [0.28, 1.05], [0, 1.1]],
+  neck: [[0, 0], [1.15, 0], [1.0, 0.25], [0.85, 0.6], [0.8, 1.0], [0, 1.0]],
+  coat: [[0, 0.0], [0.95, 0.08], [1.05, 0.45], [0.98, 1.05], [1.12, 1.45], [1.28, 1.75], [0.85, 1.98], [0.35, 2.12], [0, 2.18]]
 };
 
 function roundBox(T, w, h, d, r) {
@@ -89,7 +96,7 @@ function torsoGeo(T) {
   const p = g.attributes.position;
   for (let i = 0; i < p.count; i++) {
     let x = p.getX(i), y = p.getY(i), z = p.getZ(i) * 0.72;
-    x *= 1 + 0.13 * ease((y - 1.35) / 0.5) * (y < 2.05 ? 1 : 0.4);
+    x *= 1 + 0.34 * ease((y - 1.25) / 0.55) * (y < 2.05 ? 1 : 0.45);
     if (z > 0) {
       const pec = gauss(y - 1.55, 0.24) * (1 - Math.min(1, Math.abs(x) / 0.78));
       z += pec * 0.1 - 0.03 * gauss(x, 0.07) * pec;
@@ -194,7 +201,13 @@ function setLimb(TMP, L, A, B, pole, l1, l2) {
   bone(TMP, L.up, A, TMP.e, L.r1);
   bone(TMP, L.lo, TMP.e, B, L.r2);
   L.j0.position.copy(A); L.j1.position.copy(TMP.e); L.end.position.copy(B);
-  if (L.delt) { L.j0.quaternion.copy(L.up.quaternion); L.j0.position.addScaledVector(TMP.d.subVectors(TMP.e, A).normalize(), 0.08); }
+  if (L.delt) { L.j0.quaternion.copy(L.up.quaternion); L.j0.position.addScaledVector(TMP.d.subVectors(TMP.e, A).normalize(), 0.1); }
+  if (L.cuff) {
+    const atElbow = L.cuffAt === "elbow";
+    L.cuff.position.copy(atElbow ? L.j1.position : L.end.position);
+    L.cuff.quaternion.copy((atElbow ? L.up : L.lo).quaternion);
+    L.cuff.scale.setScalar((atElbow ? L.r1 : L.r2) * (atElbow ? 0.9 : 0.72));
+  }
 }
 function placeHand(TMP, P, s) {
   const L = P.arm[s], t = TMP, h = P.hand[s];
@@ -251,11 +264,16 @@ export function createCast(T) {
   };
   const G = {
     sph: new T.SphereGeometry(1, 12, 9),
-    upArm: lathe(T, PROF.upArm, 12), foreArm: lathe(T, PROF.foreArm, 12),
-    thigh: lathe(T, PROF.thigh, 12), shin: lathe(T, PROF.shin, 12), neck: lathe(T, PROF.neck, 10),
+    upSleeve: lathe(T, PROF.upSleeve, 10), upPuff: lathe(T, PROF.upPuff, 10),
+    foreSkin: lathe(T, PROF.foreSkin, 10), foreSleeve: lathe(T, PROF.foreSleeve, 10),
+    thighShort: lathe(T, PROF.thighShort, 10), thighPant: lathe(T, PROF.thighPant, 10),
+    shinSkin: lathe(T, PROF.shinSkin, 10), shinPant: lathe(T, PROF.shinPant, 10),
+    neck: lathe(T, PROF.neck, 8), coat: lathe(T, PROF.coat, 12),
     torso: torsoGeo(T), head: headGeo(T), hand: handGeo(T, 0.4),
-    shoe: footGeo(T, "shoe"), boot: footGeo(T, "boot")
+    shoe: footGeo(T, "shoe"), boot: footGeo(T, "boot"),
+    cuff: new T.TorusGeometry(1, 0.28, 5, 10)
   };
+  G.cuff.rotateX(Math.PI / 2);
   const kit = faceKit(T);
   G.nose = kit.nose; G.ear = kit.ear; G.sphSm = kit.sph;
   const mats = {}, texes = {}, boxes = {};
@@ -372,23 +390,28 @@ export function createCast(T) {
       const gl = ball(o.hips, 0.42, 0.62, 0.45, hips); gl.position.set(s * 0.4, -0.15, -0.5);
     });
     const upper = new T.Group(); body.add(upper);
-    const torso = new T.Mesh(G.torso, o.torso); torso.scale.set(bulk, 1, bulk); upper.add(torso);
-    const trap = ball(o.trap || o.torso, 0.56 * bulk, 0.2, 0.34 * bulk, upper); trap.position.set(0, 1.94, -0.06);
+    const torso = new T.Mesh(o.coat ? G.coat : G.torso, o.torso); torso.scale.set(bulk * (o.coat ? 1.08 : 1), 1, bulk * (o.coat ? 1.12 : 1)); upper.add(torso);
+    const trap = ball(o.trap || o.torso, 0.72 * bulk, 0.22, 0.4 * bulk, upper); trap.position.set(0, 1.9, -0.02);
     if (o.belt) {
       const belt = new T.Mesh(new T.TorusGeometry(0.62 * bulk, 0.07, 6, 16), o.belt); belt.rotation.x = Math.PI / 2; belt.scale.set(1, 1, 0.72); belt.position.y = 0.12; upper.add(belt);
       const buck = new T.Mesh(roundBox(T, 0.18, 0.12, 0.04, 0.02), pho(0xe8c56a, 46)); buck.position.set(0, 0.12, 0.52 * bulk); upper.add(buck);
     }
     const neck = new T.Mesh(G.neck, o.skin); neck.scale.set(0.2 * bulk, 0.5, 0.19 * bulk); neck.position.set(0, 1.98, 0.02); upper.add(neck);
-    const head = new T.Group(); head.position.y = 2.72; upper.add(head);
-    function limb(m1, m2, r1, r2, endMat, endR, g1, g2) {
-      const L = { up: new T.Mesh(g1, m1), lo: new T.Mesh(g2, m2), j0: ball(m1, r1), j1: ball(m2, r2 * 0.85), end: ball(endMat, endR), r1: r1, r2: r2 };
+    const head = new T.Group(); head.position.y = 2.62; head.scale.setScalar(1.28); upper.add(head);
+    function limb(m1, m2, r1, r2, endMat, endR, g1, g2, cuffMat, cuffAt) {
+      const L = { up: new T.Mesh(g1, m1), lo: new T.Mesh(g2, m2), j0: ball(m1, r1), j1: ball(m2, r2 * 0.9), end: ball(endMat, endR), r1: r1, r2: r2, cuffAt: cuffAt || "wrist" };
       body.add(L.up); body.add(L.lo);
+      if (cuffMat) { L.cuff = new T.Mesh(G.cuff, cuffMat); body.add(L.cuff); }
       return L;
     }
     const ab = o.armBulk || bulk, lb = o.legBulk || bulk;
-    const arm = [0, 1].map(function () { return limb(o.sleeve, o.fore, 0.2 * ab, 0.16 * ab, o.fore, 0.1 * ab, G.upArm, G.foreArm); });
-    arm.forEach(function (L) { L.j0.scale.set(0.27 * ab, 0.3 * ab, 0.27 * ab); L.delt = true; });
-    const leg = [0, 1].map(function () { return limb(o.thigh, o.shin, 0.26 * lb, 0.18 * lb, o.ankle, 0.09 * lb, G.thigh, G.shin); });
+    const upG = o.puffy ? G.upPuff : G.upSleeve;
+    const foreG = o.longSleeve ? G.foreSleeve : G.foreSkin;
+    const thighG = o.shorts ? G.thighShort : G.thighPant;
+    const shinG = o.shorts ? G.shinSkin : G.shinPant;
+    const arm = [0, 1].map(function () { return limb(o.sleeve, o.fore, 0.32 * ab, 0.16 * ab, o.fore, 0.1 * ab, upG, foreG, o.cuff, o.longSleeve ? "wrist" : "elbow"); });
+    arm.forEach(function (L) { L.j0.scale.set(0.42 * ab, 0.36 * ab, 0.4 * ab); L.delt = true; });
+    const leg = [0, 1].map(function () { return limb(o.thigh, o.shin, 0.38 * lb, 0.18 * lb, o.ankle, 0.1 * lb, thighG, shinG, o.ankleCuff, "wrist"); });
     const hk = ab;
     const hand = [0, 1].map(function (s) {
       const m = new T.Mesh(G.hand, o.hand); m.scale.set(hk * (s ? 1 : -1), hk, hk); body.add(m); return m;
@@ -399,22 +422,83 @@ export function createCast(T) {
     return F;
   }
 
+  function shade(col, k) {
+    const c = num(col);
+    const ch = function (s) { return Math.max(0, Math.min(255, Math.round(((c >> s) & 255) * k))); };
+    return (ch(16) << 16) | (ch(8) << 8) | ch(0);
+  }
+  function jerseyMat() {
+    if (texes.jersey) return pho(0xffffff, 14, { map: texes.jersey });
+    const cv = document.createElement("canvas"); cv.width = 512; cv.height = 256;
+    const g = cv.getContext("2d");
+    g.fillStyle = "#f7f4ee"; g.fillRect(0, 0, 512, 256);
+    const sh = g.createLinearGradient(0, 0, 0, 256);
+    sh.addColorStop(0, "rgba(255,255,255,.35)"); sh.addColorStop(0.45, "rgba(0,0,0,0)"); sh.addColorStop(1, "rgba(0,0,0,.18)");
+    g.fillStyle = sh; g.fillRect(0, 0, 512, 256);
+    g.fillStyle = "rgba(0,0,0,.08)"; g.fillRect(0, 0, 36, 256); g.fillRect(476, 0, 36, 256);
+    g.fillStyle = "#e7e0d2"; g.fillRect(0, 228, 512, 28);
+    g.fillStyle = "#d5cbb8"; g.fillRect(0, 226, 512, 4);
+    function badge(cx) {
+      g.fillStyle = "#1b1b22"; g.fillRect(cx - 54, 78, 108, 78);
+      for (let j = 0; j < 2; j++) for (let i = -2; i < 2; i++) { g.fillStyle = (i + j) % 2 ? "#e4343e" : "#fff1d6"; g.fillRect(cx + i * 14, 86 + j * 14, 14, 14); }
+      g.fillStyle = "#1f8f4a"; g.fillRect(cx - 28, 116, 56, 8);
+      g.fillStyle = "#c2304a"; g.font = "900 42px Arial Black, Arial, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillText("NP", cx, 148);
+    }
+    badge(0); badge(256); badge(512);
+    const tx = new T.CanvasTexture(cv); tx.colorSpace = T.SRGBColorSpace; texes.jersey = tx;
+    return pho(0xffffff, 14, { map: tx });
+  }
+  function band(parent, mat, y, rx, ry, tube) {
+    const m = new T.Mesh(new T.TorusGeometry(rx, tube || 0.07, 6, 14), mat);
+    m.rotation.x = Math.PI / 2; m.scale.set(1, 1, ry / rx); m.position.y = y; parent.add(m); return m;
+  }
   function person(o) {
     o = o || {};
     const skin = pho(o.skin || 0xf1c28e, 16);
-    const shirt = o.shirtMat || wear(o.shirt || 0x355a8a);
-    const sleeve = o.sleeves === "short" ? (o.sleeveMat || shirt) : shirt;
-    const fore = o.sleeves === "short" ? skin : shirt;
+    const shirtCol = o.tee ? 0xf4f1ea : (o.shirt || 0x355a8a);
+    const shirt = o.tee ? jerseyMat() : (o.shirtMat || wear(shirtCol));
+    const rib = wear(shade(shirtCol, o.tee ? 0.82 : 0.72));
+    const sleeve = o.tee ? wear(0xf7f4ee) : shirt;
+    const fore = (o.sleeves === "short" || o.bareArm) ? skin : shirt;
     const pants = wear(o.pants || 0x2c3a55, 10);
+    const waist = wear(shade(o.pants || 0x2c3a55, 0.62), 12);
     const shoeU = o.shoeMat || pho(o.shoes || 0xf4f1ea, 28);
     const shoeS = pho(o.sole || 0x241c16, 8);
     const hairM = pho(o.hair || 0x4a2f1c, 10);
     const white = pho(0xfff8f0, 12);
+    const handMat = o.mittens ? pho(o.mittens, 18) : skin;
+    const cuffMat = o.fur ? white : (o.cuff === false ? null : rib);
     const F = makeFigure({
-      scale: o.scale, bulk: o.bulk, torso: shirt, trap: o.sleeves === "short" ? shirt : shirt, sleeve: sleeve, fore: fore,
-      hand: skin, skin: skin, hips: pants, thigh: o.shorts ? pants : pants, shin: o.shorts ? skin : pants,
-      ankle: white, shoe: [shoeU, shoeS], footGeo: o.boots ? G.boot : G.shoe, belt: o.belt ? pho(o.belt, 22) : null
+      scale: o.scale, bulk: o.bulk, coat: !!o.coat, puffy: !!o.coat, longSleeve: o.sleeves !== "short", shorts: !!o.shorts,
+      torso: shirt, trap: o.tee ? sleeve : (o.coat ? shirt : rib), sleeve: sleeve, fore: fore, cuff: cuffMat,
+      hand: handMat, skin: skin, hips: pants, thigh: pants, shin: o.shorts ? skin : pants,
+      ankle: white, ankleCuff: o.shorts ? null : (o.fur ? white : waist),
+      shoe: [shoeU, shoeS], footGeo: o.boots ? G.boot : G.shoe, belt: o.belt ? pho(o.belt, 22) : (o.shorts ? null : null)
     });
+    const hemY = o.coat ? 0.2 : 0.16;
+    band(F.upper, o.fur ? white : (o.tee ? wear(0xe4dcc8) : shirt), hemY, 0.64 * (o.bulk || 1), 0.42 * (o.bulk || 1), o.fur ? 0.11 : 0.05);
+    band(F.upper, o.fur ? white : (o.tee ? wear(0xded6c8) : rib), 1.78, 0.3 * (o.bulk || 1), 0.24 * (o.bulk || 1), o.fur ? 0.09 : 0.045);
+    if (!o.coat) band(F.upper, waist, 0.08, 0.7 * (o.bulk || 1), 0.46 * (o.bulk || 1), 0.06);
+    if (o.coat) {
+      [-1, 1].forEach(function (s) {
+        const p = new T.Mesh(G.sph, shirt); p.scale.set(0.38, 0.28, 0.34); p.position.set(s * 0.78, 1.72, 0.02); F.upper.add(p);
+      });
+      if (o.scarf) {
+        const sc = pho(o.scarf, 12);
+        band(F.upper, sc, 1.7, 0.4, 0.32, 0.09);
+        const tail = new T.Mesh(roundBox(T, 0.16, 0.7, 0.06, 0.03), sc); tail.position.set(0.18, 1.25, 0.42); tail.rotation.z = 0.15; F.upper.add(tail);
+      }
+    }
+    if (o.vest) {
+      const vest = new T.Mesh(roundBox(T, 0.85, 0.95, 0.12, 0.08), wear(o.vest));
+      vest.position.set(0, 1.15, 0.42); F.upper.add(vest);
+      const strap = new T.Mesh(roundBox(T, 0.1, 0.45, 0.06, 0.03), wear(shade(o.vest, 0.75)));
+      strap.position.set(0, 1.55, 0.4); F.upper.add(strap);
+    }
+    if (o.belly) {
+      const belly = new T.Mesh(G.sph, shirt); belly.scale.set(0.42, 0.36, 0.38); belly.position.set(0, 0.85, 0.42); F.upper.add(belly);
+    }
     const h = F.head;
     F.face = face(F, h, { skin: skin, iris: o.iris || 0x3a2414, brow: o.hair || 0x3a2414, lips: o.lips || 0xb0625a, mouth: o.mouth || "smile", browTilt: o.browTilt || 0.06, noseK: o.noseK || 1 });
     if (o.hairStyle !== "bald") {
@@ -444,13 +528,7 @@ export function createCast(T) {
     }
     if (o.pockets) {
       const pk = wear(0x6e6240, 8);
-      [-1, 1].forEach(function (s) { const p = new T.Mesh(rb(0.22, 0.16, 0.06, 0.03), pk); p.position.set(s * 0.32, 2.55, 0.32); F.body.add(p); });
-    }
-    if (o.badge) {
-      [-1, 1].forEach(function (s) {
-        const b = new T.Mesh(new T.PlaneGeometry(0.62, 0.5), o.badge);
-        b.position.set(0, 1.4, s * 0.58); if (s < 0) b.rotation.y = Math.PI; F.upper.add(b);
-      });
+      [-1, 1].forEach(function (s) { const p = new T.Mesh(rb(0.22, 0.18, 0.08, 0.03), pk); p.position.set(s * 0.34, 0.15, 0.46); F.upper.add(p); });
     }
     const P = { g: F.root, F: F, shoeL: F.shoe[0], shoeR: F.shoe[1], grip: F.hand[1], head: F.head, v: STAND.slice(), phase: Math.random() * 6, blink: 1 + Math.random() * 3, face: F.face };
     if (o.wheels) {
@@ -494,15 +572,16 @@ export function createCast(T) {
       v[1] = 2.05; v[5] = 8;
       v[12] = 0.4; v[13] = 0.9; v[14] = 1.15; v[15] = -0.4; v[16] = 0.9; v[17] = 1.15;
       v[6] = 0.55; v[7] = 2.5; v[8] = 0.8; v[9] = -0.55; v[10] = 2.5; v[11] = 0.8;
-    } else if (kind === "wave" || kind === "throne") {
-      if (kind === "throne") {
-        v[1] = 2.05; v[5] = 6;
-        v[12] = 0.42; v[13] = 0.85; v[14] = 1.05; v[15] = -0.42; v[16] = 0.85; v[17] = 1.05;
-        v[6] = 0.6; v[7] = 2.6; v[8] = 0.55;
-      }
+    } else if (kind === "throne") {
+      v[1] = 2.02; v[5] = 2;
+      v[12] = 0.5; v[13] = 0.82; v[14] = 0.9; v[15] = -0.5; v[16] = 0.82; v[17] = 0.9;
+      v[6] = 0.95; v[7] = 2.25; v[8] = 0.25;
+      v[9] = -0.95; v[10] = 2.25; v[11] = 0.25;
+      v[18] = 0;
+    } else if (kind === "wave") {
       const w = Math.sin(ph * 5);
       v[9] = -0.85; v[10] = 4.65 + w * 0.28; v[11] = 0.25;
-      v[18] = 12;
+      v[18] = 8;
     } else if (kind === "mop") {
       cycle(v, ph * 0.35, 0.2);
       const s = Math.sin(ph * 3);

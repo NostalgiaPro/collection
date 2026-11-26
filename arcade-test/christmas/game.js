@@ -51,7 +51,8 @@ const STORES = [
 ];
 
 let THREE = null, K = null, S = {}, idleT = 0, ptr = null, keys = {};
-const CAST = /[?&]cast=1/.test(location.search);
+const CAST = /[?&]cast=(1|hero)/.test(location.search);
+const CAST_HERO = /[?&]cast=hero/.test(location.search);
 let gear = { u: { plain: 1 }, on: "plain", items: 0 };
 
 function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
@@ -719,9 +720,8 @@ function buildKit(T) {
   const person = Cast.person, pose = Cast.pose;
 
   /* hero: cream NP tee, cargo shorts, Christmas beanie, seen from behind */
-  const teeMat = new T.MeshPhongMaterial({ map: tex(teeCanvas()), shininess: 12, specular: new T.Color(0x333333) });
   const heroRoot = grp(scene, 0, 0, 0);
-  const hero = person({ shirt: "#f4f1ea", pants: "#9a8a5a", shorts: true, sleeves: "short", hat: "beanie", hatc: "#c2304a", skin: "#f1c28e", hair: "#5a3a20", hairStyle: "short", pockets: true, badge: teeMat, wheels: true, shoes: "#eceae2" });
+  const hero = person({ tee: true, pants: "#9a8a5a", shorts: true, sleeves: "short", hat: "beanie", hatc: "#c2304a", skin: "#f1c28e", hair: "#5a3a20", hairStyle: "short", pockets: true, wheels: true, shoes: "#f7f4ee", sole: "#c2304a" });
   heroRoot.add(hero.g); hero.g.rotation.y = Math.PI;
   const shadow = new T.Mesh(new T.CircleGeometry(0.55, 20).rotateX(-Math.PI / 2), M("#000000", { basic: 1, transparent: true, opacity: 0.4, depthWrite: false }));
   shadow.position.y = 0.012; scene.add(shadow);
@@ -736,7 +736,7 @@ function buildKit(T) {
   }
 
   /* Mall Santa, seated in center court, off the lanes so he never collides */
-  const santa = person({ shirt: "#c2304a", pants: "#c2304a", sleeves: "long", hat: "santa", boots: true, belt: 0x1a120c, beard: true, cuffs: true, hairStyle: "bald", skin: "#f1c28e", bulk: 1.28, scale: 1.12, mouth: "smile", browTilt: 0.2, shoes: "#1a120c", sole: "#e8e0d0" });
+  const santa = person({ shirt: "#c2304a", pants: "#8e1c2c", coat: true, fur: true, belly: true, mittens: "#fff6ee", sleeves: "long", hat: "santa", boots: true, belt: 0x1a120c, beard: true, hairStyle: "bald", skin: "#f1c28e", bulk: 1.2, scale: 1.08, mouth: "smile", browTilt: 0.15, shoes: "#1a120c", sole: "#e8e0d0" });
   const throne = grp(scene, -3.45, 0, -(ZB[3] + 70));
   Cast.chunk(throne, Cast.rb(1.15, 0.16, 1.05, 0.08), Cast.wear(0x7a1830), 0, 0.48, 0);
   Cast.chunk(throne, Cast.rb(1.15, 1.35, 0.18, 0.08), Cast.wear(0x7a1830), 0, 1.15, -0.42);
@@ -837,7 +837,7 @@ function buildKit(T) {
 
   K = { T: T, gl: gl, renderer: renderer, scene: scene, cam: cam, tex: tex, G: G, M: M, part: part, grp: grp, person: person, pose: pose, SKIN: SKIN, ORN: ORN,
     hero: hero, heroRoot: heroRoot, shadow: shadow, segs: segs, SEGL: SEGL, segFloor: floorMats, segWall: wallMats, signs: signMats,
-    store: store, grille: grille, snow: snow, sun: sun, fill: fill, santa: santa, escTread: escTread, live: new Map(), dressHero: dressHero, pad: null, curZone: 0, fogTarget: null, rb: Cast.rb, chunk: Cast.chunk, tee: teeMat };
+    store: store, grille: grille, snow: snow, sun: sun, fill: fill, santa: santa, escTread: escTread, live: new Map(), dressHero: dressHero, pad: null, curZone: 0, fogTarget: null, rb: Cast.rb, chunk: Cast.chunk };
   K.signTex = tex(textPanel([["CAUTION", 30, 30], ["WET", 44, 72], ["FLOOR", 30, 108]], "#ffd23f", "#1b1b22", 128, 128));
   K.saleTex = tex(textPanel([["SALE 50% OFF", 40, 48]], "#c2304a", "#ffffff", 256, 96));
   K.caneTex = tex(stripeCanvas("#ffffff", "#e02030", 3), 1, 3);
@@ -859,7 +859,7 @@ function makeOb(o) {
     part(g, G.box, M("#c2304a"), 0.4, 0.04, 0.3, 0.1, 0.81, 0); part(g, G.cyl, M("#ffffff"), 0.06, 0.18, 0.06, -0.2, 0.88, 0.1);
     part(g, G.cyl, M("#ffd23f"), 0.12, 0.05, 0.12, 0.12, 0.85, 0);
   } else if (o.t === "janitor") {
-    P = K.person({ shirt: "#5a6670", pants: "#3a4250", hair: "#3a2a1a", hairStyle: "short", hat: "cap", capc: "#3a4250", skin: SKIN[Math.floor(r * 5)], sleeves: "long", shoes: "#2a2a2a" });
+    P = K.person({ shirt: "#5a6670", pants: "#2a3140", hair: "#3a2a1a", hairStyle: "short", hat: "cap", capc: "#3a4250", skin: SKIN[Math.floor(r * 5)], sleeves: "short", shoes: "#2a2a2a", sole: "#111111" });
     g.add(P.g);
     const mop = grp(P.g);
     part(mop, G.cyl, M("#c8a060"), 0.04, 1.15, 0.04, 0, 0.62, 0);
@@ -874,7 +874,7 @@ function makeOb(o) {
     const b2 = new T.Mesh(K.rb(0.62, 0.78, 0.05, 0.03), sm); b2.position.set(0, 0.55, -0.1); b2.rotation.x = 0.28; g.add(b2);
   } else if (o.t === "walker") {
     const tc = TRACK[Math.floor(r * TRACK.length)];
-    P = K.person({ shirt: tc, pants: tc, hair: r < 0.5 ? "#d8d8d8" : "#6a5a48", hairStyle: r < 0.35 ? "bob" : "short", hat: "band", skin: SKIN[Math.floor(r * 7) % 5], shoes: "#f7f4ee", stripe: true, sleeves: "long" });
+    P = K.person({ shirt: tc, pants: "#243044", coat: true, scarf: r < 0.5 ? "#fff6ee" : "#ffd23f", hair: r < 0.5 ? "#4a3728" : "#6a5a48", hairStyle: r < 0.35 ? "bob" : "short", hat: "beanie", hatc: tc, skin: SKIN[Math.floor(r * 7) % 5], shoes: "#f7f4ee", sole: "#1a1a1a", sleeves: "long" });
     g.add(P.g);
     g.userData.kind = "walk";
   } else if (o.t === "stroller") {
@@ -885,7 +885,7 @@ function makeOb(o) {
     part(g, G.cyl, M("#cfc8b0"), 0.025, 0.55, 0.025, -0.22, 0.72, 0.42);
     part(g, G.cyl, M("#cfc8b0"), 0.025, 0.55, 0.025, 0.22, 0.72, 0.42);
     part(g, G.cyl, M("#cfc8b0"), 0.03, 0.5, 0.03, 0, 0.86, 0.42).rotation.z = Math.PI / 2;
-    P = K.person({ scale: 0.46, shirt: "#f7d6e4", pants: "#f7d6e4", hat: "beanie", hatc: sc[0], skin: SKIN[Math.floor(r * 5)], sleeves: "long", hairStyle: "bald", pose: "sit" });
+    P = K.person({ scale: 0.46, shirt: "#f7d6e4", pants: "#e8b8cc", hat: "beanie", hatc: sc[0], skin: SKIN[Math.floor(r * 5)], sleeves: "short", hairStyle: "bald", pose: "sit", shoes: "#f4f1ea" });
     P.g.position.set(0, 0.34, -0.02);
     g.add(P.g);
     g.userData.kind = "sit";
@@ -894,7 +894,7 @@ function makeOb(o) {
     for (let k = 0; k < 5; k++) { const bx = K.chunk(g, K.rb(0.28, 0.2, 0.22, 0.04), M(ORN[(k + Math.floor(r * 6)) % 6]), -0.32 + (k % 3) * 0.32, 0.6, k < 3 ? -0.16 : 0.16); bx.rotation.y = k * 0.35; }
     part(g, G.box, new T.MeshBasicMaterial({ map: K.saleTex }), 0.7, 0.28, 0.02, 0, 0.9, 0.44);
   } else if (o.t === "clerk") {
-    P = K.person({ shirt: "#1b1b22", pants: "#1b1b22", hair: r < 0.5 ? "#2a1a12" : "#c89a40", hairStyle: r < 0.5 ? "bun" : "bob", skin: SKIN[Math.floor(r * 5)], sleeves: "long", sash: "#ff3fa4", shoes: "#1b1b22" });
+    P = K.person({ shirt: "#1b1b22", pants: "#14141c", hair: r < 0.5 ? "#2a1a12" : "#c89a40", hairStyle: r < 0.5 ? "bun" : "bob", skin: SKIN[Math.floor(r * 5)], sleeves: "long", vest: "#f6e6ee", shoes: "#1b1b22", sole: "#2a2a2a" });
     const bottle = part(P.grip, G.cyl, M("#ff9bd2", { emissive: "#40102a" }), 0.07, 0.26, 0.07, 0, 0.22, 0.04);
     part(bottle, G.cyl, M("#fff6fb"), 0.8, 0.25, 0.8, 0, 0.55, 0);
     g.add(P.g);
@@ -914,7 +914,7 @@ function makeOb(o) {
     K.chunk(g, K.rb(0.95, 0.42, 1.45, 0.1), M("#eceae2"), 0, 0.48, 0);
     K.chunk(g, K.rb(0.98, 0.1, 1.5, 0.04), M("#1d2b53"), 0, 0.62, 0);
     for (let k = 0; k < 3; k++) { const wh = part(g, G.cyl, M("#1b1b22"), 0.2, 0.1, 0.2, k === 0 ? 0 : (k === 1 ? -0.42 : 0.42), 0.2, k === 0 ? 0.65 : -0.55); wh.rotation.z = Math.PI / 2; }
-    P = K.person({ shirt: "#1d2b53", pants: "#1d2b53", hat: "cap", capc: "#1d2b53", hair: "#2a2418", hairStyle: "short", skin: SKIN[Math.floor(r * 5)], sleeves: "long", shoes: "#1a1a1a", pose: "sit" });
+    P = K.person({ shirt: "#1d2b53", pants: "#12182e", hat: "cap", capc: "#1d2b53", hair: "#2a2418", hairStyle: "short", skin: SKIN[Math.floor(r * 5)], sleeves: "long", shoes: "#1a1a1a", sole: "#0a0a0a", pose: "sit" });
     P.g.position.set(0, 0.28, -0.15); g.add(P.g);
     g.userData.kind = "sit";
     part(g, G.cyl, M("#8a8f9a"), 0.035, 0.7, 0.035, 0, 1.55, -0.55);
@@ -967,14 +967,14 @@ function makeItem(it) {
 }
 
 /* ---------------- Per-frame scene sync ---------------- */
-function frameCast(t, z) {
+function frameCast(t, z, heroOnly) {
   if (!K.lineup) {
     const g = K.grp(K.scene, 0, 0, 0), folks = [];
     function add(p, x, rot) { p.g.position.x = x; p.g.rotation.y = rot || 0; g.add(p.g); folks.push(p); }
-    add(K.person({ shirt: "#f4f1ea", pants: "#9a8a5a", shorts: true, sleeves: "short", hat: "beanie", hatc: "#c2304a", skin: "#f1c28e", hair: "#5a3a20", pockets: true, shoes: "#c2304a", badge: K.tee }), -0.72, Math.PI * 0.72);
-    add(K.person({ shirt: "#7a3fd0", pants: "#7a3fd0", hair: "#4a3728", hairStyle: "short", hat: "band", stripe: true, sleeves: "long", skin: "#c98a5a", shoes: "#f7f4ee" }), -0.22, 0.45);
-    add(K.person({ shirt: "#1b1b22", pants: "#1b1b22", hair: "#c89a40", hairStyle: "bun", sash: "#ff3fa4", sleeves: "long", skin: "#f6d5b0", shoes: "#1b1b22" }), 0.26, -0.5);
-    add(K.person({ shirt: "#c2304a", pants: "#c2304a", sleeves: "long", hat: "santa", boots: true, belt: 0x1a120c, beard: true, cuffs: true, hairStyle: "bald", bulk: 1.08, skin: "#f1c28e", shoes: "#1a120c" }), 0.74, 0.4);
+    add(K.person({ tee: true, pants: "#9a8a5a", shorts: true, sleeves: "short", hat: "beanie", hatc: "#c2304a", skin: "#f1c28e", hair: "#5a3a20", hairStyle: "short", pockets: true, shoes: "#f7f4ee", sole: "#c2304a" }), -0.78, 0.4);
+    add(K.person({ shirt: "#7a3fd0", pants: "#243044", coat: true, scarf: "#fff6ee", hair: "#4a3728", hairStyle: "short", hat: "beanie", hatc: "#7a3fd0", skin: "#c98a5a", shoes: "#f7f4ee", sole: "#1a1a1a", sleeves: "long" }), -0.24, 0.35);
+    add(K.person({ shirt: "#1b1b22", pants: "#14141c", hair: "#c89a40", hairStyle: "bun", vest: "#f6e6ee", sleeves: "long", skin: "#f6d5b0", shoes: "#1b1b22" }), 0.28, -0.4);
+    add(K.person({ shirt: "#c2304a", pants: "#8e1c2c", coat: true, fur: true, belly: true, mittens: "#fff6ee", sleeves: "long", hat: "santa", boots: true, belt: 0x1a120c, beard: true, hairStyle: "bald", bulk: 1.12, skin: "#f1c28e", shoes: "#1a120c" }), 0.8, 0.25);
     K.lineup = g; K.lineupFolks = folks;
   }
   K.lineup.position.set(0, 0, -z - 1.15);
@@ -982,6 +982,16 @@ function frameCast(t, z) {
   for (let i = 0; i < K.lineupFolks.length; i++) K.pose(K.lineupFolks[i], kinds[i], t * 4 + i * 1.4, t);
   K.heroRoot.visible = false;
   const cam = K.cam;
+  if (heroOnly) {
+    for (let i = 0; i < K.lineupFolks.length; i++) K.lineupFolks[i].g.visible = i === 0;
+    K.lineupFolks[0].g.position.set(0, 0, 0);
+    K.lineupFolks[0].g.rotation.y = 0;
+    K.pose(K.lineupFolks[0], "stand", t, t);
+    cam.position.set(0, 1.05, -z + 2.15);
+    cam.lookAt(0, 0.95, -z - 1.15);
+    if (Math.abs(cam.fov - 34) > 0.1) { cam.fov = 34; cam.updateProjectionMatrix(); }
+    return;
+  }
   cam.position.set(0.0, 1.2, -z + 4.6);
   cam.lookAt(0.02, 0.92, -z - 1.15);
   if (Math.abs(cam.fov - 40) > 0.1) { cam.fov = 40; cam.updateProjectionMatrix(); }
@@ -1102,7 +1112,7 @@ function syncWorld(dt, state, t) {
   if (K.santa) K.pose(K.santa, "throne", t, t);
   K.sun.position.set(cam.position.x - 3, 9, cam.position.z - 8); K.sun.target.position.set(hx, 1.2, -z - 6);
   if (K.fill) { K.fill.position.set(cam.position.x, cam.position.y + 1.2, cam.position.z); K.fill.target.position.set(hx, 1.1, -z - 4); }
-  if (CAST) frameCast(t, z);
+  if (CAST) frameCast(t, z, CAST_HERO);
 }
 
 /* ---------------- HUD (2D canvas on top of the 3D view) ---------------- */
