@@ -12,6 +12,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sitedata as sd
 
 PAGES = ["index.html", "stats.html", "consoles.html", "shelf.html"]
+# other hand-made pages: only the share-image text ("N games on the shelf")
+# in the <head> and any element marked data-count="games" in the body
+SHARE_ONLY = re.compile(r"(?<![\d,])\d{3,4}(?= games on the shelf\b)")
+SKIP_DIR = re.compile(r"^(?:[^/]*-test|preview|game|console|\.git|node_modules)(?:/|$)")
 
 
 def main():
@@ -36,7 +40,33 @@ def main():
         if out != src:
             open(p, "w", encoding="utf-8").write(out)
             changed.append(name)
+    for rel in other_pages():
+        p = os.path.join(sd.ROOT, rel)
+        src = open(p, encoding="utf-8").read()
+        if "</head>" not in src:
+            continue
+        h = src.index("</head>")
+        head, body = src[:h], src[h:]
+        head = SHARE_ONLY.sub(str(n), head)
+        body = re.sub(r'(<[a-z]+ [^>]*data-count="games"[^>]*>)\d+', rf"\g<1>{n}", body)
+        out = head + body
+        if out != src:
+            open(p, "w", encoding="utf-8").write(out)
+            changed.append(rel)
     print(f"sync_counts: {n} games, {ns} systems" + (f"; updated {', '.join(changed)}" if changed else ""))
+
+
+def other_pages():
+    for dp, dn, fn in os.walk(sd.ROOT):
+        rel_dir = os.path.relpath(dp, sd.ROOT).replace(os.sep, "/")
+        rel_dir = "" if rel_dir == "." else rel_dir
+        if SKIP_DIR.match(rel_dir):
+            dn[:] = []
+            continue
+        for f in fn:
+            rel = (rel_dir + "/" + f).lstrip("/")
+            if f.endswith(".html") and rel not in PAGES:
+                yield rel
 
 
 if __name__ == "__main__":

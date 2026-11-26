@@ -50,7 +50,7 @@ def patch(src, rel):
     src = GF_FRED.sub(FRED_FONTS, src)
     if "fonts.googleapis.com/css" not in src:
         src = GF_PRE.sub("", src)
-    count = "goatcounter" not in src and rel != "play/index.html"   # /play/ counts itself in play/js/analytics.js
+    count = not re.search(r"""goatcounter\.com/count|gc\.zgo\.at|src=["']/count\.js""", src) and rel != "play/index.html"   # /play/ counts itself in play/js/analytics.js
     b = block(uses_site, count)
     m = re.search(r'<meta name="viewport"[^>]*>\n?', src)
     if m:
