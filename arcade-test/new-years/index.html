@@ -8,6 +8,7 @@
 <meta name="description" content="December 31, 1999. Finish the party jobs and reach the window before the ball drops. A free seasonal game in the Nostalgia Pro Arcade.">
 <title>Before the Ball | Nostalgia Pro Arcade</title>
 <link rel="stylesheet" href="../shared/shell.css">
+<link rel="modulepreload" href="../shared/three.module.min.js">
 <style>
 /* Hidden test page only. The shared shell is untouched. */
 html, body { background: #101219; }
@@ -53,6 +54,7 @@ html, body { background: #101219; }
 <script src="../shared/trophies.js"></script>
 <script src="../shared/rewards.js"></script>
 <script src="../shared/hiscores.js"></script>
-<script src="game.js"></script>
+<!-- game.js is a module. If WebGL or three.js is missing it loads game-2d.js. -->
+<script type="module" src="game.js"></script>
 </body>
 </html>
