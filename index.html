@@ -1449,121 +1449,133 @@ body.y1996 .ht-quote .ht-ctxt::before{color:#000080}
       </div>
     </div>
 
-    <!-- ANNOUNCEMENTS: a featured section of its own, after Start here and before New this week.
-         To change what it says, edit the ANNOUNCEMENTS list in the script right below. Nothing else needs touching. -->
-    <div class="hp-news" id="hpNews" role="region" aria-label="News"></div>
-    <script>
-/* ============================================================================
-   ANNOUNCEMENTS: edit this list to change the featured spot.
-
-   One { ... } per announcement. Each can have:
-     tag      small label, like "$1 on itch.io"                        (optional)
-     title    the big line                                             (required)
-     text     the lead, one or two plain sentences                     (optional)
-     href     where the main button goes                               (optional)
-     cta      the words on the main button, like "Get it for $1"       (optional)
-     href2    where the second, smaller link goes, like "/play/"       (optional)
-     cta2     the words on that link, like "Try the free demo"         (optional)
-     updates  the dated update list                                    (optional)
-
-   UPDATES: each one is { label, date, text }. Add a new update at the BOTTOM
-   of the list (a plain push). The page shows the newest one on top by itself.
-   The first sentence of text shows in bold, so start with the update's name.
-
-   Links that start with http open in a new tab. Links that start with a
-   slash stay on the site. Empty the list ( [] ) and the spot disappears.
-   ============================================================================ */
-const ANNOUNCEMENTS = [
-  {
-    tag:   "$1 on itch.io",
-    title: "Nostalgia Pro: The Game",
-    text:  "My retro game is out for a buck, and I keep adding to it.",
-    href:  "https://thenostalgiapro.itch.io/nostalgia-pro-the-game",
-    cta:   "Get it for $1",
-    href2: "/play/",
-    cta2:  "Try the free demo",
-    updates: [
-      { label: "Update 1", date: "Nov 8",
-        text: "Dime Box Dynasty. Dig through Donny's Storage Beers yard sale for all 15 years of Scrimmage Season cards, plus a Storage Beers Retro Arcade stop." },
-      { label: "Update 2", date: "Nov 15",
-        text: "Holiday Rush. A December Saturday at the mall with 9 AM doorbusters at Glass Case Games and Mall Santa Dash in the food court." }
-    ]
-  }
-];
-
-(function(){
-  var box = document.getElementById("hpNews");
-  if (!box || !Array.isArray(ANNOUNCEMENTS)) return;
-  function el(tag, cls, text){
-    var e = document.createElement(tag);
-    if (cls) e.className = cls;
-    if (text != null) e.textContent = text;
-    return e;
-  }
-  function link(cls, href, words, title){
-    var a = el("a", cls, words);
-    a.href = href;
-    if (/^https?:\/\//i.test(href)){            /* another site: new tab */
-      a.target = "_blank";
-      a.rel = "noopener";
-      a.setAttribute("aria-label", words + ": " + title + " (opens in a new tab)");
-      if (cls === "hp-news-cta"){
-        var arrow = el("span", "", "\u2197");
-        arrow.setAttribute("aria-hidden", "true");
-        a.appendChild(arrow);
-      }
-    } else {
-      a.setAttribute("aria-label", words + ": " + title);
+    <!-- GAME SALES CARD: Nostalgia Pro: The Game. Sits after Start here and before Latest Posts.
+         Plain HTML. To add an update, copy one <li> in the npsc-log list and put the new one on top.
+         Pictures are real screens from the game, in /images/np-game/. -->
+    <style>
+    .npsc{--a:var(--hp-gold,#ffd23f);--h:var(--hot,#ff4b3e);margin:42px 0 0;padding:16px;position:relative;
+      background:repeating-linear-gradient(135deg,rgba(255,255,255,.028) 0 12px,transparent 12px 24px),
+        linear-gradient(160deg,color-mix(in srgb,var(--a) 15%,var(--bg2,#171a23)),var(--bg2,#171a23) 55%);
+      border:2px solid var(--a);border-radius:var(--hp-r,8px);color:var(--text,#eceae2);
+      box-shadow:0 22px 40px -26px var(--a),0 10px 24px rgba(0,0,0,.45)}
+    .npsc *{box-sizing:border-box}
+    .npsc img{display:block;max-width:100%;height:auto}
+    .npsc-top{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+    .npsc-shot{margin:0;position:relative;background:#0a0c11;border:2px solid #000;border-radius:6px;overflow:hidden;
+      box-shadow:inset 0 0 0 2px rgba(255,255,255,.06)}
+    .npsc-shot img{width:100%;image-rendering:pixelated}
+    .npsc-live{position:absolute;left:8px;top:8px;display:flex;align-items:center;gap:6px;padding:4px 7px 3px;background:rgba(10,12,17,.85);
+      font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.06em;color:var(--text,#eceae2);border-radius:3px}
+    .npsc-live i{width:7px;height:7px;border-radius:50%;background:var(--h)}
+    .npsc-shot figcaption{padding:7px 10px 8px;font-size:13px;line-height:1.35;color:var(--dim,#8e93a2);background:#0a0c11}
+    .npsc-tag{display:inline-block;padding:7px 9px 6px;background:var(--a);color:#14110a;font-family:"Righteous",sans-serif;font-size:10px;line-height:1.3;letter-spacing:.03em}
+    .npsc-title{margin:12px 0 0;font-family:"Righteous",sans-serif;font-weight:400;font-size:14px;line-height:1.4;color:var(--a);letter-spacing:.02em}
+    .npsc-hook{margin:6px 0 0;font-family:"Righteous",sans-serif;font-weight:400;font-size:25px;line-height:1.25;color:var(--text,#eceae2);text-shadow:0 2px 0 rgba(0,0,0,.6)}
+    .npsc-lead{margin:10px 0 0;font-size:16.5px;line-height:1.5;color:var(--text,#eceae2)}
+    .npsc-buy{margin:16px 0 0;padding:14px;background:var(--hp-well,#0a0c11);border:1px solid var(--line,#2c3040);border-radius:var(--hp-r,8px)}
+    .npsc-price{display:flex;align-items:center;gap:12px}
+    .npsc-price b{flex:none;font-family:"Righteous",sans-serif;font-weight:400;font-size:40px;line-height:1;color:var(--a);text-shadow:3px 3px 0 #000}
+    .npsc-price span{font-size:15px;line-height:1.4;color:var(--text,#eceae2)}
+    .npsc-cta{display:flex;align-items:center;justify-content:center;gap:9px;min-height:54px;margin:13px 0 0;padding:14px 18px 12px;
+      background:var(--h);color:var(--hp-on-hot,#12070a);text-decoration:none;border:2px solid var(--h);border-bottom:4px solid rgba(0,0,0,.35);
+      border-radius:var(--hp-r,8px);font-family:"Righteous",sans-serif;font-size:15px;line-height:1.2;text-align:center}
+    .npsc-cta:hover{background:var(--bg,#101219);color:var(--h)}
+    .npsc-cta:focus-visible,.npsc-alt:focus-visible{outline:3px solid var(--text,#eceae2);outline-offset:3px}
+    .npsc-alt{display:flex;align-items:center;justify-content:center;min-height:44px;margin-top:4px;font-family:"Righteous",sans-serif;font-size:12px;letter-spacing:.05em;
+      color:var(--text,#eceae2);text-decoration:underline;text-decoration-color:var(--a);text-decoration-thickness:2px;text-underline-offset:4px}
+    .npsc-alt:hover{color:var(--a)}
+    .npsc-fine{margin:6px 0 0;font-size:13px;line-height:1.4;color:var(--dim,#8e93a2);text-align:center}
+    .npsc-h3{margin:24px 0 10px;font-family:"Righteous",sans-serif;font-weight:400;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--a)}
+    .npsc-why{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin:0;padding:0;list-style:none}
+    .npsc-why li{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;align-items:start;padding:10px;background:rgba(10,12,17,.6);
+      border:1px solid var(--line,#2c3040);border-left:3px solid var(--h);border-radius:6px}
+    .npsc-why img{width:96px;height:72px;object-fit:cover;object-position:center;border-radius:3px;background:#0a0c11;image-rendering:pixelated}
+    .npsc-why b{display:block;font-family:"Righteous",sans-serif;font-weight:400;font-size:14px;line-height:1.3;color:var(--text,#eceae2)}
+    .npsc-why p{margin:4px 0 0;font-size:14.5px;line-height:1.42;color:color-mix(in srgb,var(--text,#eceae2) 78%,var(--dim,#8e93a2))}
+    .npsc-strip{display:flex;gap:10px;margin:0 -16px;padding:0 16px 8px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin}
+    .npsc-strip figure{flex:0 0 78%;margin:0;scroll-snap-align:start;background:#0a0c11;border:1px solid var(--line,#2c3040);border-radius:6px;overflow:hidden}
+    .npsc-strip img{width:100%;aspect-ratio:16/9;object-fit:contain;background:#0a0c11;image-rendering:pixelated}
+    .npsc-strip figcaption{padding:6px 9px 7px;font-size:12.5px;line-height:1.35;color:var(--dim,#8e93a2)}
+    .npsc-log{margin:0;padding:0;list-style:none;border:1px solid var(--line,#2c3040);border-radius:6px;background:var(--hp-well,#0a0c11);overflow:hidden}
+    .npsc-log li{padding:9px 12px;font-size:13.5px;line-height:1.4;color:var(--dim,#8e93a2);border-top:1px dotted var(--line,#2c3040)}
+    .npsc-log li:first-child{border-top:0;box-shadow:inset 3px 0 0 var(--a)}
+    .npsc-log em{font-style:normal;font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.06em;color:var(--a);margin-right:6px}
+    .npsc-log b{color:var(--text,#eceae2);font-weight:600}
+    .npsc-end{margin:18px 0 0}
+    @media (min-width:760px){
+      .npsc{padding:28px 30px}
+      .npsc-top{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:30px;align-items:start}
+      .npsc-hook{font-size:30px}
+      .npsc-why{grid-template-columns:1fr 1fr;gap:12px}
+      .npsc-why li{grid-template-columns:120px minmax(0,1fr)}
+      .npsc-why img{width:120px;height:90px}
+      .npsc-strip{margin:0;padding:0 0 8px}
+      .npsc-strip figure{flex-basis:calc((100% - 30px)/4)}
+      .npsc-bottom{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:30px;align-items:end}
+      .npsc-end{margin:0}
     }
-    return a;
-  }
-  ANNOUNCEMENTS.forEach(function(a){
-    if (!a || !a.title) return;
-    var item = el("div", "hp-news-item");
+    @media (prefers-reduced-motion:reduce){.npsc-cta:active{transform:none}}
+    </style>
+    <section class="npsc" id="npGame" aria-labelledby="npscHook">
+      <div class="npsc-top">
+        <figure class="npsc-shot">
+          <picture>
+            <source srcset="/images/np-game/swap-meet-still.webp" media="(prefers-reduced-motion: reduce)">
+            <img src="/images/np-game/swap-meet.webp" width="520" height="339" alt="Gameplay: the Nostalgia Pro walks the Saguaro Swap Meet past tables marked Price Is Firm, Make an Offer and Dig Pile.">
+          </picture>
+          <span class="npsc-live" aria-hidden="true"><i></i>GAMEPLAY</span>
+          <figcaption>Walking the Saguaro Swap Meet. Every table has a seller, and every seller has a rule.</figcaption>
+        </figure>
+        <div class="npsc-pitch">
+          <span class="npsc-tag">FULL GAME &middot; $1 ON ITCH.IO</span>
+          <p class="npsc-title">Nostalgia Pro: The Game</p>
+          <h2 class="npsc-hook" id="npscHook">Hit every yard sale in town before Dex does.</h2>
+          <p class="npsc-lead">Every Saturday you get a cash budget, a town map and a ticking clock. Dig through the tables, haggle with the sellers and get home by sundown with your finds.</p>
+          <div class="npsc-buy">
+            <div class="npsc-price"><b>$1</b><span>The full game, plus both free updates. Plays in your browser on desktop or phone.</span></div>
+            <a class="npsc-cta" href="https://thenostalgiapro.itch.io/nostalgia-pro-the-game" target="_blank" rel="noopener" aria-label="Get Nostalgia Pro: The Game for $1 on itch.io (opens in a new tab)">Get the full game for $1 <span aria-hidden="true">&#8599;</span></a>
+            <a class="npsc-alt" href="/play/">Try the free demo first</a>
+            <p class="npsc-fine">No login. No outside ads. Your season saves on your device.</p>
+          </div>
+        </div>
+      </div>
 
-    var head = el("div", "hp-news-head");
-    if (a.tag) head.appendChild(el("span", "hp-news-tag", a.tag));
-    head.appendChild(el("h2", "hp-news-title", a.title));
-    if (a.text) head.appendChild(el("p", "hp-news-text", a.text));
-    item.appendChild(head);
+      <h3 class="npsc-h3">What you get for a dollar</h3>
+      <ul class="npsc-why">
+        <li><img src="/images/np-game/modes.webp" width="520" height="761" alt="" loading="lazy" style="object-position:center 18%">
+          <div><b>A 12 Saturday season</b><p>You work all week and Friday is payday. Your cash and your shelf carry over from Saturday to Saturday. Finish the season and Endless mode unlocks.</p></div></li>
+        <li><img src="/images/np-game/haggle.webp" width="460" height="601" alt="" loading="lazy" style="object-position:center 82%">
+          <div><b>Haggle at every table</b><p>Lowball, fair or full price. Sellers remember you. Watch out for repros, disc rot and the jerks.</p></div></li>
+        <li><img src="/images/np-game/yard.webp" width="900" height="246" alt="" loading="lazy">
+          <div><b>Yard sales, thrift stores, a pawn shop and the swap meet</b><p>Sell or trade in what you find. Stores rotate in and out, from a mall game store to Lonnie's, a record store and two video rental stores.</p></div></li>
+        <li><img src="/images/np-game/santa-dash.webp" width="772" height="314" alt="" loading="lazy">
+          <div><b>Rivals, weather and arcade stops</b><p>Dex is out every Saturday, plus rivals like Phone Guy Phil and Slab Steve. Heat burns daylight. Feed a dollar into Mall Santa Dash in the food court.</p></div></li>
+      </ul>
 
-    var main = a.href && a.cta, second = a.href2 && a.cta2;
-    if (main || second){
-      var acts = el("div", "hp-news-acts");
-      if (main) acts.appendChild(link("hp-news-cta", a.href, a.cta, a.title));
-      if (second) acts.appendChild(link("hp-news-alt", a.href2, a.cta2, a.title));
-      item.appendChild(acts);
-    }
+      <h3 class="npsc-h3">Real screens from the game</h3>
+      <div class="npsc-strip" role="group" aria-label="Screenshots, swipe for more">
+        <figure><img src="/images/np-game/tv.webp" width="720" height="451" alt="The title screen on a CRT TV: Nostalgia Pro, Now with 40% more merchandising, Press start." loading="lazy"><figcaption>Press start</figcaption></figure>
+        <figure><img src="/images/np-game/map.webp" width="800" height="358" alt="The town map with yard sales, a gift shop, thrift stores, a music store and the swap meet." loading="lazy"><figcaption>The town map</figcaption></figure>
+        <figure><img src="/images/np-game/yard.webp" width="900" height="246" alt="A yard sale in the desert: a house, two tables, balloons and a Yard Sale sign." loading="lazy"><figcaption>A Saturday yard sale</figcaption></figure>
+        <figure><img src="/images/np-game/haggle.webp" width="460" height="601" alt="A game for sale, asking $40, with Lowball $20, Fair $30 and Full price $40 buttons." loading="lazy"><figcaption>Make an offer</figcaption></figure>
+        <figure><img src="/images/np-game/dime-box.webp" width="720" height="342" alt="Scrimmage Season '89 in Donny's dime box, 10 cents." loading="lazy"><figcaption>Donny's dime box</figcaption></figure>
+        <figure><img src="/images/np-game/santa-dash.webp" width="772" height="314" alt="Mall Santa Dash: Santa runs across the mall roof toward a chimney." loading="lazy"><figcaption>Mall Santa Dash</figcaption></figure>
+      </div>
 
-    var ups = Array.isArray(a.updates) ? a.updates.filter(function(u){ return u && u.text; }) : [];
-    if (ups.length){
-      var list = el("ul", "hp-news-updates");
-      list.setAttribute("aria-label", "Updates, newest first");
-      ups.slice().reverse().forEach(function(u){
-        var li = el("li");
-        var when = el("div", "hp-news-when");
-        if (u.label) when.appendChild(el("span", "hp-news-label", u.label));
-        if (u.date) when.appendChild(el("span", "hp-news-date", u.date));
-        li.appendChild(when);
-        var p = el("p", "hp-news-utext");
-        var cut = u.text.indexOf(". ");
-        if (cut > 0 && cut < 48){                 /* first sentence = the update's name, in bold */
-          p.appendChild(el("b", "", u.text.slice(0, cut + 1)));
-          p.appendChild(document.createTextNode(u.text.slice(cut + 1)));
-        } else {
-          p.textContent = u.text;
-        }
-        li.appendChild(p);
-        list.appendChild(li);
-      });
-      item.appendChild(list);
-    } else {
-      item.classList.add("hp-news-noupd");
-    }
-    box.appendChild(item);
-  });
-})();
-    </script>
+      <div class="npsc-bottom">
+        <div>
+          <h3 class="npsc-h3">Free updates</h3>
+          <ul class="npsc-log" aria-label="Updates, newest first">
+            <li><em>UPDATE 2 &middot; NOV 15</em><b>Holiday Rush.</b> A December Saturday at the mall with 9 AM doorbusters at Glass Case Games and Mall Santa Dash in the food court.</li>
+            <li><em>UPDATE 1 &middot; NOV 8</em><b>Dime Box Dynasty.</b> Dig through Donny's Storage Beers yard sale for all 15 years of Scrimmage Season, plus a Storage Beers arcade stop.</li>
+          </ul>
+        </div>
+        <div class="npsc-end">
+          <a class="npsc-cta" href="https://thenostalgiapro.itch.io/nostalgia-pro-the-game" target="_blank" rel="noopener" aria-label="Get Nostalgia Pro: The Game for $1 on itch.io (opens in a new tab)">Get it for $1 <span aria-hidden="true">&#8599;</span></a>
+          <a class="npsc-alt" href="/play/">Or play the free demo: one Saturday, three stops</a>
+        </div>
+      </div>
+    </section>
 
     <!-- LATEST GAME PURCHASES + LATEST POSTS + the monthly / seasonal slot (/theme.js fills #themeSlot) -->
     <div class="hp-band hp-band-slat">
