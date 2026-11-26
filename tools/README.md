@@ -436,3 +436,19 @@ until it's pressed; then it embeds the channel's uploads playlist from
 youtube-nocookie.com: `embed/videoseries?list=UUdHnuHu3XbvwJhgM5r5ZgIA`
 (channel `UCdHnuHu3XbvwJhgM5r5ZgIA`, @TheNostalgiaPro). The uploads list is
 always newest first, so it needs no updating. Shorts count as uploads too.
+
+## Site-wide bits (added Nov 26, 2026)
+
+* `site_head.py`: the shared `<head>` lines on every public page (favicon,
+  self-hosted fonts from `/fonts/`, the GoatCounter page view `/count.js`).
+  `pagekit.head()` uses it for generated pages; run it after adding a
+  hand-made page. Test folders (`*-test/`, `preview/`) are skipped.
+* `sync_counts.py`: writes the shelf's game and system counts into the
+  hand-made pages' titles, share tags and fallbacks. `build_game_pages.py`
+  runs it at the end.
+* `fetch_video_dates.py`: upload dates for the ASMR shorts
+  (`tools/data/video_dates.json`), used by the game pages' structured data.
+  Re-run when new shorts are added to `VIDEOS`, then `build_game_pages.py`.
+* `growth.js` `STORE_LIVE`: false while the Android app is off Google Play.
+  Set it to true to bring back the Play badge, the rate card and the
+  "Get the Android app" links.
