@@ -406,7 +406,8 @@ function finish() {
     row("Reached", S.gate ? "The toy store" : ZONES[zoneAt(S.z)].name.replace(/^THE /, "") + " (" + Math.max(0, Math.round(LEN - S.z)) + " m short)") +
     row("Items grabbed", S.items) + row("Catalog combo", got + " of 5") + row("Close shaves", S.near) + row("Bumps", S.bumps) +
     row("Time left", S.gate ? mmss(S.left) : "0:00") + row("Time bonus", S.gate ? comma(S.bonus) : "Reach the gate to earn it") +
-    (S.newShoes.length ? row("New shoes", S.newShoes.join(", ")) : ""),
+    (S.newShoes.length ? row("New shoes", S.newShoes.join(", ")) : "") +
+    '<a class="np-small" href="https://www.youtube.com/@TheNostalgiaPro?sub_confirmation=1" target="_blank" rel="noopener">More real-hardware clips every day: YouTube @TheNostalgiaPro</a>',
     stats: { score: S.score, gate: S.gate, bumps: S.bumps, left: Math.round(S.left), items: S.items, samples: S.samples,
              pieces: got, walkers: S.walkPassed, near: S.near, token: S.token, zone: zoneAt(S.z), dist: Math.round(S.z) } });
 }

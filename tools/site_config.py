@@ -18,7 +18,7 @@ OG_FALLBACK = "/og-image.png"
 X_HANDLE = "NostalgiaPro"
 
 # Where the footers send people (game and console pages).
-YOUTUBE_URL = "https://www.youtube.com/@TheNostalgiaPro"
+YOUTUBE_URL = "https://www.youtube.com/@TheNostalgiaPro?sub_confirmation=1"
 TIKTOK_URL = "https://www.tiktok.com/@rc.the.nostalgia.pro"
 SUBSTACK_URL = "https://nostalgiapro.substack.com"
 MERCH_URL = "https://nostalgiapro-shop.fourthwall.com/"
