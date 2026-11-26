@@ -19,16 +19,17 @@ function num(c) {
 /* y = 0 is the root of the bone (shoulder or hip), y = 1 is the far joint.
    Upper arm and thigh stay thick; wrist and ankle narrow. A radius spike is a cuff or a hem. */
 const PROF = {
-  upSleeve: [[0, -0.05], [1.4, 0.0], [1.22, 0.28], [1.0, 0.55], [0.78, 0.8], [0.62, 0.9], [1.02, 0.98], [0.4, 1.06], [0, 1.1]],
-  upPuff: [[0, -0.05], [1.75, 0.02], [1.6, 0.35], [1.35, 0.65], [1.05, 0.86], [0.85, 0.92], [1.2, 0.99], [0.45, 1.07], [0, 1.12]],
-  foreSkin: [[0, -0.04], [0.78, 0.0], [0.66, 0.35], [0.5, 0.7], [0.36, 0.95], [0, 1.04]],
-  foreSleeve: [[0, -0.04], [0.92, 0.0], [0.78, 0.4], [0.58, 0.72], [0.46, 0.86], [0.85, 0.96], [0.32, 1.05], [0, 1.1]],
-  thighShort: [[0, -0.04], [1.5, 0.0], [1.28, 0.35], [1.05, 0.68], [0.82, 0.86], [1.2, 0.96], [0.45, 1.05], [0, 1.1]],
-  thighPant: [[0, -0.04], [1.48, 0.0], [1.22, 0.4], [0.95, 0.72], [0.7, 1.0], [0, 1.05]],
-  shinSkin: [[0, -0.04], [0.95, 0.02], [0.78, 0.35], [0.52, 0.7], [0.34, 0.98], [0, 1.04]],
-  shinPant: [[0, -0.04], [0.98, 0.02], [0.8, 0.4], [0.55, 0.75], [0.42, 0.88], [0.72, 0.97], [0.28, 1.05], [0, 1.1]],
+  upSleeve: [[0, -0.05], [1.05, 0.0], [0.92, 0.3], [0.78, 0.6], [0.62, 0.82], [0.5, 0.92], [0.72, 0.98], [0.28, 1.06], [0, 1.1]],
+  upPuff: [[0, -0.05], [1.12, 0.0], [1.02, 0.32], [0.88, 0.62], [0.7, 0.84], [0.58, 0.92], [0.82, 0.99], [0.32, 1.07], [0, 1.12]],
+  foreSkin: [[0, -0.04], [0.95, 0.0], [0.62, 0.1], [0.9, 0.32], [0.7, 0.55], [0.46, 0.78], [0.3, 0.9], [0.42, 0.97], [0.2, 1.06], [0, 1.1]],
+  foreSleeve: [[0, -0.04], [0.78, 0.0], [0.7, 0.4], [0.55, 0.72], [0.42, 0.86], [0.7, 0.96], [0.26, 1.05], [0, 1.1]],
+  thighShort: [[0, -0.04], [1.35, 0.0], [1.15, 0.35], [0.95, 0.68], [0.75, 0.86], [1.0, 0.96], [0.4, 1.05], [0, 1.1]],
+  thighPant: [[0, -0.04], [1.32, 0.0], [1.12, 0.4], [0.9, 0.72], [0.68, 1.0], [0, 1.05]],
+  shinSkin: [[0, -0.04], [0.62, 0.0], [1.15, 0.22], [0.9, 0.48], [0.58, 0.72], [0.36, 0.88], [0.46, 0.96], [0.24, 1.05], [0, 1.1]],
+  shinPant: [[0, -0.04], [1.05, 0.0], [0.95, 0.28], [0.82, 0.55], [0.68, 0.8], [0.58, 0.94], [0.5, 1.02], [0, 1.08]],
   neck: [[0, 0], [1.15, 0], [1.0, 0.25], [0.85, 0.6], [0.8, 1.0], [0, 1.0]],
-  coat: [[0, 0.0], [0.95, 0.08], [1.05, 0.45], [0.98, 1.05], [1.12, 1.45], [1.28, 1.75], [0.85, 1.98], [0.35, 2.12], [0, 2.18]]
+  coat: [[0, 0.0], [0.58, 0.06], [0.7, 0.4], [0.52, 0.9], [0.62, 1.4], [0.78, 1.72], [0.5, 1.98], [0.2, 2.12], [0, 2.18]],
+  santaCoat: [[0, 0.0], [0.62, 0.06], [0.78, 0.45], [0.7, 0.95], [0.58, 1.35], [0.74, 1.7], [0.48, 1.98], [0.2, 2.12], [0, 2.18]]
 };
 
 function roundBox(T, w, h, d, r) {
@@ -127,22 +128,16 @@ function headGeo(T, o) {
   return g;
 }
 function handGeo(T, curl) {
-  curl = curl == null ? 0.35 : curl;
-  const fr = 0.034, parts = [];
-  parts.push([placed(T, roundBox(T, 0.11, 0.3, 0.27, 0.05), [0, 0.17, 0]), 0]);
-  parts.push([placed(T, new T.SphereGeometry(1, 8, 6), [-0.01, 0.27, 0], null, [0.065, 0.06, 0.15]), 0]);
-  [[-0.095, 0.82], [-0.032, 1.0], [0.032, 0.96], [0.095, 0.74]].forEach(function (f) {
-    const L = 0.15 * f[1], z = f[0];
-    let a = [0, 0.3, z], ang = 0.25 + curl * 0.6;
-    for (let k = 0; k < 2; k++) {
-      const len = k ? L * 0.8 : L, b = [a[0] - Math.sin(ang) * len, a[1] + Math.cos(ang) * len, z];
-      parts.push([segment(T, a, b, fr * (k ? 0.88 : 1), fr * (k ? 0.78 : 0.9)), 0]);
-      a = b; ang += 0.35 + curl * 1.0;
-    }
+  curl = curl == null ? 0.2 : curl;
+  const fr = 0.048, parts = [];
+  parts.push([placed(T, roundBox(T, 0.16, 0.2, 0.18, 0.05), [0, 0.12, 0]), 0]);
+  [[-0.06, 0.72], [-0.02, 0.9], [0.022, 0.86], [0.06, 0.66]].forEach(function (f) {
+    const len = 0.15 * f[1], a = [0, 0.2, f[0]], ang = 0.3 + curl * 0.45;
+    const b = [a[0] - Math.sin(ang) * len, a[1] + Math.cos(ang) * len, f[0]];
+    parts.push([segment(T, a, b, fr, fr * 0.72), 0]);
   });
-  const t0 = [-0.02, 0.09, 0.12], t1 = [-0.07, 0.2, 0.2], t2 = [-0.11 - curl * 0.04, 0.29, 0.2 - curl * 0.05];
-  parts.push([segment(T, t0, t1, fr * 1.25, fr * 1.05), 0]);
-  parts.push([segment(T, t1, t2, fr * 1.05, fr * 0.9), 0]);
+  parts.push([segment(T, [0.02, 0.06, 0.09], [0.11, 0.14, 0.16], fr * 1.25, fr), 0]);
+  parts.push([segment(T, [0.11, 0.14, 0.16], [0.17, 0.24, 0.12], fr, fr * 0.75), 0]);
   return mergeGeos(T, parts);
 }
 function footGeo(T, kind) {
@@ -159,7 +154,7 @@ function footGeo(T, kind) {
   const parts = [[g, 0], [placed(T, roundBox(T, 0.4, 0.09, 1.02, 0.04), [0, -0.14, 0.26]), 1]];
   parts.push([placed(T, lathe(T, [[0, -0.02], [0.2, 0], [0.22, 0.16], [0.16, 0.32], [0, 0.34]], 10), [0, -0.02, -0.02]), 0]);
   parts.push([placed(T, new T.SphereGeometry(1, 8, 6), [0, 0.06, 0.7], null, [0.16, 0.1, 0.18]), 0]);
-  if (boot) parts.push([placed(T, lathe(T, [[0, 0.1], [0.2, 0.12], [0.21, 0.4], [0.18, 0.62], [0, 0.64]], 10), [0, 0.05, -0.02]), 0]);
+  if (boot) parts.push([placed(T, lathe(T, [[0, 0.02], [0.22, 0.06], [0.24, 0.4], [0.22, 0.85], [0.16, 0.98], [0, 1.02]], 10), [0, 0.02, -0.04]), 0]);
   return mergeGeos(T, parts);
 }
 
@@ -206,7 +201,7 @@ function setLimb(TMP, L, A, B, pole, l1, l2) {
     const atElbow = L.cuffAt === "elbow";
     L.cuff.position.copy(atElbow ? L.j1.position : L.end.position);
     L.cuff.quaternion.copy((atElbow ? L.up : L.lo).quaternion);
-    L.cuff.scale.setScalar((atElbow ? L.r1 : L.r2) * (atElbow ? 0.9 : 0.72));
+    L.cuff.scale.setScalar((atElbow ? L.r1 : L.r2) * (L.cuff.userData.k || (atElbow ? 0.85 : 0.78)));
   }
 }
 function placeHand(TMP, P, s) {
@@ -268,7 +263,7 @@ export function createCast(T) {
     foreSkin: lathe(T, PROF.foreSkin, 10), foreSleeve: lathe(T, PROF.foreSleeve, 10),
     thighShort: lathe(T, PROF.thighShort, 10), thighPant: lathe(T, PROF.thighPant, 10),
     shinSkin: lathe(T, PROF.shinSkin, 10), shinPant: lathe(T, PROF.shinPant, 10),
-    neck: lathe(T, PROF.neck, 8), coat: lathe(T, PROF.coat, 12),
+    neck: lathe(T, PROF.neck, 8), coat: lathe(T, PROF.coat, 12), santaCoat: lathe(T, PROF.santaCoat, 12),
     torso: torsoGeo(T), head: headGeo(T), hand: handGeo(T, 0.4),
     shoe: footGeo(T, "shoe"), boot: footGeo(T, "boot"),
     cuff: new T.TorusGeometry(1, 0.28, 5, 10)
@@ -390,8 +385,10 @@ export function createCast(T) {
       const gl = ball(o.hips, 0.42, 0.62, 0.45, hips); gl.position.set(s * 0.4, -0.15, -0.5);
     });
     const upper = new T.Group(); body.add(upper);
-    const torso = new T.Mesh(o.coat ? G.coat : G.torso, o.torso); torso.scale.set(bulk * (o.coat ? 1.08 : 1), 1, bulk * (o.coat ? 1.12 : 1)); upper.add(torso);
-    const trap = ball(o.trap || o.torso, 0.72 * bulk, 0.22, 0.4 * bulk, upper); trap.position.set(0, 1.9, -0.02);
+    const torso = new T.Mesh(o.santa ? G.santaCoat : (o.coat ? G.coat : G.torso), o.torso);
+    torso.scale.set(bulk * (o.coat ? 0.96 : 1), 1, bulk * (o.coat ? 0.98 : 1)); upper.add(torso);
+    const trapK = o.tee ? 0.42 : (o.coat ? 0.48 : 0.55);
+    const trap = ball(o.trap || o.torso, trapK * bulk, 0.16, trapK * 0.7 * bulk, upper); trap.position.set(0, 1.88, 0.0);
     if (o.belt) {
       const belt = new T.Mesh(new T.TorusGeometry(0.62 * bulk, 0.07, 6, 16), o.belt); belt.rotation.x = Math.PI / 2; belt.scale.set(1, 1, 0.72); belt.position.y = 0.12; upper.add(belt);
       const buck = new T.Mesh(roundBox(T, 0.18, 0.12, 0.04, 0.02), pho(0xe8c56a, 46)); buck.position.set(0, 0.12, 0.52 * bulk); upper.add(buck);
@@ -399,7 +396,7 @@ export function createCast(T) {
     const neck = new T.Mesh(G.neck, o.skin); neck.scale.set(0.2 * bulk, 0.5, 0.19 * bulk); neck.position.set(0, 1.98, 0.02); upper.add(neck);
     const head = new T.Group(); head.position.y = 2.62; head.scale.setScalar(1.28); upper.add(head);
     function limb(m1, m2, r1, r2, endMat, endR, g1, g2, cuffMat, cuffAt) {
-      const L = { up: new T.Mesh(g1, m1), lo: new T.Mesh(g2, m2), j0: ball(m1, r1), j1: ball(m2, r2 * 0.9), end: ball(endMat, endR), r1: r1, r2: r2, cuffAt: cuffAt || "wrist" };
+      const L = { up: new T.Mesh(g1, m1), lo: new T.Mesh(g2, m2), j0: ball(m1, r1 * 0.85), j1: ball(m2, r2 * 1.12), end: ball(endMat, endR), r1: r1, r2: r2, cuffAt: cuffAt || "wrist" };
       body.add(L.up); body.add(L.lo);
       if (cuffMat) { L.cuff = new T.Mesh(G.cuff, cuffMat); body.add(L.cuff); }
       return L;
@@ -409,9 +406,10 @@ export function createCast(T) {
     const foreG = o.longSleeve ? G.foreSleeve : G.foreSkin;
     const thighG = o.shorts ? G.thighShort : G.thighPant;
     const shinG = o.shorts ? G.shinSkin : G.shinPant;
-    const arm = [0, 1].map(function () { return limb(o.sleeve, o.fore, 0.32 * ab, 0.16 * ab, o.fore, 0.1 * ab, upG, foreG, o.cuff, o.longSleeve ? "wrist" : "elbow"); });
-    arm.forEach(function (L) { L.j0.scale.set(0.42 * ab, 0.36 * ab, 0.4 * ab); L.delt = true; });
-    const leg = [0, 1].map(function () { return limb(o.thigh, o.shin, 0.38 * lb, 0.18 * lb, o.ankle, 0.1 * lb, thighG, shinG, o.ankleCuff, "wrist"); });
+    const armR = o.puffy ? 0.24 : 0.2, foreR = o.puffy ? 0.15 : 0.14;
+    const arm = [0, 1].map(function () { return limb(o.sleeve, o.fore, armR * ab, foreR * ab, o.fore, 0.09 * ab, upG, foreG, o.cuff, o.longSleeve ? "wrist" : "elbow"); });
+    arm.forEach(function (L) { L.j0.scale.set((o.puffy ? 0.3 : 0.24) * ab, 0.26 * ab, 0.28 * ab); L.delt = true; if (L.cuff && o.fur) L.cuff.userData.k = 1.25; });
+    const leg = [0, 1].map(function () { return limb(o.thigh, o.shin, 0.34 * lb, 0.2 * lb, o.ankle, 0.1 * lb, thighG, shinG, o.ankleCuff, "wrist"); });
     const hk = ab;
     const hand = [0, 1].map(function (s) {
       const m = new T.Mesh(G.hand, o.hand); m.scale.set(hk * (s ? 1 : -1), hk, hk); body.add(m); return m;
@@ -438,14 +436,12 @@ export function createCast(T) {
     g.fillStyle = "rgba(0,0,0,.08)"; g.fillRect(0, 0, 36, 256); g.fillRect(476, 0, 36, 256);
     g.fillStyle = "#e7e0d2"; g.fillRect(0, 228, 512, 28);
     g.fillStyle = "#d5cbb8"; g.fillRect(0, 226, 512, 4);
-    function badge(cx) {
-      g.fillStyle = "#1b1b22"; g.fillRect(cx - 54, 78, 108, 78);
-      for (let j = 0; j < 2; j++) for (let i = -2; i < 2; i++) { g.fillStyle = (i + j) % 2 ? "#e4343e" : "#fff1d6"; g.fillRect(cx + i * 14, 86 + j * 14, 14, 14); }
-      g.fillStyle = "#1f8f4a"; g.fillRect(cx - 28, 116, 56, 8);
-      g.fillStyle = "#c2304a"; g.font = "900 42px Arial Black, Arial, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
-      g.fillText("NP", cx, 148);
+    function mark(cx) {
+      g.fillStyle = "#c2304a"; g.font = "900 72px Arial Black, Arial, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillText("NP", cx, 118);
     }
-    badge(0); badge(256); badge(512);
+    mark(0); mark(256); mark(512);
+    g.fillStyle = "#e7e0d2"; g.fillRect(0, 228, 512, 0);
     const tx = new T.CanvasTexture(cv); tx.colorSpace = T.SRGBColorSpace; texes.jersey = tx;
     return pho(0xffffff, 14, { map: tx });
   }
@@ -470,25 +466,21 @@ export function createCast(T) {
     const handMat = o.mittens ? pho(o.mittens, 18) : skin;
     const cuffMat = o.fur ? white : (o.cuff === false ? null : rib);
     const F = makeFigure({
-      scale: o.scale, bulk: o.bulk, coat: !!o.coat, puffy: !!o.coat, longSleeve: o.sleeves !== "short", shorts: !!o.shorts,
+      scale: o.scale, bulk: o.bulk, coat: !!o.coat, santa: !!o.belly, puffy: !!o.coat, tee: !!o.tee, fur: !!o.fur, longSleeve: o.sleeves !== "short", shorts: !!o.shorts,
       torso: shirt, trap: o.tee ? sleeve : (o.coat ? shirt : rib), sleeve: sleeve, fore: fore, cuff: cuffMat,
       hand: handMat, skin: skin, hips: pants, thigh: pants, shin: o.shorts ? skin : pants,
       ankle: white, ankleCuff: o.shorts ? null : (o.fur ? white : waist),
       shoe: [shoeU, shoeS], footGeo: o.boots ? G.boot : G.shoe, belt: o.belt ? pho(o.belt, 22) : (o.shorts ? null : null)
     });
-    const hemY = o.coat ? 0.2 : 0.16;
-    band(F.upper, o.fur ? white : (o.tee ? wear(0xe4dcc8) : shirt), hemY, 0.64 * (o.bulk || 1), 0.42 * (o.bulk || 1), o.fur ? 0.11 : 0.05);
-    band(F.upper, o.fur ? white : (o.tee ? wear(0xded6c8) : rib), 1.78, 0.3 * (o.bulk || 1), 0.24 * (o.bulk || 1), o.fur ? 0.09 : 0.045);
-    if (!o.coat) band(F.upper, waist, 0.08, 0.7 * (o.bulk || 1), 0.46 * (o.bulk || 1), 0.06);
-    if (o.coat) {
-      [-1, 1].forEach(function (s) {
-        const p = new T.Mesh(G.sph, shirt); p.scale.set(0.38, 0.28, 0.34); p.position.set(s * 0.78, 1.72, 0.02); F.upper.add(p);
-      });
-      if (o.scarf) {
-        const sc = pho(o.scarf, 12);
-        band(F.upper, sc, 1.7, 0.4, 0.32, 0.09);
-        const tail = new T.Mesh(roundBox(T, 0.16, 0.7, 0.06, 0.03), sc); tail.position.set(0.18, 1.25, 0.42); tail.rotation.z = 0.15; F.upper.add(tail);
-      }
+    if (o.fur) band(F.upper, white, 0.12, 0.62 * (o.bulk || 1), 0.42 * (o.bulk || 1), 0.09);
+    else if (!o.tee) band(F.upper, shirt, 0.14, 0.58 * (o.bulk || 1), 0.38 * (o.bulk || 1), 0.045);
+    band(F.upper, o.fur ? white : (o.tee ? wear(0xded6c8) : rib), 1.78, 0.28 * (o.bulk || 1), 0.22 * (o.bulk || 1), o.fur ? 0.08 : 0.04);
+    if (o.shorts) band(F.upper, waist, -0.05, 0.48 * (o.bulk || 1), 0.32 * (o.bulk || 1), 0.03);
+    else if (!o.coat) band(F.upper, waist, 0.06, 0.58 * (o.bulk || 1), 0.4 * (o.bulk || 1), 0.045);
+    if (o.coat && o.scarf) {
+      const sc = pho(o.scarf, 12);
+      band(F.upper, sc, 1.62, 0.32, 0.26, 0.055);
+      const tail = new T.Mesh(roundBox(T, 0.14, 0.55, 0.05, 0.03), sc); tail.position.set(0.16, 1.28, 0.36); tail.rotation.z = 0.12; F.upper.add(tail);
     }
     if (o.vest) {
       const vest = new T.Mesh(roundBox(T, 0.85, 0.95, 0.12, 0.08), wear(o.vest));
@@ -497,7 +489,7 @@ export function createCast(T) {
       strap.position.set(0, 1.55, 0.4); F.upper.add(strap);
     }
     if (o.belly) {
-      const belly = new T.Mesh(G.sph, shirt); belly.scale.set(0.42, 0.36, 0.38); belly.position.set(0, 0.85, 0.42); F.upper.add(belly);
+      const belly = new T.Mesh(G.sph, shirt); belly.scale.set(0.26, 0.22, 0.22); belly.position.set(0, 0.95, 0.36); F.upper.add(belly);
     }
     const h = F.head;
     F.face = face(F, h, { skin: skin, iris: o.iris || 0x3a2414, brow: o.hair || 0x3a2414, lips: o.lips || 0xb0625a, mouth: o.mouth || "smile", browTilt: o.browTilt || 0.06, noseK: o.noseK || 1 });
@@ -573,10 +565,10 @@ export function createCast(T) {
       v[12] = 0.4; v[13] = 0.9; v[14] = 1.15; v[15] = -0.4; v[16] = 0.9; v[17] = 1.15;
       v[6] = 0.55; v[7] = 2.5; v[8] = 0.8; v[9] = -0.55; v[10] = 2.5; v[11] = 0.8;
     } else if (kind === "throne") {
-      v[1] = 2.02; v[5] = 2;
-      v[12] = 0.5; v[13] = 0.82; v[14] = 0.9; v[15] = -0.5; v[16] = 0.82; v[17] = 0.9;
-      v[6] = 0.95; v[7] = 2.25; v[8] = 0.25;
-      v[9] = -0.95; v[10] = 2.25; v[11] = 0.25;
+      v[1] = 2.05; v[5] = 4;
+      v[12] = 0.48; v[13] = 0.95; v[14] = 0.85; v[15] = -0.48; v[16] = 0.95; v[17] = 0.85;
+      v[6] = 1.15; v[7] = 2.15; v[8] = 0.45;
+      v[9] = -1.15; v[10] = 2.15; v[11] = 0.45;
       v[18] = 0;
     } else if (kind === "wave") {
       const w = Math.sin(ph * 5);

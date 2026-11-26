@@ -51,8 +51,9 @@ const STORES = [
 ];
 
 let THREE = null, K = null, S = {}, idleT = 0, ptr = null, keys = {};
-const CAST = /[?&]cast=(1|hero)/.test(location.search);
+const CAST = /[?&]cast=(1|hero|santa)/.test(location.search);
 const CAST_HERO = /[?&]cast=hero/.test(location.search);
+const CAST_SANTA = /[?&]cast=santa/.test(location.search);
 let gear = { u: { plain: 1 }, on: "plain", items: 0 };
 
 function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
@@ -736,12 +737,14 @@ function buildKit(T) {
   }
 
   /* Mall Santa, seated in center court, off the lanes so he never collides */
-  const santa = person({ shirt: "#c2304a", pants: "#8e1c2c", coat: true, fur: true, belly: true, mittens: "#fff6ee", sleeves: "long", hat: "santa", boots: true, belt: 0x1a120c, beard: true, hairStyle: "bald", skin: "#f1c28e", bulk: 1.2, scale: 1.08, mouth: "smile", browTilt: 0.15, shoes: "#1a120c", sole: "#e8e0d0" });
+  const santa = person({ shirt: "#c2304a", pants: "#8e1c2c", coat: true, fur: true, belly: true, mittens: "#fff6ee", sleeves: "long", hat: "santa", boots: true, belt: 0x1a120c, beard: true, hairStyle: "bald", skin: "#f1c28e", bulk: 1.05, scale: 1.05, mouth: "smile", browTilt: 0.15, shoes: "#1a120c", sole: "#e8e0d0" });
   const throne = grp(scene, -3.45, 0, -(ZB[3] + 70));
   Cast.chunk(throne, Cast.rb(1.15, 0.16, 1.05, 0.08), Cast.wear(0x7a1830), 0, 0.48, 0);
   Cast.chunk(throne, Cast.rb(1.15, 1.35, 0.18, 0.08), Cast.wear(0x7a1830), 0, 1.15, -0.42);
   Cast.chunk(throne, Cast.rb(0.16, 0.5, 0.16, 0.04), Cast.pho(0xc9a24a, 30), -0.42, 0.25, 0.35);
   Cast.chunk(throne, Cast.rb(0.16, 0.5, 0.16, 0.04), Cast.pho(0xc9a24a, 30), 0.42, 0.25, 0.35);
+  Cast.chunk(throne, Cast.rb(0.12, 0.08, 0.72, 0.04), Cast.wear(0x7a1830), -0.62, 1.02, 0.08);
+  Cast.chunk(throne, Cast.rb(0.12, 0.08, 0.72, 0.04), Cast.wear(0x7a1830), 0.62, 1.02, 0.08);
   santa.g.position.set(0, 0.42, 0.05);
   throne.add(santa.g);
   const GIFT = [0x3f7fd0, 0xc2304a, 0x1f6a3a, 0xffd23f];
@@ -967,6 +970,15 @@ function makeItem(it) {
 }
 
 /* ---------------- Per-frame scene sync ---------------- */
+function frameSanta(t) {
+  const throne = K.santa.g.parent;
+  K.pose(K.santa, "throne", t, t);
+  K.heroRoot.visible = false;
+  const cam = K.cam;
+  cam.position.set(throne.position.x + 2.15, 1.55, throne.position.z + 3.15);
+  cam.lookAt(throne.position.x, 1.15, throne.position.z);
+  if (Math.abs(cam.fov - 40) > 0.1) { cam.fov = 40; cam.updateProjectionMatrix(); }
+}
 function frameCast(t, z, heroOnly) {
   if (!K.lineup) {
     const g = K.grp(K.scene, 0, 0, 0), folks = [];
@@ -974,7 +986,7 @@ function frameCast(t, z, heroOnly) {
     add(K.person({ tee: true, pants: "#9a8a5a", shorts: true, sleeves: "short", hat: "beanie", hatc: "#c2304a", skin: "#f1c28e", hair: "#5a3a20", hairStyle: "short", pockets: true, shoes: "#f7f4ee", sole: "#c2304a" }), -0.78, 0.4);
     add(K.person({ shirt: "#7a3fd0", pants: "#243044", coat: true, scarf: "#fff6ee", hair: "#4a3728", hairStyle: "short", hat: "beanie", hatc: "#7a3fd0", skin: "#c98a5a", shoes: "#f7f4ee", sole: "#1a1a1a", sleeves: "long" }), -0.24, 0.35);
     add(K.person({ shirt: "#1b1b22", pants: "#14141c", hair: "#c89a40", hairStyle: "bun", vest: "#f6e6ee", sleeves: "long", skin: "#f6d5b0", shoes: "#1b1b22" }), 0.28, -0.4);
-    add(K.person({ shirt: "#c2304a", pants: "#8e1c2c", coat: true, fur: true, belly: true, mittens: "#fff6ee", sleeves: "long", hat: "santa", boots: true, belt: 0x1a120c, beard: true, hairStyle: "bald", bulk: 1.12, skin: "#f1c28e", shoes: "#1a120c" }), 0.8, 0.25);
+    add(K.person({ shirt: "#c2304a", pants: "#8e1c2c", coat: true, fur: true, belly: true, mittens: "#fff6ee", sleeves: "long", hat: "santa", boots: true, belt: 0x1a120c, beard: true, hairStyle: "bald", bulk: 1.05, skin: "#f1c28e", shoes: "#1a120c" }), 0.8, 0.25);
     K.lineup = g; K.lineupFolks = folks;
   }
   K.lineup.position.set(0, 0, -z - 1.15);
@@ -1112,7 +1124,8 @@ function syncWorld(dt, state, t) {
   if (K.santa) K.pose(K.santa, "throne", t, t);
   K.sun.position.set(cam.position.x - 3, 9, cam.position.z - 8); K.sun.target.position.set(hx, 1.2, -z - 6);
   if (K.fill) { K.fill.position.set(cam.position.x, cam.position.y + 1.2, cam.position.z); K.fill.target.position.set(hx, 1.1, -z - 4); }
-  if (CAST) frameCast(t, z, CAST_HERO);
+  if (CAST_SANTA) frameSanta(t);
+  else if (CAST) frameCast(t, z, CAST_HERO);
 }
 
 /* ---------------- HUD (2D canvas on top of the 3D view) ---------------- */
