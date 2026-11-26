@@ -20,14 +20,15 @@ export function createHouse(T, Cast, ROOMS, FLOOR) {
   if (T.SRGBColorSpace && "outputColorSpace" in renderer) renderer.outputColorSpace = T.SRGBColorSpace;
 
   const scene = new T.Scene();
-  scene.background = new T.Color(0x120e1c);
-  scene.fog = new T.Fog(0x120e1c, 9, 18);
-  const cam = new T.PerspectiveCamera(46, 360 / 540, 0.08, 40);
+  scene.background = new T.Color(0x241c2e);
+  scene.fog = new T.Fog(0x241c2e, 18, 36);
+  const cam = new T.PerspectiveCamera(46, 360 / 540, 0.08, 50);
 
-  scene.add(new T.HemisphereLight(0xfff0dc, 0x2a2040, 0.72));
-  const key = new T.DirectionalLight(0xffe2b0, 1.25); key.position.set(-2.4, 4.2, 3.2); scene.add(key);
-  const fill = new T.DirectionalLight(0x9ec8ff, 0.45); fill.position.set(3, 2.2, 2); scene.add(fill);
-  const lamp = new T.PointLight(0xffc56a, 0, 6, 2); scene.add(lamp);
+  scene.add(new T.HemisphereLight(0xfff6ea, 0x4a3458, 1.55));
+  const key = new T.DirectionalLight(0xffe2b8, 2.4); key.position.set(-2.2, 5.2, 4.2); scene.add(key);
+  const fill = new T.DirectionalLight(0xc5dcff, 0.85); fill.position.set(3.2, 2.6, 3); scene.add(fill);
+  const lamp = new T.PointLight(0xffc56a, 0, 12, 1.4); scene.add(lamp);
+  const tvGlow = new T.PointLight(0x9ec4ff, 0, 6, 1.6); scene.add(tvGlow);
 
   const mats = {};
   function M(col, o) {
@@ -170,7 +171,7 @@ export function createHouse(T, Cast, ROOMS, FLOOR) {
     }
     const pole = cyl(g, 0.03, 0.03, 1.5, M("#9aa0aa"), 0.2, 1.7, 0.2);
     const ball = new T.Mesh(new T.SphereGeometry(0.34, 20, 14), new T.MeshPhongMaterial({ color: 0xffd23f, shininess: 90, specular: 0xfff6c8, emissive: 0xffd23f, emissiveIntensity: 0.45 }));
-    ball.position.set(0.2, 2.45, 0.2); g.add(ball);
+    ball.position.set(-0.95, 2.45, 0.15); g.add(ball);
     g.userData.ball = ball; g.userData.pole = pole;
     return g;
   }
@@ -182,17 +183,17 @@ export function createHouse(T, Cast, ROOMS, FLOOR) {
   const rooms = {};
   ROOMS.forEach(function (R) {
     const g = new T.Group(); g.visible = false; scene.add(g);
-    const wall = R.id === "den" ? "#3a2618" : R.id === "kitchen" ? "#3a2848" : R.id === "hall" ? "#2a2438" : R.id === "stairs" ? "#2a1a12" : "#1a1430";
-    const floor = R.id === "den" ? "#2a2438" : R.id === "kitchen" ? "#6a4a32" : "#3a2a24";
+    const wall = R.id === "den" ? "#6e4c32" : R.id === "kitchen" ? "#4a3860" : R.id === "hall" ? "#3a3450" : R.id === "stairs" ? "#3a281c" : "#2a2244";
+    const floor = R.id === "den" ? "#5a4638" : R.id === "kitchen" ? "#7a5a3c" : "#4a382e";
     box(g, 9.2, 0.12, 3.4, M(floor), 0, -0.06, 0.2);
     box(g, 9.2, 3.4, 0.12, M(wall), 0, 1.7, -1.7);
     box(g, 0.12, 3.4, 3.2, M(wall), -4.5, 1.7, 0);
     box(g, 0.12, 3.4, 3.2, M(wall), 4.5, 1.7, 0);
     R.platforms.forEach(function (p) {
       const w = p.w / SCALE, h = 0.16, y = py(p.y) - h / 2;
-      box(g, w, h, 1.05, lookMat[p.look] || lookMat.wood, px(p.x + p.w / 2), y, 0);
-      const top = new T.Mesh(new T.BoxGeometry(w, 0.03, 1.05), M("#e6d2a8"));
-      top.position.set(px(p.x + p.w / 2), py(p.y) - 0.01, 0); g.add(top);
+      box(g, w, h, 0.55, lookMat[p.look] || lookMat.wood, px(p.x + p.w / 2), y, -0.78);
+      const top = new T.Mesh(new T.BoxGeometry(w, 0.03, 0.55), M("#e6d2a8"));
+      top.position.set(px(p.x + p.w / 2), py(p.y) - 0.01, -0.78); g.add(top);
     });
     if (R.id === "kitchen") {
       box(g, 0.7, 1.5, 0.55, M("#f4f1ea"), px(320), 0.75, -1.15);
@@ -358,15 +359,15 @@ export function createHouse(T, Cast, ROOMS, FLOOR) {
     if (castMode) {
       scene.fog.near = 12; scene.fog.far = 24;
       if (CAST_HERO) {
-        placeCast(kid, shKid, -0.36, 0.28, "wave", t);
-        placeCast(collector, null, 0.36, -0.28, "idle", t);
-        cam.fov = 42; cam.position.set(0, 1.2, 3.7); cam.lookAt(0, 1.08, 0);
+        placeCast(kid, shKid, -0.78, 0.08, "idle", t);
+        placeCast(collector, null, 0.78, -0.08, "idle", t);
+        cam.fov = 36; cam.position.set(0, 1.15, 5.5); cam.lookAt(0, 1.05, 0);
       } else {
-        placeCast(kid, shKid, -0.48, 0.32, "wave", t);
-        placeCast(mom, shMom, 0.0, 0.02, "phone", t);
-        placeCast(guestA, shA, 0.48, -0.28, "cheer", t);
+        placeCast(kid, shKid, -1.25, 0, "idle", t);
+        placeCast(mom, shMom, 0, 0, "phone", t);
+        placeCast(guestA, shA, 1.25, 0, "idle", t);
         guestB.g.visible = false;
-        cam.fov = 44; cam.position.set(0, 1.22, 3.85); cam.lookAt(0, 1.1, 0);
+        cam.fov = 40; cam.position.set(0, 1.2, 6.4); cam.lookAt(0, 1.05, 0);
       }
       cam.updateProjectionMatrix();
       return;
@@ -424,8 +425,11 @@ export function createHouse(T, Cast, ROOMS, FLOOR) {
       roomG.userData.door.material = open ? M("#ffd23f", { emissive: "#8a6a10", em: 0.5 }) : M("#4a301c");
       roomG.userData.door.visible = !!R.door;
     }
-    lamp.intensity = R.id === "den" ? 8 : R.id === "living" ? 3 : 1.2;
-    lamp.position.set(px(R.id === "den" ? 300 : 40), 2.1, 0.4);
+    const inDen = R.id === "den";
+    lamp.intensity = inDen ? 48 : R.id === "living" ? 18 : 8;
+    lamp.position.set(px(inDen ? 300 : 70), inDen ? 1.75 : 2.05, 0.85);
+    tvGlow.intensity = inDen ? 28 : (R.id === "living" ? 8 : 0);
+    tvGlow.position.set(inDen ? px(190) : px(220), inDen ? py(310) + 0.55 : 1.45, inDen ? 0.15 : 0.5);
 
     confetti.forEach(function (m, i) {
       if (!finale) { m.visible = false; return; }
@@ -437,13 +441,14 @@ export function createHouse(T, Cast, ROOMS, FLOOR) {
 
     const fx = px(S.x), fy = py(Math.min(S.y, FLOOR));
     if (finale) {
-      cam.fov = 48;
-      cam.position.set(px(230), 1.45, 4.55);
-      cam.lookAt(px(300), 1.25, -1.0);
+      cam.fov = 42;
+      cam.position.set(px(200), 1.65, 7.8);
+      cam.lookAt(px(270), 1.2, -0.7);
     } else {
+      const face = S.face || 1;
       cam.fov = 46;
-      cam.position.set(fx * 0.22, fy + 1.15, 4.15);
-      cam.lookAt(fx * 0.35, fy + 0.72, 0);
+      cam.position.set(fx, fy + 1.7, 8.2);
+      cam.lookAt(fx + face * 0.45, fy + 1.05, -0.35);
     }
     cam.updateProjectionMatrix();
   }

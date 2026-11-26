@@ -18,14 +18,14 @@ function num(c) {
 /* y = 0 is the root of the bone (shoulder or hip), y = 1 is the far joint.
    Upper arm and thigh stay thick; wrist and ankle narrow. A radius spike is a cuff or a hem. */
 const PROF = {
-  upSleeve: [[0, -0.05], [1.4, 0.0], [1.22, 0.28], [1.0, 0.55], [0.78, 0.8], [0.62, 0.9], [1.02, 0.98], [0.4, 1.06], [0, 1.1]],
-  upPuff: [[0, -0.05], [1.75, 0.02], [1.6, 0.35], [1.35, 0.65], [1.05, 0.86], [0.85, 0.92], [1.2, 0.99], [0.45, 1.07], [0, 1.12]],
-  foreSkin: [[0, -0.04], [0.78, 0.0], [0.66, 0.35], [0.5, 0.7], [0.36, 0.95], [0, 1.04]],
-  foreSleeve: [[0, -0.04], [0.92, 0.0], [0.78, 0.4], [0.58, 0.72], [0.46, 0.86], [0.85, 0.96], [0.32, 1.05], [0, 1.1]],
-  thighShort: [[0, -0.04], [1.5, 0.0], [1.28, 0.35], [1.05, 0.68], [0.82, 0.86], [1.2, 0.96], [0.45, 1.05], [0, 1.1]],
-  thighPant: [[0, -0.04], [1.48, 0.0], [1.22, 0.4], [0.95, 0.72], [0.7, 1.0], [0, 1.05]],
-  shinSkin: [[0, -0.04], [0.95, 0.02], [0.78, 0.35], [0.52, 0.7], [0.34, 0.98], [0, 1.04]],
-  shinPant: [[0, -0.04], [0.98, 0.02], [0.8, 0.4], [0.55, 0.75], [0.42, 0.88], [0.72, 0.97], [0.28, 1.05], [0, 1.1]],
+  upSleeve: [[0, -0.05], [0.7, -0.02], [0.95, 0.08], [1.05, 0.28], [0.92, 0.55], [0.74, 0.8], [0.6, 0.94], [0.85, 1.0], [0.36, 1.06], [0, 1.1]],
+  upPuff: [[0, -0.05], [0.85, 0.0], [1.15, 0.22], [1.05, 0.5], [0.82, 0.78], [0.68, 0.92], [0.95, 1.0], [0.4, 1.07], [0, 1.12]],
+  foreSkin: [[0, -0.04], [0.62, 0.0], [0.78, 0.16], [0.7, 0.45], [0.52, 0.75], [0.38, 0.96], [0, 1.04]],
+  foreSleeve: [[0, -0.04], [0.7, 0.0], [0.82, 0.2], [0.68, 0.5], [0.5, 0.78], [0.72, 0.94], [0.32, 1.04], [0, 1.1]],
+  thighShort: [[0, -0.04], [0.62, 0.0], [0.92, 0.14], [0.86, 0.45], [0.7, 0.72], [0.95, 0.9], [0.4, 1.0], [0, 1.05]],
+  thighPant: [[0, -0.05], [0.7, -0.02], [0.96, 0.1], [1.04, 0.3], [0.96, 0.52], [0.8, 0.76], [0.64, 0.94], [0.58, 1.0], [0, 1.04]],
+  shinSkin: [[0, -0.04], [0.62, 0.0], [0.84, 0.16], [0.95, 0.32], [0.78, 0.58], [0.55, 0.82], [0.4, 0.98], [0, 1.04]],
+  shinPant: [[0, -0.04], [0.66, -0.02], [0.86, 0.1], [1.02, 0.24], [0.86, 0.46], [0.66, 0.72], [0.5, 0.9], [0.46, 1.0], [0, 1.03]],
   neck: [[0, 0], [1.15, 0], [1.0, 0.25], [0.85, 0.6], [0.8, 1.0], [0, 1.0]],
   coat: [[0, 0.0], [0.95, 0.08], [1.05, 0.45], [0.98, 1.05], [1.12, 1.45], [1.28, 1.75], [0.85, 1.98], [0.35, 2.12], [0, 2.18]],
   robe: [[0, -0.2], [0.62, -0.12], [0.78, 0.15], [0.7, 0.7], [0.66, 1.15], [0.74, 1.55], [0.7, 1.85], [0.42, 2.02], [0, 2.1]]
@@ -92,15 +92,19 @@ function segment(T, a, b, r0, r1) {
 }
 
 function robeGeo(T) {
-  const g = lathe(T, PROF.robe, 16), p = g.attributes.position;
+  const g = lathe(T, [
+    [0, -0.58], [0.98, -0.4], [0.9, -0.16], [0.7, 0.08], [0.5, 0.32], [0.48, 0.62],
+    [0.56, 1.05], [0.64, 1.4], [0.78, 1.68], [0.66, 1.92], [0.32, 2.06], [0, 2.12]
+  ], 18);
+  const p = g.attributes.position;
   for (let i = 0; i < p.count; i++) {
     let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
-    z *= 0.78;
-    if (z > 0.02) {
-      const open = Math.min(1, (z - 0.02) / 0.35) * (y < 1.7 ? 1 : 0.35);
-      x += Math.sign(x || 1) * 0.16 * open;
-      z *= 1 - 0.45 * open;
-    }
+    const shoulder = Math.max(0, 1 - Math.abs(y - 1.68) / 0.32);
+    x *= 1 + 0.34 * shoulder;
+    const hem = Math.max(0, Math.min(1, (0.12 - y) / 0.55));
+    x *= 1 + 0.16 * hem;
+    z *= 0.78 + 0.2 * hem;
+    if (z > 0.08 && y < 1.85) z += 0.04 * hem;
     p.setXYZ(i, x, y, z);
   }
   g.computeVertexNormals();
@@ -142,22 +146,23 @@ function headGeo(T, o) {
   return g;
 }
 function handGeo(T, curl) {
-  curl = curl == null ? 0.35 : curl;
-  const fr = 0.034, parts = [];
-  parts.push([placed(T, roundBox(T, 0.11, 0.3, 0.27, 0.05), [0, 0.17, 0]), 0]);
-  parts.push([placed(T, new T.SphereGeometry(1, 8, 6), [-0.01, 0.27, 0], null, [0.065, 0.06, 0.15]), 0]);
-  [[-0.095, 0.82], [-0.032, 1.0], [0.032, 0.96], [0.095, 0.74]].forEach(function (f) {
-    const L = 0.15 * f[1], z = f[0];
-    let a = [0, 0.3, z], ang = 0.25 + curl * 0.6;
-    for (let k = 0; k < 2; k++) {
-      const len = k ? L * 0.8 : L, b = [a[0] - Math.sin(ang) * len, a[1] + Math.cos(ang) * len, z];
-      parts.push([segment(T, a, b, fr * (k ? 0.88 : 1), fr * (k ? 0.78 : 0.9)), 0]);
-      a = b; ang += 0.35 + curl * 1.0;
+  curl = curl == null ? 0.16 : curl;
+  const fr = 0.04, parts = [];
+  parts.push([placed(T, roundBox(T, 0.15, 0.26, 0.2, 0.05), [0, 0.15, 0]), 0]);
+  parts.push([placed(T, new T.SphereGeometry(1, 8, 6), [0, 0.26, 0], null, [0.055, 0.05, 0.11]), 0]);
+  [[-0.075, 0.92], [-0.025, 1.05], [0.025, 1.02], [0.072, 0.86]].forEach(function (f) {
+    const L = 0.13 * f[1], z = f[0];
+    let a = [0, 0.28, z], ang = 0.12 + curl * 0.45;
+    for (let k = 0; k < 3; k++) {
+      const len = k === 2 ? L * 0.62 : L * 0.85;
+      const b = [a[0] - Math.sin(ang) * len, a[1] + Math.cos(ang) * len, z];
+      parts.push([segment(T, a, b, fr * (1 - k * 0.12), fr * (0.9 - k * 0.12)), 0]);
+      a = b; ang += 0.22 + curl * 0.55;
     }
   });
-  const t0 = [-0.02, 0.09, 0.12], t1 = [-0.07, 0.2, 0.2], t2 = [-0.11 - curl * 0.04, 0.29, 0.2 - curl * 0.05];
-  parts.push([segment(T, t0, t1, fr * 1.25, fr * 1.05), 0]);
-  parts.push([segment(T, t1, t2, fr * 1.05, fr * 0.9), 0]);
+  const t0 = [0.01, 0.08, 0.1], t1 = [-0.02, 0.16, 0.16], t2 = [-0.06, 0.24, 0.18];
+  parts.push([segment(T, t0, t1, fr * 1.2, fr * 1.05), 0]);
+  parts.push([segment(T, t1, t2, fr * 1.0, fr * 0.82), 0]);
   return mergeGeos(T, parts);
 }
 function footGeo(T, kind) {
@@ -410,9 +415,9 @@ export function createCast(T) {
     function ball(mat, sx, sy, sz, parent) {
       const m = new T.Mesh(G.sph, mat); m.scale.set(sx, sy == null ? sx : sy, sz == null ? sx : sz); (parent || body).add(m); return m;
     }
-    const hips = ball(o.hips, 0.6 * bulk, 0.42, 0.46 * bulk);
+    const hips = ball(o.hips, 0.36 * bulk, 0.26, 0.3 * bulk);
     [-1, 1].forEach(function (s) {
-      const gl = ball(o.hips, 0.42, 0.62, 0.45, hips); gl.position.set(s * 0.4, -0.15, -0.5);
+      const gl = ball(o.hips, 0.22, 0.28, 0.2, hips); gl.position.set(s * 0.22, -0.08, -0.16);
     });
     const upper = new T.Group(); body.add(upper);
     const torso = new T.Mesh(o.robeGeo || (o.coat ? G.coat : G.torso), o.torso); torso.scale.set(bulk * (o.coat ? 1.08 : 1), 1, bulk * (o.coat ? 1.12 : 1)); upper.add(torso);
@@ -436,8 +441,8 @@ export function createCast(T) {
     const shinG = o.shorts ? G.shinSkin : G.shinPant;
     const arm = [0, 1].map(function () { return limb(o.sleeve, o.fore, 0.32 * ab, 0.16 * ab, o.fore, 0.1 * ab, upG, foreG, o.cuff, o.longSleeve ? "wrist" : "elbow"); });
     arm.forEach(function (L) { L.j0.scale.set(0.42 * ab, 0.36 * ab, 0.4 * ab); L.delt = true; });
-    const leg = [0, 1].map(function () { return limb(o.thigh, o.shin, 0.38 * lb, 0.18 * lb, o.ankle, 0.1 * lb, thighG, shinG, o.ankleCuff, "wrist"); });
-    const hk = ab;
+    const leg = [0, 1].map(function () { return limb(o.thigh, o.shin, 0.3 * lb, 0.2 * lb, o.ankle, 0.12 * lb, thighG, shinG, o.ankleCuff, "wrist"); });
+    const hk = ab * 1.35;
     const hand = [0, 1].map(function (s) {
       const m = new T.Mesh(G.hand, o.hand); m.scale.set(hk * (s ? 1 : -1), hk, hk); body.add(m); return m;
     });
@@ -533,25 +538,26 @@ export function createCast(T) {
       shoe: [shoeU, shoeS], footGeo: o.boots ? G.boot : G.shoe, belt: o.belt ? pho(o.belt, 22) : (o.shorts ? null : null)
     });
     const hemY = o.coat ? 0.2 : 0.16;
-    band(F.upper, o.fur ? white : (o.tee ? wear(0xe4dcc8) : shirt), hemY, 0.64 * (o.bulk || 1), 0.42 * (o.bulk || 1), o.fur ? 0.11 : 0.05);
-    band(F.upper, o.fur ? white : (o.tee ? wear(0xded6c8) : rib), 1.78, 0.3 * (o.bulk || 1), 0.24 * (o.bulk || 1), o.fur ? 0.09 : 0.045);
-    if (!o.coat) band(F.upper, waist, 0.08, 0.7 * (o.bulk || 1), 0.46 * (o.bulk || 1), 0.06);
+    if (!o.robe) {
+      band(F.upper, o.fur ? white : (o.tee ? wear(0xe4dcc8) : shirt), hemY, 0.52 * (o.bulk || 1), 0.36 * (o.bulk || 1), o.fur ? 0.09 : 0.04);
+      band(F.upper, o.fur ? white : (o.tee ? wear(0xded6c8) : rib), 1.78, 0.28 * (o.bulk || 1), 0.22 * (o.bulk || 1), o.fur ? 0.08 : 0.04);
+    }
+    if (!o.coat && !o.robe) band(F.upper, waist, 0.08, 0.48 * (o.bulk || 1), 0.34 * (o.bulk || 1), 0.045);
     if (o.collar) {
       const colr = new T.Mesh(roundBox(T, 0.34, 0.1, 0.16, 0.03), wear(o.collar));
       colr.position.set(0, 1.82, 0.34); F.upper.add(colr);
     }
     if (o.coat) {
       [-1, 1].forEach(function (s) {
-        const p = new T.Mesh(G.sph, shirt); p.scale.set(0.38, 0.28, 0.34); p.position.set(s * 0.78, 1.72, 0.02); F.upper.add(p);
+        const p = new T.Mesh(G.sph, shirt); p.scale.set(0.32, 0.2, 0.26); p.position.set(s * 0.62, 1.7, 0.02); F.upper.add(p);
       });
       if (o.robe) {
-        const lining = wear(0xf6efe6);
+        const sash = wear(0xc4a574);
+        const knot = new T.Mesh(G.sph, sash); knot.scale.set(0.16, 0.12, 0.1); knot.position.set(0, 0.22, 0.62); F.upper.add(knot);
         [-1, 1].forEach(function (s) {
-          const lap = new T.Mesh(roundBox(T, 0.1, 0.55, 0.04, 0.02), lining);
-          lap.position.set(s * 0.16, 1.45, 0.5 * (o.bulk || 1)); lap.rotation.z = s * -0.4; F.upper.add(lap);
+          const tail = new T.Mesh(roundBox(T, 0.08, 0.58, 0.035, 0.015), sash);
+          tail.position.set(s * 0.08, -0.08, 0.58); tail.rotation.z = s * -0.1; F.upper.add(tail);
         });
-        const tie = new T.Mesh(roundBox(T, 0.06, 0.28, 0.03, 0.02), wear(0xc4a574));
-        tie.position.set(0.1, 1.15, 0.52); tie.rotation.z = 0.4; F.upper.add(tie);
       }
       if (o.scarf) {
         const sc = pho(o.scarf, 12);
