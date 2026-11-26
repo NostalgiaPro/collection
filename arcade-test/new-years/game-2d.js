@@ -781,19 +781,31 @@
     figCache[key] = cv;
     return cv;
   }
-  function drawFigure(c, who, view, frame, x, feet, face) {
-    var spr = buildFigure(who, view, frame || "idle0");
-    var w = FW * SPR, h = FH * SPR;
-    c.imageSmoothingEnabled = false;
-    c.save();
-    if (view === "side" && face > 0) {
-      c.translate(Math.round(x + w / 2), Math.round(feet - h));
-      c.scale(-1, 1);
-      c.drawImage(spr, 0, 0, w, h);
-    } else {
-      c.drawImage(spr, Math.round(x - w / 2), Math.round(feet - h), w, h);
+  var SHEET = {};
+  ["kid", "kid-walk0", "kid-walk1", "kid-jump", "mom", "guest", "guestb"].forEach(function (n) {
+    var img = new Image();
+    img.src = "sprites/" + n + ".png";
+    SHEET[n] = img;
+  });
+  function spriteKey(who, frame) {
+    if (who === "kid") {
+      if (frame === "walk0") return "kid-walk0";
+      if (frame === "walk1") return "kid-walk1";
+      if (frame === "jump") return "kid-jump";
+      return "kid";
     }
-    c.restore();
+    if (who === "guestA") return "guest";
+    if (who === "guestB") return "guestb";
+    return "mom";
+  }
+  function drawFigure(c, who, view, frame, x, feet, face) {
+    var img = SHEET[spriteKey(who, frame)];
+    if (!img || !img.complete || !img.naturalWidth) return;
+    var sc = 2;
+    var w = img.naturalWidth * sc, h = img.naturalHeight * sc;
+    var bob = frame === "idle1" ? -2 : 0;
+    c.imageSmoothingEnabled = false;
+    c.drawImage(img, Math.round(x - w / 2), Math.round(feet - h + bob), w, h);
   }
   function animFrame(air, moving, walk, t) {
     if (air) return "jump";
@@ -1018,26 +1030,56 @@
       c.fillRect(312, 284, 8, 6);
       drawFloor(c, "#6a4a32");
     } else if (id === "den") {
-      c.fillStyle = "#3a2618"; c.fillRect(0, 0, W, FLOOR);
-      for (var p = 0; p < 8; p++) {
-        c.fillStyle = p % 2 ? "#4a3120" : "#342214";
-        c.fillRect(p * 46, 36, 46, FLOOR - 36);
+      var woods = ["#3a2618", "#4a3120", "#2e1c12", "#5a3c24", "#342214"];
+      for (var px0 = 0; px0 < W; px0 += 18) {
+        c.fillStyle = woods[(px0 / 18) % woods.length];
+        c.fillRect(px0, 36, 18, FLOOR - 36);
+        c.fillStyle = "rgba(0,0,0,.18)";
+        c.fillRect(px0 + 16, 36, 2, FLOOR - 36);
+        for (var gy = 48; gy < FLOOR; gy += 11) {
+          c.fillStyle = (gy / 11 + px0) % 2 ? "rgba(255,220,160,.08)" : "rgba(0,0,0,.12)";
+          c.fillRect(px0 + 3, gy, 8, 1);
+        }
       }
-      c.fillStyle = "#1b140e";
-      c.fillRect(16, 120, 54, 70);
-      for (var tape = 0; tape < 8; tape++) {
-        c.fillStyle = COLS[tape % COLS.length];
-        c.fillRect(20 + (tape % 4) * 12, 126 + Math.floor(tape / 4) * 28, 8, 22);
-      }
-      drawCRT(c, 154, 228, 70, 58, t, 8);
-      drawVCR(c, 158, 290, t, S && S.jobs && S.jobs.vcr, left);
-      c.fillStyle = "#e6d2a2";
-      c.beginPath(); c.arc(318, 150, 16, 0, Math.PI * 2); c.fill();
-      c.fillStyle = "rgba(255, 214, 140, .18)";
-      c.beginPath(); c.arc(318, 180, 70, 0, Math.PI * 2); c.fill();
+      c.fillStyle = "#2a1a10";
+      c.fillRect(0, FLOOR - 14, W, 14);
       c.fillStyle = "#6b5030";
-      c.fillRect(314, 166, 8, 40);
-      drawFloor(c, "#2e2438");
+      c.fillRect(0, FLOOR - 16, W, 3);
+      function poster(x, y, w, h, mat, pic) {
+        c.fillStyle = "#cbb892";
+        c.fillRect(x - 3, y - 3, w + 6, h + 6);
+        c.fillStyle = "#1a120c";
+        c.fillRect(x - 1, y - 1, w + 2, h + 2);
+        c.fillStyle = mat;
+        c.fillRect(x, y, w, h);
+        c.fillStyle = pic;
+        c.fillRect(x + 4, y + 6, w - 8, h - 16);
+      }
+      poster(18, 70, 36, 48, "#1c2438", "#3a6a9a");
+      c.fillStyle = "#f4e7b0";
+      c.fillRect(28, 86, 16, 10);
+      poster(78, 58, 28, 36, "#3a2030", "#c45a48");
+      c.fillStyle = "#ffd23f";
+      c.fillRect(86, 70, 12, 8);
+      var glow = c.createRadialGradient(300, 150, 8, 300, 190, 120);
+      glow.addColorStop(0, "rgba(255, 214, 140, .55)");
+      glow.addColorStop(0.45, "rgba(255, 180, 80, .18)");
+      glow.addColorStop(1, "rgba(255, 160, 60, 0)");
+      c.fillStyle = glow;
+      c.fillRect(160, 40, 200, 280);
+      c.fillStyle = "#6b5030";
+      c.fillRect(294, 168, 8, 48);
+      c.fillStyle = "#3a2818";
+      c.fillRect(286, 210, 24, 6);
+      c.fillStyle = "#f0d090";
+      c.fillRect(286, 132, 28, 16);
+      c.fillStyle = "#fff1c8";
+      c.fillRect(290, 136, 20, 8);
+      c.fillStyle = "#c4a574";
+      c.fillRect(282, 146, 36, 4);
+      drawCRT(c, 150, 200, 86, 64, t, 8);
+      drawVCR(c, 156, 268, t, S && S.jobs && S.jobs.vcr, left);
+      drawFloor(c, "#3a2e28");
     } else if (id === "hall") {
       var hg = c.createLinearGradient(0, 0, 0, FLOOR);
       hg.addColorStop(0, "#241c30"); hg.addColorStop(1, "#3a3450");
