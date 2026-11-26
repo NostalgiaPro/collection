@@ -3,6 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- np-head -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="preload" href="/fonts/TitilliumWeb-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/Righteous-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<script src="/count.js" defer></script>
+<!-- /np-head -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Nostalgia Pro">
 <meta property="og:title" content="The Nostalgia Pro — Virtual shelf">
@@ -19,9 +26,7 @@
 <meta name="twitter:description" content="A photo of my actual game shelves. Pick a section to see what is on it.">
 <meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
 <title>Virtual shelf</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Titillium+Web:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fonts/site.css">
 <link rel="stylesheet" href="/type.css">
 <link rel="stylesheet" href="/eras.css">
 <style>
@@ -88,6 +93,7 @@ footer{margin:56px 0 0;padding:22px 0 0;border-top:1px solid var(--line)}
 .elsewhere a:hover{border-color:var(--focus);color:var(--focus)}
 .elsewhere a:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 @media (display-mode: standalone){.applink{display:none}} /* already in the app */
+.applink[hidden]{display:none!important} /* off Google Play for now, see growth.js STORE_LIVE */
 
 @media (max-width:640px){
   .detail{grid-template-columns:1fr;gap:20px}
@@ -147,7 +153,7 @@ body.npskin .elsewhere a:hover{border-color:var(--focus);color:var(--focus)}
     <a href="https://substack.com/@nostalgiapro" target="_blank" rel="noopener">Substack</a>
     <a href="https://www.tiktok.com/@rc.the.nostalgia.pro" target="_blank" rel="noopener">TikTok</a>
     <a href="https://nostalgiapro-shop.fourthwall.com/" target="_blank" rel="noopener">Merch</a>
-    <a class="applink" href="https://play.google.com/store/apps/details?id=com.thenostalgiapro.shelf" target="_blank" rel="noopener">Get the Android app</a>
+    <a class="applink" data-np-applink hidden href="https://play.google.com/store/apps/details?id=com.thenostalgiapro.shelf" target="_blank" rel="noopener">Get the Android app</a>
   </div>
 </footer>
 

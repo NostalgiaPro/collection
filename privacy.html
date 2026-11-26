@@ -3,6 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- np-head -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="preload" href="/fonts/TitilliumWeb-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/Righteous-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<!-- /np-head -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#101219">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -27,9 +33,7 @@
 <meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
 <link rel="canonical" href="https://thenostalgiapro.com/privacy.html">
 <title>The Nostalgia Pro: Privacy policy</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Titillium+Web:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fonts/site.css">
 <link rel="stylesheet" href="/retro.css">
 <link rel="stylesheet" href="/themes.css">
 <link rel="stylesheet" href="/eras.css">
@@ -144,7 +148,7 @@
 <header>
   <p class="wordmark"><img src="/images/np-script.webp" width="1800" height="748" alt="The Nostalgia Pro"></p>
   <h1>Privacy policy</h1>
-  <p class="standfirst">For thenostalgiapro.com and the Nostalgia Pro Game Collection Android app. Last updated October 28, 2026.</p>
+  <p class="standfirst">For thenostalgiapro.com and the Nostalgia Pro Game Collection Android app. Last updated November 26, 2026.</p>
   <div class="navrow">
     <a class="navbtn" href="/">Games</a>
     <a class="navbtn" href="movies.html">Movies</a>
@@ -161,14 +165,15 @@
 <div class="policy">
 
 <h2>The short version</h2>
-<p>There are no accounts, no sign-in, no cookies, and no ad networks. I don't ask for your name, email address, or anything else about you. The arcade and the Nostalgia Pro: The Game demo count visits and a few anonymous game moments with GoatCounter, so I can see how many people play. The collection pages count nothing. Your streaks, badges, and high scores stay on your device.</p>
+<p>There are no accounts, no sign-in, no cookies, and no ad networks. I don't ask for your name, email address, or anything else about you. Visits are counted across the whole site with GoatCounter, so I can see which pages people open. It's an anonymous total, with no cookies and no personal data. The arcade and the Nostalgia Pro: The Game demo also count a few anonymous game moments. Your streaks, badges, and high scores stay on your device.</p>
 
 <h2>What is counted, and where</h2>
-<p>I use <a href="https://www.goatcounter.com/">GoatCounter</a>, a small analytics service that does not use cookies. It only runs on the arcade at /arcade/, its six game pages, and the Nostalgia Pro: The Game demo at /play/. Each count is one small image request to nostalgiapro.goatcounter.com. No third-party script is loaded.</p>
-<p>On the arcade hub and each arcade game page, opening the page sends the page's address, its title, and the address of the page you came from, if your browser provides one. When you finish a run of an arcade game, it sends one "game over" event with the game's name. Your score is not sent.</p>
-<p>The Nostalgia Pro: The Game demo at /play/ doesn't send page views. It sends short anonymous event names for a few moments in the game, like starting it, opening the map, finishing the demo, playing again, or tapping one of its links (for example the feedback form or the merch shop). Each event carries a label for where the game is running, such as this site or itch.io. No score, no name, and nothing you type is sent.</p>
+<p>I use <a href="https://www.goatcounter.com/">GoatCounter</a>, a small analytics service that does not use cookies. It runs on every page of thenostalgiapro.com: the collection, the game pages, the arcade, and the Nostalgia Pro: The Game demo at /play/. Each count is one small image request to nostalgiapro.goatcounter.com, sent by a short script on this site (/count.js). No third-party script is loaded.</p>
+<p>On every page, opening it sends the page's address, its title, and the address of the page you came from, if your browser provides one. That's all. No name, no email, nothing you type, and no ID that follows you from page to page.</p>
+<p>On the arcade game pages, when you finish a run of an arcade game, it sends one "game over" event with the game's name. Your score is not sent.</p>
+<p>The Nostalgia Pro: The Game demo at /play/ sends its page view with just the address, no title or referrer. It also sends short anonymous event names for a few moments in the game, like starting it, opening the map, finishing the demo, playing again, or tapping one of its links (for example the feedback form or the merch shop). Each event carries a label for where the game is running, such as this site or itch.io. No score, no name, and nothing you type is sent.</p>
 <p>Like any web request, these also reach GoatCounter with your IP address, your browser's user agent, and its language setting. GoatCounter uses them to work out a browser name, operating system, country, and language, and stores only those, as totals. Its <a href="https://www.goatcounter.com/privacy">privacy policy</a> says it keeps the IP address and user agent in memory for up to 8 hours so a reload isn't counted twice, and never writes them to its database. Screen size is not sent. GoatCounter stores nothing on your device.</p>
-<p>What I end up seeing is totals, like how many visits a game page got today, how many runs ended, and which browsers and countries they came from. None of it is tied to you, and I have no way to pick out any one person.</p>
+<p>What I end up seeing is totals, like how many visits a page got today, how many runs ended, and which browsers and countries they came from. None of it is tied to you, and I have no way to pick out any one person.</p>
 
 <h2>What isn't collected</h2>
 <p>No accounts, no sign-in, no cookies, no advertising IDs, and no ad networks or ad trackers. I don't collect your name, email address, precise location, contacts, photos, or any other personal information, and nothing is sold or shared.</p>
@@ -179,7 +184,7 @@
 <p>The app rating reminder and the in-app mode flag (whether the page is open in the Android app) are also saved only on your device.</p>
 
 <h2>Hosting</h2>
-<p>The site is hosted on GitHub Pages and served through Cloudflare. Like any web host, those services keep standard server logs that may include an IP address and browser type. Those logs belong to those companies and are subject to their own policies. They are not used to identify anyone and are not available to me in a form that identifies you. The collection pages load their fonts from Google Fonts, so your browser fetches those files from Google.</p>
+<p>The site is hosted on GitHub Pages and served through Cloudflare. Like any web host, those services keep standard server logs that may include an IP address and browser type. Those logs belong to those companies and are subject to their own policies. They are not used to identify anyone and are not available to me in a form that identifies you. The fonts are served from this site, not from Google Fonts.</p>
 
 <h2>Ads</h2>
 <p>There are no ad networks here, and nobody pays to appear on this site. The Nostalgia Pro: The Game demo has one real ad, for my own Nostalgia Pro merch on its end screen, and its results screen links to the same shop. Every other ad in the game is a parody.</p>
@@ -188,7 +193,7 @@
 <p>The Donate and Merch links go to my shop on Fourthwall, and the feedback form is hosted by Tally. Anything you buy, donate, or type there is handled by those services under their own privacy policies. I read the feedback you send, so only include contact details if you want a reply. Some pages also link to Wikipedia, YouTube, X, or Substack, and some game pages embed YouTube videos in YouTube's privacy-enhanced mode (youtube-nocookie.com). The weekly roundup signup opens my Substack page, so the email you enter goes to Substack, not to this site. Once you follow a link, play an embedded video, or submit one of those forms, that service's own privacy policy applies.</p>
 
 <h2>How to block counting</h2>
-<p>GoatCounter ignores the browser's Do Not Track setting, and my counting code doesn't check it either. Most ad and content blockers block goatcounter.com, and if yours does, nothing is counted and every game still works. Turning off JavaScript also stops it, but the games need JavaScript to run. The collection pages never count anything, so you can browse them as usual.</p>
+<p>GoatCounter ignores the browser's Do Not Track setting, and my counting code doesn't check it either. Most ad and content blockers block goatcounter.com, and if yours does, nothing is counted and every game still works. Turning off JavaScript also stops it, but the games need JavaScript to run. Every page still works when counting is blocked.</p>
 
 <h2>Deleting data</h2>
 <p>Because the counts are anonymous totals and aren't tied to anyone, there is nothing I can look up or delete for a particular person. To remove what's on your device, clear the site's data in your browser or the app's data in Android settings.</p>

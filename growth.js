@@ -19,6 +19,12 @@
    doesn't cache on their own, like the arcade hub). Preview: ?forceios=1. */
 (function(){
   "use strict";
+  /* The app is unpublished on Google Play for now (Nov 15, 2026), so its store
+     page is a 404. While STORE_LIVE is false: no Play badge, no "Rate it" card,
+     and the plain "Get the Android app" links ([data-np-applink], hidden in the
+     HTML) stay hidden. iPhone visitors still get the Add to Home Screen tip.
+     When the app is back on Play, set STORE_LIVE to true and everything returns. */
+  var STORE_LIVE = false;
   var PKG = "com.thenostalgiapro.shelf";
   var WEB = "https://play.google.com/store/apps/details?id=" + PKG;
   var MARKET = "market://details?id=" + PKG;
@@ -59,7 +65,7 @@
   if (iOS) root.classList.add("np-ios-any");
   if (inApp) root.classList.add("np-twa");
   if (rateMode === "game-return") root.classList.add("np-arcade");
-  var showBadge = !inApp && !standalone && !iOS && !forceIos;
+  var showBadge = STORE_LIVE && !inApp && !standalone && !iOS && !forceIos;
   var showTip = !inApp && (forceIos || (iOS && safari && !homeScreen));
   var offline = !(me && me.getAttribute("data-offline") === "0");
 
@@ -132,6 +138,7 @@
     if (s.last !== TODAY) { s.days = (s.days || 0) + 1; s.last = TODAY; save(s); }
   }
   function eligible(){
+    if (!STORE_LIVE) return false;                             /* nothing to rate while the app is off Play */
     if (!rateMode) return false;                              /* only pages that opt in */
     if (force) return true;
     if (!inApp) return false;
@@ -196,6 +203,10 @@
   }
 
   function init(){
+    if (STORE_LIVE) {
+      var al = document.querySelectorAll("[data-np-applink]");
+      for (var i = 0; i < al.length; i++) al[i].hidden = false;
+    }
     placeBadges();
     wireGames();
     maybeCard(rateMode === "game-return" ? cameBack() : true);

@@ -5,6 +5,13 @@
      No base tag. Every asset, link, and data URL is root-absolute; same-page links stay as #hashes. -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- np-head -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="preload" href="/fonts/TitilliumWeb-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/Righteous-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<script src="/count.js" defer></script>
+<!-- /np-head -->
 <meta name="description" content="I'm RC, the Nostalgia Pro. Search all 850+ physical games I own across 30 consoles, from NES and SNES to N64 and PlayStation, and see what's on my shelf, what shape it's in, and if I've beaten it.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Nostalgia Pro">
@@ -29,9 +36,7 @@
 <meta name="apple-mobile-web-app-title" content="Nostalgia Pro">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <title>Nostalgia Pro | RC's Retro Game Collection, 850+ Games</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Titillium+Web:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fonts/site.css">
 <link rel="stylesheet" href="/retro.css">
 <link rel="stylesheet" href="/themes.css">
 <link rel="stylesheet" href="/eras.css">
@@ -1894,7 +1899,7 @@ body.y1996 .ht-quote .ht-ctxt::before{color:#000080}
       <a href="https://substack.com/@nostalgiapro" target="_blank" rel="noopener">Substack</a>
       <a href="https://www.tiktok.com/@rc.the.nostalgia.pro" target="_blank" rel="noopener">TikTok</a>
       <a href="https://nostalgiapro-shop.fourthwall.com/" target="_blank" rel="noopener">Merch</a>
-      <a class="applink" href="https://play.google.com/store/apps/details?id=com.thenostalgiapro.shelf" target="_blank" rel="noopener">Get the Android app</a>
+      <a class="applink" data-np-applink hidden href="https://play.google.com/store/apps/details?id=com.thenostalgiapro.shelf" target="_blank" rel="noopener">Get the Android app</a>
       <a href="/media.html">Partnerships</a>
     </div>
     <p class="introline"><a href="#" id="replayIntro" onclick="event.preventDefault();window.npIntro&&npIntro()">Replay intro</a></p>

@@ -164,3 +164,6 @@ body.era-2011 .npios-foot{background:#fffdf8;border:1px solid #c2b59c;border-rad
 body.era-2011 .npios-foot .npios-line{color:#5a4a36}
 body.era-2011 .npios-foot .npios-h,body.era-2011 .npios-foot .npios-add{color:#3b2a18}
 body.era-2011 .npios-foot .npios-share{color:#2d6cc0}
+
+/* "Get the Android app" links stay hidden while the app is off Google Play (growth.js STORE_LIVE). */
+.applink[hidden]{display:none!important}

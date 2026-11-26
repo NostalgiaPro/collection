@@ -5,6 +5,7 @@ visitors).
 Copied from the hand-made pages so generated pages look the same."""
 from sitedata import esc
 import site_config as cfg
+import site_head
 
 NAV = [("/", "The shelf"), ("/digital.html", "Digital"), ("/reviews.html", "Reviews"), ("/lists.html", "Lists"),
        ("/rankings.html", "Rankings"), ("/overrated.html", "Overrated"),
@@ -69,7 +70,7 @@ def head(title, desc, path, image=None, width="900px", css="", image_alt=None):
     t, d = esc(title), esc(desc)
     size = ('<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n'
             if not image else "")
-    return f"""<!DOCTYPE html>
+    return site_head.patch(f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -108,7 +109,7 @@ def head(title, desc, path, image=None, width="900px", css="", image_alt=None):
 <style>
 {BASE_CSS.replace("WIDTH", width)}{css}</style>
 </head>
-"""
+""", path.lstrip("/"))
 
 
 def nav(here=None):
