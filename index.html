@@ -167,6 +167,17 @@ header.o1{padding-top:0}
   padding:5px 7px 4px;background:var(--hp-well);border-radius:999px}
 .ht-tmbtn:hover,.ht-tmbtn[aria-expanded="true"]{border-color:var(--hot)}
 .ht-tmbtn:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+/* Social pills sit in the opposite corner of the strip, same button as Time Machine. */
+.ht-a .ht-social{position:absolute;top:8px;left:-6px;z-index:5;display:flex;align-items:center;gap:6px;margin:0;padding:0;overflow:visible}
+.ht-soc{position:relative;margin:0;text-decoration:none;white-space:nowrap;line-height:normal}
+a.ht-soc:visited{color:var(--text)}
+.ht-soc .ht-px{width:14px;height:14px;flex:none}
+.ht-tmbtn.ht-soc b.ht-soch{width:0;min-width:0;max-width:0;overflow:hidden;visibility:hidden;margin-left:-8px;padding-left:0;padding-right:0}
+@media (max-width:639px){
+  .ht-a .ht-social{gap:4px}
+  .ht-soc{padding-left:8px;padding-right:8px;justify-content:center}
+  .ht-soc .ht-soclbl{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0}
+}
 .ht-tmpanel{position:absolute;right:0;top:calc(100% + 6px);width:236px;display:grid;grid-template-columns:1fr 1fr;gap:6px;
   padding:8px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--hp-r);box-shadow:0 10px 28px rgba(0,0,0,.5)}
 .ht-tmpanel[hidden]{display:none}
@@ -1116,6 +1127,7 @@ footer p a{color:var(--text)}
   .o1 .wordmark{margin-bottom:16px}
   .o1 .standfirst{margin-top:16px;font-size:17px}
   .ht-a .ht-tm-a{top:10px;right:0}
+  .ht-a .ht-social{top:10px;left:0}
   .hp-counter{margin-top:26px}
   .btn,.o1 .btn{font-size:12px;letter-spacing:.06em;padding:14px 18px 12px}
   .vhead{font-size:15px}
@@ -1319,6 +1331,8 @@ body.y1996 .o1-hero{margin-top:0}
 body.y1996 .o1 .wordmark{background:none;border:none}
 body.y1996 .o1 .wordmark img{filter:sepia(1) saturate(6) hue-rotate(70deg) brightness(1.25)}
 body.y1996 .ht-a .ht-tm-a{position:relative;top:auto;right:auto;display:flex;justify-content:center;margin:0 0 10px}
+body.y1996 .ht-a .ht-social{position:relative;top:auto;left:auto;justify-content:center;flex-wrap:wrap;margin:0 0 8px}
+body.y1996 .ht-soc .ht-soclbl{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;clip-path:none}
 /* the panel must hang off the button, not the whole header */
 body.y1996 .ht-a .ht-tmpanel{left:50%;right:auto;transform:translateX(-50%)}
 body.y1996 .ht-tmbtn,body.y1996 .ht .ht-tmbtn{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0;box-shadow:none}
@@ -1540,6 +1554,12 @@ body.y1996 .npmerch .npmerch-btn{color:#000}
         <img src="/images/strip/legend-of-zelda-ocarina-of-time-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
         <img src="/images/strip/super-mario-64-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
       </div>
+    </div>
+    <div class="ht-social" role="navigation" aria-label="Nostalgia Pro on social">
+      <a class="ht-tmbtn ht-soc" href="https://x.com/NostalgiaPro" target="_blank" rel="noopener" aria-label="Nostalgia Pro on X. Opens in a new tab."><svg class="ht-px" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14.7 3H18l-5.4 6.2L19.5 21h-4.7l-3.7-4.8L6.8 21H3.4l5.8-6.6L3 3h4.8l3.3 4.4L14.7 3zm-1 16.2h1.6L8.2 4.7H6.5l7.2 14.5z"/></svg><span class="ht-soclbl">X</span><b class="ht-soch" aria-hidden="true">Now</b></a>
+      <a class="ht-tmbtn ht-soc" href="https://nostalgiapro.substack.com/" target="_blank" rel="noopener" aria-label="Nostalgia Pro on Substack. Opens in a new tab."><svg class="ht-px" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2 3h20v3H2zm0 5h20v3H2zm0 5h20l-10 8L2 13z"/></svg><span class="ht-soclbl">Substack</span><b class="ht-soch" aria-hidden="true">Now</b></a>
+      <a class="ht-tmbtn ht-soc" href="https://www.youtube.com/@TheNostalgiaPro" target="_blank" rel="noopener" aria-label="Nostalgia Pro on YouTube. Opens in a new tab."><svg class="ht-px" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.8 15.5v-7l6.2 3.5-6.2 3.5z"/></svg><span class="ht-soclbl">YouTube</span><b class="ht-soch" aria-hidden="true">Now</b></a>
+      <a class="ht-tmbtn ht-soc" href="https://www.tiktok.com/@rc.the.nostalgia.pro" target="_blank" rel="noopener" aria-label="Nostalgia Pro on TikTok. Opens in a new tab."><svg class="ht-px" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14 3h3.1a5.1 5.1 0 0 0 3.6 3.4v3.1a8.2 8.2 0 0 1-3.6-.9v7.2a5.6 5.6 0 1 1-5.6-5.6c.3 0 .6 0 .9.1v3.2a2.5 2.5 0 1 0 1.6 2.3V3z"/></svg><span class="ht-soclbl">TikTok</span><b class="ht-soch" aria-hidden="true">Now</b></a>
     </div>
     <div class="ht-tm ht-tm-a"><button type="button" class="ht-tmbtn" aria-expanded="false" aria-controls="htTmPanel"><svg class="ht-px" viewBox="0 0 8 7" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="0" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="0" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="0" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="2" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="6" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="6" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="6" width="1" height="1" fill="#eceae2" class="w"/></svg><span>Time Machine</span><b class="ht-tmcur">Now</b></button><div class="ht-tmpanel" id="htTmPanel" hidden role="group" aria-label="Pick an era"></div></div>
 
