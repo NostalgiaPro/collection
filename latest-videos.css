@@ -3,13 +3,15 @@
    frames, Silkscreen labels). Rides the site tokens so eras and themes carry over. */
 .lv{margin:40px 0 0}
 .lv-grp + .lv-grp{margin-top:26px}
-.lv-plat{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:0 0 9px;border-bottom:1px solid var(--line)}
+.lv-plat{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:0 0 12px;padding:0 0 9px;border-bottom:1px solid var(--line)}
 .lv-plat h3{margin:0;display:flex;align-items:center;gap:9px;font-family:"Righteous",sans-serif;font-weight:700;
   font-size:12px;line-height:1;letter-spacing:.12em;text-transform:uppercase;color:var(--text)}
 .lv-plat h3 small{font:inherit;font-weight:400;color:var(--dim)}
 .lv-ico{display:block;width:16px;height:16px;flex:none}
 .lv-all{margin-left:auto;font-family:"Righteous",sans-serif;font-size:11px;line-height:1;letter-spacing:.08em;text-transform:uppercase;
   color:var(--dim);text-decoration:none;white-space:nowrap}
+.lv-acts{margin-left:auto;display:flex;align-items:center;gap:14px}
+.lv-acts .lv-all{margin-left:0}
 .lv-all::after{content:"\00A0\25B8"}
 .lv-all:hover,.lv-all:focus-visible{color:var(--hot)}
 
