@@ -583,9 +583,10 @@
     if (fx.length > 100) fx.splice(0, fx.length - 100);
   }
 
-  /* ---------- pixel people, same 16x24 recipe as the arcade cast ---------- */
-  var FW = 16, FH = 24, OUT = "#0b1022";
+  /* ---------- 16-bit SNES sprites. 32x56, nearest-neighbor, limited palette. ---------- */
+  var FW = 32, FH = 56, OUT = "#101018", SPR = 3;
   var figCache = {};
+  var CAST_SHOW = /[?&]cast=1(?:&|$)/.test(location.search);
 
   function shade(hex, f) {
     var n = parseInt(String(hex).slice(1), 16);
@@ -659,77 +660,130 @@
     px(b, 11, 10, "#3fd07a");
   }
   var CAST = {
-    kid: { skin: "#f1c28e", nose: "#c19a72", hair: "#4a2f1c", style: "short", shirt: kidShirt, pants: "#2a3a62", shoe: "#f3f0ea", hat: 1 },
-    mom: { skin: "#f1c28e", nose: "#c19a72", hair: "#6b3418", style: "long", shirt: momShirt, pants: "#1b3044", shoe: "#b8894e", hat: 0, phone: 1 },
-    guestA: { skin: "#f1c28e", nose: "#c19a72", hair: "#c4a15a", style: "long", shirt: "#ff3fa4", pants: "#7a2458", shoe: "#f3f0ea", hat: 1 },
-    guestB: { skin: "#c68642", nose: "#8d5a30", hair: "#1b1b22", style: "spiky", shirt: "#3ec8e0", pants: "#243456", shoe: "#eceae2", hat: 1 }
+    kid: { skin: "#f0c8a0", hair: "#4a2818", style: "short", shirt: "#203060", confetti: 1, pants: "#3050a0", shoe: "#f4f0e8", sole: "#282018", hat: 1 },
+    mom: { skin: "#f0c8a0", hair: "#6a3418", style: "long", shirt: "#7a2848", robe: 1, soft: 1, stripes: 1, pants: "#e4e0ea", shoe: "#f0a0b0", sole: "#c06078", horn: 1 },
+    guestA: { skin: "#c89870", hair: "#1a140e", style: "bun", shirt: "#e07030", sleeve: "#c85a28", pants: "#2a241c", shoe: "#1b1b22", sole: "#101014" },
+    guestB: { skin: "#f0c8a0", hair: "#c4a15a", style: "bob", shirt: "#3a8a78", pants: "#243456", shoe: "#eceae2", sole: "#282018", hat: 1 }
   };
-  function buildFigure(who, view, step) {
-    var key = who + "|" + view + "|" + step;
+  function paintHair(b, spec) {
+    var h = spec.hair;
+    if (spec.style === "long") {
+      rc(b, 10, 4, 12, 5, h);
+      rc(b, 9, 8, 3, 16, h);
+      rc(b, 20, 8, 3, 16, h);
+      rc(b, 22, 14, 3, 10, h);
+      px(b, 12, 3, "#ff7aa2"); px(b, 13, 3, "#ff7aa2");
+      px(b, 18, 2, "#6ec8e0"); px(b, 19, 2, "#6ec8e0");
+      px(b, 15, 3, "#ffd23f");
+    } else if (spec.style === "bun") {
+      rc(b, 11, 6, 10, 4, h);
+      rc(b, 18, 2, 6, 6, h);
+      rc(b, 20, 0, 4, 3, h);
+    } else if (spec.style === "bob") {
+      rc(b, 10, 5, 12, 5, h);
+      rc(b, 9, 9, 3, 8, h);
+      rc(b, 20, 9, 3, 8, h);
+    } else {
+      rc(b, 11, 6, 10, 4, h);
+      px(b, 11, 10, h); px(b, 20, 10, h);
+    }
+  }
+  function paintHat(b) {
+    rc(b, 15, 0, 2, 2, "#fff6e8");
+    rc(b, 13, 2, 6, 2, "#ffd23f");
+    rc(b, 11, 4, 10, 2, "#ff3fa4");
+    rc(b, 10, 6, 12, 2, "#ffd23f");
+  }
+  function paintHorn(b) {
+    rc(b, 20, 26, 3, 3, "#fff1d6");
+    rc(b, 22, 25, 4, 5, "#ffd23f");
+    rc(b, 25, 24, 4, 7, "#ff3fa4");
+    px(b, 26, 26, "#3ff0ff");
+  }
+  function paintBody(b, spec, frame) {
+    var skin = spec.skin;
+    var upL = frame === "walk0" || frame === "jump" ? 3 : 0;
+    var upR = frame === "walk1" || frame === "jump" ? 3 : 0;
+    var arm = frame === "jump" ? -2 : (frame === "idle1" ? 1 : 0);
+    if (spec.stripes) {
+      for (var sy = 36; sy < 50; sy += 4) {
+        rc(b, 11, sy - upL, 5, 2, (sy / 4) % 2 ? "#e8e4ee" : "#8e8a98");
+        rc(b, 16, sy - upR, 5, 2, (sy / 4) % 2 ? "#8e8a98" : "#e8e4ee");
+      }
+    } else {
+      rc(b, 11, 36 - upL, 5, 14, spec.pants);
+      rc(b, 16, 36 - upR, 5, 14, shade(spec.pants, 0.78));
+    }
+    rc(b, 10, 50 - upL, 6, 4, spec.shoe);
+    rc(b, 16, 50 - upR, 6, 4, spec.shoe);
+    rc(b, 10, 53 - upL, 6, 2, spec.sole || "#282018");
+    rc(b, 16, 53 - upR, 6, 2, spec.sole || "#282018");
+    if (spec.robe) {
+      rc(b, 8, 18, 16, 24, spec.shirt);
+      rc(b, 8, 18, 2, 24, shade(spec.shirt, 0.7));
+      rc(b, 14, 22, 4, 12, "#f6e4ea");
+      rc(b, 12, 20, 2, 14, "#c06078");
+      rc(b, 18, 20, 2, 14, "#c06078");
+      rc(b, 9, 34, 14, 2, "#e8c888");
+      rc(b, 14, 36, 2, 7, "#e8c888");
+      rc(b, 17, 36, 2, 5, "#e8c888");
+    } else {
+      rc(b, 10, 20, 12, 16, spec.shirt);
+      if (spec.confetti) {
+        var dots = [[12, 23, "#ffd23f"], [16, 25, "#ff3fa4"], [19, 22, "#3ff0ff"], [14, 28, "#fff6c8"], [18, 30, "#ffd23f"], [13, 32, "#3ff0ff"], [15, 24, "#ffd23f"], [17, 29, "#ff3fa4"]];
+        for (var i = 0; i < dots.length; i++) { px(b, dots[i][0], dots[i][1], dots[i][2]); px(b, dots[i][0] + 1, dots[i][1], dots[i][2]); }
+      }
+    }
+    var sleeve = spec.sleeve || spec.shirt;
+    rc(b, 5, 21 + arm, 5, 11, sleeve);
+    rc(b, 22, 21 + arm, 5, 11, sleeve);
+    rc(b, 5, 31 + arm, 5, 4, skin);
+    rc(b, 22, 31 + arm, 5, 4, skin);
+    rc(b, 11, 8, 10, 12, skin);
+    px(b, 13, 13, "#1a120e"); px(b, 14, 13, "#1a120e");
+    px(b, 18, 13, "#1a120e"); px(b, 19, 13, "#1a120e");
+    px(b, 14, 14, "#fff6ee"); px(b, 19, 14, "#fff6ee");
+    if (spec.soft) {
+      px(b, 12, 12, "#3a2418"); px(b, 13, 12, "#3a2418"); px(b, 14, 12, "#3a2418");
+      px(b, 17, 12, "#3a2418"); px(b, 18, 12, "#3a2418"); px(b, 19, 12, "#3a2418");
+      px(b, 14, 18, "#d46878"); px(b, 15, 18, "#d46878"); px(b, 16, 18, "#d46878"); px(b, 17, 18, "#d46878");
+    } else {
+      px(b, 15, 18, "#a04040"); px(b, 16, 18, "#a04040");
+    }
+    paintHair(b, spec);
+    if (spec.hat && spec.style !== "long") paintHat(b);
+    if (spec.horn) paintHorn(b);
+  }
+  function buildFigure(who, view, frame) {
+    var key = who + "|" + view + "|" + frame;
     if (figCache[key]) return figCache[key];
     var spec = CAST[who], b = mk();
-    var shirt = spec.shirt, pants = spec.pants, shoe = spec.shoe, skin = spec.skin;
-    if (view === "front") {
-      var lUp = step === 1 ? 1 : 0, rUp = step === 2 ? 1 : 0;
-      rc(b, 4, 18, 8, 2, pants);
-      rc(b, 4, 20, 3, 2 - lUp, pants);
-      rc(b, 9, 20, 3, 2 - rUp, pants);
-      rc(b, 4, 22 - lUp, 3, 2, shoe);
-      rc(b, 9, 22 - rUp, 3, 2, shoe);
-      px(b, 5, 22 - lUp, "#ffd23f");
-      px(b, 10, 22 - rUp, "#ffd23f");
-      rc(b, 4, 11, 8, 7, shirt);
-      rc(b, 3, 11, 1, 3, shirt);
-      rc(b, 12, 11, 1, 3, shirt);
-      rc(b, 3, 14, 1, 3 - rUp, skin);
-      rc(b, 12, 14, 1, 3 - lUp, skin);
-      rc(b, 4, 3, 8, 8, skin);
-      px(b, 6, 7, "#1b1b28"); px(b, 6, 8, "#1b1b28");
-      px(b, 9, 7, "#1b1b28"); px(b, 9, 8, "#1b1b28");
-      px(b, 7, 10, spec.nose); px(b, 8, 10, spec.nose);
-    } else {
-      if (step === 0) {
-        rc(b, 6, 18, 4, 4, pants);
-        rc(b, 5, 22, 5, 2, shoe);
-        px(b, 6, 22, "#ffd23f");
-      } else {
-        var nearC = step === 1 ? pants : shade(pants, 0.78);
-        var farC = step === 1 ? shade(pants, 0.78) : pants;
-        rc(b, 8, 18, 3, 3, farC);
-        rc(b, 9, 21, 3, 2, shoe);
-        rc(b, 4, 18, 3, 4, nearC);
-        rc(b, 3, 22, 4, 2, shoe);
-        rc(b, 6, 18, 3, 1, pants);
-        px(b, 4, 22, "#ffd23f");
+    paintBody(b, spec, frame || "idle0");
+    if (view === "side") {
+      var side = mk();
+      for (var y = 0; y < FH; y++) for (var x = 8; x < 26; x++) {
+        var col = b.p[y * FW + x];
+        if (col) side.p[y * FW + (x - 2)] = col;
       }
-      rc(b, 5, 11, 6, 7, shirt);
-      if (step === 0) rc(b, 7, 15, 2, 2, skin);
-      else if (step === 1) { rc(b, 4, 12, 1, 2, shirt); rc(b, 4, 14, 1, 2, skin); }
-      else { rc(b, 11, 12, 1, 2, shirt); rc(b, 11, 14, 1, 2, skin); }
-      rc(b, 4, 3, 7, 8, skin);
-      px(b, 3, 8, skin);
-      px(b, 5, 7, "#1b1b28");
-      px(b, 5, 8, "#1b1b28");
+      b = side;
     }
-    hair(b, spec.style, spec.hair, view);
-    if (spec.hat) partyHat(b, view);
-    if (spec.phone && view === "side") phone(b);
     outline(b);
     var cv = document.createElement("canvas");
     cv.width = FW; cv.height = FH;
     var g = cv.getContext("2d");
-    for (var y = 0; y < FH; y++) for (var x = 0; x < FW; x++) {
-      var col = b.p[y * FW + x];
-      if (!col) continue;
-      g.fillStyle = col;
-      g.fillRect(x, y, 1, 1);
+    g.imageSmoothingEnabled = false;
+    for (y = 0; y < FH; y++) for (var x2 = 0; x2 < FW; x2++) {
+      var col2 = b.p[y * FW + x2];
+      if (!col2) continue;
+      g.fillStyle = col2;
+      g.fillRect(x2, y, 1, 1);
     }
     figCache[key] = cv;
     return cv;
   }
-  function drawFigure(c, who, view, step, x, feet, face) {
-    var spr = buildFigure(who, view, step || 0);
-    var w = FW * 3, h = FH * 3;
+  function drawFigure(c, who, view, frame, x, feet, face) {
+    var spr = buildFigure(who, view, frame || "idle0");
+    var w = FW * SPR, h = FH * SPR;
     c.imageSmoothingEnabled = false;
     c.save();
     if (view === "side" && face > 0) {
@@ -740,6 +794,23 @@
       c.drawImage(spr, Math.round(x - w / 2), Math.round(feet - h), w, h);
     }
     c.restore();
+  }
+  function animFrame(air, moving, walk, t) {
+    if (air) return "jump";
+    if (moving) return (Math.floor(walk) % 2) ? "walk1" : "walk0";
+    return (Math.floor(t * 2) % 2) ? "idle1" : "idle0";
+  }
+  function drawCast(c, t) {
+    c.fillStyle = "#14101c";
+    c.fillRect(0, 0, W, H);
+    c.fillStyle = "#241c30";
+    c.fillRect(24, 400, W - 48, 8);
+    c.fillStyle = "#1a1424";
+    c.fillRect(0, 408, W, H - 408);
+    var frame = (Math.floor(t * 2) % 2) ? "idle1" : "idle0";
+    drawFigure(c, "kid", "front", frame, 78, 430, 1);
+    drawFigure(c, "mom", "front", frame, 180, 430, 1);
+    drawFigure(c, "guestA", "front", frame, 286, 430, 1);
   }
   function shadow(c, x, y) {
     c.fillStyle = "rgba(0,0,0,.35)";
@@ -1200,16 +1271,15 @@
     for (i = 0; i < S.glitches.length; i++) drawZero(c, S.glitches[i], t);
     if (S.mom && S.phase !== "finale") {
       shadow(c, S.mom.x, FLOOR);
-      var mstep = stepOf(true, S.t * 6);
-      drawFigure(c, "mom", "side", mstep, S.mom.x, FLOOR, S.mom.vx >= 0 ? 1 : -1);
+      drawFigure(c, "mom", "side", animFrame(false, true, S.t * 3, t), S.mom.x, FLOOR, S.mom.vx >= 0 ? 1 : -1);
       bubble(c, S.mom.x, FLOOR - 84, "ON THE PHONE");
     }
     if (room().id === "living") {
       var bob = (S.phase === "finale") ? Math.abs(Math.sin(t * 8)) * 8 : Math.abs(Math.sin(t * 2)) * 2;
       shadow(c, 292, FLOOR);
       shadow(c, 336, FLOOR);
-      drawFigure(c, "guestA", "front", 0, 292, FLOOR - bob, 1);
-      drawFigure(c, "guestB", "front", 0, 336, FLOOR - bob * 0.6, 1);
+      drawFigure(c, "guestA", "front", animFrame(false, false, 0, t), 292, FLOOR - bob, 1);
+      drawFigure(c, "guestB", "front", animFrame(false, false, 0, t + 0.4), 336, FLOOR - bob * 0.6, 1);
       if (jobsDone() && S.phase === "play") {
         c.fillStyle = "rgba(255,210,63," + (0.08 + 0.06 * Math.sin(t * 6)) + ")";
         c.fillRect(270, 48, 90, FLOOR - 48);
@@ -1221,7 +1291,7 @@
       if (S.phase === "finale") feet = FLOOR - Math.abs(Math.sin(S.finT * 8)) * 6;
       shadow(c, S.x, Math.min(feet, FLOOR));
       var moving = Math.abs(S.vx) > 20 && S.ground && S.phase === "play";
-      drawFigure(c, "kid", "side", stepOf(moving, S.walk), S.x, feet, S.face);
+      drawFigure(c, "kid", "side", animFrame(!S.ground && S.phase === "play", moving, S.walk, t), S.x, feet, S.face);
     }
     drawMeter(c);
     for (i = 0; i < fx.length; i++) {
@@ -1276,7 +1346,9 @@
   }
 
   function draw(c, state) {
+    c.imageSmoothingEnabled = false;
     var t = (state === "playing" || state === "paused") && S && S.phase !== "dead" ? S.t : idleT;
+    if (CAST_SHOW) { drawCast(c, idleT); return; }
     if (!S || state === "title") {
       drawDiorama(c, idleT);
       return;
@@ -1560,6 +1632,13 @@
           floor: FLOOR
         };
       },
+      calm: function () { S.glitches = []; S.drops = []; S.bars = []; },
+      at: function (i, x) {
+        S.kLeft = S.kRight = S.kJump = false;
+        S.tLeft = S.tRight = S.tJump = false;
+        goRoom(i, true);
+        S.x = x; S.y = FLOOR; S.vx = 0; S.vy = 0; S.ground = true;
+      },
       hold: function (dir, jump) {
         S.kLeft = dir < 0;
         S.kRight = dir > 0;
@@ -1600,4 +1679,10 @@
     onPause: clearHeld
   });
   mountChrome();
+  if (CAST_SHOW) {
+    var ov = document.getElementById("np-ov-title");
+    if (ov) ov.style.display = "none";
+    var bar = document.querySelector(".np-bar");
+    if (bar) bar.style.display = "none";
+  }
 })();
