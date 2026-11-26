@@ -128,7 +128,13 @@ def build_page(sysinfo, games, thread, matcher):
     n = len(games)
     h = []
     desc = f"All {n} {name} games in my collection" + (", and my thread on the rest of the {0} library.".format(name) if thread else ".")
-    h.append(head(f"{name} | The Nostalgia Pro", desc, f"/console/{sid}.html", None, "980px", CSS + NAV_CSS + FOOT_CSS))
+    # share picture: the console's best-ranked game that has a photo (else the site card)
+    pick = sorted((g for g in games if sd.photo_for(g["slug"])),
+                  key=lambda g: (min((r[1] for r in g.get("ranks") or [] if isinstance(r[1], int)), default=999), g["title"]))
+    card = pick[0] if pick else None
+    h.append(head(f"{name} | The Nostalgia Pro", desc, f"/console/{sid}.html", sd.photo_for(card["slug"]) if card else None,
+                  "980px", CSS + NAV_CSS + FOOT_CSS,
+                  image_alt=f"{card['title']}, one of my {name} games" if card else None))
     h.append(f'<body style="--c:{color}">\n' + BODY_JS + f'<div class="wrap">\n\n<header>\n  ' + wordmark() + '\n')
     h.append(nav("/consoles.html", collapse=True))
     h.append(f'  <p class="crumb"><a href="/consoles.html">&larr; All consoles</a></p>\n')

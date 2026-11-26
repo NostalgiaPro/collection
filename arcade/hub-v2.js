@@ -87,7 +87,7 @@
     var slides = $("bannerSlides"), dots = $("bannerDots"), html = "", dh = "", n = BANNER.length, cur = day % n, timer = 0;
     for (var j = 0; j < n; j++) {
       var g = BY[BANNER[j]], other = BY[BANNER[(j + 1) % n]];
-      html += '<a class="slide" href="' + href(g) + '" style="--a:' + g.c + '" aria-label="Play ' + esc(g.name) + ' now" aria-roledescription="slide">' +
+      html += '<a class="slide" href="' + href(g) + '" style="--a:' + g.c + '" aria-roledescription="slide">' +
         '<span class="slide-h">Play ' + esc(g.name) + '!<small>' + esc(g.kind) + ' in real 3D</small></span>' +
         cover(g, "slide-cover l") + cover(other, "slide-cover r") +
         '<span class="slide-play">PLAY NOW</span></a>';
@@ -141,7 +141,7 @@
     for (var j = 0; j < pick.length; j++) {
       var g = BY[pick[j]];
       h += '<li><a class="fg-thumb" href="' + href(g) + '" tabindex="-1" aria-hidden="true">' + cover(g) + '</a><div><h3>' + esc(g.name) + '</h3><p>' + esc(g.hook) + '</p>' +
-        '<a class="click" href="' + href(g) + '" aria-label="Play ' + esc(g.name) + '">click here</a></div></li>';
+        '<a class="click" href="' + href(g) + '" >play now<span class="vh"> ' + esc(g.name) + '</span></a></div></li>';
     }
     $("featGames").innerHTML = h;
   })();
@@ -162,7 +162,7 @@
     function apply(cat, scroll) {
       if (!CAT_NAMES[cat]) cat = "all";
       var shown = 0;
-      for (var q = 0; q < tabs.length; q++) tabs[q].setAttribute("aria-selected", tabs[q].getAttribute("data-cat") === cat ? "true" : "false");
+      for (var q = 0; q < tabs.length; q++) tabs[q].setAttribute("aria-pressed", tabs[q].getAttribute("data-cat") === cat ? "true" : "false");
       for (q = 0; q < items.length; q++) {
         var on = cat === "all" || (" " + items[q].getAttribute("data-cats") + " ").indexOf(" " + cat + " ") >= 0;
         items[q].hidden = !on; if (on) shown++;

@@ -58,7 +58,8 @@
     c.appendChild(th);
     c.appendChild(el("span", "lv-tt", title));
     if (opts.k) c.appendChild(el("span", "lv-k", opts.k));
-    c.setAttribute("aria-label", title + (opts.label ? " (" + opts.label + ")" : ""));
+    /* the name starts with the visible text (title, then date) so voice control matches it */
+    c.setAttribute("aria-label", title + (opts.k ? " " + opts.k : "") + (opts.label ? " (" + opts.label + ")" : ""));
     return c;
   }
   function fill(row, list, make){
