@@ -167,6 +167,17 @@ header.o1{padding-top:0}
   padding:5px 7px 4px;background:var(--hp-well);border-radius:999px}
 .ht-tmbtn:hover,.ht-tmbtn[aria-expanded="true"]{border-color:var(--hot)}
 .ht-tmbtn:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+/* Social pills sit in the opposite corner of the strip, same button as Time Machine. */
+.ht-a .ht-social{position:absolute;top:8px;left:-6px;z-index:5;display:flex;align-items:center;gap:6px;margin:0;padding:0;overflow:visible}
+.ht-soc{position:relative;margin:0;text-decoration:none;white-space:nowrap;line-height:normal}
+a.ht-soc:visited{color:var(--text)}
+.ht-soc .ht-px{width:14px;height:14px;flex:none}
+.ht-tmbtn.ht-soc b.ht-soch{width:0;min-width:0;max-width:0;overflow:hidden;visibility:hidden;margin-left:-8px;padding-left:0;padding-right:0}
+@media (max-width:639px){
+  .ht-a .ht-social{gap:4px}
+  .ht-soc{padding-left:8px;padding-right:8px;justify-content:center}
+  .ht-soc .ht-soclbl{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0}
+}
 .ht-tmpanel{position:absolute;right:0;top:calc(100% + 6px);width:236px;display:grid;grid-template-columns:1fr 1fr;gap:6px;
   padding:8px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--hp-r);box-shadow:0 10px 28px rgba(0,0,0,.5)}
 .ht-tmpanel[hidden]{display:none}
@@ -319,6 +330,33 @@ header.o1{padding-top:0}
 .vextra .done{border-color:#3fbf6a;color:#3fbf6a}
 .vextra .soon{border-color:var(--hot);color:var(--hot)}
 
+/* Random pull and Play this: the game's photo beside the words.
+   The frame stays 3:4 so a new pull does not shove the page when the file arrives. */
+.vbox.vpull{display:flex;align-items:flex-start;gap:12px}
+.vpull-body{flex:1 1 auto;min-width:0}
+.vpull-sub{margin:0;color:var(--dim)}
+.vpull-shot{
+  position:relative;flex:none;width:84px;aspect-ratio:3/4;overflow:hidden;
+  background:var(--hp-well,#0a0c11);border:1px solid var(--line);border-radius:3px;
+  box-shadow:var(--hp-drop);
+}
+.vpull-shot img{
+  position:absolute;inset:0;display:block;width:100%;height:100%;
+  object-fit:cover;object-position:center;
+}
+.vpull-ph{
+  display:none;position:absolute;inset:0;align-items:center;justify-content:center;
+  padding:8px;text-align:center;
+  font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.04em;line-height:1.35;color:var(--dim);
+}
+.vpull-shot.vpull-empty{border-style:dashed;box-shadow:none}
+.vpull-shot.vpull-empty img{display:none}
+.vpull-shot.vpull-empty .vpull-ph{display:flex}
+@media (min-width:561px){
+  .vbox.vpull{gap:16px}
+  .vpull-shot{width:112px}
+}
+
 /* scoreboard: the six numbers drawScores() writes, big enough to read from across the room */
 .scores,.ht .scores{
   position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:16px 0 0;padding:0;
@@ -423,6 +461,86 @@ a.score:hover::after,a.score:focus-visible::after{opacity:1}
 .hp-shelflinks i{font-style:normal;font-family:"Righteous",sans-serif;font-size:9px;line-height:1;color:var(--a)}
 .hp-shelflinks a:hover{border-color:var(--a);color:var(--a)}
 .hp-shelflinks a:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+
+/* Start here moves up beside the logo. On a phone the six cards sit in a grid under the headline. */
+.hp-hero-top{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch;
+  margin:0 auto 8px;text-align:left;
+}
+.hp-hero-mid{grid-column:1 / -1;order:-1;text-align:center;min-width:0}
+.hp-hero-mid .wordmark{display:block;margin:0 auto 8px}
+.hp-hero-mid .wordmark img{width:min(420px,78vw)}
+.hp-hero-mid h1{margin:0}
+.hp-hero-mid .standfirst{margin:10px auto 4px}
+.hp-hero-top .ht-acts{display:contents}
+.hp-hero-top .ht-act,
+.hp-hero-top .ht-act-arcade{
+  flex-direction:row;align-items:flex-start;gap:8px;min-width:0;min-height:72px;
+  padding:10px;box-shadow:none;text-align:left;
+}
+.hp-hero-top .ht-act::before{content:none;display:none}
+.hp-hero-top .ht-actico,
+.hp-hero-top .ht-act-arcade .ht-actico{width:36px;height:36px;padding:5px}
+.hp-hero-top .ht-actgo{display:none}
+.hp-hero-top .ht-acttxt{flex:1 1 auto;gap:3px;min-width:0}
+.hp-hero-top .ht-acttxt b{white-space:normal !important;font-size:15px !important;line-height:1.2 !important}
+.hp-hero-top .ht-acttxt span{overflow-wrap:break-word}
+.hp-hero-top .ht-act-shelves,
+.hp-hero-top .ht-act-latest,
+.hp-hero-top .ht-act-anniv{flex-direction:column;align-items:stretch;flex-wrap:nowrap}
+.hp-hero-top .ht-act-shelves .ht-acttxt,
+.hp-hero-top .ht-act-latest .ht-acttxt{display:flex;flex-direction:column;width:100%}
+.hp-hero-top .ht-act-shelves .ht-acttxt>b{flex:none}
+.hp-hero-top .hp-shelflinks{grid-template-columns:1fr;gap:4px;width:100%}
+.hp-hero-top .hp-shelflinks a{
+  display:block;min-width:0;min-height:36px;padding:6px 8px;font-size:13px;
+  white-space:normal;overflow-wrap:break-word;
+}
+.hp-hero-top .hp-shelflinks i{float:right;margin-left:6px}
+.ht-act-merch{--a:var(--hot)}
+.ht-act-latest{--a:var(--hp-gold);cursor:default}
+.ht-act-latest:hover,.ht-act-latest:active{transform:none}
+.ht-act-anniv{--a:var(--hp-green);cursor:default}
+.ht-act-anniv:hover,.ht-act-anniv:active{transform:none}
+.hp-hero-top .ht-act-anniv .ht-acttxt>b a{color:inherit;text-decoration:none}
+.hp-hero-top .ht-act-anniv .ht-acttxt>b a:hover{color:var(--a)}
+.ht-anniv{display:flex;flex-direction:column;gap:4px;width:100%;margin-top:2px}
+.ht-anniv a{
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  min-height:36px;color:inherit;text-decoration:none;font-weight:600;font-size:13px;line-height:1.25;
+}
+.ht-anniv a:hover{color:var(--a)}
+.ht-anniv a:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+.ht-latest{display:flex;flex-direction:column;gap:4px;width:100%;margin-top:2px}
+.ht-latest a{
+  display:grid;grid-template-columns:28px minmax(0,1fr);gap:6px;align-items:center;
+  min-height:36px;color:inherit;text-decoration:none;font-weight:600;font-size:13px;line-height:1.2;
+}
+.ht-latest a:hover{color:var(--a)}
+.ht-latest a:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+.ht-latest img{
+  display:block;width:28px;height:36px;object-fit:cover;border-radius:2px;
+  background:#0a0c11;border:1px solid var(--line);
+}
+.ht-latest img.bad{visibility:hidden}
+.ht-latest span{min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@media (min-width:1100px){
+  .hp-hero-top{
+    grid-template-columns:minmax(0,1fr) minmax(260px,340px) minmax(0,1fr);
+    gap:14px;align-items:start;margin-bottom:4px;
+  }
+  .hp-hero-mid{grid-column:auto;order:0}
+  .hp-hero-mid .wordmark img{width:min(320px,26vw)}
+  .hp-hero-top .ht-acts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:stretch}
+  .hp-hero-top .ht-act,
+  .hp-hero-top .ht-act-arcade{flex-direction:column;align-items:stretch;padding:10px 8px 12px}
+  .hp-hero-top .hp-shelflinks a{font-size:12.5px;min-height:32px}
+}
+@media (max-width:699px){
+  .hp-hero-top .hp-shelflinks a,
+  .hp-hero-top .ht-latest a,
+  .hp-hero-top .ht-anniv a{min-height:44px}
+}
 
 /* --- Full-width bays: a change of wall behind every other section --- */
 .hp-band{
@@ -1009,6 +1127,7 @@ footer p a{color:var(--text)}
   .o1 .wordmark{margin-bottom:16px}
   .o1 .standfirst{margin-top:16px;font-size:17px}
   .ht-a .ht-tm-a{top:10px;right:0}
+  .ht-a .ht-social{top:10px;left:0}
   .hp-counter{margin-top:26px}
   .btn,.o1 .btn{font-size:12px;letter-spacing:.06em;padding:14px 18px 12px}
   .vhead{font-size:15px}
@@ -1212,11 +1331,15 @@ body.y1996 .o1-hero{margin-top:0}
 body.y1996 .o1 .wordmark{background:none;border:none}
 body.y1996 .o1 .wordmark img{filter:sepia(1) saturate(6) hue-rotate(70deg) brightness(1.25)}
 body.y1996 .ht-a .ht-tm-a{position:relative;top:auto;right:auto;display:flex;justify-content:center;margin:0 0 10px}
+body.y1996 .ht-a .ht-social{position:relative;top:auto;left:auto;justify-content:center;flex-wrap:wrap;margin:0 0 8px}
+body.y1996 .ht-soc .ht-soclbl{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;clip-path:none}
 /* the panel must hang off the button, not the whole header */
 body.y1996 .ht-a .ht-tmpanel{left:50%;right:auto;transform:translateX(-50%)}
 body.y1996 .ht-tmbtn,body.y1996 .ht .ht-tmbtn{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0;box-shadow:none}
 body.y1996 .ht-tmbtn b{background:none;padding:0}
 body.y1996 .o1 #lucky{background:#c0c0c0;color:#000;border:2px outset #fff}
+body.y1996 .vpull-shot{background:#000;border:2px inset #808080;border-radius:0;box-shadow:none}
+body.y1996 .vpull-ph{font-family:"Times New Roman",Times,serif;letter-spacing:0;color:#c0c0c0}
 body.y1996 #q{box-shadow:none;border-radius:0}
 body.y1996 .btn{border-radius:0}
 body.y1996 .ht .scores,body.y1996 .scores,body.y1996 .hp-board{background:none;border:none;box-shadow:none}
@@ -1316,7 +1439,6 @@ body.y1996 .ht-quote .ht-ctxt::before{color:#000080}
   .ht-act:hover,.ht-act:active,.btn:active,.ht-card:hover .ht-cm,.npmerch-items a:hover img,.npmerch-btn:active,.ytfacade:hover .ytbtn{transform:none}
   html{scroll-behavior:auto}
 }
-
 /* Contrast (WCAG AA): shelf counts sit on a dark pill instead of faded ink on the
    console colour, rail counts are lightened, and the merch button text is dark on red. */
 .shelfhead p{opacity:1;color:#fff;background:rgba(0,0,0,.62);padding:3px 7px;border-radius:3px}
@@ -1332,6 +1454,10 @@ body.y1996 .npmerch .npmerch-btn{color:#000}
   border-radius:2px;background:var(--bg2);color:var(--text);text-decoration:none;font-size:13px;line-height:1.2}
 .hp-cons-row a em{font-style:normal;color:var(--dim);font-size:12px}
 .hp-cons-row a:hover,.hp-cons-row a:focus-visible{border-color:var(--c);color:#fff}
+@media (min-width:1100px){
+  /* Side cards stay under the photo strip, in the open space beside the logo. */
+  .o1-hero{margin-top:6px}
+}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://thenostalgiapro.com/#website","name":"The Nostalgia Pro","url":"https://thenostalgiapro.com/","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://thenostalgiapro.com/?find={search_term_string}"},"query-input":"required name=search_term_string"}},{"@type":"Organization","@id":"https://thenostalgiapro.com/#org","name":"The Nostalgia Pro","url":"https://thenostalgiapro.com/","logo":"https://thenostalgiapro.com/icon-512.png","sameAs":["https://www.youtube.com/@TheNostalgiaPro","https://www.tiktok.com/@rc.the.nostalgia.pro","https://x.com/NostalgiaPro","https://nostalgiapro.substack.com","https://thenostalgiapro.itch.io","https://nostalgiapro-shop.fourthwall.com/"]}]}</script>
 </head>
@@ -1429,13 +1555,86 @@ body.y1996 .npmerch .npmerch-btn{color:#000}
         <img src="/images/strip/super-mario-64-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
       </div>
     </div>
+    <div class="ht-social" role="navigation" aria-label="Nostalgia Pro on social">
+      <a class="ht-tmbtn ht-soc" href="https://x.com/NostalgiaPro" target="_blank" rel="noopener" aria-label="Nostalgia Pro on X. Opens in a new tab."><svg class="ht-px" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14.7 3H18l-5.4 6.2L19.5 21h-4.7l-3.7-4.8L6.8 21H3.4l5.8-6.6L3 3h4.8l3.3 4.4L14.7 3zm-1 16.2h1.6L8.2 4.7H6.5l7.2 14.5z"/></svg><span class="ht-soclbl">X</span><b class="ht-soch" aria-hidden="true">Now</b></a>
+      <a class="ht-tmbtn ht-soc" href="https://nostalgiapro.substack.com/" target="_blank" rel="noopener" aria-label="Nostalgia Pro on Substack. Opens in a new tab."><svg class="ht-px" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2 3h20v3H2zm0 5h20v3H2zm0 5h20l-10 8L2 13z"/></svg><span class="ht-soclbl">Substack</span><b class="ht-soch" aria-hidden="true">Now</b></a>
+      <a class="ht-tmbtn ht-soc" href="https://www.youtube.com/@TheNostalgiaPro" target="_blank" rel="noopener" aria-label="Nostalgia Pro on YouTube. Opens in a new tab."><svg class="ht-px" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.8 15.5v-7l6.2 3.5-6.2 3.5z"/></svg><span class="ht-soclbl">YouTube</span><b class="ht-soch" aria-hidden="true">Now</b></a>
+      <a class="ht-tmbtn ht-soc" href="https://www.tiktok.com/@rc.the.nostalgia.pro" target="_blank" rel="noopener" aria-label="Nostalgia Pro on TikTok. Opens in a new tab."><svg class="ht-px" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14 3h3.1a5.1 5.1 0 0 0 3.6 3.4v3.1a8.2 8.2 0 0 1-3.6-.9v7.2a5.6 5.6 0 1 1-5.6-5.6c.3 0 .6 0 .9.1v3.2a2.5 2.5 0 1 0 1.6 2.3V3z"/></svg><span class="ht-soclbl">TikTok</span><b class="ht-soch" aria-hidden="true">Now</b></a>
+    </div>
     <div class="ht-tm ht-tm-a"><button type="button" class="ht-tmbtn" aria-expanded="false" aria-controls="htTmPanel"><svg class="ht-px" viewBox="0 0 8 7" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="0" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="0" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="0" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="2" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="6" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="6" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="6" width="1" height="1" fill="#eceae2" class="w"/></svg><span>Time Machine</span><b class="ht-tmcur">Now</b></button><div class="ht-tmpanel" id="htTmPanel" hidden role="group" aria-label="Pick an era"></div></div>
 
     <!-- HERO -->
     <div class="o1-hero">
-      <p class="wordmark"><img src="/images/np-script.webp" width="1800" height="748" alt="The Nostalgia Pro" fetchpriority="high"></p>
-      <h1>Is it on the shelf?</h1>
-      <p class="standfirst">My whole physical collection: <b id="gamecount">860</b> games across <b data-syscount>30</b> systems, plus movies, TV, music and board games. Type a title and find out.</p>
+      <div class="hp-hero-top">
+        <div class="ht-acts ht-acts-l" role="group" aria-label="Start here">
+          <a class="ht-act ht-act-arcade" href="/arcade/" data-act="arcade"><span class="ht-actico"><svg class="ht-px" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="3" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="3" y="2" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="2" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="5" width="1" height="1" fill="#3a3f52"/><rect x="2" y="5" width="1" height="1" fill="#3a3f52"/><rect x="3" y="5" width="1" height="1" fill="#3a3f52"/><rect x="4" y="5" width="1" height="1" fill="#3a3f52"/><rect x="5" y="5" width="1" height="1" fill="#3a3f52"/><rect x="6" y="5" width="1" height="1" fill="#3a3f52"/><rect x="0" y="6" width="1" height="1" fill="#3a3f52"/><rect x="1" y="6" width="1" height="1" fill="#ffd23f"/><rect x="2" y="6" width="1" height="1" fill="#3a3f52"/><rect x="3" y="6" width="1" height="1" fill="#3a3f52"/><rect x="4" y="6" width="1" height="1" fill="#3a3f52"/><rect x="5" y="6" width="1" height="1" fill="#3a3f52"/><rect x="6" y="6" width="1" height="1" fill="#5a8fd6"/><rect x="7" y="6" width="1" height="1" fill="#3a3f52"/><rect x="0" y="7" width="1" height="1" fill="#3a3f52"/><rect x="1" y="7" width="1" height="1" fill="#3a3f52"/><rect x="2" y="7" width="1" height="1" fill="#3a3f52"/><rect x="3" y="7" width="1" height="1" fill="#3a3f52"/><rect x="4" y="7" width="1" height="1" fill="#3a3f52"/><rect x="5" y="7" width="1" height="1" fill="#3a3f52"/><rect x="6" y="7" width="1" height="1" fill="#3a3f52"/><rect x="7" y="7" width="1" height="1" fill="#3a3f52"/></svg></span><span class="ht-acttxt"><b>Play the Arcade</b><span>Free games. No ads. No login.</span></span><span class="ht-actgo" aria-hidden="true">&#9654;</span></a>
+          <a class="ht-act ht-act-play" href="/play/" data-act="play"><span class="ht-actico"><svg class="ht-px" viewBox="0 0 6 6" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="0" width="1" height="1" fill="#ffd23f"/><rect x="1" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="0" width="1" height="1" fill="#3a3f52"/><rect x="3" y="0" width="1" height="1" fill="#3a3f52"/><rect x="4" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="0" width="1" height="1" fill="#ffd23f"/><rect x="0" y="1" width="1" height="1" fill="#ffd23f"/><rect x="1" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="1" width="1" height="1" fill="#3a3f52"/><rect x="3" y="1" width="1" height="1" fill="#3a3f52"/><rect x="4" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="1" width="1" height="1" fill="#ffd23f"/><rect x="0" y="2" width="1" height="1" fill="#ffd23f"/><rect x="1" y="2" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="2" width="1" height="1" fill="#3a3f52"/><rect x="3" y="2" width="1" height="1" fill="#3a3f52"/><rect x="4" y="2" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="2" width="1" height="1" fill="#ffd23f"/><rect x="0" y="3" width="1" height="1" fill="#ffd23f"/><rect x="1" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="3" width="1" height="1" fill="#3a3f52"/><rect x="3" y="3" width="1" height="1" fill="#3a3f52"/><rect x="4" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="3" width="1" height="1" fill="#ffd23f"/><rect x="0" y="4" width="1" height="1" fill="#ffd23f"/><rect x="1" y="4" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="4" width="1" height="1" fill="#3a3f52"/><rect x="3" y="4" width="1" height="1" fill="#3a3f52"/><rect x="4" y="4" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="4" width="1" height="1" fill="#ffd23f"/><rect x="0" y="5" width="1" height="1" fill="#ffd23f"/><rect x="1" y="5" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="5" width="1" height="1" fill="#3a3f52"/><rect x="3" y="5" width="1" height="1" fill="#3a3f52"/><rect x="4" y="5" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="5" width="1" height="1" fill="#ffd23f"/></svg></span><span class="ht-acttxt"><b>Play Nostalgia Pro</b><span>One Saturday, $100, every yard sale in town.</span></span><span class="ht-actgo" aria-hidden="true">&#9654;</span></a>
+          <a class="ht-act ht-act-merch" href="https://nostalgiapro-shop.fourthwall.com/" target="_blank" rel="noopener" data-act="merch" aria-label="Merch. Shirts and more from the shop. Opens in a new tab."><span class="ht-actico"><svg class="ht-px" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="1" y="1" width="6" height="1" fill="#ff4b3e" class="r"/><rect x="0" y="2" width="8" height="1" fill="#ff4b3e" class="r"/><rect x="0" y="3" width="3" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="3" width="3" height="1" fill="#ff4b3e" class="r"/><rect x="0" y="4" width="3" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="4" width="3" height="1" fill="#ff4b3e" class="r"/><rect x="0" y="5" width="3" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="5" width="3" height="1" fill="#ff4b3e" class="r"/><rect x="0" y="6" width="3" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="6" width="3" height="1" fill="#ff4b3e" class="r"/></svg></span><span class="ht-acttxt"><b>Merch</b><span>Shirts and more from the shop.</span></span></a>
+        </div>
+        <div class="hp-hero-mid">
+        <p class="wordmark"><img src="/images/np-script.webp" width="1800" height="748" alt="The Nostalgia Pro" fetchpriority="high"></p>
+        <h1>Is it on the shelf?</h1>
+        <p class="standfirst">My whole physical collection: <b id="gamecount">860</b> games across <b data-syscount>30</b> systems, plus movies, TV, music and board games. Type a title and find out.</p>
+        </div>
+        <div class="ht-acts ht-acts-r" role="group" aria-label="Start here">
+          <div class="ht-act ht-act-anniv" data-act="anniv"><span class="ht-actico"><svg class="ht-px" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="0" width="8" height="1" fill="#3fbf6a"/><rect x="1" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="2" width="8" height="1" fill="#3fbf6a"/><rect x="1" y="4" width="2" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="6" width="2" height="1" fill="#eceae2" class="w"/><rect x="6" y="6" width="1" height="1" fill="#eceae2" class="w"/></svg></span><div class="ht-acttxt"><b><a href="/anniversaries.html">Gaming anniversaries</a></b><span class="ht-anniv" id="htAnniv"></span></div></div>
+          <div class="ht-act ht-act-latest" data-act="latest"><span class="ht-actico"><svg class="ht-px" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="1" width="5" height="1" fill="#ffd23f"/><rect x="1" y="3" width="5" height="1" fill="#ff4b3e" class="r"/><rect x="1" y="5" width="5" height="1" fill="#5a8fd6"/></svg></span><div class="ht-acttxt"><b>Latest games</b><span>New on the shelf.</span><span class="ht-latest" id="htLatest"></span></div></div>
+          <div class="ht-act ht-act-shelves" role="group" aria-labelledby="hpShelvesH"><span class="ht-actico"><svg class="ht-px" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="7" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="2" width="1" height="1" fill="#3a3f52"/><rect x="2" y="2" width="1" height="1" fill="#3a3f52"/><rect x="3" y="2" width="1" height="1" fill="#3a3f52"/><rect x="4" y="2" width="1" height="1" fill="#3a3f52"/><rect x="5" y="2" width="1" height="1" fill="#3a3f52"/><rect x="6" y="2" width="1" height="1" fill="#3a3f52"/><rect x="7" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="3" width="1" height="1" fill="#3a3f52"/><rect x="2" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="3" y="3" width="1" height="1" fill="#3a3f52"/><rect x="4" y="3" width="1" height="1" fill="#3a3f52"/><rect x="5" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="6" y="3" width="1" height="1" fill="#3a3f52"/><rect x="7" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="4" width="1" height="1" fill="#3a3f52"/><rect x="2" y="4" width="1" height="1" fill="#3a3f52"/><rect x="3" y="4" width="1" height="1" fill="#5a8fd6"/><rect x="4" y="4" width="1" height="1" fill="#5a8fd6"/><rect x="5" y="4" width="1" height="1" fill="#3a3f52"/><rect x="6" y="4" width="1" height="1" fill="#3a3f52"/><rect x="7" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="5" width="1" height="1" fill="#3a3f52"/><rect x="2" y="5" width="1" height="1" fill="#3a3f52"/><rect x="3" y="5" width="1" height="1" fill="#3a3f52"/><rect x="4" y="5" width="1" height="1" fill="#3a3f52"/><rect x="5" y="5" width="1" height="1" fill="#3a3f52"/><rect x="6" y="5" width="1" height="1" fill="#3a3f52"/><rect x="7" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="7" y="6" width="1" height="1" fill="#eceae2" class="w"/></svg></span><div class="ht-acttxt"><b id="hpShelvesH">Other shelves</b><ul class="hp-shelflinks"><li><a href="/movies.html">Movies <i data-media="film">157</i></a></li><li><a href="/tv.html">TV shows <i data-media="tv">16</i></a></li><li><a href="/music.html">Music <i data-media="music">79</i></a></li><li><a href="/boardgames.html">Board games <i data-media="board game">2</i></a></li></ul></div></div>
+        </div>
+      </div>
+      <script>
+/* Newest shelf adds, from /data/new-this-week.json. A purchase, or a site item
+   whose link is a game page. Newest first, three at most. No seven-day cutoff,
+   so the card keeps the latest ones after they leave Latest Game Purchases. */
+(function(){
+  var box = document.getElementById("htLatest");
+  if (!box || !window.fetch) return;
+  var DAY = 864e5;
+  var az = new Date(Date.now() - 7 * 3600e3);
+  var today = Math.floor(Date.UTC(az.getUTCFullYear(), az.getUTCMonth(), az.getUTCDate()) / DAY);
+  function val(v){ v = (v == null ? "" : String(v)).trim(); return /^TODO/i.test(v) ? "" : v; }
+  function link(v){ v = val(v); return /^(https?:\/\/|\/(?!\/))/i.test(v) ? v : ""; }
+  function dayOf(v){
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(val(v));
+    if (!m) return null;
+    var t = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    if (t.getUTCMonth() !== +m[2] - 1 || t.getUTCDate() !== +m[3]) return null;
+    return Math.floor(t.getTime() / DAY);
+  }
+  fetch("/data/new-this-week.json").then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+    if (!d || !d.items) return;
+    var rows = [];
+    d.items.forEach(function(it){
+      var href = link(it.url);
+      var n = dayOf(it.date);
+      if (!it.title || !href || n == null || n > today) return;
+      var game = it.type === "purchase" || (it.type === "site" && /^\/game\//i.test(href));
+      if (!game) return;
+      rows.push({ it: it, href: href, n: n });
+    });
+    rows.sort(function(a, b){ return b.n - a.n; });
+    rows = rows.slice(0, 3);
+    rows.forEach(function(e){
+      var a = document.createElement("a");
+      a.href = e.href;
+      var imgUrl = link(e.it.image);
+      if (imgUrl){
+        var img = document.createElement("img");
+        img.alt = "";
+        img.width = 28; img.height = 36;
+        img.loading = "lazy"; img.decoding = "async";
+        img.addEventListener("error", function(){ img.classList.add("bad"); });
+        img.src = imgUrl;
+        a.appendChild(img);
+      }
+      var s = document.createElement("span");
+      s.textContent = e.it.title;
+      a.appendChild(s);
+      box.appendChild(a);
+    });
+  }).catch(function(){});
+})();
+</script>
     </div>
 
     <!-- THE COUNTER: search, verdict, scoreboard -->
@@ -1460,17 +1659,6 @@ body.y1996 .npmerch .npmerch-btn{color:#000}
     </div>
     <!-- Browse by console: filled from the shelf (RAW) by drawConsoleChips() below. -->
     <nav class="hp-cons" aria-labelledby="hpConsH"><p class="hp-cons-h" id="hpConsH">Browse by console</p><div class="hp-cons-row" id="consoleChips"></div></nav>
-    </div>
-
-    <!-- START HERE: four cartridges -->
-    <div class="hp-sec hp-start">
-      <div class="hp-sign"><h2 class="ht-sh" id="hpStartH">Start here</h2></div>
-      <div class="ht-acts" role="group" aria-labelledby="hpStartH">
-        <a class="ht-act ht-act-arcade" href="/arcade/" data-act="arcade"><span class="ht-actico"><svg class="ht-px" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="3" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="3" y="2" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="2" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="5" width="1" height="1" fill="#3a3f52"/><rect x="2" y="5" width="1" height="1" fill="#3a3f52"/><rect x="3" y="5" width="1" height="1" fill="#3a3f52"/><rect x="4" y="5" width="1" height="1" fill="#3a3f52"/><rect x="5" y="5" width="1" height="1" fill="#3a3f52"/><rect x="6" y="5" width="1" height="1" fill="#3a3f52"/><rect x="0" y="6" width="1" height="1" fill="#3a3f52"/><rect x="1" y="6" width="1" height="1" fill="#ffd23f"/><rect x="2" y="6" width="1" height="1" fill="#3a3f52"/><rect x="3" y="6" width="1" height="1" fill="#3a3f52"/><rect x="4" y="6" width="1" height="1" fill="#3a3f52"/><rect x="5" y="6" width="1" height="1" fill="#3a3f52"/><rect x="6" y="6" width="1" height="1" fill="#5a8fd6"/><rect x="7" y="6" width="1" height="1" fill="#3a3f52"/><rect x="0" y="7" width="1" height="1" fill="#3a3f52"/><rect x="1" y="7" width="1" height="1" fill="#3a3f52"/><rect x="2" y="7" width="1" height="1" fill="#3a3f52"/><rect x="3" y="7" width="1" height="1" fill="#3a3f52"/><rect x="4" y="7" width="1" height="1" fill="#3a3f52"/><rect x="5" y="7" width="1" height="1" fill="#3a3f52"/><rect x="6" y="7" width="1" height="1" fill="#3a3f52"/><rect x="7" y="7" width="1" height="1" fill="#3a3f52"/></svg></span><span class="ht-acttxt"><b>Play the Arcade</b><span>Free games. No ads. No login.</span></span><span class="ht-actgo" aria-hidden="true">&#9654;</span></a>
-        <a class="ht-act ht-act-play" href="/play/" data-act="play"><span class="ht-actico"><svg class="ht-px" viewBox="0 0 6 6" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="0" width="1" height="1" fill="#ffd23f"/><rect x="1" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="0" width="1" height="1" fill="#3a3f52"/><rect x="3" y="0" width="1" height="1" fill="#3a3f52"/><rect x="4" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="0" width="1" height="1" fill="#ffd23f"/><rect x="0" y="1" width="1" height="1" fill="#ffd23f"/><rect x="1" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="1" width="1" height="1" fill="#3a3f52"/><rect x="3" y="1" width="1" height="1" fill="#3a3f52"/><rect x="4" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="1" width="1" height="1" fill="#ffd23f"/><rect x="0" y="2" width="1" height="1" fill="#ffd23f"/><rect x="1" y="2" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="2" width="1" height="1" fill="#3a3f52"/><rect x="3" y="2" width="1" height="1" fill="#3a3f52"/><rect x="4" y="2" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="2" width="1" height="1" fill="#ffd23f"/><rect x="0" y="3" width="1" height="1" fill="#ffd23f"/><rect x="1" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="3" width="1" height="1" fill="#3a3f52"/><rect x="3" y="3" width="1" height="1" fill="#3a3f52"/><rect x="4" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="3" width="1" height="1" fill="#ffd23f"/><rect x="0" y="4" width="1" height="1" fill="#ffd23f"/><rect x="1" y="4" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="4" width="1" height="1" fill="#3a3f52"/><rect x="3" y="4" width="1" height="1" fill="#3a3f52"/><rect x="4" y="4" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="4" width="1" height="1" fill="#ffd23f"/><rect x="0" y="5" width="1" height="1" fill="#ffd23f"/><rect x="1" y="5" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="5" width="1" height="1" fill="#3a3f52"/><rect x="3" y="5" width="1" height="1" fill="#3a3f52"/><rect x="4" y="5" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="5" width="1" height="1" fill="#ffd23f"/></svg></span><span class="ht-acttxt"><b>Play Nostalgia Pro</b><span>One Saturday, $100, every yard sale in town.</span></span><span class="ht-actgo" aria-hidden="true">&#9654;</span></a>
-        <div class="ht-act ht-act-shelves" role="group" aria-labelledby="hpShelvesH"><span class="ht-actico"><svg class="ht-px" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="7" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="2" width="1" height="1" fill="#3a3f52"/><rect x="2" y="2" width="1" height="1" fill="#3a3f52"/><rect x="3" y="2" width="1" height="1" fill="#3a3f52"/><rect x="4" y="2" width="1" height="1" fill="#3a3f52"/><rect x="5" y="2" width="1" height="1" fill="#3a3f52"/><rect x="6" y="2" width="1" height="1" fill="#3a3f52"/><rect x="7" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="3" width="1" height="1" fill="#3a3f52"/><rect x="2" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="3" y="3" width="1" height="1" fill="#3a3f52"/><rect x="4" y="3" width="1" height="1" fill="#3a3f52"/><rect x="5" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="6" y="3" width="1" height="1" fill="#3a3f52"/><rect x="7" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="4" width="1" height="1" fill="#3a3f52"/><rect x="2" y="4" width="1" height="1" fill="#3a3f52"/><rect x="3" y="4" width="1" height="1" fill="#5a8fd6"/><rect x="4" y="4" width="1" height="1" fill="#5a8fd6"/><rect x="5" y="4" width="1" height="1" fill="#3a3f52"/><rect x="6" y="4" width="1" height="1" fill="#3a3f52"/><rect x="7" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="5" width="1" height="1" fill="#3a3f52"/><rect x="2" y="5" width="1" height="1" fill="#3a3f52"/><rect x="3" y="5" width="1" height="1" fill="#3a3f52"/><rect x="4" y="5" width="1" height="1" fill="#3a3f52"/><rect x="5" y="5" width="1" height="1" fill="#3a3f52"/><rect x="6" y="5" width="1" height="1" fill="#3a3f52"/><rect x="7" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="7" y="6" width="1" height="1" fill="#eceae2" class="w"/></svg></span><div class="ht-acttxt"><b id="hpShelvesH">Other shelves</b><ul class="hp-shelflinks"><li><a href="/movies.html">Movies <i data-media="film">157</i></a></li><li><a href="/tv.html">TV shows <i data-media="tv">16</i></a></li><li><a href="/music.html">Music <i data-media="music">79</i></a></li><li><a href="/boardgames.html">Board games <i data-media="board game">2</i></a></li></ul></div></div>
-        <a class="ht-act ht-act-daily" href="/daily.html" data-act="daily"><span class="ht-actico"><svg class="ht-px" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="1" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="3" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="6" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="7" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="0" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="1" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="3" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="7" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="0" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="7" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="3" width="1" height="1" fill="#3a3f52"/><rect x="2" y="3" width="1" height="1" fill="#5a8fd6"/><rect x="3" y="3" width="1" height="1" fill="#3a3f52"/><rect x="4" y="3" width="1" height="1" fill="#ffd23f"/><rect x="5" y="3" width="1" height="1" fill="#3a3f52"/><rect x="6" y="3" width="1" height="1" fill="#8e93a2"/><rect x="7" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="4" width="1" height="1" fill="#3a3f52"/><rect x="2" y="4" width="1" height="1" fill="#3a3f52"/><rect x="3" y="4" width="1" height="1" fill="#3a3f52"/><rect x="4" y="4" width="1" height="1" fill="#3a3f52"/><rect x="5" y="4" width="1" height="1" fill="#3a3f52"/><rect x="6" y="4" width="1" height="1" fill="#3a3f52"/><rect x="7" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="5" width="1" height="1" fill="#ffd23f"/><rect x="2" y="5" width="1" height="1" fill="#3a3f52"/><rect x="3" y="5" width="1" height="1" fill="#8e93a2"/><rect x="4" y="5" width="1" height="1" fill="#3a3f52"/><rect x="5" y="5" width="1" height="1" fill="#5a8fd6"/><rect x="6" y="5" width="1" height="1" fill="#3a3f52"/><rect x="7" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="6" width="1" height="1" fill="#3a3f52"/><rect x="2" y="6" width="1" height="1" fill="#3a3f52"/><rect x="3" y="6" width="1" height="1" fill="#3a3f52"/><rect x="4" y="6" width="1" height="1" fill="#3a3f52"/><rect x="5" y="6" width="1" height="1" fill="#3a3f52"/><rect x="6" y="6" width="1" height="1" fill="#3a3f52"/><rect x="7" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="7" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="7" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="7" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="7" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="7" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="7" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="7" width="1" height="1" fill="#eceae2" class="w"/><rect x="7" y="7" width="1" height="1" fill="#eceae2" class="w"/></svg></span><span class="ht-acttxt"><b>Today's Daily Shelf</b><span id="htDailyAct">Guess the game. Six guesses.</span></span><span class="ht-actgo" aria-hidden="true">&#9654;</span></a>
-      </div>
     </div>
 
     <!-- GAME SALES CARD: Nostalgia Pro: The Game. Sits after Start here and before Latest Posts.
@@ -3670,6 +3858,54 @@ function slug(g){
     .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
     .replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 }
+function slugPart(s){
+  return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+}
+/* Same names the consoles page uses: images/<name>-console.webp, then the placeholder. */
+const HW_PULL_STANDIN = {"Xbox Series X/S":"xbox-series-x-console"};
+function consoleShotSlugs(system){
+  const slugs = [];
+  for (const h of HARDWARE) if (h.shelf === system) slugs.push(slugPart(h.name) + "-console");
+  slugs.push(slugPart(system) + "-console");
+  if (HW_PULL_STANDIN[system]) slugs.push(HW_PULL_STANDIN[system]);
+  return slugs;
+}
+/* Game photo first (the file on the game page), then that console's photo. */
+function pullShotAttrs(g){
+  const game = shotTries(slug(g));
+  const hw = [];
+  for (const s of consoleShotSlugs(g.system)) {
+    for (const p of shotTries(s)) if (!hw.includes(p) && !game.includes(p)) hw.push(p);
+  }
+  const tries = game.concat(hw);
+  return `src="${tries[0]}" data-next="${tries.slice(1).join("|")}" width="112" height="149"`;
+}
+function nextPullShot(img){
+  if (!img.isConnected) return;
+  const t = (img.dataset.next || "").split("|").filter(Boolean);
+  if (!t.length) {
+    const box = img.closest(".vpull-shot");
+    if (box) box.classList.add("vpull-empty");
+    return;
+  }
+  img.dataset.next = t.slice(1).join("|");
+  img.src = t[0];
+}
+function pullCard(g, head, sub){
+  return `<div class="vbox vpull" style="--hit:${g.color}">
+    <div class="vpull-shot">
+      <img loading="lazy" decoding="async" alt="${esc(g.title)}" ${pullShotAttrs(g)} onerror="nextPullShot(this)">
+      <span class="vpull-ph">No photo yet</span>
+    </div>
+    <div class="vpull-body">
+      <p class="vhead">${head}</p>
+      <p class="vtitle">${esc(g.title)}</p>
+      <p class="vpull-sub">${sub}</p>
+      ${extras(g)}
+    </div>
+  </div>`;
+}
 
 /* What else the site knows about a game: its review, and where it ranks. */
 const REVIEWED = {"adventure island":[1,4.0],"adventures of dino riki":[2,1.0],"adventures of gilligan s island":[3,1.0],"batman the video game":[4,4.0],"legend of zelda":[5,4.0],"mega man 2":[6,3.0],"r c pro am":[7,4.0],"bill ted s excellent video game adventure":[8,1.0],"predator":[9,1.0],"super mario world 2 yoshi s island":[10,5.0],"legend of zelda ocarina of time":[11,4.0],"super mario kart":[12,4.0],"metroid prime":[13,4.5],"mvp baseball 2005":[14,5.0],"final fantasy vii":[15,3.0],"zelda ii the adventure of link":[16,4.5],"wave race 64":[17,5.0],"super mario 64":[18,3.5],"super mario world":[19,5.0],"mega man legends":[20,4.5],"gran turismo":[21,4.5],"captain america and the avengers":[22,4.0],"mario kart 64":[23,4.0],"paperboy":[24,4.5],"galaga demons of death":[25,4.5],"goldeneye 007":[26,4.5],"popeye":[27,4.0],"gun":[28,4.0],"metal gear solid":[29,5.0],"killer instinct":[30,4.5],"sega dreamcast":[31,5.0],"star fox adventures":[32,4.5],"star wars episode i racer":[33,4.5],"metal gear solid 4 guns of the patriots":[34,5.0],"007 tomorrow never dies":[35,4.0],"tetris":[36,5.0],"x men legends":[37,4.5],"x men origins wolverine":[38,4.5],"legend of zelda majora s mask":[39,4.5],"sony playstation":[40,4.0],"halo reach":[41,4.5],"diddy kong racing":[42,4.0],"perfect dark":[43,5.0],"streets of rage 2":[44,5.0],"star fox":[45,5.0],"halo combat evolved":[46,5.0],"mario kart double dash":[47,4.0],"super mario bros 2":[48,4.5],"batman returns":[49,4.5],"street fighter ii turbo":[50,5.0],"pilotwings 64":[51,4.5],"gears of war":[52,4.0],"nintendo 64":[53,4.5],"contra":[54,4.5],"fable ii":[55,3.5],"teenage mutant ninja turtles tournament fighters":[56,4.5],"michael jordan chaos in the windy city":[57,4.5],"epic mickey rebrushed":[58,5.0],"max payne 3":[59,4.5],"sony playstation 2":[60,4.5]};
@@ -3852,10 +4088,21 @@ function stampDatesHead(){
     const days = Math.round((when - today) / 86400000);
     hits.push({ g, age: when.getFullYear() - y, days });
   }
+  hits.sort((a,b) => a.days - b.days || b.age - a.age);
+  const annivBox = document.getElementById("htAnniv");
+  if (annivBox) {
+    const week = hits.filter(h => h.days <= 7);
+    const todays = week.filter(h => h.days === 0);
+    const pick = (todays.length ? todays : week).slice(0, 3);
+    if (!pick.length) annivBox.textContent = "Nothing this week.";
+    else annivBox.innerHTML = pick.map(h => {
+      const when = h.days === 0 ? "today" : h.days === 1 ? "tomorrow" : "in " + h.days + " days";
+      return `<a href="${gamePage(h.g)}">${esc(h.g.title)} turns ${h.age} ${when}</a>`;
+    }).join("");
+  }
   const bar = document.getElementById("todaybar");
   if (!bar) return;
   if (!hits.length) { stampDatesHead(); return; }
-  hits.sort((a,b) => a.days - b.days || b.age - a.age);
 
   const soon = hits.filter(h => h.days === hits[0].days).slice(0, 3);
   const when = hits[0].days === 0 ? "Today"
@@ -4098,11 +4345,7 @@ document.getElementById("lucky").addEventListener("click", () => {
   filterBox.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.cond === "all"));
   render();
   verdict.className = "on";
-  verdict.innerHTML = `<div class="vbox" style="--hit:${g.color}">
-    <p class="vhead">Random pull</p>
-    <p class="vtitle">${esc(g.title)}</p>
-    <p style="margin:0;color:var(--dim)">${esc(g.system)} &middot; ${esc(g.cond)}</p>
-    ${extras(g)}</div>`;
+  verdict.innerHTML = pullCard(g, "Random pull", `${esc(g.system)} &middot; ${esc(g.cond)}`);
 });
 
 /* Something you own, can finish, and haven't. */
@@ -4118,11 +4361,8 @@ document.getElementById("whatnext").addEventListener("click", () => {
   const g = pool[Math.floor(Math.random() * pool.length)];
   qEl.value = ""; query = ""; Q = null;
   verdict.className = "on";
-  verdict.innerHTML = `<div class="vbox" style="--hit:${g.color}">
-    <p class="vhead">Play this</p>
-    <p class="vtitle">${esc(g.title)}</p>
-    <p style="margin:0;color:var(--dim)">${esc(g.system)} &middot; ${esc(g.cond)} &middot; one of ${pool.length} I haven't finished</p>
-    ${extras(g)}</div>`;
+  verdict.innerHTML = pullCard(g, "Play this",
+    `${esc(g.system)} &middot; ${esc(g.cond)} &middot; one of ${pool.length} I haven't finished`);
 });
 
 document.getElementById("viewtoggle").addEventListener("click", e => {
