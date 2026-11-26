@@ -1,10 +1,19 @@
 {
- "updated": "2026-11-26T09:39:26Z",
+ "updated": "2026-11-26T21:52:51Z",
  "channels": {
   "youtube": "https://www.youtube.com/@TheNostalgiaPro",
   "tiktok": "https://www.tiktok.com/@rc.the.nostalgia.pro"
  },
  "youtube": [
+  {
+   "id": "O4Bbzxb26WI",
+   "kind": "video",
+   "title": "Madden NFL 94 on a real SNES and CRT",
+   "url": "https://www.youtube.com/watch?v=O4Bbzxb26WI",
+   "thumb": "https://i.ytimg.com/vi/O4Bbzxb26WI/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/O4Bbzxb26WI/hqdefault.jpg",
+   "published": "2026-11-26T20:00:02Z"
+  },
   {
    "id": "RV3VnyPIzEI",
    "kind": "video",
@@ -51,13 +60,22 @@
    "published": "2026-11-22T05:29:18Z"
   },
   {
-   "id": "mrshPGXdmTo",
-   "kind": "video",
-   "title": "Bram Stoker's Dracula, Killer Instinct, and more on a real SNES and CRT (Part 1)",
-   "url": "https://www.youtube.com/watch?v=mrshPGXdmTo",
-   "thumb": "https://i.ytimg.com/vi/mrshPGXdmTo/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/mrshPGXdmTo/hqdefault.jpg",
-   "published": "2026-11-22T05:26:50Z"
+   "id": "8kcYanc39fk",
+   "kind": "short",
+   "title": "Madden NFL 94, booting up my boxed copy on a real SNES and CRT",
+   "url": "https://www.youtube.com/shorts/8kcYanc39fk",
+   "thumb": "https://i.ytimg.com/vi/8kcYanc39fk/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/8kcYanc39fk/hqdefault.jpg",
+   "published": "2026-11-26T19:00:29Z"
+  },
+  {
+   "id": "IEIhyd-ToP0",
+   "kind": "short",
+   "title": "Madden NFL 94 on a real SNES and CRT",
+   "url": "https://www.youtube.com/shorts/IEIhyd-ToP0",
+   "thumb": "https://i.ytimg.com/vi/IEIhyd-ToP0/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/IEIhyd-ToP0/hqdefault.jpg",
+   "published": "2026-11-26T16:00:35Z"
   },
   {
    "id": "9Vp06sm2e5E",
@@ -94,74 +112,56 @@
    "thumb": "https://i.ytimg.com/vi/Al_llB_RcmE/maxresdefault.jpg",
    "thumb_alt": "https://i.ytimg.com/vi/Al_llB_RcmE/hqdefault.jpg",
    "published": "2026-11-25T19:00:34Z"
-  },
-  {
-   "id": "okMxHAsuw_M",
-   "kind": "short",
-   "title": "Diddy Kong Racing, 1997, booting up Rare's N64 kart racer",
-   "url": "https://www.youtube.com/shorts/okMxHAsuw_M",
-   "thumb": "https://i.ytimg.com/vi/okMxHAsuw_M/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/okMxHAsuw_M/hqdefault.jpg",
-   "published": "2026-11-25T16:00:08Z"
-  },
-  {
-   "id": "unC6yDBDjP8",
-   "kind": "short",
-   "title": "LEGO Batman, Penguin quotes It's Always Sunny mid fight",
-   "url": "https://www.youtube.com/shorts/unC6yDBDjP8",
-   "thumb": "https://i.ytimg.com/vi/unC6yDBDjP8/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/unC6yDBDjP8/hqdefault.jpg",
-   "published": "2026-11-25T03:39:27Z"
   }
  ],
  "tiktok": [
   {
+   "id": "7712545744946810126",
+   "title": "Mad Max on a real NES",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7712545744946810126",
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oopRpJiIIBw1yuhfDdipI3Uyg5ujKBAIBADKBy~tplv-tiktokx-origin.image?dr=9636&x-expires=1795899600&x-signature=duTDPMAgK1m1aFet4ozOMFjzR7M%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795899600,
+   "published": "2026-11-26T18:16:30Z"
+  },
+  {
+   "id": "7711861962430319885",
+   "title": "Leading lap 2 at Sunny Beach. The greatest N64 game ever made, no question. Have you played it?",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711861962430319885",
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oAQMQCDFVEPBABDr6FATfoZwUlpCKEOgS5g1Be~tplv-tiktokx-origin.image?dr=9636&x-expires=1795899600&x-signature=XSAu60cM2c3DD98XnY0XZKJfBdc%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795899600,
+   "published": "2026-11-24T22:03:04Z"
+  },
+  {
+   "id": "7711859845443439885",
+   "title": "Quake 64 on a real N64 and CRT, already in the base. How far did you get?",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711859845443439885",
+   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/o0tBAIWeGgWAsL6B01EGCFDErH8DqA8kfIfgD5~tplv-tiktokx-origin.image?dr=9636&x-expires=1795899600&x-signature=eSBJP50%2B6dcV4jUuA%2FqeS1lJAzY%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795899600,
+   "published": "2026-11-24T21:54:51Z"
+  },
+  {
    "id": "7711859526177180958",
    "title": "Last hit on the Penguin and the duck goes up in smoke. How long did this fight take you?",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711859526177180958",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oAFMcrKNEtfgAF8QaCSQigDD19ABBoDqCQvfV2~tplv-tiktokx-origin.image?dr=9636&x-expires=1795856400&x-signature=y2uTtLQzsi%2FHBGDuoyILvzV5s4I%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795856400,
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oAFMcrKNEtfgAF8QaCSQigDD19ABBoDqCQvfV2~tplv-tiktokx-origin.image?dr=9636&x-expires=1795899600&x-signature=AnwBgP5mrbTX7UyH%2B%2F%2BAXYyN83M%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795899600,
    "published": "2026-11-24T21:53:37Z"
   },
   {
    "id": "7711859082109422862",
    "title": "Maximum Carnage on my SNES and a CRT. Spider-Man in the opening stage.",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711859082109422862",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/ooQDkQZQGLm3ACBxAIexAyBf0LNe6WHEJi2rXG~tplv-tiktokx-origin.image?dr=9636&x-expires=1795856400&x-signature=THgQz9Q2DnYeUeKsYpSrb%2FHXGqc%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795856400,
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/ooQDkQZQGLm3ACBxAIexAyBf0LNe6WHEJi2rXG~tplv-tiktokx-origin.image?dr=9636&x-expires=1795899600&x-signature=sM0FgBHEHCVdCaBK5ZNLTZWYRZI%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795899600,
    "published": "2026-11-24T21:51:53Z"
   },
   {
    "id": "7711858770116087054",
    "title": "Bulls vs Jazz in NBA Jam 99 on a real N64 and CRT. Who did you always pick?",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711858770116087054",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/ooQQkQDvAA0eHJSfrLeNAWGCSmDBmIElZ92vCM~tplv-tiktokx-origin.image?dr=9636&x-expires=1795856400&x-signature=8n3%2FVMyonFvkUjaKW78w5y9v780%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795856400,
+   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/ooQQkQDvAA0eHJSfrLeNAWGCSmDBmIElZ92vCM~tplv-tiktokx-origin.image?dr=9636&x-expires=1795899600&x-signature=1hY6NwRxkppRjqBk2ans6O1ekSY%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795899600,
    "published": "2026-11-24T21:50:41Z"
-  },
-  {
-   "id": "7711858265885396255",
-   "title": "The Legend of Zelda on my NES and a CRT. How old were you the first time you played it?",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711858265885396255",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oUIB1gBzbIMwBAJLHlMBPnNAikplG9xIUwfiKB~tplv-tiktokx-origin.image?dr=9636&x-expires=1795856400&x-signature=5oKDQMRG1rdYZGAdRxVKEUWS%2BUw%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795856400,
-   "published": "2026-11-24T21:48:43Z"
-  },
-  {
-   "id": "7711857791085972749",
-   "title": "Mad Max on my NES and a CRT. The wasteland still looks rough.",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711857791085972749",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oAADMLeHtDmeGCThrewCAvEGAkInH4LQdW7DQM~tplv-tiktokx-origin.image?dr=9636&x-expires=1795856400&x-signature=p4iocx3nimGtBLAR0ASVSrmVBcI%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795856400,
-   "published": "2026-11-24T21:46:53Z"
-  },
-  {
-   "id": "7711857239077686542",
-   "title": "\"I am not a human being, I'm an animal!\" Penguin pulling a line straight out of Batman Returns. Who's your favorite Penguin?",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711857239077686542",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/ocXGKw9x1IpBB4B5BAgi8kKiIaBBddAuVwfWWb~tplv-tiktokx-origin.image?dr=9636&x-expires=1795856400&x-signature=mDUrjHAZYNmepNLaMKWH4ej0aXw%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795856400,
-   "published": "2026-11-24T21:44:44Z"
   }
  ]
 }
