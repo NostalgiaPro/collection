@@ -89,7 +89,7 @@ def build():
     L = br.Linker()
     desc = ("Every time I've called a game overrated on X: the top 5 thread, "
             "Overrated Game of the Day, and the reviews and posts in between.")
-    h = [head("The Nostalgia Pro \u2014 Overrated", desc, "/overrated.html", None, "860px", CSS + br.CSS)]
+    h = [head("The Nostalgia Pro | Overrated", desc, "/overrated.html", None, "860px", CSS + br.CSS)]
     h.append('<body>\n' + BODY_JS + '<div class="wrap">\n\n<header>\n  ' + wordmark() + '\n')
     h.append('  <h1>Overrated</h1>\n')
     h.append("  <p class=\"standfirst\">Every game I've called overrated on X, kept here as posted.</p>\n")

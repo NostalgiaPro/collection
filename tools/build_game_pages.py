@@ -366,6 +366,9 @@ def main():
     # and so does the game list on anniversaries.html
     import build_anniversaries
     build_anniversaries.main()
+    # and the game counts in the hand-made pages' titles and share tags
+    import sync_counts
+    sync_counts.main()
 
 
 if __name__ == "__main__":

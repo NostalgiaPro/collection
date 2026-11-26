@@ -462,7 +462,7 @@ def build():
     n_lists = (len(d["lists"]) + sum(1 for e in d["lists"] if e.get("earlier")) + len(d["best_worst"])
                + len(d["tiers"]) + len(d["head_to_head"]))
     desc = "Every ranking I've posted on X: top 10s, top 5s, tier lists, best and worst by year, and head-to-heads."
-    h = [head("The Nostalgia Pro \u2014 Rankings", desc, "/rankings.html", None, "900px", CSS)]
+    h = [head("The Nostalgia Pro | Rankings", desc, "/rankings.html", None, "900px", CSS)]
     h.append('<body>\n' + BODY_JS + '<div class="wrap">\n\n<header>\n  ' + wordmark() + '\n')
     h.append("  <h1>Rankings</h1>\n")
     h.append("  <p class=\"standfirst\">Every ranking I've posted on X, word for word, with a link back to each post.</p>\n")

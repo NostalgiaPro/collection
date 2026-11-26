@@ -279,7 +279,7 @@ def build():
     gaps = [n for n in range(1, max(nums) + 1) if n not in nums]
     desc = (f"My Honest and Unpopular Reviews from X, all {len(revs)} of them: the full review, "
             f"the score out of five, and a link to the post.")
-    h = [head("The Nostalgia Pro \u2014 Honest and Unpopular Reviews", desc, "/reviews.html", None, "940px", CSS)]
+    h = [head("The Nostalgia Pro | Honest and Unpopular Reviews", desc, "/reviews.html", None, "940px", CSS)]
     h.append('<body>\n' + BODY_JS + '<div class="wrap">\n\n<header>\n  ' + wordmark() + '\n')
     h.append("  <h1>Honest and Unpopular Reviews</h1>\n")
     h.append("  <p class=\"standfirst\">Every game I've reviewed on X, newest first. Open one to read the whole review, "

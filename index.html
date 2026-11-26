@@ -12,20 +12,20 @@
 <link rel="preload" href="/fonts/Righteous-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script src="/count.js" defer></script>
 <!-- /np-head -->
-<meta name="description" content="I'm RC, the Nostalgia Pro. Search all 850+ physical games I own across 30 consoles, from NES and SNES to N64 and PlayStation, and see what's on my shelf, what shape it's in, and if I've beaten it.">
+<meta name="description" content="I'm RC, the Nostalgia Pro. Search all 860 physical games I own across 30 consoles, from NES and SNES to N64 and PlayStation, and see what's on my shelf, what shape it's in, and if I've beaten it.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Nostalgia Pro">
-<meta property="og:title" content="Nostalgia Pro | RC's Retro Game Collection, 850+ Games">
-<meta property="og:description" content="I'm RC, the Nostalgia Pro. Search all 850+ physical games I own across 30 consoles, from NES and SNES to N64 and PlayStation, and see what's on my shelf, what shape it's in, and if I've beaten it.">
+<meta property="og:title" content="Nostalgia Pro | RC's Game Collection, 860 Games">
+<meta property="og:description" content="I'm RC, the Nostalgia Pro. Search all 860 physical games I own across 30 consoles, from NES and SNES to N64 and PlayStation, and see what's on my shelf, what shape it's in, and if I've beaten it.">
 <meta property="og:url" content="https://thenostalgiapro.com/">
 <meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Nostalgia Pro: 857 games on the shelf">
+<meta property="og:image:alt" content="The Nostalgia Pro: 860 games on the shelf">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@NostalgiaPro">
-<meta name="twitter:title" content="Nostalgia Pro | RC's Retro Game Collection, 850+ Games">
-<meta name="twitter:description" content="I'm RC, the Nostalgia Pro. Search all 850+ physical games I own across 30 consoles, from NES and SNES to N64 and PlayStation, and see what's on my shelf, what shape it's in, and if I've beaten it.">
+<meta name="twitter:title" content="Nostalgia Pro | RC's Game Collection, 860 Games">
+<meta name="twitter:description" content="I'm RC, the Nostalgia Pro. Search all 860 physical games I own across 30 consoles, from NES and SNES to N64 and PlayStation, and see what's on my shelf, what shape it's in, and if I've beaten it.">
 <meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
 <link rel="canonical" href="https://thenostalgiapro.com/">
 <link rel="manifest" href="/manifest.json">
@@ -35,7 +35,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Nostalgia Pro">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<title>Nostalgia Pro | RC's Retro Game Collection, 850+ Games</title>
+<title>Nostalgia Pro | RC's Game Collection, 860 Games</title>
 <link rel="stylesheet" href="/fonts/site.css">
 <link rel="stylesheet" href="/retro.css">
 <link rel="stylesheet" href="/themes.css">
@@ -1316,6 +1316,15 @@ body.y1996 .ht-quote .ht-ctxt::before{color:#000080}
   .ht-act:hover,.ht-act:active,.btn:active,.ht-card:hover .ht-cm,.npmerch-items a:hover img,.npmerch-btn:active,.ytfacade:hover .ytbtn{transform:none}
   html{scroll-behavior:auto}
 }
+
+/* Browse by console chips under the scoreboard */
+.hp-cons{margin:14px 0 0}
+.hp-cons-h{font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:0 0 8px}
+.hp-cons-row{display:flex;flex-wrap:wrap;gap:6px}
+.hp-cons-row a{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:6px 10px;border:1px solid var(--line);border-left:4px solid var(--c);
+  border-radius:2px;background:var(--bg2);color:var(--text);text-decoration:none;font-size:13px;line-height:1.2}
+.hp-cons-row a em{font-style:normal;color:var(--dim);font-size:12px}
+.hp-cons-row a:hover,.hp-cons-row a:focus-visible{border-color:var(--c);color:#fff}
 </style>
 </head>
 <body>
@@ -1374,51 +1383,51 @@ body.y1996 .ht-quote .ht-ctxt::before{color:#000080}
     <!-- KEEP EXACTLY: the scrolling photo strip. 18 real shelf photos, listed twice (36) so the 140s loop is seamless. -->
     <div class="o1-strip" aria-hidden="true">
       <div class="o1-track">
-        <img src="/images/super-mario-bros-3-nes.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/legend-of-zelda-nes.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/sonic-the-hedgehog-2-not-for-resale-sega-genesis.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/goldeneye-007-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/final-fantasy-vii-playstation-1.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/halo-combat-evolved-xbox.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/metal-gear-solid-greatest-hits-playstation-1.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/super-smash-bros-melee-gamecube.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/contra-nes.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/mario-kart-64-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/star-fox-snes.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/metroid-dread-nintendo-switch.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/sonic-adventure-sega-dreamcast.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/PXL_20260913_075733809.RAW-01.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/PXL_20260510_035237573.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/PXL_20260913_071256130.RAW-01.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/legend-of-zelda-ocarina-of-time-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/super-mario-64-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/super-mario-bros-3-nes.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/legend-of-zelda-nes.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/sonic-the-hedgehog-2-not-for-resale-sega-genesis.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/goldeneye-007-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/final-fantasy-vii-playstation-1.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/halo-combat-evolved-xbox.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/metal-gear-solid-greatest-hits-playstation-1.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/super-smash-bros-melee-gamecube.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/contra-nes.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/mario-kart-64-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/star-fox-snes.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/metroid-dread-nintendo-switch.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/sonic-adventure-sega-dreamcast.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/PXL_20260913_075733809.RAW-01.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/PXL_20260510_035237573.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/PXL_20260913_071256130.RAW-01.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/legend-of-zelda-ocarina-of-time-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
-        <img src="/images/super-mario-64-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/super-mario-bros-3-nes.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/legend-of-zelda-nes.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/sonic-the-hedgehog-2-not-for-resale-sega-genesis.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/goldeneye-007-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/final-fantasy-vii-playstation-1.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/halo-combat-evolved-xbox.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/metal-gear-solid-greatest-hits-playstation-1.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/super-smash-bros-melee-gamecube.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/contra-nes.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/mario-kart-64-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/star-fox-snes.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/metroid-dread-nintendo-switch.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/sonic-adventure-sega-dreamcast.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/PXL_20260913_075733809.RAW-01.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/PXL_20260510_035237573.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/PXL_20260913_071256130.RAW-01.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/legend-of-zelda-ocarina-of-time-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/super-mario-64-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/super-mario-bros-3-nes.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/legend-of-zelda-nes.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/sonic-the-hedgehog-2-not-for-resale-sega-genesis.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/goldeneye-007-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/final-fantasy-vii-playstation-1.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/halo-combat-evolved-xbox.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/metal-gear-solid-greatest-hits-playstation-1.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/super-smash-bros-melee-gamecube.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/contra-nes.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/mario-kart-64-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/star-fox-snes.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/metroid-dread-nintendo-switch.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/sonic-adventure-sega-dreamcast.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/PXL_20260913_075733809.RAW-01.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/PXL_20260510_035237573.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/PXL_20260913_071256130.RAW-01.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/legend-of-zelda-ocarina-of-time-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
+        <img src="/images/strip/super-mario-64-nintendo-64.webp" alt="" width="120" height="160" decoding="async">
       </div>
     </div>
     <div class="ht-tm ht-tm-a"><button type="button" class="ht-tmbtn" aria-expanded="false" aria-controls="htTmPanel"><svg class="ht-px" viewBox="0 0 8 7" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="0" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="0" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="0" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="2" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="6" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="6" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="6" width="1" height="1" fill="#eceae2" class="w"/></svg><span>Time Machine</span><b class="ht-tmcur">Now</b></button><div class="ht-tmpanel" id="htTmPanel" hidden role="group" aria-label="Pick an era"></div></div>
 
     <!-- HERO -->
     <div class="o1-hero">
-      <p class="wordmark"><img src="/images/np-script.webp" width="1800" height="748" alt="The Nostalgia Pro"></p>
+      <p class="wordmark"><img src="/images/np-script.webp" width="1800" height="748" alt="The Nostalgia Pro" fetchpriority="high"></p>
       <h1>Is it on the shelf?</h1>
-      <p class="standfirst">My whole physical collection: <b id="gamecount">857</b> games across <b data-syscount>30</b> systems, plus movies, TV, music and board games. Type a title and find out.</p>
+      <p class="standfirst">My whole physical collection: <b id="gamecount">860</b> games across <b data-syscount>30</b> systems, plus movies, TV, music and board games. Type a title and find out.</p>
     </div>
 
     <!-- THE COUNTER: search, verdict, scoreboard -->
@@ -1441,6 +1450,8 @@ body.y1996 .ht-quote .ht-ctxt::before{color:#000080}
         <a class="score" href="/boardgames.html"><b data-media="board game">2</b><span>board games</span></a>
       </div>
     </div>
+    <!-- Browse by console: filled from the shelf (RAW) by drawConsoleChips() below. -->
+    <nav class="hp-cons" aria-labelledby="hpConsH"><p class="hp-cons-h" id="hpConsH">Browse by console</p><div class="hp-cons-row" id="consoleChips"></div></nav>
     </div>
 
     <!-- START HERE: four cartridges -->
@@ -1526,7 +1537,7 @@ body.y1996 .ht-quote .ht-ctxt::before{color:#000080}
         <figure class="npsc-shot">
           <picture>
             <source srcset="/images/np-game/swap-meet-still.webp" media="(prefers-reduced-motion: reduce)">
-            <img src="/images/np-game/swap-meet.webp" width="520" height="339" alt="Gameplay: the Nostalgia Pro walks the Saguaro Swap Meet past tables marked Price Is Firm, Make an Offer and Dig Pile.">
+            <img src="/images/np-game/swap-meet.webp" width="520" height="339" alt="Gameplay: the Nostalgia Pro walks the Saguaro Swap Meet past tables marked Price Is Firm, Make an Offer and Dig Pile." loading="lazy">
           </picture>
           <span class="npsc-live" aria-hidden="true"><i></i>GAMEPLAY</span>
           <figcaption>Walking the Saguaro Swap Meet. Every table has a seller, and every seller has a rule.</figcaption>
@@ -1780,6 +1791,30 @@ body.y1996 .ht-quote .ht-ctxt::before{color:#000080}
     </section>
     <script src="/latest-videos.js" defer></script>
 
+    <!-- THE SEARCHABLE SHELF -->
+    <div class="hp-sign hp-shelfsign"><h2 class="ht-sh" id="hpShelfH">The shelf</h2></div>
+    <div class="viewrow">
+      <div class="toggle" id="viewtoggle" role="group" aria-label="Sort by">
+        <button type="button" data-view="system" aria-pressed="true">By system</button>
+        <button type="button" data-view="franchise" aria-pressed="false">By series</button>
+        <button type="button" data-view="genre" aria-pressed="false">By genre</button>
+      </div>
+      <div class="foldbtns">
+        <button class="chip" type="button" id="openAll">Expand all</button>
+        <button class="chip" type="button" id="foldAll">Collapse all</button>
+      </div>
+      <div class="filters" id="filters"></div>
+    </div>
+  </header>
+
+  <div class="cols">
+    <nav aria-label="Systems"><ul id="rail"></ul></nav>
+    <main id="results"></main>
+  </div>
+
+  <!-- Substack, merch + donate, site directory and the dates band sit after the shelf so the
+       shelf comes right after the latest videos (wrapped in .o1 so the header styles still apply). -->
+  <div class="o1 hp-after">
     <!-- SUBSTACK -->
     <section class="npss" id="substack" aria-labelledby="npssH">
       <div class="hp-ss-head">
@@ -1804,7 +1839,7 @@ body.y1996 .ht-quote .ht-ctxt::before{color:#000080}
 <section class="npmerch mr mrB" aria-labelledby="merchH">
   <div class="mrB-head">
     <span class="npmerch-k">Merch store</span>
-    <h2 id="merchH"><img class="mr-logo" src="/images/np-script-merch.webp" alt="Nostalgia Pro Merch" width="1800" height="748"></h2>
+    <h2 id="merchH"><img class="mr-logo" src="/images/np-script-merch.webp" alt="Nostalgia Pro Merch" width="1800" height="748" loading="lazy"></h2>
   </div>
     <div class="mrB-feat">
       <div>
@@ -1813,8 +1848,8 @@ body.y1996 .ht-quote .ht-ctxt::before{color:#000080}
         <p>One joystick, one red button, zero mercy. Small logo up front, the big Gen X art on the back.</p>
       </div>
       <div class="mrB-pair">
-        <figure><img src="/images/merch-fw-genx-nostalgiapro-tee-a.webp" alt="Front of the GenX NostalgiaPro Tee" width="320" height="320"><figcaption>Front</figcaption></figure>
-        <figure><img src="/images/merch-fw-genx-nostalgiapro-tee-b.webp" alt="Back of the GenX NostalgiaPro Tee with Gen X joystick art" width="320" height="320"><figcaption>Back</figcaption></figure>
+        <figure><img src="/images/merch-fw-genx-nostalgiapro-tee-a.webp" alt="Front of the GenX NostalgiaPro Tee" width="320" height="320" loading="lazy"><figcaption>Front</figcaption></figure>
+        <figure><img src="/images/merch-fw-genx-nostalgiapro-tee-b.webp" alt="Back of the GenX NostalgiaPro Tee with Gen X joystick art" width="320" height="320" loading="lazy"><figcaption>Back</figcaption></figure>
       </div>
       <a class="mrB-buy" href="https://nostalgiapro-shop.fourthwall.com/products/genx-nostalgiapro-tee" target="_blank" rel="noopener">Get the GenX tee <span aria-hidden="true">&#8599;</span></a>
     </div>
@@ -1823,7 +1858,7 @@ body.y1996 .ht-quote .ht-ctxt::before{color:#000080}
       <input type="radio" name="mrB" id="mrBt1" checked><label for="mrBt1">Tees (8)</label>
       <input type="radio" name="mrB" id="mrBt2"><label for="mrBt2">Hats + hoodie (3)</label>
       <input type="radio" name="mrB" id="mrBt3"><label for="mrBt3">Desk stuff (4)</label>
-      <ul class="mrB-grid" style="flex-basis:100%;margin-top:6px"><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/is-it-on-the-shelf-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-is-it-on-the-shelf-tee-a.webp" alt="Is It On The Shelf? Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-is-it-on-the-shelf-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25+</span></span><b>Is It On The Shelf? Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/physical-media-enjoyer-neon-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-physical-media-enjoyer-neon-tee-a.webp" alt="Physical Media Enjoyer Neon Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-physical-media-enjoyer-neon-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25+</span></span><b>Physical Media Enjoyer Neon Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/daily-shelf-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-daily-shelf-tee-a.webp" alt="Daily Shelf Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-daily-shelf-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25+</span></span><b>Daily Shelf Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/genx-nostalgiapro-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-genx-nostalgiapro-tee-a.webp" alt="GenX NostalgiaPro Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-genx-nostalgiapro-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25+</span></span><b>GenX NostalgiaPro Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgiapro-vhs-label-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgiapro-vhs-label-tee-a.webp" alt="NostalgiaPro VHS Label Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgiapro-vhs-label-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25+</span></span><b>VHS Label Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgiapro-gaming-console-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgiapro-gaming-console-tee-a.webp" alt="NostalgiaPro Gaming Console Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgiapro-gaming-console-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25+</span></span><b>Gaming Console Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-tee-a.webp" alt="Nostalgia Pro Games Logo Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25+</span></span><b>Logo Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgiapro-pocket-logo-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgiapro-pocket-logo-tee-a.webp" alt="NostalgiaPro Pocket Logo Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgiapro-pocket-logo-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$22+</span></span><b>Pocket Logo Tee</b></a></li><li class="h"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgiapro-logo-cap" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgiapro-logo-cap-a.webp" alt="NostalgiaPro Logo Cap" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgiapro-logo-cap-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$22</span></span><b>Logo Cap</b></a></li><li class="h"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-hat" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-hat-a.webp" alt="Nostalgia Pro Games Logo Hat" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-hat-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$25</span></span><b>Logo Hat</b></a></li><li class="h"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-hoodie" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-hoodie-a.webp" alt="Nostalgia Pro Games Logo Hoodie" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-hoodie-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$45+</span></span><b>Logo Hoodie</b></a></li><li class="d"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgiapro-neon-video-store-mouse-pad" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgiapro-neon-video-store-mouse-pad-a.webp" alt="NostalgiaPro Neon Video Store Mouse Pad" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgiapro-neon-video-store-mouse-pad-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$20+</span></span><b>Neon Video Store Mouse Pad</b></a></li><li class="d"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-mousepad" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-mousepad-a.webp" alt="Nostalgia Pro Games Logo Mousepad" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-mousepad-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$20</span></span><b>Logo Mousepad</b></a></li><li class="d"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-mug" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-mug-a.webp" alt="Nostalgia Pro Games Logo Mug" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-mug-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$16</span></span><b>Logo Mug</b></a></li><li class="d"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-sticker" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-sticker-a.webp" alt="Nostalgia Pro Games Logo Sticker" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-sticker-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true"><span class="pr">$5+</span></span><b>Logo Sticker</b></a></li></ul>
+      <ul class="mrB-grid" style="flex-basis:100%;margin-top:6px"><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/is-it-on-the-shelf-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-is-it-on-the-shelf-tee-a.webp" alt="Is It On The Shelf? Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-is-it-on-the-shelf-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true" loading="lazy"><span class="pr">$25+</span></span><b>Is It On The Shelf? Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/physical-media-enjoyer-neon-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-physical-media-enjoyer-neon-tee-a.webp" alt="Physical Media Enjoyer Neon Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-physical-media-enjoyer-neon-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true" loading="lazy"><span class="pr">$25+</span></span><b>Physical Media Enjoyer Neon Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/daily-shelf-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-daily-shelf-tee-a.webp" alt="Daily Shelf Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-daily-shelf-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true" loading="lazy"><span class="pr">$25+</span></span><b>Daily Shelf Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/genx-nostalgiapro-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-genx-nostalgiapro-tee-a.webp" alt="GenX NostalgiaPro Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-genx-nostalgiapro-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true" loading="lazy"><span class="pr">$25+</span></span><b>GenX NostalgiaPro Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgiapro-vhs-label-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgiapro-vhs-label-tee-a.webp" alt="NostalgiaPro VHS Label Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgiapro-vhs-label-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true" loading="lazy"><span class="pr">$25+</span></span><b>VHS Label Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgiapro-gaming-console-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgiapro-gaming-console-tee-a.webp" alt="NostalgiaPro Gaming Console Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgiapro-gaming-console-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true" loading="lazy"><span class="pr">$25+</span></span><b>Gaming Console Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-tee-a.webp" alt="Nostalgia Pro Games Logo Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true" loading="lazy"><span class="pr">$25+</span></span><b>Logo Tee</b></a></li><li class="t"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgiapro-pocket-logo-tee" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgiapro-pocket-logo-tee-a.webp" alt="NostalgiaPro Pocket Logo Tee" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgiapro-pocket-logo-tee-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true" loading="lazy"><span class="pr">$22+</span></span><b>Pocket Logo Tee</b></a></li><li class="h"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgiapro-logo-cap" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgiapro-logo-cap-a.webp" alt="NostalgiaPro Logo Cap" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgiapro-logo-cap-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true" loading="lazy"><span class="pr">$22</span></span><b>Logo Cap</b></a></li><li class="h"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-hat" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-hat-a.webp" alt="Nostalgia Pro Games Logo Hat" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-hat-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true" loading="lazy"><span class="pr">$25</span></span><b>Logo Hat</b></a></li><li class="h"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-hoodie" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-hoodie-a.webp" alt="Nostalgia Pro Games Logo Hoodie" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-hoodie-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true" loading="lazy"><span class="pr">$45+</span></span><b>Logo Hoodie</b></a></li><li class="d"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgiapro-neon-video-store-mouse-pad" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgiapro-neon-video-store-mouse-pad-a.webp" alt="NostalgiaPro Neon Video Store Mouse Pad" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgiapro-neon-video-store-mouse-pad-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true" loading="lazy"><span class="pr">$20+</span></span><b>Neon Video Store Mouse Pad</b></a></li><li class="d"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-mousepad" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-mousepad-a.webp" alt="Nostalgia Pro Games Logo Mousepad" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-mousepad-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true" loading="lazy"><span class="pr">$20</span></span><b>Logo Mousepad</b></a></li><li class="d"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-mug" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-mug-a.webp" alt="Nostalgia Pro Games Logo Mug" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-mug-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true" loading="lazy"><span class="pr">$16</span></span><b>Logo Mug</b></a></li><li class="d"><a href="https://nostalgiapro-shop.fourthwall.com/products/nostalgia-pro-games-logo-sticker" target="_blank" rel="noopener"><span class="ph"><img class="f" src="/images/merch-fw-nostalgia-pro-games-logo-sticker-a.webp" alt="Nostalgia Pro Games Logo Sticker" width="320" height="320" loading="lazy" decoding="async"><img class="b" src="/images/merch-fw-nostalgia-pro-games-logo-sticker-b.webp" alt="" width="320" height="320" decoding="async" aria-hidden="true" loading="lazy"><span class="pr">$5+</span></span><b>Logo Sticker</b></a></li></ul>
     </div>
     <div class="mrB-foot"><a class="npmerch-btn" href="https://nostalgiapro-shop.fourthwall.com/" target="_blank" rel="noopener">Shop all 15 items <span aria-hidden="true">&#8599;</span></a></div>
   </div>
@@ -1856,25 +1891,6 @@ body.y1996 .ht-quote .ht-ctxt::before{color:#000080}
       </div>
     </div>
 
-    <!-- THE SEARCHABLE SHELF -->
-    <div class="hp-sign hp-shelfsign"><h2 class="ht-sh" id="hpShelfH">The shelf</h2></div>
-    <div class="viewrow">
-      <div class="toggle" id="viewtoggle" role="group" aria-label="Sort by">
-        <button type="button" data-view="system" aria-pressed="true">By system</button>
-        <button type="button" data-view="franchise" aria-pressed="false">By series</button>
-        <button type="button" data-view="genre" aria-pressed="false">By genre</button>
-      </div>
-      <div class="foldbtns">
-        <button class="chip" type="button" id="openAll">Expand all</button>
-        <button class="chip" type="button" id="foldAll">Collapse all</button>
-      </div>
-      <div class="filters" id="filters"></div>
-    </div>
-  </header>
-
-  <div class="cols">
-    <nav aria-label="Systems"><ul id="rail"></ul></nav>
-    <main id="results"></main>
   </div>
 
   <div class="savebar" id="savebar">
@@ -1883,7 +1899,7 @@ body.y1996 .ht-quote .ht-ctxt::before{color:#000080}
     <button type="button" class="ghost" id="undoBtn">Undo</button>
   </div>
 
-  <div class="lightbox" id="lightbox" role="dialog" aria-label="Photo"><img alt=""><p>Click anywhere to close</p></div>
+  <div class="lightbox" id="lightbox" role="dialog" aria-label="Photo"><img alt="" loading="lazy"><p>Click anywhere to close</p></div>
 
   <footer>
     <form class="npsub npsub-foot" action="https://nostalgiapro.substack.com/subscribe" method="get" target="_blank"><p class="npsub-txt"><b>Get the weekly roundup.</b>Every review and ranking I post, once a week.</p><div class="npsub-row"><input type="email" name="email" required placeholder="Your email" autocomplete="email" aria-label="Your email address"><button type="submit">Subscribe</button></div><p class="npsub-note">Opens my Substack in a new tab to confirm.</p></form>
@@ -3453,11 +3469,64 @@ const FRANCHISES = [["Star Wars", ["star wars", "super star wars", "lego star wa
 /* Everything on the other shelves, so one search covers the lot. */
 const MEDIA_INDEX = [{"t":"61*","f":"VHS","k":"film","p":"movies.html"},{"t":"All Star Cartoons","f":"VHS","k":"film","p":"movies.html"},{"t":"An American Tail","f":"VHS","k":"film","p":"movies.html"},{"t":"Angels in the Outfield","f":"VHS","k":"film","p":"movies.html"},{"t":"Animal Bloopers","f":"VHS","k":"film","p":"movies.html"},{"t":"Animaniacs: The Warners Escape","f":"VHS","k":"film","p":"movies.html"},{"t":"Backdraft","f":"VHS","k":"film","p":"movies.html"},{"t":"Batman","f":"VHS","k":"film","p":"movies.html"},{"t":"Batman Returns","f":"VHS","k":"film","p":"movies.html"},{"t":"Batman Forever","f":"VHS","k":"film","p":"movies.html"},{"t":"Batman & Robin","f":"VHS","k":"film","p":"movies.html"},{"t":"Blue Chips","f":"VHS","k":"film","p":"movies.html"},{"t":"Blues Brothers 2000","f":"VHS","k":"film","p":"movies.html"},{"t":"Bugs & Daffy: Wartime Cartoons","f":"VHS","k":"film","p":"movies.html"},{"t":"Bull Durham","f":"VHS","k":"film","p":"movies.html"},{"t":"Captain America Volume I","f":"VHS","k":"film","p":"movies.html"},{"t":"A Christmas Carol","f":"VHS","k":"film","p":"movies.html"},{"t":"Christmas Vacation","f":"VHS","k":"film","p":"movies.html"},{"t":"City Slickers","f":"VHS","k":"film","p":"movies.html"},{"t":"City Slickers II","f":"VHS","k":"film","p":"movies.html"},{"t":"The Client","f":"VHS","k":"film","p":"movies.html"},{"t":"Comedy Series: Abbott & Costello / The 3 Stooges","f":"VHS","k":"film","p":"movies.html"},{"t":"Coyote Ugly","f":"VHS","k":"film","p":"movies.html"},{"t":"\"Crocodile\" Dundee","f":"VHS","k":"film","p":"movies.html"},{"t":"Cyborg","f":"VHS","k":"film","p":"movies.html"},{"t":"Daredevil Ducks","f":"VHS","k":"film","p":"movies.html"},{"t":"The Dark Crystal","f":"VHS","k":"film","p":"movies.html"},{"t":"Demolition Man","f":"VHS","k":"film","p":"movies.html"},{"t":"Denver, the Last Dinosaur: Oh, Boy!","f":"VHS","k":"film","p":"movies.html"},{"t":"Denver, the Last Dinosaur: Monster Maze & School Daze","f":"VHS","k":"film","p":"movies.html"},{"t":"Denver, the Last Dinosaur: Lions, Tigers & Dinos","f":"VHS","k":"film","p":"movies.html"},{"t":"Dick Tracy","f":"VHS","k":"film","p":"movies.html"},{"t":"Die Hard","f":"VHS","k":"film","p":"movies.html"},{"t":"Die Hard 2: Die Harder","f":"VHS","k":"film","p":"movies.html"},{"t":"Die Hard with a Vengeance","f":"VHS","k":"film","p":"movies.html"},{"t":"DuckTales","f":"VHS","k":"film","p":"movies.html"},{"t":"Dusty Baker on Hitting","f":"VHS","k":"film","p":"movies.html"},{"t":"E.T. the Extra-Terrestrial","f":"VHS","k":"film","p":"movies.html"},{"t":"Eraser","f":"VHS","k":"film","p":"movies.html"},{"t":"The Fan","f":"VHS","k":"film","p":"movies.html"},{"t":"Felix the Cat Vol. 1","f":"VHS","k":"film","p":"movies.html"},{"t":"Field of Dreams","f":"VHS","k":"film","p":"movies.html"},{"t":"The Flintstones","f":"VHS","k":"film","p":"movies.html"},{"t":"Foghorn Leghorn and Friends","f":"VHS","k":"film","p":"movies.html"},{"t":"Football: Crash, Bangs & Bloopers","f":"VHS","k":"film","p":"movies.html"},{"t":"For Love of the Game","f":"VHS","k":"film","p":"movies.html"},{"t":"The Fox and the Hound","f":"VHS","k":"film","p":"movies.html"},{"t":"The Fugitive","f":"VHS","k":"film","p":"movies.html"},{"t":"Gladiator","f":"VHS","k":"film","p":"movies.html"},{"t":"GoldenEye","f":"VHS","k":"film","p":"movies.html"},{"t":"Gone with the Wind","f":"VHS","k":"film","p":"movies.html"},{"t":"Highlander","f":"VHS","k":"film","p":"movies.html"},{"t":"Highlander 2: The Renegade Version","f":"VHS","k":"film","p":"movies.html"},{"t":"Honey, I Shrunk the Kids","f":"VHS","k":"film","p":"movies.html"},{"t":"Hoosiers","f":"VHS","k":"film","p":"movies.html"},{"t":"Hot Shots!","f":"VHS","k":"film","p":"movies.html"},{"t":"In the Army Now","f":"VHS","k":"film","p":"movies.html"},{"t":"Independence Day","f":"VHS","k":"film","p":"movies.html"},{"t":"Indiana Jones and the Last Crusade","f":"VHS","k":"film","p":"movies.html"},{"t":"The Jetsons Meet the Flintstones","f":"VHS","k":"film","p":"movies.html"},{"t":"Jumanji","f":"VHS","k":"film","p":"movies.html"},{"t":"Jurassic Park","f":"VHS","k":"film","p":"movies.html"},{"t":"Jury Duty","f":"VHS","k":"film","p":"movies.html"},{"t":"Justice League: Justice on Trial","f":"VHS","k":"film","p":"movies.html"},{"t":"Last Action Hero","f":"VHS","k":"film","p":"movies.html"},{"t":"A League of Their Own","f":"VHS","k":"film","p":"movies.html"},{"t":"Led Zeppelin: The Song Remains the Same","f":"VHS","k":"film","p":"movies.html"},{"t":"The Legend of Grimace Island","f":"VHS","k":"film","p":"movies.html"},{"t":"The Lost World: Jurassic Park","f":"VHS","k":"film","p":"movies.html"},{"t":"Major League","f":"VHS","k":"film","p":"movies.html"},{"t":"Major League II","f":"VHS","k":"film","p":"movies.html"},{"t":"Masters of the Universe","f":"VHS","k":"film","p":"movies.html"},{"t":"Michael Jordan: Come Fly with Me","f":"VHS","k":"film","p":"movies.html"},{"t":"Mighty Mouse & Friends","f":"VHS","k":"film","p":"movies.html"},{"t":"Mr. Holland's Opus","f":"VHS","k":"film","p":"movies.html"},{"t":"Mrs. Doubtfire","f":"VHS","k":"film","p":"movies.html"},{"t":"The Muppet Christmas Carol","f":"VHS","k":"film","p":"movies.html"},{"t":"Navy Seals","f":"VHS","k":"film","p":"movies.html"},{"t":"The NeverEnding Story","f":"VHS","k":"film","p":"movies.html"},{"t":"Not Without My Daughter","f":"VHS","k":"film","p":"movies.html"},{"t":"Patch Adams","f":"VHS","k":"film","p":"movies.html"},{"t":"Philadelphia","f":"VHS","k":"film","p":"movies.html"},{"t":"The Princess Bride","f":"VHS","k":"film","p":"movies.html"},{"t":"The Replacements","f":"VHS","k":"film","p":"movies.html"},{"t":"Robin Hood","f":"VHS","k":"film","p":"movies.html"},{"t":"Robin Hood: Prince of Thieves","f":"VHS","k":"film","p":"movies.html"},{"t":"RoboCop","f":"VHS","k":"film","p":"movies.html"},{"t":"The Rock","f":"VHS","k":"film","p":"movies.html"},{"t":"The Rudolph, Frosty & Friends Sing Along","f":"VHS","k":"film","p":"movies.html"},{"t":"Rush Hour","f":"VHS","k":"film","p":"movies.html"},{"t":"The Santa Clause","f":"VHS","k":"film","p":"movies.html"},{"t":"Sister Act","f":"VHS","k":"film","p":"movies.html"},{"t":"Son in Law","f":"VHS","k":"film","p":"movies.html"},{"t":"Space Jam","f":"VHS","k":"film","p":"movies.html"},{"t":"Speed","f":"VHS","k":"film","p":"movies.html"},{"t":"Spider-Man","f":"VHS","k":"film","p":"movies.html"},{"t":"Star Trek III: The Search for Spock","f":"VHS","k":"film","p":"movies.html"},{"t":"Star Trek VI: The Undiscovered Country","f":"VHS","k":"film","p":"movies.html"},{"t":"Star Trek: Generations","f":"VHS","k":"film","p":"movies.html"},{"t":"Starship Troopers","f":"VHS","k":"film","p":"movies.html"},{"t":"Super Duper Sports Bloopers","f":"VHS","k":"film","p":"movies.html"},{"t":"Superman: The Cartoons","f":"VHS","k":"film","p":"movies.html"},{"t":"Superman Vol. I","f":"VHS","k":"film","p":"movies.html"},{"t":"Sports Illustrated: 1995 San Francisco 49ers Video Yearbook","f":"VHS","k":"film","p":"movies.html"},{"t":"The Terminator","f":"VHS","k":"film","p":"movies.html"},{"t":"Terminator 2: Judgment Day","f":"VHS","k":"film","p":"movies.html"},{"t":"Three Amigos!","f":"VHS","k":"film","p":"movies.html"},{"t":"Titanic","f":"VHS","k":"film","p":"movies.html"},{"t":"Tombstone","f":"VHS","k":"film","p":"movies.html"},{"t":"007: Tomorrow Never Dies","f":"VHS","k":"film","p":"movies.html"},{"t":"Total Recall","f":"VHS","k":"film","p":"movies.html"},{"t":"Tremors","f":"VHS","k":"film","p":"movies.html"},{"t":"True Lies","f":"VHS","k":"film","p":"movies.html"},{"t":"Unforgiven","f":"VHS","k":"film","p":"movies.html"},{"t":"Wayne's World","f":"VHS","k":"film","p":"movies.html"},{"t":"What About Bob?","f":"VHS","k":"film","p":"movies.html"},{"t":"White Christmas","f":"VHS","k":"film","p":"movies.html"},{"t":"Who Framed Roger Rabbit","f":"VHS","k":"film","p":"movies.html"},{"t":"The Wizard of Oz","f":"VHS","k":"film","p":"movies.html"},{"t":"Woody Woodpecker and His Friends","f":"VHS","k":"film","p":"movies.html"},{"t":"007: The World Is Not Enough","f":"VHS","k":"film","p":"movies.html"},{"t":"The X-Files","f":"VHS","k":"film","p":"movies.html"},{"t":"X-Men: Pryde of the X-Men","f":"VHS","k":"film","p":"movies.html"},{"t":"Dogma","f":"DVD","k":"film","p":"movies.html"},{"t":"It's a Wonderful Life","f":"DVD","k":"film","p":"movies.html"},{"t":"Miracle on 34th Street","f":"DVD","k":"film","p":"movies.html"},{"t":"National Lampoon's Christmas Vacation","f":"DVD","k":"film","p":"movies.html"},{"t":"White Christmas","f":"DVD","k":"film","p":"movies.html"},{"t":"Jack Hanna's Favorites: The Greatest Hits Collection","f":"VHS","k":"film","p":"movies.html"},{"t":"Star Wars Trilogy","f":"VHS","k":"film","p":"movies.html"},{"t":"Star Wars Trilogy Special Edition","f":"VHS","k":"film","p":"movies.html"},{"t":"Terminator 2: Judgment Day","f":"LaserDisc","k":"film","p":"movies.html"},{"t":"Major League Baseball: Memorable Moments","f":"VHS","k":"film","p":"movies.html"},{"t":"Bob Uecker's Wacky Moments in Sports","f":"VHS","k":"film","p":"movies.html"},{"t":"Batman Beyond: Spellbound","f":"VHS","k":"film","p":"movies.html"},{"t":"San Diego Chargers: 2002 We Will Win","f":"VHS","k":"film","p":"movies.html"},{"t":"I Shook Up the World: Clay vs Liston 1964","f":"VHS","k":"film","p":"movies.html"},{"t":"Rumble in the Jungle: Ali vs Foreman 1974","f":"VHS","k":"film","p":"movies.html"},{"t":"The Blues Brothers","f":"VHS","k":"film","p":"movies.html"},{"t":"My Sister's Keeper","f":"DVD","k":"film","p":"movies.html"},{"t":"Mr. & Mrs. Smith","f":"DVD","k":"film","p":"movies.html"},{"t":"The Manchurian Candidate","f":"DVD","k":"film","p":"movies.html"},{"t":"Unbreakable","f":"DVD","k":"film","p":"movies.html"},{"t":"50 of the Greatest Cartoons","f":"VHS","k":"film","p":"movies.html"},{"t":"Alvin and the Chipmunks Go to the Movies: Funny, We Shrunk the Adults","f":"VHS","k":"film","p":"movies.html"},{"t":"\"Crocodile\" Dundee II","f":"VHS","k":"film","p":"movies.html"},{"t":"ThunderCats: Return to Thundera","f":"VHS","k":"film","p":"movies.html"},{"t":"ThunderCats: The Wolfrat","f":"VHS","k":"film","p":"movies.html"},{"t":"The Beverly Hillbillies","f":"VHS","k":"film","p":"movies.html"},{"t":"Rudy","f":"VHS","k":"film","p":"movies.html"},{"t":"007: Thunderball","f":"VHS","k":"film","p":"movies.html"},{"t":"The Adventures of Indiana Jones: The Complete DVD Movie Collection","f":"DVD","k":"film","p":"movies.html"},{"t":"Rocky: Commemorative 20th Anniversary Gift Set","f":"VHS","k":"film","p":"movies.html"},{"t":"Lethal Weapon 4","f":"VHS","k":"film","p":"movies.html"},{"t":"Lethal Weapon 3: Director's Cut","f":"VHS","k":"film","p":"movies.html"},{"t":"Lethal Weapon 2: Director's Cut","f":"VHS","k":"film","p":"movies.html"},{"t":"Lethal Weapon: Director's Cut","f":"VHS","k":"film","p":"movies.html"},{"t":"Teenage Mutant Ninja Turtles: The Original Movie","f":"VHS","k":"tv","p":"tv.html"},{"t":"Teenage Mutant Ninja Turtles II: The Secret of the Ooze","f":"VHS","k":"tv","p":"tv.html"},{"t":"Teenage Mutant Ninja Turtles: April Foolish","f":"VHS","k":"tv","p":"tv.html"},{"t":"Teenage Mutant Ninja Turtles: The Great Boldini","f":"VHS","k":"tv","p":"tv.html"},{"t":"Teenage Mutant Ninja Turtles: Sky Turtles","f":"VHS","k":"tv","p":"tv.html"},{"t":"Teenage Mutant Ninja Turtles: Cowabunga, Shredhead","f":"VHS","k":"tv","p":"tv.html"},{"t":"Teenage Mutant Ninja Turtles: Attack of the Big Macs","f":"VHS","k":"tv","p":"tv.html"},{"t":"Teenage Mutant Ninja Turtles: Case of the Killer Pizzas","f":"VHS","k":"tv","p":"tv.html"},{"t":"Teenage Mutant Ninja Turtles: The Turtles' Awesome Easter","f":"VHS","k":"tv","p":"tv.html"},{"t":"Teenage Mutant Ninja Turtles: Turn of the Turtleoid","f":"VHS","k":"tv","p":"tv.html"},{"t":"Teenage Mutant Ninja Turtles: Out of This World","f":"VHS","k":"tv","p":"tv.html"},{"t":"Teenage Mutant Ninja Turtles: Heroes in a Half Shell","f":"VHS","k":"tv","p":"tv.html"},{"t":"The Super Mario Bros. Super Show! Volume 1 (2-disc)","f":"DVD","k":"tv","p":"tv.html"},{"t":"The Super Mario Bros. Super Show! Volume 2 (2-disc)","f":"DVD","k":"tv","p":"tv.html"},{"t":"Super Mario World: The Complete Series (2-disc)","f":"DVD","k":"tv","p":"tv.html"},{"t":"Mighty Morphin Power Rangers: The Complete Series","f":"DVD","k":"tv","p":"tv.html"},{"t":"Meat Loaf - Hits Out of Hell","f":"Vinyl","k":"music","p":"music.html"},{"t":"Beverly Hills Cop - Motion Picture Soundtrack","f":"Cassette","k":"music","p":"music.html"},{"t":"Beverly Hills Cop II - Motion Picture Soundtrack","f":"Cassette","k":"music","p":"music.html"},{"t":"C.W. McCall - Greatest Hits","f":"Cassette","k":"music","p":"music.html"},{"t":"Kenny Rogers - Heart of the Matter","f":"Cassette","k":"music","p":"music.html"},{"t":"Steppenwolf - Move Over","f":"Cassette","k":"music","p":"music.html"},{"t":"Van Morrison - The Best of Van Morrison","f":"Cassette","k":"music","p":"music.html"},{"t":"Adele - 21","f":"CD","k":"music","p":"music.html"},{"t":"Alan Jackson - Greatest Hits Volume II","f":"CD","k":"music","p":"music.html"},{"t":"Eminem - The Marshall Mathers LP","f":"CD","k":"music","p":"music.html"},{"t":"Forrest Gump - The Soundtrack","f":"CD","k":"music","p":"music.html"},{"t":"Madonna - The Immaculate Collection","f":"CD","k":"music","p":"music.html"},{"t":"Molly Hatchet - Greatest Hits","f":"CD","k":"music","p":"music.html"},{"t":"Nickelback - Silver Side Up","f":"CD","k":"music","p":"music.html"},{"t":"Smashing Pumpkins","f":"CD","k":"music","p":"music.html"},{"t":"Mortal Kombat: Annihilation - Original Motion Picture Soundtrack","f":"Cassette","k":"music","p":"music.html"},{"t":"Classic Soft Rock: The Air That I Breathe","f":"CD","k":"music","p":"music.html"},{"t":"Neil Diamond - Hot August Night II","f":"CD","k":"music","p":"music.html"},{"t":"Genesis - Platinum Collection","f":"CD","k":"music","p":"music.html"},{"t":"Counting Crows - Films About Ghosts: The Best Of...","f":"CD","k":"music","p":"music.html"},{"t":"Sheryl Crow - C'mon, C'mon","f":"CD","k":"music","p":"music.html"},{"t":"Sheryl Crow - Tuesday Night Music Club","f":"CD","k":"music","p":"music.html"},{"t":"Space Jam - Music From and Inspired by the Motion Picture","f":"CD","k":"music","p":"music.html"},{"t":"Staind - Break the Cycle","f":"CD","k":"music","p":"music.html"},{"t":"Team America World Police - Soundtrack","f":"CD","k":"music","p":"music.html"},{"t":"U2 - All That You Can't Leave Behind","f":"CD","k":"music","p":"music.html"},{"t":"Warrant - Cherry Pie","f":"CD","k":"music","p":"music.html"},{"t":"Creed - Human Clay","f":"CD","k":"music","p":"music.html"},{"t":"Creed - Weathered","f":"CD","k":"music","p":"music.html"},{"t":"David Bowie - Best of Bowie","f":"CD","k":"music","p":"music.html"},{"t":"Die Another Day - Music From the MGM Motion Picture","f":"CD","k":"music","p":"music.html"},{"t":"The Moody Blues - Days of Future Passed","f":"CD","k":"music","p":"music.html"},{"t":"Blues Traveler - Four","f":"CD","k":"music","p":"music.html"},{"t":"John Cena - You Can't See Me","f":"CD","k":"music","p":"music.html"},{"t":"Huey Lewis and the News - Sports","f":"CD","k":"music","p":"music.html"},{"t":"A Tribute to Bruce Springsteen","f":"CD","k":"music","p":"music.html"},{"t":"Limp Bizkit","f":"CD","k":"music","p":"music.html"},{"t":"Puddle of Mudd - CD-R","f":"CD","k":"music","p":"music.html"},{"t":"Puddle of Mudd - Life on Display","f":"CD","k":"music","p":"music.html"},{"t":"DMX - Music","f":"CD","k":"music","p":"music.html"},{"t":"3 Doors Down - Bonus DVD","f":"CD","k":"music","p":"music.html"},{"t":"Toad the Wet Sprocket","f":"CD","k":"music","p":"music.html"},{"t":"Switchfoot - The Beautiful Letdown","f":"CD","k":"music","p":"music.html"},{"t":"Green Day - American Idiot","f":"CD","k":"music","p":"music.html"},{"t":"Johnny Cash","f":"CD","k":"music","p":"music.html"},{"t":"Avril Lavigne - Let Go","f":"CD","k":"music","p":"music.html"},{"t":"Spider-Man - Soundtrack","f":"CD","k":"music","p":"music.html"},{"t":"Deep Blue Something - Home","f":"CD","k":"music","p":"music.html"},{"t":"Franz Ferdinand - Franz Ferdinand","f":"CD","k":"music","p":"music.html"},{"t":"Rod Stewart - It Had to Be You: The Great American Songbook","f":"CD","k":"music","p":"music.html"},{"t":"Garth Brooks - Jackpot 777","f":"CD","k":"music","p":"music.html"},{"t":"Alice in Chains - MTV Unplugged","f":"CD","k":"music","p":"music.html"},{"t":"Barenaked Ladies - Stunt","f":"CD","k":"music","p":"music.html"},{"t":"Batman Forever - Soundtrack","f":"CD","k":"music","p":"music.html"},{"t":"Britney Spears - ...Baby One More Time","f":"CD","k":"music","p":"music.html"},{"t":"Brooks & Dunn - Brand New Man","f":"CD","k":"music","p":"music.html"},{"t":"Def Leppard - Best Of","f":"CD","k":"music","p":"music.html"},{"t":"Del Amitri - Twisted","f":"CD","k":"music","p":"music.html"},{"t":"Eagles - Their Greatest Hits 1971-1975","f":"CD","k":"music","p":"music.html"},{"t":"Eagles - Hotel California","f":"CD","k":"music","p":"music.html"},{"t":"Eagle-Eye Cherry - Desireless","f":"CD","k":"music","p":"music.html"},{"t":"EMF - Schubert Dip","f":"CD","k":"music","p":"music.html"},{"t":"Garth Brooks - The Magic of Christmas","f":"CD","k":"music","p":"music.html"},{"t":"Hulk Hogan - Hulk Rules","f":"CD","k":"music","p":"music.html"},{"t":"Interview with the Vampire - Soundtrack","f":"CD","k":"music","p":"music.html"},{"t":"John Fogerty - Centerfield","f":"CD","k":"music","p":"music.html"},{"t":"Last Action Hero - Soundtrack","f":"CD","k":"music","p":"music.html"},{"t":"Linkin Park - Hybrid Theory","f":"CD","k":"music","p":"music.html"},{"t":"Matchbox Twenty - Yourself or Someone Like You","f":"CD","k":"music","p":"music.html"},{"t":"Muppets From Space - Music From the Motion Picture","f":"CD","k":"music","p":"music.html"},{"t":"Natalie Imbruglia - Left of the Middle","f":"CD","k":"music","p":"music.html"},{"t":"New Kids on the Block - 10","f":"CD","k":"music","p":"music.html"},{"t":"Paula Cole - This Fire","f":"CD","k":"music","p":"music.html"},{"t":"AM Gold: 1976","f":"CD","k":"music","p":"music.html"},{"t":"Stars of Christmas","f":"CD","k":"music","p":"music.html"},{"t":"The Offspring - Smash","f":"CD","k":"music","p":"music.html"},{"t":"Sports Rock","f":"CD","k":"music","p":"music.html"},{"t":"Men in Black - The Album","f":"CD","k":"music","p":"music.html"},{"t":"The Jerky Boys","f":"Cassette","k":"music","p":"music.html"},{"t":"Parcheesi (Selchow & Righter)","f":"Board games","k":"board game","p":"boardgames.html"},{"t":"Blockbuster: The Movie Game","f":"Board games","k":"board game","p":"boardgames.html"}];
 const fold = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-MEDIA_INDEX.forEach(m => m.key = fold(m.t));
+/* Letters and digits only, so "punch out" finds Punch-Out!! and "spiderman" finds Spider-Man. */
+const squash = s => fold(s).replace(/&/g, "and").replace(/[^a-z0-9]+/g, "");
+MEDIA_INDEX.forEach(m => { m.key = fold(m.t); m.sk = squash(m.t); });
+
+/* Short names people type. Keys and values are squashed. */
+const TITLE_ALIAS = {
+  ff1:"finalfantasy", ff2:"finalfantasyii", ff3:"finalfantasyiii", ff4:"finalfantasyiv", ff5:"finalfantasyv", ff6:"finalfantasyvi",
+  ff7:"finalfantasyvii", ff8:"finalfantasyviii", ff9:"finalfantasyix", ff10:"finalfantasyx", ff12:"finalfantasyxii", ff13:"finalfantasyxiii",
+  ffx:"finalfantasyx", ff:"finalfantasy", gta:"grandtheftauto", tmnt:"teenagemutantninjaturtles", mk:"mortalkombat", loz:"legendofzelda",
+  smb:"supermariobros", smb3:"supermariobros3", mgs:"metalgearsolid", mgs2:"metalgearsolid2", mgs3:"metalgearsolid3", re:"residentevil",
+  re2:"residentevil2", re4:"residentevil4", kh:"kingdomhearts", oot:"ocarinaoftime", botw:"breathofthewild", totk:"tearsofthekingdom",
+  dkc:"donkeykongcountry", cod:"callofduty", nfs:"needforspeed", thps:"tonyhawksproskater", sf2:"streetfighterii", mk64:"mariokart64",
+  sm64:"supermario64", ge007:"goldeneye", ssb:"supersmashbros", ctr:"crashteamracing", gow:"godofwar", ac:"assassinscreed", pokemon:"pokemon"
+};
+/* Console names people type. Values are the shelf names in RAW. */
+const SYS_ALIAS = {
+  nes:"NES", nintendo:"NES", famicom:"Famicom", snes:"SNES", supernintendo:"SNES", n64:"Nintendo 64", nintendo64:"Nintendo 64",
+  gc:"GameCube", ngc:"GameCube", gamecube:"GameCube", gcn:"GameCube", gb:"Game Boy", gameboy:"Game Boy", gbc:"Game Boy Color",
+  gameboycolor:"Game Boy Color", ds:"Nintendo DS", nds:"Nintendo DS", nintendods:"Nintendo DS", "3ds":"Nintendo 3DS", n3ds:"Nintendo 3DS",
+  nintendo3ds:"Nintendo 3DS", wii:"Wii", switch:"Nintendo Switch", nintendoswitch:"Nintendo Switch", switch2:"Nintendo Switch 2",
+  nintendoswitch2:"Nintendo Switch 2", gameandwatch:"Game & Watch", ps1:"PlayStation 1", psx:"PlayStation 1", psone:"PlayStation 1",
+  playstation:"PlayStation 1", playstation1:"PlayStation 1", ps2:"PlayStation 2", playstation2:"PlayStation 2", ps3:"PlayStation 3",
+  playstation3:"PlayStation 3", ps4:"PlayStation 4", playstation4:"PlayStation 4", psp:"PSP", xbox:"Xbox", ogxbox:"Xbox", "360":"Xbox 360",
+  x360:"Xbox 360", xbox360:"Xbox 360", xb1:"Xbox One", xbone:"Xbox One", xboxone:"Xbox One", xsx:"Xbox Series X/S", xss:"Xbox Series X/S",
+  seriesx:"Xbox Series X/S", xboxseriesx:"Xbox Series X/S", xboxseriess:"Xbox Series X/S", xboxseriesxs:"Xbox Series X/S", genesis:"Sega Genesis",
+  segagenesis:"Sega Genesis", megadrive:"Sega Genesis", dreamcast:"Sega Dreamcast", dc:"Sega Dreamcast", segadreamcast:"Sega Dreamcast",
+  saturn:"Sega Saturn", segasaturn:"Sega Saturn", sms:"Sega Master System", mastersystem:"Sega Master System", segamastersystem:"Sega Master System",
+  atari:"Atari 7800+", atari7800:"Atari 7800+", intellivision:"Intellivision", arcade1up:"Arcade1Up", pc:"PC"
+};
+/* The parsed search: q.text is the folded search, q.ts its squashed form (or its
+   alias), q.sys a console named in it ("n64", "mario n64"), q.rest what's left. */
+let Q = null;
+/* Shelves with their own page in /console/ (shelf id -> page name). */
+const CONSOLE_PAGES = new Map(Object.entries({"nes": "nes", "snes": "snes", "nintendo-64": "nintendo-64", "gamecube": "gamecube", "game-boy": "game-boy", "game-boy-color": "game-boy-color", "nintendo-ds": "nintendo-ds", "nintendo-3ds": "nintendo-3ds", "wii": "wii", "nintendo-switch": "nintendo-switch", "playstation-1": "playstation-1", "playstation-2": "playstation-2", "playstation-3": "playstation-3", "psp": "psp", "playstation-4": "playstation-4", "xbox": "xbox", "xbox-360": "xbox-360", "xbox-one": "xbox-one", "xbox-series-x-s": "xbox-series-x-s", "sega-genesis": "sega-genesis", "sega-dreamcast": "sega-dreamcast", "sega-saturn": "sega-saturn", "pc": "pc"}));
+function parseQuery(raw){
+  const f = fold((raw || "").trim());
+  if (!f) return null;
+  const ts0 = squash(f);
+  const q = { text: f, ts: TITLE_ALIAS[ts0] || ts0, sys: SYS_ALIAS[ts0] || null, rest: "", rs: "" };
+  if (!q.sys) {
+    const words = f.split(/\s+/), keep = [];
+    for (const w of words) { const s = SYS_ALIAS[squash(w)]; if (s && !q.sys && words.length > 1) q.sys = s; else keep.push(w); }
+    if (q.sys) { q.rest = keep.join(" "); const rs = squash(q.rest); q.rs = TITLE_ALIAS[rs] || rs; }
+  }
+  return q;
+}
+/* A game matches when its title has the search in it (as typed or squashed),
+   or when the search names its console (plus any title words left over). */
+function qMatch(g){
+  if (!Q) return true;
+  if (g.key.includes(Q.text) || (Q.ts && g.sk.includes(Q.ts))) return true;
+  if (Q.sys && g.system === Q.sys) return !Q.rs || g.sk.includes(Q.rs);
+  return false;
+}
 
 const HARDWARE = CONSOLES.split("\n").map(x => x.trim()).filter(Boolean).map(x => {
   const [name, shelf] = x.split("|").map(p => (p || "").trim());
-  return { name, shelf, key: fold(name) };
+  return { name, shelf, key: fold(name), sk: squash(name) };
 });
 const systems = [];
 let cur = null;
@@ -3480,7 +3549,7 @@ for (const rawLine of RAW.split("\n")) {
   if (c === "cib" || c === "cib+") cls = "cib";
   else if (c === "sealed") cls = "sealed";
   else if (c.startsWith("missing") || c === "partial" || c === "manual only") cls = "part";
-  cur.games.push({ title, cond, cls, key: fold(title), system: cur.name, color: cur.color });
+  cur.games.push({ title, cond, cls, key: fold(title), sk: squash(title), system: cur.name, color: cur.color });
 }
 
 const all = systems.flatMap(s => s.games);
@@ -3898,6 +3967,14 @@ function toggleShelf(head){
   const shut = sec.classList.toggle("shut");
   head.setAttribute("aria-expanded", String(!shut));
   if (shut) collapsed.add(sec.id); else collapsed.delete(sec.id);
+  /* A shut shelf is drawn without its games (keeps the page light), so
+     opening one draws it. */
+  if (!shut && !sec.querySelector("ol.games li")) {
+    const y = sec.getBoundingClientRect().top;
+    render();
+    const again = document.getElementById(sec.id);
+    if (again) { window.scrollBy(0, again.getBoundingClientRect().top - y); const h = again.querySelector(".shelfhead"); if (h) h.focus({preventScroll:true}); }
+  }
 }
 
 function matches(g) {
@@ -3906,7 +3983,7 @@ function matches(g) {
   /* Not beaten is a to-do list, so games with no ending stay out of it. */
   if (beatFilter === "unbeaten" && (isBeaten(g) || isEndless(g))) return false;
   if (beatFilter === "endless" && !isEndless(g)) return false;
-  if (query && !g.key.includes(query)) return false;
+  if (query && !qMatch(g)) return false;
   return true;
 }
 
@@ -3920,7 +3997,7 @@ function render() {
       <div class="shelfhead" role="button" tabindex="0" aria-expanded="${!shut}">
         <h2><span class="caret">\u25be</span> ${esc(s.name)}</h2>
         <p>${hits.length} of ${s.games.length}</p></div>
-      <ol class="games">${hits.map(g =>
+      <ol class="games">${shut ? "" : hits.map(g =>
         `<li data-slug="${slug(g)}" data-beatkey="${esc(g.title.toLowerCase())}"${s.showSys ? ` style="--c:${g.color}"` : ""}>` +
         `<img class="shot" loading="lazy" ${shotAttrs(slug(g))} alt="${esc(g.title)}">` +
         `<i class="mark ${g.cls}"></i>` +
@@ -3965,9 +4042,10 @@ function extras(g){
 
 function updateVerdict() {
   if (!query) { verdict.className = ""; verdict.innerHTML = ""; return; }
-  const hits = all.filter(g => g.key.includes(query));
-  const cons = HARDWARE.filter(h => h.key.includes(query));
-  const med  = MEDIA_INDEX.filter(m => m.key.includes(query));
+  const hits = all.filter(qMatch);
+  const sysOnly = Q && Q.sys && !Q.rs && !all.some(g => g.key.includes(Q.text) || g.sk.includes(Q.ts));
+  const cons = HARDWARE.filter(h => h.key.includes(query) || (Q.ts.length > 2 && h.sk.includes(Q.ts)) || (sysOnly && h.shelf === Q.sys));
+  const med  = MEDIA_INDEX.filter(m => m.key.includes(query) || (Q.ts.length > 2 && m.sk.includes(Q.ts)));
   if (!hits.length && !cons.length && !med.length) {
     verdict.className = "on";
     verdict.innerHTML = `<div class="vbox" style="--hit:#8e93a2">
@@ -3987,7 +4065,8 @@ function updateVerdict() {
       const shelf = systems.find(s => s.name === h.shelf);
       return `<li><strong>${esc(h.name)}</strong><br><span class="sys">Console` +
         (shelf ? ` &middot; ${shelf.games.length} games on the shelf` : "") + `</span>` +
-        `<div class="vextra"><a href="/consoles.html">See the consoles</a>` +
+        `<div class="vextra">` + (shelf && CONSOLE_PAGES.has(shelf.id) ? `<a href="/console/${CONSOLE_PAGES.get(shelf.id)}.html">All ${esc(shelf.name)} games</a>` : "") +
+        `<a href="/consoles.html">See the consoles</a>` +
         (shelf ? `<a href="#${shelf.id}">Go to the shelf</a>` : "") + `</div></li>`;
     }).join("") +
     hits.slice(0, 8).map(g =>
@@ -4003,11 +4082,11 @@ function updateVerdict() {
 }
 
 const qEl = document.getElementById("q");
-qEl.addEventListener("input", () => { query = fold(qEl.value.trim()); render(); });
+qEl.addEventListener("input", () => { query = fold(qEl.value.trim()); Q = parseQuery(qEl.value); render(); });
 
 document.getElementById("lucky").addEventListener("click", () => {
   const g = all[Math.floor(Math.random() * all.length)];
-  qEl.value = ""; query = ""; condFilter = "all";
+  qEl.value = ""; query = ""; Q = null; condFilter = "all";
   filterBox.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.cond === "all"));
   render();
   verdict.className = "on";
@@ -4029,7 +4108,7 @@ document.getElementById("whatnext").addEventListener("click", () => {
     return;
   }
   const g = pool[Math.floor(Math.random() * pool.length)];
-  qEl.value = ""; query = "";
+  qEl.value = ""; query = ""; Q = null;
   verdict.className = "on";
   verdict.innerHTML = `<div class="vbox" style="--hit:${g.color}">
     <p class="vhead">Play this</p>
@@ -4235,12 +4314,29 @@ document.getElementById("openAll").addEventListener("click", () => {
   const want = new URLSearchParams(location.search).get("find");
   if (!want) return;
   qEl.value = want;
-  query = fold(want.trim());
+  query = fold(want.trim()); Q = parseQuery(want);
   render();
   qEl.scrollIntoView({block:"center"});
 })();
 
+/* Browse by console: one chip per shelf, to its console page when it has one
+   (/console/<id>.html), otherwise straight to that shelf below, opened. */
+function drawConsoleChips(){
+  const box = document.getElementById("consoleChips");
+  if (!box) return;
+  box.innerHTML = systems.filter(s => s.games.length).map(s => {
+    const page = CONSOLE_PAGES.get(s.id);
+    const href = page ? `/console/${page}.html` : `#${s.id}`;
+    return `<a href="${href}" style="--c:${s.color}"${page ? "" : ` data-open="${s.id}"`}>${esc(s.name)} <em>${s.games.length}</em></a>`;
+  }).join("");
+  box.addEventListener("click", e => {
+    const a = e.target.closest("a[data-open]"); if (!a) return;
+    collapsed.delete(a.dataset.open); render();
+  });
+}
+
 drawRail();
+drawConsoleChips();
 render();
 </script>
 
