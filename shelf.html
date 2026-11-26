@@ -23,10 +23,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Titillium+Web:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/type.css">
+<link rel="stylesheet" href="/eras.css">
 <style>
 :root{
-  --bg:#14110f; --panel:#1d1916; --line:#4a3a2b;
-  --text:#efe6d9; --dim:#a3907c; --focus:#ffd166;
+  --bg:#14110f; --bg2:#1a1613; --panel:#1d1916; --line:#4a3a2b;
+  --text:#efe6d9; --dim:#a3907c; --focus:#ffd166; --hot:#ffd166; --ink:#12070a;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -93,9 +94,41 @@ footer{margin:56px 0 0;padding:22px 0 0;border-top:1px solid var(--line)}
   h1{font-size:12px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Time Machine picker (eras.css / eras.js). This page has its own skin, so
+   the picker and the photo stage get a local pass rather than retro.css. */
+#npErasWrap{margin:22px 0 0;max-width:100%}
+.npEras-lbl{color:var(--dim)}
+#npEras button{
+  background:transparent;color:var(--dim);border-color:var(--line);
+}
+#npEras button:hover{border-color:var(--hot);color:var(--hot)}
+#npEras button[aria-pressed="true"]{background:var(--hot);border-color:var(--hot);color:var(--ink)}
+@media (max-width:440px){#npEras{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Keep the photo shelf usable under every era look. */
+.photo-stage{position:relative;z-index:2}
+body.npskin .photo-stage,
+body.npskin .crop,
+body.npskin .detail img.full{border-color:var(--line);background:var(--panel)}
+body.npskin .hotspot:hover,
+body.npskin .hotspot:focus-visible{background:rgba(255,209,102,.18);border-color:var(--focus);outline:none}
+body.npskin button.act{
+  background:none;border:1px solid var(--line);color:var(--text);
+  font:inherit;font-size:13px;padding:9px 16px;border-radius:0;box-shadow:none;
+}
+body.npskin button.act:hover{border-color:var(--focus)}
+body.npskin button.act[disabled]{opacity:.35}
+body.npskin header a{color:var(--dim)}
+body.npskin header a:hover{color:var(--text)}
+body.npskin nav.crumbs button{color:var(--dim);background:none;border:0;box-shadow:none;padding:0;font:inherit}
+body.npskin nav.crumbs button:hover{color:var(--text)}
+body.npskin .elsewhere a{color:var(--dim);border-color:var(--line)}
+body.npskin .elsewhere a:hover{border-color:var(--focus);color:var(--focus)}
 </style>
 </head>
 <body>
+<script src="/eras.js"></script>
 <div class="wrap">
 
 <header>
@@ -425,6 +458,10 @@ document.addEventListener("keydown", e => {
 });
 
 render();
+</script>
+<script>
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
 </script>
 </body>
 </html>

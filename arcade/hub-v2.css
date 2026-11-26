@@ -24,10 +24,10 @@ a{color:var(--link)}
 .hd-logo{display:flex;justify-content:center;align-items:flex-end;gap:6px;text-decoration:none;margin-left:-60px}
 .hd-logo img{width:min(300px,100%);filter:drop-shadow(0 3px 0 rgba(0,0,0,.35))}
 .hd-sub{font:700 22px/1 var(--round);color:var(--orange);text-shadow:2px 2px 0 #7a2c00,-1px -1px 0 #fff;margin-bottom:14px;letter-spacing:1px}
-.hd-nav{display:flex;justify-content:flex-end;align-items:center;gap:2px;background:linear-gradient(#06216e,#03154a);border-radius:4px 4px 0 0;padding:3px 0 3px 10px;margin-top:2px}
-.hd-nav a{color:#fff;font:bold 9px/1 var(--body);text-decoration:none;padding:3px 11px}
+.hd-nav{display:flex;justify-content:flex-end;align-items:center;gap:2px;background:linear-gradient(#06216e,#03154a);border-radius:4px 4px 0 0;padding:3px 0 3px 10px;margin-top:2px;flex-wrap:wrap;min-width:0}
+.hd-nav a{color:#fff;font:bold 9px/1 var(--body);text-decoration:none;padding:3px 11px;white-space:nowrap;flex-shrink:0}
 .hd-nav a:hover{text-decoration:underline}
-.hd-nav .hd-red{background:var(--red);font:700 12px/1 var(--round);padding:4px 12px;margin-left:10px;letter-spacing:.5px}
+.hd-nav .hd-red{background:var(--red);font:700 12px/1 var(--round);padding:4px 12px;margin-left:10px;letter-spacing:.5px;white-space:nowrap;flex-shrink:0}
 
 /* Tabs */
 .tabs{display:flex;gap:3px;justify-content:flex-end;background:var(--page2);padding:3px 0 0 150px;border-bottom:3px solid var(--orange)}
@@ -190,13 +190,18 @@ a{color:var(--link)}
 .ft-friend{display:inline-flex;flex-direction:column;align-items:center;gap:6px;margin-top:20px;color:#fff;text-decoration:none;font:bold 10px/1 var(--body)}
 .ft-friend img{width:120px}
 
-/* Tablet */
+/* Tablet: nav wraps instead of shrinking the SUPPORT label off the right edge. */
 @media (max-width:760px){
   .main{grid-template-columns:150px minmax(0,1fr)}
   .right{grid-column:1/3;display:grid;grid-template-columns:1fr 1fr}
   .grid{grid-template-columns:repeat(4,1fr)}
   .tabs{padding-left:0;justify-content:flex-start;flex-wrap:wrap}
   .hd-logo{margin-left:0}
+  .hd-nav{flex-wrap:wrap}
+  .hd-nav a{padding:4px 8px}
+}
+@media (max-width:640px){
+  .hd-nav .nav-fb{display:none}
 }
 /* Phone */
 @media (max-width:560px){
@@ -209,8 +214,9 @@ a{color:var(--link)}
   .hd-logo img{width:min(270px,100%)}
   .hd-sub{font-size:16px;margin:-4px 0 4px}
   .hd-nav{grid-column:1/3;justify-content:center;flex-wrap:wrap;padding:4px 2px;border-radius:0}
-  .hd-nav a{padding:4px 7px}
-  .hd-nav .hd-red{margin-left:4px;font-size:11px}
+  .hd-nav a{padding:4px 7px;white-space:nowrap;flex-shrink:0}
+  .hd-nav .hd-red{margin-left:4px;font-size:11px;letter-spacing:0;flex-shrink:0}
+  .hd-nav .nav-privacy{display:none}
   .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:4px 4px 0}
   .tab{padding:8px 2px 7px;font-size:13px;text-align:center}
   .main{grid-template-columns:1fr;gap:6px;padding:6px 4px}
@@ -230,6 +236,14 @@ a{color:var(--link)}
   .sp{grid-template-columns:repeat(3,1fr)}
   .ft-nav{gap:4px 14px}.ft-nav a{font-size:10px}
   .ft-warn,.ft-priv,.ft-copy{font-size:11px;padding:0 8px}
+}
+/* Collection is the same link as the NP badge, so it can go first. */
+@media (max-width:520px){
+  .hd-nav .nav-home{display:none}
+}
+/* At 390px, Merch steps aside so SUPPORT stays fully visible. */
+@media (max-width:440px){
+  .hd-nav .nav-merch{display:none}
 }
 @media (prefers-reduced-motion:reduce){.slide{transition:none}.sp a{transition:none}}
 .gm-thumb picture,.fg-thumb picture{display:block;height:100%}
