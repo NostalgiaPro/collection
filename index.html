@@ -475,7 +475,8 @@ a.score:hover::after,a.score:focus-visible::after{opacity:1}
 .hp-hero-top .ht-acttxt b{white-space:normal !important;font-size:15px !important;line-height:1.2 !important}
 .hp-hero-top .ht-acttxt span{overflow-wrap:break-word}
 .hp-hero-top .ht-act-shelves,
-.hp-hero-top .ht-act-latest{flex-direction:column;align-items:stretch;flex-wrap:nowrap}
+.hp-hero-top .ht-act-latest,
+.hp-hero-top .ht-act-anniv{flex-direction:column;align-items:stretch;flex-wrap:nowrap}
 .hp-hero-top .ht-act-shelves .ht-acttxt,
 .hp-hero-top .ht-act-latest .ht-acttxt{display:flex;flex-direction:column;width:100%}
 .hp-hero-top .ht-act-shelves .ht-acttxt>b{flex:none}
@@ -488,6 +489,17 @@ a.score:hover::after,a.score:focus-visible::after{opacity:1}
 .ht-act-merch{--a:var(--hot)}
 .ht-act-latest{--a:var(--hp-gold);cursor:default}
 .ht-act-latest:hover,.ht-act-latest:active{transform:none}
+.ht-act-anniv{--a:var(--hp-green);cursor:default}
+.ht-act-anniv:hover,.ht-act-anniv:active{transform:none}
+.hp-hero-top .ht-act-anniv .ht-acttxt>b a{color:inherit;text-decoration:none}
+.hp-hero-top .ht-act-anniv .ht-acttxt>b a:hover{color:var(--a)}
+.ht-anniv{display:flex;flex-direction:column;gap:4px;width:100%;margin-top:2px}
+.ht-anniv a{
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  min-height:36px;color:inherit;text-decoration:none;font-weight:600;font-size:13px;line-height:1.25;
+}
+.ht-anniv a:hover{color:var(--a)}
+.ht-anniv a:focus-visible{outline:2px solid var(--a);outline-offset:2px}
 .ht-latest{display:flex;flex-direction:column;gap:4px;width:100%;margin-top:2px}
 .ht-latest a{
   display:grid;grid-template-columns:28px minmax(0,1fr);gap:6px;align-items:center;
@@ -515,7 +527,8 @@ a.score:hover::after,a.score:focus-visible::after{opacity:1}
 }
 @media (max-width:699px){
   .hp-hero-top .hp-shelflinks a,
-  .hp-hero-top .ht-latest a{min-height:44px}
+  .hp-hero-top .ht-latest a,
+  .hp-hero-top .ht-anniv a{min-height:44px}
 }
 
 /* --- Full-width bays: a change of wall behind every other section --- */
@@ -1544,7 +1557,7 @@ body.y1996 .npmerch .npmerch-btn{color:#000}
         <p class="standfirst">My whole physical collection: <b id="gamecount">860</b> games across <b data-syscount>30</b> systems, plus movies, TV, music and board games. Type a title and find out.</p>
         </div>
         <div class="ht-acts ht-acts-r" role="group" aria-label="Start here">
-          <a class="ht-act ht-act-daily" href="/daily.html" data-act="daily"><span class="ht-actico"><svg class="ht-px" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="1" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="2" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="3" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="6" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="7" y="0" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="0" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="1" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="3" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="5" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="7" y="1" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="0" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="7" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="3" width="1" height="1" fill="#3a3f52"/><rect x="2" y="3" width="1" height="1" fill="#5a8fd6"/><rect x="3" y="3" width="1" height="1" fill="#3a3f52"/><rect x="4" y="3" width="1" height="1" fill="#ffd23f"/><rect x="5" y="3" width="1" height="1" fill="#3a3f52"/><rect x="6" y="3" width="1" height="1" fill="#8e93a2"/><rect x="7" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="4" width="1" height="1" fill="#3a3f52"/><rect x="2" y="4" width="1" height="1" fill="#3a3f52"/><rect x="3" y="4" width="1" height="1" fill="#3a3f52"/><rect x="4" y="4" width="1" height="1" fill="#3a3f52"/><rect x="5" y="4" width="1" height="1" fill="#3a3f52"/><rect x="6" y="4" width="1" height="1" fill="#3a3f52"/><rect x="7" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="5" width="1" height="1" fill="#ffd23f"/><rect x="2" y="5" width="1" height="1" fill="#3a3f52"/><rect x="3" y="5" width="1" height="1" fill="#8e93a2"/><rect x="4" y="5" width="1" height="1" fill="#3a3f52"/><rect x="5" y="5" width="1" height="1" fill="#5a8fd6"/><rect x="6" y="5" width="1" height="1" fill="#3a3f52"/><rect x="7" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="6" width="1" height="1" fill="#3a3f52"/><rect x="2" y="6" width="1" height="1" fill="#3a3f52"/><rect x="3" y="6" width="1" height="1" fill="#3a3f52"/><rect x="4" y="6" width="1" height="1" fill="#3a3f52"/><rect x="5" y="6" width="1" height="1" fill="#3a3f52"/><rect x="6" y="6" width="1" height="1" fill="#3a3f52"/><rect x="7" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="7" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="7" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="7" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="7" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="7" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="7" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="7" width="1" height="1" fill="#eceae2" class="w"/><rect x="7" y="7" width="1" height="1" fill="#eceae2" class="w"/></svg></span><span class="ht-acttxt"><b>Today's Daily Shelf</b><span id="htDailyAct">Guess the game. Six guesses.</span></span><span class="ht-actgo" aria-hidden="true">&#9654;</span></a>
+          <div class="ht-act ht-act-anniv" data-act="anniv"><span class="ht-actico"><svg class="ht-px" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="0" width="8" height="1" fill="#3fbf6a"/><rect x="1" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="2" width="8" height="1" fill="#3fbf6a"/><rect x="1" y="4" width="2" height="1" fill="#ff4b3e" class="r"/><rect x="4" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="6" width="2" height="1" fill="#eceae2" class="w"/><rect x="6" y="6" width="1" height="1" fill="#eceae2" class="w"/></svg></span><div class="ht-acttxt"><b><a href="/anniversaries.html">Gaming anniversaries</a></b><span class="ht-anniv" id="htAnniv"></span></div></div>
           <div class="ht-act ht-act-latest" data-act="latest"><span class="ht-actico"><svg class="ht-px" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="1" width="5" height="1" fill="#ffd23f"/><rect x="1" y="3" width="5" height="1" fill="#ff4b3e" class="r"/><rect x="1" y="5" width="5" height="1" fill="#5a8fd6"/></svg></span><div class="ht-acttxt"><b>Latest games</b><span>New on the shelf.</span><span class="ht-latest" id="htLatest"></span></div></div>
           <div class="ht-act ht-act-shelves" role="group" aria-labelledby="hpShelvesH"><span class="ht-actico"><svg class="ht-px" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="7" y="1" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="2" width="1" height="1" fill="#3a3f52"/><rect x="2" y="2" width="1" height="1" fill="#3a3f52"/><rect x="3" y="2" width="1" height="1" fill="#3a3f52"/><rect x="4" y="2" width="1" height="1" fill="#3a3f52"/><rect x="5" y="2" width="1" height="1" fill="#3a3f52"/><rect x="6" y="2" width="1" height="1" fill="#3a3f52"/><rect x="7" y="2" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="3" width="1" height="1" fill="#3a3f52"/><rect x="2" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="3" y="3" width="1" height="1" fill="#3a3f52"/><rect x="4" y="3" width="1" height="1" fill="#3a3f52"/><rect x="5" y="3" width="1" height="1" fill="#ff4b3e" class="r"/><rect x="6" y="3" width="1" height="1" fill="#3a3f52"/><rect x="7" y="3" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="4" width="1" height="1" fill="#3a3f52"/><rect x="2" y="4" width="1" height="1" fill="#3a3f52"/><rect x="3" y="4" width="1" height="1" fill="#5a8fd6"/><rect x="4" y="4" width="1" height="1" fill="#5a8fd6"/><rect x="5" y="4" width="1" height="1" fill="#3a3f52"/><rect x="6" y="4" width="1" height="1" fill="#3a3f52"/><rect x="7" y="4" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="5" width="1" height="1" fill="#3a3f52"/><rect x="2" y="5" width="1" height="1" fill="#3a3f52"/><rect x="3" y="5" width="1" height="1" fill="#3a3f52"/><rect x="4" y="5" width="1" height="1" fill="#3a3f52"/><rect x="5" y="5" width="1" height="1" fill="#3a3f52"/><rect x="6" y="5" width="1" height="1" fill="#3a3f52"/><rect x="7" y="5" width="1" height="1" fill="#eceae2" class="w"/><rect x="0" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="1" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="2" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="3" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="4" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="5" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="6" y="6" width="1" height="1" fill="#eceae2" class="w"/><rect x="7" y="6" width="1" height="1" fill="#eceae2" class="w"/></svg></span><div class="ht-acttxt"><b id="hpShelvesH">Other shelves</b><ul class="hp-shelflinks"><li><a href="/movies.html">Movies <i data-media="film">157</i></a></li><li><a href="/tv.html">TV shows <i data-media="tv">16</i></a></li><li><a href="/music.html">Music <i data-media="music">79</i></a></li><li><a href="/boardgames.html">Board games <i data-media="board game">2</i></a></li></ul></div></div>
         </div>
@@ -4055,10 +4068,21 @@ function stampDatesHead(){
     const days = Math.round((when - today) / 86400000);
     hits.push({ g, age: when.getFullYear() - y, days });
   }
+  hits.sort((a,b) => a.days - b.days || b.age - a.age);
+  const annivBox = document.getElementById("htAnniv");
+  if (annivBox) {
+    const week = hits.filter(h => h.days <= 7);
+    const todays = week.filter(h => h.days === 0);
+    const pick = (todays.length ? todays : week).slice(0, 3);
+    if (!pick.length) annivBox.textContent = "Nothing this week.";
+    else annivBox.innerHTML = pick.map(h => {
+      const when = h.days === 0 ? "today" : h.days === 1 ? "tomorrow" : "in " + h.days + " days";
+      return `<a href="${gamePage(h.g)}">${esc(h.g.title)} turns ${h.age} ${when}</a>`;
+    }).join("");
+  }
   const bar = document.getElementById("todaybar");
   if (!bar) return;
   if (!hits.length) { stampDatesHead(); return; }
-  hits.sort((a,b) => a.days - b.days || b.age - a.age);
 
   const soon = hits.filter(h => h.days === hits[0].days).slice(0, 3);
   const when = hits[0].days === 0 ? "Today"
