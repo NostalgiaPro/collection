@@ -93,18 +93,18 @@ function segment(T, a, b, r0, r1) {
 
 function robeGeo(T) {
   const g = lathe(T, [
-    [0, -0.58], [0.98, -0.4], [0.9, -0.16], [0.7, 0.08], [0.5, 0.32], [0.48, 0.62],
-    [0.56, 1.05], [0.64, 1.4], [0.78, 1.68], [0.66, 1.92], [0.32, 2.06], [0, 2.12]
+    [0, -2.05], [1.04, -1.88], [1.14, -1.4], [1.02, -0.7], [0.8, -0.1],
+    [0.58, 0.22], [0.5, 0.42], [0.5, 0.75], [0.58, 1.12], [0.68, 1.42],
+    [0.82, 1.68], [0.68, 1.92], [0.32, 2.06], [0, 2.12]
   ], 18);
   const p = g.attributes.position;
   for (let i = 0; i < p.count; i++) {
     let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
     const shoulder = Math.max(0, 1 - Math.abs(y - 1.68) / 0.32);
-    x *= 1 + 0.34 * shoulder;
-    const hem = Math.max(0, Math.min(1, (0.12 - y) / 0.55));
-    x *= 1 + 0.16 * hem;
-    z *= 0.78 + 0.2 * hem;
-    if (z > 0.08 && y < 1.85) z += 0.04 * hem;
+    x *= 1 + 0.32 * shoulder;
+    const hem = Math.max(0, Math.min(1, (0.05 - y) / 1.2));
+    x *= 1 + 0.12 * hem;
+    z *= 0.8 + 0.16 * hem;
     p.setXYZ(i, x, y, z);
   }
   g.computeVertexNormals();
@@ -166,19 +166,25 @@ function handGeo(T, curl) {
   return mergeGeos(T, parts);
 }
 function footGeo(T, kind) {
-  const g = new T.SphereGeometry(1, 16, 12), p = g.attributes.position, boot = kind === "boot";
+  const g = new T.SphereGeometry(1, 16, 12), p = g.attributes.position, boot = kind === "boot", slip = kind === "slipper";
   for (let i = 0; i < p.count; i++) {
     const x0 = p.getX(i), y0 = p.getY(i), z0 = p.getZ(i);
-    const z = z0 * 0.55 + 0.26, u = clamp((z + 0.2) / 1.05, 0, 1);
-    const w = 0.2 + 0.045 * Math.sin(u * Math.PI * 0.9);
-    const top = 0.42 - 0.2 * ease((z - 0.1) / 0.6);
+    const z = z0 * (slip ? 0.42 : 0.55) + (slip ? 0.18 : 0.26), u = clamp((z + 0.2) / 1.05, 0, 1);
+    const w = (slip ? 0.24 : 0.2) + 0.04 * Math.sin(u * Math.PI * 0.9);
+    const top = (slip ? 0.2 : 0.42) - (slip ? 0.08 : 0.2) * ease((z - 0.1) / 0.6);
     const y = y0 >= 0 ? -0.08 + y0 * top : -0.1 + y0 * 0.06;
     p.setXYZ(i, x0 * w, y, z);
   }
   g.computeVertexNormals();
-  const parts = [[g, 0], [placed(T, roundBox(T, 0.4, 0.09, 1.02, 0.04), [0, -0.14, 0.26]), 1]];
-  parts.push([placed(T, lathe(T, [[0, -0.02], [0.2, 0], [0.22, 0.16], [0.16, 0.32], [0, 0.34]], 10), [0, -0.02, -0.02]), 0]);
-  parts.push([placed(T, new T.SphereGeometry(1, 8, 6), [0, 0.06, 0.7], null, [0.16, 0.1, 0.18]), 0]);
+  const parts = [[g, 0]];
+  if (!slip) {
+    parts.push([placed(T, roundBox(T, 0.4, 0.09, 1.02, 0.04), [0, -0.14, 0.26]), 1]);
+    parts.push([placed(T, lathe(T, [[0, -0.02], [0.2, 0], [0.22, 0.16], [0.16, 0.32], [0, 0.34]], 10), [0, -0.02, -0.02]), 0]);
+    parts.push([placed(T, new T.SphereGeometry(1, 8, 6), [0, 0.06, 0.7], null, [0.16, 0.1, 0.18]), 0]);
+  } else {
+    parts.push([placed(T, roundBox(T, 0.46, 0.06, 0.86, 0.03), [0, -0.12, 0.16]), 1]);
+    parts.push([placed(T, new T.TorusGeometry(0.16, 0.035, 6, 12), [0, 0.02, 0.18], [Math.PI / 2, 0, 0]), 0]);
+  }
   if (boot) parts.push([placed(T, lathe(T, [[0, 0.1], [0.2, 0.12], [0.21, 0.4], [0.18, 0.62], [0, 0.64]], 10), [0, 0.05, -0.02]), 0]);
   return mergeGeos(T, parts);
 }
@@ -226,7 +232,7 @@ function setLimb(TMP, L, A, B, pole, l1, l2) {
     const atElbow = L.cuffAt === "elbow";
     L.cuff.position.copy(atElbow ? L.j1.position : L.end.position);
     L.cuff.quaternion.copy((atElbow ? L.up : L.lo).quaternion);
-    L.cuff.scale.setScalar((atElbow ? L.r1 : L.r2) * (atElbow ? 0.9 : 0.72));
+    L.cuff.scale.setScalar((atElbow ? L.r1 : L.r2) * (atElbow ? 0.9 : 0.72) * (L.cuffK || 1));
   }
 }
 function placeHand(TMP, P, s) {
@@ -290,7 +296,7 @@ export function createCast(T) {
     shinSkin: lathe(T, PROF.shinSkin, 10), shinPant: lathe(T, PROF.shinPant, 10),
     neck: lathe(T, PROF.neck, 8), coat: lathe(T, PROF.coat, 12),
     torso: torsoGeo(T), head: headGeo(T), hand: handGeo(T, 0.4),
-    shoe: footGeo(T, "shoe"), boot: footGeo(T, "boot"),
+    shoe: footGeo(T, "shoe"), boot: footGeo(T, "boot"), slipper: footGeo(T, "slipper"),
     cuff: new T.TorusGeometry(1, 0.28, 5, 10)
   };
   G.cuff.rotateX(Math.PI / 2);
@@ -331,6 +337,20 @@ export function createCast(T) {
     return tx;
   }
   function wear(col, shin) { return pho(0xffffff, shin == null ? 8 : shin, { map: cloth(col) }); }
+  function pjWear() {
+    if (texes.pjMat) return texes.pjMat;
+    const cv = document.createElement("canvas"); cv.width = 64; cv.height = 128;
+    const g = cv.getContext("2d");
+    g.fillStyle = "#f3e4d6"; g.fillRect(0, 0, 64, 128);
+    g.fillStyle = "#c4476a";
+    for (let y = 0; y < 128; y += 16) g.fillRect(0, y, 64, 5);
+    g.fillStyle = "#7a2844";
+    for (let i = 0; i < 10; i++) g.fillRect(8 + (i % 3) * 18, 8 + i * 12, 5, 5);
+    const tx = new T.CanvasTexture(cv); tx.colorSpace = T.SRGBColorSpace;
+    tx.wrapS = tx.wrapT = T.RepeatWrapping; tx.repeat.set(1, 2); texes.pj = tx;
+    texes.pjMat = pho(0xffffff, 10, { map: tx });
+    return texes.pjMat;
+  }
   function rb(w, h, d, r) {
     const k = w + "," + h + "," + d + "," + (r || 0);
     if (!boxes[k]) boxes[k] = roundBox(T, w, h, d, r);
@@ -442,6 +462,7 @@ export function createCast(T) {
     const arm = [0, 1].map(function () { return limb(o.sleeve, o.fore, 0.32 * ab, 0.16 * ab, o.fore, 0.1 * ab, upG, foreG, o.cuff, o.longSleeve ? "wrist" : "elbow"); });
     arm.forEach(function (L) { L.j0.scale.set(0.42 * ab, 0.36 * ab, 0.4 * ab); L.delt = true; });
     const leg = [0, 1].map(function () { return limb(o.thigh, o.shin, 0.3 * lb, 0.2 * lb, o.ankle, 0.12 * lb, thighG, shinG, o.ankleCuff, "wrist"); });
+    if (o.cuffK) leg.forEach(function (L) { L.cuffK = o.cuffK; });
     const hk = ab * 1.35;
     const hand = [0, 1].map(function (s) {
       const m = new T.Mesh(G.hand, o.hand); m.scale.set(hk * (s ? 1 : -1), hk, hk); body.add(m); return m;
@@ -522,7 +543,7 @@ export function createCast(T) {
     const rib = wear(shade(shirtCol, o.tee ? 0.82 : 0.72));
     const sleeve = o.party ? shirt : (o.tee ? wear(0xf7f4ee) : shirt);
     const fore = (o.sleeves === "short" || o.bareArm) ? skin : shirt;
-    const pants = wear(o.pants || 0x2c3a55, 10);
+    const pants = o.robe ? pjWear() : wear(o.pants || 0x2c3a55, 10);
     const waist = wear(shade(o.pants || 0x2c3a55, 0.62), 12);
     const shoeU = o.shoeMat || pho(o.shoes || 0xf4f1ea, 28);
     const shoeS = pho(o.sole || 0x241c16, 8);
@@ -531,11 +552,11 @@ export function createCast(T) {
     const handMat = o.mittens ? pho(o.mittens, 18) : skin;
     const cuffMat = o.fur ? white : (o.cuff === false ? null : rib);
     const F = makeFigure({
-      scale: o.scale, bulk: o.bulk, coat: !!o.coat && !o.robe, robeGeo: o.robe ? robeGeo(T) : null, puffy: !!o.coat && !o.robe, longSleeve: o.sleeves !== "short", shorts: !!o.shorts,
+      scale: o.scale, bulk: o.bulk, legBulk: o.legBulk, coat: !!o.coat && !o.robe, robeGeo: o.robe ? robeGeo(T) : null, puffy: !!o.coat && !o.robe, longSleeve: o.sleeves !== "short", shorts: !!o.shorts, cuffK: o.robe ? 1.85 : 0,
       torso: shirt, trap: o.tee ? sleeve : (o.coat ? shirt : rib), sleeve: sleeve, fore: fore, cuff: cuffMat,
       hand: handMat, skin: skin, hips: pants, thigh: pants, shin: o.shorts ? skin : pants,
-      ankle: white, ankleCuff: o.shorts ? null : (o.fur ? white : waist),
-      shoe: [shoeU, shoeS], footGeo: o.boots ? G.boot : G.shoe, belt: o.belt ? pho(o.belt, 22) : (o.shorts ? null : null)
+      ankle: o.robe ? pho(0x7a2844, 16) : white, ankleCuff: o.shorts ? null : (o.robe ? pho(0x7a2844, 18) : (o.fur ? white : waist)),
+      shoe: [shoeU, shoeS], footGeo: o.slippers ? G.slipper : (o.boots ? G.boot : G.shoe), belt: o.belt ? pho(o.belt, 22) : (o.shorts ? null : null)
     });
     const hemY = o.coat ? 0.2 : 0.16;
     if (!o.robe) {
@@ -553,10 +574,10 @@ export function createCast(T) {
       });
       if (o.robe) {
         const sash = wear(0xc4a574);
-        const knot = new T.Mesh(G.sph, sash); knot.scale.set(0.16, 0.12, 0.1); knot.position.set(0, 0.22, 0.62); F.upper.add(knot);
+        const knot = new T.Mesh(G.sph, sash); knot.scale.set(0.14, 0.1, 0.1); knot.position.set(0, 0.28, 0.62); F.upper.add(knot);
         [-1, 1].forEach(function (s) {
-          const tail = new T.Mesh(roundBox(T, 0.08, 0.58, 0.035, 0.015), sash);
-          tail.position.set(s * 0.08, -0.08, 0.58); tail.rotation.z = s * -0.1; F.upper.add(tail);
+          const tail = new T.Mesh(roundBox(T, 0.07, 0.32, 0.03, 0.012), sash);
+          tail.position.set(s * 0.06, 0.08, 0.64); tail.rotation.z = s * 0.15; F.upper.add(tail);
         });
       }
       if (o.scarf) {
