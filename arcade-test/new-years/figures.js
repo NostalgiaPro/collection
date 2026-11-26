@@ -93,19 +93,21 @@ function segment(T, a, b, r0, r1) {
 
 function robeGeo(T) {
   const g = lathe(T, [
-    [0, -1.95], [0.58, -1.78], [0.6, -1.15], [0.58, -0.35], [0.54, 0.25],
-    [0.52, 0.7], [0.56, 1.15], [0.64, 1.5], [0.7, 1.72], [0.52, 1.95], [0.22, 2.08], [0, 2.14]
+    [0, -2.38], [1.02, -2.2], [1.04, -1.35], [1.02, -0.35], [0.96, 0.12],
+    [0.68, 0.42], [0.6, 0.85], [0.64, 1.25], [0.72, 1.55], [0.7, 1.74],
+    [0.5, 1.96], [0.2, 2.08], [0, 2.14]
   ], 22);
   const p = g.attributes.position;
   for (let i = 0; i < p.count; i++) {
     let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
     const r = Math.hypot(x, z) || 0.001;
     const ang = Math.atan2(x, z);
-    const gap = 0.42 + 0.22 * Math.max(0, Math.min(1, (1.15 - y) / 2.4));
+    const chest = Math.max(0, Math.min(1, (y - 0.2) / 1.25));
+    const gap = 0.1 + 0.42 * chest;
     if (z > 0 && Math.abs(ang) < gap) {
       const edge = (ang < 0 ? -1 : 1) * gap;
       x = Math.sin(edge) * r;
-      z = Math.cos(edge) * r * 0.92;
+      z = Math.cos(edge) * r * 0.94;
     }
     p.setXYZ(i, x, y, z);
   }
@@ -635,18 +637,18 @@ export function createCast(T) {
       bib.position.set(0, 0.95, 0.4); F.upper.add(bib);
       const lap = terryMat();
       [-1, 1].forEach(function (s) {
-        const edge = new T.Mesh(roundBox(T, 0.1, 1.35, 0.05, 0.03), lap);
-        edge.position.set(s * 0.22, 0.85, 0.48); edge.rotation.z = s * -0.22; F.upper.add(edge);
+        const edge = new T.Mesh(roundBox(T, 0.1, 1.55, 0.05, 0.03), lap);
+        edge.position.set(s * 0.2, 0.95, 0.5); edge.rotation.z = s * -0.18; F.upper.add(edge);
       });
       const shawl = new T.Mesh(roundBox(T, 0.7, 0.12, 0.1, 0.04), lap);
       shawl.position.set(0, 1.62, 0.4); F.upper.add(shawl);
       const sash = pho(0xf3e2c4, 12);
-      const bandS = new T.Mesh(roundBox(T, 0.7, 0.1, 0.08, 0.03), sash);
-      bandS.position.set(0, 0.28, 0.5); F.upper.add(bandS);
-      const knot = new T.Mesh(G.sph, sash); knot.scale.set(0.16, 0.12, 0.1); knot.position.set(0, 0.28, 0.62); F.upper.add(knot);
+      const bandS = new T.Mesh(roundBox(T, 0.9, 0.12, 0.08, 0.03), sash);
+      bandS.position.set(0, 0.28, 1.02); F.upper.add(bandS);
+      const knot = new T.Mesh(G.sph, sash); knot.scale.set(0.16, 0.12, 0.1); knot.position.set(0, 0.28, 1.12); F.upper.add(knot);
       [-1, 1].forEach(function (s) {
-        const tail = new T.Mesh(roundBox(T, 0.09, 0.85, 0.04, 0.02), sash);
-        tail.position.set(s * 0.1, -0.2, 0.66); F.upper.add(tail);
+        const tail = new T.Mesh(roundBox(T, 0.1, 0.95, 0.045, 0.02), sash);
+        tail.position.set(s * 0.12, -0.28, 1.08); F.upper.add(tail);
       });
       if (o.scarf) {
         const sc = pho(o.scarf, 12);

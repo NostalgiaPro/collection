@@ -67,7 +67,7 @@ export function createHouse(T, Cast, ROOMS, FLOOR) {
   const mom = Cast.person({
     coat: true, robe: true, shirt: "#7a2844", sleeves: "long", hair: "#6b3418", hairStyle: "bun",
     skin: "#f1c28e", phone: true, horn: true, slippers: true, shoes: "#e7b3c0", sole: "#b56d80", belt: 0xe7c9a2,
-    scale: 1.12, bulk: 1.02, armBulk: 0.86, legBulk: 1.34, mouth: "smile", browTilt: 0.04
+    scale: 1.12, bulk: 1.02, armBulk: 0.86, legBulk: 1.58, mouth: "smile", browTilt: 0.04
   });
   const guestA = Cast.person({
     shirt: "#c46a32", pants: "#241c18", sleeves: "short", collar: "#f4e6d4",
