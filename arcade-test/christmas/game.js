@@ -1,11 +1,12 @@
 /* MALL SANTA DASH '94: LAYAWAY BLITZ (3D cabinet edition, seasonal: christmas, HIDDEN TEST PAGE)
-   Christmas Eve, 1994, 5:58 PM at the Mistletoe Mile Mall. Run four stretches of the concourse in low-poly 3D
+   Christmas Eve, 1994, 5:58 PM at the Mistletoe Mile Mall. Run four stretches of the concourse in 3D
    and reach the toy store before the security grille comes down. Every checkpoint banner adds time,
    arcade style. Bumps never end the run; they cost 3 seconds and break the streak.
 
    Same slug as the 2D test game (mall-santa-dash), so the trophies (slots 118-126), the high score table
    and the shoe unlocks are shared with it. If WebGL or three.js is missing, the 2D game (game-2d.js) runs.
    Units are meters. Distance S.z runs down the concourse; in the 3D world it is -z. */
+import { createCast } from "./figures.js";
 const W = 360, H = 540, TAU = Math.PI * 2, SLUG = "mall-santa-dash";
 const Sh = window.Shell;
 const THREE_URL = "../shared/three.module.min.js";
@@ -50,6 +51,7 @@ const STORES = [
 ];
 
 let THREE = null, K = null, S = {}, idleT = 0, ptr = null, keys = {};
+const CAST = /[?&]cast=1/.test(location.search);
 let gear = { u: { plain: 1 }, on: "plain", items: 0 };
 
 function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
@@ -684,8 +686,11 @@ function buildKit(T) {
   scene.fog = new T.Fog(ZONES[0].fog, 34, 92);
   scene.background = new T.Color(ZONES[0].fog);
   const cam = new T.PerspectiveCamera(66, W / H, 0.1, 140);
-  const hemi = new T.HemisphereLight(0xfff1dc, 0x3a2a4a, 1.6); scene.add(hemi);
-  const sun = new T.DirectionalLight(0xffffff, 1.4); sun.position.set(3, 9, 4); scene.add(sun); scene.add(sun.target);
+  const hemi = new T.HemisphereLight(0xfff4e4, 0x3a2848, 0.85); scene.add(hemi);
+  const sun = new T.DirectionalLight(0xfff6ea, 1.15); sun.position.set(-4, 10, -6); scene.add(sun); scene.add(sun.target);
+  const fill = new T.DirectionalLight(0xffe7c4, 0.9); scene.add(fill); scene.add(fill.target);
+  const rim = new T.DirectionalLight(0xffb7d0, 0.28); rim.position.set(6, 4, 2); scene.add(rim);
+  const Cast = createCast(T);
 
   const G = { box: new T.BoxGeometry(1, 1, 1), cyl: new T.CylinderGeometry(1, 1, 1, 10), cyl6: new T.CylinderGeometry(1, 1, 1, 6),
     cone: new T.ConeGeometry(1, 1, 8), sph: new T.SphereGeometry(1, 10, 7), ico: new T.IcosahedronGeometry(1, 0),
@@ -698,7 +703,7 @@ function buildKit(T) {
     let m;
     if (o && o.basic) m = new T.MeshBasicMaterial({ color: new T.Color(col), transparent: !!o.transparent, opacity: o.opacity == null ? 1 : o.opacity, depthWrite: o.depthWrite !== false });
     else {
-      const p = { color: new T.Color(col), flatShading: true };
+      const p = { color: new T.Color(col) };
       if (o) { if (o.emissive) p.emissive = new T.Color(o.emissive); if (o.transparent) { p.transparent = true; p.opacity = o.opacity; } }
       m = new T.MeshLambertMaterial(p);
     }
@@ -709,60 +714,40 @@ function buildKit(T) {
   }
   function grp(parent, x, y, z) { const g = new T.Group(); g.position.set(x || 0, y || 0, z || 0); if (parent) parent.add(g); return g; }
 
-  /* people */
+  /* people: the same sculpted rig as the live arcade figures */
   const SKIN = ["#f1c28e", "#c98a5a", "#8a5a3a", "#f6d5b0", "#b07850"];
-  function person(o) {
-    const g = new T.Group(), P = { g: g };
-    const skin = M(o.skin || SKIN[0]), shirt = o.shirtMat || M(o.shirt), pants = M(o.pants), shoe = M(o.shoes || "#eceae2");
-    P.hipL = grp(g, -0.11, 0.84, 0); P.hipR = grp(g, 0.11, 0.84, 0);
-    P.legL = part(P.hipL, G.box, pants, 0.17, 0.82, 0.19, 0, -0.41, 0); P.legR = part(P.hipR, G.box, pants, 0.17, 0.82, 0.19, 0, -0.41, 0);
-    if (o.shorts) {
-      P.legL.scale.y = 0.42; P.legL.position.y = -0.21; P.legR.scale.y = 0.42; P.legR.position.y = -0.21;
-      P.legL.scale.x = P.legR.scale.x = 0.2; P.legL.scale.z = P.legR.scale.z = 0.22;
-      part(P.hipL, G.box, skin, 0.13, 0.42, 0.14, 0, -0.62, 0); part(P.hipR, G.box, skin, 0.13, 0.42, 0.14, 0, -0.62, 0);
-    }
-    P.shoeL = part(P.hipL, G.box, shoe, 0.19, 0.11, 0.3, 0, -0.8, -0.05); P.shoeR = part(P.hipR, G.box, shoe, 0.19, 0.11, 0.3, 0, -0.8, -0.05);
-    P.body = grp(g, 0, 0.84, 0);
-    P.torso = part(P.body, G.box, shirt, 0.48, 0.62, 0.27, 0, 0.34, 0);
-    P.head = grp(P.body, 0, 0.84, 0);
-    part(P.head, G.box, skin, 0.29, 0.31, 0.29, 0, 0, 0);
-    if (o.hair) part(P.head, G.box, M(o.hair), 0.31, 0.1, 0.31, 0, 0.16, 0.01);
-    if (o.hat === "beanie") { part(P.head, G.cone, M("#c2304a"), 0.18, 0.3, 0.18, 0, 0.3, 0.02); part(P.head, G.sph, M("#ffffff"), 0.07, 0.07, 0.07, 0, 0.46, 0.02); part(P.head, G.cyl, M("#ffffff"), 0.17, 0.07, 0.17, 0, 0.15, 0); }
-    if (o.hat === "band") part(P.head, G.box, M(o.band || "#ff3fa4"), 0.32, 0.06, 0.32, 0, 0.09, 0);
-    if (o.hat === "cap") { part(P.head, G.box, M(o.capc || "#1d2b53"), 0.31, 0.1, 0.31, 0, 0.17, 0); part(P.head, G.box, M(o.capc || "#1d2b53"), 0.25, 0.03, 0.18, 0, 0.13, 0.2); }
-    // eyes (on the +z side, which is the face; the hero is turned around)
-    part(P.head, G.box, M("#1b1b22"), 0.04, 0.05, 0.02, -0.07, 0.03, 0.15); part(P.head, G.box, M("#1b1b22"), 0.04, 0.05, 0.02, 0.07, 0.03, 0.15);
-    P.shL = grp(P.body, -0.31, 0.6, 0); P.shR = grp(P.body, 0.31, 0.6, 0);
-    const sleeve = o.sleeve ? M(o.sleeve) : shirt;
-    P.armL = part(P.shL, G.box, sleeve, 0.13, 0.32, 0.15, 0, -0.14, 0); P.armR = part(P.shR, G.box, sleeve, 0.13, 0.32, 0.15, 0, -0.14, 0);
-    part(P.shL, G.box, skin, 0.11, 0.3, 0.12, 0, -0.43, 0); part(P.shR, G.box, skin, 0.11, 0.3, 0.12, 0, -0.43, 0);
-    if (o.scale) g.scale.setScalar(o.scale);
-    return P;
-  }
-  function pose(P, ph, amp, armAmp) {
-    const aa = armAmp == null ? amp : armAmp;
-    P.hipL.rotation.x = Math.sin(ph) * amp; P.hipR.rotation.x = -Math.sin(ph) * amp;
-    P.shL.rotation.x = -Math.sin(ph) * aa; P.shR.rotation.x = Math.sin(ph) * aa;
-  }
+  const person = Cast.person, pose = Cast.pose;
 
-  /* hero: white NP tee, cargo shorts, Christmas beanie */
-  const teeMat = new T.MeshLambertMaterial({ map: tex(teeCanvas()) });
+  /* hero: cream NP tee, cargo shorts, Christmas beanie, seen from behind */
+  const teeMat = new T.MeshPhongMaterial({ map: tex(teeCanvas()), shininess: 12, specular: new T.Color(0x333333) });
   const heroRoot = grp(scene, 0, 0, 0);
-  const hero = person({ shirtMat: teeMat, sleeve: "#f4f1ea", pants: "#9a8a5a", shorts: true, hat: "beanie", skin: "#f1c28e", hair: "#5a3a20" });
-  heroRoot.add(hero.g); hero.g.rotation.y = Math.PI;      // back to the camera, running down the concourse
-  part(hero.hipL, G.box, M("#857548"), 0.05, 0.14, 0.12, -0.11, -0.24, 0); part(hero.hipR, G.box, M("#857548"), 0.05, 0.14, 0.12, 0.11, -0.24, 0);
-  const shadow = new T.Mesh(new T.CircleGeometry(0.42, 16).rotateX(-Math.PI / 2), M("#000000", { basic: 1, transparent: true, opacity: 0.35, depthWrite: false }));
+  const hero = person({ shirt: "#f4f1ea", pants: "#9a8a5a", shorts: true, sleeves: "short", hat: "beanie", hatc: "#c2304a", skin: "#f1c28e", hair: "#5a3a20", hairStyle: "short", pockets: true, badge: teeMat, wheels: true, shoes: "#eceae2" });
+  heroRoot.add(hero.g); hero.g.rotation.y = Math.PI;
+  const shadow = new T.Mesh(new T.CircleGeometry(0.55, 20).rotateX(-Math.PI / 2), M("#000000", { basic: 1, transparent: true, opacity: 0.4, depthWrite: false }));
   shadow.position.y = 0.012; scene.add(shadow);
-  const wheels = [];
-  for (let s = 0; s < 2; s++) {
-    const hip = s ? hero.hipR : hero.hipL;
-    for (let k = 0; k < 3; k++) { const wm = part(hip, G.cyl, M("#9bff3f", { emissive: "#2a6a10" }), 0.06, 0.04, 0.06, 0, -0.9, -0.15 + k * 0.1); wm.rotation.z = Math.PI / 2; wheels.push(wm); }
-  }
   function dressHero() {
     const s = SHOES.find(function (q) { return q.id === gear.on; }) || SHOES[0];
-    const m = gear.on === "lightup" ? new T.MeshLambertMaterial({ color: 0xffffff, emissive: 0x2fd0ff }) : M(s.col);
-    hero.shoeL.material = m; hero.shoeR.material = m;
-    for (let i = 0; i < wheels.length; i++) wheels[i].visible = gear.on === "skates";
+    const upper = gear.on === "lightup"
+      ? new T.MeshPhongMaterial({ color: 0xffffff, emissive: 0x2fd0ff, emissiveIntensity: 0.85, shininess: 40, specular: new T.Color(0x88ddff) })
+      : Cast.pho(s.col, 32);
+    const mats = [upper, Cast.pho(gear.on === "skates" ? 0x1a1a1a : 0x241c16, 8)];
+    hero.shoeL.material = mats; hero.shoeR.material = mats;
+    if (hero.wheels) for (let i = 0; i < hero.wheels.length; i++) hero.wheels[i].visible = gear.on === "skates";
+  }
+
+  /* Mall Santa, seated in center court, off the lanes so he never collides */
+  const santa = person({ shirt: "#c2304a", pants: "#c2304a", sleeves: "long", hat: "santa", boots: true, belt: 0x1a120c, beard: true, cuffs: true, hairStyle: "bald", skin: "#f1c28e", bulk: 1.28, scale: 1.12, mouth: "smile", browTilt: 0.2, shoes: "#1a120c", sole: "#e8e0d0" });
+  const throne = grp(scene, -3.45, 0, -(ZB[3] + 70));
+  Cast.chunk(throne, Cast.rb(1.15, 0.16, 1.05, 0.08), Cast.wear(0x7a1830), 0, 0.48, 0);
+  Cast.chunk(throne, Cast.rb(1.15, 1.35, 0.18, 0.08), Cast.wear(0x7a1830), 0, 1.15, -0.42);
+  Cast.chunk(throne, Cast.rb(0.16, 0.5, 0.16, 0.04), Cast.pho(0xc9a24a, 30), -0.42, 0.25, 0.35);
+  Cast.chunk(throne, Cast.rb(0.16, 0.5, 0.16, 0.04), Cast.pho(0xc9a24a, 30), 0.42, 0.25, 0.35);
+  santa.g.position.set(0, 0.42, 0.05);
+  throne.add(santa.g);
+  const GIFT = [0x3f7fd0, 0xc2304a, 0x1f6a3a, 0xffd23f];
+  for (let k = 0; k < 4; k++) {
+    const gift = Cast.chunk(throne, Cast.rb(0.32, 0.28, 0.32, 0.04), Cast.wear(GIFT[k]), -0.7 + (k % 2) * 1.5, 0.16, 0.7 + Math.floor(k / 2) * 0.35);
+    Cast.chunk(gift, Cast.rb(0.06, 0.3, 0.34, 0.02), Cast.pho(0xffd23f, 24), 0, 0, 0);
   }
 
   /* corridor segments (12 m each, recycled ahead of the runner) */
@@ -852,7 +837,7 @@ function buildKit(T) {
 
   K = { T: T, gl: gl, renderer: renderer, scene: scene, cam: cam, tex: tex, G: G, M: M, part: part, grp: grp, person: person, pose: pose, SKIN: SKIN, ORN: ORN,
     hero: hero, heroRoot: heroRoot, shadow: shadow, segs: segs, SEGL: SEGL, segFloor: floorMats, segWall: wallMats, signs: signMats,
-    store: store, grille: grille, snow: snow, sun: sun, escTread: escTread, live: new Map(), dressHero: dressHero, pad: null, curZone: 0, fogTarget: null };
+    store: store, grille: grille, snow: snow, sun: sun, fill: fill, santa: santa, escTread: escTread, live: new Map(), dressHero: dressHero, pad: null, curZone: 0, fogTarget: null, rb: Cast.rb, chunk: Cast.chunk, tee: teeMat };
   K.signTex = tex(textPanel([["CAUTION", 30, 30], ["WET", 44, 72], ["FLOOR", 30, 108]], "#ffd23f", "#1b1b22", 128, 128));
   K.saleTex = tex(textPanel([["SALE 50% OFF", 40, 48]], "#c2304a", "#ffffff", 256, 96));
   K.caneTex = tex(stripeCanvas("#ffffff", "#e02030", 3), 1, 3);
@@ -874,39 +859,49 @@ function makeOb(o) {
     part(g, G.box, M("#c2304a"), 0.4, 0.04, 0.3, 0.1, 0.81, 0); part(g, G.cyl, M("#ffffff"), 0.06, 0.18, 0.06, -0.2, 0.88, 0.1);
     part(g, G.cyl, M("#ffd23f"), 0.12, 0.05, 0.12, 0.12, 0.85, 0);
   } else if (o.t === "janitor") {
-    P = K.person({ shirt: "#5a6670", pants: "#3a4250", hair: "#3a2a1a", hat: "cap", capc: "#3a4250", skin: SKIN[Math.floor(r * 5)] }); g.add(P.g);
-    const mop = grp(P.shR, 0, -0.5, 0);
-    part(mop, G.cyl, M("#c8a060"), 0.025, 1.3, 0.025, 0, -0.1, 0.25).rotation.x = -0.5;
-    part(mop, G.box, M("#eeeeee"), 0.32, 0.12, 0.22, 0, -0.62, 0.55);
-    part(g, G.cyl, M("#ffd23f"), 0.22, 0.4, 0.22, 0.48, 0.2, 0.2);
-    P.g.rotation.y = 0.35;
+    P = K.person({ shirt: "#5a6670", pants: "#3a4250", hair: "#3a2a1a", hairStyle: "short", hat: "cap", capc: "#3a4250", skin: SKIN[Math.floor(r * 5)], sleeves: "long", shoes: "#2a2a2a" });
+    g.add(P.g);
+    const mop = grp(P.g);
+    part(mop, G.cyl, M("#c8a060"), 0.04, 1.15, 0.04, 0, 0.62, 0);
+    part(mop, G.box, M("#f2f2f2"), 0.28, 0.1, 0.18, 0, 1.2, 0);
+    P.prop = mop;
+    part(g, G.cyl, M("#ffd23f"), 0.22, 0.38, 0.22, 0.55, 0.2, 0.15);
+    P.g.rotation.y = 0.4;
+    g.userData.kind = "mop";
   } else if (o.t === "sign") {
     const sm = new T.MeshLambertMaterial({ map: K.signTex });
-    const a = part(g, G.box, sm, 0.55, 0.72, 0.03, 0, 0.34, 0.12); a.rotation.x = -0.3;
-    const b2 = part(g, G.box, sm, 0.55, 0.72, 0.03, 0, 0.34, -0.12); b2.rotation.x = 0.3;
+    const a = new T.Mesh(K.rb(0.62, 0.78, 0.05, 0.03), sm); a.position.set(0, 0.55, 0.1); a.rotation.x = -0.28; g.add(a);
+    const b2 = new T.Mesh(K.rb(0.62, 0.78, 0.05, 0.03), sm); b2.position.set(0, 0.55, -0.1); b2.rotation.x = 0.28; g.add(b2);
   } else if (o.t === "walker") {
     const tc = TRACK[Math.floor(r * TRACK.length)];
-    P = K.person({ shirt: tc, pants: tc, hair: r < 0.5 ? "#d8d8d8" : "#8a8a8a", hat: "band", band: "#ffffff", skin: SKIN[Math.floor(r * 7) % 5], shoes: "#ffffff" });
-    part(P.body, G.box, M("#ffffff"), 0.5, 0.05, 0.28, 0, 0.5, 0);
+    P = K.person({ shirt: tc, pants: tc, hair: r < 0.5 ? "#d8d8d8" : "#6a5a48", hairStyle: r < 0.35 ? "bob" : "short", hat: "band", skin: SKIN[Math.floor(r * 7) % 5], shoes: "#f7f4ee", stripe: true, sleeves: "long" });
     g.add(P.g);
+    g.userData.kind = "walk";
   } else if (o.t === "stroller") {
     const sc = r < 0.5 ? ["#3f7fd0", "#2a5a9a"] : ["#c2304a", "#8a1f30"];
-    part(g, G.box, M(sc[0]), 0.55, 0.32, 0.75, 0, 0.42, 0);
-    part(g, G.sph, M(sc[1]), 0.3, 0.26, 0.32, 0, 0.58, -0.22);
-    for (let k = 0; k < 4; k++) { const wh = part(g, G.cyl, M("#1b1b22"), 0.1, 0.06, 0.1, (k % 2 ? 0.26 : -0.26), 0.1, k < 2 ? -0.28 : 0.28); wh.rotation.z = Math.PI / 2; }
-    part(g, G.box, M("#cfc8b0"), 0.5, 0.04, 0.04, 0, 0.72, 0.48);
-    for (let k = 0; k < 2; k++) part(g, G.box, M(ORN[k + 1]), 0.18, 0.2, 0.18, -0.12 + k * 0.24, 0.66, 0.1);
-  } else if (o.t === "bin") {
-    part(g, G.box, M("#c8ccd4"), 1.1, 0.5, 0.8, 0, 0.25, 0);
-    for (let k = 0; k < 6; k++) part(g, G.box, M(ORN[(k + Math.floor(r * 6)) % 6]), 0.3, 0.2, 0.24, -0.35 + (k % 3) * 0.35, 0.58, k < 3 ? -0.18 : 0.18).rotation.y = k * 0.4;
-    part(g, G.box, new T.MeshBasicMaterial({ map: K.saleTex }), 0.7, 0.3, 0.03, 0, 0.86, 0.42);
-  } else if (o.t === "clerk") {
-    P = K.person({ shirt: "#1b1b22", pants: "#1b1b22", hair: r < 0.5 ? "#2a1a12" : "#c89a40", skin: SKIN[Math.floor(r * 5)] });
-    part(P.body, G.box, M("#ff3fa4"), 0.08, 0.66, 0.29, 0.1, 0.34, 0).rotation.z = 0.6;
-    part(P.shR, G.cyl, M("#ff9bd2", { emissive: "#40102a" }), 0.06, 0.16, 0.06, 0, -0.62, 0.02);
+    K.chunk(g, K.rb(0.62, 0.3, 0.82, 0.1), M(sc[0]), 0, 0.38, 0.02);
+    part(g, G.sph, M(sc[1]), 0.34, 0.22, 0.32, 0, 0.58, -0.16);
+    for (let k = 0; k < 4; k++) { const wh = part(g, G.cyl, M("#1b1b22"), 0.1, 0.05, 0.1, (k % 2 ? 0.3 : -0.3), 0.1, k < 2 ? -0.28 : 0.32); wh.rotation.z = Math.PI / 2; }
+    part(g, G.cyl, M("#cfc8b0"), 0.025, 0.55, 0.025, -0.22, 0.72, 0.42);
+    part(g, G.cyl, M("#cfc8b0"), 0.025, 0.55, 0.025, 0.22, 0.72, 0.42);
+    part(g, G.cyl, M("#cfc8b0"), 0.03, 0.5, 0.03, 0, 0.86, 0.42).rotation.z = Math.PI / 2;
+    P = K.person({ scale: 0.46, shirt: "#f7d6e4", pants: "#f7d6e4", hat: "beanie", hatc: sc[0], skin: SKIN[Math.floor(r * 5)], sleeves: "long", hairStyle: "bald", pose: "sit" });
+    P.g.position.set(0, 0.34, -0.02);
     g.add(P.g);
-    P.g.rotation.y = (o.lane === 0 ? 1 : -1) * 0.9;
-    part(g, G.box, M("#d8e8f0", { transparent: true, opacity: 0.6 }), 0.9, 0.9, 0.5, o.lane === 0 ? -0.35 : 0.35, 0.45, -0.6);
+    g.userData.kind = "sit";
+  } else if (o.t === "bin") {
+    K.chunk(g, K.rb(1.15, 0.48, 0.85, 0.08), M("#d5d8df"), 0, 0.28, 0);
+    for (let k = 0; k < 5; k++) { const bx = K.chunk(g, K.rb(0.28, 0.2, 0.22, 0.04), M(ORN[(k + Math.floor(r * 6)) % 6]), -0.32 + (k % 3) * 0.32, 0.6, k < 3 ? -0.16 : 0.16); bx.rotation.y = k * 0.35; }
+    part(g, G.box, new T.MeshBasicMaterial({ map: K.saleTex }), 0.7, 0.28, 0.02, 0, 0.9, 0.44);
+  } else if (o.t === "clerk") {
+    P = K.person({ shirt: "#1b1b22", pants: "#1b1b22", hair: r < 0.5 ? "#2a1a12" : "#c89a40", hairStyle: r < 0.5 ? "bun" : "bob", skin: SKIN[Math.floor(r * 5)], sleeves: "long", sash: "#ff3fa4", shoes: "#1b1b22" });
+    const bottle = part(P.grip, G.cyl, M("#ff9bd2", { emissive: "#40102a" }), 0.07, 0.26, 0.07, 0, 0.22, 0.04);
+    part(bottle, G.cyl, M("#fff6fb"), 0.8, 0.25, 0.8, 0, 0.55, 0);
+    g.add(P.g);
+    P.g.rotation.y = (o.lane === 0 ? 1 : -1) * 0.85;
+    K.chunk(g, K.rb(0.95, 0.9, 0.12, 0.04), M("#f4eef6"), o.lane === 0 ? -0.35 : 0.35, 0.5, -0.55);
+    K.chunk(g, K.rb(0.9, 0.55, 0.4, 0.06), new T.MeshLambertMaterial({ color: 0xd8e8f0, transparent: true, opacity: 0.45 }), o.lane === 0 ? -0.35 : 0.35, 0.85, -0.55);
+    g.userData.kind = "spray";
   } else if (o.t === "mist") {
     const mm = M("#ff9bd2", { basic: 1, transparent: true, opacity: 0.3, depthWrite: false });
     for (let k = 0; k < 8; k++) part(g, G.ico, mm, 0.62, 0.62, 0.62, -1.4 + (k % 4) * 0.95, 0.7 + (k % 3) * 0.45, (k % 2) * 0.5 - 0.25);
@@ -916,12 +911,13 @@ function makeOb(o) {
     for (let k = 0; k < xs.length; k++) { const x = xs[k]; part(g, G.cyl, M("#d8b040", { emissive: "#3a2a00" }), 0.05, 1.0, 0.05, x, 0.5, 0); part(g, G.sph, M("#ffd23f"), 0.08, 0.08, 0.08, x, 1.02, 0); part(g, G.cyl, M("#d8b040"), 0.18, 0.04, 0.18, x, 0.02, 0); }
     for (let k = 0; k < xs.length - 1; k++) { const a = xs[k], b = xs[k + 1]; part(g, G.box, M("#a01830"), b - a, 0.07, 0.07, (a + b) / 2, 0.84, 0); }
   } else if (o.t === "cart") {
-    part(g, G.box, M("#eceae2"), 0.9, 0.5, 1.5, 0, 0.45, 0);
-    part(g, G.box, M("#1d2b53"), 0.92, 0.12, 1.52, 0, 0.5, 0);
-    for (let k = 0; k < 3; k++) { const wh = part(g, G.cyl, M("#1b1b22"), 0.2, 0.12, 0.2, k === 0 ? 0 : (k === 1 ? -0.42 : 0.42), 0.2, k === 0 ? 0.65 : -0.55); wh.rotation.z = Math.PI / 2; }
-    P = K.person({ shirt: "#1d2b53", pants: "#1d2b53", hat: "cap", capc: "#1d2b53", skin: SKIN[Math.floor(r * 5)] });
-    P.g.position.set(0, 0.2, -0.2); P.hipL.rotation.x = P.hipR.rotation.x = -1.4; P.shL.rotation.x = P.shR.rotation.x = -1.0; g.add(P.g);
-    part(g, G.box, M("#8a8f9a"), 0.04, 0.8, 0.04, 0, 1.5, -0.55);
+    K.chunk(g, K.rb(0.95, 0.42, 1.45, 0.1), M("#eceae2"), 0, 0.48, 0);
+    K.chunk(g, K.rb(0.98, 0.1, 1.5, 0.04), M("#1d2b53"), 0, 0.62, 0);
+    for (let k = 0; k < 3; k++) { const wh = part(g, G.cyl, M("#1b1b22"), 0.2, 0.1, 0.2, k === 0 ? 0 : (k === 1 ? -0.42 : 0.42), 0.2, k === 0 ? 0.65 : -0.55); wh.rotation.z = Math.PI / 2; }
+    P = K.person({ shirt: "#1d2b53", pants: "#1d2b53", hat: "cap", capc: "#1d2b53", hair: "#2a2418", hairStyle: "short", skin: SKIN[Math.floor(r * 5)], sleeves: "long", shoes: "#1a1a1a", pose: "sit" });
+    P.g.position.set(0, 0.28, -0.15); g.add(P.g);
+    g.userData.kind = "sit";
+    part(g, G.cyl, M("#8a8f9a"), 0.035, 0.7, 0.035, 0, 1.55, -0.55);
     g.userData.lr = part(g, G.box, M("#ff2020", { basic: 1 }), 0.24, 0.13, 0.13, -0.14, 1.95, -0.55);
     g.userData.lb = part(g, G.box, M("#2040ff", { basic: 1 }), 0.24, 0.13, 0.13, 0.14, 1.95, -0.55);
     part(g, G.cyl, M("#ffffff", { emissive: "#ffffaa" }), 0.12, 0.06, 0.12, 0, 0.55, 0.76).rotation.x = Math.PI / 2;
@@ -971,6 +967,25 @@ function makeItem(it) {
 }
 
 /* ---------------- Per-frame scene sync ---------------- */
+function frameCast(t, z) {
+  if (!K.lineup) {
+    const g = K.grp(K.scene, 0, 0, 0), folks = [];
+    function add(p, x, rot) { p.g.position.x = x; p.g.rotation.y = rot || 0; g.add(p.g); folks.push(p); }
+    add(K.person({ shirt: "#f4f1ea", pants: "#9a8a5a", shorts: true, sleeves: "short", hat: "beanie", hatc: "#c2304a", skin: "#f1c28e", hair: "#5a3a20", pockets: true, shoes: "#c2304a", badge: K.tee }), -0.72, Math.PI * 0.72);
+    add(K.person({ shirt: "#7a3fd0", pants: "#7a3fd0", hair: "#4a3728", hairStyle: "short", hat: "band", stripe: true, sleeves: "long", skin: "#c98a5a", shoes: "#f7f4ee" }), -0.22, 0.45);
+    add(K.person({ shirt: "#1b1b22", pants: "#1b1b22", hair: "#c89a40", hairStyle: "bun", sash: "#ff3fa4", sleeves: "long", skin: "#f6d5b0", shoes: "#1b1b22" }), 0.26, -0.5);
+    add(K.person({ shirt: "#c2304a", pants: "#c2304a", sleeves: "long", hat: "santa", boots: true, belt: 0x1a120c, beard: true, cuffs: true, hairStyle: "bald", bulk: 1.08, skin: "#f1c28e", shoes: "#1a120c" }), 0.74, 0.4);
+    K.lineup = g; K.lineupFolks = folks;
+  }
+  K.lineup.position.set(0, 0, -z - 1.15);
+  const kinds = ["run", "walk", "spray", "wave"];
+  for (let i = 0; i < K.lineupFolks.length; i++) K.pose(K.lineupFolks[i], kinds[i], t * 4 + i * 1.4, t);
+  K.heroRoot.visible = false;
+  const cam = K.cam;
+  cam.position.set(0.0, 1.2, -z + 4.6);
+  cam.lookAt(0.02, 0.92, -z - 1.15);
+  if (Math.abs(cam.fov - 40) > 0.1) { cam.fov = 40; cam.updateProjectionMatrix(); }
+}
 function lx(lane) { return (lane - 1) * LX; }
 function anim(dt) { S.runPh = (S.runPh || 0) + dt * (gear.on === "skates" ? 5 : clamp(S.v, 0, 20) * 1.15); }
 function syncWorld(dt, state, t) {
@@ -1009,10 +1024,13 @@ function syncWorld(dt, state, t) {
     if (!m) { m = makeOb(o); K.live.set(o, m); scene.add(m); }
     m.position.set(lx(o.lp) + (o.span ? LX / 2 : 0), 0, -o.z);
     const P = m.userData.P;
-    if (o.t === "walker" && P) K.pose(P, t * 7 + o.seed * 6, 0.5);
-    else if (o.t === "cart") { const on = Math.floor(t * 8) % 2; m.userData.lr.visible = !!on; m.userData.lb.visible = !on; m.rotation.y = (o.to != null && o.lp !== o.to) ? Math.sign(o.to - o.lp) * 0.3 : 0; }
-    else if (o.t === "janitor" && P) { P.shR.rotation.x = Math.sin(t * 3 + o.seed * 5) * 0.4; P.shL.rotation.x = P.shR.rotation.x; }
-    else if (o.t === "clerk" && P) P.shR.rotation.x = -1.4 + Math.sin(t * 6) * 0.15;
+    if (P && m.userData.kind) K.pose(P, m.userData.kind, t * (m.userData.kind === "walk" ? 7 : 3) + o.seed * 6, t);
+    if (P && P.prop) {
+      const h = P.F.hand[1], sc = P.F.body.scale.x;
+      P.prop.position.set(h.position.x * sc, h.position.y * sc, h.position.z * sc);
+      P.prop.quaternion.copy(h.quaternion);
+    }
+    if (o.t === "cart") { const on = Math.floor(t * 8) % 2; m.userData.lr.visible = !!on; m.userData.lb.visible = !on; m.rotation.y = (o.to != null && o.lp !== o.to) ? Math.sign(o.to - o.lp) * 0.3 : 0; }
     else if (o.t === "mist") { const sc = o.on ? 1 + Math.sin(t * 5) * 0.06 : 0.15; m.scale.setScalar(m.scale.x + (sc - m.scale.x) * Math.min(1, dt * 6)); m.rotation.y = Math.sin(t) * 0.2; }
     else if (o.t === "fountain") { const sp = m.userData.spray; sp.scale.y = 2.4 + Math.sin(t * 9) * 0.25; }
     if (o.knock) { o.knock += dt; const kk = Math.min(1, o.knock * 3); m.rotation.z = -o.kdir * kk * 0.9; m.position.x += o.kdir * kk * 1.2; m.position.y = Math.sin(kk * Math.PI) * 0.4; }
@@ -1036,17 +1054,17 @@ function syncWorld(dt, state, t) {
   hr.rotation.z = (S.lane - S.lp) * 0.35;
   K.shadow.position.set(hx, 0.012, -z); K.shadow.scale.setScalar(1 - hy * 0.3);
   const P = K.hero;
-  P.shL.rotation.z = P.shR.rotation.z = 0; P.head.rotation.x = 0;
-  if (!playing) { P.hipL.rotation.x = P.hipR.rotation.x = 0; P.shL.rotation.x = Math.sin(t * 2) * 0.12; P.shR.rotation.x = -Math.sin(t * 2) * 0.12; P.body.rotation.x = 0; P.shR.rotation.z = Math.sin(t * 3) > 0.6 ? -2.6 : 0; }
-  else if (S.phase === "count") { P.hipL.rotation.x = 0.5; P.hipR.rotation.x = -0.3; P.shL.rotation.x = 0.6; P.shR.rotation.x = -0.6; P.body.rotation.x = 0.3; }
-  else if (S.phase === "run" && S.jumpT < 0) { const sk = gear.on === "skates"; K.pose(P, S.runPh || 0, sk ? 0.35 : 0.85, sk ? 0.5 : 0.9); P.body.rotation.x = sk ? 0.3 : 0.18; }
-  else if (S.phase === "run") { P.hipL.rotation.x = 0.9; P.hipR.rotation.x = -0.4; P.shL.rotation.x = -2.6; P.shR.rotation.x = -2.6; P.body.rotation.x = 0.05; }
-  else if (S.phase === "gate" || (S.gate && S.phase === "receipt")) {
-    K.pose(P, S.runPh || 0, Math.max(0, 0.85 * Math.min(1, S.v / 10)), 0.9);
-    if (S.v < 1) { P.hipL.rotation.x = P.hipR.rotation.x = 0; P.shL.rotation.x = P.shR.rotation.x = -2.9; P.shL.rotation.z = 0.3; P.shR.rotation.z = -0.3; hr.position.y = Math.abs(Math.sin(t * 8)) * 0.25; }
-  } else { P.hipL.rotation.x = P.hipR.rotation.x = 0; P.shL.rotation.x = P.shR.rotation.x = 0; P.body.rotation.x = 0.35; P.head.rotation.x = 0.4; }
+  let heroKind = "idle";
+  if (!playing) heroKind = "idle";
+  else if (S.phase === "count") heroKind = "start";
+  else if (S.phase === "run" && S.jumpT >= 0) heroKind = "jump";
+  else if (S.phase === "run") heroKind = gear.on === "skates" ? "skate" : "run";
+  else if (S.phase === "gate" || (S.gate && S.phase === "receipt")) heroKind = S.v < 1.2 ? "cheer" : (gear.on === "skates" ? "skate" : "run");
+  else heroKind = "slump";
+  K.pose(P, heroKind, S.runPh || t, t);
+  if (heroKind === "cheer") hr.position.y = Math.abs(Math.sin(t * 8)) * 0.12;
   hr.visible = !(S.inv > 0 && Math.floor(S.inv * 14) % 2 === 0);
-  if (gear.on === "lightup" && P.shoeL.material.emissive) P.shoeL.material.emissive.setHex(Math.floor(t * 10) % 2 ? 0x2fd0ff : 0xff3fa4);
+  if (gear.on === "lightup" && P.shoeL.material[0] && P.shoeL.material[0].emissive) P.shoeL.material[0].emissive.setHex(Math.floor(t * 10) % 2 ? 0x2fd0ff : 0xff3fa4);
 
   // the toy store grille drops as the clock runs low
   let gy;
@@ -1081,7 +1099,10 @@ function syncWorld(dt, state, t) {
     cam.lookAt(hx * 0.75, 1.0, -z - 10);
     if (S.hitT < 0.25 && state === "playing") { cam.position.x += (Math.random() - 0.5) * 0.15; cam.position.y += (Math.random() - 0.5) * 0.1; }
   }
-  K.sun.position.set(cam.position.x + 3, 9, cam.position.z - 4); K.sun.target.position.set(cam.position.x, 0, cam.position.z - 12);
+  if (K.santa) K.pose(K.santa, "throne", t, t);
+  K.sun.position.set(cam.position.x - 3, 9, cam.position.z - 8); K.sun.target.position.set(hx, 1.2, -z - 6);
+  if (K.fill) { K.fill.position.set(cam.position.x, cam.position.y + 1.2, cam.position.z); K.fill.target.position.set(hx, 1.1, -z - 4); }
+  if (CAST) frameCast(t, z);
 }
 
 /* ---------------- HUD (2D canvas on top of the 3D view) ---------------- */
@@ -1099,9 +1120,9 @@ function drawHUD(c, state, t) {
     if (Math.sin(t * 5) > -0.2) ui(c, "FREE PLAY  -  PRESS START", W / 2, 46, 11, "#ffffff", "center");
     return;
   }
-  const g = c.createLinearGradient(0, 0, 0, 64); g.addColorStop(0, "rgba(8,6,18,.85)"); g.addColorStop(1, "rgba(8,6,18,0)");
-  c.fillStyle = g; c.fillRect(0, 0, W, 64);
-  txt(c, "1UP", 10, 8, 9, "#ff4b3e"); txt(c, comma(S.score), 10, 22, 11, "#ffffff");
+  c.fillStyle = "rgba(8,9,14,.84)"; c.fillRect(0, 0, W, 48);
+  c.fillStyle = ZONES[zoneAt(clamp(S.z || 0, 0, LEN - 1))].col; c.fillRect(0, 48, W, 3);
+  txt(c, "1UP", 10, 6, 8, "#ff4b3e"); txt(c, comma(S.score), 10, 18, 11, "#ffffff");
   const best = Math.max(Sh.best() || 0, S.score);
   txt(c, "HI", W - 10, 8, 9, "#ff4b3e", "right"); txt(c, comma(best), W - 10, 22, 11, "#ffffff", "right");
   const low = S.left < 10 && S.phase === "run";
