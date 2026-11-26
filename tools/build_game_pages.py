@@ -18,7 +18,7 @@ from datetime import date
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sitedata as sd
 import site_config as cfg
-from pagekit import wordmark, head, nav, FOOT_JS, BODY_JS, post_block, MONTHS
+from pagekit import wordmark, head, nav, FOOT_JS, BODY_JS, post_block, MONTHS, NAV_CSS, FOOT_CSS, elsewhere
 from postmatch import Matcher
 
 OUT = os.path.join(sd.ROOT, "game")
@@ -75,8 +75,85 @@ CSS = """  .crumb{font-family:"Righteous",sans-serif;font-size:10px;letter-spaci
   .lightbox img{max-width:100%;max-height:86vh;border:2px solid var(--line);border-radius:2px}
   footer{margin:56px 0 0;padding:22px 0 30px;border-top:1px solid var(--line);color:var(--dim);font-size:13.5px}
   footer a{color:var(--dim)}
+  .photo{height:auto}
   @media (max-width:640px){ .game{grid-template-columns:1fr} .photo,.nophoto{max-width:300px} }
 """
+
+
+VIDEO_DATES = os.path.join(sd.DATA, "video_dates.json")
+
+
+def image_size(path):
+    """(width, height) of a .webp or .jpg on disk, read from its header
+    (standard library only), or None."""
+    p = os.path.join(sd.ROOT, path.lstrip("/"))
+    try:
+        b = open(p, "rb").read(65536)
+    except OSError:
+        return None
+    if b[:4] == b"RIFF" and b[8:12] == b"WEBP":
+        kind = b[12:16]
+        if kind == b"VP8X":
+            return (1 + int.from_bytes(b[24:27], "little"), 1 + int.from_bytes(b[27:30], "little"))
+        if kind == b"VP8 ":
+            return (int.from_bytes(b[26:28], "little") & 0x3FFF, int.from_bytes(b[28:30], "little") & 0x3FFF)
+        if kind == b"VP8L":
+            v = int.from_bytes(b[21:25], "little")
+            return ((v & 0x3FFF) + 1, ((v >> 14) & 0x3FFF) + 1)
+        return None
+    if b[:2] == b"\xff\xd8":
+        i = 2
+        while i + 9 < len(b):
+            if b[i] != 0xFF:
+                i += 1; continue
+            marker, size = b[i + 1], int.from_bytes(b[i + 2:i + 4], "big")
+            if marker in (0xC0, 0xC1, 0xC2):
+                return (int.from_bytes(b[i + 7:i + 9], "big"), int.from_bytes(b[i + 5:i + 7], "big"))
+            i += 2 + size
+    return None
+
+
+def iso_date(r):
+    """[month, day, year] as an ISO date (or year-month, or year) for structured data."""
+    if not r or not r[-1]:
+        return None
+    m, d, y = r
+    if not m:
+        return str(y)
+    return f"{y}-{m:02d}-{d:02d}" if d else f"{y}-{m:02d}"
+
+
+def structured_data(g, path, photo, title, desc, vid, upload):
+    """schema.org JSON-LD: the game (VideoGame, with my ASMR short as a
+    VideoObject when there is one) and the breadcrumb Home > console > game."""
+    url = cfg.SITE_URL + path
+    game = {"@type": "VideoGame", "@id": url + "#game", "name": g["title"], "url": url,
+            "gamePlatform": g["system"], "description": desc}
+    if photo:
+        game["image"] = cfg.SITE_URL + photo
+    if g.get("genre"):
+        game["genre"] = g["genre"]
+    if _has(g.get("publisher")):
+        game["publisher"] = {"@type": "Organization", "name": g["publisher"]}
+    if _has(g.get("developer")):
+        game["author"] = {"@type": "Organization", "name": g["developer"]}
+    d = iso_date(g.get("released"))
+    if d:
+        game["datePublished"] = d
+    if isinstance(g.get("players"), int):
+        game["numberOfPlayers"] = {"@type": "QuantitativeValue", "maxValue": g["players"]}
+    if vid and upload:
+        game["subjectOf"] = {"@type": "VideoObject", "name": f"{g['title']} on a real {g['system']} (ASMR short)",
+                             "description": f"No-voice ASMR short of {g['title']} for the {g['system']}, on real hardware.",
+                             "thumbnailUrl": f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg", "uploadDate": upload,
+                             "embedUrl": f"https://www.youtube.com/embed/{vid}", "url": f"https://www.youtube.com/shorts/{vid}"}
+    crumbs = {"@type": "BreadcrumbList", "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "The Nostalgia Pro", "item": cfg.SITE_URL + "/"},
+        {"@type": "ListItem", "position": 2, "name": g["system"], "item": cfg.SITE_URL + "/#" + g["system_id"]},
+        {"@type": "ListItem", "position": 3, "name": g["title"], "item": url}]}
+    data = {"@context": "https://schema.org", "@graph": [game, crumbs]}
+    js = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    return f'<script type="application/ld+json">{js}</script>\n'
 
 
 def released_text(r):
@@ -216,13 +293,17 @@ def page(g, total, photo, review, mentions, posts, ranks=(), overrated=()):
         title = f"{g['title']} ({g['system']}) | The Nostalgia Pro"
     desc = describe(g, cond, status, total, review)
     ink = "#0b0d12"
-    h = [head(title, desc, path, photo, "980px", CSS, image_alt=f"{g['title']} for the {g['system']}")]
+    vid = youtube_id(g.get("video"))
+    h = [head(title, desc, path, photo, "980px", CSS + NAV_CSS + FOOT_CSS, image_alt=f"{g['title']} for the {g['system']}")]
+    h[0] = h[0].replace("</head>\n", structured_data(g, path, photo, title, desc, vid, VIDEO_DATES_MAP.get(vid)) + "</head>\n", 1)
     h.append(f'<body>\n' + BODY_JS + '<div class="wrap">\n\n<header>\n  ' + wordmark() + '\n')
-    h.append(nav())
+    h.append(nav(collapse=True))
     h.append(f'  <p class="crumb"><a href="/#{g["system_id"]}">&larr; {esc(g["system"])} shelf</a></p>\n</header>\n\n')
     h.append(f'<div class="game" style="--c:{g["color"]};--ink:{ink}">\n  <div>')
     if photo:
-        h.append(f'<img class="photo" src="{esc(photo)}" alt="{esc(g["title"])}, {esc(g["system"])}">')
+        wh = image_size(photo)
+        dims = f' width="{wh[0]}" height="{wh[1]}"' if wh else ""
+        h.append(f'<img class="photo" src="{esc(photo)}"{dims} alt="{esc(g["title"])}, {esc(g["system"])}" fetchpriority="high">')
     else:
         h.append('<div class="nophoto">No photo yet</div>')
     h.append('</div>\n  <div>\n')
@@ -242,13 +323,14 @@ def page(g, total, photo, review, mentions, posts, ranks=(), overrated=()):
         h.append(f'      <li><b>MY REVIEW</b><span><a href="/reviews.html#r-{review[0]}" style="color:inherit">'
                  f'{review[1]:g} out of 5 &middot; Honest and Unpopular Reviews No. {review[0]}</a></span></li>\n')
     h.append('    </ul>\n    <div class="links">\n')
+    if vid:
+        h.append(f'      <a href="{esc(g["video"])}" target="_blank" rel="noopener">Watch my ASMR short on YouTube</a>\n')
     h.append(f'      <a href="/?find={esc(_q(g["title"]))}">Find it on the shelf</a>\n')
     if review:
         if review[2]:
             h.append(f'      <a href="{esc(review[2])}" target="_blank" rel="noopener">Read my review on X</a>\n')
         else:   # not on X: the review lives on reviews.html
             h.append(f'      <a href="/reviews.html#r-{review[0]}">Read my review</a>\n')
-    vid = youtube_id(g.get("video"))
     if g.get("video") and not vid:
         h.append(f'      <a href="{esc(g["video"])}" target="_blank" rel="noopener">ASMR short on YouTube</a>\n')
     h.append(f'      <a href="https://en.wikipedia.org/w/index.php?search={_q(g["title"] + " video game")}" target="_blank" rel="noopener">Look it up on Wikipedia</a>\n')
@@ -279,6 +361,7 @@ def page(g, total, photo, review, mentions, posts, ranks=(), overrated=()):
         for p in posts:
             h.append(post_block(p, g["color"]) + "\n")
     h.append('\n<div class="lightbox" id="lightbox" role="dialog" aria-label="Photo"><img alt=""></div>\n')
+    h.append("\n" + elsewhere("Watch my ASMR shorts, get the free weekly roundup, grab a shirt, or play the free arcade."))
     h.append('\n<footer>\n  <p>The Nostalgia Pro. <a href="/">Search all ' + str(total) +
              ' games</a> &middot; <a href="https://x.com/' + cfg.X_HANDLE + '" target="_blank" rel="noopener">@' +
              cfg.X_HANDLE + ' on X</a></p>\n</footer>\n\n</div>\n')
@@ -320,7 +403,11 @@ def write_sitemap(slugs, extra_paths=()):
     open(p, "w", encoding="utf-8").write(src)
 
 
+VIDEO_DATES_MAP = {}
+
+
 def main():
+    VIDEO_DATES_MAP.update(json.load(open(VIDEO_DATES)) if os.path.exists(VIDEO_DATES) else {})
     systems, games = sd.load_shelf()
     matcher = Matcher(games)
     lists = sd.load_lists()

@@ -16,3 +16,9 @@ IMAGE_TRIES = ["images/{slug}" + IMAGE_EXT, "images/{slug}" + IMAGE_FALLBACK_EXT
 OG_FALLBACK = "/og-image.png"
 
 X_HANDLE = "NostalgiaPro"
+
+# Where the footers send people (game and console pages).
+YOUTUBE_URL = "https://www.youtube.com/@TheNostalgiaPro"
+TIKTOK_URL = "https://www.tiktok.com/@rc.the.nostalgia.pro"
+SUBSTACK_URL = "https://nostalgiapro.substack.com"
+MERCH_URL = "https://nostalgiapro-shop.fourthwall.com/"

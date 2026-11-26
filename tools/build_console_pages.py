@@ -27,7 +27,7 @@ import os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sitedata as sd
 import site_config as cfg
-from pagekit import wordmark, head, nav, FOOT_JS, BODY_JS, post_date, clean_post_text, post_block
+from pagekit import wordmark, head, nav, FOOT_JS, BODY_JS, post_date, clean_post_text, post_block, NAV_CSS, FOOT_CSS, elsewhere
 from postmatch import Matcher, SYS_ALIASES
 
 esc = sd.esc
@@ -128,9 +128,9 @@ def build_page(sysinfo, games, thread, matcher):
     n = len(games)
     h = []
     desc = f"All {n} {name} games in my collection" + (", and my thread on the rest of the {0} library.".format(name) if thread else ".")
-    h.append(head(f"{name} | The Nostalgia Pro", desc, f"/console/{sid}.html", None, "980px", CSS))
+    h.append(head(f"{name} | The Nostalgia Pro", desc, f"/console/{sid}.html", None, "980px", CSS + NAV_CSS + FOOT_CSS))
     h.append(f'<body style="--c:{color}">\n' + BODY_JS + f'<div class="wrap">\n\n<header>\n  ' + wordmark() + '\n')
-    h.append(nav("/consoles.html"))
+    h.append(nav("/consoles.html", collapse=True))
     h.append(f'  <p class="crumb"><a href="/consoles.html">&larr; All consoles</a></p>\n')
     h.append(f'  <h1>{esc(name)}</h1>\n  <p class="standfirst">{n} games on the shelf. '
              f'<a href="/#{sid}" style="color:inherit">See them all on the shelf</a>.</p>\n</header>\n')
@@ -188,6 +188,7 @@ def build_page(sysinfo, games, thread, matcher):
     if famous:
         h.append('<p class="famous" style="margin-top:22px">Left out: ' +
                  ", ".join(f'<a href="/game/{g["slug"]}.html">{esc(g["title"])}</a>' for g in famous) + '.</p>\n')
+    h.append("\n" + elsewhere())
     h.append('\n<footer>\n  <p>The Nostalgia Pro. <a href="/consoles.html">All consoles</a> &middot; '
              f'<a href="https://x.com/{cfg.X_HANDLE}" target="_blank" rel="noopener">@{cfg.X_HANDLE} on X</a></p>\n</footer>\n\n</div>\n')
     h.append(FOOT_JS)

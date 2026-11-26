@@ -112,12 +112,62 @@ def head(title, desc, path, image=None, width="900px", css="", image_alt=None):
 """, path.lstrip("/"))
 
 
-def nav(here=None):
+NAV_CSS = """  .navtoggle{display:none;align-items:center;gap:8px;margin:18px 0 0;background:none;cursor:pointer;
+    border:2px solid var(--line);color:var(--text);font-family:"Righteous",sans-serif;font-size:12px;letter-spacing:.05em;
+    padding:10px 16px;border-radius:2px;min-height:44px}
+  .navtoggle:hover,.navtoggle[aria-expanded="true"]{border-color:var(--hot);color:var(--hot)}
+  @media (max-width:700px){
+    .navtoggle{display:inline-flex}
+    .navmenu:not(.open) .navrow{display:none}
+    .navmenu .navbtn{min-height:40px}
+  }
+"""
+
+
+def nav(here=None, collapse=False):
+    """The row of page links. collapse=True folds it behind a Menu button on
+    phones, so the page's own content is on the first screen."""
     out = []
     for href, label in NAV:
         cls = "navbtn here" if href == here else "navbtn"
         out.append(f'    <a class="{cls}" href="{href}">{label}</a>')
-    return '  <div class="navrow">\n' + "\n".join(out) + "\n  </div>\n"
+    row = '  <div class="navrow" id="siteNav">\n' + "\n".join(out) + "\n  </div>\n"
+    if not collapse:
+        return row.replace(' id="siteNav"', "")
+    return ('  <nav class="navmenu" aria-label="Site">\n'
+            '  <button type="button" class="navtoggle" aria-expanded="false" aria-controls="siteNav">&#9776; Menu</button>\n'
+            + row +
+            '  </nav>\n'
+            '  <script>(function(){var m=document.currentScript.previousElementSibling,b=m.querySelector(".navtoggle");'
+            'b.addEventListener("click",function(){var o=m.classList.toggle("open");b.setAttribute("aria-expanded",String(o));});})();</script>\n'
+            '  <noscript><style>.navmenu .navrow{display:flex!important}.navtoggle{display:none!important}</style></noscript>\n')
+
+
+FOOT_CSS = """  .elsewhere{margin:44px 0 0;padding:18px 18px 20px;background:var(--bg2);border:1px solid var(--line);border-radius:2px}
+  .elsewhere h2{font-family:"Righteous",sans-serif;font-size:13px;letter-spacing:.08em;margin:0 0 4px}
+  .elsewhere p{margin:0 0 12px;color:var(--dim);font-size:14px}
+  .elsewhere ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+  .elsewhere a{display:flex;flex-direction:column;gap:2px;min-height:44px;padding:9px 12px;border:1px solid var(--line);
+    border-left:4px solid var(--a,var(--hot));border-radius:2px;color:var(--text);text-decoration:none;font-size:14px;line-height:1.3}
+  .elsewhere a small{color:var(--dim);font-size:12px}
+  .elsewhere a:hover,.elsewhere a:focus-visible{border-color:var(--a,var(--hot))}
+"""
+
+
+def elsewhere(lead="Watch the ASMR shorts, get the weekly roundup, or play the free arcade."):
+    """The "More from The Nostalgia Pro" box: every channel in one place."""
+    ext = ' target="_blank" rel="noopener"'
+    items = [
+        (cfg.YOUTUBE_URL, "YouTube", "ASMR shorts on real hardware", "#ff3b30", ext),
+        (cfg.TIKTOK_URL, "TikTok", "The same shorts, every day", "#25f4ee", ext),
+        (cfg.SUBSTACK_URL, "Substack", "Free weekly roundup", "#ff6719", ext),
+        (cfg.MERCH_URL, "Merch", "Tees, hats and desk stuff", "#ffd166", ext),
+        ("/arcade/", "Arcade", "Free games, no ads, no login", "#3fbf6a", ""),
+        (f"https://x.com/{cfg.X_HANDLE}", "X", f"@{cfg.X_HANDLE}", "#eceae2", ext),
+    ]
+    lis = "".join(f'<li><a href="{h}" style="--a:{c}"{e}>{t}<small>{d}</small></a></li>' for h, t, d, c, e in items)
+    return (f'<section class="elsewhere" aria-labelledby="elsewhereH">\n  <h2 id="elsewhereH">More from The Nostalgia Pro</h2>\n'
+            f'  <p>{esc(lead)}</p>\n  <ul>{lis}</ul>\n</section>\n')
 
 
 # Time Machine (eras.js + eras.css): first thing inside <body>, so the era's
@@ -170,7 +220,7 @@ SCRIPT_SRC = {
 
 def wordmark(href="/", variant="games", alt="The Nostalgia Pro"):
     src = SCRIPT_SRC[variant]
-    img = f'<img src="{src}" width="1800" height="748" alt="{alt}">'
+    img = f'<img src="{src}" width="1200" height="498" alt="{alt}">'
     if href:
         return f'<p class="wordmark"><a href="{href}" aria-label="The Nostalgia Pro home">{img}</a></p>'
     return f'<p class="wordmark">{img}</p>'
