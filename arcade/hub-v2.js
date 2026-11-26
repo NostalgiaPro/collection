@@ -37,7 +37,8 @@
     {"slug": "paintball-blitz", "name": "Paintball Blitz", "kind": "Paintball", "hook": "Work up the field, tag the other squad, and run your flag back to base.", "cover": "22-paintball-blitz", "c": "#ff3fa4", "fmt": "pts", "cats": ["sports", "mp"]},
     {"slug": "pool-hall-hustle", "name": "Pool Hall Hustle", "kind": "Pool", "hook": "Real 3D pool against Velvet Rhett, the house hustler. Aim, set spin, and take the shot.", "cover": "23-pool-hall-hustle", "c": "#3ff0ff", "fmt": "pts", "cats": ["sports", "mp"]},
     {"slug": "vector-siege", "name": "Vector Siege", "kind": "Tower defense", "hook": "Thirty waves of vector raiders are marching on your master tape. Build towers and hold the line.", "cover": "24-vector-siege", "c": "#2ff3ff", "fmt": "pts", "cats": ["puzzles"]},
-    {"slug": "gravy-or-bust", "name": "Gravy or Bust!", "kind": "Thanksgiving travel dash", "hook": "Three rides, three pies, and one Dinner Clock. Make it home before the gravy.", "cover": "25-gravy-or-bust", "c": "#e0662a", "fmt": "pts", "season": true, "cats": ["arcade"]}
+    {"slug": "gravy-or-bust", "name": "Gravy or Bust!", "kind": "Thanksgiving travel dash", "hook": "Three rides, three pies, and one Dinner Clock. Make it home before the gravy.", "cover": "25-gravy-or-bust", "c": "#e0662a", "fmt": "pts", "season": true, "cats": ["arcade"]},
+    {"slug": "daily-shelf", "name": "Daily Shelf", "kind": "Daily guess", "hook": "One pixelated photo off the shelf. Six guesses.", "cover": "26-daily-shelf", "c": "#3fbf6a", "fmt": "num", "cats": ["puzzles"], "href": "/daily.html"}
   ];
   var BANNER = ["gravy-or-bust", "ticket-roll-alley", "pool-hall-hustle", "monster-truck-rally", "pinball-rings", "mini-golf-classic"];
   var FEATURED = [["fourth-and-collect", "mini-golf-classic"], ["bleacher-carts", "battle-karts"], ["gem-shop", "shift-racing"], ["paintball-blitz", "clutch-ball-4000"]];
@@ -61,7 +62,7 @@
   function rd(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function wr(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
-  function href(g) { return BASE + g.slug + "/"; }
+  function href(g) { return g.href || (BASE + g.slug + "/"); }
   function cover(g, cls) {
     return '<picture' + (cls ? ' class="' + cls + '"' : '') + '><source srcset="' + BASE + 'covers/' + g.cover + '.webp" type="image/webp"><img src="' + BASE + 'covers/' + g.cover + '.jpg" width="360" height="480" alt="" loading="lazy" decoding="async"></picture>';
   }
@@ -154,7 +155,7 @@
       h += '<li class="gm" style="--c:' + g.c + '" data-cats="' + g.cats.join(" ") + '">' +
         '<a class="gm-thumb" href="' + href(g) + '" tabindex="-1" aria-hidden="true">' + cover(g) + (g.season ? '<span class="gm-badge">SEASONAL</span>' : '') + '</a>' +
         '<div class="gm-body"><h3><a href="' + href(g) + '">' + esc(g.name) + '</a></h3><p class="kind">' + esc(g.kind) + '</p>' +
-        '<p class="stats"><span>BEST <b>' + (b ? esc(b) : "---") + '</b></span>' + (t ? '<span>SHELF <b>' + t.got + '/' + t.total + '</b></span>' : '') + '</p></div>' +
+        '<p class="stats"><span>BEST <b>' + (b ? esc(b) : "---") + '</b></span>' + (t && t.total ? '<span>SHELF <b>' + t.got + '/' + t.total + '</b></span>' : '') + '</p></div>' +
         '<a class="go" href="' + href(g) + '" aria-label="Play ' + esc(g.name) + '">PLAY</a></li>';
     }
     $("grid").innerHTML = h;
