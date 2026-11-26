@@ -5,7 +5,8 @@ tags, titles and no-JavaScript fallbacks, so every count comes from the data
 
     python3 tools/sync_counts.py
 
-build_game_pages.py runs it at the end. Safe to run any time."""
+build_game_pages.py runs it at the end, and it redraws og-image.png
+(make_og_image.py) when the counts change. Safe to run any time."""
 import os, re, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -54,6 +55,8 @@ def main():
             open(p, "w", encoding="utf-8").write(out)
             changed.append(rel)
     print(f"sync_counts: {n} games, {ns} systems" + (f"; updated {', '.join(changed)}" if changed else ""))
+    import make_og_image   # the share image carries the same counts
+    make_og_image.main()
 
 
 def other_pages():

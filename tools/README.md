@@ -446,6 +446,11 @@ always newest first, so it needs no updating. Shorts count as uploads too.
 * `sync_counts.py`: writes the shelf's game and system counts into the
   hand-made pages' titles, share tags and fallbacks. `build_game_pages.py`
   runs it at the end.
+* `make_og_image.py`: draws the default share image `og-image.png`
+  (1200x630) with the counts from the data. `sync_counts.py` runs it and it
+  only redraws when the counts change (`--force` to redraw anyway). Needs
+  Pillow, fontTools and brotli. The old 846 card is kept as
+  `og-image-846-old.png`.
 * `fetch_video_dates.py`: upload dates for the ASMR shorts
   (`tools/data/video_dates.json`), used by the game pages' structured data.
   Re-run when new shorts are added to `VIDEOS`, then `build_game_pages.py`.
