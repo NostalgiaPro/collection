@@ -319,6 +319,33 @@ header.o1{padding-top:0}
 .vextra .done{border-color:#3fbf6a;color:#3fbf6a}
 .vextra .soon{border-color:var(--hot);color:var(--hot)}
 
+/* Random pull and Play this: the game's photo beside the words.
+   The frame stays 3:4 so a new pull does not shove the page when the file arrives. */
+.vbox.vpull{display:flex;align-items:flex-start;gap:12px}
+.vpull-body{flex:1 1 auto;min-width:0}
+.vpull-sub{margin:0;color:var(--dim)}
+.vpull-shot{
+  position:relative;flex:none;width:84px;aspect-ratio:3/4;overflow:hidden;
+  background:var(--hp-well,#0a0c11);border:1px solid var(--line);border-radius:3px;
+  box-shadow:var(--hp-drop);
+}
+.vpull-shot img{
+  position:absolute;inset:0;display:block;width:100%;height:100%;
+  object-fit:cover;object-position:center;
+}
+.vpull-ph{
+  display:none;position:absolute;inset:0;align-items:center;justify-content:center;
+  padding:8px;text-align:center;
+  font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.04em;line-height:1.35;color:var(--dim);
+}
+.vpull-shot.vpull-empty{border-style:dashed;box-shadow:none}
+.vpull-shot.vpull-empty img{display:none}
+.vpull-shot.vpull-empty .vpull-ph{display:flex}
+@media (min-width:561px){
+  .vbox.vpull{gap:16px}
+  .vpull-shot{width:112px}
+}
+
 /* scoreboard: the six numbers drawScores() writes, big enough to read from across the room */
 .scores,.ht .scores{
   position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:16px 0 0;padding:0;
@@ -1217,6 +1244,8 @@ body.y1996 .ht-a .ht-tmpanel{left:50%;right:auto;transform:translateX(-50%)}
 body.y1996 .ht-tmbtn,body.y1996 .ht .ht-tmbtn{background:#c0c0c0;color:#000;border:2px outset #fff;border-radius:0;box-shadow:none}
 body.y1996 .ht-tmbtn b{background:none;padding:0}
 body.y1996 .o1 #lucky{background:#c0c0c0;color:#000;border:2px outset #fff}
+body.y1996 .vpull-shot{background:#000;border:2px inset #808080;border-radius:0;box-shadow:none}
+body.y1996 .vpull-ph{font-family:"Times New Roman",Times,serif;letter-spacing:0;color:#c0c0c0}
 body.y1996 #q{box-shadow:none;border-radius:0}
 body.y1996 .btn{border-radius:0}
 body.y1996 .ht .scores,body.y1996 .scores,body.y1996 .hp-board{background:none;border:none;box-shadow:none}
@@ -3670,6 +3699,54 @@ function slug(g){
     .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
     .replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 }
+function slugPart(s){
+  return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+}
+/* Same names the consoles page uses: images/<name>-console.webp, then the placeholder. */
+const HW_PULL_STANDIN = {"Xbox Series X/S":"xbox-series-x-console"};
+function consoleShotSlugs(system){
+  const slugs = [];
+  for (const h of HARDWARE) if (h.shelf === system) slugs.push(slugPart(h.name) + "-console");
+  slugs.push(slugPart(system) + "-console");
+  if (HW_PULL_STANDIN[system]) slugs.push(HW_PULL_STANDIN[system]);
+  return slugs;
+}
+/* Game photo first (the file on the game page), then that console's photo. */
+function pullShotAttrs(g){
+  const game = shotTries(slug(g));
+  const hw = [];
+  for (const s of consoleShotSlugs(g.system)) {
+    for (const p of shotTries(s)) if (!hw.includes(p) && !game.includes(p)) hw.push(p);
+  }
+  const tries = game.concat(hw);
+  return `src="${tries[0]}" data-next="${tries.slice(1).join("|")}" width="112" height="149"`;
+}
+function nextPullShot(img){
+  if (!img.isConnected) return;
+  const t = (img.dataset.next || "").split("|").filter(Boolean);
+  if (!t.length) {
+    const box = img.closest(".vpull-shot");
+    if (box) box.classList.add("vpull-empty");
+    return;
+  }
+  img.dataset.next = t.slice(1).join("|");
+  img.src = t[0];
+}
+function pullCard(g, head, sub){
+  return `<div class="vbox vpull" style="--hit:${g.color}">
+    <div class="vpull-shot">
+      <img loading="lazy" decoding="async" alt="${esc(g.title)}" ${pullShotAttrs(g)} onerror="nextPullShot(this)">
+      <span class="vpull-ph">No photo yet</span>
+    </div>
+    <div class="vpull-body">
+      <p class="vhead">${head}</p>
+      <p class="vtitle">${esc(g.title)}</p>
+      <p class="vpull-sub">${sub}</p>
+      ${extras(g)}
+    </div>
+  </div>`;
+}
 
 /* What else the site knows about a game: its review, and where it ranks. */
 const REVIEWED = {"adventure island":[1,4.0],"adventures of dino riki":[2,1.0],"adventures of gilligan s island":[3,1.0],"batman the video game":[4,4.0],"legend of zelda":[5,4.0],"mega man 2":[6,3.0],"r c pro am":[7,4.0],"bill ted s excellent video game adventure":[8,1.0],"predator":[9,1.0],"super mario world 2 yoshi s island":[10,5.0],"legend of zelda ocarina of time":[11,4.0],"super mario kart":[12,4.0],"metroid prime":[13,4.5],"mvp baseball 2005":[14,5.0],"final fantasy vii":[15,3.0],"zelda ii the adventure of link":[16,4.5],"wave race 64":[17,5.0],"super mario 64":[18,3.5],"super mario world":[19,5.0],"mega man legends":[20,4.5],"gran turismo":[21,4.5],"captain america and the avengers":[22,4.0],"mario kart 64":[23,4.0],"paperboy":[24,4.5],"galaga demons of death":[25,4.5],"goldeneye 007":[26,4.5],"popeye":[27,4.0],"gun":[28,4.0],"metal gear solid":[29,5.0],"killer instinct":[30,4.5],"sega dreamcast":[31,5.0],"star fox adventures":[32,4.5],"star wars episode i racer":[33,4.5],"metal gear solid 4 guns of the patriots":[34,5.0],"007 tomorrow never dies":[35,4.0],"tetris":[36,5.0],"x men legends":[37,4.5],"x men origins wolverine":[38,4.5],"legend of zelda majora s mask":[39,4.5],"sony playstation":[40,4.0],"halo reach":[41,4.5],"diddy kong racing":[42,4.0],"perfect dark":[43,5.0],"streets of rage 2":[44,5.0],"star fox":[45,5.0],"halo combat evolved":[46,5.0],"mario kart double dash":[47,4.0],"super mario bros 2":[48,4.5],"batman returns":[49,4.5],"street fighter ii turbo":[50,5.0],"pilotwings 64":[51,4.5],"gears of war":[52,4.0],"nintendo 64":[53,4.5],"contra":[54,4.5],"fable ii":[55,3.5],"teenage mutant ninja turtles tournament fighters":[56,4.5],"michael jordan chaos in the windy city":[57,4.5],"epic mickey rebrushed":[58,5.0],"max payne 3":[59,4.5],"sony playstation 2":[60,4.5]};
@@ -4098,11 +4175,7 @@ document.getElementById("lucky").addEventListener("click", () => {
   filterBox.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.cond === "all"));
   render();
   verdict.className = "on";
-  verdict.innerHTML = `<div class="vbox" style="--hit:${g.color}">
-    <p class="vhead">Random pull</p>
-    <p class="vtitle">${esc(g.title)}</p>
-    <p style="margin:0;color:var(--dim)">${esc(g.system)} &middot; ${esc(g.cond)}</p>
-    ${extras(g)}</div>`;
+  verdict.innerHTML = pullCard(g, "Random pull", `${esc(g.system)} &middot; ${esc(g.cond)}`);
 });
 
 /* Something you own, can finish, and haven't. */
@@ -4118,11 +4191,8 @@ document.getElementById("whatnext").addEventListener("click", () => {
   const g = pool[Math.floor(Math.random() * pool.length)];
   qEl.value = ""; query = ""; Q = null;
   verdict.className = "on";
-  verdict.innerHTML = `<div class="vbox" style="--hit:${g.color}">
-    <p class="vhead">Play this</p>
-    <p class="vtitle">${esc(g.title)}</p>
-    <p style="margin:0;color:var(--dim)">${esc(g.system)} &middot; ${esc(g.cond)} &middot; one of ${pool.length} I haven't finished</p>
-    ${extras(g)}</div>`;
+  verdict.innerHTML = pullCard(g, "Play this",
+    `${esc(g.system)} &middot; ${esc(g.cond)} &middot; one of ${pool.length} I haven't finished`);
 });
 
 document.getElementById("viewtoggle").addEventListener("click", e => {
