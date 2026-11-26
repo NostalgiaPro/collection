@@ -93,18 +93,20 @@ function segment(T, a, b, r0, r1) {
 
 function robeGeo(T) {
   const g = lathe(T, [
-    [0, -2.05], [1.04, -1.88], [1.14, -1.4], [1.02, -0.7], [0.8, -0.1],
-    [0.58, 0.22], [0.5, 0.42], [0.5, 0.75], [0.58, 1.12], [0.68, 1.42],
-    [0.82, 1.68], [0.68, 1.92], [0.32, 2.06], [0, 2.12]
-  ], 18);
+    [0, -1.95], [0.58, -1.78], [0.6, -1.15], [0.58, -0.35], [0.54, 0.25],
+    [0.52, 0.7], [0.56, 1.15], [0.64, 1.5], [0.7, 1.72], [0.52, 1.95], [0.22, 2.08], [0, 2.14]
+  ], 22);
   const p = g.attributes.position;
   for (let i = 0; i < p.count; i++) {
     let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
-    const shoulder = Math.max(0, 1 - Math.abs(y - 1.68) / 0.32);
-    x *= 1 + 0.32 * shoulder;
-    const hem = Math.max(0, Math.min(1, (0.05 - y) / 1.2));
-    x *= 1 + 0.12 * hem;
-    z *= 0.8 + 0.16 * hem;
+    const r = Math.hypot(x, z) || 0.001;
+    const ang = Math.atan2(x, z);
+    const gap = 0.42 + 0.22 * Math.max(0, Math.min(1, (1.15 - y) / 2.4));
+    if (z > 0 && Math.abs(ang) < gap) {
+      const edge = (ang < 0 ? -1 : 1) * gap;
+      x = Math.sin(edge) * r;
+      z = Math.cos(edge) * r * 0.92;
+    }
     p.setXYZ(i, x, y, z);
   }
   g.computeVertexNormals();
@@ -337,6 +339,35 @@ export function createCast(T) {
     return tx;
   }
   function wear(col, shin) { return pho(0xffffff, shin == null ? 8 : shin, { map: cloth(col) }); }
+  function terryMat() {
+    if (texes.terryMat) return texes.terryMat;
+    const cv = document.createElement("canvas"); cv.width = 128; cv.height = 128;
+    const g = cv.getContext("2d");
+    g.fillStyle = "#6e2440"; g.fillRect(0, 0, 128, 128);
+    for (let i = 0; i < 90; i++) {
+      const x = (i * 23) % 120 + 4, y = (i * 37) % 120 + 4;
+      g.fillStyle = i % 2 ? "#c46a86" : "#4a1428";
+      g.beginPath(); g.arc(x, y, 6, 0, Math.PI * 2); g.fill();
+      g.fillStyle = i % 2 ? "#f0c2d0" : "#8a3858";
+      g.beginPath(); g.arc(x - 1.5, y - 1.5, 2.2, 0, Math.PI * 2); g.fill();
+    }
+    const tx = new T.CanvasTexture(cv); tx.colorSpace = T.SRGBColorSpace;
+    tx.wrapS = tx.wrapT = T.RepeatWrapping; tx.repeat.set(2, 3);
+    texes.terryMat = pho(0xffffff, 4, { map: tx });
+    return texes.terryMat;
+  }
+  function pjTopMat() {
+    if (texes.pjTop) return texes.pjTop;
+    const cv = document.createElement("canvas"); cv.width = 64; cv.height = 64;
+    const g = cv.getContext("2d");
+    g.fillStyle = "#f7e7dc"; g.fillRect(0, 0, 64, 64);
+    g.fillStyle = "#e7a0b4";
+    for (let y = 0; y < 64; y += 8) g.fillRect(0, y, 64, 2);
+    const tx = new T.CanvasTexture(cv); tx.colorSpace = T.SRGBColorSpace;
+    tx.wrapS = tx.wrapT = T.RepeatWrapping; tx.repeat.set(2, 2);
+    texes.pjTop = pho(0xffffff, 8, { map: tx });
+    return texes.pjTop;
+  }
   function pjWear() {
     if (texes.pjMat) return texes.pjMat;
     const cv = document.createElement("canvas"); cv.width = 64; cv.height = 128;
@@ -440,7 +471,14 @@ export function createCast(T) {
       const gl = ball(o.hips, 0.22, 0.28, 0.2, hips); gl.position.set(s * 0.22, -0.08, -0.16);
     });
     const upper = new T.Group(); body.add(upper);
-    const torso = new T.Mesh(o.robeGeo || (o.coat ? G.coat : G.torso), o.torso); torso.scale.set(bulk * (o.coat ? 1.08 : 1), 1, bulk * (o.coat ? 1.12 : 1)); upper.add(torso);
+    const torso = new T.Mesh(o.coat ? G.coat : G.torso, o.inner || o.torso);
+    torso.scale.set(bulk * (o.robeGeo ? 0.78 : (o.coat ? 1.08 : 1)), o.robeGeo ? 0.92 : 1, bulk * (o.robeGeo ? 0.7 : (o.coat ? 1.12 : 1)));
+    upper.add(torso);
+    if (o.robeGeo) {
+      const robe = new T.Mesh(o.robeGeo, o.torso);
+      robe.scale.set(bulk, 1, bulk);
+      upper.add(robe);
+    }
     const trap = ball(o.trap || o.torso, 0.72 * bulk, 0.22, 0.4 * bulk, upper); trap.position.set(0, 1.9, -0.02);
     if (o.belt) {
       const belt = new T.Mesh(new T.TorusGeometry(0.62 * bulk, 0.07, 6, 16), o.belt); belt.rotation.x = Math.PI / 2; belt.scale.set(1, 1, 0.72); belt.position.y = 0.12; upper.add(belt);
@@ -504,6 +542,24 @@ export function createCast(T) {
     const m = new T.Mesh(new T.TorusGeometry(rx, tube || 0.07, 6, 14), mat);
     m.rotation.x = Math.PI / 2; m.scale.set(1, 1, ry / rx); m.position.y = y; parent.add(m); return m;
   }
+  function partyHorn(parent) {
+    const g = new T.Group();
+    const cv = document.createElement("canvas"); cv.width = 64; cv.height = 64;
+    const c = cv.getContext("2d");
+    ["#ffd23f", "#ff3fa4", "#3ff0ff", "#fff6c8"].forEach(function (col, i) { c.fillStyle = col; c.fillRect(0, i * 16, 64, 16); });
+    const tx = new T.CanvasTexture(cv); tx.colorSpace = T.SRGBColorSpace; tx.wrapT = T.RepeatWrapping;
+    const cone = new T.Mesh(new T.ConeGeometry(0.11, 0.46, 14), pho(0xffffff, 18, { map: tx }));
+    cone.rotation.x = Math.PI;
+    cone.position.y = 0.4;
+    g.add(cone);
+    const bit = new T.Mesh(new T.CylinderGeometry(0.028, 0.034, 0.1, 8), pho(0xffd23f, 28));
+    bit.position.y = 0.1; g.add(bit);
+    const bell = new T.Mesh(new T.TorusGeometry(0.1, 0.018, 6, 14), pho(0xff3fa4, 24));
+    bell.rotation.x = Math.PI / 2; bell.position.y = 0.6; g.add(bell);
+    g.scale.setScalar(1.35);
+    parent.add(g);
+    return g;
+  }
   function handset(parent) {
     const g = new T.Group();
     const body = lathe(T, [[0, 0], [0.045, 0.02], [0.055, 0.08], [0.04, 0.14], [0.055, 0.2], [0.04, 0.26], [0, 0.3]], 10);
@@ -539,10 +595,11 @@ export function createCast(T) {
     o = o || {};
     const skin = pho(o.skin || 0xf1c28e, 16);
     const shirtCol = o.tee ? 0xf4f1ea : (o.shirt || 0x355a8a);
-    const shirt = o.party ? partyMat() : (o.tee ? jerseyMat() : (o.shirtMat || wear(shirtCol)));
-    const rib = wear(shade(shirtCol, o.tee ? 0.82 : 0.72));
-    const sleeve = o.party ? shirt : (o.tee ? wear(0xf7f4ee) : shirt);
-    const fore = (o.sleeves === "short" || o.bareArm) ? skin : shirt;
+    const terry = o.robe ? terryMat() : null;
+    const shirt = o.robe ? terry : (o.party ? partyMat() : (o.tee ? jerseyMat() : (o.shirtMat || wear(shirtCol))));
+    const rib = o.robe ? terry : wear(shade(shirtCol, o.tee ? 0.82 : 0.72));
+    const sleeve = o.robe ? terry : (o.party ? shirt : (o.tee ? wear(0xf7f4ee) : shirt));
+    const fore = (o.sleeves === "short" || o.bareArm) ? skin : (o.robe ? terry : shirt);
     const pants = o.robe ? pjWear() : wear(o.pants || 0x2c3a55, 10);
     const waist = wear(shade(o.pants || 0x2c3a55, 0.62), 12);
     const shoeU = o.shoeMat || pho(o.shoes || 0xf4f1ea, 28);
@@ -552,8 +609,8 @@ export function createCast(T) {
     const handMat = o.mittens ? pho(o.mittens, 18) : skin;
     const cuffMat = o.fur ? white : (o.cuff === false ? null : rib);
     const F = makeFigure({
-      scale: o.scale, bulk: o.bulk, legBulk: o.legBulk, coat: !!o.coat && !o.robe, robeGeo: o.robe ? robeGeo(T) : null, puffy: !!o.coat && !o.robe, longSleeve: o.sleeves !== "short", shorts: !!o.shorts, cuffK: o.robe ? 1.85 : 0,
-      torso: shirt, trap: o.tee ? sleeve : (o.coat ? shirt : rib), sleeve: sleeve, fore: fore, cuff: cuffMat,
+      scale: o.scale, bulk: o.bulk, armBulk: o.armBulk, legBulk: o.legBulk, coat: !!o.coat && !o.robe, robeGeo: o.robe ? robeGeo(T) : null, puffy: !!o.coat && !o.robe, longSleeve: o.sleeves !== "short", shorts: !!o.shorts, cuffK: o.robe ? 1.85 : 0,
+      torso: shirt, inner: o.robe ? pjTopMat() : null, trap: o.tee ? sleeve : (o.robe ? terry : (o.coat ? shirt : rib)), sleeve: sleeve, fore: fore, cuff: cuffMat,
       hand: handMat, skin: skin, hips: pants, thigh: pants, shin: o.shorts ? skin : pants,
       ankle: o.robe ? pho(0x7a2844, 16) : white, ankleCuff: o.shorts ? null : (o.robe ? pho(0x7a2844, 18) : (o.fur ? white : waist)),
       shoe: [shoeU, shoeS], footGeo: o.slippers ? G.slipper : (o.boots ? G.boot : G.shoe), belt: o.belt ? pho(o.belt, 22) : (o.shorts ? null : null)
@@ -568,18 +625,29 @@ export function createCast(T) {
       const colr = new T.Mesh(roundBox(T, 0.34, 0.1, 0.16, 0.03), wear(o.collar));
       colr.position.set(0, 1.82, 0.34); F.upper.add(colr);
     }
-    if (o.coat) {
+    if (o.coat && !o.robe) {
       [-1, 1].forEach(function (s) {
         const p = new T.Mesh(G.sph, shirt); p.scale.set(0.32, 0.2, 0.26); p.position.set(s * 0.62, 1.7, 0.02); F.upper.add(p);
       });
-      if (o.robe) {
-        const sash = wear(0xc4a574);
-        const knot = new T.Mesh(G.sph, sash); knot.scale.set(0.14, 0.1, 0.1); knot.position.set(0, 0.28, 0.62); F.upper.add(knot);
-        [-1, 1].forEach(function (s) {
-          const tail = new T.Mesh(roundBox(T, 0.07, 0.32, 0.03, 0.012), sash);
-          tail.position.set(s * 0.06, 0.08, 0.64); tail.rotation.z = s * 0.15; F.upper.add(tail);
-        });
-      }
+    }
+    if (o.robe) {
+      const bib = new T.Mesh(roundBox(T, 0.42, 1.15, 0.06, 0.04), pjTopMat());
+      bib.position.set(0, 0.95, 0.4); F.upper.add(bib);
+      const lap = terryMat();
+      [-1, 1].forEach(function (s) {
+        const edge = new T.Mesh(roundBox(T, 0.1, 1.35, 0.05, 0.03), lap);
+        edge.position.set(s * 0.22, 0.85, 0.48); edge.rotation.z = s * -0.22; F.upper.add(edge);
+      });
+      const shawl = new T.Mesh(roundBox(T, 0.7, 0.12, 0.1, 0.04), lap);
+      shawl.position.set(0, 1.62, 0.4); F.upper.add(shawl);
+      const sash = pho(0xf3e2c4, 12);
+      const bandS = new T.Mesh(roundBox(T, 0.7, 0.1, 0.08, 0.03), sash);
+      bandS.position.set(0, 0.28, 0.5); F.upper.add(bandS);
+      const knot = new T.Mesh(G.sph, sash); knot.scale.set(0.16, 0.12, 0.1); knot.position.set(0, 0.28, 0.62); F.upper.add(knot);
+      [-1, 1].forEach(function (s) {
+        const tail = new T.Mesh(roundBox(T, 0.09, 0.85, 0.04, 0.02), sash);
+        tail.position.set(s * 0.1, -0.2, 0.66); F.upper.add(tail);
+      });
       if (o.scarf) {
         const sc = pho(o.scarf, 12);
         band(F.upper, sc, 1.7, 0.4, 0.32, 0.09);
@@ -626,9 +694,10 @@ export function createCast(T) {
       const pk = wear(0x6e6240, 8);
       [-1, 1].forEach(function (s) { const p = new T.Mesh(rb(0.22, 0.18, 0.08, 0.03), pk); p.position.set(s * 0.34, 0.15, 0.46); F.upper.add(p); });
     }
-    let phone = null;
-    if (o.phone) { phone = handset(F.hand[1]); phone.position.set(0.02, 0.22, 0.08); phone.rotation.z = -0.35; }
-    const P = { g: F.root, F: F, shoeL: F.shoe[0], shoeR: F.shoe[1], grip: F.hand[1], head: F.head, phone: phone, v: STAND.slice(), phase: Math.random() * 6, blink: 1 + Math.random() * 3, face: F.face };
+    let phone = null, horn = null;
+    if (o.phone) { phone = handset(F.hand[1]); phone.position.set(0.02, 0.22, 0.08); phone.rotation.z = -0.35; phone.visible = false; }
+    if (o.horn) { horn = partyHorn(F.hand[0]); horn.position.set(0.02, 0.16, 0.04); horn.visible = false; }
+    const P = { g: F.root, F: F, shoeL: F.shoe[0], shoeR: F.shoe[1], grip: F.hand[1], head: F.head, phone: phone, horn: horn, v: STAND.slice(), phase: Math.random() * 6, blink: 1 + Math.random() * 3, face: F.face };
     if (o.wheels) {
       P.wheels = [];
       const wm = pho(0x9bff3f, 50, { emissive: 0x3a8a18, emissiveIntensity: 0.85 });
@@ -680,6 +749,21 @@ export function createCast(T) {
       const w = Math.sin(ph * 5);
       v[9] = -0.85; v[10] = 4.65 + w * 0.28; v[11] = 0.25;
       v[18] = 8;
+    } else if (kind === "waveR") {
+      const w = Math.sin(ph * 5);
+      v[6] = 0.85; v[7] = 4.55 + w * 0.22; v[8] = 0.22;
+      v[18] = -8;
+    } else if (kind === "hips") {
+      v[5] = 6;
+      v[6] = 0.58; v[7] = 3.2; v[8] = 0.32;
+      v[9] = -0.58; v[10] = 3.2; v[11] = 0.32;
+      v[18] = 10;
+    } else if (kind === "horn") {
+      v[5] = 2;
+      v[6] = 0.18; v[7] = 3.85; v[8] = 0.9;
+      v[9] = -0.62; v[10] = 2.85; v[11] = 0.2;
+      v[18] = 0;
+      v[1] += Math.sin((P.phase + t) * 1.3) * 0.012;
     } else if (kind === "phone") {
       v[5] = 4;
       v[9] = -0.42; v[10] = 5.45; v[11] = 0.42;
@@ -710,6 +794,8 @@ export function createCast(T) {
       if (P.blink < 0) P.blink = 2.2 + Math.random() * 3;
       P.face.lids.forEach(function (l) { l.scale.y = 0.018 + lid * 0.07; });
     }
+    if (P.phone) P.phone.visible = kind === "phone";
+    if (P.horn) P.horn.visible = kind === "horn";
     if (P.wheels) for (let i = 0; i < P.wheels.length; i++) P.wheels[i].rotation.x = ph * 4;
   }
 

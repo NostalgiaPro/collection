@@ -66,12 +66,13 @@ export function createHouse(T, Cast, ROOMS, FLOOR) {
   });
   const mom = Cast.person({
     coat: true, robe: true, shirt: "#7a2844", sleeves: "long", hair: "#6b3418", hairStyle: "bun",
-    skin: "#f1c28e", phone: true, slippers: true, shoes: "#e7b3c0", sole: "#b56d80", belt: 0xc4a574,
-    scale: 1.12, bulk: 1.06, legBulk: 1.34, mouth: "smile", browTilt: 0.04
+    skin: "#f1c28e", phone: true, horn: true, slippers: true, shoes: "#e7b3c0", sole: "#b56d80", belt: 0xe7c9a2,
+    scale: 1.12, bulk: 1.02, armBulk: 0.86, legBulk: 1.34, mouth: "smile", browTilt: 0.04
   });
   const guestA = Cast.person({
-    party: true, pants: "#5a2848", hat: "party", hatc: "#ff3fa4", hair: "#c4a15a", hairStyle: "bob",
-    skin: "#f6d7b8", shoes: "#f4f1ea", sole: "#2a1c14", sleeves: "long", scale: 1.02, mouth: "smile"
+    shirt: "#c46a32", pants: "#241c18", sleeves: "short", collar: "#f4e6d4",
+    hair: "#2a160e", hairStyle: "bun", skin: "#a86b45",
+    shoes: "#1b1b22", sole: "#3a2418", scale: 0.98, bulk: 0.94, mouth: "smile"
   });
   const guestB = Cast.person({
     shirt: "#14343c", pants: "#1c2a44", hat: "party", hatc: "#3ec8e0", collar: "#efe8dc",
@@ -363,9 +364,9 @@ export function createHouse(T, Cast, ROOMS, FLOOR) {
         placeCast(collector, null, 0.78, -0.08, "idle", t);
         cam.fov = 36; cam.position.set(0, 1.15, 5.5); cam.lookAt(0, 1.05, 0);
       } else {
-        placeCast(kid, shKid, -1.05, 0, "idle", t);
-        placeCast(mom, shMom, 0, 0, "phone", t);
-        placeCast(guestA, shA, 1.05, 0, "idle", t);
+        placeCast(kid, shKid, -1.05, 0, "waveR", t);
+        placeCast(mom, shMom, 0, 0, "horn", t);
+        placeCast(guestA, shA, 1.05, 0, "hips", t);
         guestB.g.visible = false;
         cam.fov = 38; cam.position.set(0, 1.15, 8.9); cam.lookAt(0, 1.02, 0);
       }
