@@ -103,7 +103,7 @@
     games:  [["Virtual shelf", "/shelf.html"], ["Consoles", "/consoles.html"], ["The gaps", "/gaps.html"], ["The numbers", "/stats.html"], ["Digital", "/digital.html"]],
     words:  [["Reviews", "/reviews.html"], ["Lists", "/lists.html"], ["Rankings", "/rankings.html"], ["Overrated", "/overrated.html"]],
     play:   [["Daily Shelf", "/daily.html"], ["Which came first?", "/first.html"], ["Shelf vs. Mine", "/match.html"], ["Arcade", "/arcade/"]],
-    other:  [["Movies", "/movies.html"], ["TV", "/tv.html"], ["Music", "/music.html"], ["Board games", "/boardgames.html"], ["On this day", "/onthisday.html"]]
+    other:  [["Movies", "/movies.html"], ["TV", "/tv.html"], ["Music", "/music.html"], ["Board games", "/boardgames.html"], ["Comics & Books", "/comics.html"], ["On this day", "/onthisday.html"]]
   };
 
   /* ---------- 1984: BBS ---------- */

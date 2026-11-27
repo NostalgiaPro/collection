@@ -1,10 +1,10 @@
 /* Bump this string whenever you upload new files, or phones keep the old ones. */
-const CACHE = "nostalgiapro-v167";
+const CACHE = "nostalgiapro-v168";
 
 const PAGES = [
   "/", "/index.html", "/anniversaries.html", "/consoles.html", "/reviews.html",
   "/lists.html", "/stats.html", "/gaps.html", "/rank.html", "/movies.html", "/tv.html",
-  "/music.html", "/boardgames.html", "/shelf.html", "/media.html", "/credits.html",
+  "/music.html", "/boardgames.html", "/comics.html", "/shelf.html", "/media.html", "/credits.html",
   "/overrated.html", "/rankings.html", "/onthisday.html", "/digital.html", "/data/on-this-day/shelf.json",
   "/daily.html", "/match.html", "/first.html", "/data/daily.json", "/data/shelf-games.json",
   "/streaks.html", "/spines.html", "/tonight.html", "/np-progress.js", "/theme.js", "/themes.css", "/data/themes.json",
