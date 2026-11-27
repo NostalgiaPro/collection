@@ -6822,7 +6822,7 @@
       "uuid": "01a20c3a-6f3c-779c-9384-ad8acc54b5a5",
       "item_id": 187185,
       "site_system": "Xbox Series X/S",
-      "site_title": "Hellraiser: Revival",
+      "site_title": "Clive Barker's Hellraiser: Revival",
       "ge_title": "Hellraiser: Revival",
       "ge_platform_id": 106
     },
@@ -6838,7 +6838,7 @@
       "uuid": "01a20c3a-6f3a-7293-b49b-7fc85eccd66d",
       "item_id": 180345,
       "site_system": "Xbox Series X/S",
-      "site_title": "Resident Evil: requiem",
+      "site_title": "Resident Evil Requiem",
       "ge_title": "Resident Evil: requiem",
       "ge_platform_id": 106
     },
@@ -6846,9 +6846,25 @@
       "uuid": "01a21134-c6e7-72f4-9401-1f5a89ca201f",
       "item_id": 172169,
       "site_system": "Nintendo Switch",
-      "site_title": "Super Mario Galaxy 1 & 2",
+      "site_title": "Super Mario Galaxy + Super Mario Galaxy 2",
       "ge_title": "Super Mario Galaxy 1 & 2",
       "ge_platform_id": 97
+    },
+    {
+      "uuid": "01a21a69-554d-772f-816a-7c0a6cd06765",
+      "item_id": 28170,
+      "site_system": "PlayStation 4",
+      "site_title": "God of War III Remastered [PlayStation Hits]",
+      "ge_title": "God of War III Remastered",
+      "ge_platform_id": 46
+    },
+    {
+      "uuid": "01a21a69-5551-71c5-9d6d-719da0a6c3c0",
+      "item_id": 65272,
+      "site_system": "PlayStation 4",
+      "site_title": "Until Dawn [PlayStation Hits]",
+      "ge_title": "Until Dawn [PlayStation Hits]",
+      "ge_platform_id": 46
     }
   ],
   "uuids": [
@@ -7707,7 +7723,9 @@
     "01a20c3a-6f3a-7293-b49b-7fc85eccd66d",
     "01a20c3a-6f3c-779c-9384-ad8acc54b5a5",
     "01a21134-c6e2-70ca-93a0-0fc66ad52d28",
-    "01a21134-c6e7-72f4-9401-1f5a89ca201f"
+    "01a21134-c6e7-72f4-9401-1f5a89ca201f",
+    "01a21a69-554d-772f-816a-7c0a6cd06765",
+    "01a21a69-5551-71c5-9d6d-719da0a6c3c0"
   ],
   "item_ids": [
     37,
@@ -8389,6 +8407,7 @@
     27596,
     27964,
     28133,
+    28170,
     28186,
     28195,
     28221,
@@ -8470,6 +8489,7 @@
     61752,
     62812,
     64835,
+    65272,
     65858,
     66336,
     68031,
