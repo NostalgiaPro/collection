@@ -538,6 +538,35 @@
   // 24x40 people. Frame 0 plants both feet, 1 and 2 lift a foot and swing the opposite arm.
   function humanSprite(frame, o) {
     o = o || {};
+    if (window.MSDPix) {
+      var idx = frame === 1 ? 2 : frame === 2 ? 4 : 0;
+      return window.MSDPix.frame({
+        view: o.view || "front",
+        hat: o.hat === "band" ? "beanie" : (o.hat || ""),
+        hatc: o.hatc || (o.hat === "santa" ? "#c2304a" : (o.cap || "#c2304a")),
+        capc: o.cap,
+        shirt: o.sash ? "#1b1b22" : (o.shirt || "#355a8a"),
+        pants: o.pants || "#2a3348",
+        hair: o.hair || "#4a2f1c",
+        hairStyle: o.hat === "bun" ? "bun" : (o.beard ? "bald" : "short"),
+        skin: o.skin || "#f1c28e",
+        shoes: o.shoe || "#f4f1ea",
+        sole: "#241c16",
+        sleeves: o.sleeves || (o.shorts ? "short" : "long"),
+        shorts: !!o.shorts,
+        tee: !!o.mark,
+        pockets: !!o.shorts,
+        beard: !!o.beard,
+        coat: !!(o.coat || (o.hat === "beanie" && !o.mark && !o.beard && !o.sash)),
+        scarf: o.coat || o.hat === "beanie" ? "#fff6ee" : "",
+        vest: o.sash ? "#f6e6ee" : "",
+        fur: !!o.cuffs,
+        boots: !!o.cuffs,
+        mittens: o.cuffs ? "#fff6ee" : "",
+        belly: !!o.beard,
+        coat: !!(o.coat || o.beard || o.cuffs || o.hat === "band" || (o.hat === "beanie" && !o.mark && !o.sash))
+      }, idx);
+    }
     var shirt = o.shirt || "#355a8a", pants = o.pants || "#2a3348", hair = o.hair || "#4a2f1c", skin = o.skin || "#f1c28e", shoe = o.shoe || "#f4f1ea";
     var key = [frame, o.view || "front", o.hat || "", shirt, pants, hair, skin, shoe, o.sash ? 1 : 0, o.mark ? 1 : 0, o.beard ? 1 : 0, o.shorts ? 1 : 0].join("|");
     return bake(key, 24, 40, function (px, rc) {
@@ -579,7 +608,7 @@
     opt = opt || {};
     opt.shirt = shirt; opt.pants = pants; opt.hair = hair;
     var frame = walk ? (Math.sin(walk) > 0.25 ? 1 : Math.sin(walk) < -0.25 ? 2 : 0) : 0;
-    blit(c, humanSprite(frame, opt), x, y, Math.max(0.45, s * 1.55));
+    blit(c, humanSprite(frame, opt), x, y, Math.max(0.2, s * 0.62));
   }
   function drawOb(c, o, z) {
     var s = sp(z), x = sx(o.lp, z), y = sy(z), t = S.t;
@@ -607,7 +636,7 @@
         circ(c, x - 14 * s, y - 5 * s, 6 * s, "#101219"); circ(c, x + 14 * s, y - 5 * s, 6 * s, "#101219");
         fr(c, x - 18 * s, y - 24 * s, 36 * s, 16 * s, "#5a8fd0");
         c.fillStyle = "#2a5a9a"; c.beginPath(); c.arc(x + 2 * s, y - 24 * s, 16 * s, Math.PI, TAU); c.fill();
-        blit(c, humanSprite(0, { hat: "beanie", view: "front", shirt: "#f7d6e4", pants: "#f7d6e4", hair: "#f1c28e", skin: "#f6d5b0", shoe: "#f4f1ea" }), x + 2 * s, y - 20 * s, Math.max(0.28, s * 0.72));
+        blit(c, humanSprite(0, { hat: "beanie", view: "front", shirt: "#f7d6e4", pants: "#e8b8cc", hair: "#f1c28e", skin: "#f6d5b0", shoe: "#f4f1ea", scale: 0.5, pose: "sit" }), x + 2 * s, y - 8 * s, Math.max(0.16, s * 0.36));
         fr(c, x - 4 * s, y - 36 * s, 22 * s, 3 * s, "#cfc8b0");
         break;
       case "bin":
@@ -691,7 +720,7 @@
     if (airborne()) frame = 1;
     var shoe = gear.on === "strap" ? "#ff3fa4" : gear.on === "lightup" ? (Math.floor(S.t * 8) % 2 ? "#3ff0ff" : "#ff3fa4") : gear.on === "skates" ? "#9bff3f" : "#eceae2";
     var cv = humanSprite(frame, { view: "back", hat: "beanie", shirt: "#f4f1ea", pants: "#9a8a5a", hair: "#5a3a20", skin: "#f1c28e", shoe: shoe, shorts: true, sleeves: "short", mark: true });
-    blit(c, cv, x, y, 2.15);
+    blit(c, cv, x, y, 0.9);
     if (gear.on === "skates") { for (var w = 0; w < 3; w++) { circ(c, x - 16 + w * 5, y - 2, 2.5, "#9bff3f"); circ(c, x + 4 + w * 5, y - 2, 2.5, "#9bff3f"); } }
   }
   function drawHUD(c, state) {

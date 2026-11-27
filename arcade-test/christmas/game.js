@@ -575,78 +575,12 @@ const Juke = (function () {
 /* ---------------- Canvas textures ---------------- */
 function mkCanvas(w, h) { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; }
 function bold(px) { return "900 " + px + 'px "Arial Black", "Arial Bold", Verdana, sans-serif'; }
-function floorCanvas(a, b) {
-  const c = mkCanvas(256, 256), g = c.getContext("2d");
-  for (let y = 0; y < 2; y++) for (let x = 0; x < 2; x++) { g.fillStyle = (x + y) % 2 ? a : b; g.fillRect(x * 128, y * 128, 128, 128); }
-  const r = rng(7);
-  for (let i = 0; i < 900; i++) { g.fillStyle = r() < 0.5 ? "rgba(0,0,0,.10)" : "rgba(255,255,255,.14)"; g.fillRect(r() * 256, r() * 256, 2, 2); }
-  g.strokeStyle = "rgba(0,0,0,.25)"; g.lineWidth = 2; g.strokeRect(1, 1, 254, 254);
-  g.beginPath(); g.moveTo(128, 0); g.lineTo(128, 256); g.moveTo(0, 128); g.lineTo(256, 128); g.stroke();
-  return c;
-}
-function wallCanvas(zn) {
-  const c = mkCanvas(512, 256), g = c.getContext("2d"), r = rng(11 + zn.name.length);
-  g.fillStyle = zn.wall; g.fillRect(0, 0, 512, 256);
-  g.fillStyle = zn.trim; g.fillRect(0, 96, 512, 10); g.fillRect(0, 246, 512, 10);
-  g.fillStyle = zn.neon; g.fillRect(0, 104, 512, 3);
-  for (let k = 0; k < 2; k++) {                       // two shop windows with lit shelves
-    const x0 = 18 + k * 256, w = 220;
-    g.fillStyle = "#1a1630"; g.fillRect(x0, 120, w, 120);
-    const gr = g.createLinearGradient(0, 120, 0, 240); gr.addColorStop(0, "rgba(255,240,200,.55)"); gr.addColorStop(1, "rgba(255,200,120,.15)");
-    g.fillStyle = gr; g.fillRect(x0 + 4, 124, w - 8, 112);
-    const cols = ["#c2304a", "#2f8f4a", "#ffd23f", "#3f7fd0", "#a77bff", "#ff8a1f"];
-    for (let s = 0; s < 3; s++) {
-      g.fillStyle = "rgba(60,40,30,.8)"; g.fillRect(x0 + 6, 150 + s * 30, w - 12, 4);
-      for (let q = 0; q < 9; q++) { g.fillStyle = cols[Math.floor(r() * cols.length)]; const bh = 10 + r() * 14; g.fillRect(x0 + 10 + q * 23, 150 + s * 30 - bh, 16, bh); }
-    }
-    g.strokeStyle = "rgba(255,255,255,.5)"; g.lineWidth = 2; g.beginPath(); g.moveTo(x0 + 30, 236); g.lineTo(x0 + 80, 126); g.stroke();
-    g.fillStyle = "#3a2d24"; g.fillRect(x0 - 4, 116, w + 8, 6);
-  }
-  g.fillStyle = "#d8ccb4"; g.fillRect(0, 108, 14, 148); g.fillRect(242, 108, 26, 148); g.fillRect(498, 108, 14, 148);
-  g.strokeStyle = "#1f5a3a"; g.lineWidth = 9;            // upper wall: garland with bulbs
-  g.beginPath(); for (let x = 0; x <= 512; x += 8) { const y = 36 + Math.abs(Math.sin(x / 512 * TAU)) * 26; if (x === 0) g.moveTo(x, y); else g.lineTo(x, y); } g.stroke();
-  const bulbs = ["#ff4b3e", "#ffd23f", "#3ff0ff", "#9bff3f", "#ff3fa4"];
-  for (let i = 0; i < 16; i++) { const x = 16 + i * 32, y = 40 + Math.abs(Math.sin(x / 512 * TAU)) * 26; g.fillStyle = bulbs[i % 5]; g.beginPath(); g.arc(x, y + 6, 5, 0, TAU); g.fill(); }
-  return c;
-}
-function ceilCanvas() {
-  const c = mkCanvas(256, 256), g = c.getContext("2d");
-  g.fillStyle = "#2a2440"; g.fillRect(0, 0, 256, 256);
-  g.fillStyle = "#151226"; g.fillRect(40, 20, 176, 216);
-  const gr = g.createLinearGradient(0, 20, 0, 236); gr.addColorStop(0, "#22385e"); gr.addColorStop(1, "#0d1530");
-  g.fillStyle = gr; g.fillRect(48, 28, 160, 200);
-  g.fillStyle = "rgba(255,255,255,.75)"; const r = rng(3); for (let i = 0; i < 40; i++) g.fillRect(48 + r() * 160, 28 + r() * 200, 2, 2);
-  g.fillStyle = "#3a3354"; for (let i = 0; i < 4; i++) g.fillRect(48, 28 + i * 66, 160, 4); g.fillRect(126, 28, 4, 200);
-  return c;
-}
-function signCanvas(name, bg, fg) {
-  const c = mkCanvas(512, 96), g = c.getContext("2d");
-  g.fillStyle = bg; g.fillRect(0, 0, 512, 96);
-  g.strokeStyle = fg; g.lineWidth = 6; g.strokeRect(6, 6, 500, 84);
-  let sz = 46; g.font = bold(sz); while (g.measureText(name).width > 470 && sz > 18) { sz -= 2; g.font = bold(sz); }
-  g.textAlign = "center"; g.textBaseline = "middle";
-  g.shadowColor = fg; g.shadowBlur = 14; g.fillStyle = fg; g.fillText(name, 256, 50); g.shadowBlur = 0;
-  g.fillStyle = "#ffffff"; g.globalAlpha = 0.5; g.fillText(name, 256, 49); g.globalAlpha = 1;
-  return c;
-}
-function bannerCanvas(top, mid, col) {
-  const c = mkCanvas(512, 160), g = c.getContext("2d");
-  g.fillStyle = "#c2304a"; g.fillRect(0, 0, 512, 160);
-  g.fillStyle = "#ffffff"; for (let x = 0; x < 512; x += 32) { g.fillRect(x, 0, 16, 10); g.fillRect(x + 16, 150, 16, 10); }
-  g.fillStyle = "#1f5a3a"; g.fillRect(12, 18, 488, 124);
-  g.textAlign = "center"; g.textBaseline = "middle";
-  g.font = bold(26); g.fillStyle = "#ffd23f"; g.fillText(top, 256, 46);
-  let sz = 52; g.font = bold(sz); while (g.measureText(mid).width > 470) { sz -= 2; g.font = bold(sz); }
-  g.shadowColor = col; g.shadowBlur = 16; g.fillStyle = "#ffffff"; g.fillText(mid, 256, 104); g.shadowBlur = 0;
-  return c;
-}
-function textPanel(lines, bg, fg, w, h) {
-  const c = mkCanvas(w || 256, h || 128), g = c.getContext("2d");
-  g.fillStyle = bg; g.fillRect(0, 0, c.width, c.height);
-  g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = fg;
-  for (let i = 0; i < lines.length; i++) { g.font = bold(lines[i][1]); g.fillText(lines[i][0], c.width / 2, lines[i][2]); }
-  return c;
-}
+function floorCanvas(a, b) { return window.MSDPix.floorTile(a, b); }
+function wallCanvas(zn) { return window.MSDPix.wallTile(zn); }
+function ceilCanvas() { return window.MSDPix.ceilTile(); }
+function signCanvas(name, bg, fg) { return window.MSDPix.signCard(name, bg, fg); }
+function bannerCanvas(top, mid) { return window.MSDPix.bannerCard(top, mid); }
+function textPanel(lines, bg, fg) { return window.MSDPix.panel(lines, bg, fg); }
 function teeCanvas() {
   const c = mkCanvas(128, 128), g = c.getContext("2d");
   g.fillStyle = "#f4f1ea"; g.fillRect(0, 0, 128, 128);
@@ -675,13 +609,12 @@ function buildKit(T) {
   const gl = document.createElement("canvas");
   gl.setAttribute("aria-hidden", "true");
   const dpr = window.devicePixelRatio || 1;
-  const renderer = new T.WebGLRenderer({ canvas: gl, antialias: dpr < 2, alpha: false, powerPreference: "high-performance", preserveDrawingBuffer: /[?&]shots=1/.test(location.search) });
+  const renderer = new T.WebGLRenderer({ canvas: gl, antialias: false, alpha: false, powerPreference: "high-performance", preserveDrawingBuffer: /[?&]shots=1/.test(location.search) });
   renderer.setClearColor(0x120e22, 1);
-  const aniso = Math.min(4, renderer.capabilities.getMaxAnisotropy ? renderer.capabilities.getMaxAnisotropy() : 1);
   function tex(canvas, rx, ry) {
     const t = new T.CanvasTexture(canvas); t.colorSpace = T.SRGBColorSpace;
+    t.magFilter = T.NearestFilter; t.minFilter = T.NearestFilter; t.generateMipmaps = false;
     if (rx) { t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(rx, ry || rx); }
-    t.anisotropy = aniso;
     return t;
   }
   const scene = new T.Scene();
@@ -702,13 +635,12 @@ function buildKit(T) {
   function M(col, o) {
     const key = col + JSON.stringify(o || {});
     if (mats[key]) return mats[key];
-    let m;
-    if (o && o.basic) m = new T.MeshBasicMaterial({ color: new T.Color(col), transparent: !!o.transparent, opacity: o.opacity == null ? 1 : o.opacity, depthWrite: o.depthWrite !== false });
-    else {
-      const p = { color: new T.Color(col) };
-      if (o) { if (o.emissive) p.emissive = new T.Color(o.emissive); if (o.transparent) { p.transparent = true; p.opacity = o.opacity; } }
-      m = new T.MeshLambertMaterial(p);
-    }
+    const m = new T.MeshBasicMaterial({
+      color: new T.Color(col),
+      transparent: !!(o && o.transparent),
+      opacity: o && o.opacity != null ? o.opacity : 1,
+      depthWrite: !(o && o.depthWrite === false)
+    });
     mats[key] = m; return m;
   }
   function part(parent, geo, mat, sx, sy, sz, x, y, z) {
@@ -722,42 +654,33 @@ function buildKit(T) {
 
   /* hero: cream NP tee, cargo shorts, Christmas beanie, seen from behind */
   const heroRoot = grp(scene, 0, 0, 0);
-  const hero = person({ tee: true, pants: "#9a8a5a", shorts: true, sleeves: "short", hat: "beanie", hatc: "#c2304a", skin: "#f1c28e", hair: "#5a3a20", hairStyle: "short", pockets: true, wheels: true, shoes: "#f7f4ee", sole: "#c2304a" });
-  heroRoot.add(hero.g); hero.g.rotation.y = Math.PI;
+  const hero = person({ view: "back", tee: true, pants: "#9a8a5a", shorts: true, sleeves: "short", hat: "beanie", hatc: "#c2304a", skin: "#f1c28e", hair: "#5a3a20", hairStyle: "short", pockets: true, wheels: true, shoes: "#eceae2", sole: "#c2304a" });
+  heroRoot.add(hero.g);
   const shadow = new T.Mesh(new T.CircleGeometry(0.55, 20).rotateX(-Math.PI / 2), M("#000000", { basic: 1, transparent: true, opacity: 0.4, depthWrite: false }));
   shadow.position.y = 0.012; scene.add(shadow);
   function dressHero() {
-    const s = SHOES.find(function (q) { return q.id === gear.on; }) || SHOES[0];
-    const upper = gear.on === "lightup"
-      ? new T.MeshPhongMaterial({ color: 0xffffff, emissive: 0x2fd0ff, emissiveIntensity: 0.85, shininess: 40, specular: new T.Color(0x88ddff) })
-      : Cast.pho(s.col, 32);
-    const mats = [upper, Cast.pho(gear.on === "skates" ? 0x1a1a1a : 0x241c16, 8)];
-    hero.shoeL.material = mats; hero.shoeR.material = mats;
+    hero.setShoes(gear.on);
+    if (gear.on === "lightup") hero.shoeL.material[0].emissive.setHex(0x2fd0ff);
     if (hero.wheels) for (let i = 0; i < hero.wheels.length; i++) hero.wheels[i].visible = gear.on === "skates";
   }
 
   /* Mall Santa, seated in center court, off the lanes so he never collides */
   const santa = person({ shirt: "#c2304a", pants: "#8e1c2c", coat: true, fur: true, belly: true, mittens: "#fff6ee", sleeves: "long", hat: "santa", boots: true, belt: 0x1a120c, beard: true, hairStyle: "bald", skin: "#f1c28e", bulk: 1.05, scale: 1.05, mouth: "smile", browTilt: 0.15, shoes: "#1a120c", sole: "#e8e0d0" });
   const throne = grp(scene, -3.45, 0, -(ZB[3] + 70));
-  Cast.chunk(throne, Cast.rb(1.15, 0.16, 1.05, 0.08), Cast.wear(0x7a1830), 0, 0.48, 0);
-  Cast.chunk(throne, Cast.rb(1.15, 1.35, 0.18, 0.08), Cast.wear(0x7a1830), 0, 1.15, -0.42);
-  Cast.chunk(throne, Cast.rb(0.16, 0.5, 0.16, 0.04), Cast.pho(0xc9a24a, 30), -0.42, 0.25, 0.35);
-  Cast.chunk(throne, Cast.rb(0.16, 0.5, 0.16, 0.04), Cast.pho(0xc9a24a, 30), 0.42, 0.25, 0.35);
-  Cast.chunk(throne, Cast.rb(0.12, 0.08, 0.72, 0.04), Cast.wear(0x7a1830), -0.62, 1.02, 0.08);
-  Cast.chunk(throne, Cast.rb(0.12, 0.08, 0.72, 0.04), Cast.wear(0x7a1830), 0.62, 1.02, 0.08);
-  santa.g.position.set(0, 0.42, 0.05);
+  santa.g.position.set(0, 0, 0.05);
   throne.add(santa.g);
-  const GIFT = [0x3f7fd0, 0xc2304a, 0x1f6a3a, 0xffd23f];
+  const GIFT = ["#3f7fd0", "#c2304a", "#1f6a3a", "#ffd23f"];
   for (let k = 0; k < 4; k++) {
-    const gift = Cast.chunk(throne, Cast.rb(0.32, 0.28, 0.32, 0.04), Cast.wear(GIFT[k]), -0.7 + (k % 2) * 1.5, 0.16, 0.7 + Math.floor(k / 2) * 0.35);
-    Cast.chunk(gift, Cast.rb(0.06, 0.3, 0.34, 0.02), Cast.pho(0xffd23f, 24), 0, 0, 0);
+    const gift = Cast.billboard(window.MSDPix.prop("gift", { col: GIFT[k] }), 0.42);
+    gift.position.set(-0.7 + (k % 2) * 1.4, 0, 0.55 + Math.floor(k / 2) * 0.28);
+    throne.add(gift);
   }
 
   /* corridor segments (12 m each, recycled ahead of the runner) */
   const SEGL = 12, NSEG = 10;
-  const floorMats = ZONES.map(function (z) { return new T.MeshLambertMaterial({ map: tex(floorCanvas(z.floorA, z.floorB), 2.4, 3) }); });
-  const wallMats = ZONES.map(function (z) { return new T.MeshLambertMaterial({ map: tex(wallCanvas(z)) }); });
-  const ceilMat = new T.MeshLambertMaterial({ map: tex(ceilCanvas()), emissive: new T.Color("#120e22") });
+  const floorMats = ZONES.map(function (z) { return new T.MeshBasicMaterial({ map: tex(floorCanvas(z.floorA, z.floorB), 8, 10) }); });
+  const wallMats = ZONES.map(function (z) { return new T.MeshBasicMaterial({ map: tex(wallCanvas(z)) }); });
+  const ceilMat = new T.MeshBasicMaterial({ map: tex(ceilCanvas(), 4, 4) });
   const signMats = STORES.map(function (list, zi) {
     const pal = [["#120f22", ZONES[zi].neon], ["#1d2b53", "#ffffff"], ["#7a1f2b", "#ffd23f"], ["#1f5a3a", "#ffffff"]];
     return list.map(function (n, i) { const p = pal[i % pal.length]; return new T.MeshBasicMaterial({ map: tex(signCanvas(n, p[0], p[1])) }); });
@@ -778,24 +701,20 @@ function buildKit(T) {
     const sr = new T.Mesh(signGeo, signMats[0][1]); sr.position.set(4.88, 3.45, 0); sr.rotation.y = -Math.PI / 2; g.add(sr);
     const orn = [];
     for (let k = 0; k < 3; k++) {
-      const o = grp(g, -2.6 + k * 2.6, 6.3 - (k % 2) * 0.3, -3 + k * 3);
-      part(o, G.cyl, M("#cfc8b0"), 0.01, 0.8, 0.01, 0, 0.4, 0);
-      orn.push(part(o, G.ico, M(ORN[(k + i) % 6]), 0.26, 0.26, 0.26, 0, 0, 0));
+      const b = Cast.billboard(window.MSDPix.prop("bauble", { col: ORN[(k + i) % 6] }), 0.38, "mid");
+      b.position.set(-2.6 + k * 2.6, 6.15 - (k % 2) * 0.25, -3 + k * 3);
+      g.add(b);
+      orn.push(b);
     }
     for (let s = -1; s <= 1; s += 2) {
-      const w1 = part(g, G.tor, M("#1f5a3a"), 0.45, 0.45, 0.45, s * 4.9, 4.6, 6); w1.rotation.y = Math.PI / 2;
-      const w2 = part(g, G.tor, M("#1f5a3a"), 0.45, 0.45, 0.45, s * 4.9, 4.6, 6); w2.rotation.y = Math.PI / 2; w2.rotation.x = Math.PI;
-      part(g, G.sph, M("#c2304a"), 0.1, 0.1, 0.1, s * 4.85, 4.15, 6);
+      const wr = Cast.billboard(window.MSDPix.prop("wreath"), 0.95, "mid");
+      wr.position.set(s * 4.72, 4.45, 0);
+      g.add(wr);
     }
-    const tree = grp(g, 4.25, 0, 5);
-    part(tree, G.cyl6, M("#7a1f2b"), 0.45, 0.5, 0.45, 0, 0.25, 0);
-    for (let k = 0; k < 3; k++) part(tree, G.cone, M("#1f6a3a"), 0.6 - k * 0.15, 0.8, 0.6 - k * 0.15, 0, 0.9 + k * 0.45, 0);
-    part(tree, G.ico, M("#ffd23f", { emissive: "#806010" }), 0.12, 0.12, 0.12, 0, 2.1, 0);
-    const big = grp(g, -3.85, 0, 0); big.visible = false; big.scale.setScalar(0.85);             // the giant center court tree
-    part(big, G.cyl6, M("#5a3a20"), 0.25, 1, 0.25, 0, 0.5, 0);
-    for (let k = 0; k < 4; k++) part(big, G.cone, M(k % 2 ? "#1f6a3a" : "#2a7a44"), 1.3 - k * 0.25, 1.5, 1.3 - k * 0.25, 0, 1.6 + k * 1.0, 0);
-    for (let k = 0; k < 12; k++) { const a = k * 2.4, hh = 1.2 + (k % 5) * 0.75, rr2 = 1.15 - (k % 5) * 0.2; part(big, G.sph, M(ORN[k % 6], { emissive: ORN[k % 6] }), 0.11, 0.11, 0.11, Math.cos(a) * rr2, hh, Math.sin(a) * rr2); }
-    part(big, G.ico, M("#ffd23f", { emissive: "#ffb000" }), 0.32, 0.32, 0.32, 0, 5.6, 0);
+    const tree = Cast.billboard(window.MSDPix.prop("tree"), 2.4);
+    tree.position.set(4.35, 0, 5); g.add(tree);
+    const big = Cast.billboard(window.MSDPix.prop("bigTree"), 5.2);
+    big.position.set(-3.7, 0, 0); big.visible = false; g.add(big);
     segs.push({ g: g, f: f, wl: wl, wr: wr, sl: sl, sr: sr, orn: orn, big: big, tree: tree, k: -999 });
   }
 
@@ -805,12 +724,16 @@ function buildKit(T) {
     const pm = new T.MeshBasicMaterial({ map: tex(bannerCanvas("TIME EXTENDED", ZONES[zi].name, ZONES[zi].col)), side: T.DoubleSide });
     part(b, G.plane, pm, 7.4, 2.3, 1, 0, 5.2, 0);
     part(b, G.box, M("#ffd23f"), 0.12, 7, 0.12, -3.8, 3.5, 0); part(b, G.box, M("#ffd23f"), 0.12, 7, 0.12, 3.8, 3.5, 0);
-    for (let k = 0; k < 9; k++) part(b, G.sph, M(ORN[k % 6], { emissive: ORN[k % 6] }), 0.12, 0.12, 0.12, -3.6 + k * 0.9, 3.95, 0);
+    for (let k = 0; k < 9; k++) {
+    const bulb = Cast.billboard(window.MSDPix.prop("bauble", { col: ORN[k % 6] }), 0.28, "mid");
+    bulb.position.set(-3.6 + k * 0.9, 3.95, 0.1);
+    b.add(bulb);
+  }
   }
   const escL = ESC.z1 - ESC.z0;
   const esc = grp(scene, 0, 0, -(ESC.z0 + ESC.z1) / 2);
   const stepTex = tex(stripeCanvas("#3a3e4a", "#5a5f70", 2), 1, escL / 0.8);
-  const escTread = part(esc, G.box, new T.MeshLambertMaterial({ map: stepTex }), 1.3, 0.06, escL, 0, 0.03, 0);
+  const escTread = part(esc, G.box, new T.MeshBasicMaterial({ map: stepTex }), 1.3, 0.06, escL, 0, 0.03, 0);
   for (let s = -1; s <= 1; s += 2) {
     part(esc, G.box, M("#20232c"), 0.14, 0.9, escL, s * 0.78, 0.45, 0);
     part(esc, G.box, M("#111111"), 0.18, 0.08, escL, s * 0.78, 0.94, 0);
@@ -822,7 +745,7 @@ function buildKit(T) {
   part(store, G.box, M("#2b1d4a"), 10, 3, 0.4, 0, 5.5, 0.3);
   part(store, G.box, new T.MeshBasicMaterial({ map: tex(signCanvas("TOYS AND GAMES", "#120f22", "#ff3fa4")) }), 8, 1.4, 0.2, 0, 5.4, 0.55);
   part(store, G.box, M("#ffe9a0", { basic: 1 }), 10, 7, 0.2, 0, 3.5, -10);
-  const boxArt = new T.MeshLambertMaterial({ map: tex(boxArtCanvas()) });
+  const boxArt = new T.MeshBasicMaterial({ map: tex(boxArtCanvas()) });
   for (let k = 0; k < 7; k++) part(store, G.box, k === 3 ? boxArt : M(ORN[k % 6]), k === 3 ? 1.2 : 0.7, k === 3 ? 1.5 : 0.8 + (k % 3) * 0.2, 0.4, -3.3 + k * 1.1, k === 3 ? 0.9 : 0.5, -9.4);
   for (let s = -1; s <= 1; s += 2) for (let q = 0; q < 3; q++) { part(store, G.box, M("#5a3a20"), 0.6, 0.08, 6, s * 4.4, 0.8 + q * 0.9, -5); for (let k = 0; k < 6; k++) part(store, G.box, M(ORN[(k + q) % 6]), 0.4, 0.5, 0.5, s * 4.4, 1.1 + q * 0.9, -7.5 + k * 1.0); }
   const grille = grp(store, 0, 0, 0);
@@ -838,7 +761,7 @@ function buildKit(T) {
   snow.frustumCulled = false;
   scene.add(snow);
 
-  K = { T: T, gl: gl, renderer: renderer, scene: scene, cam: cam, tex: tex, G: G, M: M, part: part, grp: grp, person: person, pose: pose, SKIN: SKIN, ORN: ORN,
+  K = { T: T, gl: gl, renderer: renderer, scene: scene, cam: cam, tex: tex, G: G, M: M, part: part, grp: grp, person: person, pose: pose, SKIN: SKIN, ORN: ORN, billboard: Cast.billboard,
     hero: hero, heroRoot: heroRoot, shadow: shadow, segs: segs, SEGL: SEGL, segFloor: floorMats, segWall: wallMats, signs: signMats,
     store: store, grille: grille, snow: snow, sun: sun, fill: fill, santa: santa, escTread: escTread, live: new Map(), dressHero: dressHero, pad: null, curZone: 0, fogTarget: null, rb: Cast.rb, chunk: Cast.chunk };
   K.signTex = tex(textPanel([["CAUTION", 30, 30], ["WET", 44, 72], ["FLOOR", 30, 108]], "#ffd23f", "#1b1b22", 128, 128));
@@ -856,25 +779,15 @@ function makeOb(o) {
   const g = new T.Group(), r = o.seed;
   let P = null;
   if (o.t === "table") {
-    part(g, G.cyl, M("#e0e6ea"), 0.7, 0.06, 0.7, 0, 0.76, 0); part(g, G.cyl, M("#8a8f9a"), 0.06, 0.74, 0.06, 0, 0.37, 0);
-    const cc = r < 0.5 ? "#ff8a1f" : "#2fb0a0";
-    for (let s = -1; s <= 1; s += 2) { part(g, G.box, M(cc), 0.45, 0.06, 0.45, s * 0.85, 0.46, 0); part(g, G.box, M(cc), 0.06, 0.55, 0.45, s * 1.06, 0.72, 0); part(g, G.box, M("#8a8f9a"), 0.05, 0.45, 0.05, s * 0.85, 0.22, 0); }
-    part(g, G.box, M("#c2304a"), 0.4, 0.04, 0.3, 0.1, 0.81, 0); part(g, G.cyl, M("#ffffff"), 0.06, 0.18, 0.06, -0.2, 0.88, 0.1);
-    part(g, G.cyl, M("#ffd23f"), 0.12, 0.05, 0.12, 0.12, 0.85, 0);
+    g.add(K.billboard(window.MSDPix.prop("table"), 1.05));
   } else if (o.t === "janitor") {
     P = K.person({ shirt: "#5a6670", pants: "#2a3140", hair: "#3a2a1a", hairStyle: "short", hat: "cap", capc: "#3a4250", skin: SKIN[Math.floor(r * 5)], sleeves: "short", shoes: "#2a2a2a", sole: "#111111" });
     g.add(P.g);
-    const mop = grp(P.g);
-    part(mop, G.cyl, M("#c8a060"), 0.04, 1.15, 0.04, 0, 0.62, 0);
-    part(mop, G.box, M("#f2f2f2"), 0.28, 0.1, 0.18, 0, 1.2, 0);
-    P.prop = mop;
-    part(g, G.cyl, M("#ffd23f"), 0.22, 0.38, 0.22, 0.55, 0.2, 0.15);
-    P.g.rotation.y = 0.4;
+    const bucket = K.billboard(window.MSDPix.prop("bucket"), 0.42);
+    bucket.position.set(0.55, 0, 0.15); g.add(bucket);
     g.userData.kind = "mop";
   } else if (o.t === "sign") {
-    const sm = new T.MeshLambertMaterial({ map: K.signTex });
-    const a = new T.Mesh(K.rb(0.62, 0.78, 0.05, 0.03), sm); a.position.set(0, 0.55, 0.1); a.rotation.x = -0.28; g.add(a);
-    const b2 = new T.Mesh(K.rb(0.62, 0.78, 0.05, 0.03), sm); b2.position.set(0, 0.55, -0.1); b2.rotation.x = 0.28; g.add(b2);
+    g.add(K.billboard(window.MSDPix.prop("sign"), 1.15));
   } else if (o.t === "walker") {
     const tc = TRACK[Math.floor(r * TRACK.length)];
     P = K.person({ shirt: tc, pants: "#243044", coat: true, scarf: r < 0.5 ? "#fff6ee" : "#ffd23f", hair: r < 0.5 ? "#4a3728" : "#6a5a48", hairStyle: r < 0.35 ? "bob" : "short", hat: "beanie", hatc: tc, skin: SKIN[Math.floor(r * 7) % 5], shoes: "#f7f4ee", sole: "#1a1a1a", sleeves: "long" });
@@ -882,53 +795,40 @@ function makeOb(o) {
     g.userData.kind = "walk";
   } else if (o.t === "stroller") {
     const sc = r < 0.5 ? ["#3f7fd0", "#2a5a9a"] : ["#c2304a", "#8a1f30"];
-    K.chunk(g, K.rb(0.62, 0.3, 0.82, 0.1), M(sc[0]), 0, 0.38, 0.02);
-    part(g, G.sph, M(sc[1]), 0.34, 0.22, 0.32, 0, 0.58, -0.16);
-    for (let k = 0; k < 4; k++) { const wh = part(g, G.cyl, M("#1b1b22"), 0.1, 0.05, 0.1, (k % 2 ? 0.3 : -0.3), 0.1, k < 2 ? -0.28 : 0.32); wh.rotation.z = Math.PI / 2; }
-    part(g, G.cyl, M("#cfc8b0"), 0.025, 0.55, 0.025, -0.22, 0.72, 0.42);
-    part(g, G.cyl, M("#cfc8b0"), 0.025, 0.55, 0.025, 0.22, 0.72, 0.42);
-    part(g, G.cyl, M("#cfc8b0"), 0.03, 0.5, 0.03, 0, 0.86, 0.42).rotation.z = Math.PI / 2;
-    P = K.person({ scale: 0.46, shirt: "#f7d6e4", pants: "#e8b8cc", hat: "beanie", hatc: sc[0], skin: SKIN[Math.floor(r * 5)], sleeves: "short", hairStyle: "bald", pose: "sit", shoes: "#f4f1ea" });
-    P.g.position.set(0, 0.34, -0.02);
+    const st = K.billboard(window.MSDPix.prop("stroller", { col: sc[0], dark: sc[1] }), 0.9);
+    g.add(st);
+    P = K.person({ scale: 0.5, shirt: "#f7d6e4", pants: "#e8b8cc", hat: "beanie", hatc: sc[0], skin: SKIN[Math.floor(r * 5)], sleeves: "short", hairStyle: "bald", pose: "sit", shoes: "#f4f1ea" });
+    P.g.position.set(0, 0.22, 0.08);
     g.add(P.g);
     g.userData.kind = "sit";
   } else if (o.t === "bin") {
-    K.chunk(g, K.rb(1.15, 0.48, 0.85, 0.08), M("#d5d8df"), 0, 0.28, 0);
-    for (let k = 0; k < 5; k++) { const bx = K.chunk(g, K.rb(0.28, 0.2, 0.22, 0.04), M(ORN[(k + Math.floor(r * 6)) % 6]), -0.32 + (k % 3) * 0.32, 0.6, k < 3 ? -0.16 : 0.16); bx.rotation.y = k * 0.35; }
-    part(g, G.box, new T.MeshBasicMaterial({ map: K.saleTex }), 0.7, 0.28, 0.02, 0, 0.9, 0.44);
+    g.add(K.billboard(window.MSDPix.prop("bin"), 0.95));
   } else if (o.t === "clerk") {
     P = K.person({ shirt: "#1b1b22", pants: "#14141c", hair: r < 0.5 ? "#2a1a12" : "#c89a40", hairStyle: r < 0.5 ? "bun" : "bob", skin: SKIN[Math.floor(r * 5)], sleeves: "long", vest: "#f6e6ee", shoes: "#1b1b22", sole: "#2a2a2a" });
-    const bottle = part(P.grip, G.cyl, M("#ff9bd2", { emissive: "#40102a" }), 0.07, 0.26, 0.07, 0, 0.22, 0.04);
-    part(bottle, G.cyl, M("#fff6fb"), 0.8, 0.25, 0.8, 0, 0.55, 0);
     g.add(P.g);
-    P.g.rotation.y = (o.lane === 0 ? 1 : -1) * 0.85;
-    K.chunk(g, K.rb(0.95, 0.9, 0.12, 0.04), M("#f4eef6"), o.lane === 0 ? -0.35 : 0.35, 0.5, -0.55);
-    K.chunk(g, K.rb(0.9, 0.55, 0.4, 0.06), new T.MeshLambertMaterial({ color: 0xd8e8f0, transparent: true, opacity: 0.45 }), o.lane === 0 ? -0.35 : 0.35, 0.85, -0.55);
+    const counter = K.billboard(window.MSDPix.prop("counter"), 1.05);
+    counter.position.set(o.lane === 0 ? -0.15 : 0.15, 0, -0.35);
+    g.add(counter);
     g.userData.kind = "spray";
   } else if (o.t === "mist") {
-    const mm = M("#ff9bd2", { basic: 1, transparent: true, opacity: 0.3, depthWrite: false });
-    for (let k = 0; k < 8; k++) part(g, G.ico, mm, 0.62, 0.62, 0.62, -1.4 + (k % 4) * 0.95, 0.7 + (k % 3) * 0.45, (k % 2) * 0.5 - 0.25);
+    const puff = K.billboard(window.MSDPix.prop("spray"), 1.4, "mid");
+    puff.position.y = 0.9;
+    g.add(puff);
     g.scale.setScalar(0.15);
   } else if (o.t === "rope") {
     const xs = o.span ? [-LX - 0.3, 0, LX + 0.3] : [-0.6, 0.6];
     for (let k = 0; k < xs.length; k++) { const x = xs[k]; part(g, G.cyl, M("#d8b040", { emissive: "#3a2a00" }), 0.05, 1.0, 0.05, x, 0.5, 0); part(g, G.sph, M("#ffd23f"), 0.08, 0.08, 0.08, x, 1.02, 0); part(g, G.cyl, M("#d8b040"), 0.18, 0.04, 0.18, x, 0.02, 0); }
     for (let k = 0; k < xs.length - 1; k++) { const a = xs[k], b = xs[k + 1]; part(g, G.box, M("#a01830"), b - a, 0.07, 0.07, (a + b) / 2, 0.84, 0); }
   } else if (o.t === "cart") {
-    K.chunk(g, K.rb(0.95, 0.42, 1.45, 0.1), M("#eceae2"), 0, 0.48, 0);
-    K.chunk(g, K.rb(0.98, 0.1, 1.5, 0.04), M("#1d2b53"), 0, 0.62, 0);
-    for (let k = 0; k < 3; k++) { const wh = part(g, G.cyl, M("#1b1b22"), 0.2, 0.1, 0.2, k === 0 ? 0 : (k === 1 ? -0.42 : 0.42), 0.2, k === 0 ? 0.65 : -0.55); wh.rotation.z = Math.PI / 2; }
-    P = K.person({ shirt: "#1d2b53", pants: "#12182e", hat: "cap", capc: "#1d2b53", hair: "#2a2418", hairStyle: "short", skin: SKIN[Math.floor(r * 5)], sleeves: "long", shoes: "#1a1a1a", sole: "#0a0a0a", pose: "sit" });
-    P.g.position.set(0, 0.28, -0.15); g.add(P.g);
+    g.add(K.billboard(window.MSDPix.prop("cart"), 1.15));
+    P = K.person({ shirt: "#1d2b53", pants: "#12182e", hat: "cap", capc: "#1d2b53", hair: "#2a2418", hairStyle: "short", skin: SKIN[Math.floor(r * 5)], sleeves: "long", shoes: "#1a1a1a", sole: "#0a0a0a", pose: "sit", scale: 0.72 });
+    P.g.position.set(0, 0.35, 0.02); g.add(P.g);
     g.userData.kind = "sit";
-    part(g, G.cyl, M("#8a8f9a"), 0.035, 0.7, 0.035, 0, 1.55, -0.55);
-    g.userData.lr = part(g, G.box, M("#ff2020", { basic: 1 }), 0.24, 0.13, 0.13, -0.14, 1.95, -0.55);
-    g.userData.lb = part(g, G.box, M("#2040ff", { basic: 1 }), 0.24, 0.13, 0.13, 0.14, 1.95, -0.55);
-    part(g, G.cyl, M("#ffffff", { emissive: "#ffffaa" }), 0.12, 0.06, 0.12, 0, 0.55, 0.76).rotation.x = Math.PI / 2;
+    g.userData.lr = part(g, G.box, M("#ff2020"), 0.16, 0.1, 0.08, -0.12, 1.35, 0.02);
+    g.userData.lb = part(g, G.box, M("#2040ff"), 0.16, 0.1, 0.08, 0.12, 1.35, 0.02);
   } else if (o.t === "fountain") {
-    part(g, G.oct, M("#d8d0c0"), 1.05, 0.5, 1.05, 0, 0.25, 0);
-    part(g, G.cyl, M("#3fa0e0", { emissive: "#103050" }), 0.92, 0.04, 0.92, 0, 0.48, 0);
-    g.userData.spray = part(g, G.cone, M("#bfe8ff", { basic: 1, transparent: true, opacity: 0.45, depthWrite: false }), 0.5, 2.4, 0.5, 0, 1.6, 0);
-    part(g, G.cyl, M("#d8d0c0"), 0.14, 0.9, 0.14, 0, 0.6, 0);
+    g.add(K.billboard(window.MSDPix.prop("fountain"), 1.35));
+    g.userData.spray = part(g, G.box, M("#bfe8ff", { transparent: true, opacity: 0.55, depthWrite: false }), 0.12, 1.1, 0.12, 0, 1.5, 0);
   }
   g.userData.P = P;
   return g;
@@ -991,7 +891,12 @@ function frameCast(t, z, heroOnly) {
   }
   K.lineup.position.set(0, 0, -z - 1.15);
   const kinds = ["run", "walk", "spray", "wave"];
-  for (let i = 0; i < K.lineupFolks.length; i++) K.pose(K.lineupFolks[i], kinds[i], t * 4 + i * 1.4, t);
+  const narrow = K.cam.aspect < 0.8;
+  const xs = narrow ? [-0.95, -0.32, 0.32, 0.95] : [-1.2, -0.4, 0.42, 1.25];
+  for (let i = 0; i < K.lineupFolks.length; i++) {
+    K.lineupFolks[i].g.position.x = xs[i];
+    K.pose(K.lineupFolks[i], kinds[i], t * 4 + i * 1.4, t);
+  }
   K.heroRoot.visible = false;
   const cam = K.cam;
   if (heroOnly) {
@@ -1004,9 +909,11 @@ function frameCast(t, z, heroOnly) {
     if (Math.abs(cam.fov - 34) > 0.1) { cam.fov = 34; cam.updateProjectionMatrix(); }
     return;
   }
-  cam.position.set(0.0, 1.2, -z + 4.6);
-  cam.lookAt(0.02, 0.92, -z - 1.15);
-  if (Math.abs(cam.fov - 40) > 0.1) { cam.fov = 40; cam.updateProjectionMatrix(); }
+  const dist = narrow ? 7.6 : 5.4;
+  const fov = narrow ? 50 : 36;
+  cam.position.set(0.0, 1.15, -z - 1.15 + dist);
+  cam.lookAt(0.02, 0.95, -z - 1.15);
+  if (Math.abs(cam.fov - fov) > 0.1) { cam.fov = fov; cam.updateProjectionMatrix(); }
 }
 function lx(lane) { return (lane - 1) * LX; }
 function anim(dt) { S.runPh = (S.runPh || 0) + dt * (gear.on === "skates" ? 5 : clamp(S.v, 0, 20) * 1.15); }
