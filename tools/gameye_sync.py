@@ -117,6 +117,24 @@ def soft(t: str) -> str:
     return re.sub(r"\s+", " ", t).strip()
 
 
+# Same game, different catalog wording. Keys are soft() titles.
+# A leading "Name's" is not stripped in general: Punch-Out!! and
+# Mike Tyson's Punch-Out!! are two games. These pairs are the same copy.
+SOFT_ALIASES = {
+    "super mario galaxy 1 2": "super mario galaxy super mario galaxy 2",
+    "super mario galaxy 1 and 2": "super mario galaxy super mario galaxy 2",
+    "hellraiser revival": "clive barker s hellraiser revival",
+    "clive barker s hellraiser revival": "hellraiser revival",
+}
+
+
+def near_soft(a: str, b: str) -> bool:
+    """True when two soft titles are the same game under a different wording."""
+    if not a or not b or a == b:
+        return False
+    return SOFT_ALIASES.get(a) == b or SOFT_ALIASES.get(b) == a
+
+
 def http_get(url: str, params: dict | None = None) -> dict:
     if params:
         url = url + "?" + urllib.parse.urlencode(params)
@@ -214,6 +232,9 @@ def find_hit(sys: str, nk: str, sk: str, by_nkey, by_soft, by_sys):
         return g, "exact" if g["nkey"] == nk else "variant"
     if sk in by_soft[sys]:
         return by_soft[sys][sk], "variant"
+    for g in by_sys[sys]:
+        if near_soft(g["soft"], sk):
+            return g, "variant"
     # Whole-word prefix only when the shorter key has >= 3 tokens
     # (covers Chip 'n Dale vs Chip 'n Dale: Rescue Rangers) and does NOT
     # match Legend of Zelda -> Legend of Zelda: Ocarina of Time loosely
@@ -241,6 +262,31 @@ def load_json(path: str, default):
         return default
     with open(path, encoding="utf-8") as f:
         return json.load(f)
+
+
+def remember_baseline(baseline, uuid, item_id, site_system, site_title, ge_title, ge_platform_id):
+    """Point a GameEye row at the shelf title it already is. Never inserts a second copy."""
+    items = baseline.setdefault("items", [])
+    row = {
+        "uuid": uuid,
+        "item_id": item_id,
+        "site_system": site_system,
+        "site_title": site_title,
+        "ge_title": ge_title,
+        "ge_platform_id": ge_platform_id,
+    }
+    for it in items:
+        if it.get("uuid") == uuid:
+            it.update(row)
+            break
+    else:
+        items.append(row)
+    baseline.setdefault("uuids", [])
+    baseline.setdefault("item_ids", [])
+    if uuid not in baseline["uuids"]:
+        baseline["uuids"].append(uuid)
+    if item_id not in baseline["item_ids"] and item_id != -1:
+        baseline["item_ids"].append(item_id)
 
 
 def save_json(path: str, obj) -> None:
@@ -430,11 +476,11 @@ def sync(dry_run: bool = False, simulate: str | None = None) -> int:
     # Also accept item_id as secondary key
     known_ids = set(baseline.get("item_ids") or [])
 
-    famicom_nkeys = {
-        g["nkey"]
-        for g in read_site_games(open(os.path.join(ROOT, "index.html"), encoding="utf-8").read())
-        if g["system"] == "Famicom"
-    }
+    site_games = read_site_games(
+        open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
+    )
+    famicom_nkeys = {g["nkey"] for g in site_games if g["system"] == "Famicom"}
+    by_nkey, by_soft, by_sys = index_site(site_games)
 
     # Simulate a brand-new GameEye item for local testing
     if simulate:
@@ -454,6 +500,9 @@ def sync(dry_run: bool = False, simulate: str | None = None) -> int:
         # Force platform map via synthetic: we'll use sys_name directly below
 
     new_items = []
+    # A GameEye row that is already a game on this shelf, just worded differently.
+    # Recorded on the baseline and not inserted as a second line.
+    mapped_existing = []
     current_uuids = set()
     for r, u in games:
         uuid = u["uuid"]
@@ -487,6 +536,22 @@ def sync(dry_run: bool = False, simulate: str | None = None) -> int:
                         save_json(PENDING_PATH, pending)
                     print(f"pending (unmapped platform): {title}")
                 continue
+        nk, sk = nkey(title), soft(title)
+        hit, kind = find_hit(sys_name, nk, sk, by_nkey, by_soft, by_sys)
+        if hit:
+            mapped_existing.append(
+                {
+                    "uuid": uuid,
+                    "item_id": r["id"],
+                    "title": title,
+                    "system": hit["system"],
+                    "site_title": hit["title"],
+                    "ge_platform_id": r.get("platform_id"),
+                    "kind": kind,
+                }
+            )
+            print(f"already on shelf ({kind}): {title!r} -> {hit['title']!r}")
+            continue
         new_items.append(
             {
                 "uuid": uuid,
@@ -526,12 +591,30 @@ def sync(dry_run: bool = False, simulate: str | None = None) -> int:
         if not dry_run:
             save_json(REMOVED_PATH, flags)
 
+    if mapped_existing and not dry_run:
+        for it in mapped_existing:
+            remember_baseline(
+                baseline,
+                uuid=it["uuid"],
+                item_id=it["item_id"],
+                site_system=it["system"],
+                site_title=it["site_title"],
+                ge_title=it["title"],
+                ge_platform_id=it.get("ge_platform_id"),
+            )
+        baseline["uuids"] = sorted(set(baseline["uuids"]))
+        baseline["item_ids"] = sorted(set(baseline["item_ids"]))
+        baseline["updated_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        save_json(BASELINE_PATH, baseline)
+
     if not new_items:
         print("no new games to add")
         if not dry_run:
             state["last_good_game_count"] = game_count
             state["last_run"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-            state["last_result"] = "noop"
+            state["last_result"] = (
+                f"mapped {len(mapped_existing)}" if mapped_existing else "noop"
+            )
             save_json(STATE_PATH, state)
         return 0
 

@@ -24,6 +24,14 @@ from postmatch import Matcher
 OUT = os.path.join(sd.ROOT, "game")
 esc = sd.esc
 
+# GameEye added a second shelf line for a game that was already on the shelf.
+# The extra line is gone. The old url stays as a redirect to the copy we kept,
+# so the builder does not delete the page.
+REDIRECTS = {
+    "hellraiser-revival-xbox-series-x-s": "clive-barker-s-hellraiser-revival-xbox-series-x-s",
+    "super-mario-galaxy-1-2-nintendo-switch": "super-mario-galaxy-super-mario-galaxy-2-nintendo-switch",
+}
+
 COND = {"cib": "Complete in box", "cib+": "Complete in box", "loose": "Loose", "sealed": "Sealed"}
 
 CSS = """  .crumb{font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.08em;margin:30px 0 0}
@@ -388,6 +396,23 @@ SITEMAP_START = "  <!-- game pages: written by tools/build_game_pages.py -->"
 SITEMAP_END = "  <!-- end game pages -->"
 
 
+def redirect_page(new_slug):
+    """A kept url for a shelf line that was the same game under another name."""
+    dest = f"/game/{new_slug}.html"
+    url = cfg.SITE_URL + dest
+    return (
+        "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n"
+        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
+        f"<title>Redirect | The Nostalgia Pro</title>\n"
+        f"<link rel=\"canonical\" href=\"{url}\">\n"
+        f"<meta http-equiv=\"refresh\" content=\"0; url={dest}\">\n"
+        f"<script>location.replace({json.dumps(dest)});</script>\n"
+        "</head>\n<body>\n"
+        f"<p><a href=\"{dest}\">This game is on the shelf here.</a></p>\n"
+        "</body>\n</html>\n"
+    )
+
+
 def write_sitemap(slugs, extra_paths=()):
     p = os.path.join(sd.ROOT, "sitemap.xml")
     src = open(p, encoding="utf-8").read()
@@ -428,12 +453,18 @@ def main():
                     ranks.get(g["slug"], []), overrated.get(g["slug"], []))
         with open(os.path.join(OUT, name), "w", encoding="utf-8") as f:
             f.write(html)
+    for old, new in REDIRECTS.items():
+        name = old + ".html"
+        keep.add(name)
+        with open(os.path.join(OUT, name), "w", encoding="utf-8") as f:
+            f.write(redirect_page(new))
     for f in os.listdir(OUT):
         if f.endswith(".html") and f not in keep:
             os.remove(os.path.join(OUT, f))
     extra = []
     if os.path.exists(os.path.join(sd.ROOT, "console")):
         extra = sorted("/console/" + f for f in os.listdir(os.path.join(sd.ROOT, "console")) if f.endswith(".html"))
+    extra += [f"/game/{old}.html" for old in sorted(REDIRECTS)]
     write_sitemap([g["slug"] for g in games], extra)
     print(f"{len(games)} game pages, {sum(1 for g in games if posts.get(g['slug']))} with X posts, "
           f"{sum(1 for g in games if mentions.get(g['slug']))} on lists, {len(reviews)} reviewed, "
