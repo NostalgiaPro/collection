@@ -10,6 +10,14 @@
     },
     {
       "type": "site",
+      "title": "Comics & Books",
+      "text": "15 comics and books added to the shelf.",
+      "url": "/comics.html",
+      "image": "/images/batman-hush-trade-paperback.webp",
+      "date": "2026-11-26"
+    },
+    {
+      "type": "site",
       "title": "God of War III Remastered [PlayStation Hits]",
       "text": "New on the PlayStation 4 shelf.",
       "url": "/game/god-of-war-iii-remastered-playstation-hits-playstation-4.html",
