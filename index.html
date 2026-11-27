@@ -1490,7 +1490,23 @@ nav a em{color:color-mix(in srgb,var(--c) 45%,#fff)}
 body.y1996 .npmerch .npmerch-btn{color:#000}
 /* Browse by console chips under the scoreboard. Equal columns so short and long names line up. */
 .hp-cons{margin:48px 0 0}
-.hp-cons-h{font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:0 0 20px}
+.hp-cons-details{margin:0}
+.hp-cons-h{display:block;width:100%;margin:0 0 20px;padding:0;border:0;background:none;font-family:"Righteous",sans-serif;font-weight:400;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;list-style:none;cursor:default}
+.hp-cons-h::-webkit-details-marker{display:none}
+.hp-cons-h::marker{content:""}
+.hp-cons-chev{display:none}
+@media (max-width:699px){
+  .hp-cons-h{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;margin:0;padding:12px 14px;cursor:pointer;color:var(--text);background:var(--bg2);border:1px solid var(--line);border-radius:2px}
+  .hp-cons-details[open] > .hp-cons-h{margin-bottom:20px}
+  .hp-cons-chev{display:block;flex:none;width:8px;height:8px;border-right:2px solid var(--hot);border-bottom:2px solid var(--hot);transform:translateY(-2px) rotate(45deg)}
+  .hp-cons-details[open] > .hp-cons-h .hp-cons-chev{transform:translateY(2px) rotate(225deg)}
+  .hp-cons-h:focus-visible{outline:2px solid var(--hot);outline-offset:3px}
+}
+@media (min-width:700px){
+  /* Always show the chips. The summary is only a label here, same as the old heading. */
+  .hp-cons-details > .hp-cons-row{display:grid !important}
+  .hp-cons-h{pointer-events:none}
+}
 .hp-cons-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
 .hp-cons-row a{display:flex;align-items:center;justify-content:space-between;gap:14px;min-width:0;min-height:44px;height:100%;padding:11px 16px;border:1px solid var(--line);border-left:4px solid var(--c);
   border-radius:2px;background:var(--bg2);color:var(--text);text-decoration:none;font-size:14px;line-height:1.2}
@@ -1710,7 +1726,7 @@ body.y1996 .npmerch .npmerch-btn{color:#000}
       </div>
     </div>
     <!-- Browse by console: filled from the shelf (RAW) by drawConsoleChips() below. -->
-    <nav class="hp-cons" aria-labelledby="hpConsH"><p class="hp-cons-h" id="hpConsH">Browse by console</p><div class="hp-cons-row" id="consoleChips"></div></nav>
+    <nav class="hp-cons" aria-labelledby="hpConsH"><details class="hp-cons-details"><summary class="hp-cons-h" id="hpConsH">Browse by console<span class="hp-cons-chev" aria-hidden="true"></span></summary><div class="hp-cons-row" id="consoleChips"></div></details></nav>
     </div>
 
     <!-- GAME SALES CARD: Nostalgia Pro: The Game. Sits after Start here and before Latest Posts.
@@ -4637,6 +4653,21 @@ function drawConsoleChips(){
 drawRail();
 drawConsoleChips();
 render();
+
+/* Browse by console is a disclosure on a phone and a plain heading on desktop. */
+(function(){
+  var det = document.querySelector(".hp-cons-details");
+  var sum = document.getElementById("hpConsH");
+  if (!det || !sum || !window.matchMedia) return;
+  var mq = matchMedia("(min-width:700px)");
+  function sync(){
+    if (mq.matches) { det.open = true; sum.tabIndex = -1; }
+    else sum.tabIndex = 0;
+  }
+  sync();
+  if (mq.addEventListener) mq.addEventListener("change", sync);
+  else if (mq.addListener) mq.addListener(sync);
+})();
 </script>
 
 <script>
