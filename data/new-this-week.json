@@ -25,6 +25,46 @@
       "date": "2026-11-27"
     },
     {
+      "type": "site",
+      "title": "Trading cards",
+      "text": "Trading cards and binder pages added, including a Kobe 96-97 rookie page, Jordan Bulls pages, and the Krome Lady Death set.",
+      "url": "/cards.html",
+      "image": "/images/cards/thumbs/t044.webp",
+      "date": "2026-11-27"
+    },
+    {
+      "type": "site",
+      "title": "Books",
+      "text": "Novels and strategy guides added, including Batman: Resurrection and the Halo Encyclopedia.",
+      "url": "/books.html",
+      "image": "/images/batman-resurrection-novel.webp",
+      "date": "2026-11-27"
+    },
+    {
+      "type": "site",
+      "title": "Comics and magazines",
+      "text": "Single issues, graphic novels, and magazines added, including Nintendo Power #179.",
+      "url": "/comics.html",
+      "image": "/images/nintendo-power-179-magazine.webp",
+      "date": "2026-11-27"
+    },
+    {
+      "type": "site",
+      "title": "Windows Arcade Pack",
+      "text": "New on the PC shelf. Loose disc, WizardWorks.",
+      "url": "/game/windows-arcade-pack-pc.html",
+      "image": "/images/windows-arcade-pack-pc.webp",
+      "date": "2026-11-27"
+    },
+    {
+      "type": "site",
+      "title": "World Series Champions 2014: San Francisco Giants",
+      "text": "New on the DVD shelf. Sealed.",
+      "url": "/movies.html",
+      "image": "/images/world-series-champions-2014-san-francisco-giants-dvd.webp",
+      "date": "2026-11-27"
+    },
+    {
       "type": "x",
       "title": "A Charlie Brown Thanksgiving",
       "text": "A Charlie Brown Thanksgiving - Full movie! \"We should just be thankful for being together.\" Happy Thanksgiving everyone!",
