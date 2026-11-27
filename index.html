@@ -549,6 +549,30 @@ a.score:hover::after,a.score:focus-visible::after{opacity:1}
   .hp-hero-top .ht-act-arcade{height:100%}
   .hp-hero-top .hp-shelflinks a{font-size:12.5px;min-height:32px}
 }
+@media (min-width:1280px){
+  /* The page column stays 1220px. From here the hero breaks out of it so the
+     six cards reach toward the viewport edges. The script logo is 512px (1.6x
+     the old 320px mark) at 1280px and 640px (2x) from 1920px up. */
+  .hp-hero-top{
+    width:min(1680px, calc(100vw - 32px));
+    margin-left:calc(50% - min(840px, 50vw - 16px));
+    margin-right:calc(50% - min(840px, 50vw - 16px));
+    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+    column-gap:clamp(14px, 1.4vw, 28px);
+    align-items:start;
+  }
+  .o1 .hp-hero-mid{
+    justify-self:center;min-width:0;
+    width:clamp(512px, calc(20vw + 256px), 640px);
+  }
+  .o1 .hp-hero-mid .wordmark{display:block;width:100%;margin:0 auto 14px}
+  .o1 .hp-hero-mid .wordmark img{width:100%;max-width:none;height:auto}
+  .o1 .hp-hero-mid h1{margin:0;text-wrap:balance}
+  .o1 .hp-hero-mid .standfirst{max-width:38ch;margin:12px auto 0}
+  .hp-hero-top .ht-acts{gap:clamp(8px, 0.8vw, 12px);width:100%}
+  .hp-hero-top .ht-act,
+  .hp-hero-top .ht-act-arcade{padding:12px 10px 14px}
+}
 @media (max-width:699px){
   .hp-hero-top .hp-shelflinks a,
   .hp-hero-top .ht-latest a,
