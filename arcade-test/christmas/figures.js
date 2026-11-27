@@ -29,22 +29,49 @@ export function createCast(T) {
     return s;
   }
 
+  const SHOP = {
+    "#7a3fd0": "shopper-front", "#2fb0a0": "shopper-teal", "#ff3fa4": "shopper-pink",
+    "#3f7fd0": "shopper-blue", "#e0662a": "shopper-orange", "#1d2b53": "shopper-blue", "#5a6670": "shopper-teal"
+  };
+  function artName(o) {
+    if (o.tee) return o.view === "back" ? "hero-back" : "hero-front";
+    if (o.beard || o.hat === "santa") return "santa-front";
+    if (o.vest) return "clerk-front";
+    return SHOP[String(o.shirt || "").toLowerCase()] || "shopper-front";
+  }
+  function texOfImage(img) {
+    if (texCache.has(img)) return texCache.get(img);
+    const t = new T.Texture(img);
+    t.magFilter = T.NearestFilter;
+    t.minFilter = T.NearestFilter;
+    t.generateMipmaps = false;
+    t.colorSpace = T.SRGBColorSpace;
+    t.needsUpdate = true;
+    texCache.set(img, t);
+    return t;
+  }
   function framesFor(o) {
+    const img = window.XmasArt && window.XmasArt[artName(o)];
+    if (img) {
+      const t = texOfImage(img);
+      const out = [];
+      for (let i = 0; i < N; i++) out.push(t);
+      return { frames: out, w: img.naturalWidth || img.width, h: img.naturalHeight || img.height, art: true };
+    }
     const out = [];
     for (let i = 0; i < N; i++) out.push(texOf(Pix.frame(o, i)));
-    return out;
+    const role = Pix.roleOf(o);
+    return { frames: out, w: role === "santa" ? Pix.SW : Pix.W, h: role === "santa" ? Pix.SH : Pix.H, art: false };
   }
 
   function person(o) {
     o = Object.assign({}, o || {});
-    const role = Pix.roleOf(o);
-    const tall = role === "santa";
-    const baseH = tall ? 2.02 : 1.82;
-    const h = baseH * (o.scale || 1) * (o.bulk || 1);
-    const aspect = tall ? Pix.SW / Pix.SH : Pix.W / Pix.H;
-    let frames = framesFor(o);
+    const pack = framesFor(o);
+    const frames = pack.frames;
+    const h = 1.82 * (o.scale || 1);
+    const aspect = pack.w / pack.h;
     const mat = new T.SpriteMaterial({
-      map: frames[0], transparent: true, alphaTest: 0.4, depthWrite: true, fog: true
+      map: frames[0], transparent: true, alphaTest: 0.5, depthWrite: true, fog: true
     });
     const sprite = new T.Sprite(mat);
     sprite.scale.set(h * aspect, h, 1);
@@ -70,12 +97,14 @@ export function createCast(T) {
       }
     };
     root.add(P.grip);
+    P.lockedArt = pack.art;
     P.setShoes = function (id) {
       P.shoeId = id || "plain";
+      if (P.lockedArt) return;
       const col = id === "strap" ? "#ff3fa4" : id === "skates" ? "#9bff3f" : id === "lightup" ? "#3ff0ff" : "#eceae2";
       const sole = id === "plain" ? "#c2304a" : "#241c16";
       function bake(color, skates) {
-        return framesFor(Object.assign({}, o, { shoes: color, sole: sole, skates: !!skates }));
+        return framesFor(Object.assign({}, o, { shoes: color, sole: sole, skates: !!skates })).frames;
       }
       if (id === "lightup") {
         P.lightA = bake("#3ff0ff", false);
@@ -114,6 +143,9 @@ export function createCast(T) {
       set = P.shoeL.material[0].emissive.getHex() === 0xff3fa4 ? P.lightB : P.lightA;
     }
     if (P.sprite.material.map !== set[idx]) P.sprite.material.map = set[idx];
+    const moving = kind === "run" || kind === "walk" || kind === "skate" || kind === "mop";
+    P.sprite.position.y = moving ? Math.abs(Math.sin((ph || 0) * 2)) * 0.045 : 0;
+    P.sprite.material.rotation = moving ? Math.sin(ph || 0) * 0.04 : 0;
   }
 
   function pho(col) { return new T.MeshBasicMaterial({ color: new T.Color(col) }); }

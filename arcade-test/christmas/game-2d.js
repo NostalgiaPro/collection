@@ -538,6 +538,22 @@
   // 24x40 people. Frame 0 plants both feet, 1 and 2 lift a foot and swing the opposite arm.
   function humanSprite(frame, o) {
     o = o || {};
+    if (window.XmasArt) {
+      var key = o.mark || o.tee ? (o.view === "back" ? "hero-back" : "hero-front")
+        : (o.beard || o.hat === "santa") ? "santa-front"
+        : (o.sash || o.vest) ? "clerk-front"
+        : "shopper-front";
+      var img = XmasArt[key];
+      if (img) {
+        if (!img._cv) {
+          var cv = document.createElement("canvas");
+          cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+          cv.getContext("2d").drawImage(img, 0, 0);
+          img._cv = cv;
+        }
+        return img._cv;
+      }
+    }
     if (window.MSDPix) {
       var idx = frame === 1 ? 2 : frame === 2 ? 4 : 0;
       return window.MSDPix.frame({

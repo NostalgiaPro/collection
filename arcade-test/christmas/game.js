@@ -1259,17 +1259,35 @@ function startGame() {
 window.__msd = { S: function () { return S; }, step: function (sec) { for (let i = 0; i < sec * 60; i++) { if (Sh.state() !== "playing" || S.done) break; update(1 / 60); } },
   move: move, jump: jump, drop: drop, finish: finish, kit: function () { return K; }, juke: Juke, Q: Q, LEN: LEN, ZB: ZB, LX: LX, zoneAt: zoneAt, build: build, jumpH: jumpH };
 
+function loadArt() {
+  const names = ["hero-front", "hero-back", "shopper-front", "shopper-teal", "shopper-pink", "shopper-blue", "shopper-orange", "clerk-front", "santa-front"];
+  return Promise.all(names.map(function (name) {
+    return new Promise(function (res, rej) {
+      const img = new Image();
+      img.onload = function () { res([name, img]); };
+      img.onerror = function () { rej(new Error(name)); };
+      img.src = "sprites/" + name + ".png";
+    });
+  })).then(function (list) {
+    const art = {};
+    for (let i = 0; i < list.length; i++) art[list[i][0]] = list[i][1];
+    window.XmasArt = art;
+  });
+}
 (function boot() {
   const q = /[?&]gfx=(high|low|2d)/.exec(location.search);
   let started = false;
+  const artP = loadArt();
   const p = q && q[1] === "2d" ? Promise.reject(Object.assign(new Error("2D asked for"), { npStage: "webgl" }))
     : import(THREE_URL).then(null, function (e) { e.npStage = "three"; throw e; });
   p.then(function (T) {
+    return artP.then(function () {
     THREE = T;
     try { buildKit(THREE); } catch (e) { e.npStage = "webgl"; throw e; }
     if (q) { Q.lock = true; Q.q = q[1] === "low" ? QUALITY.length - 1 : 0; }
     reset();
     started = true; startGame();
+    });
   }).catch(function (e) {
     console.error(e);
     if (started) return;
