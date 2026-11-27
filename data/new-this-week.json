@@ -5,7 +5,7 @@
       "title": "It's a Wonderful Life",
       "text": "New on the movie shelf. Sealed 4K Ultra HD.",
       "url": "/movies.html",
-      "image": "/images/placeholders/it-s-a-wonderful-life-4k-ultra-hd.webp",
+      "image": "/images/it-s-a-wonderful-life-4k-ultra-hd.webp",
       "date": "2026-11-27"
     },
     {
@@ -13,7 +13,7 @@
       "title": "White Christmas",
       "text": "New on the movie shelf. Sealed 70th Anniversary 4K Ultra HD with slipcover.",
       "url": "/movies.html",
-      "image": "/images/placeholders/white-christmas-4k-ultra-hd.webp",
+      "image": "/images/white-christmas-4k-ultra-hd.webp",
       "date": "2026-11-27"
     },
     {
@@ -21,7 +21,7 @@
       "title": "God of War [PlayStation Hits]",
       "text": "New on the PlayStation 4 shelf.",
       "url": "/game/god-of-war-playstation-hits-playstation-4.html",
-      "image": "",
+      "image": "/images/god-of-war-playstation-hits-playstation-4.webp",
       "date": "2026-11-27"
     },
     {
