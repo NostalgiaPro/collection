@@ -290,7 +290,6 @@ a.ht-soc:visited{color:var(--text)}
   box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 10px 24px rgba(0,0,0,.35)}
 .hp-side-k{margin:0 0 8px;font-family:"Righteous",sans-serif;font-weight:400;font-size:11px;line-height:1.3;
   letter-spacing:.08em;text-transform:uppercase;color:var(--hot)}
-.hp-side-note{margin:0 0 12px;font-size:13.5px;line-height:1.4;color:var(--dim)}
 .hp-beat{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
 .hp-beat a{display:flex;align-items:center;gap:10px;min-width:0;padding:8px;text-decoration:none;color:var(--text);
   background:var(--bg2);border:1px solid var(--line);border-radius:6px}
@@ -337,7 +336,6 @@ a.ht-soc:visited{color:var(--text)}
   .hp-side{order:0;padding:12px}
   .hp-side-beat{grid-column:1;grid-row:1;margin:64px 0 0}
   .hp-side-merch{grid-column:3;grid-row:1;margin:64px 0 0}
-  .hp-side-note{font-size:12.5px}
   .hp-beat{gap:8px}
   .hp-beat a{gap:8px;padding:6px}
   .hp-beat img{width:36px;height:48px}
@@ -4731,7 +4729,6 @@ function drawBeatSide(){
   else for (let i = 0; i < 4; i++) picks.push(beaten[Math.round(i * (beaten.length - 1) / 3)]);
   box.innerHTML =
     `<p class="hp-side-k" id="hpBeatH">Beaten games</p>` +
-    `<p class="hp-side-note">No beat date is stored, so these are a few from the beaten list.</p>` +
     `<ul class="hp-beat">` + picks.map(g =>
       `<li><a href="${gamePage(g)}"><img ${shotAttrs(slug(g))} alt=""><span><b>${esc(g.title)}</b><i>${esc(g.system)}</i></span></a></li>`
     ).join("") + `</ul>`;
