@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-27T00:39:48Z",
+ "updated": "2026-11-27T09:45:01Z",
  "channels": {
   "youtube": "https://www.youtube.com/@TheNostalgiaPro",
   "tiktok": "https://www.tiktok.com/@rc.the.nostalgia.pro"
@@ -60,6 +60,24 @@
    "published": "2026-11-22T05:29:18Z"
   },
   {
+   "id": "pnBnO5Ix63M",
+   "kind": "short",
+   "title": "Landing the final hit on the Penguin",
+   "url": "https://www.youtube.com/shorts/pnBnO5Ix63M",
+   "thumb": "https://i.ytimg.com/vi/pnBnO5Ix63M/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/pnBnO5Ix63M/hqdefault.jpg",
+   "published": "2026-11-27T02:30:15Z"
+  },
+  {
+   "id": "c4-csZo_2FY",
+   "kind": "short",
+   "title": "GoldenEye 007, Dam gameplay on a real N64 and CRT",
+   "url": "https://www.youtube.com/shorts/c4-csZo_2FY",
+   "thumb": "https://i.ytimg.com/vi/c4-csZo_2FY/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/c4-csZo_2FY/hqdefault.jpg",
+   "published": "2026-11-27T01:00:06Z"
+  },
+  {
    "id": "cqqX0aurZ64",
    "kind": "short",
    "title": "Mario Kart 64, Final lap on a real N64 and CRT",
@@ -94,24 +112,6 @@
    "thumb": "https://i.ytimg.com/vi/9Vp06sm2e5E/maxresdefault.jpg",
    "thumb_alt": "https://i.ytimg.com/vi/9Vp06sm2e5E/hqdefault.jpg",
    "published": "2026-11-26T02:30:31Z"
-  },
-  {
-   "id": "fdO0uhbQ-s8",
-   "kind": "short",
-   "title": "Mario Kart 64, title screen on a real N64 and CRT",
-   "url": "https://www.youtube.com/shorts/fdO0uhbQ-s8",
-   "thumb": "https://i.ytimg.com/vi/fdO0uhbQ-s8/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/fdO0uhbQ-s8/hqdefault.jpg",
-   "published": "2026-11-26T01:00:29Z"
-  },
-  {
-   "id": "kbYO8RJbUFc",
-   "kind": "short",
-   "title": "Duke Nukem: Zero Hour, title screen on a real N64 and CRT",
-   "url": "https://www.youtube.com/shorts/kbYO8RJbUFc",
-   "thumb": "https://i.ytimg.com/vi/kbYO8RJbUFc/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/kbYO8RJbUFc/hqdefault.jpg",
-   "published": "2026-11-25T22:00:37Z"
   }
  ],
  "tiktok": [
@@ -119,49 +119,49 @@
    "id": "7712545744946810126",
    "title": "Mad Max on a real NES",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7712545744946810126",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oopRpJiIIBw1yuhfDdipI3Uyg5ujKBAIBADKBy~tplv-tiktokx-origin.image?dr=9636&x-expires=1795910400&x-signature=wfUKSg%2BjLEgp%2BqdMI6PMaHdfHXo%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795910400,
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oopRpJiIIBw1yuhfDdipI3Uyg5ujKBAIBADKBy~tplv-tiktokx-origin.image?dr=9636&x-expires=1795942800&x-signature=JETN1LOgyPDDEXVBvaJ3mrjufzg%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+   "thumb_expires": 1795942800,
    "published": "2026-11-26T18:16:30Z"
   },
   {
    "id": "7711866853739580685",
-   "title": "Sting vs The Hitman on my loose WCW Mayhem cart. Stick around for how long the match lasts. From my collection.",
+   "title": "WCW Mayhem, Sting vs The Hitman on a real N64 and CRT",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711866853739580685",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oAdDFB0fgC2t404GIBCiEf4BSDBmrIAZUDUVgv~tplv-tiktokx-origin.image?dr=9636&x-expires=1795910400&x-signature=kQ9AHn8pR8vlyeO4dqq70GkMvz8%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795910400,
+   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oAdDFB0fgC2t404GIBCiEf4BSDBmrIAZUDUVgv~tplv-tiktokx-origin.image?dr=9636&x-expires=1795942800&x-signature=Vu9YzMVel%2FPEQNkFZlmH3sqb61w%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+   "thumb_expires": 1795942800,
    "published": "2026-11-24T22:22:03Z"
+  },
+  {
+   "id": "7711862624018910477",
+   "title": "Penguin kept talking about his pizza, and it finally showed up after the fight was over. Would you tip this guy?",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711862624018910477",
+   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/ogIGIAD7VCPBAHDrUFwwfhI7ioeCsE9gSLglBT~tplv-tiktokx-origin.image?dr=9636&x-expires=1795942800&x-signature=bRLBl4X78PfdedNu%2FL%2Frnv15eMA%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+   "thumb_expires": 1795942800,
+   "published": "2026-11-24T22:05:38Z"
+  },
+  {
+   "id": "7711862375531498766",
+   "title": "Killer Instinct, Fulgore vs Jago on a real SNES and CRT",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711862375531498766",
+   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oweWwerQEeGDFMyIAFLPBQWBHqkNQACkBpCkkA~tplv-tiktokx-origin.image?dr=9636&x-expires=1795942800&x-signature=Xz3a%2BzPCfVuI%2BwvqqHIBhuzVbNI%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+   "thumb_expires": 1795942800,
+   "published": "2026-11-24T22:04:40Z"
   },
   {
    "id": "7711861962430319885",
    "title": "Leading lap 2 at Sunny Beach. The greatest N64 game ever made, no question. Have you played it?",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711861962430319885",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oAQMQCDFVEPBABDr6FATfoZwUlpCKEOgS5g1Be~tplv-tiktokx-origin.image?dr=9636&x-expires=1795910400&x-signature=pFejkjPCx3V0%2Brm%2BBgQqqMQ5iy8%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795910400,
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oAQMQCDFVEPBABDr6FATfoZwUlpCKEOgS5g1Be~tplv-tiktokx-origin.image?dr=9636&x-expires=1795942800&x-signature=nrCtW2Oc3Qhg2739V2K3qqXGjSU%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+   "thumb_expires": 1795942800,
    "published": "2026-11-24T22:03:04Z"
   },
   {
    "id": "7711859845443439885",
    "title": "Quake 64 on a real N64 and CRT, already in the base. How far did you get?",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711859845443439885",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/o0tBAIWeGgWAsL6B01EGCFDErH8DqA8kfIfgD5~tplv-tiktokx-origin.image?dr=9636&x-expires=1795910400&x-signature=WAxTb4CAFruluI055IRtYT6xUE4%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795910400,
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/o0tBAIWeGgWAsL6B01EGCFDErH8DqA8kfIfgD5~tplv-tiktokx-origin.image?dr=9636&x-expires=1795942800&x-signature=pt2ScPEZRAIXdaLDLyC%2FQMYA19g%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
+   "thumb_expires": 1795942800,
    "published": "2026-11-24T21:54:51Z"
-  },
-  {
-   "id": "7711859526177180958",
-   "title": "Last hit on the Penguin and the duck goes up in smoke. How long did this fight take you?",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711859526177180958",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oAFMcrKNEtfgAF8QaCSQigDD19ABBoDqCQvfV2~tplv-tiktokx-origin.image?dr=9636&x-expires=1795910400&x-signature=e2myVvVPWDtQxEYerf1%2FvyoSYyk%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795910400,
-   "published": "2026-11-24T21:53:37Z"
-  },
-  {
-   "id": "7711859082109422862",
-   "title": "Maximum Carnage on my SNES and a CRT. Spider-Man in the opening stage.",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711859082109422862",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/ooQDkQZQGLm3ACBxAIexAyBf0LNe6WHEJi2rXG~tplv-tiktokx-origin.image?dr=9636&x-expires=1795910400&x-signature=oIL2jorKVAbZHlVc9Bi5N3ea01I%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795910400,
-   "published": "2026-11-24T21:51:53Z"
   }
  ]
 }
