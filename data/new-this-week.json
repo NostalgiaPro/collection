@@ -1,6 +1,70 @@
 {
   "items": [
     {
+      "type": "site",
+      "title": "It's a Wonderful Life",
+      "text": "New on the movie shelf. Sealed 4K Ultra HD.",
+      "url": "/movies.html",
+      "image": "/images/it-s-a-wonderful-life-4k-ultra-hd.webp",
+      "date": "2026-11-27"
+    },
+    {
+      "type": "site",
+      "title": "White Christmas",
+      "text": "New on the movie shelf. Sealed 70th Anniversary 4K Ultra HD with slipcover.",
+      "url": "/movies.html",
+      "image": "/images/white-christmas-4k-ultra-hd.webp",
+      "date": "2026-11-27"
+    },
+    {
+      "type": "site",
+      "title": "God of War [PlayStation Hits]",
+      "text": "New on the PlayStation 4 shelf.",
+      "url": "/game/god-of-war-playstation-hits-playstation-4.html",
+      "image": "/images/god-of-war-playstation-hits-playstation-4.webp",
+      "date": "2026-11-27"
+    },
+    {
+      "type": "site",
+      "title": "Trading cards",
+      "text": "Trading cards and binder pages added, including a Kobe 96-97 rookie page, Jordan Bulls pages, and the Krome Lady Death set.",
+      "url": "/cards.html",
+      "image": "/images/cards/thumbs/t044.webp",
+      "date": "2026-11-27"
+    },
+    {
+      "type": "site",
+      "title": "Books",
+      "text": "Novels and strategy guides added, including Batman: Resurrection and the Halo Encyclopedia.",
+      "url": "/books.html",
+      "image": "/images/batman-resurrection-novel.webp",
+      "date": "2026-11-27"
+    },
+    {
+      "type": "site",
+      "title": "Comics and magazines",
+      "text": "Single issues, graphic novels, and magazines added, including Nintendo Power #179.",
+      "url": "/comics.html",
+      "image": "/images/nintendo-power-179-magazine.webp",
+      "date": "2026-11-27"
+    },
+    {
+      "type": "site",
+      "title": "Windows Arcade Pack",
+      "text": "New on the PC shelf. Loose disc, WizardWorks.",
+      "url": "/game/windows-arcade-pack-pc.html",
+      "image": "/images/windows-arcade-pack-pc.webp",
+      "date": "2026-11-27"
+    },
+    {
+      "type": "site",
+      "title": "World Series Champions 2014: San Francisco Giants",
+      "text": "New on the DVD shelf. Sealed.",
+      "url": "/movies.html",
+      "image": "/images/world-series-champions-2014-san-francisco-giants-dvd.webp",
+      "date": "2026-11-27"
+    },
+    {
       "type": "x",
       "title": "A Charlie Brown Thanksgiving",
       "text": "A Charlie Brown Thanksgiving - Full movie! \"We should just be thankful for being together.\" Happy Thanksgiving everyone!",
@@ -35,7 +99,7 @@
     {
       "type": "x",
       "title": "2 more Switch games added",
-      "text": "2 more Switch games have been added to the collection. Picked up Kirby Air Riders and the Super Mario Galaxy 1 and 2 bundle. 7 new games acquired in the last 3 days, bringing my total physical owned game count to 859.",
+      "text": "2 more Switch games have been added to the collection. Picked up Kirby Air Riders and the Super Mario Galaxy 1 and 2 bundle. 7 new games acquired in the last 3 days, bringing my total physical owned game count to 861.",
       "url": "https://x.com/NostalgiaPro/status/2125705594363650156",
       "image": "",
       "date": "2026-11-25"

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="preload" href="/fonts/TitilliumWeb-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/Righteous-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<script src="/count.js" defer></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#101219">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Nostalgia Pro">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="description" content="Trading cards on the shelf: NBA, NFL, MLB, and comic and non-sports cards, including 9-pocket binder pages.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Nostalgia Pro">
+<meta property="og:title" content="The Nostalgia Pro | Trading Cards">
+<meta property="og:description" content="Trading cards on the shelf: NBA, NFL, MLB, and comic and non-sports cards, including 9-pocket binder pages.">
+<meta property="og:url" content="https://thenostalgiapro.com/cards.html">
+<meta property="og:image" content="https://thenostalgiapro.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Nostalgia Pro: 861 games on the shelf">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@NostalgiaPro">
+<meta name="twitter:title" content="The Nostalgia Pro | Trading Cards">
+<meta name="twitter:description" content="Trading cards on the shelf: NBA, NFL, MLB, and comic and non-sports cards, including 9-pocket binder pages.">
+<meta name="twitter:image" content="https://thenostalgiapro.com/og-image.png">
+<link rel="canonical" href="https://thenostalgiapro.com/cards.html">
+<title>The Nostalgia Pro | Trading Cards</title>
+<link rel="stylesheet" href="/fonts/site.css">
+<link rel="stylesheet" href="/retro.css">
+<link rel="stylesheet" href="/themes.css">
+<link rel="stylesheet" href="/eras.css">
+<link rel="stylesheet" href="/growth.css">
+<link rel="stylesheet" href="/type.css">
+<script src="/theme.js"></script>
+<style>
+  :root{
+    --bg:#101219; --bg2:#171a23; --panel:#1d2029;
+    --text:#eceae2; --dim:#8e93a2; --line:#2c3040; --hot:#ff4b3e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"Titillium Web",system-ui,sans-serif;font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(90,110,180,.14), transparent 62%),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 22px 90px}
+  header{padding:44px 0 0}
+  .wordmark{margin:0 0 18px;line-height:0}.wordmark a{display:inline-block;line-height:0;color:inherit;text-decoration:none}.wordmark img{display:block;width:min(240px,72vw);height:auto}
+  h1{font-family:"Righteous",sans-serif;font-size:clamp(15px,3vw,28px);line-height:1.55;margin:0}
+  .standfirst{color:var(--dim);font-size:15px;margin:14px 0 0;max-width:62ch}
+  .navrow{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0 0}
+  .navbtn{
+    display:inline-flex;align-items:center;border:2px solid var(--line);color:var(--dim);
+    text-decoration:none;font-family:"Righteous",sans-serif;font-size:11px;
+    letter-spacing:.05em;padding:9px 14px;border-radius:2px;
+  }
+  .navbtn:hover{border-color:var(--hot);color:var(--hot)}
+  .navbtn.here{border-color:var(--hot);background:var(--hot);color:#12070a}
+  .searchbar{margin:26px 0 0}
+  #q{
+    width:100%;background:#0a0c11;border:2px solid var(--line);border-bottom-color:var(--hot);
+    color:var(--text);font-family:"Titillium Web",sans-serif;
+    font-size:clamp(19px,3vw,25px);font-weight:600;padding:14px 16px;border-radius:2px;
+  }
+  #q::placeholder{color:#565c6e;font-weight:500}
+  #q:focus{outline:none;border-color:var(--hot);box-shadow:0 0 0 3px rgba(255,75,62,.18)}
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+  .filter{
+    font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.04em;
+    border:2px solid var(--line);background:transparent;color:var(--dim);
+    padding:8px 12px;border-radius:2px;cursor:pointer;min-height:40px;
+  }
+  .filter.on,.filter:hover{border-color:var(--hot);color:var(--hot)}
+  .filter.on{background:var(--hot);color:#12070a}
+  .scores{display:flex;flex-wrap:wrap;margin:24px 0 0;border:2px solid var(--line);border-radius:2px;overflow:hidden}
+  .score{flex:1 1 0;padding:13px 15px;background:var(--bg2);border-right:1px solid var(--line)}
+  .score:last-child{border-right:none}
+  .score b{display:block;font-family:"Righteous",sans-serif;font-size:18px;line-height:1}
+  .score span{display:block;margin-top:8px;font-family:"Righteous",sans-serif;font-size:10px;letter-spacing:.09em;color:var(--dim)}
+  section.shelf{margin:34px 0 0}
+  .shelfhead{
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+    padding:11px 14px;background:var(--c);border-radius:2px 2px 0 0;cursor:pointer;user-select:none;
+  }
+  .shelfhead h2{
+    font-family:"Titillium Web",sans-serif;font-size:22px;font-weight:700;
+    margin:0;color:#0b0d12;letter-spacing:-.005em;display:flex;align-items:center;
+  }
+  .shelfhead .caret{
+    font-family:"Righteous",sans-serif;font-size:30px;line-height:.7;margin-right:13px;
+    transition:transform .12s ease;display:inline-block;position:relative;top:2px;
+  }
+  section.shelf.shut .caret{transform:rotate(-90deg)}
+  section.shelf.shut .grid{display:none}
+  .shelfhead p{margin:0;font-family:"Righteous",sans-serif;font-size:11px;color:#0b0d12;opacity:.72}
+  .grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px;
+    padding:12px;border:1px solid var(--line);border-top:none;background:var(--bg2);border-radius:0 0 2px 2px;
+  }
+  .tile{
+    display:flex;flex-direction:column;gap:8px;color:inherit;text-decoration:none;
+    background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:8px;min-width:0;
+  }
+  .tile:hover{border-color:var(--c,var(--hot))}
+  button.tile{font:inherit;text-align:left;cursor:zoom-in;width:100%}
+  .tile img{width:100%;height:auto;display:block;background:#0a0c11;border-radius:2px}
+  .tile .tt{font-weight:600;font-size:14.5px;line-height:1.3}
+  .badges{display:flex;flex-wrap:wrap;gap:4px}
+  .badge{
+    font-family:"Righteous",sans-serif;font-size:9px;letter-spacing:.04em;line-height:1.2;
+    background:#f2c94c;color:#14110a;padding:3px 5px;border-radius:2px;
+  }
+  .empty{padding:44px 0;color:var(--dim)}
+  .note{font-size:13px;color:var(--dim);margin-top:30px;max-width:68ch}
+  .lightbox{
+    position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:24px;
+    background:rgba(6,7,11,.92);
+  }
+  .lightbox.on{display:flex}
+  .lightbox img{max-width:100%;max-height:86vh;border:2px solid var(--line);border-radius:2px}
+  .lightbox p{
+    position:absolute;bottom:20px;left:16px;right:16px;text-align:center;
+    color:var(--dim);font-family:"Righteous",sans-serif;font-size:12px;margin:0;
+  }
+  @media (max-width:420px){
+    .wrap{padding:0 14px 80px}
+    .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:8px}
+    .tile .tt{font-size:13.5px}
+  }
+</style>
+</head>
+<body>
+<script src="/eras.js"></script>
+<div class="wrap">
+<header>
+  <p class="wordmark"><a href="/" aria-label="The Nostalgia Pro home"><img src="/images/np-script.webp" width="1800" height="748" alt="The Nostalgia Pro"></a></p>
+  <h1>Trading Cards</h1>
+  <p class="standfirst">Sports cards and comic cards. Most of the sports photos are 9-pocket binder pages, titled by the team or the cards on the page. A highlight badge marks the notable ones.</p>
+  <div class="navrow">
+    <a class="navbtn" href="/">Games</a>
+    <a class="navbtn" href="movies.html">Movies</a>
+    <a class="navbtn" href="tv.html">TV</a>
+    <a class="navbtn" href="music.html">Music</a>
+    <a class="navbtn" href="boardgames.html">Board games</a>
+    <a class="navbtn" href="comics.html">Comics</a>
+    <a class="navbtn" href="books.html">Books</a>
+    <a class="navbtn here" href="cards.html">Trading cards</a>
+    <a class="navbtn" href="anniversaries.html">Anniversaries</a>
+    <a class="navbtn" href="onthisday.html">On this day</a>
+    <a class="navbtn" href="gaps.html">The gaps</a>
+    <a class="navbtn" href="stats.html">The numbers</a>
+  </div>
+  <div class="searchbar">
+    <input id="q" type="search" placeholder="Search players, teams, sets" autocomplete="off" spellcheck="false" aria-label="Search trading cards">
+  </div>
+  <div class="filters" id="filters" role="group" aria-label="Filter"></div>
+  <div class="scores" id="scores"></div>
+</header>
+<div id="results"></div>
+<p class="note">Photographed from the binders. Where a year, set, or signer is not readable, it is left off. Pages shot more than once open as one tile.</p>
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Card photo"><img alt=""><p>Click anywhere to close</p></div>
+</div>
+<script id="catalog" type="application/json">[{"id": "T001", "anchor": "t001", "title": "Lady Death (Chaos! Comics) binder page - 9 card fronts", "detail": "Lady Death / Chaos! Comics character art. 9-pocket page fronts", "sport": "nonsport", "badges": ["Lady Death"], "photos": ["t001"], "w": 753, "h": 1000, "href": ""}, {"id": "T002-T011", "anchor": "t002-t011", "title": "1994 Krome Productions Lady Death chromium card set (binder, backs + fronts)", "detail": "Chaos! Comics / Krome Productions. card backs read \"Lady Death\". 10 spread photos of 9-pocket pages, backs left + chromium fronts right. incl. 3-card puzzle panels (T005) - looks like a near/complete base set", "sport": "nonsport", "badges": ["Krome Lady Death"], "photos": ["t002", "t003", "t004", "t005", "t006", "t007", "t008", "t009", "t010", "t011"], "w": 1000, "h": 753, "href": "card/t002-t011.html"}, {"id": "T012", "anchor": "t012", "title": "Lady Death \"Women of Chaos!\" cards", "detail": "Chaos! Comics binder page of card backs. Year and set are not confirmed.", "sport": "nonsport", "badges": [], "photos": ["t012"], "w": 1000, "h": 753, "href": ""}, {"id": "T013", "anchor": "t013", "title": "Barry Bonds (SF Giants) binder page 1 - 9 cards", "detail": "Baseball. mixed brands incl. Upper Deck, Donruss caricature-style, 1993 Topps-style backs. 3 identical Topps Gold/Finest-style cards bottom row", "sport": "mlb", "badges": [], "photos": ["t013"], "w": 753, "h": 1000, "href": ""}, {"id": "T014", "anchor": "t014", "title": "Barry Bonds (SF Giants) binder page 2 - 9 cards", "detail": "Baseball. Studio caricature card, Donruss 'Bonds' Studio, two Pinnacle/Score 'MVP' cards, All-Star backs", "sport": "mlb", "badges": [], "photos": ["t014"], "w": 753, "h": 1000, "href": ""}, {"id": "T015", "anchor": "t015", "title": "Sebastian Shaw - 1994 Fleer Ultra X-Men (Super-Villains)", "detail": "Marvel. Fleer Ultra X-Men 1994", "sport": "nonsport", "badges": [], "photos": ["t015"], "w": 753, "h": 1000, "href": ""}, {"id": "T016", "anchor": "t016", "title": "Gideon - 1994 Fleer Ultra X-Men (Super-Villains)", "detail": "Marvel", "sport": "nonsport", "badges": [], "photos": ["t016"], "w": 753, "h": 1000, "href": ""}, {"id": "T017", "anchor": "t017", "title": "Cannonball - 1994 Fleer Ultra X-Men (Super-Heroes)", "detail": "Marvel", "sport": "nonsport", "badges": [], "photos": ["t017"], "w": 753, "h": 1000, "href": ""}, {"id": "T018", "anchor": "t018", "title": "Strong Guy - 1994 Fleer Ultra X-Men (Super-Heroes)", "detail": "Marvel", "sport": "nonsport", "badges": [], "photos": ["t018"], "w": 753, "h": 1000, "href": ""}, {"id": "T019", "anchor": "t019", "title": "Hulk vs Wolverine", "detail": "\"Wolverine's Greatest Battles\" subset. Set and year are not confirmed.", "sport": "nonsport", "badges": [], "photos": ["t019"], "w": 753, "h": 1000, "href": ""}, {"id": "T020", "anchor": "t020", "title": "Spider-Man - 1991 Marvel Universe Series II (Super Heroes)", "detail": "Marvel. \"1991\" printed on card", "sport": "nonsport", "badges": [], "photos": ["t020"], "w": 753, "h": 1000, "href": ""}, {"id": "T021", "anchor": "t021", "title": "Mother Ship", "detail": "Marvel trading card. Set is not confirmed.", "sport": "nonsport", "badges": [], "photos": ["t021"], "w": 753, "h": 1000, "href": ""}, {"id": "T022", "anchor": "t022", "title": "X-Force, Teams subset", "detail": "Marvel Universe card. Year is not confirmed.", "sport": "nonsport", "badges": [], "photos": ["t022"], "w": 753, "h": 1000, "href": ""}, {"id": "T023", "anchor": "t023", "title": "Wedding of Spider-Man - Milestones subset, Marvel Universe", "detail": "Marvel", "sport": "nonsport", "badges": [], "photos": ["t023"], "w": 753, "h": 1000, "href": ""}, {"id": "T024", "anchor": "t024", "title": "Galactus / Spectre", "detail": "Marvel vs DC card. Set is not confirmed.", "sport": "nonsport", "badges": [], "photos": ["t024"], "w": 753, "h": 1000, "href": ""}, {"id": "T025", "anchor": "t025", "title": "Rhino", "detail": "Marvel trading card, Super-Villains. Set is not confirmed.", "sport": "nonsport", "badges": [], "photos": ["t025"], "w": 753, "h": 1000, "href": ""}, {"id": "T026", "anchor": "t026", "title": "Bishop and Wolverine", "detail": "Marvel X-Men card. Set is not confirmed.", "sport": "nonsport", "badges": [], "photos": ["t026"], "w": 753, "h": 1000, "href": ""}, {"id": "T027", "anchor": "t027", "title": "Thor - Origins subset, Marvel Universe", "detail": "Marvel", "sport": "nonsport", "badges": [], "photos": ["t027"], "w": 753, "h": 1000, "href": ""}, {"id": "T028", "anchor": "t028", "title": "Quicksilver", "detail": "Marvel trading card. Set is not confirmed.", "sport": "nonsport", "badges": [], "photos": ["t028"], "w": 753, "h": 1000, "href": ""}, {"id": "T029", "anchor": "t029", "title": "Sleepwalker - Super Heroes, Marvel Universe", "detail": "Marvel", "sport": "nonsport", "badges": [], "photos": ["t029"], "w": 753, "h": 1000, "href": ""}, {"id": "T030", "anchor": "t030", "title": "Marvel trading card", "detail": "X-Men-style art. No name is readable on the front.", "sport": "nonsport", "badges": [], "photos": ["t030"], "w": 753, "h": 1000, "href": ""}, {"id": "T031", "anchor": "t031", "title": "Trading card", "detail": "No text on the front. Set is not confirmed.", "sport": "nonsport", "badges": [], "photos": ["t031"], "w": 753, "h": 1000, "href": ""}, {"id": "T032", "anchor": "t032", "title": "Gideon - Super-Villains, Marvel Universe", "detail": "Marvel", "sport": "nonsport", "badges": [], "photos": ["t032"], "w": 753, "h": 1000, "href": ""}, {"id": "T033", "anchor": "t033", "title": "Wolverine and Captain America - Team-Ups, Marvel Universe", "detail": "Marvel", "sport": "nonsport", "badges": [], "photos": ["t033"], "w": 753, "h": 1000, "href": ""}, {"id": "T034", "anchor": "t034", "title": "X-Cutioner's Song - X-Overs subset", "detail": "Marvel. 1994 Fleer Ultra X-Men (X-Overs)", "sport": "nonsport", "badges": [], "photos": ["t034"], "w": 753, "h": 1000, "href": ""}, {"id": "T035", "anchor": "t035", "title": "Punisher vs Thorn - Famous Battles, Marvel Universe", "detail": "Marvel", "sport": "nonsport", "badges": [], "photos": ["t035"], "w": 753, "h": 1000, "href": ""}, {"id": "T036", "anchor": "t036", "title": "Kareem Abdul-Jabbar scoring leader panel, Lakers #22", "detail": "1980-81 Topps scoring-leader panel, in a bag. Whether this is the full three-panel card is not confirmed.", "sport": "nba", "badges": ["Kareem"], "photos": ["t036"], "w": 753, "h": 1000, "href": ""}, {"id": "T037", "anchor": "t037", "title": "Amanda Beard, Sports Illustrated for Kids", "detail": "Olympic swimming card. Year is not on the card.", "sport": "other", "badges": [], "photos": ["t037"], "w": 753, "h": 1000, "href": ""}, {"id": "T038-T039", "anchor": "t038-t039", "title": "Homemade \"Tradin' Cards\" J.V. football card, Vikings #45", "detail": "Front of a personalized football card. The back is not shown.", "sport": "nfl", "badges": [], "photos": ["t038"], "w": 753, "h": 1000, "href": ""}, {"id": "T040", "anchor": "t040", "title": "NBA binder page - Golden State Warriors (9 cards)", "detail": "Basketball, mid/late 1990s. incl. Adonal Foyle (1997-98 rookie era). brands Upper Deck/Collector's Choice/Fleer/Topps", "sport": "nba", "badges": [], "photos": ["t040"], "w": 753, "h": 1000, "href": ""}, {"id": "T041", "anchor": "t041", "title": "NBA binder page - Vancouver Grizzlies (9 cards)", "detail": "Basketball, mid 1990s. incl. Bryant \"Big Country\" Reeves-era cards", "sport": "nba", "badges": [], "photos": ["t041"], "w": 753, "h": 1000, "href": ""}, {"id": "T042", "anchor": "t042", "title": "NBA binder page - Sacramento Kings (9 cards)", "detail": "Basketball, mid/late 1990s. incl. Tariq Abdul-Wahad, Corliss Williamson", "sport": "nba", "badges": [], "photos": ["t042"], "w": 753, "h": 1000, "href": ""}, {"id": "T043", "anchor": "t043", "title": "NBA binder page (9 cards)", "detail": "Basketball, 1990s, fronts and backs, including a 1997 Upper Deck card. Team is not confirmed.", "sport": "nba", "badges": [], "photos": ["t043"], "w": 753, "h": 1000, "href": ""}, {"id": "T044", "anchor": "t044", "title": "Los Angeles Lakers binder page, Kobe Bryant 1996-97 rookie (9 cards)", "detail": "Also Eddie Jones, Elden Campbell, Shaquille O'Neal, and Nick Van Exel-era cards. The rookie's exact set is not confirmed.", "sport": "nba", "badges": ["Kobe 96-97 rookie"], "photos": ["t044"], "w": 753, "h": 1000, "href": ""}, {"id": "T045", "anchor": "t045", "title": "NBA binder page - Spurs / mixed (9 cards)", "detail": "Basketball, 1990s. incl. Dennis Rodman Spurs #10 card", "sport": "nba", "badges": [], "photos": ["t045"], "w": 753, "h": 1000, "href": ""}, {"id": "T046", "anchor": "t046", "title": "NBA binder page (9 cards)", "detail": "Basketball, 1990s. Upper Deck, SkyBox, and Collector's Choice cards. Team is not confirmed.", "sport": "nba", "badges": [], "photos": ["t046"], "w": 753, "h": 1000, "href": ""}, {"id": "T047", "anchor": "t047", "title": "NBA binder page - Los Angeles Clippers (9 cards)", "detail": "Basketball, 1990s. incl. Loy Vaught sticker-style card, Brent Barry-era cards", "sport": "nba", "badges": [], "photos": ["t047"], "w": 753, "h": 1000, "href": ""}, {"id": "T048", "anchor": "t048", "title": "NBA binder page - Suns / SuperSonics (9 cards)", "detail": "Basketball, 1990s. incl. Antonio McDyess", "sport": "nba", "badges": [], "photos": ["t048"], "w": 753, "h": 1000, "href": ""}, {"id": "T049-T050", "anchor": "t049-t050", "title": "NBA binder page - Seattle SuperSonics", "detail": "Basketball, 1990s. Upper Deck, Collector's Choice Checklist 211-262", "sport": "nba", "badges": [], "photos": ["t049", "t050"], "w": 1000, "h": 753, "href": "card/t049-t050.html"}, {"id": "T051", "anchor": "t051", "title": "NBA binder page - Phoenix Suns (9 cards)", "detail": "Basketball, 1990s. incl. Antonio McDyess (Suns), Clifford Robinson-era", "sport": "nba", "badges": [], "photos": ["t051"], "w": 753, "h": 1000, "href": ""}, {"id": "T052", "anchor": "t052", "title": "NBA binder page - Phoenix Suns (9 cards)", "detail": "Basketball, 1990s. incl. McDyess, Kevin Johnson, Jason Kidd-era Suns", "sport": "nba", "badges": [], "photos": ["t052"], "w": 753, "h": 1000, "href": ""}, {"id": "T053", "anchor": "t053", "title": "NBA binder page - Houston Rockets (9 cards)", "detail": "Basketball, 1990s. incl. Clyde Drexler, Hakeem Olajuwon-era", "sport": "nba", "badges": [], "photos": ["t053"], "w": 753, "h": 1000, "href": ""}, {"id": "T054", "anchor": "t054", "title": "NBA binder page - Houston Rockets (9 cards)", "detail": "Basketball, 1990s. incl. Serge Zwikker (rookie era)", "sport": "nba", "badges": [], "photos": ["t054"], "w": 753, "h": 1000, "href": ""}, {"id": "T055", "anchor": "t055", "title": "NBA binder page - Utah Jazz (9 cards)", "detail": "Basketball, 1990s. incl. Greg Ostertag, Chris Morris, Photo Gallery insert", "sport": "nba", "badges": [], "photos": ["t055"], "w": 753, "h": 1000, "href": ""}, {"id": "T056", "anchor": "t056", "title": "NBA binder page - Portland Trail Blazers (9 cards)", "detail": "Basketball, 1990s. incl. Arvydas Sabonis-era Blazers", "sport": "nba", "badges": [], "photos": ["t056"], "w": 753, "h": 1000, "href": ""}, {"id": "T057", "anchor": "t057", "title": "NBA binder page - Minnesota Timberwolves (9 cards)", "detail": "Basketball, 1990s. incl. Reggie Jordan, Doug West-era", "sport": "nba", "badges": [], "photos": ["t057"], "w": 753, "h": 1000, "href": ""}, {"id": "T058", "anchor": "t058", "title": "NBA binder page - Denver Nuggets (9 cards)", "detail": "Basketball, 1990s. incl. Mahmoud Abdul-Rauf", "sport": "nba", "badges": [], "photos": ["t058"], "w": 753, "h": 1000, "href": ""}, {"id": "T059", "anchor": "t059", "title": "NBA binder page - Washington Bullets (9 cards)", "detail": "Basketball, 1990s. incl. Calbert Cheaney", "sport": "nba", "badges": [], "photos": ["t059"], "w": 753, "h": 1000, "href": ""}, {"id": "T060", "anchor": "t060", "title": "NBA binder page - Washington Bullets/Wizards (9 cards)", "detail": "Basketball, 1990s. incl. early Ben Wallace card (rookie era), Harvey Grant", "sport": "nba", "badges": [], "photos": ["t060"], "w": 753, "h": 1000, "href": ""}, {"id": "T061", "anchor": "t061", "title": "NBA binder page - New York Knicks (9 cards)", "detail": "Basketball, 1990s", "sport": "nba", "badges": [], "photos": ["t061"], "w": 753, "h": 1000, "href": ""}, {"id": "T062", "anchor": "t062", "title": "Toronto Raptors binder page, with a SkyBox Autographics autograph (9 cards)", "detail": "Damon Stoudamire, Vince Carter-era cards, and a Marcus Camby SLAM card. The autograph's signer is not confirmed.", "sport": "nba", "badges": ["SkyBox Autographics"], "photos": ["t062"], "w": 753, "h": 1000, "href": ""}, {"id": "T063", "anchor": "t063", "title": "NBA binder page - Orlando Magic, 1990-91 NBA Hoops (9 cards)", "detail": "Basketball. Scott Skiles, Otis Smith (x2), Mark Acres, Jerry Reynolds, Terry Catledge, Greg Kite, Sam Vincent", "sport": "nba", "badges": [], "photos": ["t063"], "w": 753, "h": 1000, "href": ""}, {"id": "T064", "anchor": "t064", "title": "NBA binder page - Orlando Magic (9 cards)", "detail": "Basketball, 1990s. incl. Terry Catledge Hoops, Upper Deck", "sport": "nba", "badges": [], "photos": ["t064"], "w": 753, "h": 1000, "href": ""}, {"id": "T065", "anchor": "t065", "title": "NBA binder page - MICHAEL JORDAN Bulls cards (9 cards)", "detail": "Basketball. Collector's Choice \"Catch 23\" cards, Jordan checklist 106-210, SLAM Jordan, 1990s Jordan cards", "sport": "nba", "badges": ["Michael Jordan"], "photos": ["t065"], "w": 753, "h": 1000, "href": ""}, {"id": "T066", "anchor": "t066", "title": "NBA binder page - Chicago Bulls incl. Jordan (9 cards)", "detail": "Basketball, 1990s. Jordan, Toni Kukoc-era Bulls, Stick-Ums sticker", "sport": "nba", "badges": ["Michael Jordan"], "photos": ["t066"], "w": 753, "h": 1000, "href": ""}, {"id": "T067", "anchor": "t067", "title": "NBA binder page - Detroit Pistons (9 cards)", "detail": "Basketball, 1990s. incl. \"rookie\" insert, Photo Gallery", "sport": "nba", "badges": [], "photos": ["t067"], "w": 753, "h": 1000, "href": ""}, {"id": "T068", "anchor": "t068", "title": "Philadelphia 76ers binder page, Allen Iverson 1996-97 rookie (9 cards)", "detail": "Iverson SLAM card from his rookie season, and Jerry Stackhouse-era cards. The exact set is not confirmed.", "sport": "nba", "badges": ["Iverson 96-97 rookie"], "photos": ["t068"], "w": 753, "h": 1000, "href": ""}, {"id": "T069", "anchor": "t069", "title": "NBA binder page - Milwaukee Bucks (9 cards)", "detail": "Basketball, 1990s. incl. Glenn Robinson", "sport": "nba", "badges": [], "photos": ["t069"], "w": 753, "h": 1000, "href": ""}, {"id": "T070", "anchor": "t070", "title": "NBA binder page - Miami Heat / Bucks (9 cards)", "detail": "Basketball, 1990s. incl. Terrell Brandon", "sport": "nba", "badges": [], "photos": ["t070"], "w": 753, "h": 1000, "href": ""}, {"id": "T071", "anchor": "t071", "title": "NBA binder page - Charlotte Hornets (9 cards)", "detail": "Basketball, 1990s. incl. Dell Curry #30", "sport": "nba", "badges": [], "photos": ["t071"], "w": 753, "h": 1000, "href": ""}, {"id": "T072", "anchor": "t072", "title": "NBA binder page - Charlotte Hornets + Nestle \"Score NBA Gear\" promo card (9 cards)", "detail": "Basketball, 1990s. bottom-left is a Score promo/points card (not a player card)", "sport": "nba", "badges": [], "photos": ["t072"], "w": 753, "h": 1000, "href": ""}, {"id": "T073", "anchor": "t073", "title": "NBA binder page - Boston Celtics (9 cards)", "detail": "Basketball, 1990s. incl. Ron Mercer (rookie era)", "sport": "nba", "badges": [], "photos": ["t073"], "w": 753, "h": 1000, "href": ""}, {"id": "T074", "anchor": "t074", "title": "NBA binder page - Atlanta Hawks (9 cards)", "detail": "Basketball, 1990s. incl. All-Star insert", "sport": "nba", "badges": [], "photos": ["t074"], "w": 753, "h": 1000, "href": ""}, {"id": "T075", "anchor": "t075", "title": "NBA binder page - Indiana Pacers (9 cards)", "detail": "Basketball, 1990s. incl. Reggie Miller-era Pacers", "sport": "nba", "badges": [], "photos": ["t075"], "w": 753, "h": 1000, "href": ""}, {"id": "T076", "anchor": "t076", "title": "NBA binder page, fronts and backs (9 cards)", "detail": "Basketball, 1990s. Team is not confirmed.", "sport": "nba", "badges": [], "photos": ["t076"], "w": 753, "h": 1000, "href": ""}, {"id": "T077", "anchor": "t077", "title": "NFL binder page - New Orleans Saints (9 cards)", "detail": "Football, early/mid 1990s. incl. Rickey Jackson", "sport": "nfl", "badges": [], "photos": ["t077"], "w": 753, "h": 1000, "href": ""}, {"id": "T078", "anchor": "t078", "title": "NFL binder page - Falcons / Panthers (9 cards)", "detail": "Football, 1990s", "sport": "nfl", "badges": [], "photos": ["t078"], "w": 753, "h": 1000, "href": ""}, {"id": "T079", "anchor": "t079", "title": "NFL binder page - Los Angeles Rams (3 cards, rest empty)", "detail": "Football, early 1990s. incl. Todd Lyght", "sport": "nfl", "badges": [], "photos": ["t079"], "w": 753, "h": 1000, "href": ""}, {"id": "T080", "anchor": "t080", "title": "NFL binder page - Washington Redskins (9 cards)", "detail": "Football, early 1990s. Topps/Score/Pro Set", "sport": "nfl", "badges": [], "photos": ["t080"], "w": 753, "h": 1000, "href": ""}, {"id": "T081", "anchor": "t081", "title": "NFL binder page - New York Giants (9 cards)", "detail": "Football, early 1990s. incl. Rodney Hampton", "sport": "nfl", "badges": [], "photos": ["t081"], "w": 753, "h": 1000, "href": ""}, {"id": "T082", "anchor": "t082", "title": "NFL binder page - Philadelphia Eagles (9 cards)", "detail": "Football, early 1990s. incl. Randall Cunningham \"Field General\" Topps", "sport": "nfl", "badges": [], "photos": ["t082"], "w": 753, "h": 1000, "href": ""}, {"id": "T083", "anchor": "t083", "title": "NFL binder page - Cardinals / Cowboys mixed (9 cards)", "detail": "Football, 1990s. Upper Deck MVP card backs, Prime Players, Team Leader", "sport": "nfl", "badges": [], "photos": ["t083"], "w": 753, "h": 1000, "href": ""}, {"id": "T084", "anchor": "t084", "title": "NFL binder page - Minnesota Vikings (9 cards)", "detail": "Football, 1990s. incl. Jake Reed \"Rookie Class\", Team Leader", "sport": "nfl", "badges": [], "photos": ["t084"], "w": 753, "h": 1000, "href": ""}, {"id": "T085", "anchor": "t085", "title": "NFL binder page - Green Bay Packers (9 cards)", "detail": "Football, 1990s. incl. Reggie White die-cut-style card, Mark Murphy, Brent Fullwood", "sport": "nfl", "badges": [], "photos": ["t085"], "w": 753, "h": 1000, "href": ""}, {"id": "T086", "anchor": "t086", "title": "Tampa Bay Buccaneers binder page, with a signed card (9 cards)", "detail": "The signed card is a Florida Gators #33 club card. Signer and authentication are not confirmed.", "sport": "nfl", "badges": ["Signed"], "photos": ["t086"], "w": 753, "h": 1000, "href": ""}, {"id": "T087", "anchor": "t087", "title": "NFL binder page - Chicago Bears (9 cards)", "detail": "Football, 1990s", "sport": "nfl", "badges": [], "photos": ["t087"], "w": 753, "h": 1000, "href": ""}, {"id": "T088", "anchor": "t088", "title": "NFL binder page - Detroit Lions incl. Barry Sanders (9 cards)", "detail": "Football, 1990s. Barry Sanders \"The Sandman\" insert, Herman Moore, Future Star", "sport": "nfl", "badges": ["Barry Sanders"], "photos": ["t088"], "w": 753, "h": 1000, "href": ""}, {"id": "T089", "anchor": "t089", "title": "NFL binder page - Denver Broncos incl. John Elway (9 cards)", "detail": "Football, 1990s. Elway Team Leader, Elway cards", "sport": "nfl", "badges": ["John Elway"], "photos": ["t089"], "w": 753, "h": 1000, "href": ""}, {"id": "T090", "anchor": "t090", "title": "NFL binder page - Denver Broncos backs incl. John Elway, 1990 Pro Bowl, Dan Reeves coach card", "detail": "Football, ~1990-91", "sport": "nfl", "badges": [], "photos": ["t090"], "w": 753, "h": 1000, "href": ""}, {"id": "T091", "anchor": "t091", "title": "NFL binder page - Chargers / Raiders mixed (9 cards)", "detail": "Football, ~1990-94. incl. 1990 Pro Bowl card, Prime Players", "sport": "nfl", "badges": [], "photos": ["t091"], "w": 753, "h": 1000, "href": ""}, {"id": "T092", "anchor": "t092", "title": "NFL binder page - Chargers / Raiders (9 cards)", "detail": "Football, 1990s. incl. Raiders #82 Prime Players, Rookie card", "sport": "nfl", "badges": [], "photos": ["t092"], "w": 753, "h": 1000, "href": ""}, {"id": "T093", "anchor": "t093", "title": "NFL binder page - Miami Dolphins (9 cards)", "detail": "Football, 1990s. incl. O.J. McDuffie, Rookie Class, Pinnacle Instincts insert", "sport": "nfl", "badges": [], "photos": ["t093"], "w": 753, "h": 1000, "href": ""}, {"id": "T094", "anchor": "t094", "title": "NFL binder page - Miami Dolphins, fronts + backs (9 cards)", "detail": "Football, 1990s. incl. McDuffie, Rookie Class backs", "sport": "nfl", "badges": [], "photos": ["t094"], "w": 753, "h": 1000, "href": ""}, {"id": "T095", "anchor": "t095", "title": "NFL binder page - Indianapolis Colts (9 cards)", "detail": "Football, 1990s. incl. Marshall Faulk-era", "sport": "nfl", "badges": [], "photos": ["t095"], "w": 753, "h": 1000, "href": ""}, {"id": "T096", "anchor": "t096", "title": "NFL binder page - Buffalo Bills (9 cards)", "detail": "Football, 1990s. incl. Kenneth Davis, Rookie Class", "sport": "nfl", "badges": [], "photos": ["t096"], "w": 753, "h": 1000, "href": ""}, {"id": "T097", "anchor": "t097", "title": "NFL binder page - Buffalo Bills (9 cards)", "detail": "Football, 1990s. incl. Nate Odomes, Rookie Class", "sport": "nfl", "badges": [], "photos": ["t097"], "w": 753, "h": 1000, "href": ""}, {"id": "T098", "anchor": "t098", "title": "NFL binder page - New England Patriots (9 cards)", "detail": "Football, 1990s. incl. Vincent Brown, Dave Meggett, Chris Slade", "sport": "nfl", "badges": [], "photos": ["t098"], "w": 753, "h": 1000, "href": ""}, {"id": "T099", "anchor": "t099", "title": "NFL binder page close-up - New England Patriots (Ray Agnew, Leonard Russell Pro Set)", "detail": "Football, early 1990s", "sport": "nfl", "badges": [], "photos": ["t099"], "w": 1000, "h": 753, "href": ""}, {"id": "T100", "anchor": "t100", "title": "Houston Oilers binder page, with a signed SkyBox card (9 cards)", "detail": "The signed card is an Oilers SkyBox. Signer and authentication are not confirmed.", "sport": "nfl", "badges": ["Signed"], "photos": ["t100"], "w": 753, "h": 1000, "href": ""}, {"id": "T101", "anchor": "t101", "title": "NFL binder page - Cincinnati Bengals (6 cards visible)", "detail": "Football, 1990s. incl. Derrick Fenner", "sport": "nfl", "badges": [], "photos": ["t101"], "w": 1000, "h": 753, "href": ""}, {"id": "T102", "anchor": "t102", "title": "NFL binder page - New York Jets (9 cards)", "detail": "Football, 1990s", "sport": "nfl", "badges": [], "photos": ["t102"], "w": 753, "h": 1000, "href": ""}, {"id": "T103", "anchor": "t103", "title": "NFL binder page - Pittsburgh Steelers / Jets mixed (9 cards)", "detail": "Football, 1990s. incl. Aaron Glenn", "sport": "nfl", "badges": [], "photos": ["t103"], "w": 753, "h": 1000, "href": ""}, {"id": "T104", "anchor": "t104", "title": "MLB binder page - mixed (9 cards)", "detail": "Baseball, late 1980s-90s. Al Pedrique, Lloyd McClendon, Jimmy Jones, Tim Flannery, Reds/Dodgers cards", "sport": "mlb", "badges": [], "photos": ["t104"], "w": 753, "h": 1000, "href": ""}, {"id": "T105", "anchor": "t105", "title": "MLB binder page - mixed (9 cards)", "detail": "Baseball, ~1990s. Fred McGriff, Cameron Drew (Topps rookie), Otis Nixon, Jerald Clark", "sport": "mlb", "badges": [], "photos": ["t105"], "w": 753, "h": 1000, "href": ""}, {"id": "T106", "anchor": "t106", "title": "MLB binder page - mixed (9 cards)", "detail": "Baseball, late 1980s-90s. Dave Eiland, Pascual Perez, Dante Bichette (Angels), Barry Jones, Gregg Olson, Wayne Tolleson", "sport": "mlb", "badges": [], "photos": ["t106"], "w": 753, "h": 1000, "href": ""}, {"id": "T107", "anchor": "t107", "title": "MLB binder page, fronts and backs (9 cards)", "detail": "Baseball, 1990s. Individual cards are not confirmed.", "sport": "mlb", "badges": [], "photos": ["t107"], "w": 753, "h": 1000, "href": ""}, {"id": "T108", "anchor": "t108", "title": "Tim Barnett - 1991 Star Pics", "detail": "Football (draft-pick set)", "sport": "nfl", "badges": [], "photos": ["t108"], "w": 753, "h": 1000, "href": ""}, {"id": "T109", "anchor": "t109", "title": "Jonathan Hayes, Pro Set Prospect, Chiefs", "detail": "Chiefs tight end #85. Year is not confirmed.", "sport": "nfl", "badges": [], "photos": ["t109"], "w": 753, "h": 1000, "href": ""}, {"id": "T110", "anchor": "t110", "title": "Mike Croel - 1991 Star Pics (Nebraska)", "detail": "Football draft-pick set", "sport": "nfl", "badges": [], "photos": ["t110"], "w": 753, "h": 1000, "href": ""}, {"id": "T111-T112", "anchor": "t111-t112", "title": "Mark McGwire, 1998 Upper Deck Chase for 62", "detail": "Cardinals, in a toploader. The second photo reads \"1 of 30\". It may be the back of this card or another card from the set.", "sport": "mlb", "badges": ["Chase for 62"], "photos": ["t111", "t112"], "w": 753, "h": 1000, "href": "card/t111-t112.html"}, {"id": "T113", "anchor": "t113", "title": "MLB binder page - California Angels (7 cards)", "detail": "Baseball, 1980s-90s. incl. Jack Lazorko, Ron Romanick, Bob Boone-era", "sport": "mlb", "badges": [], "photos": ["t113"], "w": 753, "h": 1000, "href": ""}, {"id": "T114", "anchor": "t114", "title": "MLB binder page - Houston Astros (5 cards)", "detail": "Baseball. incl. Bill Doran, Alan Ashby", "sport": "mlb", "badges": [], "photos": ["t114"], "w": 753, "h": 1000, "href": ""}, {"id": "T115", "anchor": "t115", "title": "MLB binder page - Athletics / Blue Jays (5 cards)", "detail": "Baseball, late 1990s-2000s. incl. Chris Carpenter Fleer", "sport": "mlb", "badges": [], "photos": ["t115"], "w": 753, "h": 1000, "href": ""}, {"id": "T116", "anchor": "t116", "title": "MLB binder page - Toronto Blue Jays (5 cards)", "detail": "Baseball, late 1990s-2000s. incl. Chris Carpenter", "sport": "mlb", "badges": [], "photos": ["t116"], "w": 753, "h": 1000, "href": ""}, {"id": "T117", "anchor": "t117", "title": "MLB binder page - Atlanta Braves (5 cards)", "detail": "Baseball. incl. Upper Deck World Series Heroes, Postseason Scrapbook", "sport": "mlb", "badges": [], "photos": ["t117"], "w": 753, "h": 1000, "href": ""}, {"id": "T118", "anchor": "t118", "title": "MLB binder page - Milwaukee Brewers (5 cards)", "detail": "Baseball", "sport": "mlb", "badges": [], "photos": ["t118"], "w": 753, "h": 1000, "href": ""}, {"id": "T119", "anchor": "t119", "title": "St. Louis Cardinals binder page, including Albert Pujols (5 cards)", "detail": "Albert Pujols Fleer card, a Stan Musial World Series Heroes card, and Scott Terry. Rookie status is not confirmed.", "sport": "mlb", "badges": ["Albert Pujols"], "photos": ["t119"], "w": 753, "h": 1000, "href": ""}, {"id": "T120", "anchor": "t120", "title": "MLB binder page - Chicago Cubs (5 cards)", "detail": "Baseball. incl. Bob Dernier, Todd Hundley", "sport": "mlb", "badges": [], "photos": ["t120"], "w": 753, "h": 1000, "href": ""}, {"id": "T121-T122", "anchor": "t121-t122", "title": "MLB binder page - Arizona Diamondbacks, including Randy Johnson", "detail": "Baseball, ~1999-2002. World Series Heroes", "sport": "mlb", "badges": [], "photos": ["t121", "t122"], "w": 753, "h": 1000, "href": "card/t121-t122.html"}, {"id": "T123", "anchor": "t123", "title": "MLB binder page - Dodgers / Giants (6 cards)", "detail": "Baseball. incl. Pedro Guerrero Dodgers, Giants 2002 cards", "sport": "mlb", "badges": [], "photos": ["t123"], "w": 753, "h": 1000, "href": ""}, {"id": "T124-T125", "anchor": "t124-t125", "title": "MLB binder page - San Francisco Giants", "detail": "Baseball, ~2000-02. Giants cards", "sport": "mlb", "badges": [], "photos": ["t124", "t125"], "w": 753, "h": 1000, "href": "card/t124-t125.html"}, {"id": "T126", "anchor": "t126", "title": "MLB binder page - Indians / Mariners (6 cards)", "detail": "Baseball. incl. Jim Thome", "sport": "mlb", "badges": [], "photos": ["t126"], "w": 753, "h": 1000, "href": ""}, {"id": "T127-T128", "anchor": "t127-t128", "title": "MLB binder page - Marlins / Mariners (9 cards)", "detail": "Baseball. incl. Charles Johnson Marlins, Ken Clay Mariners, Darnell Coles, Mike Campbell (Fleer)", "sport": "mlb", "badges": [], "photos": ["t127", "t128"], "w": 753, "h": 1000, "href": "card/t127-t128.html"}, {"id": "T129", "anchor": "t129", "title": "MLB binder page - New York Mets / Phillies (9 cards)", "detail": "Baseball. incl. Darryl Strawberry (Donruss), Sid Fernandez, Lenny Dykstra, Roger McDowell", "sport": "mlb", "badges": [], "photos": ["t129"], "w": 753, "h": 1000, "href": ""}, {"id": "T130-T132", "anchor": "t130-t132", "title": "MLB binder page - Philadelphia Phillies", "detail": "Baseball. incl. Pat Combs, LaMarr Hoyt Padres (Topps), Phillies Upper Deck/Fleer cards, Charlie Hayes, Bobby Abreu", "sport": "mlb", "badges": [], "photos": ["t130", "t131", "t132"], "w": 753, "h": 1000, "href": "card/t130-t132.html"}, {"id": "T133", "anchor": "t133", "title": "MLB binder page, card backs (9 cards)", "detail": "Backs only. Teams are not confirmed.", "sport": "mlb", "badges": [], "photos": ["t133"], "w": 753, "h": 1000, "href": ""}, {"id": "T134", "anchor": "t134", "title": "MLB binder page - Pittsburgh Pirates incl. Barry Bonds (9 cards)", "detail": "Baseball. incl. Barry Bonds Pirates (Score), Junior Ortiz, Felix Fermin, John Milner, Andy Van Slyke \"Changing Places\"", "sport": "mlb", "badges": [], "photos": ["t134"], "w": 753, "h": 1000, "href": ""}, {"id": "T135", "anchor": "t135", "title": "MLB binder page - Texas Rangers (9 cards)", "detail": "Baseball. incl. Pudge Rodriguez Upper Deck, Rafael Palmeiro, Ruben Sierra, \"Changing Places\" Fleer", "sport": "mlb", "badges": [], "photos": ["t135"], "w": 753, "h": 1000, "href": ""}, {"id": "T136-T137", "anchor": "t136-t137", "title": "MLB binder page - Boston Red Sox", "detail": "Baseball. incl. Tony Armas, Dennis Boyd, Tim Lollar, Ellis Burks, Roger Clemens", "sport": "mlb", "badges": [], "photos": ["t136", "t137"], "w": 753, "h": 1000, "href": "card/t136-t137.html"}, {"id": "T138", "anchor": "t138", "title": "MLB binder page - Boston Red Sox incl. Roger Clemens Upper Deck Honor Roll \"Dream Moments\" (back)", "detail": "Baseball. Jackie Gutierrez, Ellis Burks, Steve Lyons (Topps). Clemens card script is printed design, NOT an autograph", "sport": "mlb", "badges": [], "photos": ["t138"], "w": 1000, "h": 753, "href": ""}, {"id": "T139-T141", "anchor": "t139-t141", "title": "MLB binder pages - Detroit Tigers, Minnesota Twins, and Kansas City Royals", "detail": "Baseball. incl. Garvin Alston 1992 Draft Pick, Terry Shumpert Royals (Bowman), Lance Parrish Tigers (Topps), Tony Clark, Bobby Higginson", "sport": "mlb", "badges": [], "photos": ["t139", "t140", "t141"], "w": 753, "h": 1000, "href": "card/t139-t141.html"}, {"id": "T142", "anchor": "t142", "title": "Minnesota Twins binder page, including Kirby Puckett (9 cards)", "detail": "Also Bert Blyleven, a 1992 draft pick, and Kent Hrbek. Two Marvel cards on the bottom row; that set is not confirmed.", "sport": "mlb", "badges": [], "photos": ["t142"], "w": 753, "h": 1000, "href": ""}, {"id": "T143-T144", "anchor": "t143-t144", "title": "New York Yankees binder page, including Derek Jeter", "detail": "Also Mike Pagliarulo, Matt Nokes, and Buck Showalter. Jeter's year is not confirmed. Two Marvel cards on the bottom row.", "sport": "mlb", "badges": ["Derek Jeter"], "photos": ["t143", "t144"], "w": 753, "h": 1000, "href": "card/t143-t144.html"}, {"id": "T145", "anchor": "t145", "title": "Mixed binder page, basketball, hockey, and Marvel cards", "detail": "Fleer, Pro Set, and Score sports cards, plus three Marvel cards. Sets are not confirmed.", "sport": "other", "badges": [], "photos": ["t145"], "w": 753, "h": 1000, "href": ""}, {"id": "T146", "anchor": "t146", "title": "Mark McGwire Protalk talking card, home run 70", "detail": "Cardinals sound card, \"Hear all-time record HR #70\". Year is not confirmed.", "sport": "mlb", "badges": ["McGwire HR 70"], "photos": ["t146"], "w": 753, "h": 1000, "href": ""}, {"id": "T147", "anchor": "t147", "title": "Barry Sanders insert card", "detail": "Lions card in a toploader, blue foil frame. Brand, set, and year are not confirmed.", "sport": "nfl", "badges": ["Barry Sanders"], "photos": ["t147"], "w": 753, "h": 1000, "href": ""}, {"id": "T148", "anchor": "t148", "title": "Babe Ruth commemorative coin", "detail": "Lifetime statistics medallion in a bio folder. Maker and year are not confirmed.", "sport": "mlb", "badges": ["Babe Ruth coin"], "photos": ["t148"], "w": 1000, "h": 753, "href": ""}]</script>
+<script id="groups" type="application/json">[{"id": "nba", "name": "NBA", "color": "#e07a3a", "n": 37}, {"id": "nfl", "name": "NFL", "color": "#3fbf6a", "n": 32}, {"id": "mlb", "name": "MLB", "color": "#4a78d6", "n": 32}, {"id": "other", "name": "Other sports", "color": "#c9a94a", "n": 2}, {"id": "nonsport", "name": "Comic & non-sports", "color": "#c45c4a", "n": 24}]</script>
+<script>
+const ITEMS = JSON.parse(document.getElementById("catalog").textContent);
+const GROUPS = JSON.parse(document.getElementById("groups").textContent);
+const fold = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+ITEMS.forEach(x => { x.key = fold(x.title + " " + (x.detail || "") + " " + x.badges.join(" ")); });
+let query = "";
+let filter = "all";
+const shut = new Set();
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+const FILTERS = [
+  ["all","All"],["highlights","Highlights"],["nba","NBA"],["nfl","NFL"],["mlb","MLB"],["other","Other sports"],["nonsport","Comic & non-sports"]
+];
+function passes(x){
+  if (query && !x.key.includes(query)) return false;
+  if (filter === "all") return true;
+  if (filter === "highlights") return x.badges.length > 0;
+  return x.sport === filter;
+}
+function drawFilters(){
+  document.getElementById("filters").innerHTML = FILTERS.map(([id,label]) =>
+    `<button type="button" class="filter${filter===id?" on":""}" data-f="${id}" aria-pressed="${filter===id}">${label}</button>`).join("");
+}
+function drawScores(){
+  const shown = ITEMS.filter(passes).length;
+  const cells = [[ITEMS.length,"cards & pages"],[shown,"showing"],[ITEMS.filter(x => x.badges.length).length,"highlights"]];
+  document.getElementById("scores").innerHTML = cells.map(([n,l]) =>
+    `<div class="score"><b>${n}</b><span>${l}</span></div>`).join("");
+}
+function tile(x){
+  const img = `<img src="/images/cards/thumbs/${x.photos[0]}.webp" width="${x.w}" height="${x.h}" alt="${esc(x.title)}" loading="lazy">`;
+  const badges = x.badges.map(b => `<span class="badge">${esc(b)}</span>`).join("");
+  const inner = `${img}${badges ? `<span class="badges">${badges}</span>` : ""}<span class="tt">${esc(x.title)}</span>`;
+  if (x.href) return `<a class="tile" id="${x.anchor}" href="${x.href}">${inner}</a>`;
+  return `<button type="button" class="tile" id="${x.anchor}" data-full="/images/cards/${x.photos[0]}.webp" data-cap="${esc(x.title)}">${inner}</button>`;
+}
+function render(){
+  drawFilters();
+  const html = GROUPS.map(g => {
+    const hits = ITEMS.filter(x => x.sport === g.id && passes(x));
+    if (!hits.length) return "";
+    const isShut = !query && filter === "all" && shut.has(g.id);
+    return `<section class="shelf${isShut?" shut":""}" style="--c:${g.color}">
+      <div class="shelfhead" data-g="${g.id}">
+        <h2><span class="caret">\u25be</span>${esc(g.name)}</h2>
+        <p>${hits.length}</p></div>
+      <div class="grid">${hits.map(tile).join("")}</div>
+    </section>`;
+  }).join("");
+  document.getElementById("results").innerHTML = html || `<p class="empty">Nothing matches that.</p>`;
+  drawScores();
+}
+document.getElementById("filters").addEventListener("click", e => {
+  const b = e.target.closest(".filter"); if (!b) return;
+  filter = b.dataset.f; render();
+});
+document.getElementById("results").addEventListener("click", e => {
+  const h = e.target.closest(".shelfhead");
+  if (h && !query && filter === "all") {
+    const name = h.dataset.g;
+    if (shut.has(name)) shut.delete(name); else shut.add(name);
+    render();
+  }
+});
+document.getElementById("q").addEventListener("input", e => { query = fold(e.target.value.trim()); render(); });
+const lb = document.getElementById("lightbox");
+document.addEventListener("click", e => {
+  const t = e.target.closest("button.tile");
+  if (t) {
+    lb.querySelector("img").src = t.dataset.full;
+    lb.querySelector("img").alt = t.dataset.cap;
+    lb.querySelector("p").textContent = t.dataset.cap + " · Click anywhere to close";
+    lb.classList.add("on");
+    return;
+  }
+  if (e.target.closest(".lightbox")) lb.classList.remove("on");
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") lb.classList.remove("on"); });
+render();
+</script>
+<script>
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
+<script>
+(function(){
+  var b = document.createElement("button");
+  b.id = "totop"; b.type = "button"; b.setAttribute("aria-label", "Back to top");
+  b.innerHTML = "&#9650;";
+  b.addEventListener("click", function(){ window.scrollTo({ top: 0, behavior: "smooth" }); });
+  document.body.appendChild(b);
+  function check(){ b.classList.toggle("on", window.scrollY > 600); }
+  addEventListener("scroll", check, { passive: true });
+  check();
+})();
+</script>
+<script src="/growth.js"></script>
+</body>
+</html>

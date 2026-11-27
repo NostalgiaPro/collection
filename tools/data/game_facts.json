@@ -3405,7 +3405,7 @@
       "nkey": "flash focus vision training in minutes a day",
       "item_id": 16035,
       "publisher": "Nintendo",
-      "developer": "Bandai Namco Entertainment",
+      "developer": "Nintendo SPD, Namco Bandai Games",
       "players": 1,
       "players_possibly_online": false,
       "co_op": false,
@@ -12037,6 +12037,31 @@
       "co_op": "",
       "region": "United States of America",
       "region_abbr": "USA"
+    },
+    "god-of-war-playstation-hits-playstation-4": {
+      "title": "God of War [PlayStation Hits]",
+      "system": "PlayStation 4",
+      "nkey": "god of war",
+      "publisher": "Sony Interactive Entertainment",
+      "developer": "Santa Monica Studio",
+      "players": "",
+      "players_possibly_online": false,
+      "co_op": "",
+      "region": "United States of America",
+      "region_abbr": "USA"
+    },
+    "windows-arcade-pack-pc": {
+      "title": "Windows Arcade Pack",
+      "system": "PC",
+      "nkey": "windows arcade pack",
+      "publisher": "WizardWorks",
+      "developer": "",
+      "players": "",
+      "players_possibly_online": false,
+      "co_op": "",
+      "region": "",
+      "region_abbr": "",
+      "gameye_release_date": ""
     }
   }
 }
