@@ -3,7 +3,7 @@
    window.MSDPix is shared by the WebGL cabinet and the flat fallback. */
 (function () {
   var OUT = 0x1a1216;
-  var W = 48, H = 96, SW = 64, SH = 104;
+  var W = 48, H = 112, SW = 64, SH = 112;
   var cache = {};
 
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
@@ -297,7 +297,7 @@ function hand(b, x, y, skin, side, mitten) {
       yy = y + i + lift;
       w = i < 3 ? 6 : i < 8 ? 5 : i < 14 ? 5 : 4;
       if (i === 8) w = 6; /* elbow */
-      var rm = i < len * 0.48 ? upper : lower;
+      var rm = i < Math.min(14, len) ? upper : lower;
       var bias = i === 8 || i === 9 ? 1 : 0;
       row(b, x + ox + (mode === "fwd" ? side * (i > 8 ? 1 : 0) : 0), yy, w, rm, bias);
     }
@@ -307,7 +307,7 @@ function hand(b, x, y, skin, side, mitten) {
   function leg(b, x, y, pants, skin, shorts, boots, bend) {
     var boot = ramp("#1a120c");
     var fur = ramp("#fff6ee");
-    var len = bend ? 16 : 26;
+    var len = bend ? 22 : 40;
     var i, w, rm, yy;
     for (i = 0; i < len; i++) {
       yy = y + i;
@@ -319,7 +319,7 @@ function hand(b, x, y, skin, side, mitten) {
       else if (i < 24) w = 7;
       else w = 6;
       if (bend && i > 9) w = Math.max(6, w - 2);
-      var bare = shorts && i > 7;
+      var bare = shorts && i > 14;
       var booted = boots && i > len - 12;
       rm = booted ? boot : bare ? skin : pants;
       var bias = (!bare && (i === 6 || i === 12)) ? 1 : 0;
@@ -378,24 +378,28 @@ function hand(b, x, y, skin, side, mitten) {
     for (var i = 0; i < 9; i++) row(b, cx + 4, y + 2 + i, 4, rm, i > 6 ? 1 : 0);
   }
 
+  /* Shoulders, a long chest, a narrow waist, then hips. About two head-heights. */
+  var TORSO_W = [12, 16, 20, 22, 23, 24, 24, 23, 23, 22, 22, 21, 21, 20, 19, 18, 17, 16, 16, 17, 18, 19, 20, 21, 22, 22, 21, 20];
   function torso(b, cx, y, o, rm) {
-    /* Shoulder slope into a waist, then hips. Returns hip y. */
-    var widths = [10, 14, 18, 20, 22, 22, 21, 20, 18, 17, 16, 16, 15, 15, 16, 17, 18, 19, 20];
     var i, w;
-    for (i = 0; i < widths.length; i++) {
-      w = widths[i];
-      var bias = i < 2 ? -1 : (i === 10 || i === 11 ? 1 : 0);
+    for (i = 0; i < TORSO_W.length; i++) {
+      w = TORSO_W[i];
+      var bias = i < 3 ? -1 : (i >= 16 && i <= 19 ? 1 : 0);
       row(b, cx - (w >> 1), y + i, w, rm, bias);
-      if (i > 4 && i < 16) px(b, cx + (w >> 1) - 3, y + i, rm[3]);
+      if (i > 6 && i < 16) px(b, cx + (w >> 1) - 4, y + i, rm[3]);
     }
-    return y + widths.length;
+    /* waist seam, just above the hip flare */
+    var waist = y + 17;
+    var ww = TORSO_W[17];
+    row(b, cx - (ww >> 1), waist, ww, [rm[2], rm[3], rm[3], rm[3]], 0);
+    return y + TORSO_W.length;
   }
 
   function coatOver(b, cx, y, o) {
     var rm = ramp(o.shirt || "#7a3fd0");
     var fur = ramp("#fff6ee");
-    var widths = [12, 16, 20, 24, 26, 26, 25, 24, 22, 21, 20, 20, 20, 21, 22, 23, 24, 24, 25, 25, 24, 22];
-    if (o.belly) widths = [12, 16, 22, 26, 28, 28, 27, 26, 26, 25, 24, 24, 24, 25, 26, 26, 25, 24, 24, 23, 22, 20];
+    var widths = [14, 18, 22, 26, 28, 28, 27, 26, 26, 25, 24, 23, 22, 21, 20, 19, 18, 18, 19, 20, 21, 22, 23, 24, 24, 25, 25, 24, 24, 23, 22, 22, 21, 20, 20, 19];
+    if (o.belly) widths = [14, 18, 24, 28, 30, 30, 29, 28, 28, 27, 26, 25, 24, 23, 22, 21, 20, 20, 21, 22, 23, 24, 25, 26, 26, 26, 25, 24, 24, 23, 22, 22, 21, 20, 20, 19];
     var i, w;
     for (i = 0; i < widths.length; i++) {
       w = widths[i];
@@ -419,7 +423,7 @@ function hand(b, x, y, skin, side, mitten) {
 
   function vest(b, cx, y) {
     var rm = ramp("#f6e6ee");
-    var widths = [8, 10, 12, 14, 14, 14, 13, 13, 14, 14, 15, 14];
+    var widths = [8, 10, 12, 14, 15, 15, 15, 14, 14, 13, 13, 14, 15, 16, 16, 15, 15, 14];
     for (var i = 0; i < widths.length; i++) {
       var w = widths[i];
       if (i < 3) {
@@ -464,10 +468,8 @@ function hand(b, x, y, skin, side, mitten) {
     if (o.sleeves === "long" || o.coat) fore = o.mittens ? ramp(o.mittens) : sleeveCol;
     if (o.sleeves === "short" && !o.coat) fore = skin;
     var mitten = o.mittens || null;
-    var top = 10 + (pose.bob || 0) + (pose.slump || 0);
-    if (pose.sit && !pose.throne) top = 28 + (pose.bob || 0);
-    if (pose.throne) top = 22;
-    if (role === "baby") top = 30;
+    var top = 18 + (pose.bob || 0) + (pose.slump || 0);
+    if (role === "baby") top = 48;
 
     if (pose.throne) paintThrone(b, cx);
 
@@ -475,29 +477,33 @@ function hand(b, x, y, skin, side, mitten) {
     hat(b, cx, top, o, "front");
 
     var ty = neck - 1;
-    var axL = cx - 13, axR = cx + 6;
+    var hip = ty + TORSO_W.length;
+    var axL = cx - 14, axR = cx + 8;
     var mitL = pose.lArm === "rest" ? (mitten || "#fff6ee") : (o.mittens && o.sleeves !== "short" ? mitten : null);
     var mitR = pose.rArm === "rest" ? (mitten || "#fff6ee") : (o.mittens && o.sleeves !== "short" ? mitten : null);
+    if (pose.sit || pose.throne) paintSitLegs(b, cx, hip - 2, pants, skin, o, pose.throne);
+    else {
+      var lf = leg(b, cx - 11, hip - 2, pants, skin, !!o.shorts, !!o.boots, pose.lBend);
+      var rf = leg(b, cx + 2, hip - 2, pants, skin, !!o.shorts, !!o.boots, pose.rBend);
+      shoe(b, lf, o.shoes, o.sole, !!o.skates, false);
+      shoe(b, rf, o.shoes, o.sole, !!o.skates, false);
+    }
+    if (o.coat) coatOver(b, cx, ty, o);
+    else torso(b, cx, ty, o, shirt);
     function hang(which, x, side, mit) {
       if (which === "up" || which === "out" || which === "rest") return;
-      arm(b, x, ty + 2, 20, sleeveCol, which === "rest" ? ramp(mitten || "#fff6ee") : fore, which, side, skin, mit);
+      arm(b, x, ty + 4, 42, sleeveCol, fore, which, side, skin, mit);
     }
     hang(pose.lArm, axL, -1, mitL);
     hang(pose.rArm, axR, 1, mitR);
-    var hip;
-    if (o.coat) hip = coatOver(b, cx, ty, o);
-    else hip = torso(b, cx, ty, o, shirt);
     function reach(which, x, side, mit) {
       if (which === "up") arm(b, x + (side < 0 ? 2 : 0), ty + 2, 16, sleeveCol, fore, "up", side, skin, mit);
-      else if (which === "out" || which === "rest") arm(b, x, ty + 8, 14, sleeveCol, which === "rest" ? ramp(mitten || "#fff6ee") : fore, which, side, skin, which === "rest" ? (mitten || "#fff6ee") : mit);
+      else if (which === "out" || which === "rest") arm(b, x, ty + 14, 16, sleeveCol, which === "rest" ? ramp(mitten || "#fff6ee") : fore, which, side, skin, which === "rest" ? (mitten || "#fff6ee") : mit);
     }
     reach(pose.lArm, axL, -1, mitL);
     reach(pose.rArm, axR, 1, mitR);
-    /* hands in front of the sleeve hem */
-    if (pose.lArm !== "up" && pose.lArm !== "out" && pose.lArm !== "rest") hand(b, axL - 1, ty + 20, skin, -1, mitL);
-    if (pose.rArm !== "up" && pose.rArm !== "out" && pose.rArm !== "rest") hand(b, axR, ty + 20, skin, 1, mitR);
-    if (o.vest) vest(b, cx, ty + 4);
-    if (o.tee) logo(b, cx - 5, ty + 7);
+    if (o.vest) vest(b, cx, ty + 6);
+    if (o.tee) logo(b, cx - 5, ty + 10);
     if (o.scarf) scarf(b, cx, ty + 1, o.scarf);
     if (o.belt || role === "santa") {
       var belt = ramp(o.belt ? "#1a120c" : "#1a120c");
@@ -505,26 +511,17 @@ function hand(b, x, y, skin, side, mitten) {
       box(b, cx - 2, hip - 3, 5, 4, ramp("#e0b040"));
     }
     if (o.pockets || o.shorts) {
-      box(b, cx - 9, hip - 6, 5, 4, ramp("#6e6240"));
-      box(b, cx + 4, hip - 6, 5, 4, ramp("#6e6240"));
+      box(b, cx - 10, hip + 2, 6, 5, ramp("#6e6240"));
+      box(b, cx + 4, hip + 2, 6, 5, ramp("#6e6240"));
     }
 
     if (o.fur) {
       var fur = ramp("#fff6ee");
-      row(b, axL, ty + 16, 6, fur, 0);
-      row(b, axR, ty + 16, 6, fur, 0);
+      row(b, axL, ty + 28, 6, fur, 0);
+      row(b, axR, ty + 28, 6, fur, 0);
     }
 
-    if (pose.sit || pose.throne) {
-      paintSitLegs(b, cx, hip - 2, pants, skin, o, pose.throne);
-    } else {
-      var lf = leg(b, cx - 12, hip - 2, pants, skin, !!o.shorts, !!o.boots, pose.lBend);
-      var rf = leg(b, cx + 3, hip - 2, pants, skin, !!o.shorts, !!o.boots, pose.rBend);
-      shoe(b, lf, o.shoes, o.sole, !!o.skates, false);
-      shoe(b, rf, o.shoes, o.sole, !!o.skates, false);
-    }
-
-    if (role === "clerk" && pose.rArm === "out") bottle(b, cx + 24, ty + 2);
+    if (role === "clerk" && pose.rArm === "out") bottle(b, cx + 26, ty + 14);
     else if (role === "clerk") bottle(b, cx + 12, hip - 4);
     if (role === "janitor") mop(b, cx + 14, ty + 8, hip + 24);
   }
@@ -538,7 +535,7 @@ function hand(b, x, y, skin, side, mitten) {
     }
     var boot = o.boots ? ramp("#1a120c") : ramp(o.shoes || "#1a1a1a");
     var fur = ramp("#fff6ee");
-    for (i = 0; i < 14; i++) {
+    for (i = 0; i < 30; i++) {
       row(b, cx - 12, y + 8 + i, 8, o.boots ? boot : pants, 0);
       row(b, cx + 4, y + 8 + i, 8, o.boots ? boot : pants, 0);
     }
@@ -546,8 +543,8 @@ function hand(b, x, y, skin, side, mitten) {
       row(b, cx - 13, y + 8, 9, fur, 0);
       row(b, cx + 4, y + 8, 9, fur, 0);
     }
-    shoe(b, { x: cx - 14, y: y + 22, w: 11 }, o.boots ? "#1a120c" : o.shoes, o.sole || "#0a0a0a", false, false);
-    shoe(b, { x: cx + 3, y: y + 22, w: 11 }, o.boots ? "#1a120c" : o.shoes, o.sole || "#0a0a0a", false, false);
+    shoe(b, { x: cx - 14, y: y + 38, w: 11 }, o.boots ? "#1a120c" : o.shoes, o.sole || "#0a0a0a", false, false);
+    shoe(b, { x: cx + 3, y: y + 38, w: 11 }, o.boots ? "#1a120c" : o.shoes, o.sole || "#0a0a0a", false, false);
     if (throne) {
       /* mittens already on the rests; a pale fur edge under each hand */
     }
@@ -598,20 +595,21 @@ function hand(b, x, y, skin, side, mitten) {
     var pants = ramp(o.pants || "#243044");
     var sleeveCol = o.tee ? ramp("#f7f4ee") : shirt;
     var fore = o.sleeves === "short" && !o.coat ? skin : sleeveCol;
-    var top = 10 + (pose.bob || 0) + (pose.slump || 0);
+    var top = 18 + (pose.bob || 0) + (pose.slump || 0);
     var neck = paintHead(b, cx, top, o, false, "back");
     hat(b, cx, top, o, "back");
-    var hip = o.coat ? coatOver(b, cx, neck - 1, o) : torso(b, cx, neck - 1, o, shirt);
-    if (o.tee) logo(b, cx - 5, neck + 8);
-    if (o.pockets || o.shorts) {
-      box(b, cx - 9, hip - 8, 6, 5, ramp("#6e6240"));
-      box(b, cx + 3, hip - 8, 6, 5, ramp("#6e6240"));
-    }
     var ty = neck - 1;
-    arm(b, cx - 16, ty + 3, 18, sleeveCol, fore, pose.lArm === "up" ? "up" : pose.lArm, -1, skin, null);
-    arm(b, cx + 10, ty + 3, 18, sleeveCol, fore, pose.rArm === "up" ? "up" : pose.rArm, 1, skin, null);
-    var lf = leg(b, cx - 12, hip - 2, pants, skin, !!o.shorts, !!o.boots, pose.lBend);
-    var rf = leg(b, cx + 3, hip - 2, pants, skin, !!o.shorts, !!o.boots, pose.rBend);
+    var hip = ty + TORSO_W.length;
+    var lf = leg(b, cx - 11, hip - 2, pants, skin, !!o.shorts, !!o.boots, pose.lBend);
+    var rf = leg(b, cx + 2, hip - 2, pants, skin, !!o.shorts, !!o.boots, pose.rBend);
+    if (o.coat) coatOver(b, cx, ty, o); else torso(b, cx, ty, o, shirt);
+    if (o.tee) logo(b, cx - 5, ty + 10);
+    if (o.pockets || o.shorts) {
+      box(b, cx - 10, hip + 2, 6, 5, ramp("#6e6240"));
+      box(b, cx + 4, hip + 2, 6, 5, ramp("#6e6240"));
+    }
+    arm(b, cx - 14, ty + 4, 42, sleeveCol, fore, pose.lArm === "up" ? "up" : pose.lArm, -1, skin, null);
+    arm(b, cx + 8, ty + 4, 42, sleeveCol, fore, pose.rArm === "up" ? "up" : pose.rArm, 1, skin, null);
     shoe(b, lf, o.shoes, o.sole, !!o.skates, true);
     shoe(b, rf, o.shoes, o.sole, !!o.skates, true);
   }
@@ -621,7 +619,7 @@ function hand(b, x, y, skin, side, mitten) {
     var skin = skinOf(o.skin || "#f6d5b0");
     var suit = ramp(o.shirt || "#f7d6e4");
     var hatc = ramp(o.hatc || "#3f7fd0");
-    var top = 58 + (pose.bob || 0);
+    var top = 76 + (pose.bob || 0);
     /* big head for a baby, still with a neck and ears */
     var hw = [8, 12, 16, 18, 20, 20, 18, 16, 14];
     var i;
