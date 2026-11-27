@@ -12037,6 +12037,19 @@
       "co_op": "",
       "region": "United States of America",
       "region_abbr": "USA"
+    },
+    "windows-arcade-pack-pc": {
+      "title": "Windows Arcade Pack",
+      "system": "PC",
+      "nkey": "windows arcade pack",
+      "publisher": "WizardWorks",
+      "developer": "",
+      "players": "",
+      "players_possibly_online": false,
+      "co_op": "",
+      "region": "",
+      "region_abbr": "",
+      "gameye_release_date": ""
     }
   }
 }
