@@ -3,6 +3,8 @@ row, the Time Machine include (BODY_JS, right after <body>), and the footer
 scripts (service worker, back to top, growth.js: Google Play badge for web
 visitors).
 Copied from the hand-made pages so generated pages look the same."""
+import re
+
 from sitedata import esc
 import site_config as cfg
 import site_head
@@ -237,10 +239,37 @@ def post_date(iso):
     return f"{MONTHS[d.month-1]} {d.day}, {d.year}"
 
 
+# Whole-collection lines. A per-console count ("114 games on the shelf") is not one of these.
+_COLLECTION_OF = re.compile(r"\b(collection of )\d[\d,]*( games)\b", re.I)
+_TOTAL_OWNED = re.compile(r"\b(total physical owned game count to )\d[\d,]*\b", re.I)
+_shelf_n = None
+
+
+def shelf_game_count():
+    """How many games are on the shelf. Same RAW block the homepage counts."""
+    global _shelf_n
+    if _shelf_n is None:
+        import sitedata as sd
+        _shelf_n = len(sd.load_shelf()[1])
+    return _shelf_n
+
+
+def refresh_collection_counts(text, n=None):
+    """Standing lines that state the size of the whole collection follow the shelf.
+    The tweet archive keeps the number from the day it was posted; published
+    pages and the homepage feed do not."""
+    if n is None:
+        if not _COLLECTION_OF.search(text) and not _TOTAL_OWNED.search(text):
+            return text
+        n = shelf_game_count()
+    text = _COLLECTION_OF.sub(rf"\g<1>{n}\g<2>", text)
+    text = _TOTAL_OWNED.sub(rf"\g<1>{n}", text)
+    return text
+
+
 def clean_post_text(text):
-    import re
     text = re.sub(r"\s*https://t\.co/\w+", "", text)
-    return text.strip()
+    return refresh_collection_counts(text.strip())
 
 
 def post_block(p, color=None):

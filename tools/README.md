@@ -444,8 +444,12 @@ always newest first, so it needs no updating. Shorts count as uploads too.
   `pagekit.head()` uses it for generated pages; run it after adding a
   hand-made page. Test folders (`*-test/`, `preview/`) are skipped.
 * `sync_counts.py`: writes the shelf's game and system counts into the
-  hand-made pages' titles, share tags and fallbacks. `build_game_pages.py`
-  runs it at the end.
+  hand-made pages' titles, share tags and fallbacks. It also rewrites
+  standing whole-collection lines ("collection of N games", and a homepage
+  feed line that states the total owned) from that same shelf count.
+  `build_game_pages.py` runs it at the end. The tweet text in
+  `tools/data/x_posts.json` stays as posted; `pagekit.clean_post_text`
+  fills in the shelf count when a page is built.
 * `make_og_image.py`: draws the default share image `og-image.png`
   (1200x630) with the counts from the data. `sync_counts.py` runs it and it
   only redraws when the counts change (`--force` to redraw anyway). Needs

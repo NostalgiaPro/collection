@@ -6,7 +6,10 @@ tags, titles and no-JavaScript fallbacks, so every count comes from the data
     python3 tools/sync_counts.py
 
 build_game_pages.py runs it at the end, and it redraws og-image.png
-(make_og_image.py) when the counts change. Safe to run any time."""
+(make_og_image.py) when the counts change. It also rewrites standing
+whole-collection lines ("collection of N games", "total physical owned
+game count to N") on published pages and in data/new-this-week.json.
+Safe to run any time."""
 import os, re, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -54,9 +57,50 @@ def main():
         if out != src:
             open(p, "w", encoding="utf-8").write(out)
             changed.append(rel)
+    changed.extend(refresh_collection_lines(n))
     print(f"sync_counts: {n} games, {ns} systems" + (f"; updated {', '.join(changed)}" if changed else ""))
     import make_og_image   # the share image carries the same counts
     make_og_image.main()
+
+
+def refresh_collection_lines(n):
+    """Published copy that states the size of the whole collection.
+
+    Test folders and preview/ are old snapshots and are left alone. The
+    tweet archive in tools/data stays as posted; pagekit.clean_post_text
+    fills in the shelf count when a page is built."""
+    import pagekit
+    changed = []
+    roots = [sd.ROOT, os.path.join(sd.ROOT, "game"), os.path.join(sd.ROOT, "console"),
+             os.path.join(sd.ROOT, "data")]
+    seen = set()
+    for base in roots:
+        if not os.path.isdir(base):
+            continue
+        for dp, dn, fn in os.walk(base):
+            rel_dir = os.path.relpath(dp, sd.ROOT).replace(os.sep, "/")
+            rel_dir = "" if rel_dir == "." else rel_dir
+            if re.match(r"^(?:[^/]*-test|preview)(?:/|$)", rel_dir):
+                dn[:] = []
+                continue
+            # only the top of each root: game/ and console/ and data/ are one level,
+            # and the site root should not recurse into those again
+            if base == sd.ROOT:
+                dn[:] = []
+            for f in fn:
+                if not f.endswith((".html", ".json")):
+                    continue
+                rel = (rel_dir + "/" + f).lstrip("/")
+                if rel in seen:
+                    continue
+                seen.add(rel)
+                p = os.path.join(dp, f)
+                src = open(p, encoding="utf-8").read()
+                out = pagekit.refresh_collection_counts(src, n)
+                if out != src:
+                    open(p, "w", encoding="utf-8").write(out)
+                    changed.append(rel)
+    return changed
 
 
 def other_pages():
