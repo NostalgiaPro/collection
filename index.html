@@ -328,14 +328,23 @@ a.ht-soc:visited{color:var(--text)}
   .hp-side-beat{grid-column:1;grid-row:2}
   .hp-side-merch{grid-column:2;grid-row:2}
 }
-@media (min-width:1680px){
-  .hp-stage{grid-template-columns:minmax(0,1fr) min(1176px,100%) minmax(0,1fr);column-gap:18px;row-gap:0;
-    width:100vw;margin-left:calc(50% - 50vw);align-items:start}
+/* From a laptop width, beaten games and merch sit in the dark space beside the shelf.
+   The three columns together are the same width as the game card under them. */
+@media (min-width:1200px){
+  .hp-stage{display:grid;grid-template-columns:172px minmax(0,1fr) 172px;column-gap:16px;row-gap:0;
+    width:auto;margin-left:0;align-items:start}
   .hp-counter{grid-column:2;grid-row:1}
-  .hp-side{order:0}
-  .hp-side-beat{grid-column:1;grid-row:1;margin:64px 0 0 16px}
-  .hp-side-merch{grid-column:3;grid-row:1;margin:64px 16px 0 0}
-  .hp-merch{grid-template-columns:1fr}
+  .hp-side{order:0;padding:12px}
+  .hp-side-beat{grid-column:1;grid-row:1;margin:64px 0 0}
+  .hp-side-merch{grid-column:3;grid-row:1;margin:64px 0 0}
+  .hp-side-note{font-size:12.5px}
+  .hp-beat{gap:8px}
+  .hp-beat a{gap:8px;padding:6px}
+  .hp-beat img{width:36px;height:48px}
+  .hp-beat b{font-size:12px}
+  .hp-beat i{font-size:12px}
+  .hp-merch{grid-template-columns:1fr;gap:12px}
+  .hp-merch b{font-size:12px}
 }
 .searchbar,.o1 .searchbar{display:grid;grid-template-columns:1fr 1fr;column-gap:14px;row-gap:24px;max-width:none;margin:0}
 #q{
@@ -1774,7 +1783,6 @@ body.y1996 .npmerch .npmerch-btn{color:#000}
       <ul class="hp-merch">
         <li><a href="https://nostalgiapro-shop.fourthwall.com/products/is-it-on-the-shelf-tee" target="_blank" rel="noopener"><img src="/images/merch-fw-is-it-on-the-shelf-tee-a.webp" alt="" width="320" height="320" loading="lazy"><b>Is It On The Shelf? Tee</b><span>$25+</span></a></li>
         <li><a href="https://nostalgiapro-shop.fourthwall.com/products/physical-media-enjoyer-neon-tee" target="_blank" rel="noopener"><img src="/images/merch-fw-physical-media-enjoyer-neon-tee-a.webp" alt="" width="320" height="320" loading="lazy"><b>Physical Media Enjoyer Neon Tee</b><span>$25+</span></a></li>
-        <li><a href="https://nostalgiapro-shop.fourthwall.com/products/daily-shelf-tee" target="_blank" rel="noopener"><img src="/images/merch-fw-daily-shelf-tee-a.webp" alt="" width="320" height="320" loading="lazy"><b>Daily Shelf Tee</b><span>$25+</span></a></li>
       </ul>
       <a class="hp-side-more" href="https://nostalgiapro-shop.fourthwall.com/" target="_blank" rel="noopener">Shop all 15 items</a>
     </aside>
