@@ -282,9 +282,9 @@ a.ht-soc:visited{color:var(--text)}
   .o1 .standfirst{color:color-mix(in srgb,var(--text) 68%,var(--dim))}
 }
 
-/* --- The counter: search, verdict, scoreboard --- */
-.hp-counter{max-width:900px;margin:20px auto 0}
-.searchbar,.o1 .searchbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:none;margin:0}
+/* --- The counter: search, verdict, scoreboard. Full width of the column, same edges as the game card. --- */
+.hp-counter{max-width:none;width:100%;min-width:0;margin:56px auto 0}
+.searchbar,.o1 .searchbar{display:grid;grid-template-columns:1fr 1fr;column-gap:14px;row-gap:24px;max-width:none;margin:0}
 #q{
   grid-column:1 / -1;width:100%;min-width:0;scroll-margin-top:90px;
   background:var(--hp-well);color:var(--text);
@@ -297,11 +297,14 @@ a.ht-soc:visited{color:var(--text)}
 #q::placeholder{color:#565c6e;font-weight:500}
 #q:focus{outline:none;border-color:var(--hot);box-shadow:0 0 0 3px rgba(255,75,62,.18),0 18px 36px -20px var(--hot)}
 .btn,.o1 .btn{
-  min-width:0;cursor:pointer;background:var(--bg2);color:var(--text);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  min-width:0;min-height:56px;cursor:pointer;background:var(--bg2);color:var(--text);
   border:2px solid var(--line);border-bottom-width:4px;border-radius:var(--hp-r);
-  font-family:"Righteous",sans-serif;font-weight:700;font-size:9.5px;letter-spacing:.02em;
-  padding:14px 4px 12px;transition:transform .1s ease,border-color .12s ease,color .12s ease;
+  font-family:"Righteous",sans-serif;font-weight:700;font-size:11px;letter-spacing:.01em;line-height:1.25;
+  padding:18px 6px 16px;transition:transform .1s ease,border-color .12s ease,color .12s ease;
 }
+/* type.css locks .btn at 13px. These two search buttons need a slightly larger face. */
+.o1 .searchbar .btn{font-size:15px !important;letter-spacing:.03em !important;line-height:1.2 !important}
 .btn:hover{border-color:var(--hot);color:var(--hot)}
 .btn:active{transform:translateY(2px)}
 .btn:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
@@ -367,8 +370,8 @@ a.ht-soc:visited{color:var(--text)}
 .scores::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
   background:repeating-linear-gradient(to bottom,rgba(0,0,0,.2) 0 1px,transparent 1px 3px)}
 .score,.o1 .score{
-  position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;
-  padding:15px 4px 12px;text-align:center;text-decoration:none;background:none;
+  position:relative;display:flex;flex-direction:column;align-items:center;gap:18px;min-width:0;
+  padding:28px 10px 24px;text-align:center;text-decoration:none;background:none;
   border:0;border-right:1px dotted var(--line);border-bottom:1px dotted var(--line);
 }
 .score:nth-child(3n){border-right:0}
@@ -390,15 +393,15 @@ a.score::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;b
 a.score:hover::after,a.score:focus-visible::after{opacity:1}
 
 /* one line under the box: what the one search covers */
-.hp-qhint{grid-column:1 / -1;margin:-3px 2px 1px;font-family:"Righteous",sans-serif;font-size:10px;line-height:1.5;
+.hp-qhint{grid-column:1 / -1;margin:0 2px;font-family:"Righteous",sans-serif;font-size:10px;line-height:1.5;
   letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
 
 /* the board holds two rows: games (drawScores) on top, the other shelves under it */
-.hp-board{position:relative;margin:16px 0 0;background:var(--hp-well);border:2px solid var(--line);border-top:3px solid var(--hot);
+.hp-board{position:relative;margin:48px 0 0;background:var(--hp-well);border:2px solid var(--line);border-top:3px solid var(--hot);
   border-radius:var(--hp-r);overflow:hidden;box-shadow:inset 0 14px 22px -14px rgba(0,0,0,.8)}
 .hp-board .scores,.ht .hp-board .scores{margin:0;background:none;border:0;border-radius:0;box-shadow:none}
 .hp-board .hp-mscores,.ht .hp-board .hp-mscores{grid-template-columns:repeat(auto-fit,minmax(72px,1fr));border-top:1px dotted var(--line)}
-.hp-mscores .score,.o1 .hp-mscores .score{padding-left:2px;padding-right:2px;border-bottom:0;border-right:1px dotted var(--line)}
+.hp-mscores .score,.o1 .hp-mscores .score{padding-left:10px;padding-right:10px;border-bottom:0;border-right:1px dotted var(--line)}
 .hp-mscores .score:last-child,.o1 .hp-mscores .score:last-child{border-right:0}
 .hp-mscores .score:first-child b{color:var(--text);text-shadow:0 0 14px rgba(255,255,255,.2)}
 .hp-mscores a.score:hover b,.hp-mscores a.score:focus-visible b{color:var(--hot)}
@@ -471,7 +474,7 @@ a.score:hover::after,a.score:focus-visible::after{opacity:1}
 .hp-hero-mid .wordmark{display:block;margin:0 auto 8px}
 .hp-hero-mid .wordmark img{width:min(420px,78vw)}
 .hp-hero-mid h1{margin:0}
-.hp-hero-mid .standfirst{margin:10px auto 4px}
+.hp-hero-mid .standfirst{margin:10px auto 24px}
 .hp-hero-top .ht-acts{display:contents}
 .hp-hero-top .ht-act,
 .hp-hero-top .ht-act-arcade{
@@ -1165,8 +1168,8 @@ footer p a{color:var(--text)}
   .o1 .standfirst{margin-top:16px;font-size:17px}
   .ht-a .ht-tm-a{top:10px;right:0}
   .ht-a .ht-social{top:10px;left:0}
-  .hp-counter{margin-top:26px}
-  .btn,.o1 .btn{font-size:12px;letter-spacing:.06em;padding:14px 18px 12px}
+  .hp-counter{margin-top:64px}
+  .btn,.o1 .btn{padding:18px 12px 16px;min-height:58px}
   .vhead{font-size:15px}
   .ht-sh{font-size:11px}
   .hp-sec{margin-top:42px}
@@ -1196,15 +1199,17 @@ footer p a{color:var(--text)}
   .hp-shelfsign{margin-top:48px}
 }
 @media (min-width:700px){
-  .searchbar,.o1 .searchbar{grid-template-columns:minmax(0,1fr) auto auto}
+  .searchbar,.o1 .searchbar{grid-template-columns:minmax(0,1fr) auto auto;column-gap:24px;row-gap:28px}
+  .btn,.o1 .btn{padding:18px 24px 16px;min-height:60px}
+  .o1 .searchbar .btn{font-size:16px !important}
   #q{grid-column:1;grid-row:1}
   #lucky{grid-column:2;grid-row:1}
   #whatnext{grid-column:3;grid-row:1}
   .ht-acts{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-  .hp-qhint{grid-row:2;margin-top:-2px}
+  .hp-qhint{grid-row:2;margin-top:0}
   .hp-mscores .score span,.o1 .hp-mscores .score span{font-size:10px;letter-spacing:.08em}
   .scores,.ht .scores{grid-template-columns:repeat(6,minmax(0,1fr))}
-  .score,.o1 .score{padding:18px 6px 14px;border-bottom:0;border-right:1px dotted var(--line)}
+  .score,.o1 .score{padding:36px 12px 32px;border-bottom:0;border-right:1px dotted var(--line)}
   .score:last-child{border-right:0}
 }
 @media (min-width:881px){
@@ -1483,14 +1488,39 @@ nav a em{color:color-mix(in srgb,var(--c) 45%,#fff)}
 .npmerch .npmerch-btn,.mrB-foot .npmerch-btn{color:#12070a}
 .npmerch .npmerch-btn:hover,.mrB-foot .npmerch-btn:hover{color:var(--hot)}
 body.y1996 .npmerch .npmerch-btn{color:#000}
-/* Browse by console chips under the scoreboard */
-.hp-cons{margin:14px 0 0}
-.hp-cons-h{font-family:"Righteous",sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:0 0 8px}
-.hp-cons-row{display:flex;flex-wrap:wrap;gap:6px}
-.hp-cons-row a{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:6px 10px;border:1px solid var(--line);border-left:4px solid var(--c);
-  border-radius:2px;background:var(--bg2);color:var(--text);text-decoration:none;font-size:13px;line-height:1.2}
-.hp-cons-row a em{font-style:normal;color:var(--dim);font-size:12px}
+/* Browse by console chips under the scoreboard. Equal columns so short and long names line up. */
+.hp-cons{margin:48px 0 0}
+.hp-cons-details{margin:0}
+.hp-cons-h{display:block;width:100%;margin:0 0 20px;padding:0;border:0;background:none;font-family:"Righteous",sans-serif;font-weight:400;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;list-style:none;cursor:default}
+.hp-cons-h::-webkit-details-marker{display:none}
+.hp-cons-h::marker{content:""}
+.hp-cons-chev{display:none}
+@media (max-width:699px){
+  .hp-cons-h{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;margin:0;padding:12px 14px;cursor:pointer;color:var(--text);background:var(--bg2);border:1px solid var(--line);border-radius:2px}
+  .hp-cons-details[open] > .hp-cons-h{margin-bottom:20px}
+  .hp-cons-chev{display:block;flex:none;width:8px;height:8px;border-right:2px solid var(--hot);border-bottom:2px solid var(--hot);transform:translateY(-2px) rotate(45deg)}
+  .hp-cons-details[open] > .hp-cons-h .hp-cons-chev{transform:translateY(2px) rotate(225deg)}
+  .hp-cons-h:focus-visible{outline:2px solid var(--hot);outline-offset:3px}
+}
+@media (min-width:700px){
+  /* Always show the chips. The summary is only a label here, same as the old heading. */
+  .hp-cons-details > .hp-cons-row{display:grid !important}
+  .hp-cons-h{pointer-events:none}
+}
+.hp-cons-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
+.hp-cons-row a{display:flex;align-items:center;justify-content:space-between;gap:14px;min-width:0;min-height:44px;height:100%;padding:11px 16px;border:1px solid var(--line);border-left:4px solid var(--c);
+  border-radius:2px;background:var(--bg2);color:var(--text);text-decoration:none;font-size:14px;line-height:1.2}
+.hp-cons-row a span{min-width:0}
+.hp-cons-row a em{flex:none;margin-left:auto;font-style:normal;color:var(--dim);font-size:13px}
 .hp-cons-row a:hover,.hp-cons-row a:focus-visible{border-color:var(--c);color:#fff}
+/* Two long names wrap at a phone width. Give every chip that taller size so the grid stays even. */
+@media (max-width:419px){
+  .hp-cons-row a{min-height:58px}
+}
+@media (min-width:560px){
+  .hp-cons-row{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+  .hp-cons-row a span{white-space:nowrap}
+}
 @media (min-width:1100px){
   /* Side cards stay under the photo strip, in the open space beside the logo. */
   .o1-hero{margin-top:6px}
@@ -1674,7 +1704,7 @@ body.y1996 .npmerch .npmerch-btn{color:#000}
 </script>
     </div>
 
-    <!-- THE COUNTER: search, verdict, scoreboard -->
+    <!-- THE COUNTER: search, verdict, scoreboard, console grid. Same width as the game card. -->
     <div class="hp-counter">
     <div class="searchbar">
       <input id="q" type="search" placeholder="Try “Turtles in Time”" autocomplete="off" spellcheck="false" aria-label="Search the collection" aria-describedby="qHint">
@@ -1696,7 +1726,7 @@ body.y1996 .npmerch .npmerch-btn{color:#000}
       </div>
     </div>
     <!-- Browse by console: filled from the shelf (RAW) by drawConsoleChips() below. -->
-    <nav class="hp-cons" aria-labelledby="hpConsH"><p class="hp-cons-h" id="hpConsH">Browse by console</p><div class="hp-cons-row" id="consoleChips"></div></nav>
+    <nav class="hp-cons" aria-labelledby="hpConsH"><details class="hp-cons-details"><summary class="hp-cons-h" id="hpConsH">Browse by console<span class="hp-cons-chev" aria-hidden="true"></span></summary><div class="hp-cons-row" id="consoleChips"></div></details></nav>
     </div>
 
     <!-- GAME SALES CARD: Nostalgia Pro: The Game. Sits after Start here and before Latest Posts.
@@ -4612,7 +4642,7 @@ function drawConsoleChips(){
   box.innerHTML = systems.filter(s => s.games.length).map(s => {
     const page = CONSOLE_PAGES.get(s.id);
     const href = page ? `/console/${page}.html` : `#${s.id}`;
-    return `<a href="${href}" style="--c:${s.color}"${page ? "" : ` data-open="${s.id}"`}>${esc(s.name)} <em>${s.games.length}</em></a>`;
+    return `<a href="${href}" style="--c:${s.color}"${page ? "" : ` data-open="${s.id}"`}><span>${esc(s.name)}</span><em>${s.games.length}</em></a>`;
   }).join("");
   box.addEventListener("click", e => {
     const a = e.target.closest("a[data-open]"); if (!a) return;
@@ -4623,6 +4653,21 @@ function drawConsoleChips(){
 drawRail();
 drawConsoleChips();
 render();
+
+/* Browse by console is a disclosure on a phone and a plain heading on desktop. */
+(function(){
+  var det = document.querySelector(".hp-cons-details");
+  var sum = document.getElementById("hpConsH");
+  if (!det || !sum || !window.matchMedia) return;
+  var mq = matchMedia("(min-width:700px)");
+  function sync(){
+    if (mq.matches) { det.open = true; sum.tabIndex = -1; }
+    else sum.tabIndex = 0;
+  }
+  sync();
+  if (mq.addEventListener) mq.addEventListener("change", sync);
+  else if (mq.addListener) mq.addListener(sync);
+})();
 </script>
 
 <script>
