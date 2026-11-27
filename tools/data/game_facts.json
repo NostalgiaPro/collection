@@ -12037,6 +12037,18 @@
       "co_op": "",
       "region": "United States of America",
       "region_abbr": "USA"
+    },
+    "god-of-war-playstation-hits-playstation-4": {
+      "title": "God of War [PlayStation Hits]",
+      "system": "PlayStation 4",
+      "nkey": "god of war",
+      "publisher": "Sony Interactive Entertainment",
+      "developer": "Santa Monica Studio",
+      "players": "",
+      "players_possibly_online": false,
+      "co_op": "",
+      "region": "United States of America",
+      "region_abbr": "USA"
     }
   }
 }

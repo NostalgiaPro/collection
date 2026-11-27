@@ -1,6 +1,30 @@
 {
   "items": [
     {
+      "type": "site",
+      "title": "It's a Wonderful Life",
+      "text": "New on the movie shelf. Sealed 4K Ultra HD.",
+      "url": "/movies.html",
+      "image": "/images/placeholders/it-s-a-wonderful-life-4k-ultra-hd.webp",
+      "date": "2026-11-27"
+    },
+    {
+      "type": "site",
+      "title": "White Christmas",
+      "text": "New on the movie shelf. Sealed 70th Anniversary 4K Ultra HD with slipcover.",
+      "url": "/movies.html",
+      "image": "/images/placeholders/white-christmas-4k-ultra-hd.webp",
+      "date": "2026-11-27"
+    },
+    {
+      "type": "site",
+      "title": "God of War [PlayStation Hits]",
+      "text": "New on the PlayStation 4 shelf.",
+      "url": "/game/god-of-war-playstation-hits-playstation-4.html",
+      "image": "",
+      "date": "2026-11-27"
+    },
+    {
       "type": "x",
       "title": "A Charlie Brown Thanksgiving",
       "text": "A Charlie Brown Thanksgiving - Full movie! \"We should just be thankful for being together.\" Happy Thanksgiving everyone!",
@@ -35,7 +59,7 @@
     {
       "type": "x",
       "title": "2 more Switch games added",
-      "text": "2 more Switch games have been added to the collection. Picked up Kirby Air Riders and the Super Mario Galaxy 1 and 2 bundle. 7 new games acquired in the last 3 days, bringing my total physical owned game count to 859.",
+      "text": "2 more Switch games have been added to the collection. Picked up Kirby Air Riders and the Super Mario Galaxy 1 and 2 bundle. 7 new games acquired in the last 3 days, bringing my total physical owned game count to 860.",
       "url": "https://x.com/NostalgiaPro/status/2125705594363650156",
       "image": "",
       "date": "2026-11-25"
