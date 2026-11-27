@@ -33,11 +33,15 @@ export function createCast(T) {
     "#7a3fd0": "shopper-front", "#2fb0a0": "shopper-teal", "#ff3fa4": "shopper-pink",
     "#3f7fd0": "shopper-blue", "#e0662a": "shopper-orange", "#1d2b53": "shopper-blue", "#5a6670": "shopper-teal"
   };
-  function artName(o) {
-    if (o.tee) return o.view === "back" ? "hero-back" : "hero-front";
-    if (o.beard || o.hat === "santa") return "santa-front";
-    if (o.vest) return "clerk-front";
-    return SHOP[String(o.shirt || "").toLowerCase()] || "shopper-front";
+  function artName(o, view) {
+    const back = (view || o.view) === "back";
+    if (o.tee) return back ? "hero-back" : "hero-front";
+    if (o.beard || o.hat === "santa") return back ? "santa-back" : "santa-front";
+    if (o.vest) return back ? "clerk-back" : "clerk-front";
+    const front = SHOP[String(o.shirt || "").toLowerCase()] || "shopper-front";
+    if (!back) return front;
+    if (front === "shopper-front") return "shopper-back";
+    return "shopper-back-" + front.slice("shopper-".length);
   }
   function texOfImage(img) {
     if (texCache.has(img)) return texCache.get(img);
@@ -50,23 +54,28 @@ export function createCast(T) {
     texCache.set(img, t);
     return t;
   }
-  function framesFor(o) {
-    const img = window.XmasArt && window.XmasArt[artName(o)];
+  function framesFor(o, view) {
+    const img = window.XmasArt && window.XmasArt[artName(o, view)];
     if (img) {
       const t = texOfImage(img);
       const out = [];
       for (let i = 0; i < N; i++) out.push(t);
       return { frames: out, w: img.naturalWidth || img.width, h: img.naturalHeight || img.height, art: true };
     }
+    if (view === "back" && o.view !== "back") return null;
+    const drawn = Object.assign({}, o, { view: view || o.view || "front" });
     const out = [];
-    for (let i = 0; i < N; i++) out.push(texOf(Pix.frame(o, i)));
-    const role = Pix.roleOf(o);
+    for (let i = 0; i < N; i++) out.push(texOf(Pix.frame(drawn, i)));
+    const role = Pix.roleOf(drawn);
     return { frames: out, w: role === "santa" ? Pix.SW : Pix.W, h: role === "santa" ? Pix.SH : Pix.H, art: false };
   }
 
   function person(o) {
     o = Object.assign({}, o || {});
-    const pack = framesFor(o);
+    const frontPack = framesFor(o, "front");
+    const backPack = framesFor(o, "back");
+    const startBack = o.view === "back" && backPack;
+    const pack = startBack ? backPack : frontPack;
     const frames = pack.frames;
     const h = 1.82 * (o.scale || 1);
     const aspect = pack.w / pack.h;
@@ -74,6 +83,7 @@ export function createCast(T) {
       map: frames[0], transparent: true, alphaTest: 0.5, depthWrite: true, fog: true
     });
     const sprite = new T.Sprite(mat);
+    // Height is the world size. Width follows the painting, so Santa is never squashed.
     sprite.scale.set(h * aspect, h, 1);
     sprite.center.set(0.5, 0);
     const root = new T.Group();
@@ -98,6 +108,20 @@ export function createCast(T) {
     };
     root.add(P.grip);
     P.lockedArt = pack.art;
+    P.frontPack = frontPack;
+    P.backPack = backPack;
+    P.view = startBack ? "back" : "front";
+    P.applyView = function (view) {
+      const want = view === "back" && P.backPack ? "back" : "front";
+      if (P.view === want) return;
+      const next = want === "back" ? P.backPack : P.frontPack;
+      if (!next) return;
+      P.view = want;
+      P.frames = next.frames;
+      sprite.material.map = next.frames[0];
+      const hh = sprite.scale.y;
+      sprite.scale.x = hh * (next.w / next.h);
+    };
     P.setShoes = function (id) {
       P.shoeId = id || "plain";
       if (P.lockedArt) return;

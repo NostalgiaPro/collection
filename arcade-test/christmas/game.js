@@ -804,7 +804,7 @@ function makeOb(o) {
   } else if (o.t === "bin") {
     g.add(K.billboard(window.MSDPix.prop("bin"), 0.95));
   } else if (o.t === "clerk") {
-    P = K.person({ shirt: "#1b1b22", pants: "#14141c", hair: r < 0.5 ? "#2a1a12" : "#c89a40", hairStyle: r < 0.5 ? "bun" : "bob", skin: SKIN[Math.floor(r * 5)], sleeves: "long", vest: "#f6e6ee", shoes: "#1b1b22", sole: "#2a2a2a" });
+    P = K.person({ shirt: "#1b1b22", pants: "#14141c", hair: r < 0.5 ? "#2a1a12" : "#c89a40", hairStyle: r < 0.5 ? "bun" : "bob", skin: SKIN[Math.floor(r * 5)], sleeves: "long", vest: "#f6e6ee", shoes: "#1b1b22", sole: "#2a2a2a", scale: 0.97 });
     g.add(P.g);
     const counter = K.billboard(window.MSDPix.prop("counter"), 1.05);
     counter.position.set(o.lane === 0 ? -0.15 : 0.15, 0, -0.35);
@@ -885,7 +885,7 @@ function frameCast(t, z, heroOnly) {
     function add(p, x, rot) { p.g.position.x = x; p.g.rotation.y = rot || 0; g.add(p.g); folks.push(p); }
     add(K.person({ tee: true, pants: "#9a8a5a", shorts: true, sleeves: "short", hat: "beanie", hatc: "#c2304a", skin: "#f1c28e", hair: "#5a3a20", hairStyle: "short", pockets: true, shoes: "#f7f4ee", sole: "#c2304a" }), -0.78, 0.4);
     add(K.person({ shirt: "#7a3fd0", pants: "#243044", coat: true, scarf: "#fff6ee", hair: "#4a3728", hairStyle: "short", hat: "beanie", hatc: "#7a3fd0", skin: "#c98a5a", shoes: "#f7f4ee", sole: "#1a1a1a", sleeves: "long" }), -0.24, 0.35);
-    add(K.person({ shirt: "#1b1b22", pants: "#14141c", hair: "#c89a40", hairStyle: "bun", vest: "#f6e6ee", sleeves: "long", skin: "#f6d5b0", shoes: "#1b1b22" }), 0.28, -0.4);
+    add(K.person({ shirt: "#1b1b22", pants: "#14141c", hair: "#c89a40", hairStyle: "bun", vest: "#f6e6ee", sleeves: "long", skin: "#f6d5b0", shoes: "#1b1b22", scale: 0.97 }), 0.28, -0.4);
     add(K.person({ shirt: "#c2304a", pants: "#8e1c2c", coat: true, fur: true, belly: true, mittens: "#fff6ee", sleeves: "long", hat: "santa", boots: true, belt: 0x1a120c, beard: true, hairStyle: "bald", bulk: 1.05, skin: "#f1c28e", shoes: "#1a120c" }), 0.8, 0.25);
     K.lineup = g; K.lineupFolks = folks;
   }
@@ -962,6 +962,8 @@ function syncWorld(dt, state, t) {
     if (!m) { m = makeOb(o); K.live.set(o, m); scene.add(m); }
     m.position.set(lx(o.lp) + (o.span ? LX / 2 : 0), 0, -o.z);
     const P = m.userData.P;
+    if (P && P.applyView && o._zPrev != null && o.z !== o._zPrev) P.applyView(o.z > o._zPrev ? "back" : "front");
+    o._zPrev = o.z;
     if (P && m.userData.kind) K.pose(P, m.userData.kind, t * (m.userData.kind === "walk" ? 7 : 3) + o.seed * 6, t);
     if (P && P.prop) {
       const h = P.F.hand[1], sc = P.F.body.scale.x;
@@ -1196,7 +1198,7 @@ function attach() {
   if (getComputedStyle(stage).position === "static") stage.style.position = "relative";
   const gl = K.gl;
   gl.style.cssText = "position:absolute;left:0;top:0;z-index:0;display:block;margin:0;padding:0;border:0;box-shadow:none;" +
-    "max-width:none;max-height:none;transform:none;image-rendering:auto;pointer-events:none;touch-action:none;border-radius:" + getComputedStyle(hud).borderRadius;
+    "max-width:none;max-height:none;transform:none;image-rendering:pixelated;pointer-events:none;touch-action:none;border-radius:" + getComputedStyle(hud).borderRadius;
   stage.insertBefore(gl, hud);
   hud.style.background = "transparent";
   if (getComputedStyle(hud).position === "static") hud.style.position = "relative";
@@ -1260,7 +1262,7 @@ window.__msd = { S: function () { return S; }, step: function (sec) { for (let i
   move: move, jump: jump, drop: drop, finish: finish, kit: function () { return K; }, juke: Juke, Q: Q, LEN: LEN, ZB: ZB, LX: LX, zoneAt: zoneAt, build: build, jumpH: jumpH };
 
 function loadArt() {
-  const names = ["hero-front", "hero-back", "shopper-front", "shopper-teal", "shopper-pink", "shopper-blue", "shopper-orange", "clerk-front", "santa-front"];
+  const names = ["hero-front", "hero-back", "shopper-front", "shopper-back", "shopper-teal", "shopper-pink", "shopper-blue", "shopper-orange", "shopper-back-teal", "shopper-back-pink", "shopper-back-blue", "shopper-back-orange", "clerk-front", "clerk-back", "santa-front", "santa-back"];
   return Promise.all(names.map(function (name) {
     return new Promise(function (res, rej) {
       const img = new Image();

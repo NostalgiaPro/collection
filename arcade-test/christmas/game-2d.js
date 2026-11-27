@@ -539,10 +539,16 @@
   function humanSprite(frame, o) {
     o = o || {};
     if (window.XmasArt) {
-      var key = o.mark || o.tee ? (o.view === "back" ? "hero-back" : "hero-front")
-        : (o.beard || o.hat === "santa") ? "santa-front"
-        : (o.sash || o.vest) ? "clerk-front"
-        : "shopper-front";
+      var back = o.view === "back";
+      var shop = { "#7a3fd0": "shopper-front", "#2fb0a0": "shopper-teal", "#1fa0a0": "shopper-teal", "#ff3fa4": "shopper-pink", "#3f7fd0": "shopper-blue", "#e0662a": "shopper-orange", "#1d2b53": "shopper-blue", "#5a6670": "shopper-teal" };
+      var key;
+      if (o.mark || o.tee) key = back ? "hero-back" : "hero-front";
+      else if (o.beard || o.hat === "santa") key = back ? "santa-back" : "santa-front";
+      else if (o.sash || o.vest) key = back ? "clerk-back" : "clerk-front";
+      else {
+        var front = shop[String(o.shirt || "").toLowerCase()] || "shopper-front";
+        key = !back ? front : (front === "shopper-front" ? "shopper-back" : "shopper-back-" + front.slice("shopper-".length));
+      }
       var img = XmasArt[key];
       if (img) {
         if (!img._cv) {
