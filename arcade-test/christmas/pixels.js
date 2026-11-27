@@ -25,12 +25,13 @@
     var lo = warm ? 0x4a2814 : 0x140e12;
     return [mix(base, hi, warm ? 0.5 : 0.48), base, mix(base, lo, 0.3), mix(base, lo, 0.52)];
   }
+  /* Face ramps stay in the light half. The darkest step is a soft shade, not a brown mask. */
   var SKIN = {
-    f1c28e: [0xffe4c8, 0xf0c49a, 0xd89a68, 0xa86c42],
-    c98a5a: [0xf0c090, 0xd49868, 0xb07040, 0x7a4424],
-    "8a5a3a": [0xc48a62, 0xa06a44, 0x7a4a2c, 0x4e2c16],
-    f6d5b0: [0xfff0e0, 0xf4d0b0, 0xd8a880, 0xa87850],
-    b07850: [0xe0b088, 0xc08858, 0x966038, 0x643818]
+    f1c28e: [0xfff3e4, 0xf8d4b2, 0xecc09a, 0xd8a880],
+    c98a5a: [0xf8d2ae, 0xe4b488, 0xd09a68, 0xb88450],
+    "8a5a3a": [0xe0b08a, 0xc89068, 0xb07850, 0x986040],
+    f6d5b0: [0xfff7ee, 0xf8e0cc, 0xecc8aa, 0xd8b090],
+    b07850: [0xf0c8a4, 0xdea878, 0xc89060, 0xa87848]
   };
   function skinOf(c) {
     var k = num(c).toString(16).padStart(6, "0");
@@ -90,7 +91,7 @@
 
   /* Skull and face widths, top to chin. A jaw, not a circle. */
   var SKULL = [5, 8, 11, 14, 16, 18, 19, 20, 20, 20, 19, 19, 18, 17, 16, 14, 12, 10, 8];
-  var FACE = [0, 0, 0, 0, 0, 0, 8, 11, 13, 14, 14, 13, 12, 11, 9, 7, 0, 0, 0];
+  var FACE = [0, 0, 0, 0, 0, 0, 10, 12, 13, 14, 14, 13, 12, 11, 10, 9, 8, 6, 0];
 
   function roleOf(o) {
     if (o.beard || o.hat === "santa") return "santa";
@@ -102,15 +103,23 @@
     return "walker";
   }
 
+  /* 3px eye: white, pupil, highlight. No box around it. */
   function eye(b, x, y, blink) {
     if (blink) {
-      px(b, x, y + 1, OUT); px(b, x + 1, y + 1, OUT); px(b, x + 2, y + 1, OUT); px(b, x + 3, y + 1, OUT);
-      px(b, x + 1, y, 0xc48458); px(b, x + 2, y, 0xc48458);
+      px(b, x, y, 0x5a3a28); px(b, x + 1, y, 0x5a3a28); px(b, x + 2, y, 0x5a3a28);
       return;
     }
-    px(b, x, y, OUT); px(b, x + 1, y, 0xfff8f2); px(b, x + 2, y, 0xfff8f2); px(b, x + 3, y, OUT);
-    px(b, x, y + 1, OUT); px(b, x + 1, y + 1, 0x4a2c18); px(b, x + 2, y + 1, 0x140c0a); px(b, x + 3, y + 1, 0xfff8f2);
-    px(b, x, y + 2, OUT); px(b, x + 1, y + 2, OUT); px(b, x + 2, y + 2, OUT); px(b, x + 3, y + 2, OUT);
+    px(b, x, y, 0xfffaf4);
+    px(b, x + 1, y, 0x2a1810);
+    px(b, x + 2, y, 0xfffaf4);
+    px(b, x + 1, y + 1, 0xc4a090);
+  }
+  /* Face interior. Light on the left, one soft shade on the right. No extra outline. */
+  function skinRow(b, x, y, w, skin) {
+    for (var i = 0; i < w; i++) {
+      var t = w <= 1 ? 0 : i / (w - 1);
+      px(b, x + i, y, t < 0.58 ? skin[0] : t < 0.84 ? skin[1] : skin[2]);
+    }
   }
 
   function paintHead(b, cx, top, o, blink, view) {
@@ -123,20 +132,34 @@
       w = SKULL[i];
       x0 = cx - (w >> 1);
       if (view === "back" || bald) {
-        if (bald && view !== "back") row(b, x0, y, w, skin, i < 3 ? -1 : i > 14 ? 1 : 0);
-        else row(b, x0, y, w, hair, i < 4 ? -1 : 0);
+        if (bald && view !== "back") {
+          row(b, x0, y, w, skin, -1);
+          if (i > 5 && i < 16) skinRow(b, x0 + 1, y, w - 2, skin);
+        } else row(b, x0, y, w, hair, i < 5 ? -1 : 0);
       } else {
-        row(b, x0, y, w, hair, i < 4 ? -1 : 0);
+        row(b, x0, y, w, hair, i < 5 ? -1 : 0);
         fw = FACE[i];
-        if (fw > 0) row(b, cx - (fw >> 1), y, fw, skin, i > 14 ? 1 : 0);
+        if (fw > 0) skinRow(b, cx - (fw >> 1), y, fw, skin);
       }
     }
-    if (view !== "back" && !bald) {
-      px(b, cx - 4, top + 2, hair[0]); px(b, cx - 3, top + 2, hair[0]); px(b, cx - 2, top + 3, hair[0]); px(b, cx - 5, top + 4, hair[0]);
+    /* A light band across the crown, the way the reference hair reads. */
+    if (!bald && view !== "back") {
+      var shine = mix(o.hair || "#4a3728", 0xfff8f0, 0.7);
+      for (i = 0; i < 2; i++) {
+        var bw = Math.max(6, SKULL[4 + i] - 4);
+        var bx0 = cx - (bw >> 1);
+        for (var k = 0; k < bw; k++) {
+          var here = get(b, bx0 + k, top + 4 + i);
+          if (here && here !== OUT) px(b, bx0 + k, top + 4 + i, shine);
+        }
+      }
     }
     if (view === "back" && !bald) {
-      for (i = 2; i < 12; i++) px(b, cx, top + i, hair[0]);
-      px(b, cx - 3, top + 3, hair[0]); px(b, cx - 2, top + 3, hair[0]); px(b, cx - 3, top + 4, hair[0]);
+      for (i = 2; i < 8; i++) {
+        var hw = Math.max(4, SKULL[i] - 6);
+        var hx = cx - (hw >> 1);
+        for (var n = 0; n < hw; n++) if (get(b, hx + n, top + i) !== OUT) px(b, hx + n, top + i, i < 5 ? hair[0] : hair[1]);
+      }
     }
     if (o.hairStyle === "bob" && view !== "back") {
       for (i = 0; i < 14; i++) {
@@ -144,9 +167,9 @@
         row(b, cx + 9, top + 9 + i, 4, hair, 0);
       }
     } else if (!bald && view !== "back") {
-      for (i = 0; i < 5; i++) {
-        row(b, cx - 12, top + 14 + i, 3, hair, 0);
-        row(b, cx + 9, top + 14 + i, 3, hair, 0);
+      for (i = 0; i < 3; i++) {
+        px(b, cx - 11, top + 17 + i, hair[1]); px(b, cx - 12, top + 17 + i, OUT);
+        px(b, cx + 10, top + 17 + i, hair[1]); px(b, cx + 11, top + 17 + i, OUT);
       }
     }
     if (o.hairStyle === "bun") {
@@ -154,63 +177,48 @@
       for (i = 0; i < 8; i++) row(b, cx - 3 + (i < 2 || i > 5 ? 1 : 0), by + i, i < 2 || i > 5 ? 6 : 8, hair, i < 2 ? -1 : 0);
       px(b, cx - 1, by + 2, hair[0]); px(b, cx, by + 2, hair[0]);
     }
-    /* ears sit just outside the jaw, then the face is repainted over the inner edge */
+    /* small ears, just outside the jaw, one shade and a single outline pixel */
     if (view !== "back") {
-      var ey = top + 11;
-      box(b, cx - 12, ey, 3, 5, skin);
-      box(b, cx + 9, ey, 3, 5, skin);
-      px(b, cx - 11, ey + 2, skin[3]); px(b, cx + 10, ey + 2, skin[3]);
-      var fw2 = [0, 0, 0, 0, 0, 0, 8, 11, 13, 14, 14, 13, 12, 11, 9, 7, 0, 0, 0];
-      for (i = 6; i < 16; i++) {
-        fw = fw2[i];
-        if (fw) row(b, cx - (fw >> 1), top + i, fw, skin, i > 14 ? 1 : 0);
-      }
-      if (!bald) {
-        row(b, cx - 7, top + 6, 10, hair, -1);
-        row(b, cx - 8, top + 7, 8, hair, 0);
-        px(b, cx - 6, top + 7, hair[0]); px(b, cx - 5, top + 7, hair[0]);
-      }
+      px(b, cx - 11, top + 12, OUT); px(b, cx - 10, top + 12, skin[1]); px(b, cx - 10, top + 13, skin[2]);
+      px(b, cx + 10, top + 12, OUT); px(b, cx + 9, top + 12, skin[1]); px(b, cx + 9, top + 13, skin[2]);
     } else {
-      box(b, cx - 11, top + 11, 3, 4, skin);
-      box(b, cx + 8, top + 11, 3, 4, skin);
+      px(b, cx - 11, top + 12, skin[1]); px(b, cx + 10, top + 12, skin[1]);
     }
-    if (view !== "back" && !o.beard) {
-      var brows = o.browTilt ? -1 : 0;
-      for (i = 0; i < 4; i++) {
-        px(b, cx - 7 + i, top + 8 + (i < 2 ? brows : 0), hair[3]);
-        px(b, cx + 3 + i, top + 8 + (i > 1 ? brows : 0), hair[3]);
+    if (view !== "back") {
+      /* brows, then the 3px eyes, then a one-pixel nose and a 3px mouth */
+      var brow = 0x6a4030;
+      px(b, cx - 5, top + 10, brow); px(b, cx - 4, top + 10, brow);
+      px(b, cx + 3, top + 10, brow); px(b, cx + 4, top + 10, brow);
+      eye(b, cx - 5, top + 11, blink);
+      eye(b, cx + 2, top + 11, blink);
+      px(b, cx, top + 14, skin[2]);
+      if (!o.beard) {
+        px(b, cx - 1, top + 16, 0xd09088);
+        px(b, cx, top + 16, 0xc07870);
+        px(b, cx + 1, top + 16, 0xd09088);
       }
-      eye(b, cx - 8, top + 10, blink);
-      eye(b, cx + 3, top + 10, blink);
-      /* nose */
-      px(b, cx - 1, top + 14, skin[2]); px(b, cx, top + 14, skin[2]);
-      px(b, cx - 1, top + 15, skin[3]); px(b, cx, top + 15, 0xd09078);
-      /* smile */
-      var lip = 0xc06068, lipD = 0x8a3848;
-      px(b, cx - 3, top + 17, lip); px(b, cx - 2, top + 18, lip); px(b, cx - 1, top + 18, lipD);
-      px(b, cx, top + 18, lipD); px(b, cx + 1, top + 18, lip); px(b, cx + 2, top + 17, lip);
-      /* cheeks */
-      px(b, cx - 6, top + 15, 0xe09888); px(b, cx + 5, top + 15, 0xe09888);
     }
     if (o.beard && view !== "back") {
-      var fur = ramp("#fff6ee");
-      eye(b, cx - 8, top + 10, blink);
-      eye(b, cx + 3, top + 10, blink);
-      for (i = 0; i < 3; i++) px(b, cx - 6 + i, top + 8, fur[3]);
-      for (i = 0; i < 3; i++) px(b, cx + 3 + i, top + 8, fur[3]);
-      /* mustache */
-      row(b, cx - 6, top + 15, 12, fur, 0);
-      row(b, cx - 5, top + 16, 10, fur, 1);
-      px(b, cx - 1, top + 16, 0xc06068); px(b, cx, top + 16, 0x8a3848); px(b, cx + 1, top + 16, 0xc06068);
-      for (i = 0; i < 8; i++) {
-        var bw = 14 - (i > 5 ? (i - 5) * 2 : 0);
-        row(b, cx - (bw >> 1), top + 17 + i, bw, fur, i > 5 ? 1 : 0);
+      var furW = [8, 12, 14, 14, 14, 13, 12, 10, 8];
+      var white = [0xffffff, 0xfff6ee, 0xf3e6da, 0xe4d4c6];
+      for (i = 0; i < furW.length; i++) {
+        var fwB = furW[i], xB = cx - (fwB >> 1), yB = top + 15 + i;
+        for (var bi = 0; bi < fwB; bi++) {
+          var edge = bi === 0 || bi === fwB - 1 || i === furW.length - 1;
+          var tone = bi < fwB * 0.45 ? white[0] : bi < fwB * 0.75 ? white[1] : white[2];
+          px(b, xB + bi, yB, edge ? OUT : tone);
+        }
       }
-      px(b, cx - 2, top + 18, fur[0]); px(b, cx - 4, top + 19, fur[0]);
+      /* highlight along the mustache, and a small mouth so the beard stays readable */
+      px(b, cx - 3, top + 16, 0xffffff); px(b, cx - 2, top + 16, 0xffffff); px(b, cx - 1, top + 16, 0xffffff);
+      px(b, cx - 1, top + 17, 0xc08078); px(b, cx, top + 17, 0xa06058); px(b, cx + 1, top + 17, 0xc08078);
     }
     /* neck */
     var neckY = top + SKULL.length - 1;
-    for (i = 0; i < 4; i++) row(b, cx - 3, neckY + i, 6, skin, i > 2 ? 1 : 0);
+    for (i = 0; i < 4; i++) {
+      row(b, cx - 3, neckY + i, 6, skin, -1);
+      skinRow(b, cx - 2, neckY + i, 4, skin);
+    }
     return neckY + 4;
   }
 

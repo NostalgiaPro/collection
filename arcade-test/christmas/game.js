@@ -890,13 +890,19 @@ function frameCast(t, z, heroOnly) {
     K.lineup = g; K.lineupFolks = folks;
   }
   K.lineup.position.set(0, 0, -z - 1.15);
-  const kinds = ["run", "walk", "spray", "wave"];
-  const narrow = K.cam.aspect < 0.8;
-  const xs = narrow ? [-0.95, -0.32, 0.32, 0.95] : [-1.2, -0.4, 0.42, 1.25];
+  const kinds = ["stand", "stand", "stand", "stand"];
+  const gap = 0.2;
+  const widths = K.lineupFolks.map(function (p) { return (p.sprite && p.sprite.scale.x) || 0.9; });
+  const xs = [];
+  let cursor = 0;
   for (let i = 0; i < K.lineupFolks.length; i++) {
-    K.lineupFolks[i].g.position.x = xs[i];
-    K.pose(K.lineupFolks[i], kinds[i], t * 4 + i * 1.4, t);
+    if (i) cursor += widths[i - 1] / 2 + gap + widths[i] / 2;
+    xs.push(cursor);
+    K.lineupFolks[i].g.position.x = 0;
+    K.pose(K.lineupFolks[i], kinds[i], t * 1.2 + i, t);
   }
+  const mid = (xs[0] + xs[xs.length - 1]) / 2;
+  for (let i = 0; i < K.lineupFolks.length; i++) K.lineupFolks[i].g.position.x = xs[i] - mid;
   K.heroRoot.visible = false;
   const cam = K.cam;
   if (heroOnly) {
@@ -909,10 +915,13 @@ function frameCast(t, z, heroOnly) {
     if (Math.abs(cam.fov - 34) > 0.1) { cam.fov = 34; cam.updateProjectionMatrix(); }
     return;
   }
-  const dist = narrow ? 7.6 : 5.4;
-  const fov = narrow ? 50 : 36;
+  const span = (xs[xs.length - 1] - xs[0]) + widths[0] / 2 + widths[widths.length - 1] / 2 + 0.4;
+  const aspect = Math.max(0.42, cam.aspect || 0.6);
+  const fov = aspect < 0.72 ? 42 : 32;
+  const half = fov * Math.PI / 360;
+  const dist = (span / 2) / (Math.tan(half) * aspect);
   cam.position.set(0.0, 1.15, -z - 1.15 + dist);
-  cam.lookAt(0.02, 0.95, -z - 1.15);
+  cam.lookAt(0, 1.0, -z - 1.15);
   if (Math.abs(cam.fov - fov) > 0.1) { cam.fov = fov; cam.updateProjectionMatrix(); }
 }
 function lx(lane) { return (lane - 1) * LX; }
