@@ -1003,7 +1003,7 @@ body.y1996 .mrB-wall{background:#c0c0c0;border:2px outset #fff;box-shadow:none;b
 .chip[aria-pressed="true"]{background:var(--text);border-color:var(--text);color:var(--bg)}
 .chip:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 
-.cols{display:grid;grid-template-columns:236px 1fr;gap:40px;margin:24px 0 0;align-items:start}
+.cols{display:grid;grid-template-columns:236px 1fr;gap:40px;margin:24px 0 0;align-items:start;min-width:0}
 nav{position:sticky;top:18px;max-height:calc(100vh - 36px);overflow-y:auto;padding-right:4px}
 nav ul{list-style:none;margin:0;padding:0}
 nav a{
@@ -1014,6 +1014,38 @@ nav a{
 }
 nav a:hover,nav a:focus-visible{color:#fff;background:var(--panel);outline:none}
 nav a em{font-style:normal;font-family:"Righteous",sans-serif;font-size:11px;color:var(--c)}
+.cols nav a[aria-current="true"],
+.cols nav a[aria-current="true"]:hover,
+.cols nav a[aria-current="true"]:focus-visible{
+  color:var(--ink,#0b0d12);background:var(--c);
+}
+.cols nav a[aria-current="true"] em,
+.cols nav a[aria-current="true"]:hover em{color:var(--ink,#0b0d12)}
+
+/* one console (or series, or genre) at a time: pictures, title underneath */
+#results .shelfgrid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));
+  gap:16px 12px;margin:0;width:100%;max-width:100%;min-width:0;
+}
+#results .shelfgrid a.tile{
+  display:flex;flex-direction:column;min-width:0;max-width:100%;overflow:hidden;
+  color:inherit;text-decoration:none;
+}
+#results .shelfgrid .ph{
+  display:block;position:relative;aspect-ratio:3/4;width:100%;min-width:0;background:var(--panel);
+  border:1px solid var(--line);border-radius:2px;overflow:hidden;
+}
+#results .shelfgrid .ph img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;
+}
+#results .shelfgrid a.tile:hover .ph,
+#results .shelfgrid a.tile:focus-visible .ph{border-color:var(--hot)}
+#results .shelfgrid a.tile:focus-visible{outline:2px solid var(--hot);outline-offset:3px}
+#results .shelfgrid .gt{
+  display:block;margin-top:6px;
+  font-family:"Titillium Web",sans-serif;
+  font-size:13.5px;font-weight:600;line-height:1.3;color:var(--text);
+}
 
 /* shelves stack like spines when shut, and open into a list */
 #results{scroll-margin-top:14px;min-width:0}
@@ -1145,10 +1177,19 @@ footer p a{color:var(--text)}
 
 /* ---------- Layout steps (mobile first) ---------- */
 @media (max-width:880px){
-  .cols{grid-template-columns:1fr;gap:22px}
+  .cols{grid-template-columns:1fr;gap:16px}
   nav{position:static;max-height:none}
+  .cols > nav{overflow:hidden;padding-right:0;min-width:0;max-width:100%}
+  #rail{max-width:100%;min-width:0}
   nav ul{display:flex;flex-wrap:wrap;gap:5px}
   nav a{margin:0;padding:5px 9px;font-size:12.5px}
+  /* console list sits above the grid and scrolls sideways instead of wrapping down the page */
+  #rail{
+    display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;
+    overscroll-behavior-x:contain;padding:0 0 8px;scrollbar-width:thin;
+  }
+  #rail li{flex:0 0 auto}
+  #rail a{white-space:nowrap}
 }
 @media (max-width:560px){
   header{padding-top:28px}
@@ -1156,6 +1197,8 @@ footer p a{color:var(--text)}
   .sysflag{display:none}
   .cond{display:none}
   .shelfhead h2{font-size:20px}
+  #results .shelfgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 8px}
+  #results .shelfgrid .gt{font-size:12.5px}
 }
 @media (max-width:400px){
   .npmerch-items{gap:8px}
@@ -2062,10 +2105,6 @@ body.y1996 .npmerch .npmerch-btn{color:#000}
         <button type="button" data-view="system" aria-pressed="true">By system</button>
         <button type="button" data-view="franchise" aria-pressed="false">By series</button>
         <button type="button" data-view="genre" aria-pressed="false">By genre</button>
-      </div>
-      <div class="foldbtns">
-        <button class="chip" type="button" id="openAll">Expand all</button>
-        <button class="chip" type="button" id="foldAll">Collapse all</button>
       </div>
       <div class="filters" id="filters"></div>
     </div>
@@ -3835,6 +3874,8 @@ let query = "";
 let condFilter = "all";
 let beatFilter = "all";
 let view = "system";
+/* Which row of the left list is open. The page starts on the first one (NES). */
+let selectedId = null;
 
 /* Series grouping is keyword-driven off the titles. Anything that lands in a
    group of one falls back into the unsorted pile at the bottom. */
@@ -4234,7 +4275,6 @@ document.getElementById("scores").addEventListener("click", e => {
     if (c.dataset.beat !== undefined) c.setAttribute("aria-pressed", c.dataset.beat === beatFilter);
     else c.setAttribute("aria-pressed", c.dataset.cond === condFilter);
   });
-  collapsed.clear();
   render();
   document.getElementById("results").scrollIntoView({behavior:"smooth", block:"start"});
 });
@@ -4261,43 +4301,71 @@ filterBox.addEventListener("click", e => {
   render();
 });
 
-document.querySelector("nav").addEventListener("click", e => {
+function showView(next){
+  view = next;
+  document.querySelectorAll("#viewtoggle button")
+    .forEach(x => x.setAttribute("aria-pressed", x.dataset.view === view));
+}
+/* #nes (and the series / genre ids) still open that row, including links from other pages. */
+function applyHash(){
+  const id = decodeURIComponent((location.hash || "").replace(/^#/, ""));
+  if (!id) return false;
+  let next = null;
+  if (systems.some(s => s.id === id)) next = "system";
+  else if (series.some(s => s.id === id)) next = "franchise";
+  else if (genres.some(s => s.id === id)) next = "genre";
+  else return false;
+  if (view !== next) showView(next);
+  selectedId = id;
+  return true;
+}
+function onShelfHash(){
+  const prev = view + ":" + selectedId;
+  if (!applyHash()) return;
+  if (view + ":" + selectedId === prev) return;
+  render();
+  const head = document.getElementById("hpShelfH");
+  if (head) head.scrollIntoView({block:"start"});
+}
+window.addEventListener("hashchange", onShelfHash);
+window.addEventListener("popstate", onShelfHash);
+
+function ensureSelected(){
+  const list = groups();
+  if (!list.length) { selectedId = null; return null; }
+  if (!list.some(s => s.id === selectedId)) selectedId = list[0].id;
+  return list.find(s => s.id === selectedId);
+}
+function drawRail(){
+  ensureSelected();
+  document.getElementById("rail").innerHTML = groups().map(s =>
+    `<li><a href="#${s.id}" style="--c:${s.color};--ink:${s.ink}"${s.id === selectedId ? ' aria-current="true"' : ""}>${esc(s.name)}<em>${s.games.length}</em></a></li>`).join("");
+  const cur = document.querySelector('#rail a[aria-current="true"]');
+  if (!cur) return;
+  const rail = document.getElementById("rail");
+  if (rail.scrollWidth > rail.clientWidth + 8) {
+    const left = cur.offsetLeft, right = left + cur.offsetWidth;
+    if (left < rail.scrollLeft || right > rail.scrollLeft + rail.clientWidth)
+      rail.scrollLeft = Math.max(0, left - 8);
+  }
+  const nav = cur.closest("nav");
+  if (nav && nav.scrollHeight > nav.clientHeight + 8) {
+    const c = cur.getBoundingClientRect(), n = nav.getBoundingClientRect();
+    if (c.top < n.top || c.bottom > n.bottom) nav.scrollTop += c.top - n.top - 8;
+  }
+}
+document.getElementById("rail").addEventListener("click", e => {
   const a = e.target.closest("a[href^='#']");
   if (!a) return;
+  e.preventDefault();
   const id = decodeURIComponent(a.getAttribute("href").slice(1));
-  collapsed.delete(id);
+  if (!groups().some(s => s.id === id) || id === selectedId) return;
+  selectedId = id;
   render();
 });
 
-function drawRail(){
-  document.getElementById("rail").innerHTML = groups().map(s =>
-    `<li><a href="#${s.id}" style="--c:${s.color}">${esc(s.name)}<em>${s.games.length}</em></a></li>`).join("");
-}
-
 const results = document.getElementById("results");
 const verdict = document.getElementById("verdict");
-
-/* Which shelves are folded shut. The page opens folded so the whole
-   collection fits on one screen. A search always opens everything,
-   otherwise a hidden match would look like it wasn't there. */
-const collapsed = new Set();
-let firstDraw = true;
-
-function toggleShelf(head){
-  const sec = head.closest("section.shelf");
-  if (!sec || query) return;
-  const shut = sec.classList.toggle("shut");
-  head.setAttribute("aria-expanded", String(!shut));
-  if (shut) collapsed.add(sec.id); else collapsed.delete(sec.id);
-  /* A shut shelf is drawn without its games (keeps the page light), so
-     opening one draws it. */
-  if (!shut && !sec.querySelector("ol.games li")) {
-    const y = sec.getBoundingClientRect().top;
-    render();
-    const again = document.getElementById(sec.id);
-    if (again) { window.scrollBy(0, again.getBoundingClientRect().top - y); const h = again.querySelector(".shelfhead"); if (h) h.focus({preventScroll:true}); }
-  }
-}
 
 function matches(g) {
   if (condFilter !== "all" && g.cls !== condFilter) return false;
@@ -4310,30 +4378,17 @@ function matches(g) {
 }
 
 function render() {
-  if (firstDraw) { groups().forEach(g => collapsed.add(g.id)); firstDraw = false; }
-  const html = groups().map(s => {
-    const hits = s.games.filter(matches);
-    if (!hits.length) return "";
-    const shut = !query && collapsed.has(s.id);
-    return `<section class="shelf${shut?" shut":""}" id="${s.id}" style="--c:${s.color};--ink:${s.ink}">
-      <div class="shelfhead" role="button" tabindex="0" aria-expanded="${!shut}">
-        <h2><span class="caret">\u25be</span> ${esc(s.name)}</h2>
-        <p>${hits.length} of ${s.games.length}</p></div>
-      <ol class="games">${shut ? "" : hits.map(g =>
-        `<li data-slug="${slug(g)}" data-beatkey="${esc(g.title.toLowerCase())}"${s.showSys ? ` style="--c:${g.color}"` : ""}>` +
-        `<img class="shot" loading="lazy" ${shotAttrs(slug(g))} alt="${esc(g.title)}">` +
-        `<i class="mark ${g.cls}"></i>` +
-        `<i class="beat${isBeaten(g) ? " on" : isEndless(g) ? " endless" : ""}"></i>` +
-        (isCompleted(g) ? `<i class="hundo" title="100% complete">100%</i>` : "") +
-        `<span class="title"><a href="${gamePage(g)}">${esc(g.title)}</a></span>` +
-        (s.showSys ? `<span class="sysflag">${esc(g.system)}</span>` : "") +
-        (videoFor(g) ? `<a class="play" href="${videoFor(g)}" target="_blank" rel="noopener" title="ASMR short on YouTube">&#9654;</a>` : "") +
-        `<span class="cond">${esc(g.cond)}</span></li>`
-      ).join("")}</ol>
-    </section>`;
-  }).join("");
-
-  results.innerHTML = html || `<p class="empty">Nothing on the shelf matches that.</p>`;
+  const s = ensureSelected();
+  drawRail();
+  const hits = s ? s.games.filter(matches) : [];
+  results.innerHTML = hits.length
+    ? `<div class="shelfgrid" id="${s.id}" style="--c:${s.color}" aria-label="${esc(s.name)}">` +
+      hits.map(g =>
+        `<a class="tile" href="${gamePage(g)}">` +
+        `<span class="ph"><img alt="" loading="lazy" decoding="async" ${shotAttrs(slug(g))}></span>` +
+        `<span class="gt">${esc(g.title)}</span></a>`
+      ).join("") + `</div>`
+    : `<p class="empty">Nothing on the shelf matches that.</p>`;
   drawScores();
   updateVerdict();
 }
@@ -4434,11 +4489,9 @@ document.getElementById("whatnext").addEventListener("click", () => {
 
 document.getElementById("viewtoggle").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b || b.dataset.view === view) return;
-  view = b.dataset.view;
-  document.querySelectorAll("#viewtoggle button")
-    .forEach(x => x.setAttribute("aria-pressed", x === b));
-  groups().forEach(g => collapsed.add(g.id));
-  drawRail(); render();
+  showView(b.dataset.view);
+  selectedId = null;
+  render();
 });
 
 const lb = document.getElementById("lightbox");
@@ -4605,25 +4658,6 @@ window.addEventListener("beforeunload", e => {
   if (dirty()) { e.preventDefault(); e.returnValue = ""; }
 });
 
-results.addEventListener("click", e => {
-  const head = e.target.closest(".shelfhead");
-  if (head) toggleShelf(head);
-});
-results.addEventListener("keydown", e => {
-  if (e.key !== "Enter" && e.key !== " ") return;
-  const head = e.target.closest(".shelfhead");
-  if (head) { e.preventDefault(); toggleShelf(head); }
-});
-
-document.getElementById("foldAll").addEventListener("click", () => {
-  groups().forEach(s => collapsed.add(s.id));
-  render();
-});
-document.getElementById("openAll").addEventListener("click", () => {
-  collapsed.clear();
-  render();
-});
-
 /* Another page can send us here with ?find=<title> — run it as a search. */
 (function(){
   const want = new URLSearchParams(location.search).get("find");
@@ -4635,7 +4669,7 @@ document.getElementById("openAll").addEventListener("click", () => {
 })();
 
 /* Browse by console: one chip per shelf, to its console page when it has one
-   (/console/<id>.html), otherwise straight to that shelf below, opened. */
+   (/console/<id>.html), otherwise straight to that row of the shelf. */
 function drawConsoleChips(){
   const box = document.getElementById("consoleChips");
   if (!box) return;
@@ -4646,13 +4680,20 @@ function drawConsoleChips(){
   }).join("");
   box.addEventListener("click", e => {
     const a = e.target.closest("a[data-open]"); if (!a) return;
-    collapsed.delete(a.dataset.open); render();
+    if (view !== "system") showView("system");
+    selectedId = a.dataset.open;
+    render();
   });
 }
 
+const openedFromHash = applyHash();
 drawRail();
 drawConsoleChips();
 render();
+if (openedFromHash) {
+  const head = document.getElementById("hpShelfH");
+  if (head) head.scrollIntoView({block:"start"});
+}
 
 /* Browse by console is a disclosure on a phone and a plain heading on desktop. */
 (function(){
