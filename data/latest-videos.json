@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-27T21:35:40Z",
+ "updated": "2026-11-28T00:06:22Z",
  "channels": {
   "youtube": "https://www.youtube.com/@TheNostalgiaPro",
   "tiktok": "https://www.tiktok.com/@rc.the.nostalgia.pro"
@@ -60,6 +60,15 @@
    "published": "2026-11-22T05:31:54Z"
   },
   {
+   "id": "C1WXjn4lUSI",
+   "kind": "short",
+   "title": "Spider-Man and Venom: Maximum Carnage, the alleyway on my SNES and CRT",
+   "url": "https://www.youtube.com/shorts/C1WXjn4lUSI",
+   "thumb": "https://i.ytimg.com/vi/C1WXjn4lUSI/maxresdefault.jpg",
+   "thumb_alt": "https://i.ytimg.com/vi/C1WXjn4lUSI/hqdefault.jpg",
+   "published": "2026-11-27T22:49:59Z"
+  },
+  {
    "id": "B5_u01fWtAk",
    "kind": "short",
    "title": "The Jungle Book on a real SNES",
@@ -103,65 +112,56 @@
    "thumb": "https://i.ytimg.com/vi/8kcYanc39fk/maxresdefault.jpg",
    "thumb_alt": "https://i.ytimg.com/vi/8kcYanc39fk/hqdefault.jpg",
    "published": "2026-11-26T19:00:29Z"
-  },
-  {
-   "id": "IEIhyd-ToP0",
-   "kind": "short",
-   "title": "Madden NFL 94 on a real SNES and CRT",
-   "url": "https://www.youtube.com/shorts/IEIhyd-ToP0",
-   "thumb": "https://i.ytimg.com/vi/IEIhyd-ToP0/maxresdefault.jpg",
-   "thumb_alt": "https://i.ytimg.com/vi/IEIhyd-ToP0/hqdefault.jpg",
-   "published": "2026-11-26T16:00:35Z"
   }
  ],
  "tiktok": [
   {
+   "id": "7713001674192751886",
+   "title": "Killer Instinct on my Super Nintendo and CRT",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7713001674192751886",
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/og4xiWaFBIACWvK2wkURlAiIAwAvytJI7oUZg~tplv-tiktokx-origin.image?dr=9636&x-expires=1795996800&x-signature=HQfqk5VfpKVtvwWKeMi%2FAJZ4LzI%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795996800,
+   "published": "2026-11-27T23:45:44Z"
+  },
+  {
+   "id": "7713000730180750605",
+   "title": "Army Men: Sarge's Heroes, Green vs Tan on my N64 and CRT",
+   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7713000730180750605",
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/ooSBCn2AIhxDwt5UBfcVWpfUCVDFKFErgQ8QPY~tplv-tiktokx-origin.image?dr=9636&x-expires=1795996800&x-signature=nNL46HF0qdmuU2yLPnjQoZcZOCk%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795996800,
+   "published": "2026-11-27T23:42:04Z"
+  },
+  {
    "id": "7712545744946810126",
    "title": "Mad Max on a real NES",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7712545744946810126",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oopRpJiIIBw1yuhfDdipI3Uyg5ujKBAIBADKBy~tplv-tiktokx-origin.image?dr=9636&x-expires=1795986000&x-signature=k8t1%2BApqQIe9o%2B%2BA%2FjKcVYYDDHY%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795986000,
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oopRpJiIIBw1yuhfDdipI3Uyg5ujKBAIBADKBy~tplv-tiktokx-origin.image?dr=9636&x-expires=1795996800&x-signature=7IUHmX5w%2BbN3Dms9aimzVJ8AmrQ%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795996800,
    "published": "2026-11-26T18:16:30Z"
   },
   {
    "id": "7711866853739580685",
    "title": "WCW Mayhem, Sting vs The Hitman on a real N64 and CRT",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711866853739580685",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oAdDFB0fgC2t404GIBCiEf4BSDBmrIAZUDUVgv~tplv-tiktokx-origin.image?dr=9636&x-expires=1795986000&x-signature=4QQ%2B7%2F%2BdZdg5J8%2Fu3fYJgkwdlRk%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795986000,
+   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oAdDFB0fgC2t404GIBCiEf4BSDBmrIAZUDUVgv~tplv-tiktokx-origin.image?dr=9636&x-expires=1795996800&x-signature=HinXvH30cRJfJKkTj5McmJX2gYM%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795996800,
    "published": "2026-11-24T22:22:03Z"
   },
   {
    "id": "7711863516545731853",
    "title": "TMNT II: The Arcade Game on my NES. Which turtle did you always pick?",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711863516545731853",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/o8xuljc5KBtgKAg2kQwGPzIBiAwiaIC7U4YkG~tplv-tiktokx-origin.image?dr=9636&x-expires=1795986000&x-signature=0%2BVRcFa3W0nmtaX2dviW%2F5uSYvQ%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795986000,
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/o8xuljc5KBtgKAg2kQwGPzIBiAwiaIC7U4YkG~tplv-tiktokx-origin.image?dr=9636&x-expires=1795996800&x-signature=O8m1ocGHnHfpFz8h0C7%2BBlzTm6c%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795996800,
    "published": "2026-11-24T22:09:06Z"
   },
   {
    "id": "7711863093386562829",
    "title": "5th to 1st at Ancient Lake. Who was your racer in Diddy Kong Racing?",
    "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711863093386562829",
-   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oUqrMuqsQAPlCVeagQFSBFSDKfCdmXgEDCBYMQ~tplv-tiktokx-origin.image?dr=9636&x-expires=1795986000&x-signature=vuD6NtAnRznjHu629VXva%2FblS0s%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795986000,
+   "thumb": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oUqrMuqsQAPlCVeagQFSBFSDKfCdmXgEDCBYMQ~tplv-tiktokx-origin.image?dr=9636&x-expires=1795996800&x-signature=owIR94l%2BtSsS3TQrYwfqu7%2FKNMk%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8",
+   "thumb_expires": 1795996800,
    "published": "2026-11-24T22:07:27Z"
-  },
-  {
-   "id": "7711862624018910477",
-   "title": "Penguin kept talking about his pizza, and it finally showed up after the fight was over. Would you tip this guy?",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711862624018910477",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/ogIGIAD7VCPBAHDrUFwwfhI7ioeCsE9gSLglBT~tplv-tiktokx-origin.image?dr=9636&x-expires=1795986000&x-signature=NL5TmQOveIkd8YK3qIY7P6jmlxc%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795986000,
-   "published": "2026-11-24T22:05:38Z"
-  },
-  {
-   "id": "7711862375531498766",
-   "title": "Killer Instinct, Fulgore vs Jago on a real SNES and CRT",
-   "url": "https://www.tiktok.com/@rc.the.nostalgia.pro/video/7711862375531498766",
-   "thumb": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oweWwerQEeGDFMyIAFLPBQWBHqkNQACkBpCkkA~tplv-tiktokx-origin.image?dr=9636&x-expires=1795986000&x-signature=ZWhkFbB4OUsJCT4zydv%2BembI2Lo%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5",
-   "thumb_expires": 1795986000,
-   "published": "2026-11-24T22:04:40Z"
   }
  ]
 }
