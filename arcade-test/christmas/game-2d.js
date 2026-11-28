@@ -477,6 +477,18 @@
         c.fillStyle = "#ffffff"; c.fillText((bz / 1100) % 2 ? "HAPPY HOLIDAYS" : "OPEN TILL 6 PM", CX, (y0 + y1) / 2 + 1);
       }
     }
+    // a couple of court trees along the wall once the concourse turns green
+    if (z0 > LEN * 0.55) {
+      var tree0 = Math.floor(z0 / 900) * 900;
+      for (var tr = 0; tr < 4; tr++) {
+        var tz = tree0 + tr * 900 + 200 - z0;
+        if (tz < 40 || tz > 2200) continue;
+        var ts = sp(tz), tx = edgeX(1, tz) - 18 * ts, ty = sy(tz);
+        fr(c, tx - 3 * ts, ty - 16 * ts, 6 * ts, 16 * ts, "#5a3a20");
+        c.fillStyle = "#1f6a3a"; c.beginPath(); c.moveTo(tx, ty - 78 * ts); c.lineTo(tx - 20 * ts, ty - 14 * ts); c.lineTo(tx + 20 * ts, ty - 14 * ts); c.fill();
+        circ(c, tx, ty - 80 * ts, 4 * ts, "#ffd23f");
+      }
+    }
     // the toy store gate at the end
     var gzz = LEN - z0;
     if (gzz < 3000) drawGate(c, gzz);
@@ -499,13 +511,127 @@
     }
   }
 
-  /* ---------------- Sprites (drawn at base x, y with scale s) ---------------- */
-  function person(c, x, y, s, shirt, pants, hair, walk) {
-    var leg = Math.sin(walk) * 5 * s;
-    fr(c, x - 8 * s, y - 26 * s, 6 * s, 26 * s + leg, pants); fr(c, x + 2 * s, y - 26 * s, 6 * s, 26 * s - leg, pants);
-    fr(c, x - 11 * s, y - 52 * s, 22 * s, 28 * s, shirt);
-    fr(c, x - 15 * s, y - 50 * s + leg, 5 * s, 18 * s, shirt); fr(c, x + 10 * s, y - 50 * s - leg, 5 * s, 18 * s, shirt);
-    circ(c, x, y - 60 * s, 8 * s, "#e0a070"); fr(c, x - 8 * s, y - 69 * s, 16 * s, 6 * s, hair);
+  /* ---------------- Sprites: the same  pixel people as the live arcade's 2D cast ---------------- */
+  var sprCache = {};
+  function bake(key, FW, FH, paint) {
+    if (sprCache[key]) return sprCache[key];
+    var p = new Array(FW * FH), x, y, i, j;
+    function px(x, y, col) { if (col && x >= 0 && x < FW && y >= 0 && y < FH) p[y * FW + x] = col; }
+    function rc(x, y, w, h, col) {
+      var x0 = Math.round(x), y0 = Math.round(y);
+      for (j = 0; j < h; j++) for (i = 0; i < w; i++) px(x0 + i, y0 + j, col);
+    }
+    paint(px, rc);
+    var out = [];
+    for (y = 0; y < FH; y++) for (x = 0; x < FW; x++) if (!p[y * FW + x] && ((x > 0 && p[y * FW + x - 1]) || (x < FW - 1 && p[y * FW + x + 1]) || (y > 0 && p[(y - 1) * FW + x]) || (y < FH - 1 && p[(y + 1) * FW + x]))) out.push(y * FW + x);
+    for (i = 0; i < out.length; i++) p[out[i]] = "#14161c";
+    var cv = document.createElement("canvas"); cv.width = FW; cv.height = FH;
+    var g = cv.getContext("2d");
+    for (y = 0; y < FH; y++) for (x = 0; x < FW; x++) if (p[y * FW + x]) { g.fillStyle = p[y * FW + x]; g.fillRect(x, y, 1, 1); }
+    sprCache[key] = cv;
+    return cv;
+  }
+  function blit(c, cv, x, y, sc) {
+    var w = cv.width * sc, h = cv.height * sc;
+    c.imageSmoothingEnabled = false;
+    c.drawImage(cv, Math.round(x - w / 2), Math.round(y - h), w, h);
+  }
+  // 24x40 people. Frame 0 plants both feet, 1 and 2 lift a foot and swing the opposite arm.
+  function humanSprite(frame, o) {
+    o = o || {};
+    if (window.XmasArt) {
+      var back = o.view === "back";
+      var shop = { "#7a3fd0": "shopper-front", "#2fb0a0": "shopper-teal", "#1fa0a0": "shopper-teal", "#ff3fa4": "shopper-pink", "#3f7fd0": "shopper-blue", "#e0662a": "shopper-orange", "#1d2b53": "shopper-blue", "#5a6670": "shopper-teal" };
+      var key;
+      if (o.mark || o.tee) key = back ? "hero-back" : "hero-front";
+      else if (o.beard || o.hat === "santa") key = back ? "santa-back" : "santa-front";
+      else if (o.sash || o.vest) key = back ? "clerk-back" : "clerk-front";
+      else {
+        var front = shop[String(o.shirt || "").toLowerCase()] || "shopper-front";
+        key = !back ? front : (front === "shopper-front" ? "shopper-back" : "shopper-back-" + front.slice("shopper-".length));
+      }
+      var img = XmasArt[key];
+      if (img) {
+        if (!img._cv) {
+          var cv = document.createElement("canvas");
+          cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+          cv.getContext("2d").drawImage(img, 0, 0);
+          img._cv = cv;
+        }
+        return img._cv;
+      }
+    }
+    if (window.MSDPix) {
+      var idx = frame === 1 ? 2 : frame === 2 ? 4 : 0;
+      return window.MSDPix.frame({
+        view: o.view || "front",
+        hat: o.hat === "band" ? "beanie" : (o.hat || ""),
+        hatc: o.hatc || (o.hat === "santa" ? "#c2304a" : (o.cap || "#c2304a")),
+        capc: o.cap,
+        shirt: o.sash ? "#1b1b22" : (o.shirt || "#355a8a"),
+        pants: o.pants || "#2a3348",
+        hair: o.hair || "#4a2f1c",
+        hairStyle: o.hat === "bun" ? "bun" : (o.beard ? "bald" : "short"),
+        skin: o.skin || "#f1c28e",
+        shoes: o.shoe || "#f4f1ea",
+        sole: "#241c16",
+        sleeves: o.sleeves || (o.shorts ? "short" : "long"),
+        shorts: !!o.shorts,
+        tee: !!o.mark,
+        pockets: !!o.shorts,
+        beard: !!o.beard,
+        coat: !!(o.coat || (o.hat === "beanie" && !o.mark && !o.beard && !o.sash)),
+        scarf: o.coat || o.hat === "beanie" ? "#fff6ee" : "",
+        vest: o.sash ? "#f6e6ee" : "",
+        fur: !!o.cuffs,
+        boots: !!o.cuffs,
+        mittens: o.cuffs ? "#fff6ee" : "",
+        belly: !!o.beard,
+        coat: !!(o.coat || o.beard || o.cuffs || o.hat === "band" || (o.hat === "beanie" && !o.mark && !o.sash))
+      }, idx);
+    }
+    var shirt = o.shirt || "#355a8a", pants = o.pants || "#2a3348", hair = o.hair || "#4a2f1c", skin = o.skin || "#f1c28e", shoe = o.shoe || "#f4f1ea";
+    var key = [frame, o.view || "front", o.hat || "", shirt, pants, hair, skin, shoe, o.sash ? 1 : 0, o.mark ? 1 : 0, o.beard ? 1 : 0, o.shorts ? 1 : 0].join("|");
+    return bake(key, 24, 40, function (px, rc) {
+      var back = o.view === "back", arm = frame === 1 ? 2 : frame === 2 ? -2 : 0;
+      var ll = frame === 1 ? -3 : 0, rl = frame === 2 ? -3 : 0;
+      var leg = o.shorts ? skin : pants;
+      if (o.hat === "beanie" || o.hat === "santa") { rc(7, 0, 10, 4, o.hat === "santa" ? "#c2304a" : "#c2304a"); rc(6, 4, 12, 2, "#fff8f0"); px(16, 0, "#fff8f0"); px(17, 0, "#fff8f0"); px(16, 1, "#fff8f0"); }
+      else if (o.hat === "cap") { rc(6, 0, 12, 4, o.cap || "#1d2b53"); rc(5, 4, 14, 2, o.cap || "#141e3a"); }
+      else rc(7, 0, 10, 3, hair);
+      if (o.hat === "band") rc(6, 3, 12, 2, "#ffffff");
+      rc(8, 2, 2, 5, hair); rc(14, 2, 2, 5, hair);
+      rc(7, 4, 10, 9, skin);
+      if (back) rc(8, 6, 8, 5, hair);
+      if (!back) {
+        px(9, 7, "#1b1b22"); px(10, 7, "#1b1b22"); px(13, 7, "#1b1b22"); px(14, 7, "#1b1b22");
+        px(9, 6, "#fbf8f0"); px(14, 6, "#fbf8f0");
+        rc(11, 8, 2, 2, "#d7a07a");
+        if (o.beard) { rc(8, 9, 8, 4, "#fff6ee"); rc(9, 8, 6, 2, "#fff6ee"); }
+        else rc(10, 11, 4, 1, "#b0625a");
+      }
+      rc(10, 13, 4, 2, skin);
+      rc(5, 15, 14, 10, shirt);
+      rc(6, 24, 12, 2, "#2a241c");
+      if (o.sash) { rc(8, 15, 2, 9, "#ff3fa4"); rc(9, 16, 2, 8, "#ff3fa4"); }
+      if (o.mark && back) { rc(9, 17, 6, 4, "#c2304a"); rc(10, 18, 4, 2, "#fff8f0"); rc(8, 22, 8, 1, "#1f5a3a"); }
+      if (o.beard && !back) rc(7, 21, 10, 2, "#1a120c");
+      rc(2, 15 + (back ? -arm : arm), 4, 8, o.shorts ? shirt : shirt);
+      rc(2, 23 + (back ? -arm : arm), 3, 4, o.shorts || o.sleeves === "short" ? skin : shirt);
+      rc(18, 15 + (back ? arm : -arm), 4, 8, shirt);
+      rc(19, 23 + (back ? arm : -arm), 3, 4, o.shorts || o.sleeves === "short" ? skin : shirt);
+      if (o.cuffs) { rc(2, 22, 4, 2, "#fff8f0"); rc(18, 22, 4, 2, "#fff8f0"); }
+      rc(6, 24, 12, o.shorts ? 4 : 5, pants);
+      rc(7, 29, 4, 7 + ll, leg); rc(13, 29, 4, 7 + rl, leg);
+      rc(6, 36 + ll, 5, 3, shoe); rc(13, 36 + rl, 5, 3, shoe);
+      if (o.hat === "bun") { rc(9, 0, 6, 3, hair); rc(10, 0, 4, 2, hair); }
+    });
+  }
+  function person(c, x, y, s, shirt, pants, hair, walk, opt) {
+    opt = opt || {};
+    opt.shirt = shirt; opt.pants = pants; opt.hair = hair;
+    var frame = walk ? (Math.sin(walk) > 0.25 ? 1 : Math.sin(walk) < -0.25 ? 2 : 0) : 0;
+    blit(c, humanSprite(frame, opt), x, y, Math.max(0.2, s * 0.62));
   }
   function drawOb(c, o, z) {
     var s = sp(z), x = sx(o.lp, z), y = sy(z), t = S.t;
@@ -517,22 +643,24 @@
         fr(c, x - 40 * s, y - 24 * s, 12 * s, 24 * s, "#ff9b3f"); fr(c, x + 28 * s, y - 24 * s, 12 * s, 24 * s, "#ff9b3f");
         break;
       case "janitor":
-        person(c, x, y, s, "#4b5d7a", "#2f3b55", "#6e7079", t * 3);
-        fr(c, x + 14 * s, y - 50 * s, 3 * s, 50 * s, "#b98a55"); fr(c, x + 8 * s + Math.sin(t * 5) * 6 * s, y - 4 * s, 16 * s, 5 * s, "#d8d8d8");
-        fr(c, x - 30 * s, y - 16 * s, 16 * s, 16 * s, "#ffd23f");
+        person(c, x, y, s, "#4b5d7a", "#2f3b55", "#4a321c", t * 3, { hat: "cap", cap: "#3a4250", view: "front" });
+        fr(c, x + 16 * s, y - 62 * s, 3 * s, 58 * s, "#b98a55");
+        fr(c, x + 8 * s + Math.sin(t * 5) * 8 * s, y - 6 * s, 18 * s, 6 * s, "#f2f2f2");
+        circ(c, x - 26 * s, y - 10 * s, 8 * s, "#ffd23f");
         break;
       case "sign":
         poly(c, [x - 14 * s, y, x + 14 * s, y, x + 4 * s, y - 34 * s, x - 4 * s, y - 34 * s], "#ffd23f");
         fr(c, x - 9 * s, y - 20 * s, 18 * s, 4 * s, "#101219"); fr(c, x - 2 * s, y - 30 * s, 4 * s, 7 * s, "#101219");
         break;
       case "walker":
-        person(c, x, y, s, o.lane % 2 ? "#7a3fd0" : "#1fa0a0", o.lane % 2 ? "#3f1f80" : "#106060", "#eceae2", t * 7 + o.z);
-        fr(c, x - 8 * s, y - 66 * s, 16 * s, 3 * s, "#ff3fa4");
+        person(c, x, y, s, o.lane % 2 ? "#7a3fd0" : "#1fa0a0", o.lane % 2 ? "#3f1f80" : "#106060", o.lane % 2 ? "#eceae2" : "#6a4a32", t * 7 + o.z, { hat: "band", view: "front" });
         break;
       case "stroller":
-        circ(c, x - 12 * s, y - 4 * s, 5 * s, "#101219"); circ(c, x + 12 * s, y - 4 * s, 5 * s, "#101219");
-        fr(c, x - 16 * s, y - 22 * s, 32 * s, 14 * s, "#5a8fd0");
-        c.fillStyle = "#ff8fc8"; c.beginPath(); c.arc(x + 4 * s, y - 22 * s, 14 * s, Math.PI, TAU); c.fill();
+        circ(c, x - 14 * s, y - 5 * s, 6 * s, "#101219"); circ(c, x + 14 * s, y - 5 * s, 6 * s, "#101219");
+        fr(c, x - 18 * s, y - 24 * s, 36 * s, 16 * s, "#5a8fd0");
+        c.fillStyle = "#2a5a9a"; c.beginPath(); c.arc(x + 2 * s, y - 24 * s, 16 * s, Math.PI, TAU); c.fill();
+        blit(c, humanSprite(0, { hat: "beanie", view: "front", shirt: "#f7d6e4", pants: "#e8b8cc", hair: "#f1c28e", skin: "#f6d5b0", shoe: "#f4f1ea", scale: 0.5, pose: "sit" }), x + 2 * s, y - 8 * s, Math.max(0.16, s * 0.36));
+        fr(c, x - 4 * s, y - 36 * s, 22 * s, 3 * s, "#cfc8b0");
         break;
       case "bin":
         fr(c, x - 26 * s, y - 28 * s, 52 * s, 28 * s, "#8d8f99");
@@ -543,9 +671,10 @@
         fr(c, x - 20 * s, y - 34 * s, 10 * s, 7 * s, "#3ff0ff"); fr(c, x + 6 * s, y - 33 * s, 12 * s, 6 * s, "#ffd23f");
         break;
       case "clerk":
-        fr(c, x - 26 * s, y - 34 * s, 52 * s, 34 * s, "#efe6ee"); fr(c, x - 26 * s, y - 38 * s, 52 * s, 5 * s, "#a77bff");
-        person(c, x, y - 18 * s, s * 0.8, "#101219", "#101219", "#5a3a1e", 0);
-        fr(c, x - 22 * s, y - 50 * s, 6 * s, 10 * s, "#ff8fc8");
+        fr(c, x - 28 * s, y - 36 * s, 56 * s, 36 * s, "#efe6ee"); fr(c, x - 28 * s, y - 40 * s, 56 * s, 5 * s, "#c9b8cf");
+        person(c, x, y - 16 * s, s * 0.85, "#101219", "#101219", "#c89a40", Math.sin(t * 3) * 0.2, { hat: "bun", view: "front", sash: true });
+        fr(c, x + 12 * s, y - 48 * s, 5 * s, 12 * s, "#ff9bd2");
+        circ(c, x + 14 * s, y - 50 * s, 3 * s, "#fff6fb");
         break;
       case "mist":
         if (!o.on) break;
@@ -563,7 +692,7 @@
       case "cart":
         circ(c, x, y - 4 * s, 6 * s, "#101219"); circ(c, x - 16 * s, y - 4 * s, 6 * s, "#101219"); circ(c, x + 16 * s, y - 4 * s, 6 * s, "#101219");
         fr(c, x - 22 * s, y - 30 * s, 44 * s, 24 * s, "#eceae2"); fr(c, x - 22 * s, y - 20 * s, 44 * s, 5 * s, "#2f6bff");
-        person(c, x, y - 26 * s, s * 0.7, "#2f3b7a", "#2f3b7a", "#101219", 0);
+        person(c, x, y - 22 * s, s * 0.62, "#1d2b53", "#1d2b53", "#3a2a1a", 0, { hat: "cap", cap: "#1d2b53", view: "front" });
         fr(c, x - 3 * s, y - 84 * s, 6 * s, 20 * s, "#3a3e4c");
         circ(c, x, y - 88 * s, 5 * s, Math.floor(t * 6) % 2 ? "#ff4b3e" : "#2f6bff");
         break;
@@ -572,6 +701,7 @@
         c.fillStyle = "#9fd8ff"; c.beginPath(); c.ellipse(x, y - 8 * s, 36 * s, 8 * s, 0, 0, TAU); c.fill();
         c.fillStyle = "rgba(190,235,255,.6)";
         for (var f = 0; f < 5; f++) { var fx = x + (f - 2) * 10 * s, fh = (50 + 10 * Math.sin(t * 6 + f)) * s; fr(c, fx - 2 * s, y - 8 * s - fh, 4 * s, fh, "rgba(190,235,255,.55)"); }
+        person(c, x - 78 * s, y, s * 0.95, "#c2304a", "#c2304a", "#fff6ee", t * 2, { hat: "santa", view: "front", beard: true, cuffs: true, shoe: "#1a120c" });
         break;
     }
   }
@@ -605,27 +735,20 @@
   }
   function drawRunner(c, state) {
     var x = sx(S.lp, 0), y = BY, h = jumpH(), run = S.phase === "run" && state === "playing";
-    c.fillStyle = "rgba(0,0,0,.35)"; c.beginPath(); c.ellipse(x, y + 2, 22 - h * 0.1, 6, 0, 0, TAU); c.fill();
+    c.fillStyle = "rgba(0,0,0,.35)"; c.beginPath(); c.ellipse(x, y + 2, 26 - h * 0.08, 7, 0, 0, TAU); c.fill();
     if (S.inv > 0 && Math.floor(S.t * 12) % 2 === 0) return;
     y -= h;
-    var ph = run ? S.t * (gear.on === "skates" ? 7 : 16) : 0, leg = airborne() ? 4 : Math.sin(ph) * 7;
-    // legs and shoes
-    fr(c, x - 12, y - 30 + leg, 9, 26, "#c0142b"); fr(c, x + 3, y - 30 - leg, 9, 26, "#c0142b");
-    var shoe = gear.on, sc = shoe === "strap" ? "#eceae2" : shoe === "lightup" ? "#2f3b7a" : shoe === "skates" ? "#3ff0ff" : "#3a3e4c";
-    fr(c, x - 13, y - 6 + leg, 11, 7, sc); fr(c, x + 2, y - 6 - leg, 11, 7, sc);
-    if (shoe === "strap") { fr(c, x - 12, y - 4 + leg, 9, 2, "#ff4b3e"); fr(c, x + 3, y - 4 - leg, 9, 2, "#ff4b3e"); }
-    if (shoe === "lightup" && run && Math.floor(S.t * 8) % 2 === 0) { fr(c, x - 13, y + leg, 11, 2, "#ff3fa4"); fr(c, x + 2, y - leg, 11, 2, "#9bff3f"); }
-    if (shoe === "skates") { for (var w = 0; w < 3; w++) { circ(c, x - 11 + w * 4, y + 3 + leg, 2, "#ff3fa4"); circ(c, x + 4 + w * 4, y + 3 - leg, 2, "#ff3fa4"); } }
-    // red suit with white trim, seen from behind
-    fr(c, x - 16, y - 58, 32, 32, "#ff4b3e"); fr(c, x - 16, y - 32, 32, 6, "#ffffff"); fr(c, x - 3, y - 58, 6, 26, "#d0323a");
-    fr(c, x - 22, y - 56 - leg, 7, 22, "#ff4b3e"); fr(c, x + 15, y - 56 + leg, 7, 22, "#ff4b3e");
-    fr(c, x - 22, y - 36 - leg, 7, 4, "#ffffff"); fr(c, x + 15, y - 36 + leg, 7, 4, "#ffffff");
-    circ(c, x, y - 66, 10, "#e0a070");
-    fr(c, x - 11, y - 76, 22, 8, "#ff4b3e"); fr(c, x - 12, y - 70, 24, 4, "#ffffff");
-    circ(c, x + 10, y - 82, 4, "#ffffff");
+    var moving = run && !airborne();
+    var frame = !moving ? 0 : Math.sin(S.t * (gear.on === "skates" ? 8 : 14)) > 0.2 ? 1 : Math.sin(S.t * (gear.on === "skates" ? 8 : 14)) < -0.2 ? 2 : 0;
+    if (airborne()) frame = 1;
+    var shoe = gear.on === "strap" ? "#ff3fa4" : gear.on === "lightup" ? (Math.floor(S.t * 8) % 2 ? "#3ff0ff" : "#ff3fa4") : gear.on === "skates" ? "#9bff3f" : "#eceae2";
+    var cv = humanSprite(frame, { view: "back", hat: "beanie", shirt: "#f4f1ea", pants: "#9a8a5a", hair: "#5a3a20", skin: "#f1c28e", shoe: shoe, shorts: true, sleeves: "short", mark: true });
+    blit(c, cv, x, y, 0.9);
+    if (gear.on === "skates") { for (var w = 0; w < 3; w++) { circ(c, x - 16 + w * 5, y - 2, 2.5, "#9bff3f"); circ(c, x + 4 + w * 5, y - 2, 2.5, "#9bff3f"); } }
   }
   function drawHUD(c, state) {
-    fr(c, 0, 0, W, 52, "rgba(13,15,21,.94)");
+    fr(c, 0, 0, W, 50, "rgba(8,9,14,.9)");
+    fr(c, 0, 50, W, 3, S.left <= 15 ? "#ff4b3e" : "#ff3fa4");
     Shell.text(c, "SCORE", 10, 7, 8, "#8e93a2");
     Shell.text(c, String(S.score), 10, 20, 12, "#ffd23f");
     var low = S.left <= 15, blink = low && Math.floor(S.t * 4) % 2 === 0;

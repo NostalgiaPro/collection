@@ -1,11 +1,12 @@
 /* MALL SANTA DASH '94: LAYAWAY BLITZ (3D cabinet edition, seasonal: christmas, HIDDEN TEST PAGE)
-   Christmas Eve, 1994, 5:58 PM at the Mistletoe Mile Mall. Run four stretches of the concourse in low-poly 3D
+   Christmas Eve, 1994, 5:58 PM at the Mistletoe Mile Mall. Run four stretches of the concourse in 3D
    and reach the toy store before the security grille comes down. Every checkpoint banner adds time,
    arcade style. Bumps never end the run; they cost 3 seconds and break the streak.
 
    Same slug as the 2D test game (mall-santa-dash), so the trophies (slots 118-126), the high score table
    and the shoe unlocks are shared with it. If WebGL or three.js is missing, the 2D game (game-2d.js) runs.
    Units are meters. Distance S.z runs down the concourse; in the 3D world it is -z. */
+import { createCast } from "./figures.js";
 const W = 360, H = 540, TAU = Math.PI * 2, SLUG = "mall-santa-dash";
 const Sh = window.Shell;
 const THREE_URL = "../shared/three.module.min.js";
@@ -50,6 +51,9 @@ const STORES = [
 ];
 
 let THREE = null, K = null, S = {}, idleT = 0, ptr = null, keys = {};
+const CAST = /[?&]cast=(1|hero|santa)/.test(location.search);
+const CAST_HERO = /[?&]cast=hero/.test(location.search);
+const CAST_SANTA = /[?&]cast=santa/.test(location.search);
 let gear = { u: { plain: 1 }, on: "plain", items: 0 };
 
 function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
@@ -572,78 +576,12 @@ const Juke = (function () {
 /* ---------------- Canvas textures ---------------- */
 function mkCanvas(w, h) { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; }
 function bold(px) { return "900 " + px + 'px "Arial Black", "Arial Bold", Verdana, sans-serif'; }
-function floorCanvas(a, b) {
-  const c = mkCanvas(256, 256), g = c.getContext("2d");
-  for (let y = 0; y < 2; y++) for (let x = 0; x < 2; x++) { g.fillStyle = (x + y) % 2 ? a : b; g.fillRect(x * 128, y * 128, 128, 128); }
-  const r = rng(7);
-  for (let i = 0; i < 900; i++) { g.fillStyle = r() < 0.5 ? "rgba(0,0,0,.10)" : "rgba(255,255,255,.14)"; g.fillRect(r() * 256, r() * 256, 2, 2); }
-  g.strokeStyle = "rgba(0,0,0,.25)"; g.lineWidth = 2; g.strokeRect(1, 1, 254, 254);
-  g.beginPath(); g.moveTo(128, 0); g.lineTo(128, 256); g.moveTo(0, 128); g.lineTo(256, 128); g.stroke();
-  return c;
-}
-function wallCanvas(zn) {
-  const c = mkCanvas(512, 256), g = c.getContext("2d"), r = rng(11 + zn.name.length);
-  g.fillStyle = zn.wall; g.fillRect(0, 0, 512, 256);
-  g.fillStyle = zn.trim; g.fillRect(0, 96, 512, 10); g.fillRect(0, 246, 512, 10);
-  g.fillStyle = zn.neon; g.fillRect(0, 104, 512, 3);
-  for (let k = 0; k < 2; k++) {                       // two shop windows with lit shelves
-    const x0 = 18 + k * 256, w = 220;
-    g.fillStyle = "#1a1630"; g.fillRect(x0, 120, w, 120);
-    const gr = g.createLinearGradient(0, 120, 0, 240); gr.addColorStop(0, "rgba(255,240,200,.55)"); gr.addColorStop(1, "rgba(255,200,120,.15)");
-    g.fillStyle = gr; g.fillRect(x0 + 4, 124, w - 8, 112);
-    const cols = ["#c2304a", "#2f8f4a", "#ffd23f", "#3f7fd0", "#a77bff", "#ff8a1f"];
-    for (let s = 0; s < 3; s++) {
-      g.fillStyle = "rgba(60,40,30,.8)"; g.fillRect(x0 + 6, 150 + s * 30, w - 12, 4);
-      for (let q = 0; q < 9; q++) { g.fillStyle = cols[Math.floor(r() * cols.length)]; const bh = 10 + r() * 14; g.fillRect(x0 + 10 + q * 23, 150 + s * 30 - bh, 16, bh); }
-    }
-    g.strokeStyle = "rgba(255,255,255,.5)"; g.lineWidth = 2; g.beginPath(); g.moveTo(x0 + 30, 236); g.lineTo(x0 + 80, 126); g.stroke();
-    g.fillStyle = "#3a2d24"; g.fillRect(x0 - 4, 116, w + 8, 6);
-  }
-  g.fillStyle = "#d8ccb4"; g.fillRect(0, 108, 14, 148); g.fillRect(242, 108, 26, 148); g.fillRect(498, 108, 14, 148);
-  g.strokeStyle = "#1f5a3a"; g.lineWidth = 9;            // upper wall: garland with bulbs
-  g.beginPath(); for (let x = 0; x <= 512; x += 8) { const y = 36 + Math.abs(Math.sin(x / 512 * TAU)) * 26; if (x === 0) g.moveTo(x, y); else g.lineTo(x, y); } g.stroke();
-  const bulbs = ["#ff4b3e", "#ffd23f", "#3ff0ff", "#9bff3f", "#ff3fa4"];
-  for (let i = 0; i < 16; i++) { const x = 16 + i * 32, y = 40 + Math.abs(Math.sin(x / 512 * TAU)) * 26; g.fillStyle = bulbs[i % 5]; g.beginPath(); g.arc(x, y + 6, 5, 0, TAU); g.fill(); }
-  return c;
-}
-function ceilCanvas() {
-  const c = mkCanvas(256, 256), g = c.getContext("2d");
-  g.fillStyle = "#2a2440"; g.fillRect(0, 0, 256, 256);
-  g.fillStyle = "#151226"; g.fillRect(40, 20, 176, 216);
-  const gr = g.createLinearGradient(0, 20, 0, 236); gr.addColorStop(0, "#22385e"); gr.addColorStop(1, "#0d1530");
-  g.fillStyle = gr; g.fillRect(48, 28, 160, 200);
-  g.fillStyle = "rgba(255,255,255,.75)"; const r = rng(3); for (let i = 0; i < 40; i++) g.fillRect(48 + r() * 160, 28 + r() * 200, 2, 2);
-  g.fillStyle = "#3a3354"; for (let i = 0; i < 4; i++) g.fillRect(48, 28 + i * 66, 160, 4); g.fillRect(126, 28, 4, 200);
-  return c;
-}
-function signCanvas(name, bg, fg) {
-  const c = mkCanvas(512, 96), g = c.getContext("2d");
-  g.fillStyle = bg; g.fillRect(0, 0, 512, 96);
-  g.strokeStyle = fg; g.lineWidth = 6; g.strokeRect(6, 6, 500, 84);
-  let sz = 46; g.font = bold(sz); while (g.measureText(name).width > 470 && sz > 18) { sz -= 2; g.font = bold(sz); }
-  g.textAlign = "center"; g.textBaseline = "middle";
-  g.shadowColor = fg; g.shadowBlur = 14; g.fillStyle = fg; g.fillText(name, 256, 50); g.shadowBlur = 0;
-  g.fillStyle = "#ffffff"; g.globalAlpha = 0.5; g.fillText(name, 256, 49); g.globalAlpha = 1;
-  return c;
-}
-function bannerCanvas(top, mid, col) {
-  const c = mkCanvas(512, 160), g = c.getContext("2d");
-  g.fillStyle = "#c2304a"; g.fillRect(0, 0, 512, 160);
-  g.fillStyle = "#ffffff"; for (let x = 0; x < 512; x += 32) { g.fillRect(x, 0, 16, 10); g.fillRect(x + 16, 150, 16, 10); }
-  g.fillStyle = "#1f5a3a"; g.fillRect(12, 18, 488, 124);
-  g.textAlign = "center"; g.textBaseline = "middle";
-  g.font = bold(26); g.fillStyle = "#ffd23f"; g.fillText(top, 256, 46);
-  let sz = 52; g.font = bold(sz); while (g.measureText(mid).width > 470) { sz -= 2; g.font = bold(sz); }
-  g.shadowColor = col; g.shadowBlur = 16; g.fillStyle = "#ffffff"; g.fillText(mid, 256, 104); g.shadowBlur = 0;
-  return c;
-}
-function textPanel(lines, bg, fg, w, h) {
-  const c = mkCanvas(w || 256, h || 128), g = c.getContext("2d");
-  g.fillStyle = bg; g.fillRect(0, 0, c.width, c.height);
-  g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = fg;
-  for (let i = 0; i < lines.length; i++) { g.font = bold(lines[i][1]); g.fillText(lines[i][0], c.width / 2, lines[i][2]); }
-  return c;
-}
+function floorCanvas(a, b) { return window.MSDPix.floorTile(a, b); }
+function wallCanvas(zn) { return window.MSDPix.wallTile(zn); }
+function ceilCanvas() { return window.MSDPix.ceilTile(); }
+function signCanvas(name, bg, fg) { return window.MSDPix.signCard(name, bg, fg); }
+function bannerCanvas(top, mid) { return window.MSDPix.bannerCard(top, mid); }
+function textPanel(lines, bg, fg) { return window.MSDPix.panel(lines, bg, fg); }
 function teeCanvas() {
   const c = mkCanvas(128, 128), g = c.getContext("2d");
   g.fillStyle = "#f4f1ea"; g.fillRect(0, 0, 128, 128);
@@ -672,21 +610,23 @@ function buildKit(T) {
   const gl = document.createElement("canvas");
   gl.setAttribute("aria-hidden", "true");
   const dpr = window.devicePixelRatio || 1;
-  const renderer = new T.WebGLRenderer({ canvas: gl, antialias: dpr < 2, alpha: false, powerPreference: "high-performance", preserveDrawingBuffer: /[?&]shots=1/.test(location.search) });
+  const renderer = new T.WebGLRenderer({ canvas: gl, antialias: false, alpha: false, powerPreference: "high-performance", preserveDrawingBuffer: /[?&]shots=1/.test(location.search) });
   renderer.setClearColor(0x120e22, 1);
-  const aniso = Math.min(4, renderer.capabilities.getMaxAnisotropy ? renderer.capabilities.getMaxAnisotropy() : 1);
   function tex(canvas, rx, ry) {
     const t = new T.CanvasTexture(canvas); t.colorSpace = T.SRGBColorSpace;
+    t.magFilter = T.NearestFilter; t.minFilter = T.NearestFilter; t.generateMipmaps = false;
     if (rx) { t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(rx, ry || rx); }
-    t.anisotropy = aniso;
     return t;
   }
   const scene = new T.Scene();
   scene.fog = new T.Fog(ZONES[0].fog, 34, 92);
   scene.background = new T.Color(ZONES[0].fog);
   const cam = new T.PerspectiveCamera(66, W / H, 0.1, 140);
-  const hemi = new T.HemisphereLight(0xfff1dc, 0x3a2a4a, 1.6); scene.add(hemi);
-  const sun = new T.DirectionalLight(0xffffff, 1.4); sun.position.set(3, 9, 4); scene.add(sun); scene.add(sun.target);
+  const hemi = new T.HemisphereLight(0xfff4e4, 0x3a2848, 0.85); scene.add(hemi);
+  const sun = new T.DirectionalLight(0xfff6ea, 1.15); sun.position.set(-4, 10, -6); scene.add(sun); scene.add(sun.target);
+  const fill = new T.DirectionalLight(0xffe7c4, 0.9); scene.add(fill); scene.add(fill.target);
+  const rim = new T.DirectionalLight(0xffb7d0, 0.28); rim.position.set(6, 4, 2); scene.add(rim);
+  const Cast = createCast(T);
 
   const G = { box: new T.BoxGeometry(1, 1, 1), cyl: new T.CylinderGeometry(1, 1, 1, 10), cyl6: new T.CylinderGeometry(1, 1, 1, 6),
     cone: new T.ConeGeometry(1, 1, 8), sph: new T.SphereGeometry(1, 10, 7), ico: new T.IcosahedronGeometry(1, 0),
@@ -696,13 +636,12 @@ function buildKit(T) {
   function M(col, o) {
     const key = col + JSON.stringify(o || {});
     if (mats[key]) return mats[key];
-    let m;
-    if (o && o.basic) m = new T.MeshBasicMaterial({ color: new T.Color(col), transparent: !!o.transparent, opacity: o.opacity == null ? 1 : o.opacity, depthWrite: o.depthWrite !== false });
-    else {
-      const p = { color: new T.Color(col), flatShading: true };
-      if (o) { if (o.emissive) p.emissive = new T.Color(o.emissive); if (o.transparent) { p.transparent = true; p.opacity = o.opacity; } }
-      m = new T.MeshLambertMaterial(p);
-    }
+    const m = new T.MeshBasicMaterial({
+      color: new T.Color(col),
+      transparent: !!(o && o.transparent),
+      opacity: o && o.opacity != null ? o.opacity : 1,
+      depthWrite: !(o && o.depthWrite === false)
+    });
     mats[key] = m; return m;
   }
   function part(parent, geo, mat, sx, sy, sz, x, y, z) {
@@ -710,67 +649,39 @@ function buildKit(T) {
   }
   function grp(parent, x, y, z) { const g = new T.Group(); g.position.set(x || 0, y || 0, z || 0); if (parent) parent.add(g); return g; }
 
-  /* people */
+  /* people: the same sculpted rig as the live arcade figures */
   const SKIN = ["#f1c28e", "#c98a5a", "#8a5a3a", "#f6d5b0", "#b07850"];
-  function person(o) {
-    const g = new T.Group(), P = { g: g };
-    const skin = M(o.skin || SKIN[0]), shirt = o.shirtMat || M(o.shirt), pants = M(o.pants), shoe = M(o.shoes || "#eceae2");
-    P.hipL = grp(g, -0.11, 0.84, 0); P.hipR = grp(g, 0.11, 0.84, 0);
-    P.legL = part(P.hipL, G.box, pants, 0.17, 0.82, 0.19, 0, -0.41, 0); P.legR = part(P.hipR, G.box, pants, 0.17, 0.82, 0.19, 0, -0.41, 0);
-    if (o.shorts) {
-      P.legL.scale.y = 0.42; P.legL.position.y = -0.21; P.legR.scale.y = 0.42; P.legR.position.y = -0.21;
-      P.legL.scale.x = P.legR.scale.x = 0.2; P.legL.scale.z = P.legR.scale.z = 0.22;
-      part(P.hipL, G.box, skin, 0.13, 0.42, 0.14, 0, -0.62, 0); part(P.hipR, G.box, skin, 0.13, 0.42, 0.14, 0, -0.62, 0);
-    }
-    P.shoeL = part(P.hipL, G.box, shoe, 0.19, 0.11, 0.3, 0, -0.8, -0.05); P.shoeR = part(P.hipR, G.box, shoe, 0.19, 0.11, 0.3, 0, -0.8, -0.05);
-    P.body = grp(g, 0, 0.84, 0);
-    P.torso = part(P.body, G.box, shirt, 0.48, 0.62, 0.27, 0, 0.34, 0);
-    P.head = grp(P.body, 0, 0.84, 0);
-    part(P.head, G.box, skin, 0.29, 0.31, 0.29, 0, 0, 0);
-    if (o.hair) part(P.head, G.box, M(o.hair), 0.31, 0.1, 0.31, 0, 0.16, 0.01);
-    if (o.hat === "beanie") { part(P.head, G.cone, M("#c2304a"), 0.18, 0.3, 0.18, 0, 0.3, 0.02); part(P.head, G.sph, M("#ffffff"), 0.07, 0.07, 0.07, 0, 0.46, 0.02); part(P.head, G.cyl, M("#ffffff"), 0.17, 0.07, 0.17, 0, 0.15, 0); }
-    if (o.hat === "band") part(P.head, G.box, M(o.band || "#ff3fa4"), 0.32, 0.06, 0.32, 0, 0.09, 0);
-    if (o.hat === "cap") { part(P.head, G.box, M(o.capc || "#1d2b53"), 0.31, 0.1, 0.31, 0, 0.17, 0); part(P.head, G.box, M(o.capc || "#1d2b53"), 0.25, 0.03, 0.18, 0, 0.13, 0.2); }
-    // eyes (on the +z side, which is the face; the hero is turned around)
-    part(P.head, G.box, M("#1b1b22"), 0.04, 0.05, 0.02, -0.07, 0.03, 0.15); part(P.head, G.box, M("#1b1b22"), 0.04, 0.05, 0.02, 0.07, 0.03, 0.15);
-    P.shL = grp(P.body, -0.31, 0.6, 0); P.shR = grp(P.body, 0.31, 0.6, 0);
-    const sleeve = o.sleeve ? M(o.sleeve) : shirt;
-    P.armL = part(P.shL, G.box, sleeve, 0.13, 0.32, 0.15, 0, -0.14, 0); P.armR = part(P.shR, G.box, sleeve, 0.13, 0.32, 0.15, 0, -0.14, 0);
-    part(P.shL, G.box, skin, 0.11, 0.3, 0.12, 0, -0.43, 0); part(P.shR, G.box, skin, 0.11, 0.3, 0.12, 0, -0.43, 0);
-    if (o.scale) g.scale.setScalar(o.scale);
-    return P;
-  }
-  function pose(P, ph, amp, armAmp) {
-    const aa = armAmp == null ? amp : armAmp;
-    P.hipL.rotation.x = Math.sin(ph) * amp; P.hipR.rotation.x = -Math.sin(ph) * amp;
-    P.shL.rotation.x = -Math.sin(ph) * aa; P.shR.rotation.x = Math.sin(ph) * aa;
+  const person = Cast.person, pose = Cast.pose;
+
+  /* hero: cream NP tee, cargo shorts, Christmas beanie, seen from behind */
+  const heroRoot = grp(scene, 0, 0, 0);
+  const hero = person({ view: "back", tee: true, pants: "#9a8a5a", shorts: true, sleeves: "short", hat: "beanie", hatc: "#c2304a", skin: "#f1c28e", hair: "#5a3a20", hairStyle: "short", pockets: true, wheels: true, shoes: "#eceae2", sole: "#c2304a" });
+  heroRoot.add(hero.g);
+  const shadow = new T.Mesh(new T.CircleGeometry(0.55, 20).rotateX(-Math.PI / 2), M("#000000", { basic: 1, transparent: true, opacity: 0.4, depthWrite: false }));
+  shadow.position.y = 0.012; scene.add(shadow);
+  function dressHero() {
+    hero.setShoes(gear.on);
+    if (gear.on === "lightup") hero.shoeL.material[0].emissive.setHex(0x2fd0ff);
+    if (hero.wheels) for (let i = 0; i < hero.wheels.length; i++) hero.wheels[i].visible = gear.on === "skates";
   }
 
-  /* hero: white NP tee, cargo shorts, Christmas beanie */
-  const teeMat = new T.MeshLambertMaterial({ map: tex(teeCanvas()) });
-  const heroRoot = grp(scene, 0, 0, 0);
-  const hero = person({ shirtMat: teeMat, sleeve: "#f4f1ea", pants: "#9a8a5a", shorts: true, hat: "beanie", skin: "#f1c28e", hair: "#5a3a20" });
-  heroRoot.add(hero.g); hero.g.rotation.y = Math.PI;      // back to the camera, running down the concourse
-  part(hero.hipL, G.box, M("#857548"), 0.05, 0.14, 0.12, -0.11, -0.24, 0); part(hero.hipR, G.box, M("#857548"), 0.05, 0.14, 0.12, 0.11, -0.24, 0);
-  const shadow = new T.Mesh(new T.CircleGeometry(0.42, 16).rotateX(-Math.PI / 2), M("#000000", { basic: 1, transparent: true, opacity: 0.35, depthWrite: false }));
-  shadow.position.y = 0.012; scene.add(shadow);
-  const wheels = [];
-  for (let s = 0; s < 2; s++) {
-    const hip = s ? hero.hipR : hero.hipL;
-    for (let k = 0; k < 3; k++) { const wm = part(hip, G.cyl, M("#9bff3f", { emissive: "#2a6a10" }), 0.06, 0.04, 0.06, 0, -0.9, -0.15 + k * 0.1); wm.rotation.z = Math.PI / 2; wheels.push(wm); }
-  }
-  function dressHero() {
-    const s = SHOES.find(function (q) { return q.id === gear.on; }) || SHOES[0];
-    const m = gear.on === "lightup" ? new T.MeshLambertMaterial({ color: 0xffffff, emissive: 0x2fd0ff }) : M(s.col);
-    hero.shoeL.material = m; hero.shoeR.material = m;
-    for (let i = 0; i < wheels.length; i++) wheels[i].visible = gear.on === "skates";
+  /* Mall Santa, seated in center court, off the lanes so he never collides */
+  const santa = person({ shirt: "#c2304a", pants: "#8e1c2c", coat: true, fur: true, belly: true, mittens: "#fff6ee", sleeves: "long", hat: "santa", boots: true, belt: 0x1a120c, beard: true, hairStyle: "bald", skin: "#f1c28e", bulk: 1.05, scale: 1.05, mouth: "smile", browTilt: 0.15, shoes: "#1a120c", sole: "#e8e0d0" });
+  const throne = grp(scene, -3.45, 0, -(ZB[3] + 70));
+  santa.g.position.set(0, 0, 0.05);
+  throne.add(santa.g);
+  const GIFT = ["#3f7fd0", "#c2304a", "#1f6a3a", "#ffd23f"];
+  for (let k = 0; k < 4; k++) {
+    const gift = Cast.billboard(window.MSDPix.prop("gift", { col: GIFT[k] }), 0.42);
+    gift.position.set(-0.7 + (k % 2) * 1.4, 0, 0.55 + Math.floor(k / 2) * 0.28);
+    throne.add(gift);
   }
 
   /* corridor segments (12 m each, recycled ahead of the runner) */
   const SEGL = 12, NSEG = 10;
-  const floorMats = ZONES.map(function (z) { return new T.MeshLambertMaterial({ map: tex(floorCanvas(z.floorA, z.floorB), 2.4, 3) }); });
-  const wallMats = ZONES.map(function (z) { return new T.MeshLambertMaterial({ map: tex(wallCanvas(z)) }); });
-  const ceilMat = new T.MeshLambertMaterial({ map: tex(ceilCanvas()), emissive: new T.Color("#120e22") });
+  const floorMats = ZONES.map(function (z) { return new T.MeshBasicMaterial({ map: tex(floorCanvas(z.floorA, z.floorB), 8, 10) }); });
+  const wallMats = ZONES.map(function (z) { return new T.MeshBasicMaterial({ map: tex(wallCanvas(z)) }); });
+  const ceilMat = new T.MeshBasicMaterial({ map: tex(ceilCanvas(), 4, 4) });
   const signMats = STORES.map(function (list, zi) {
     const pal = [["#120f22", ZONES[zi].neon], ["#1d2b53", "#ffffff"], ["#7a1f2b", "#ffd23f"], ["#1f5a3a", "#ffffff"]];
     return list.map(function (n, i) { const p = pal[i % pal.length]; return new T.MeshBasicMaterial({ map: tex(signCanvas(n, p[0], p[1])) }); });
@@ -791,24 +702,20 @@ function buildKit(T) {
     const sr = new T.Mesh(signGeo, signMats[0][1]); sr.position.set(4.88, 3.45, 0); sr.rotation.y = -Math.PI / 2; g.add(sr);
     const orn = [];
     for (let k = 0; k < 3; k++) {
-      const o = grp(g, -2.6 + k * 2.6, 6.3 - (k % 2) * 0.3, -3 + k * 3);
-      part(o, G.cyl, M("#cfc8b0"), 0.01, 0.8, 0.01, 0, 0.4, 0);
-      orn.push(part(o, G.ico, M(ORN[(k + i) % 6]), 0.26, 0.26, 0.26, 0, 0, 0));
+      const b = Cast.billboard(window.MSDPix.prop("bauble", { col: ORN[(k + i) % 6] }), 0.38, "mid");
+      b.position.set(-2.6 + k * 2.6, 6.15 - (k % 2) * 0.25, -3 + k * 3);
+      g.add(b);
+      orn.push(b);
     }
     for (let s = -1; s <= 1; s += 2) {
-      const w1 = part(g, G.tor, M("#1f5a3a"), 0.45, 0.45, 0.45, s * 4.9, 4.6, 6); w1.rotation.y = Math.PI / 2;
-      const w2 = part(g, G.tor, M("#1f5a3a"), 0.45, 0.45, 0.45, s * 4.9, 4.6, 6); w2.rotation.y = Math.PI / 2; w2.rotation.x = Math.PI;
-      part(g, G.sph, M("#c2304a"), 0.1, 0.1, 0.1, s * 4.85, 4.15, 6);
+      const wr = Cast.billboard(window.MSDPix.prop("wreath"), 0.95, "mid");
+      wr.position.set(s * 4.72, 4.45, 0);
+      g.add(wr);
     }
-    const tree = grp(g, 4.25, 0, 5);
-    part(tree, G.cyl6, M("#7a1f2b"), 0.45, 0.5, 0.45, 0, 0.25, 0);
-    for (let k = 0; k < 3; k++) part(tree, G.cone, M("#1f6a3a"), 0.6 - k * 0.15, 0.8, 0.6 - k * 0.15, 0, 0.9 + k * 0.45, 0);
-    part(tree, G.ico, M("#ffd23f", { emissive: "#806010" }), 0.12, 0.12, 0.12, 0, 2.1, 0);
-    const big = grp(g, -3.85, 0, 0); big.visible = false; big.scale.setScalar(0.85);             // the giant center court tree
-    part(big, G.cyl6, M("#5a3a20"), 0.25, 1, 0.25, 0, 0.5, 0);
-    for (let k = 0; k < 4; k++) part(big, G.cone, M(k % 2 ? "#1f6a3a" : "#2a7a44"), 1.3 - k * 0.25, 1.5, 1.3 - k * 0.25, 0, 1.6 + k * 1.0, 0);
-    for (let k = 0; k < 12; k++) { const a = k * 2.4, hh = 1.2 + (k % 5) * 0.75, rr2 = 1.15 - (k % 5) * 0.2; part(big, G.sph, M(ORN[k % 6], { emissive: ORN[k % 6] }), 0.11, 0.11, 0.11, Math.cos(a) * rr2, hh, Math.sin(a) * rr2); }
-    part(big, G.ico, M("#ffd23f", { emissive: "#ffb000" }), 0.32, 0.32, 0.32, 0, 5.6, 0);
+    const tree = Cast.billboard(window.MSDPix.prop("tree"), 2.4);
+    tree.position.set(4.35, 0, 5); g.add(tree);
+    const big = Cast.billboard(window.MSDPix.prop("bigTree"), 5.2);
+    big.position.set(-3.7, 0, 0); big.visible = false; g.add(big);
     segs.push({ g: g, f: f, wl: wl, wr: wr, sl: sl, sr: sr, orn: orn, big: big, tree: tree, k: -999 });
   }
 
@@ -818,12 +725,16 @@ function buildKit(T) {
     const pm = new T.MeshBasicMaterial({ map: tex(bannerCanvas("TIME EXTENDED", ZONES[zi].name, ZONES[zi].col)), side: T.DoubleSide });
     part(b, G.plane, pm, 7.4, 2.3, 1, 0, 5.2, 0);
     part(b, G.box, M("#ffd23f"), 0.12, 7, 0.12, -3.8, 3.5, 0); part(b, G.box, M("#ffd23f"), 0.12, 7, 0.12, 3.8, 3.5, 0);
-    for (let k = 0; k < 9; k++) part(b, G.sph, M(ORN[k % 6], { emissive: ORN[k % 6] }), 0.12, 0.12, 0.12, -3.6 + k * 0.9, 3.95, 0);
+    for (let k = 0; k < 9; k++) {
+    const bulb = Cast.billboard(window.MSDPix.prop("bauble", { col: ORN[k % 6] }), 0.28, "mid");
+    bulb.position.set(-3.6 + k * 0.9, 3.95, 0.1);
+    b.add(bulb);
+  }
   }
   const escL = ESC.z1 - ESC.z0;
   const esc = grp(scene, 0, 0, -(ESC.z0 + ESC.z1) / 2);
   const stepTex = tex(stripeCanvas("#3a3e4a", "#5a5f70", 2), 1, escL / 0.8);
-  const escTread = part(esc, G.box, new T.MeshLambertMaterial({ map: stepTex }), 1.3, 0.06, escL, 0, 0.03, 0);
+  const escTread = part(esc, G.box, new T.MeshBasicMaterial({ map: stepTex }), 1.3, 0.06, escL, 0, 0.03, 0);
   for (let s = -1; s <= 1; s += 2) {
     part(esc, G.box, M("#20232c"), 0.14, 0.9, escL, s * 0.78, 0.45, 0);
     part(esc, G.box, M("#111111"), 0.18, 0.08, escL, s * 0.78, 0.94, 0);
@@ -835,7 +746,7 @@ function buildKit(T) {
   part(store, G.box, M("#2b1d4a"), 10, 3, 0.4, 0, 5.5, 0.3);
   part(store, G.box, new T.MeshBasicMaterial({ map: tex(signCanvas("TOYS AND GAMES", "#120f22", "#ff3fa4")) }), 8, 1.4, 0.2, 0, 5.4, 0.55);
   part(store, G.box, M("#ffe9a0", { basic: 1 }), 10, 7, 0.2, 0, 3.5, -10);
-  const boxArt = new T.MeshLambertMaterial({ map: tex(boxArtCanvas()) });
+  const boxArt = new T.MeshBasicMaterial({ map: tex(boxArtCanvas()) });
   for (let k = 0; k < 7; k++) part(store, G.box, k === 3 ? boxArt : M(ORN[k % 6]), k === 3 ? 1.2 : 0.7, k === 3 ? 1.5 : 0.8 + (k % 3) * 0.2, 0.4, -3.3 + k * 1.1, k === 3 ? 0.9 : 0.5, -9.4);
   for (let s = -1; s <= 1; s += 2) for (let q = 0; q < 3; q++) { part(store, G.box, M("#5a3a20"), 0.6, 0.08, 6, s * 4.4, 0.8 + q * 0.9, -5); for (let k = 0; k < 6; k++) part(store, G.box, M(ORN[(k + q) % 6]), 0.4, 0.5, 0.5, s * 4.4, 1.1 + q * 0.9, -7.5 + k * 1.0); }
   const grille = grp(store, 0, 0, 0);
@@ -851,9 +762,9 @@ function buildKit(T) {
   snow.frustumCulled = false;
   scene.add(snow);
 
-  K = { T: T, gl: gl, renderer: renderer, scene: scene, cam: cam, tex: tex, G: G, M: M, part: part, grp: grp, person: person, pose: pose, SKIN: SKIN, ORN: ORN,
+  K = { T: T, gl: gl, renderer: renderer, scene: scene, cam: cam, tex: tex, G: G, M: M, part: part, grp: grp, person: person, pose: pose, SKIN: SKIN, ORN: ORN, billboard: Cast.billboard,
     hero: hero, heroRoot: heroRoot, shadow: shadow, segs: segs, SEGL: SEGL, segFloor: floorMats, segWall: wallMats, signs: signMats,
-    store: store, grille: grille, snow: snow, sun: sun, escTread: escTread, live: new Map(), dressHero: dressHero, pad: null, curZone: 0, fogTarget: null };
+    store: store, grille: grille, snow: snow, sun: sun, fill: fill, santa: santa, escTread: escTread, live: new Map(), dressHero: dressHero, pad: null, curZone: 0, fogTarget: null, rb: Cast.rb, chunk: Cast.chunk };
   K.signTex = tex(textPanel([["CAUTION", 30, 30], ["WET", 44, 72], ["FLOOR", 30, 108]], "#ffd23f", "#1b1b22", 128, 128));
   K.saleTex = tex(textPanel([["SALE 50% OFF", 40, 48]], "#c2304a", "#ffffff", 256, 96));
   K.caneTex = tex(stripeCanvas("#ffffff", "#e02030", 3), 1, 3);
@@ -869,68 +780,56 @@ function makeOb(o) {
   const g = new T.Group(), r = o.seed;
   let P = null;
   if (o.t === "table") {
-    part(g, G.cyl, M("#e0e6ea"), 0.7, 0.06, 0.7, 0, 0.76, 0); part(g, G.cyl, M("#8a8f9a"), 0.06, 0.74, 0.06, 0, 0.37, 0);
-    const cc = r < 0.5 ? "#ff8a1f" : "#2fb0a0";
-    for (let s = -1; s <= 1; s += 2) { part(g, G.box, M(cc), 0.45, 0.06, 0.45, s * 0.85, 0.46, 0); part(g, G.box, M(cc), 0.06, 0.55, 0.45, s * 1.06, 0.72, 0); part(g, G.box, M("#8a8f9a"), 0.05, 0.45, 0.05, s * 0.85, 0.22, 0); }
-    part(g, G.box, M("#c2304a"), 0.4, 0.04, 0.3, 0.1, 0.81, 0); part(g, G.cyl, M("#ffffff"), 0.06, 0.18, 0.06, -0.2, 0.88, 0.1);
-    part(g, G.cyl, M("#ffd23f"), 0.12, 0.05, 0.12, 0.12, 0.85, 0);
+    g.add(K.billboard(window.MSDPix.prop("table"), 1.05));
   } else if (o.t === "janitor") {
-    P = K.person({ shirt: "#5a6670", pants: "#3a4250", hair: "#3a2a1a", hat: "cap", capc: "#3a4250", skin: SKIN[Math.floor(r * 5)] }); g.add(P.g);
-    const mop = grp(P.shR, 0, -0.5, 0);
-    part(mop, G.cyl, M("#c8a060"), 0.025, 1.3, 0.025, 0, -0.1, 0.25).rotation.x = -0.5;
-    part(mop, G.box, M("#eeeeee"), 0.32, 0.12, 0.22, 0, -0.62, 0.55);
-    part(g, G.cyl, M("#ffd23f"), 0.22, 0.4, 0.22, 0.48, 0.2, 0.2);
-    P.g.rotation.y = 0.35;
+    P = K.person({ shirt: "#5a6670", pants: "#2a3140", hair: "#3a2a1a", hairStyle: "short", hat: "cap", capc: "#3a4250", skin: SKIN[Math.floor(r * 5)], sleeves: "short", shoes: "#2a2a2a", sole: "#111111" });
+    g.add(P.g);
+    const bucket = K.billboard(window.MSDPix.prop("bucket"), 0.42);
+    bucket.position.set(0.55, 0, 0.15); g.add(bucket);
+    g.userData.kind = "mop";
   } else if (o.t === "sign") {
-    const sm = new T.MeshLambertMaterial({ map: K.signTex });
-    const a = part(g, G.box, sm, 0.55, 0.72, 0.03, 0, 0.34, 0.12); a.rotation.x = -0.3;
-    const b2 = part(g, G.box, sm, 0.55, 0.72, 0.03, 0, 0.34, -0.12); b2.rotation.x = 0.3;
+    g.add(K.billboard(window.MSDPix.prop("sign"), 1.15));
   } else if (o.t === "walker") {
     const tc = TRACK[Math.floor(r * TRACK.length)];
-    P = K.person({ shirt: tc, pants: tc, hair: r < 0.5 ? "#d8d8d8" : "#8a8a8a", hat: "band", band: "#ffffff", skin: SKIN[Math.floor(r * 7) % 5], shoes: "#ffffff" });
-    part(P.body, G.box, M("#ffffff"), 0.5, 0.05, 0.28, 0, 0.5, 0);
+    P = K.person({ shirt: tc, pants: "#243044", coat: true, scarf: r < 0.5 ? "#fff6ee" : "#ffd23f", hair: r < 0.5 ? "#4a3728" : "#6a5a48", hairStyle: r < 0.35 ? "bob" : "short", hat: "beanie", hatc: tc, skin: SKIN[Math.floor(r * 7) % 5], shoes: "#f7f4ee", sole: "#1a1a1a", sleeves: "long" });
     g.add(P.g);
+    g.userData.kind = "walk";
   } else if (o.t === "stroller") {
     const sc = r < 0.5 ? ["#3f7fd0", "#2a5a9a"] : ["#c2304a", "#8a1f30"];
-    part(g, G.box, M(sc[0]), 0.55, 0.32, 0.75, 0, 0.42, 0);
-    part(g, G.sph, M(sc[1]), 0.3, 0.26, 0.32, 0, 0.58, -0.22);
-    for (let k = 0; k < 4; k++) { const wh = part(g, G.cyl, M("#1b1b22"), 0.1, 0.06, 0.1, (k % 2 ? 0.26 : -0.26), 0.1, k < 2 ? -0.28 : 0.28); wh.rotation.z = Math.PI / 2; }
-    part(g, G.box, M("#cfc8b0"), 0.5, 0.04, 0.04, 0, 0.72, 0.48);
-    for (let k = 0; k < 2; k++) part(g, G.box, M(ORN[k + 1]), 0.18, 0.2, 0.18, -0.12 + k * 0.24, 0.66, 0.1);
-  } else if (o.t === "bin") {
-    part(g, G.box, M("#c8ccd4"), 1.1, 0.5, 0.8, 0, 0.25, 0);
-    for (let k = 0; k < 6; k++) part(g, G.box, M(ORN[(k + Math.floor(r * 6)) % 6]), 0.3, 0.2, 0.24, -0.35 + (k % 3) * 0.35, 0.58, k < 3 ? -0.18 : 0.18).rotation.y = k * 0.4;
-    part(g, G.box, new T.MeshBasicMaterial({ map: K.saleTex }), 0.7, 0.3, 0.03, 0, 0.86, 0.42);
-  } else if (o.t === "clerk") {
-    P = K.person({ shirt: "#1b1b22", pants: "#1b1b22", hair: r < 0.5 ? "#2a1a12" : "#c89a40", skin: SKIN[Math.floor(r * 5)] });
-    part(P.body, G.box, M("#ff3fa4"), 0.08, 0.66, 0.29, 0.1, 0.34, 0).rotation.z = 0.6;
-    part(P.shR, G.cyl, M("#ff9bd2", { emissive: "#40102a" }), 0.06, 0.16, 0.06, 0, -0.62, 0.02);
+    const st = K.billboard(window.MSDPix.prop("stroller", { col: sc[0], dark: sc[1] }), 0.9);
+    g.add(st);
+    P = K.person({ scale: 0.5, shirt: "#f7d6e4", pants: "#e8b8cc", hat: "beanie", hatc: sc[0], skin: SKIN[Math.floor(r * 5)], sleeves: "short", hairStyle: "bald", pose: "sit", shoes: "#f4f1ea" });
+    P.g.position.set(0, 0.22, 0.08);
     g.add(P.g);
-    P.g.rotation.y = (o.lane === 0 ? 1 : -1) * 0.9;
-    part(g, G.box, M("#d8e8f0", { transparent: true, opacity: 0.6 }), 0.9, 0.9, 0.5, o.lane === 0 ? -0.35 : 0.35, 0.45, -0.6);
+    g.userData.kind = "sit";
+  } else if (o.t === "bin") {
+    g.add(K.billboard(window.MSDPix.prop("bin"), 0.95));
+  } else if (o.t === "clerk") {
+    P = K.person({ shirt: "#1b1b22", pants: "#14141c", hair: r < 0.5 ? "#2a1a12" : "#c89a40", hairStyle: r < 0.5 ? "bun" : "bob", skin: SKIN[Math.floor(r * 5)], sleeves: "long", vest: "#f6e6ee", shoes: "#1b1b22", sole: "#2a2a2a", scale: 0.97 });
+    g.add(P.g);
+    const counter = K.billboard(window.MSDPix.prop("counter"), 1.05);
+    counter.position.set(o.lane === 0 ? -0.15 : 0.15, 0, -0.35);
+    g.add(counter);
+    g.userData.kind = "spray";
   } else if (o.t === "mist") {
-    const mm = M("#ff9bd2", { basic: 1, transparent: true, opacity: 0.3, depthWrite: false });
-    for (let k = 0; k < 8; k++) part(g, G.ico, mm, 0.62, 0.62, 0.62, -1.4 + (k % 4) * 0.95, 0.7 + (k % 3) * 0.45, (k % 2) * 0.5 - 0.25);
+    const puff = K.billboard(window.MSDPix.prop("spray"), 1.4, "mid");
+    puff.position.y = 0.9;
+    g.add(puff);
     g.scale.setScalar(0.15);
   } else if (o.t === "rope") {
     const xs = o.span ? [-LX - 0.3, 0, LX + 0.3] : [-0.6, 0.6];
     for (let k = 0; k < xs.length; k++) { const x = xs[k]; part(g, G.cyl, M("#d8b040", { emissive: "#3a2a00" }), 0.05, 1.0, 0.05, x, 0.5, 0); part(g, G.sph, M("#ffd23f"), 0.08, 0.08, 0.08, x, 1.02, 0); part(g, G.cyl, M("#d8b040"), 0.18, 0.04, 0.18, x, 0.02, 0); }
     for (let k = 0; k < xs.length - 1; k++) { const a = xs[k], b = xs[k + 1]; part(g, G.box, M("#a01830"), b - a, 0.07, 0.07, (a + b) / 2, 0.84, 0); }
   } else if (o.t === "cart") {
-    part(g, G.box, M("#eceae2"), 0.9, 0.5, 1.5, 0, 0.45, 0);
-    part(g, G.box, M("#1d2b53"), 0.92, 0.12, 1.52, 0, 0.5, 0);
-    for (let k = 0; k < 3; k++) { const wh = part(g, G.cyl, M("#1b1b22"), 0.2, 0.12, 0.2, k === 0 ? 0 : (k === 1 ? -0.42 : 0.42), 0.2, k === 0 ? 0.65 : -0.55); wh.rotation.z = Math.PI / 2; }
-    P = K.person({ shirt: "#1d2b53", pants: "#1d2b53", hat: "cap", capc: "#1d2b53", skin: SKIN[Math.floor(r * 5)] });
-    P.g.position.set(0, 0.2, -0.2); P.hipL.rotation.x = P.hipR.rotation.x = -1.4; P.shL.rotation.x = P.shR.rotation.x = -1.0; g.add(P.g);
-    part(g, G.box, M("#8a8f9a"), 0.04, 0.8, 0.04, 0, 1.5, -0.55);
-    g.userData.lr = part(g, G.box, M("#ff2020", { basic: 1 }), 0.24, 0.13, 0.13, -0.14, 1.95, -0.55);
-    g.userData.lb = part(g, G.box, M("#2040ff", { basic: 1 }), 0.24, 0.13, 0.13, 0.14, 1.95, -0.55);
-    part(g, G.cyl, M("#ffffff", { emissive: "#ffffaa" }), 0.12, 0.06, 0.12, 0, 0.55, 0.76).rotation.x = Math.PI / 2;
+    g.add(K.billboard(window.MSDPix.prop("cart"), 1.15));
+    P = K.person({ shirt: "#1d2b53", pants: "#12182e", hat: "cap", capc: "#1d2b53", hair: "#2a2418", hairStyle: "short", skin: SKIN[Math.floor(r * 5)], sleeves: "long", shoes: "#1a1a1a", sole: "#0a0a0a", pose: "sit", scale: 0.72 });
+    P.g.position.set(0, 0.35, 0.02); g.add(P.g);
+    g.userData.kind = "sit";
+    g.userData.lr = part(g, G.box, M("#ff2020"), 0.16, 0.1, 0.08, -0.12, 1.35, 0.02);
+    g.userData.lb = part(g, G.box, M("#2040ff"), 0.16, 0.1, 0.08, 0.12, 1.35, 0.02);
   } else if (o.t === "fountain") {
-    part(g, G.oct, M("#d8d0c0"), 1.05, 0.5, 1.05, 0, 0.25, 0);
-    part(g, G.cyl, M("#3fa0e0", { emissive: "#103050" }), 0.92, 0.04, 0.92, 0, 0.48, 0);
-    g.userData.spray = part(g, G.cone, M("#bfe8ff", { basic: 1, transparent: true, opacity: 0.45, depthWrite: false }), 0.5, 2.4, 0.5, 0, 1.6, 0);
-    part(g, G.cyl, M("#d8d0c0"), 0.14, 0.9, 0.14, 0, 0.6, 0);
+    g.add(K.billboard(window.MSDPix.prop("fountain"), 1.35));
+    g.userData.spray = part(g, G.box, M("#bfe8ff", { transparent: true, opacity: 0.55, depthWrite: false }), 0.12, 1.1, 0.12, 0, 1.5, 0);
   }
   g.userData.P = P;
   return g;
@@ -972,6 +871,60 @@ function makeItem(it) {
 }
 
 /* ---------------- Per-frame scene sync ---------------- */
+function frameSanta(t) {
+  const throne = K.santa.g.parent;
+  K.pose(K.santa, "throne", t, t);
+  K.heroRoot.visible = false;
+  const cam = K.cam;
+  cam.position.set(throne.position.x + 2.15, 1.55, throne.position.z + 3.15);
+  cam.lookAt(throne.position.x, 1.15, throne.position.z);
+  if (Math.abs(cam.fov - 40) > 0.1) { cam.fov = 40; cam.updateProjectionMatrix(); }
+}
+function frameCast(t, z, heroOnly) {
+  if (!K.lineup) {
+    const g = K.grp(K.scene, 0, 0, 0), folks = [];
+    function add(p, x, rot) { p.g.position.x = x; p.g.rotation.y = rot || 0; g.add(p.g); folks.push(p); }
+    add(K.person({ tee: true, pants: "#9a8a5a", shorts: true, sleeves: "short", hat: "beanie", hatc: "#c2304a", skin: "#f1c28e", hair: "#5a3a20", hairStyle: "short", pockets: true, shoes: "#f7f4ee", sole: "#c2304a" }), -0.78, 0.4);
+    add(K.person({ shirt: "#7a3fd0", pants: "#243044", coat: true, scarf: "#fff6ee", hair: "#4a3728", hairStyle: "short", hat: "beanie", hatc: "#7a3fd0", skin: "#c98a5a", shoes: "#f7f4ee", sole: "#1a1a1a", sleeves: "long" }), -0.24, 0.35);
+    add(K.person({ shirt: "#1b1b22", pants: "#14141c", hair: "#c89a40", hairStyle: "bun", vest: "#f6e6ee", sleeves: "long", skin: "#f6d5b0", shoes: "#1b1b22", scale: 0.97 }), 0.28, -0.4);
+    add(K.person({ shirt: "#c2304a", pants: "#8e1c2c", coat: true, fur: true, belly: true, mittens: "#fff6ee", sleeves: "long", hat: "santa", boots: true, belt: 0x1a120c, beard: true, hairStyle: "bald", bulk: 1.05, skin: "#f1c28e", shoes: "#1a120c" }), 0.8, 0.25);
+    K.lineup = g; K.lineupFolks = folks;
+  }
+  K.lineup.position.set(0, 0, -z - 1.15);
+  const kinds = ["stand", "stand", "stand", "stand"];
+  const gap = 0.2;
+  const widths = K.lineupFolks.map(function (p) { return (p.sprite && p.sprite.scale.x) || 0.9; });
+  const xs = [];
+  let cursor = 0;
+  for (let i = 0; i < K.lineupFolks.length; i++) {
+    if (i) cursor += widths[i - 1] / 2 + gap + widths[i] / 2;
+    xs.push(cursor);
+    K.lineupFolks[i].g.position.x = 0;
+    K.pose(K.lineupFolks[i], kinds[i], t * 1.2 + i, t);
+  }
+  const mid = (xs[0] + xs[xs.length - 1]) / 2;
+  for (let i = 0; i < K.lineupFolks.length; i++) K.lineupFolks[i].g.position.x = xs[i] - mid;
+  K.heroRoot.visible = false;
+  const cam = K.cam;
+  if (heroOnly) {
+    for (let i = 0; i < K.lineupFolks.length; i++) K.lineupFolks[i].g.visible = i === 0;
+    K.lineupFolks[0].g.position.set(0, 0, 0);
+    K.lineupFolks[0].g.rotation.y = 0;
+    K.pose(K.lineupFolks[0], "stand", t, t);
+    cam.position.set(0, 1.05, -z + 2.15);
+    cam.lookAt(0, 0.95, -z - 1.15);
+    if (Math.abs(cam.fov - 34) > 0.1) { cam.fov = 34; cam.updateProjectionMatrix(); }
+    return;
+  }
+  const span = (xs[xs.length - 1] - xs[0]) + widths[0] / 2 + widths[widths.length - 1] / 2 + 0.4;
+  const aspect = Math.max(0.42, cam.aspect || 0.6);
+  const fov = aspect < 0.72 ? 42 : 32;
+  const half = fov * Math.PI / 360;
+  const dist = (span / 2) / (Math.tan(half) * aspect);
+  cam.position.set(0.0, 1.15, -z - 1.15 + dist);
+  cam.lookAt(0, 1.0, -z - 1.15);
+  if (Math.abs(cam.fov - fov) > 0.1) { cam.fov = fov; cam.updateProjectionMatrix(); }
+}
 function lx(lane) { return (lane - 1) * LX; }
 function anim(dt) { S.runPh = (S.runPh || 0) + dt * (gear.on === "skates" ? 5 : clamp(S.v, 0, 20) * 1.15); }
 function syncWorld(dt, state, t) {
@@ -1010,10 +963,15 @@ function syncWorld(dt, state, t) {
     if (!m) { m = makeOb(o); K.live.set(o, m); scene.add(m); }
     m.position.set(lx(o.lp) + (o.span ? LX / 2 : 0), 0, -o.z);
     const P = m.userData.P;
-    if (o.t === "walker" && P) K.pose(P, t * 7 + o.seed * 6, 0.5);
-    else if (o.t === "cart") { const on = Math.floor(t * 8) % 2; m.userData.lr.visible = !!on; m.userData.lb.visible = !on; m.rotation.y = (o.to != null && o.lp !== o.to) ? Math.sign(o.to - o.lp) * 0.3 : 0; }
-    else if (o.t === "janitor" && P) { P.shR.rotation.x = Math.sin(t * 3 + o.seed * 5) * 0.4; P.shL.rotation.x = P.shR.rotation.x; }
-    else if (o.t === "clerk" && P) P.shR.rotation.x = -1.4 + Math.sin(t * 6) * 0.15;
+    if (P && P.applyView && o._zPrev != null && o.z !== o._zPrev) P.applyView(o.z > o._zPrev ? "back" : "front");
+    o._zPrev = o.z;
+    if (P && m.userData.kind) K.pose(P, m.userData.kind, t * (m.userData.kind === "walk" ? 7 : 3) + o.seed * 6, t);
+    if (P && P.prop) {
+      const h = P.F.hand[1], sc = P.F.body.scale.x;
+      P.prop.position.set(h.position.x * sc, h.position.y * sc, h.position.z * sc);
+      P.prop.quaternion.copy(h.quaternion);
+    }
+    if (o.t === "cart") { const on = Math.floor(t * 8) % 2; m.userData.lr.visible = !!on; m.userData.lb.visible = !on; m.rotation.y = (o.to != null && o.lp !== o.to) ? Math.sign(o.to - o.lp) * 0.3 : 0; }
     else if (o.t === "mist") { const sc = o.on ? 1 + Math.sin(t * 5) * 0.06 : 0.15; m.scale.setScalar(m.scale.x + (sc - m.scale.x) * Math.min(1, dt * 6)); m.rotation.y = Math.sin(t) * 0.2; }
     else if (o.t === "fountain") { const sp = m.userData.spray; sp.scale.y = 2.4 + Math.sin(t * 9) * 0.25; }
     if (o.knock) { o.knock += dt; const kk = Math.min(1, o.knock * 3); m.rotation.z = -o.kdir * kk * 0.9; m.position.x += o.kdir * kk * 1.2; m.position.y = Math.sin(kk * Math.PI) * 0.4; }
@@ -1037,17 +995,17 @@ function syncWorld(dt, state, t) {
   hr.rotation.z = (S.lane - S.lp) * 0.35;
   K.shadow.position.set(hx, 0.012, -z); K.shadow.scale.setScalar(1 - hy * 0.3);
   const P = K.hero;
-  P.shL.rotation.z = P.shR.rotation.z = 0; P.head.rotation.x = 0;
-  if (!playing) { P.hipL.rotation.x = P.hipR.rotation.x = 0; P.shL.rotation.x = Math.sin(t * 2) * 0.12; P.shR.rotation.x = -Math.sin(t * 2) * 0.12; P.body.rotation.x = 0; P.shR.rotation.z = Math.sin(t * 3) > 0.6 ? -2.6 : 0; }
-  else if (S.phase === "count") { P.hipL.rotation.x = 0.5; P.hipR.rotation.x = -0.3; P.shL.rotation.x = 0.6; P.shR.rotation.x = -0.6; P.body.rotation.x = 0.3; }
-  else if (S.phase === "run" && S.jumpT < 0) { const sk = gear.on === "skates"; K.pose(P, S.runPh || 0, sk ? 0.35 : 0.85, sk ? 0.5 : 0.9); P.body.rotation.x = sk ? 0.3 : 0.18; }
-  else if (S.phase === "run") { P.hipL.rotation.x = 0.9; P.hipR.rotation.x = -0.4; P.shL.rotation.x = -2.6; P.shR.rotation.x = -2.6; P.body.rotation.x = 0.05; }
-  else if (S.phase === "gate" || (S.gate && S.phase === "receipt")) {
-    K.pose(P, S.runPh || 0, Math.max(0, 0.85 * Math.min(1, S.v / 10)), 0.9);
-    if (S.v < 1) { P.hipL.rotation.x = P.hipR.rotation.x = 0; P.shL.rotation.x = P.shR.rotation.x = -2.9; P.shL.rotation.z = 0.3; P.shR.rotation.z = -0.3; hr.position.y = Math.abs(Math.sin(t * 8)) * 0.25; }
-  } else { P.hipL.rotation.x = P.hipR.rotation.x = 0; P.shL.rotation.x = P.shR.rotation.x = 0; P.body.rotation.x = 0.35; P.head.rotation.x = 0.4; }
+  let heroKind = "idle";
+  if (!playing) heroKind = "idle";
+  else if (S.phase === "count") heroKind = "start";
+  else if (S.phase === "run" && S.jumpT >= 0) heroKind = "jump";
+  else if (S.phase === "run") heroKind = gear.on === "skates" ? "skate" : "run";
+  else if (S.phase === "gate" || (S.gate && S.phase === "receipt")) heroKind = S.v < 1.2 ? "cheer" : (gear.on === "skates" ? "skate" : "run");
+  else heroKind = "slump";
+  K.pose(P, heroKind, S.runPh || t, t);
+  if (heroKind === "cheer") hr.position.y = Math.abs(Math.sin(t * 8)) * 0.12;
   hr.visible = !(S.inv > 0 && Math.floor(S.inv * 14) % 2 === 0);
-  if (gear.on === "lightup" && P.shoeL.material.emissive) P.shoeL.material.emissive.setHex(Math.floor(t * 10) % 2 ? 0x2fd0ff : 0xff3fa4);
+  if (gear.on === "lightup" && P.shoeL.material[0] && P.shoeL.material[0].emissive) P.shoeL.material[0].emissive.setHex(Math.floor(t * 10) % 2 ? 0x2fd0ff : 0xff3fa4);
 
   // the toy store grille drops as the clock runs low
   let gy;
@@ -1082,7 +1040,11 @@ function syncWorld(dt, state, t) {
     cam.lookAt(hx * 0.75, 1.0, -z - 10);
     if (S.hitT < 0.25 && state === "playing") { cam.position.x += (Math.random() - 0.5) * 0.15; cam.position.y += (Math.random() - 0.5) * 0.1; }
   }
-  K.sun.position.set(cam.position.x + 3, 9, cam.position.z - 4); K.sun.target.position.set(cam.position.x, 0, cam.position.z - 12);
+  if (K.santa) K.pose(K.santa, "throne", t, t);
+  K.sun.position.set(cam.position.x - 3, 9, cam.position.z - 8); K.sun.target.position.set(hx, 1.2, -z - 6);
+  if (K.fill) { K.fill.position.set(cam.position.x, cam.position.y + 1.2, cam.position.z); K.fill.target.position.set(hx, 1.1, -z - 4); }
+  if (CAST_SANTA) frameSanta(t);
+  else if (CAST) frameCast(t, z, CAST_HERO);
 }
 
 /* ---------------- HUD (2D canvas on top of the 3D view) ---------------- */
@@ -1100,9 +1062,9 @@ function drawHUD(c, state, t) {
     if (Math.sin(t * 5) > -0.2) ui(c, "FREE PLAY  -  PRESS START", W / 2, 46, 11, "#ffffff", "center");
     return;
   }
-  const g = c.createLinearGradient(0, 0, 0, 64); g.addColorStop(0, "rgba(8,6,18,.85)"); g.addColorStop(1, "rgba(8,6,18,0)");
-  c.fillStyle = g; c.fillRect(0, 0, W, 64);
-  txt(c, "1UP", 10, 8, 9, "#ff4b3e"); txt(c, comma(S.score), 10, 22, 11, "#ffffff");
+  c.fillStyle = "rgba(8,9,14,.84)"; c.fillRect(0, 0, W, 48);
+  c.fillStyle = ZONES[zoneAt(clamp(S.z || 0, 0, LEN - 1))].col; c.fillRect(0, 48, W, 3);
+  txt(c, "1UP", 10, 6, 8, "#ff4b3e"); txt(c, comma(S.score), 10, 18, 11, "#ffffff");
   const best = Math.max(Sh.best() || 0, S.score);
   txt(c, "HI", W - 10, 8, 9, "#ff4b3e", "right"); txt(c, comma(best), W - 10, 22, 11, "#ffffff", "right");
   const low = S.left < 10 && S.phase === "run";
@@ -1237,7 +1199,7 @@ function attach() {
   if (getComputedStyle(stage).position === "static") stage.style.position = "relative";
   const gl = K.gl;
   gl.style.cssText = "position:absolute;left:0;top:0;z-index:0;display:block;margin:0;padding:0;border:0;box-shadow:none;" +
-    "max-width:none;max-height:none;transform:none;image-rendering:auto;pointer-events:none;touch-action:none;border-radius:" + getComputedStyle(hud).borderRadius;
+    "max-width:none;max-height:none;transform:none;image-rendering:pixelated;pointer-events:none;touch-action:none;border-radius:" + getComputedStyle(hud).borderRadius;
   stage.insertBefore(gl, hud);
   hud.style.background = "transparent";
   if (getComputedStyle(hud).position === "static") hud.style.position = "relative";
@@ -1300,17 +1262,35 @@ function startGame() {
 window.__msd = { S: function () { return S; }, step: function (sec) { for (let i = 0; i < sec * 60; i++) { if (Sh.state() !== "playing" || S.done) break; update(1 / 60); } },
   move: move, jump: jump, drop: drop, finish: finish, kit: function () { return K; }, juke: Juke, Q: Q, LEN: LEN, ZB: ZB, LX: LX, zoneAt: zoneAt, build: build, jumpH: jumpH };
 
+function loadArt() {
+  const names = ["hero-front", "hero-back", "shopper-front", "shopper-back", "shopper-teal", "shopper-pink", "shopper-blue", "shopper-orange", "shopper-back-teal", "shopper-back-pink", "shopper-back-blue", "shopper-back-orange", "clerk-front", "clerk-back", "santa-front", "santa-back"];
+  return Promise.all(names.map(function (name) {
+    return new Promise(function (res, rej) {
+      const img = new Image();
+      img.onload = function () { res([name, img]); };
+      img.onerror = function () { rej(new Error(name)); };
+      img.src = "sprites/" + name + ".png";
+    });
+  })).then(function (list) {
+    const art = {};
+    for (let i = 0; i < list.length; i++) art[list[i][0]] = list[i][1];
+    window.XmasArt = art;
+  });
+}
 (function boot() {
   const q = /[?&]gfx=(high|low|2d)/.exec(location.search);
   let started = false;
+  const artP = loadArt();
   const p = q && q[1] === "2d" ? Promise.reject(Object.assign(new Error("2D asked for"), { npStage: "webgl" }))
     : import(THREE_URL).then(null, function (e) { e.npStage = "three"; throw e; });
   p.then(function (T) {
+    return artP.then(function () {
     THREE = T;
     try { buildKit(THREE); } catch (e) { e.npStage = "webgl"; throw e; }
     if (q) { Q.lock = true; Q.q = q[1] === "low" ? QUALITY.length - 1 : 0; }
     reset();
     started = true; startGame();
+    });
   }).catch(function (e) {
     console.error(e);
     if (started) return;
